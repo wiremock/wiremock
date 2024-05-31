@@ -27,7 +27,9 @@ public class FindStubMappingsByMetadataTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StringValuePattern pattern =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
+        admin
+            .getJson()
+            .readValue(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
     ListStubMappingsResult stubMappings = admin.findAllStubsByMetadata(pattern);
     return ResponseDefinition.okForJson(stubMappings);
   }

@@ -28,7 +28,7 @@ public class FindNearMissesForRequestTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     LoggedRequest loggedRequest =
-        admin.read(serveEvent.getRequest().getBodyAsString(), LoggedRequest.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), LoggedRequest.class);
     FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(loggedRequest);
     return ResponseDefinition.okForJson(nearMissesResult);
   }

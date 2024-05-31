@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
-
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
@@ -27,6 +22,8 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.ClientExtensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
@@ -41,18 +38,11 @@ import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubImport;
-import com.github.tomakehurst.wiremock.stubbing.StubImportBuilder;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.stubbing.*;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.networknt.schema.SpecVersion;
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -62,6 +52,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
 public class WireMock {
 
@@ -117,9 +112,22 @@ public class WireMock {
       String proxyHost,
       int proxyPort,
       ClientAuthenticator authenticator) {
+    this(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator, null);
+  }
+
+  WireMock(
+          String scheme,
+          String host,
+          int port,
+          String urlPathPrefix,
+          String hostHeader,
+          String proxyHost,
+          int proxyPort,
+          ClientAuthenticator authenticator,
+          ClientExtensions extensions) {
     admin =
-        new HttpAdminClient(
-            scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
+            new HttpAdminClient(
+                    scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator, extensions);
   }
 
   public WireMock() {

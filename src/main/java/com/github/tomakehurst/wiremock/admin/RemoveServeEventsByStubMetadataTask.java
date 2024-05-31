@@ -27,7 +27,9 @@ public class RemoveServeEventsByStubMetadataTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StringValuePattern metadataPattern =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
+        admin
+            .getJson()
+            .readValue(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
     FindServeEventsResult findServeEventsResult =
         admin.removeServeEventsForStubsMatchingMetadata(metadataPattern);
     return ResponseDefinition.okForJson(findServeEventsResult);

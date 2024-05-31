@@ -2,10 +2,9 @@
   "request": {
     "method": "POST",
     "bodyPatterns": [
-      { "startsWith": "my" },
-      { "contains": "my" }
+      { "startsWith": "my" }
     ],
-    "url": "/mappings/multiple"
+    "url": "/mappings/single"
   },
   "response": {
     "status": 200

@@ -33,7 +33,9 @@ public class SnapshotTask implements AdminTask {
     RecordSpec recordSpec =
         serveEvent.getRequest().getBody().length == 0
             ? RecordSpec.DEFAULTS
-            : admin.read(serveEvent.getRequest().getBodyAsString(), RecordSpec.class);
+            : admin
+                .getJson()
+                .readValue(serveEvent.getRequest().getBodyAsString(), RecordSpec.class);
 
     SnapshotRecordResult result = admin.snapshotRecord(recordSpec);
     return jsonResponse(result, HTTP_OK);

@@ -17,22 +17,12 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -41,7 +31,6 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
-import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -81,11 +70,11 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
   private final Map<String, ServeEventListener> serveEventListeners;
 
-  private final ThreadLocal<JsonMapper> jsonMapper;
-
   private Options options;
 
-  private Extensions extensions;
+  private ServerExtensions extensions;
+
+  private Json json;
 
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading()
@@ -114,7 +103,7 @@ public class WireMockApp implements StubServer, Admin {
     this.settingsStore = stores.getSettingsStore();
 
     extensions =
-        new Extensions(
+        new ServerExtensions(
             options.getDeclaredExtensions(),
             this,
             options,
@@ -154,7 +143,7 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
 
     this.container = container;
-    this.jsonMapper = ThreadLocal.withInitial(this::jsonMapper);
+    this.json = Json.build(extensions);
     extensions.startAll();
     loadDefaultMappings();
   }
@@ -204,7 +193,7 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
-    this.jsonMapper = ThreadLocal.withInitial(this::jsonMapper);
+    this.json = Json.build(extensions);
     loadDefaultMappings();
   }
 
@@ -292,29 +281,29 @@ public class WireMockApp implements StubServer, Admin {
         .collect(Collectors.toList());
   }
 
-  private JsonMapper jsonMapper() {
-    List<Class<?>> contentPatternExtensions =
-        extensions.ofType(ContentPatternExtension.class).values().stream()
-            .map(ContentPatternExtension::getContentPatternClass)
-            .collect(Collectors.toList());
-    return JsonMapper.builder()
-        .addModule(new JavaTimeModule())
-        .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
-        .disable(
-            SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-            SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
-        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-        .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-        .enable(
-            JsonParser.Feature.ALLOW_COMMENTS,
-            JsonParser.Feature.ALLOW_SINGLE_QUOTES,
-            JsonParser.Feature.IGNORE_UNDEFINED,
-            JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
-        .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-        .serializationInclusion(JsonInclude.Include.NON_NULL)
-        .registerSubtypes(contentPatternExtensions)
-        .build();
-  }
+  //  private JsonMapper jsonMapper() {
+  //    List<Class<?>> contentPatternExtensions =
+  //        extensions.ofType(ContentPatternExtension.class).values().stream()
+  //            .map(ContentPatternExtension::getContentPatternClass)
+  //            .collect(Collectors.toList());
+  //    return JsonMapper.builder()
+  //        .addModule(new JavaTimeModule())
+  //        .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+  //        .disable(
+  //            SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+  //            SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
+  //        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+  //        .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+  //        .enable(
+  //            JsonParser.Feature.ALLOW_COMMENTS,
+  //            JsonParser.Feature.ALLOW_SINGLE_QUOTES,
+  //            JsonParser.Feature.IGNORE_UNDEFINED,
+  //            JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
+  //        .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+  //        .serializationInclusion(JsonInclude.Include.NON_NULL)
+  //        .registerSubtypes(contentPatternExtensions)
+  //        .build();
+  //  }
 
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
@@ -544,12 +533,8 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public <T> T read(String content, Class<T> valueType) {
-    try {
-      return jsonMapper.get().readValue(content, valueType);
-    } catch (JsonProcessingException e) {
-      throw JsonException.fromJackson(e);
-    }
+  public Json getJson() {
+    return json;
   }
 
   @Override
@@ -576,7 +561,7 @@ public class WireMockApp implements StubServer, Admin {
     return options;
   }
 
-  public Extensions getExtensions() {
+  public ServerExtensions getExtensions() {
     return extensions;
   }
 

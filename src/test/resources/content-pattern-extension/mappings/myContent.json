@@ -1,8 +1,0 @@
-{
-  "request": {
-    "method": "POST",
-    "bodyPatterns": [{"myContent": "myContent"}],
-    "url": "/mappings/single"
-  },
-  "response": {"status": 200}
-}

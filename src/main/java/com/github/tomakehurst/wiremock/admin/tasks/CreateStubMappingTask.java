@@ -30,7 +30,7 @@ public class CreateStubMappingTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StubMapping newMapping =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.addStubMapping(newMapping);
     return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
   }

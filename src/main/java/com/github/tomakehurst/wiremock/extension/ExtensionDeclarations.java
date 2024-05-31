@@ -74,6 +74,10 @@ public class ExtensionDeclarations {
     return factories;
   }
 
+  public boolean isEmpty() {
+    return classNames.isEmpty() && classes.isEmpty() && instances.isEmpty() && factories.isEmpty();
+  }
+
   private boolean removeWebhook(String className) {
     if (className.equals(Webhooks.class.getName())) {
       System.out.println(WEBHOOK_MESSAGE);

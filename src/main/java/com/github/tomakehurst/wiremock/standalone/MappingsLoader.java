@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public interface MappingsLoader {
@@ -23,7 +23,7 @@ public interface MappingsLoader {
   @Deprecated
   void loadMappingsInto(StubMappings stubMappings);
 
-  default void loadMappingsInto(StubMappings stubMappings, Extensions extensions) {
+  default void loadMappingsInto(StubMappings stubMappings, ServerExtensions extensions) {
     loadMappingsInto(stubMappings);
   }
 }

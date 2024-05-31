@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -105,7 +105,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   @Override
-  public void loadMappingsInto(StubMappings stubMappings, Extensions extensions) {
+  public void loadMappingsInto(StubMappings stubMappings, ServerExtensions extensions) {
     if (!mappingsFileSource.exists()) {
       return;
     }
@@ -116,8 +116,9 @@ public class JsonFileMappingsSource implements MappingsSource {
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
+        final Json json = Json.build(extensions);
         StubMappingCollection stubCollection =
-            extensions.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+            json.readValue(mappingFile.readContentsAsString(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
           mapping.setDirty(false);
           stubMappings.addMapping(mapping);

@@ -28,7 +28,9 @@ public class PatchExtendedSettingsTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     ExtendedSettingsWrapper extendedSettingsWrapper =
-        admin.read(serveEvent.getRequest().getBodyAsString(), ExtendedSettingsWrapper.class);
+        admin
+            .getJson()
+            .readValue(serveEvent.getRequest().getBodyAsString(), ExtendedSettingsWrapper.class);
     Parameters newExtended = extendedSettingsWrapper.getExtended();
 
     GlobalSettings existingSettings = admin.getGlobalSettings().getSettings();

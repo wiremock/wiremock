@@ -25,7 +25,8 @@ public class ImportStubMappingsTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubImport stubImport = admin.read(serveEvent.getRequest().getBodyAsString(), StubImport.class);
+    StubImport stubImport =
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), StubImport.class);
     admin.importStubs(stubImport);
     return ResponseDefinition.ok();
   }

@@ -27,7 +27,7 @@ public class RemoveServeEventsByRequestPatternTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     RequestPattern requestPattern =
-        admin.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
     FindServeEventsResult findServeEventsResult = admin.removeServeEventsMatching(requestPattern);
     return ResponseDefinition.okForJson(findServeEventsResult);
   }

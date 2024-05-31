@@ -27,7 +27,7 @@ public class OldEditStubMappingTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StubMapping stubMapping =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.editStubMapping(stubMapping);
     return ResponseDefinition.noContent();
   }

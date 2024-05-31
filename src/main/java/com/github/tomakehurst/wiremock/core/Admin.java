@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -114,5 +115,5 @@ public interface Admin {
 
   GetGlobalSettingsResult getGlobalSettings();
 
-  <T> T read(String content, Class<T> valueType);
+  Json getJson();
 }

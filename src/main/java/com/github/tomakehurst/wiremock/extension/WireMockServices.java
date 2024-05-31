@@ -33,7 +33,7 @@ public interface WireMockServices {
 
   Options getOptions();
 
-  Extensions getExtensions();
+  ServerExtensions getExtensions();
 
   TemplateEngine getTemplateEngine();
 

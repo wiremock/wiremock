@@ -15,68 +15,118 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-public final class Json {
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.util.stream.Collectors.toList;
+
+public final class Json implements Serialiser {
 
   public static class PrivateView {}
 
   public static class PublicView {}
 
-  private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
-      new InheritableThreadLocal<ObjectMapper>() {
+  public static Json get() {
+    return holder.get();
+  }
+
+  private static final InheritableThreadLocal<Json> holder =
+      new InheritableThreadLocal<>() {
         @Override
-        protected ObjectMapper initialValue() {
-          return JsonMapper.builder()
-              .addModule(new JavaTimeModule())
-              .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
-              .disable(
-                  SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                  SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
-              .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-              .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-              .enable(
-                  JsonParser.Feature.ALLOW_COMMENTS,
-                  JsonParser.Feature.ALLOW_SINGLE_QUOTES,
-                  JsonParser.Feature.IGNORE_UNDEFINED,
-                  JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
-              .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-              .serializationInclusion(JsonInclude.Include.NON_NULL)
-              .build();
+        protected Json initialValue() {
+          return build(null);
         }
       };
 
-  private Json() {}
+  public static Json build(Extensions extensions) {
+    final JsonMapper.Builder builder =
+        JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+            .disable(
+                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+                SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
+            .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+            .enable(
+                JsonParser.Feature.ALLOW_COMMENTS,
+                JsonParser.Feature.ALLOW_SINGLE_QUOTES,
+                JsonParser.Feature.IGNORE_UNDEFINED,
+                JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .serializationInclusion(JsonInclude.Include.NON_NULL);
 
-  public static <T> T read(byte[] stream, Class<T> clazz) throws IOException {
+    if (extensions != null) {
+      final Map<String, ContentPatternExtension> contentPatternExtensions =
+          extensions.ofType(ContentPatternExtension.class);
+      if (!contentPatternExtensions.isEmpty()) {
+//        final List<Class<?>> customMatcherTypes = contentPatternExtensions.values().stream()
+//                .map(ContentPatternExtension::getContentPatternClass)
+//                .collect(toList());
+//        builder.subtypeResolver(new ExtensibleJsonSubtypeResolver(customMatcherTypes));
+
+//        builder.addHandler(new DeserializationProblemHandler() {
+//          @Override
+//          public JavaType handleMissingTypeId(DeserializationContext ctxt, JavaType baseType, TypeIdResolver idResolver, String failureMsg) throws IOException {
+//            return super.handleMissingTypeId(ctxt, baseType, idResolver, failureMsg);
+//          }
+//        });
+        SimpleModule module = new SimpleModule();
+        contentPatternExtensions.values().stream()
+                .map(ContentPatternExtension::getContentPatternClass)
+                .forEach(contentPatternType -> module.addAbstractTypeMapping(ContentPattern.class, contentPatternType));
+        builder.addModule(module);
+      }
+    }
+
+    return new Json(builder.build());
+  }
+
+  private final JsonMapper mapper;
+
+  private Json(JsonMapper mapper) {
+    this.mapper = mapper;
+  }
+
+  public static <T> T read(byte[] bytes, Class<T> clazz) throws IOException {
+    return holder.get().readValue(bytes, clazz);
+  }
+
+  @Override
+  public <T> T readValue(byte[] bytes, Class<T> clazz) throws IOException {
     try {
-      ObjectMapper mapper = getObjectMapper();
-      return mapper.readValue(stream, clazz);
+      return mapper.readValue(bytes, clazz);
     } catch (JsonProcessingException processingException) {
       throw JsonException.fromJackson(processingException);
     }
   }
 
   public static <T> T read(String json, Class<T> clazz) {
+    return holder.get().readValue(json, clazz);
+  }
+
+  @Override
+  public <T> T readValue(String json, Class<T> clazz) {
     try {
-      ObjectMapper mapper = getObjectMapper();
       return mapper.readValue(json, clazz);
     } catch (JsonProcessingException processingException) {
       throw JsonException.fromJackson(processingException);
@@ -84,8 +134,12 @@ public final class Json {
   }
 
   public static <T> T read(String json, TypeReference<T> typeRef) {
+    return holder.get().readValue(json, typeRef);
+  }
+
+  @Override
+  public <T> T readValue(String json, TypeReference<T> typeRef) {
     try {
-      ObjectMapper mapper = getObjectMapper();
       return mapper.readValue(json, typeRef);
     } catch (JsonProcessingException processingException) {
       throw JsonException.fromJackson(processingException);
@@ -93,16 +147,30 @@ public final class Json {
   }
 
   public static <T> String write(T object) {
-    return write(object, PublicView.class);
+    return holder.get().writeString(object);
+  }
+
+  @Override
+  public <T> String writeString(T object) {
+    return writeString(object, PublicView.class);
   }
 
   public static <T> String writePrivate(T object) {
-    return write(object, PrivateView.class);
+    return holder.get().writePrivateString(object);
+  }
+
+  @Override
+  public <T> String writePrivateString(T object) {
+    return writeString(object, PrivateView.class);
   }
 
   public static <T> String write(T object, Class<?> view) {
+    return holder.get().writeString(object, view);
+  }
+
+  @Override
+  public <T> String writeString(T object, Class<?> view) {
     try {
-      ObjectMapper mapper = getObjectMapper();
       ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
       if (view != null) {
         objectWriter = objectWriter.withView(view);
@@ -114,12 +182,16 @@ public final class Json {
   }
 
   public static ObjectMapper getObjectMapper() {
-    return objectMapperHolder.get();
+    return holder.get().mapper;
   }
 
   public static byte[] toByteArray(Object object) {
+    return holder.get().writeBytes(object);
+  }
+
+  @Override
+  public <T> byte[] writeBytes(T object) {
     try {
-      ObjectMapper mapper = getObjectMapper();
       return mapper.writeValueAsBytes(object);
     } catch (IOException ioe) {
       return throwUnchecked(ioe, byte[].class);
@@ -127,7 +199,12 @@ public final class Json {
   }
 
   public static JsonNode node(String json) {
-    return read(json, JsonNode.class);
+    return holder.get().readNode(json);
+  }
+
+  @Override
+  public JsonNode readNode(String json) {
+    return readValue(json, JsonNode.class);
   }
 
   public static int maxDeepSize(JsonNode one, JsonNode two) {

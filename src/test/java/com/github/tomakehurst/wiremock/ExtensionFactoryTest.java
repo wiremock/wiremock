@@ -32,7 +32,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -145,10 +145,10 @@ public class ExtensionFactoryTest {
     private final Stores stores;
     private final FileSource fileSource;
 
-    private final Extensions extensions;
+    private final ServerExtensions extensions;
 
     public MiscInfoApi(
-        Admin admin, Options options, Stores stores, FileSource fileSource, Extensions extensions) {
+        Admin admin, Options options, Stores stores, FileSource fileSource, ServerExtensions extensions) {
       this.admin = admin;
       this.options = options;
       this.stores = stores;

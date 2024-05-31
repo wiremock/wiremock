@@ -28,7 +28,8 @@ public class StartRecordingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    RecordSpec recordSpec = admin.read(serveEvent.getRequest().getBodyAsString(), RecordSpec.class);
+    RecordSpec recordSpec =
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), RecordSpec.class);
     try {
       admin.startRecording(recordSpec);
       return ResponseDefinition.okEmptyJson();

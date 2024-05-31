@@ -572,8 +572,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public <T> T read(String content, Class<T> valueType) {
-    return wireMockApp.read(content, valueType);
+  public Json getJson() {
+    return wireMockApp.getJson();
   }
 
   public void checkForUnmatchedRequests() {

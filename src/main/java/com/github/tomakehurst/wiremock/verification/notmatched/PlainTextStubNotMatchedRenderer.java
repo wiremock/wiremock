@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -35,9 +35,9 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
 
   public static final String CONSOLE_WIDTH_HEADER_KEY = "X-WireMock-Console-Width";
 
-  private final Extensions extensions;
+  private final ServerExtensions extensions;
 
-  public PlainTextStubNotMatchedRenderer(Extensions extensions) {
+  public PlainTextStubNotMatchedRenderer(ServerExtensions extensions) {
     this.extensions = extensions;
   }
 

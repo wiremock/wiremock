@@ -27,7 +27,7 @@ public class RemoveMatchingStubMappingTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StubMapping removeMapping =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.removeStubMapping(removeMapping);
     return ResponseDefinition.ok();
   }

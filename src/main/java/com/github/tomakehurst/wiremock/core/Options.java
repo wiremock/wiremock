@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -112,7 +112,7 @@ public interface Options {
 
   boolean getHttpsRequiredForAdminApi();
 
-  default Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+  default Function<ServerExtensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
     return PlainTextStubNotMatchedRenderer::new;
   }
 

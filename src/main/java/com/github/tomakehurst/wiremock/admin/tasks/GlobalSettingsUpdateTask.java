@@ -29,11 +29,15 @@ public class GlobalSettingsUpdateTask implements AdminTask {
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     GlobalSettings newSettings;
     try {
-      newSettings = admin.read(serveEvent.getRequest().getBodyAsString(), GlobalSettings.class);
+      newSettings =
+          admin
+              .getJson()
+              .readValue(serveEvent.getRequest().getBodyAsString(), GlobalSettings.class);
     } catch (Exception e) {
       newSettings =
           admin
-              .read(serveEvent.getRequest().getBodyAsString(), GetGlobalSettingsResult.class)
+              .getJson()
+              .readValue(serveEvent.getRequest().getBodyAsString(), GetGlobalSettingsResult.class)
               .getSettings();
     }
 

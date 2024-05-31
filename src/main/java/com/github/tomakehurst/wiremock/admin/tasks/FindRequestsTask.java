@@ -32,7 +32,7 @@ public class FindRequestsTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     RequestPattern requestPattern =
-        admin.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
+        admin.getJson().readValue(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
     FindRequestsResult result = admin.findRequestsMatching(requestPattern);
 
     return responseDefinition()

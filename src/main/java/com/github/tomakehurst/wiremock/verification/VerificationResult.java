@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.core.Admin;
 
 public class VerificationResult extends JournalBasedResult {
 
@@ -31,6 +32,11 @@ public class VerificationResult extends JournalBasedResult {
     this.count = count;
   }
 
+  /**
+   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been registered.
+   * Instead, call {@link Admin#getJson()} and use one of the readValue methods.
+   */
+  @Deprecated
   public static VerificationResult from(String json) {
     return Json.read(json, VerificationResult.class);
   }

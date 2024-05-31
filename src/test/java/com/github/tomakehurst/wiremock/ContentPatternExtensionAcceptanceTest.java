@@ -15,13 +15,16 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.StartsWithMatcher.startsWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
@@ -41,36 +44,58 @@ public class ContentPatternExtensionAcceptanceTest {
           .options(
               options()
                   .dynamicPort()
-                  .extensions(MyContentPatternExtension.class)
+                  .extensions(StartsWithMatcherExtension.class)
                   .usingFilesUnderClasspath("content-pattern-extension"))
           .build();
 
+  static WireMock wireMockRemoteClient;
+
   public static WireMockTestClient client;
 
+  @SuppressWarnings("unchecked")
   @BeforeAll
   public static void beforeAll() {
     client = new WireMockTestClient(wm.getPort());
+    wireMockRemoteClient = create()
+            .port(wm.getPort())
+            .extensions(StartsWithMatcherExtension.class)
+            .build();
   }
 
   @Test
-  public void customBodyMatcherWithRequestBody() {
+  public void customMatcherWithRequestBody() {
     wm.stubFor(
-        post("/stubFor/single").withRequestBody(new MyContentPatternExtension()).willReturn(ok()));
+        post("/stubFor/single").withRequestBody(startsWith("my")).willReturn(ok()));
     assertThat(
         client.postWithBody("/stubFor/single", "myContent", "text/plain", "UTF-8").statusCode(),
         is(200));
   }
 
   @Test
-  public void customBodyMatcherWithRequestBodyCombinedWithStandardMatchers() {
+  public void customMatcherWithRequestBodyCombinedWithStandardMatchers() {
     wm.stubFor(
         post("/stubFor/multiple")
-            .withRequestBody(new MyContentPatternExtension())
+            .withRequestBody(startsWith("my"))
             .withRequestBody(containing("my"))
             .willReturn(ok()));
     assertThat(
         client.postWithBody("/stubFor/multiple", "myContent", "text/plain", "UTF-8").statusCode(),
         is(200));
+  }
+
+  @Test
+  public void customMatcherWithHeaderDefinedViaRemoteClient() {
+    wireMockRemoteClient.register(
+            get("/header/statically")
+                    .withHeader("X-Content", startsWith("my"))
+                    .willReturn(ok()));
+    assertThat(
+            client.get("/header/statically", withHeader("X-Content", "myContent")).statusCode(),
+            is(200));
+
+    assertThat(
+            client.get("/header/statically", withHeader("X-Content", "wrong")).statusCode(),
+            is(404));
   }
 
   @Test
@@ -87,26 +112,33 @@ public class ContentPatternExtensionAcceptanceTest {
         is(200));
   }
 
-  public static class MyContentPatternExtension extends StringValuePattern
-      implements ContentPatternExtension {
+  public static class StartsWithMatcherExtension implements ContentPatternExtension {
 
-    public MyContentPatternExtension() {
-      super("Java Service Provider Interface must have a zero-argument constructor.");
+    @Override
+    public Class<? extends ContentPattern<?>> getContentPatternClass() {
+      return StartsWithMatcher.class;
+    }
+
+    @Override
+    public String getName() {
+      return "starts-with-matcher";
+    }
+  }
+
+  public static class StartsWithMatcher extends StringValuePattern {
+
+    public static StartsWithMatcher startsWith(String prefix) {
+      return new StartsWithMatcher(prefix);
     }
 
     @JsonCreator
-    public MyContentPatternExtension(@JsonProperty("myContent") String expectedValue) {
+    public StartsWithMatcher(@JsonProperty("startsWith") String expectedValue) {
       super(expectedValue);
     }
 
     @Override
-    public Class<? extends ContentPattern<?>> getContentPatternClass() {
-      return MyContentPatternExtension.class;
-    }
-
-    @Override
     public MatchResult match(String value) {
-      return "myContent".equals(value) ? MatchResult.exactMatch() : MatchResult.noMatch();
+      return MatchResult.of(value.startsWith(expectedValue));
     }
   }
 }

@@ -31,7 +31,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -121,7 +121,7 @@ public class WireMockConfiguration implements Options {
   private Authenticator adminAuthenticator = new NoAuthenticator();
   private boolean requireHttpsForAdminApi = false;
 
-  private Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory =
+  private Function<ServerExtensions, NotMatchedRenderer> notMatchedRendererFactory =
       PlainTextStubNotMatchedRenderer::new;
   private boolean asynchronousResponseEnabled;
   private int asynchronousResponseThreads;
@@ -470,7 +470,7 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration notMatchedRendererFactory(
-      Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory) {
+      Function<ServerExtensions, NotMatchedRenderer> notMatchedRendererFactory) {
     this.notMatchedRendererFactory = notMatchedRendererFactory;
     return this;
   }
@@ -742,7 +742,7 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+  public Function<ServerExtensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
     return notMatchedRendererFactory;
   }
 

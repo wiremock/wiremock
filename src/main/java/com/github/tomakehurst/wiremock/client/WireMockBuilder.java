@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.extension.ClientExtensions;
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
@@ -32,6 +36,8 @@ public class WireMockBuilder {
   private String proxyHost = null;
   private int proxyPort = 0;
   private ClientAuthenticator authenticator = new NoClientAuthenticator();
+
+  private ExtensionDeclarations extensionDeclarations = new ExtensionDeclarations();
 
   public WireMockBuilder port(int port) {
     this.port = port;
@@ -85,8 +91,30 @@ public class WireMockBuilder {
     return authenticator(new ClientBasicAuthenticator(username, password));
   }
 
+  public WireMockBuilder extensions(String... classNames) {
+    extensionDeclarations.add(classNames);
+    return this;
+  }
+
+  public WireMockBuilder extensions(Extension... extensionInstances) {
+    extensionDeclarations.add(extensionInstances);
+    return this;
+  }
+
+  public WireMockBuilder extensions(ExtensionFactory... extensionFactories) {
+    extensionDeclarations.add(extensionFactories);
+    return this;
+  }
+
+  public WireMockBuilder extensions(Class<? extends Extension>... classes) {
+    extensionDeclarations.add(classes);
+    return this;
+  }
+
   public WireMock build() {
+    final ClientExtensions clientExtensions = new ClientExtensions(extensionDeclarations);
+    clientExtensions.load();
     return new WireMock(
-        scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
+        scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator, clientExtensions);
   }
 }

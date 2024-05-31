@@ -17,6 +17,13 @@ package com.github.tomakehurst.wiremock.extension;
 
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+
 public interface ExtensionFactory {
+
   List<Extension> create(WireMockServices services);
+
+  default List<Extension> createForClient() {
+    return emptyList();
+  }
 }

@@ -26,7 +26,9 @@ public class RemoveStubMappingsByMetadataTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StringValuePattern pattern =
-        admin.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
+        admin
+            .getJson()
+            .readValue(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
     admin.removeStubsByMetadata(pattern);
     return ResponseDefinition.okEmptyJson();
   }

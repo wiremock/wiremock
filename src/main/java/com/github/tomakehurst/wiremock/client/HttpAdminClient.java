@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.ClientExtensions;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -73,6 +74,8 @@ public class HttpAdminClient implements Admin {
   private final AdminRoutes adminRoutes;
 
   private final CloseableHttpClient httpClient;
+  
+  private final Json json;
 
   public HttpAdminClient(String scheme, String host, int port) {
     this(scheme, host, port, "");
@@ -83,12 +86,12 @@ public class HttpAdminClient implements Admin {
   }
 
   public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
-    this(scheme, host, port, urlPathPrefix, null, null, 0, noClientAuthenticator());
+    this(scheme, host, port, urlPathPrefix, null, null, 0, noClientAuthenticator(), null);
   }
 
   public HttpAdminClient(
       String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
-    this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
+    this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator(), null);
   }
 
   public HttpAdminClient(
@@ -107,7 +110,8 @@ public class HttpAdminClient implements Admin {
         hostHeader,
         proxyHost,
         proxyPort,
-        noClientAuthenticator());
+        noClientAuthenticator(),
+        null);
   }
 
   public HttpAdminClient(
@@ -118,7 +122,9 @@ public class HttpAdminClient implements Admin {
       String hostHeader,
       String proxyHost,
       int proxyPort,
-      ClientAuthenticator authenticator) {
+      ClientAuthenticator authenticator,
+      ClientExtensions extensions
+  ) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
@@ -129,6 +135,8 @@ public class HttpAdminClient implements Admin {
     adminRoutes = AdminRoutes.forClient();
 
     httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
+    
+    json = Json.build(extensions);
   }
 
   public HttpAdminClient(String host, int port) {
@@ -262,13 +270,13 @@ public class HttpAdminClient implements Admin {
   public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
     String body =
         postJsonAssertOkAndReturnBody(urlFor(FindRequestsTask.class), Json.write(requestPattern));
-    return Json.read(body, FindRequestsResult.class);
+    return json.readValue(body, FindRequestsResult.class);
   }
 
   @Override
   public FindRequestsResult findUnmatchedRequests() {
     String body = getJsonAssertOkAndReturnBody(urlFor(FindUnmatchedRequestsTask.class));
-    return Json.read(body, FindRequestsResult.class);
+    return json.readValue(body, FindRequestsResult.class);
   }
 
   @Override
@@ -284,7 +292,7 @@ public class HttpAdminClient implements Admin {
     String body =
         postJsonAssertOkAndReturnBody(
             urlFor(RemoveServeEventsByRequestPatternTask.class), Json.write(requestPattern));
-    return Json.read(body, FindServeEventsResult.class);
+    return json.readValue(body, FindServeEventsResult.class);
   }
 
   @Override
@@ -293,13 +301,13 @@ public class HttpAdminClient implements Admin {
     String body =
         postJsonAssertOkAndReturnBody(
             urlFor(RemoveServeEventsByStubMetadataTask.class), Json.write(metadataPattern));
-    return Json.read(body, FindServeEventsResult.class);
+    return json.readValue(body, FindServeEventsResult.class);
   }
 
   @Override
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
     String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class));
-    return Json.read(body, FindNearMissesResult.class);
+    return json.readValue(body, FindNearMissesResult.class);
   }
 
   @Override
@@ -331,7 +339,7 @@ public class HttpAdminClient implements Admin {
         postJsonAssertOkAndReturnBody(
             urlFor(FindNearMissesForRequestTask.class), Json.write(loggedRequest));
 
-    return Json.read(body, FindNearMissesResult.class);
+    return json.readValue(body, FindNearMissesResult.class);
   }
 
   @Override
@@ -340,7 +348,7 @@ public class HttpAdminClient implements Admin {
         postJsonAssertOkAndReturnBody(
             urlFor(FindNearMissesForRequestPatternTask.class), Json.write(requestPattern));
 
-    return Json.read(body, FindNearMissesResult.class);
+    return json.readValue(body, FindNearMissesResult.class);
   }
 
   @Override
@@ -352,7 +360,7 @@ public class HttpAdminClient implements Admin {
   public SnapshotRecordResult snapshotRecord() {
     String body = postJsonAssertOkAndReturnBody(urlFor(SnapshotTask.class), "");
 
-    return Json.read(body, SnapshotRecordResult.class);
+    return json.readValue(body, SnapshotRecordResult.class);
   }
 
   @Override
@@ -364,7 +372,7 @@ public class HttpAdminClient implements Admin {
   public SnapshotRecordResult snapshotRecord(RecordSpec spec) {
     String body = postJsonAssertOkAndReturnBody(urlFor(SnapshotTask.class), Json.write(spec));
 
-    return Json.read(body, SnapshotRecordResult.class);
+    return json.readValue(body, SnapshotRecordResult.class);
   }
 
   @Override
@@ -386,7 +394,7 @@ public class HttpAdminClient implements Admin {
   public SnapshotRecordResult stopRecording() {
     String body = postJsonAssertOkAndReturnBody(urlFor(StopRecordingTask.class), "");
 
-    return Json.read(body, SnapshotRecordResult.class);
+    return json.readValue(body, SnapshotRecordResult.class);
   }
 
   @Override
@@ -434,8 +442,8 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public <T> T read(String content, Class<T> valueType) {
-    throw new UnsupportedOperationException();
+  public Json getJson() {
+    return Json.get();
   }
 
   public int port() {
@@ -511,7 +519,7 @@ public class HttpAdminClient implements Admin {
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
 
-    return responseType == Void.class ? null : Json.read(responseBodyString, responseType);
+    return responseType == Void.class ? null : json.readValue(responseBodyString, responseType);
   }
 
   private void injectHeaders(ClassicHttpRequest request) {
@@ -563,7 +571,7 @@ public class HttpAdminClient implements Admin {
   private void throwParsedClientError(String url, String responseBody, int responseStatusCode) {
     Errors errors;
     try {
-      errors = Json.read(responseBody, Errors.class);
+      errors = json.readValue(responseBody, Errors.class);
     } catch (JsonException e) {
       Errors.Error jsonError = e.getErrors().first();
       String jsonErrorDetail = jsonError.getDetail();

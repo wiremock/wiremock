@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
 public class Recorder {
 
   private final Admin admin;
-  private final Extensions extensions;
+  private final ServerExtensions extensions;
   private final BlobStore filesBlobStore;
 
   private final RecorderStateStore stateStore;
 
   public Recorder(
-      Admin admin, Extensions extensions, BlobStore filesBlobStore, RecorderStateStore stateStore) {
+          Admin admin, ServerExtensions extensions, BlobStore filesBlobStore, RecorderStateStore stateStore) {
     this.admin = admin;
     this.extensions = extensions;
     this.filesBlobStore = filesBlobStore;

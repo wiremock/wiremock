@@ -41,7 +41,7 @@ public class SetScenarioStateTask implements AdminTask {
 
   private void setOrResetScenarioState(Admin admin, String name, String body) {
     if (body != null && !body.isEmpty()) {
-      ScenarioState scenarioState = admin.read(body, ScenarioState.class);
+      ScenarioState scenarioState = admin.getJson().readValue(body, ScenarioState.class);
       admin.setScenarioState(name, scenarioState.getState());
     } else {
       admin.resetScenario(name);
