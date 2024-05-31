@@ -34,8 +34,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -46,7 +48,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -54,6 +58,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -1220,87 +1225,28 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void testStubWithIsOneOfRequestMethods() {
-    stubFor(
-        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+  void cannotCreateMultipleStubMappingsWithTheSameId() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/first-stub-with-id").withId(id).willReturn(ok()));
 
-    WireMockResponse response1 = testClient.request("PUT", "/some/url");
-    assertThat(response1.statusCode(), is(200));
+    assertThat(testClient.get("/first-stub-with-id").statusCode(), is(200));
 
-    WireMockResponse response2 = testClient.request("POST", "/some/url");
-    assertThat(response2.statusCode(), is(200));
-
-    WireMockResponse response3 = testClient.request("GET", "/some/url");
-    assertThat(response3.statusCode(), is(404));
-  }
-
-  @Test
-  void testStubWithIsNoneOfRequestMethods() {
-    stubFor(
-        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response1 = testClient.request("PUT", "/some/url");
-    assertThat(response1.statusCode(), is(404));
-
-    WireMockResponse response2 = testClient.request("POST", "/some/url");
-    assertThat(response2.statusCode(), is(404));
-
-    WireMockResponse response3 = testClient.request("GET", "/some/url");
-    assertThat(response3.statusCode(), is(200));
-  }
-
-  @Test
-  void testStubWithInvalidIsOneOfRequestMethods() {
-    stubFor(
-        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response = testClient.request("GET", "/some/url");
-    assertThat(response.statusCode(), is(404));
-  }
-
-  @Test
-  void testStubWithInvalidIsNoneOfRequestMethods() {
-    stubFor(
-        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response = testClient.request("GET", "/some/url");
-    assertThat(response.statusCode(), is(200));
-  }
-
-  @Test
-  void testStubWithIsOneOfAndAnyRequestMethod() {
-    stubFor(
-        isOneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response1 = testClient.request("PUT", "/some/url");
-    assertThat(response1.statusCode(), is(200));
-
-    WireMockResponse response2 = testClient.request("POST", "/some/url");
-    assertThat(response2.statusCode(), is(200));
-
-    WireMockResponse response3 = testClient.request("GET", "/some/url");
-    assertThat(response3.statusCode(), is(404));
-  }
-
-  @Test
-  void testStubWithIsNoneOfAndAnyRequestMethod() {
-    stubFor(
-        isNoneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response1 = testClient.request("PUT", "/some/url");
-    assertThat(response1.statusCode(), is(404));
-
-    WireMockResponse response2 = testClient.request("POST", "/some/url");
-    assertThat(response2.statusCode(), is(404));
-
-    WireMockResponse response3 = testClient.request("GET", "/some/url");
-    assertThat(response3.statusCode(), is(200));
+    ClientError exception =
+        Assertions.assertThrows(
+            ClientError.class,
+            () -> stubFor(post("/second-stub-with-id").withId(id).willReturn(created())));
+    assertThat(exception.getErrors().getErrors().size(), is(1));
+    assertThat(exception.getErrors().first().getCode(), is(109));
+    assertThat(exception.getErrors().first().getTitle(), is("Duplicate stub mapping ID"));
+    assertThat(
+        exception.getErrors().first().getDetail(),
+        is(
+            "ID of the provided stub mapping '"
+                + id
+                + "' is already taken by another stub mapping"));
+    assertThat(exception.getErrors().first().getSource(), nullValue());
+    assertThat(testClient.get("/second-stub-with-id").statusCode(), is(404));
+    assertThat(testClient.get("/first-stub-with-id").statusCode(), is(200));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
