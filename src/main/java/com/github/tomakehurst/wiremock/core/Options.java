@@ -47,6 +47,8 @@ public interface Options {
   int DEFAULT_TIMEOUT = 300_000;
   int DEFAULT_CONTAINER_THREADS = 25;
   String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+  int DEFAULT_MAX_HTTP_CONNECTIONS = 1000;
+  boolean DEFAULT_DISABLE_CONNECTION_REUSE = true;
 
   int portNumber();
 
@@ -138,9 +140,7 @@ public interface Options {
 
   int proxyTimeout();
 
-  default int getMaxHttpClientConnections() {
-    return 1000;
-  }
+  int getMaxHttpClientConnections();
 
   boolean getResponseTemplatingEnabled();
 
@@ -153,4 +153,6 @@ public interface Options {
   boolean getTemplateEscapingDisabled();
 
   Set<String> getSupportedProxyEncodings();
+
+  boolean getDisableConnectionReuse();
 }
