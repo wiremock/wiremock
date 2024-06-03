@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +44,42 @@ public abstract class Extensions {
   }
 
   public abstract void load();
+
+  protected abstract List<Extension> loadFactory(ExtensionFactory factory);
+
+  protected void loadExtensions(boolean extensionScanningEnabled) {
+    Stream.concat(
+            extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
+            extensionDeclarations.getClasses().stream())
+        .map(ServerExtensions::load)
+        .forEach(
+            extension -> {
+              if (loadedExtensions.containsKey(extension.getName())) {
+                throw new IllegalArgumentException(
+                    "Duplicate extension name: " + extension.getName());
+              }
+              loadedExtensions.put(extension.getName(), extension);
+            });
+
+    loadedExtensions.putAll(extensionDeclarations.getInstances());
+
+    if (extensionScanningEnabled) {
+      loadedExtensions.putAll(
+          loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
+    }
+
+    final Stream<ExtensionFactory> allFactories =
+        extensionScanningEnabled
+            ? Stream.concat(
+                extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices())
+            : extensionDeclarations.getFactories().stream();
+
+    loadedExtensions.putAll(
+        allFactories
+            .map(this::loadFactory)
+            .flatMap(List::stream)
+            .collect(toMap(Extension::getName, Function.identity())));
+  }
 
   protected Stream<Extension> loadExtensionsAsServices() {
     final ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);

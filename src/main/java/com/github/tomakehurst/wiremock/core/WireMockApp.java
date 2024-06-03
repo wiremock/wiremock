@@ -281,30 +281,6 @@ public class WireMockApp implements StubServer, Admin {
         .collect(Collectors.toList());
   }
 
-  //  private JsonMapper jsonMapper() {
-  //    List<Class<?>> contentPatternExtensions =
-  //        extensions.ofType(ContentPatternExtension.class).values().stream()
-  //            .map(ContentPatternExtension::getContentPatternClass)
-  //            .collect(Collectors.toList());
-  //    return JsonMapper.builder()
-  //        .addModule(new JavaTimeModule())
-  //        .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
-  //        .disable(
-  //            SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-  //            SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
-  //        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-  //        .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-  //        .enable(
-  //            JsonParser.Feature.ALLOW_COMMENTS,
-  //            JsonParser.Feature.ALLOW_SINGLE_QUOTES,
-  //            JsonParser.Feature.IGNORE_UNDEFINED,
-  //            JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
-  //        .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-  //        .serializationInclusion(JsonInclude.Include.NON_NULL)
-  //        .registerSubtypes(contentPatternExtensions)
-  //        .build();
-  //  }
-
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
     if (mappingsLoaderExtensions != null)

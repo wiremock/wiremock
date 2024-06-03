@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.StartsWithMatcher.startsWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -71,6 +72,7 @@ public class ContentPatternExtensionAcceptanceTest {
   @SuppressWarnings("unchecked")
   @BeforeAll
   public static void beforeAll() {
+    new WireMockServer(wireMockConfig().extensionScanningEnabled(true));
     wmRemote =
         create().port(wmLocal.getPort()).extensions(StartsWithMatcherExtension.class).build();
     client = new WireMockTestClient(wmLocal.getPort());

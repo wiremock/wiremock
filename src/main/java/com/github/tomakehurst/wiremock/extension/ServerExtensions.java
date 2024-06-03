@@ -32,9 +32,7 @@ import com.github.tomakehurst.wiremock.http.client.LazyHttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.wiremock.webhooks.WebhookTransformer;
 import org.wiremock.webhooks.Webhooks;
 
@@ -66,42 +64,18 @@ public class ServerExtensions extends Extensions implements WireMockServices {
     this.files = files;
   }
 
+  @Override
   public void load() {
-    Stream.concat(
-            extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
-            extensionDeclarations.getClasses().stream())
-        .map(ServerExtensions::load)
-        .forEach(
-            extension -> {
-              if (loadedExtensions.containsKey(extension.getName())) {
-                throw new IllegalArgumentException(
-                    "Duplicate extension name: " + extension.getName());
-              }
-              loadedExtensions.put(extension.getName(), extension);
-            });
-
-    loadedExtensions.putAll(extensionDeclarations.getInstances());
-
-    if (options.isExtensionScanningEnabled()) {
-      loadedExtensions.putAll(
-          loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
-    }
-
-    final Stream<ExtensionFactory> allFactories =
-        options.isExtensionScanningEnabled()
-            ? Stream.concat(
-                extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices())
-            : extensionDeclarations.getFactories().stream();
-
-    loadedExtensions.putAll(
-        allFactories
-            .map(factory -> factory.create(ServerExtensions.this))
-            .flatMap(List::stream)
-            .collect(toMap(Extension::getName, Function.identity())));
+    loadExtensions(options.isExtensionScanningEnabled());
 
     configureTemplating();
     configureHttpClient();
     configureWebhooks();
+  }
+
+  @Override
+  protected List<Extension> loadFactory(ExtensionFactory factory) {
+    return factory.create(this);
   }
 
   private void configureTemplating() {

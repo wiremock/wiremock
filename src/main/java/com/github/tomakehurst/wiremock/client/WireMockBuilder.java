@@ -38,6 +38,7 @@ public class WireMockBuilder {
   private ClientAuthenticator authenticator = new NoClientAuthenticator();
 
   private ExtensionDeclarations extensionDeclarations = new ExtensionDeclarations();
+  private boolean extensionScanningEnabled = false;
 
   public WireMockBuilder port(int port) {
     this.port = port;
@@ -111,8 +112,14 @@ public class WireMockBuilder {
     return this;
   }
 
+  public WireMockBuilder extensionScanningEnabled(boolean enabled) {
+    extensionScanningEnabled = enabled;
+    return this;
+  }
+
   public WireMock build() {
-    final ClientExtensions clientExtensions = new ClientExtensions(extensionDeclarations);
+    final ClientExtensions clientExtensions =
+        new ClientExtensions(extensionDeclarations, extensionScanningEnabled);
     clientExtensions.load();
     return new WireMock(
         scheme,
