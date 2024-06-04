@@ -15,13 +15,14 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.EndsWithMatcher.endsWith;
+import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.MagicBytesPattern.magicBytes;
 import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.StartsWithMatcher.startsWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -37,7 +38,9 @@ import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Assertions;
@@ -168,7 +171,8 @@ public class ContentPatternExtensionAcceptanceTest {
 
   @Test
   public void serverMissingExtension() {
-    MappingBuilder mapping = post("/missing").withRequestBody(endsWith("missing")).willReturn(ok());
+    MappingBuilder mapping =
+        post("/missing").withRequestBody(magicBytes(new byte[] {})).willReturn(ok());
     InvalidInputException invalidInputException =
         Assertions.assertThrows(InvalidInputException.class, () -> wmRemote.register(mapping));
     assertThat(invalidInputException.getErrors().getErrors().size(), is(2));
@@ -188,6 +192,53 @@ public class ContentPatternExtensionAcceptanceTest {
         second.getDetail(),
         is(
             "Please ensure that the server has the same extensions by registering them with `--extensions` or via service loading. For more information see https://wiremock.org/docs/extending-wiremock/."));
+  }
+
+  @Test
+  public void byteArrayPatternMatch() {
+    byte[] magicBytes = new byte[] {0x50, 0x4B, 0x05, 0x06};
+    wmLocal.stubFor(
+        post(urlPathEqualTo("/byteArray"))
+            .withRequestBody(magicBytes(magicBytes))
+            .willReturn(ok()));
+    assertThat(
+        client.post("/byteArray", new StringEntity(new String(magicBytes))).statusCode(), is(200));
+  }
+
+  @Test
+  public void byteArrayPatternDiff() {
+    byte[] magicBytes = new byte[] {0x50, 0x4B, 0x05, 0x06};
+    wmLocal.stubFor(
+        post(urlPathEqualTo("/byteArray"))
+            .withRequestBody(magicBytes(magicBytes))
+            .willReturn(ok()));
+
+    WireMockResponse response = client.post("/byteArray", new StringEntity("abc"));
+    assertThat(response.statusCode(), is(404));
+    assertThat(response.content(), containsString("[magicBytes]"));
+    assertThat(response.content(), containsString("Body does not match"));
+    assertThat(response.content(), containsString("[80, 75, 5, 6]"));
+    assertThat(response.content(), containsString("[97, 98, 99]"));
+  }
+
+  @Test
+  public void stringValuePatternMatch() {
+    wmLocal.stubFor(
+        post(urlPathEqualTo("/stringValue")).withRequestBody(startsWith("abc")).willReturn(ok()));
+    assertThat(client.post("/stringValue", new StringEntity("abcd")).statusCode(), is(200));
+  }
+
+  @Test
+  public void stringValuePatternDiff() {
+    wmLocal.stubFor(
+        post(urlPathEqualTo("/stringValue")).withRequestBody(startsWith("abc")).willReturn(ok()));
+
+    WireMockResponse response = client.post("/stringValue", new StringEntity("def"));
+    assertThat(response.statusCode(), is(404));
+    assertThat(response.content(), containsString("[startsWith]"));
+    assertThat(response.content(), containsString("Body does not match"));
+    assertThat(response.content(), containsString("abc"));
+    assertThat(response.content(), containsString("def"));
   }
 
   public static class StartsWithMatcherExtension implements ContentPatternExtension {
@@ -216,6 +267,9 @@ public class ContentPatternExtensionAcceptanceTest {
 
     @Override
     public MatchResult match(String value) {
+      if (value == null) {
+        return MatchResult.noMatch();
+      }
       return MatchResult.of(value.startsWith(expectedValue));
     }
 
@@ -224,23 +278,45 @@ public class ContentPatternExtensionAcceptanceTest {
     }
   }
 
-  public static class EndsWithMatcher extends StringValuePattern {
+  public static class MagicBytesPattern extends ContentPattern<byte[]> {
 
-    public static EndsWithMatcher endsWith(String suffix) {
-      return new EndsWithMatcher(suffix);
+    public static MagicBytesPattern magicBytes(byte[] magicBytes) {
+      return new MagicBytesPattern(magicBytes);
     }
 
     @JsonCreator
-    public EndsWithMatcher(@JsonProperty("endsWith") String expectedValue) {
-      super(expectedValue);
+    public MagicBytesPattern(@JsonProperty("format") byte[] magicBytes) {
+      super(magicBytes);
     }
 
     @Override
-    public MatchResult match(String value) {
-      return MatchResult.of(value.endsWith(expectedValue));
+    public String getName() {
+      return "magicBytes";
     }
 
-    public String getEndsWith() {
+    @Override
+    public String getExpected() {
+      return Arrays.toString(expectedValue);
+    }
+
+    @Override
+    public MatchResult match(byte[] value) {
+      if (value.length >= expectedValue.length) {
+        boolean matches = true;
+        for (int i = 0; i < expectedValue.length; i++) {
+          if (value[i] != expectedValue[i]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) {
+          return MatchResult.exactMatch();
+        }
+      }
+      return MatchResult.noMatch();
+    }
+
+    public byte[] getMagicBytes() {
       return expectedValue;
     }
   }

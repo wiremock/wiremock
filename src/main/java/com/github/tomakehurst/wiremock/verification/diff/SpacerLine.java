@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public class SpacerLine extends DiffLine<Void> {
   }
 
   @Override
-  public Object getActual() {
+  public String getActual() {
     return "";
   }
 

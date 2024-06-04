@@ -384,6 +384,7 @@ public class Diff {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void addBodySectionIfPresent(
       List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> builder) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
@@ -419,10 +420,11 @@ public class Diff {
               new DiffLine<>(
                   "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
         } else {
-          BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
+          ContentPattern<byte[]> nonStringPattern = (ContentPattern<byte[]>) pattern;
+          String printedPatternValue = "[" + pattern.getName() + "]\n" + pattern.getExpected();
           builder.add(
               new DiffLine<>(
-                  "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected()));
+                  "Body", nonStringPattern, formattedBody.getBytes(), printedPatternValue));
         }
       }
     }

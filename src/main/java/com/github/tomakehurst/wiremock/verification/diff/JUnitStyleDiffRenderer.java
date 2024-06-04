@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,8 @@ public class JUnitStyleDiffRenderer {
   public String render(Diff diff) {
     List<DiffLine<?>> lines = diff.getLines();
 
-    String expected =
-        lines.stream().map(EXPECTED).map(Object::toString).collect(Collectors.joining("\n"));
-    String actual =
-        lines.stream().map(ACTUAL).map(Object::toString).collect(Collectors.joining("\n"));
+    String expected = lines.stream().map(EXPECTED).collect(Collectors.joining("\n"));
+    String actual = lines.stream().map(ACTUAL).collect(Collectors.joining("\n"));
 
     return lines.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
   }
@@ -40,8 +38,8 @@ public class JUnitStyleDiffRenderer {
         Strings.normaliseLineBreaks(actual.toString()));
   }
 
-  private static final Function<DiffLine<?>, Object> EXPECTED =
+  private static final Function<DiffLine<?>, String> EXPECTED =
       line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
 
-  private static final Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
+  private static final Function<DiffLine<?>, String> ACTUAL = DiffLine::getActual;
 }
