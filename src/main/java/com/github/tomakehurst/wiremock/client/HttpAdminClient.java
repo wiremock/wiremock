@@ -48,9 +48,11 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -63,6 +65,9 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 public class HttpAdminClient implements Admin {
 
   private static final String ADMIN_URL_PREFIX = "%s://%s:%d%s/__admin";
+  private static final Pattern COULD_NOT_RESOLVE_SUBTYPE =
+      Pattern.compile(
+          "^Could not resolve subtype of \\[simple type, class com.github.tomakehurst.wiremock.matching.(StringValuePattern|ContentPattern)");
 
   private final String scheme;
   private final String host;
@@ -518,7 +523,21 @@ public class HttpAdminClient implements Admin {
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
 
-    return responseType == Void.class ? null : json.readValue(responseBodyString, responseType);
+    try {
+      return responseType == Void.class ? null : json.readValue(responseBodyString, responseType);
+    } catch (JsonException jsonException) {
+      if (COULD_NOT_RESOLVE_SUBTYPE.matcher(jsonException.getErrors().first().getDetail()).find()) {
+        List<Errors.Error> errors = new ArrayList<>(jsonException.getErrors().getErrors());
+        errors.add(
+            new Errors.Error(
+                70,
+                null,
+                "Extensions may not match between client and server.",
+                "Please ensure that the client has the same extensions by registering them via `WireMockBuilder#extensions()` and/or `WireMockBuilder#extensionScanningEnabled()`. For more information see https://wiremock.org/docs/extending-wiremock/."));
+        throw ClientError.fromErrors(new Errors(errors));
+      }
+      throw jsonException;
+    }
   }
 
   private void injectHeaders(ClassicHttpRequest request) {
@@ -591,6 +610,18 @@ public class HttpAdminClient implements Admin {
               jsonError.getSource().getPointer(),
               jsonError.getTitle(),
               extendedDetail);
+    }
+
+    if (errors.first().getDetail() != null
+        && COULD_NOT_RESOLVE_SUBTYPE.matcher(errors.first().getDetail()).find()) {
+      errors
+          .getErrors()
+          .add(
+              new Errors.Error(
+                  70,
+                  null,
+                  "Extensions may not match between client and server.",
+                  "Please ensure that the server has the same extensions by registering them with `--extensions` or via service loading. For more information see https://wiremock.org/docs/extending-wiremock/."));
     }
 
     throw ClientError.fromErrors(errors);

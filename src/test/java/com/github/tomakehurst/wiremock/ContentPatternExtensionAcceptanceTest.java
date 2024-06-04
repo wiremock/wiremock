@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.EndsWithMatcher.endsWith;
 import static com.github.tomakehurst.wiremock.ContentPatternExtensionAcceptanceTest.StartsWithMatcher.startsWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -22,27 +23,31 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ContentPatternExtensionAcceptanceTest {
 
-  private static final RequestPattern CUSTOM =
+  private static final StubMapping CUSTOM =
       post(urlPathTemplate("/{path}"))
           .withQueryParam("query", startsWith("query"))
           .withFormParam("form", startsWith("form"))
@@ -51,8 +56,7 @@ public class ContentPatternExtensionAcceptanceTest {
           .withCookie("cookie", startsWith("cookie"))
           .withRequestBody(startsWith("body"))
           .willReturn(ok())
-          .build()
-          .getRequest();
+          .build();
 
   @SuppressWarnings("unchecked")
   @RegisterExtension
@@ -128,14 +132,62 @@ public class ContentPatternExtensionAcceptanceTest {
   public void localGetStubMappings() {
     List<StubMapping> stubMappings = wmLocal.getStubMappings();
     assertThat(stubMappings.size(), is(1));
-    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM));
+    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM.getRequest()));
   }
 
   @Test
   public void remoteAllStubMappings() {
     List<StubMapping> stubMappings = wmRemote.allStubMappings().getMappings();
     assertThat(stubMappings.size(), is(1));
-    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM));
+    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM.getRequest()));
+  }
+
+  @Test
+  public void clientMissingExtension() {
+    WireMock wm = create().port(wmLocal.getPort()).build();
+    InvalidInputException invalidInputException =
+        Assertions.assertThrows(InvalidInputException.class, wm::allStubMappings);
+    assertThat(invalidInputException.getErrors().getErrors().size(), is(2));
+    Errors.Error first = invalidInputException.getErrors().first();
+    assertThat(first.getCode(), is(10));
+    assertThat(first.getSource().getPointer(), is("/mappings/0/request/headers/header"));
+    assertThat(first.getTitle(), is("Error parsing JSON"));
+    assertThat(
+        first.getDetail(),
+        is(
+            "Could not resolve subtype of [simple type, class com.github.tomakehurst.wiremock.matching.StringValuePattern]: Cannot deduce unique subtype of `com.github.tomakehurst.wiremock.matching.StringValuePattern` (20 candidates match)"));
+    Errors.Error second = invalidInputException.getErrors().getErrors().get(1);
+    assertThat(second.getCode(), is(70));
+    assertThat(second.getSource(), nullValue());
+    assertThat(second.getTitle(), is("Extensions may not match between client and server."));
+    assertThat(
+        second.getDetail(),
+        is(
+            "Please ensure that the client has the same extensions by registering them via `WireMockBuilder#extensions()` and/or `WireMockBuilder#extensionScanningEnabled()`. For more information see https://wiremock.org/docs/extending-wiremock/."));
+  }
+
+  @Test
+  public void serverMissingExtension() {
+    MappingBuilder mapping = post("/missing").withRequestBody(endsWith("missing")).willReturn(ok());
+    InvalidInputException invalidInputException =
+        Assertions.assertThrows(InvalidInputException.class, () -> wmRemote.register(mapping));
+    assertThat(invalidInputException.getErrors().getErrors().size(), is(2));
+    Errors.Error first = invalidInputException.getErrors().first();
+    assertThat(first.getCode(), is(10));
+    assertThat(first.getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(first.getTitle(), is("Error parsing JSON"));
+    assertThat(
+        first.getDetail(),
+        is(
+            "Could not resolve subtype of [simple type, class com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>]: Cannot deduce unique subtype of `com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>` (21 candidates match)"));
+    Errors.Error second = invalidInputException.getErrors().getErrors().get(1);
+    assertThat(second.getCode(), is(70));
+    assertThat(second.getSource(), nullValue());
+    assertThat(second.getTitle(), is("Extensions may not match between client and server."));
+    assertThat(
+        second.getDetail(),
+        is(
+            "Please ensure that the server has the same extensions by registering them with `--extensions` or via service loading. For more information see https://wiremock.org/docs/extending-wiremock/."));
   }
 
   public static class StartsWithMatcherExtension implements ContentPatternExtension {
@@ -168,6 +220,27 @@ public class ContentPatternExtensionAcceptanceTest {
     }
 
     public String getStartsWith() {
+      return expectedValue;
+    }
+  }
+
+  public static class EndsWithMatcher extends StringValuePattern {
+
+    public static EndsWithMatcher endsWith(String suffix) {
+      return new EndsWithMatcher(suffix);
+    }
+
+    @JsonCreator
+    public EndsWithMatcher(@JsonProperty("endsWith") String expectedValue) {
+      super(expectedValue);
+    }
+
+    @Override
+    public MatchResult match(String value) {
+      return MatchResult.of(value.endsWith(expectedValue));
+    }
+
+    public String getEndsWith() {
       return expectedValue;
     }
   }
