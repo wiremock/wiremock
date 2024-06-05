@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -517,5 +517,39 @@ public class EqualToXmlPatternTest {
         match.getSubEvents().stream().findFirst().get().getData().get("message").toString();
     assertThat(
         message, startsWith("XML document structures must start and end within the same entity"));
+  }
+
+  @Test
+  void ignoreOrderOfSameNodeOnSameLevel() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry></body>");
+    MatchResult result = pattern.match("<body><entry>2</entry><entry>1</entry></body>");
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void doesNotMatchWhenSameNodeOnSameLevelHasDifferentValues() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<body><entry>1</entry><entry>3</entry></body>");
+    MatchResult result = pattern.match("<body><entry>2</entry><entry>1</entry></body>");
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
+  void matchesIfMultipleSameNodesOnSameLevelWithDifferentNodes() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry><other>2</other></body>");
+    MatchResult result =
+        pattern.match("<body><entry>2</entry><entry>1</entry><other>2</other></body>");
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void matchesIfTwoIdenticalChildNodesAreEmpty() {
+    EqualToXmlPattern pattern =
+            new EqualToXmlPattern("<body><entry/><entry/></body>");
+    MatchResult result =
+            pattern.match("<body><entry/><entry/></body>");
+    assertTrue(result.isExactMatch());
   }
 }
