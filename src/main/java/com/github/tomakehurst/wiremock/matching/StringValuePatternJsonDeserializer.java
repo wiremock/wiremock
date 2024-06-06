@@ -188,13 +188,14 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
     Set<ComparisonType> exemptedComparisons =
         comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
-
+    Boolean ignoreOrderOfSameNode = fromNullable(rootNode.findValue("ignoreOrderOfSameNode"));
     return new EqualToXmlPattern(
         operand.textValue(),
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        exemptedComparisons);
+        exemptedComparisons,
+        ignoreOrderOfSameNode);
   }
 
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
