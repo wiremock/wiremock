@@ -335,7 +335,7 @@ public class EqualToXmlPatternTest {
   public void returnsMatchWhenTextNodeIsIgnored() {
     String expectedXml = "<a>#{xmlunit.ignore}</a>";
     String actualXml = "<a>123</a>";
-    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}", null);
+    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}", null, false);
     MatchResult matchResult = pattern.match(actualXml);
 
     assertTrue(matchResult.isExactMatch());
@@ -346,7 +346,7 @@ public class EqualToXmlPatternTest {
   public void returnsMatchWhenTextNodeIsIgnored_DefaultDelimiters() {
     String expectedXml = "<a>${xmlunit.ignore}</a>";
     String actualXml = "<a>123</a>";
-    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null, null);
+    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null, null, false);
     MatchResult matchResult = pattern.match(actualXml);
 
     assertTrue(matchResult.isExactMatch());
@@ -411,7 +411,8 @@ public class EqualToXmlPatternTest {
             enablePlaceholders,
             placeholderOpeningDelimiterRegex,
             placeholderClosingDelimiterRegex,
-            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE));
+            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE),
+            false);
 
     String json = Json.write(pattern);
 
@@ -522,15 +523,23 @@ public class EqualToXmlPatternTest {
   @Test
   void ignoreOrderOfSameNodeOnSameLevel() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry></body>");
+        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry></body>", false, true);
     MatchResult result = pattern.match("<body><entry>2</entry><entry>1</entry></body>");
     assertTrue(result.isExactMatch());
   }
 
   @Test
+  void dontIgnoreOrderOfSameNodeOnSameLevel() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry></body>", false, false);
+    MatchResult result = pattern.match("<body><entry>2</entry><entry>1</entry></body>");
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
   void doesNotMatchWhenSameNodeOnSameLevelHasDifferentValues() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern("<body><entry>1</entry><entry>3</entry></body>");
+        new EqualToXmlPattern("<body><entry>1</entry><entry>3</entry></body>", false, true);
     MatchResult result = pattern.match("<body><entry>2</entry><entry>1</entry></body>");
     assertFalse(result.isExactMatch());
   }
@@ -538,7 +547,8 @@ public class EqualToXmlPatternTest {
   @Test
   void matchesIfMultipleSameNodesOnSameLevelWithDifferentNodes() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern("<body><entry>1</entry><entry>2</entry><other>2</other></body>");
+        new EqualToXmlPattern(
+            "<body><entry>1</entry><entry>2</entry><other>2</other></body>", false, true);
     MatchResult result =
         pattern.match("<body><entry>2</entry><entry>1</entry><other>2</other></body>");
     assertTrue(result.isExactMatch());
@@ -546,10 +556,8 @@ public class EqualToXmlPatternTest {
 
   @Test
   void matchesIfTwoIdenticalChildNodesAreEmpty() {
-    EqualToXmlPattern pattern =
-            new EqualToXmlPattern("<body><entry/><entry/></body>");
-    MatchResult result =
-            pattern.match("<body><entry/><entry/></body>");
+    EqualToXmlPattern pattern = new EqualToXmlPattern("<body><entry/><entry/></body>", false, true);
+    MatchResult result = pattern.match("<body><entry/><entry/></body>");
     assertTrue(result.isExactMatch());
   }
 }
