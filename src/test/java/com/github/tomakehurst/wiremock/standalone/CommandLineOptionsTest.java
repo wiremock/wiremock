@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
 import static java.util.Arrays.asList;
@@ -465,7 +466,7 @@ public class CommandLineOptionsTest {
   public void maxTemplateCacheEntriesDefaultsWhenNotSpecified() {
     CommandLineOptions options = new CommandLineOptions();
 
-    assertThat(options.getMaxTemplateCacheEntries(), is(1000L));
+    assertThat(options.getMaxTemplateCacheEntries(), is(DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES));
   }
 
   @Test
