@@ -988,8 +988,8 @@ public class CommandLineOptions implements Options {
   @Override
   public Long getMaxTemplateCacheEntries() {
     return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES)
-        ? Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
-        : null;
+        ? Long.parseLong(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
+        : 1000;
   }
 
   @SuppressWarnings("unchecked")
