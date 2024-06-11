@@ -462,6 +462,13 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void maxTemplateCacheEntriesDefaultsWhenNotSpecified() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    assertThat(options.getMaxTemplateCacheEntries(), is(1000L));
+  }
+
+  @Test
   public void supportsAdminApiBasicAuth() {
     CommandLineOptions options = new CommandLineOptions("--admin-api-basic-auth", "user:pass");
     Authenticator authenticator = options.getAdminAuthenticator();
