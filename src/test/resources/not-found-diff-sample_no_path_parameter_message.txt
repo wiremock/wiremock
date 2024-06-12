@@ -7,9 +7,11 @@
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
 GET                                                        | GET
-[path template] /contacts/{contactId}                      | /contacts/345
+[path template] /contacts/{contactId}                      | /contacts/123
                                                            |
-Path parameter: contactId = 123                            | 345                                                 <<<<< Path parameter does not match
+Authorization: Token 456                                   | Authorization: Token 789                            <<<<< Header does not match
+                                                           |
+Path parameter: contactId = 123                            | 123
                                                            |
                                                            |
 -----------------------------------------------------------------------------------------------------------------------
