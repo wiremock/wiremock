@@ -292,7 +292,7 @@ public class Diff {
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();
-        final String parameterValue = parameterName + ": " + entry.getValue();
+        final String parameterValue = entry.getValue();
         final StringValuePattern pattern = pathParameters.get(parameterName);
         String operator = generateOperatorString(pattern, " = ");
         DiffLine<String> section =
