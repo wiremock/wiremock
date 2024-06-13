@@ -52,10 +52,7 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,6 +60,8 @@ public class WireMockConfiguration implements Options {
 
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;
   private boolean disableOptimizeXmlFactoriesLoading = false;
+
+  private String serverName = DEFAULT_SERVER_NAME;
   private int portNumber = DEFAULT_PORT;
   private boolean httpDisabled = false;
   private boolean http2PlainDisabled = false;
@@ -175,6 +174,17 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration timeout(int timeout) {
     this.asyncResponseTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration serverName(String serverName) {
+
+    this.serverName = serverName;
+    if (notifier instanceof Slf4jNotifier) {
+      Slf4jNotifier slf4jNotifier = ((Slf4jNotifier) notifier).clone();
+      slf4jNotifier.setLogger(serverName);
+      this.notifier = slf4jNotifier;
+    }
     return this;
   }
 
@@ -572,6 +582,12 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration withSupportedProxyEncodings(String... supportedProxyEncodings) {
     return withSupportedProxyEncodings(Set.of(supportedProxyEncodings));
+  }
+
+  @Override
+  public String getServerName() {
+
+    return serverName;
   }
 
   @Override

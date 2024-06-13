@@ -93,6 +93,18 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void setsServerNameWhenOptionPresent() {
+    CommandLineOptions options = new CommandLineOptions("--server-name", "TestServer");
+    assertThat(options.getServerName(), is("TestServer"));
+  }
+
+  @Test
+  public void setsServerNameToDefaultWhenOptionNotPresent() {
+    CommandLineOptions options = new CommandLineOptions();
+    assertThat(options.getServerName(), is(Options.DEFAULT_SERVER_NAME));
+  }
+
+  @Test
   public void setsPortNumberWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--port", "8086");
     assertThat(options.portNumber(), is(8086));

@@ -48,6 +48,13 @@ public interface Options {
   int DEFAULT_CONTAINER_THREADS = 25;
   String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
+  String DEFAULT_SERVER_NAME = null;
+
+  default String getServerName() {
+
+    return DEFAULT_SERVER_NAME;
+  }
+
   int portNumber();
 
   boolean getHttpDisabled();
