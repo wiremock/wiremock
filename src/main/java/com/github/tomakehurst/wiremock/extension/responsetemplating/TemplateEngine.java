@@ -27,12 +27,10 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
@@ -131,13 +129,9 @@ public class TemplateEngine {
   }
 
   public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
-    final Request request = serveEvent.getRequest();
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     final Parameters parameters =
         getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
-
-    final PathTemplate pathTemplate =
-        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
 
     final Map<String, Object> additionalModelData =
         templateModelDataProviders.stream()
@@ -147,7 +141,7 @@ public class TemplateEngine {
 
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
-    model.put("request", RequestTemplateModel.from(request, pathTemplate));
+    model.put("request", RequestTemplateModel.from(serveEvent));
     model.putAll(additionalModelData);
     return model;
   }
