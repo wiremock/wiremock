@@ -529,6 +529,18 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  public void serveEventIdIsUsedAsTheRequestIdInTheTemplateModel() {
+    final String UUID_REGEX = "[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
+
+    ResponseDefinition transformedResponseDef =
+        transform(mockRequest().url("/things"), aResponse().withBody("{{request.id}}"));
+
+    String requestId = transformedResponseDef.getBody();
+    assertThat(requestId, notNullValue());
+    assertThat(requestId, matchesPattern(UUID_REGEX));
+  }
+
+  @Test
   public void trimContent() {
     String body =
         transform(
