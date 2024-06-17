@@ -128,7 +128,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         webhookDefinition.getExtraParameters() != null
             ? webhookDefinition.getExtraParameters()
             : Collections.<String, Object>emptyMap());
-    model.put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()));
+    model.put("originalRequest", RequestTemplateModel.from(serveEvent));
 
     WebhookDefinition renderedWebhookDefinition =
         webhookDefinition

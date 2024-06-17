@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.CompositeNotifier;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
@@ -156,6 +157,33 @@ public class WebhooksAcceptanceViaServeEventTest {
                     containsString("Webhook POST request to"),
                     containsString("/callback returned status"),
                     containsString("200"))));
+  }
+
+  @Test
+  public void originalRequestIdIsTheSameAsRequestId() throws Exception {
+    rule.stubFor(
+        post("/request-id")
+            .willReturn(ok("{{request.id}}").withTransformers("response-template"))
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withMethod(POST)
+                    .withUrl(targetServer.url("/callback"))
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{ \"requestId\": \"{{originalRequest.id}}\" }")));
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    WireMockResponse response = client.post("/request-id", new StringEntity("", TEXT_PLAIN));
+    String requestId = response.content();
+
+    waitForRequestToTargetServer();
+
+    targetServer.verify(
+        1,
+        postRequestedFor(urlEqualTo("/callback"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(equalToJson("{ \"requestId\": \"" + requestId + "\" }")));
   }
 
   @Test
