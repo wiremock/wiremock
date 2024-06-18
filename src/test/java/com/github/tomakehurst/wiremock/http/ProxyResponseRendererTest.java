@@ -542,7 +542,7 @@ public class ProxyResponseRendererTest {
                 true,
                 NetworkAddressRules.ALLOW_ALL,
                 true));
-    HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
+    HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient, false);
 
     forwardProxyApacheClient =
         spy(
@@ -556,7 +556,7 @@ public class ProxyResponseRendererTest {
                 false,
                 NetworkAddressRules.ALLOW_ALL,
                 true));
-    HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
+    HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient, false);
 
     return new ProxyResponseRenderer(
         /* preserveHostHeader= */ false,

@@ -95,6 +95,8 @@ public interface Options {
 
   boolean shouldPreserveHostHeader();
 
+  boolean shouldPreserveUserAgentProxyHeader();
+
   String proxyHostHeader();
 
   HttpServerFactory httpServerFactory();
