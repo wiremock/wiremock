@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -85,5 +86,11 @@ public class WireMockConfigurationTest {
   void setsMaxTemplateCacheEntries() {
     Options config = WireMockConfiguration.wireMockConfig().withMaxTemplateCacheEntries(11L);
     assertThat(config.getMaxTemplateCacheEntries(), is(11L));
+  }
+
+  @Test
+  void maxTemplateCacheEntriesDefaultsWhenNotSpecified() {
+    Options config = WireMockConfiguration.wireMockConfig();
+    assertThat(config.getMaxTemplateCacheEntries(), is(DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES));
   }
 }
