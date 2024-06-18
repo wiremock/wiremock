@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -46,6 +47,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -91,6 +93,19 @@ public class WebhooksAcceptanceViaServeEventTest {
           .options(
               options()
                   .dynamicPort()
+                  .extensions(
+                      new TemplateModelDataProviderExtension() {
+                        @Override
+                        public Map<String, Object> provideTemplateModelData(ServeEvent serveEvent) {
+                          return Map.of(
+                              "customData", Map.of("path", serveEvent.getRequest().getUrl()));
+                        }
+
+                        @Override
+                        public String getName() {
+                          return "custom-model-data";
+                        }
+                      })
                   .notifier(notifier)
                   .limitProxyTargets(
                       NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
@@ -184,6 +199,32 @@ public class WebhooksAcceptanceViaServeEventTest {
         postRequestedFor(urlEqualTo("/callback"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withRequestBody(equalToJson("{ \"requestId\": \"" + requestId + "\" }")));
+  }
+
+  @Test
+  public void webhooksHaveAccessToTemplateModelDataProviders() throws Exception {
+    rule.stubFor(
+        post("/helpers")
+            .willReturn(ok("{{request.id}}").withTransformers("response-template"))
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withMethod(POST)
+                    .withUrl(targetServer.url("/callback"))
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{ \"url\": \"{{ customData.path }}\" }")));
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    client.post("/helpers", new StringEntity("", TEXT_PLAIN));
+
+    waitForRequestToTargetServer();
+
+    targetServer.verify(
+        1,
+        postRequestedFor(urlEqualTo("/callback"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(equalToJson("{ \"url\": \"/helpers\" }")));
   }
 
   @Test
