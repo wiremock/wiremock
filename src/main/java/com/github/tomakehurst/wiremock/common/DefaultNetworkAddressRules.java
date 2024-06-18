@@ -85,7 +85,7 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
   public boolean isAllowedAll() {
     return allowed.equals(Set.of(ALL))
         && allowedHostPatterns.equals(Set.of(ALL))
-        && denied.equals(Set.of())
-        && deniedHostPatterns.equals(Set.of());
+        && denied.isEmpty()
+        && deniedHostPatterns.isEmpty();
   }
 }
