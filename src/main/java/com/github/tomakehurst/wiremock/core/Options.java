@@ -49,6 +49,7 @@ public interface Options {
   String DEFAULT_BIND_ADDRESS = "0.0.0.0";
   int DEFAULT_MAX_HTTP_CONNECTIONS = 1000;
   boolean DEFAULT_DISABLE_CONNECTION_REUSE = true;
+  Long DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES = 1000L;
 
   int portNumber();
 
@@ -95,6 +96,8 @@ public interface Options {
   List<CaseInsensitiveKey> matchingHeaders();
 
   boolean shouldPreserveHostHeader();
+
+  boolean shouldPreserveUserAgentProxyHeader();
 
   String proxyHostHeader();
 

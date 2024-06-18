@@ -65,6 +65,7 @@ public class CommandLineOptions implements Options {
   private static final String MATCH_HEADERS = "match-headers";
   private static final String PROXY_ALL = "proxy-all";
   private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
+  private static final String PRESERVE_USER_AGENT_PROXY_HEADER = "preserve-user-agent-proxy-header";
   private static final String PROXY_VIA = "proxy-via";
   private static final String TIMEOUT = "timeout";
   private static final String PORT = "port";
@@ -212,6 +213,9 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(
         PRESERVE_HOST_HEADER,
         "Will transfer the original host header from the client to the proxied service");
+    optionParser.accepts(
+        PRESERVE_USER_AGENT_PROXY_HEADER,
+        "Will transfer the original User-Agent header from the client to the proxied service");
     optionParser
         .accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests")
         .withRequiredArg();
@@ -677,6 +681,11 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public boolean shouldPreserveUserAgentProxyHeader() {
+    return optionSet.has(PRESERVE_USER_AGENT_PROXY_HEADER);
+  }
+
+  @Override
   public String proxyHostHeader() {
     return optionSet.hasArgument(PROXY_ALL)
         ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getAuthority()
@@ -819,6 +828,7 @@ public class CommandLineOptions implements Options {
     if (proxyUrl() != null) {
       map.put(PROXY_ALL, nullToString(proxyUrl()));
       map.put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
+      map.put(PRESERVE_USER_AGENT_PROXY_HEADER, shouldPreserveUserAgentProxyHeader());
     }
 
     BrowserProxySettings browserProxySettings = browserProxySettings();
@@ -1002,8 +1012,8 @@ public class CommandLineOptions implements Options {
   @Override
   public Long getMaxTemplateCacheEntries() {
     return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES)
-        ? Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
-        : null;
+        ? Long.parseLong(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
+        : DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
   }
 
   @SuppressWarnings("unchecked")

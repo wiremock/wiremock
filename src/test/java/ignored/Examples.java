@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -472,6 +472,9 @@ public class Examples extends AcceptanceTestBase {
         // Override the Host header sent when reverse proxying to another system (this and the
         // previous parameter are mutually exclusive)
         .proxyHostHeader("my.otherdomain.com")
+
+        // Send the User-Agent header in the original request onwards to the system being proxied to
+        .preserveUserAgentProxyHeader(false)
 
         // When reverse proxying, also route via the specified forward proxy (useful inside
         // corporate firewalls)

@@ -101,6 +101,7 @@ public class WireMockConfiguration implements Options {
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
   private boolean preserveHostHeader;
+  private boolean preserveUserAgentProxyHeader;
   private String proxyHostHeader;
   private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
   private HttpClientFactory httpClientFactory = new ApacheHttpClientFactory();
@@ -146,7 +147,7 @@ public class WireMockConfiguration implements Options {
   private boolean templatingEnabled = true;
   private boolean globalTemplating = false;
   private Set<String> permittedSystemKeys = null;
-  private Long maxTemplateCacheEntries = null;
+  private Long maxTemplateCacheEntries = DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
   private boolean templateEscapingDisabled = true;
 
   private Set<String> supportedProxyEncodings = null;
@@ -404,6 +405,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
     this.preserveHostHeader = preserveHostHeader;
+    return this;
+  }
+
+  public WireMockConfiguration preserveUserAgentProxyHeader(boolean preserveUserAgentProxyHeader) {
+    this.preserveUserAgentProxyHeader = preserveUserAgentProxyHeader;
     return this;
   }
 
@@ -722,6 +728,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean shouldPreserveHostHeader() {
     return preserveHostHeader;
+  }
+
+  @Override
+  public boolean shouldPreserveUserAgentProxyHeader() {
+    return preserveUserAgentProxyHeader;
   }
 
   @Override
