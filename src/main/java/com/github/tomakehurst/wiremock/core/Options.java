@@ -47,6 +47,7 @@ public interface Options {
   int DEFAULT_TIMEOUT = 300_000;
   int DEFAULT_CONTAINER_THREADS = 25;
   String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+  Long DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES = 1000L;
 
   int portNumber();
 

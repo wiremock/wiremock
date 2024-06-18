@@ -143,7 +143,7 @@ public class WireMockConfiguration implements Options {
   private boolean templatingEnabled = true;
   private boolean globalTemplating = false;
   private Set<String> permittedSystemKeys = null;
-  private Long maxTemplateCacheEntries = null;
+  private Long maxTemplateCacheEntries = DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
   private boolean templateEscapingDisabled = true;
 
   private Set<String> supportedProxyEncodings = null;
