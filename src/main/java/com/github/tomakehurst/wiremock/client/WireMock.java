@@ -256,6 +256,7 @@ public class WireMock {
   public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
     return new EqualToXmlPattern(value, enablePlaceholders, null, null, null, false);
   }
+
   public static EqualToXmlPattern equalToXml(
       String value, boolean enablePlaceholders, boolean ignoreOrderOfSameNode) {
     return new EqualToXmlPattern(value, enablePlaceholders, ignoreOrderOfSameNode);
