@@ -1,8 +1,6 @@
 Method <com.github.tomakehurst.wiremock.WireMockServer.lambda$shutdown$0(com.github.tomakehurst.wiremock.WireMockServer)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (WireMockServer.java:178)
 Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (AbstractFileSource.java:138)
 Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (AbstractFileSource.java:140)
-Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.writeBinaryFileAndTranslateExceptions([B, java.io.File)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (AbstractFileSource.java:180)
-Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.writeTextFileAndTranslateExceptions(java.lang.String, java.io.File)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (AbstractFileSource.java:172)
 Method <com.github.tomakehurst.wiremock.common.ClasspathFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (ClasspathFileSource.java:212)
 Method <com.github.tomakehurst.wiremock.common.ClasspathFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (ClasspathFileSource.java:214)
 Method <com.github.tomakehurst.wiremock.common.ClasspathFileSource.getZipEntryUri(java.lang.String)> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (ClasspathFileSource.java:114)
