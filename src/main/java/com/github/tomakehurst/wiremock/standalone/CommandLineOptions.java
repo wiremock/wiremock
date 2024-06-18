@@ -385,11 +385,11 @@ public class CommandLineOptions implements Options {
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
     optionParser
-            .accepts(MAX_HTTP_CLIENT_CONNECTIONS, "Maximum connections for Http Client")
-            .withRequiredArg();
+        .accepts(MAX_HTTP_CLIENT_CONNECTIONS, "Maximum connections for Http Client")
+        .withRequiredArg();
     optionParser
-            .accepts(DISABLE_CONNECTION_REUSE, "Disable http connection reuse")
-            .withRequiredArg();
+        .accepts(DISABLE_CONNECTION_REUSE, "Disable http connection reuse")
+        .withRequiredArg();
     optionParser
         .accepts(
             SUPPORTED_PROXY_ENCODINGS,
@@ -995,8 +995,8 @@ public class CommandLineOptions implements Options {
   @Override
   public int getMaxHttpClientConnections() {
     return optionSet.has(MAX_HTTP_CLIENT_CONNECTIONS)
-            ? Integer.parseInt((String) optionSet.valueOf(MAX_HTTP_CLIENT_CONNECTIONS))
-            : DEFAULT_MAX_HTTP_CONNECTIONS;
+        ? Integer.parseInt((String) optionSet.valueOf(MAX_HTTP_CLIENT_CONNECTIONS))
+        : DEFAULT_MAX_HTTP_CONNECTIONS;
   }
 
   @Override
@@ -1049,7 +1049,7 @@ public class CommandLineOptions implements Options {
   @Override
   public boolean getDisableConnectionReuse() {
     return optionSet.has(DISABLE_CONNECTION_REUSE)
-            ? Boolean.parseBoolean((String) optionSet.valueOf(DISABLE_CONNECTION_REUSE))
-            : DEFAULT_DISABLE_CONNECTION_REUSE;
+        ? Boolean.parseBoolean((String) optionSet.valueOf(DISABLE_CONNECTION_REUSE))
+        : DEFAULT_DISABLE_CONNECTION_REUSE;
   }
 }

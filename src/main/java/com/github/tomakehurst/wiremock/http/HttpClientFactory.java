@@ -110,18 +110,17 @@ public class HttpClientFactory {
     final SSLContext sslContext =
         buildSslContext(trustStoreSettings, trustAllCertificates, trustedHosts);
     LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
-    builder
-        .setConnectionManager(
-            PoolingHttpClientConnectionManagerBuilder.create()
-                .setSSLSocketFactory(sslSocketFactory)
-                .setDnsResolver(dnsResolver)
-                .setMaxConnPerRoute(maxConnections)
-                .setMaxConnTotal(maxConnections)
-                .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
-                .setConnectionFactory(
-                    new ManagedHttpClientConnectionFactory(
-                        null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
-                    .build());
+    builder.setConnectionManager(
+        PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(sslSocketFactory)
+            .setDnsResolver(dnsResolver)
+            .setMaxConnPerRoute(maxConnections)
+            .setMaxConnTotal(maxConnections)
+            .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
+            .setConnectionFactory(
+                new ManagedHttpClientConnectionFactory(
+                    null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
+            .build());
 
     return builder.build();
   }

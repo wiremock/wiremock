@@ -88,7 +88,7 @@ public class ApacheBackedHttpClient implements HttpClient {
       requestBuilder.setEntity(applyGzipWrapperIfRequired(request, entity));
     }
 
-      return requestBuilder.build();
+    return requestBuilder.build();
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(
