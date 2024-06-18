@@ -76,7 +76,6 @@ public class DefaultStores implements Stores {
   @Override
   public BlobStore getBlobStore(String name) {
     final FileSource child = fileRoot.child(name);
-    child.createIfNecessary();
     return new FileSourceBlobStore(child);
   }
 
@@ -92,7 +91,6 @@ public class DefaultStores implements Stores {
       return store;
     } else {
       final FileSource child = fileRoot.child(name);
-      child.createIfNecessary();
       return new FileSourceJsonObjectStore(child);
     }
   }

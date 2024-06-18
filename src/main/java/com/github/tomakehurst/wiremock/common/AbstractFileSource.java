@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
@@ -54,6 +55,10 @@ public abstract class AbstractFileSource implements FileSource {
 
   @Override
   public void createIfNecessary() {
+    if (rootDirectory.isDirectory()) {
+      return;
+    }
+
     if (rootDirectory.exists() && rootDirectory.isFile()) {
       throw new IllegalStateException(rootDirectory + " already exists and is a file");
     } else if (!rootDirectory.exists() && !readOnly()) {
@@ -96,11 +101,12 @@ public abstract class AbstractFileSource implements FileSource {
 
   @Override
   public void writeTextFile(String name, String contents) {
-    writeTextFileAndTranslateExceptions(contents, writableFileFor(name));
+    writeBinaryFile(name, contents.getBytes(UTF_8));
   }
 
   @Override
   public void writeBinaryFile(String name, byte[] contents) {
+    createIfNecessary();
     writeBinaryFileAndTranslateExceptions(contents, writableFileFor(name));
   }
 
@@ -165,29 +171,20 @@ public abstract class AbstractFileSource implements FileSource {
     }
   }
 
-  private void ensureDirectoryExists(File toFile) throws IOException {
-    Path toPath = toFile.toPath();
-    if (!java.nio.file.Files.exists(toPath)) {
-      Path toParentPath = toPath.getParent();
-      java.nio.file.Files.createDirectories(toParentPath);
-    }
-  }
-
-  private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
-    try {
-      ensureDirectoryExists(toFile);
-      Files.write(toFile.toPath(), contents.getBytes(UTF_8));
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
-  }
-
   private void writeBinaryFileAndTranslateExceptions(byte[] contents, File toFile) {
     try {
       ensureDirectoryExists(toFile);
       Files.write(toFile.toPath(), contents);
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throwUnchecked(ioe);
+    }
+  }
+
+  private void ensureDirectoryExists(File toFile) throws IOException {
+    Path toPath = toFile.toPath();
+    if (!java.nio.file.Files.exists(toPath)) {
+      Path toParentPath = toPath.getParent();
+      java.nio.file.Files.createDirectories(toParentPath);
     }
   }
 
