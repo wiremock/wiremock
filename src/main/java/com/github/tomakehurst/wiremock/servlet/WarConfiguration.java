@@ -157,6 +157,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public boolean shouldPreserveUserAgentProxyHeader() {
+    return false;
+  }
+
+  @Override
   public String proxyHostHeader() {
     return null;
   }
