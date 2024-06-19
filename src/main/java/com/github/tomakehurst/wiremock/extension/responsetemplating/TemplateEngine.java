@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtens
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
@@ -148,9 +147,7 @@ public class TemplateEngine {
   }
 
   private static RequestTemplateModel buildRequestModel(ServeEvent serveEvent) {
-    final Request request =
-        RequestPathParamsDecorator.decorate(
-            serveEvent.getRequest(), serveEvent.getStubMapping().getRequest());
+    final Request request = serveEvent.getRequest();
     RequestLine requestLine = RequestLine.fromRequest(request);
     Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     adaptedHeaders.putAll(
