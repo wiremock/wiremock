@@ -28,12 +28,18 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.testsupport.ThrowingWebhookTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +90,11 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
   public WireMockExtension nonThrowingExtention =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
-          .options(options().dynamicPort().notifier(testNotifier))
+          .options(
+              options()
+                  .dynamicPort()
+                  .notifier(testNotifier)
+                  .extensions(new FakeHttpClientFactory()))
           .build();
 
   @BeforeEach
@@ -134,8 +144,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
                 "webhook",
                 webhook()
                     .withMethod(POST)
-                    // this url contains no port so shouldn't connect
-                    .withUrl("http://localhost/callback-errors")
+                    .withUrl(targetServer.url("/callback-errors"))
                     .withHeader("Content-Type", "application/json")
                     .withBody("{ \"result\": \"ERROR\" }")));
 
@@ -146,7 +155,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
     printAllErrorNotifications();
     assertThat("No webhook should have been made", latch.getCount(), is(1L));
 
-    assertErrorMessage("Failed to fire webhook POST http://localhost/callback-errors");
+    assertErrorMessage("Failed to fire webhook POST " + targetServer.url("/callback-errors"));
 
     // should be two sub events - the request and the error
     List<SubEvent> subEvents =
@@ -155,11 +164,28 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
     Map<String, Object> expectedRequestEntries =
         Map.of(
             "url", "/callback-errors",
-            "absoluteUrl", "http://localhost/callback-errors",
+            "absoluteUrl", targetServer.url("/callback-errors"),
             "method", "POST",
             "scheme", "http",
             "body", "{ \"result\": \"ERROR\" }");
     assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
     assertSubEvent(subEvents.get(1), SubEvent.ERROR, "Connection refused");
+  }
+
+  public static class FakeHttpClientFactory implements HttpClientFactory {
+
+    @Override
+    public HttpClient buildHttpClient(
+        Options options,
+        boolean trustAllCertificates,
+        List<String> trustedHosts,
+        boolean useSystemProperties) {
+      return new HttpClient() {
+        @Override
+        public Response execute(Request request) throws IOException {
+          throw new IOException("Connection refused");
+        }
+      };
+    }
   }
 }
