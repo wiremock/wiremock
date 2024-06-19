@@ -105,11 +105,7 @@ public class RequestPathParamsDecorator implements Request {
 
   @Override
   public PathParams getPathParameters() {
-    return getPathTemplate().map(template -> template.parse(getUrl())).orElse(PathParams.empty());
-  }
-
-  private Optional<PathTemplate> getPathTemplate() {
-    return Optional.of(pathTemplate);
+    return pathTemplate.parse(getUrl());
   }
 
   @Override
