@@ -42,7 +42,6 @@ import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
@@ -79,16 +78,6 @@ public class HttpClientFactory {
             .disableCookieManagement()
             .disableRedirectHandling()
             .disableContentCompression()
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create()
-                    .setDnsResolver(dnsResolver)
-                    .setMaxConnPerRoute(maxConnections)
-                    .setMaxConnTotal(maxConnections)
-                    .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
-                    .setConnectionFactory(
-                        new ManagedHttpClientConnectionFactory(
-                            null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
-                    .build())
             .setDefaultRequestConfig(
                 RequestConfig.custom()
                     .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
@@ -121,12 +110,17 @@ public class HttpClientFactory {
     final SSLContext sslContext =
         buildSslContext(trustStoreSettings, trustAllCertificates, trustedHosts);
     LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
-    PoolingHttpClientConnectionManager connectionManager =
+    builder.setConnectionManager(
         PoolingHttpClientConnectionManagerBuilder.create()
             .setSSLSocketFactory(sslSocketFactory)
             .setDnsResolver(dnsResolver)
-            .build();
-    builder.setConnectionManager(connectionManager);
+            .setMaxConnPerRoute(maxConnections)
+            .setMaxConnTotal(maxConnections)
+            .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
+            .setConnectionFactory(
+                new ManagedHttpClientConnectionFactory(
+                    null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
+            .build());
 
     return builder.build();
   }

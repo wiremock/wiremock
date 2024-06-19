@@ -267,6 +267,16 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public int getMaxHttpClientConnections() {
+    return DEFAULT_MAX_HTTP_CONNECTIONS;
+  }
+
+  @Override
+  public boolean getDisableConnectionReuse() {
+    return DEFAULT_DISABLE_CONNECTION_REUSE;
+  }
+
+  @Override
   public boolean getResponseTemplatingEnabled() {
     return true;
   }

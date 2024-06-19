@@ -126,7 +126,8 @@ public class CommandLineOptions implements Options {
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
   private static final String PROXY_TIMEOUT = "proxy-timeout";
-
+  private static final String MAX_HTTP_CLIENT_CONNECTIONS = "max-http-client-connections";
+  private static final String DISABLE_CONNECTION_REUSE = "disable-connection-reuse";
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
   private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
 
@@ -382,6 +383,12 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
+        .withRequiredArg();
+    optionParser
+        .accepts(MAX_HTTP_CLIENT_CONNECTIONS, "Maximum connections for Http Client")
+        .withRequiredArg();
+    optionParser
+        .accepts(DISABLE_CONNECTION_REUSE, "Disable http connection reuse")
         .withRequiredArg();
     optionParser
         .accepts(
@@ -986,6 +993,13 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public int getMaxHttpClientConnections() {
+    return optionSet.has(MAX_HTTP_CLIENT_CONNECTIONS)
+        ? Integer.parseInt((String) optionSet.valueOf(MAX_HTTP_CLIENT_CONNECTIONS))
+        : DEFAULT_MAX_HTTP_CONNECTIONS;
+  }
+
+  @Override
   public boolean getResponseTemplatingEnabled() {
     return !optionSet.has(DISABLE_RESPONSE_TEMPLATING);
   }
@@ -1030,5 +1044,12 @@ public class CommandLineOptions implements Options {
 
   private int getAsynchronousResponseThreads() {
     return Integer.parseInt((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+  }
+
+  @Override
+  public boolean getDisableConnectionReuse() {
+    return optionSet.has(DISABLE_CONNECTION_REUSE)
+        ? Boolean.parseBoolean((String) optionSet.valueOf(DISABLE_CONNECTION_REUSE))
+        : DEFAULT_DISABLE_CONNECTION_REUSE;
   }
 }
