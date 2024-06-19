@@ -840,24 +840,21 @@ public class CommandLineOptionsTest {
 
   @Test
   void testMaxHttpClientConnectionsOption() {
-    CommandLineOptions options =
-        new CommandLineOptions("--max-proxy-http-client-connections", "5000");
+    CommandLineOptions options = new CommandLineOptions("--max-http-client-connections", "5000");
 
-    assertThat(options.getMaxProxyHttpClientConnections(), is(5000));
+    assertThat(options.getMaxHttpClientConnections(), is(5000));
   }
 
   @Test
   void testDisableConnectionReuseOptionPassedAsFalse() {
-    CommandLineOptions options =
-        new CommandLineOptions("--disable-proxy-client-connection-reuse", "false");
-    assertFalse(options.getDisableProxyClientConnectionReuse());
+    CommandLineOptions options = new CommandLineOptions("--disable-connection-reuse", "false");
+    assertFalse(options.getDisableConnectionReuse());
   }
 
   @Test
   void testDisableConnectionReuseOptionPassedAsTrue() {
-    CommandLineOptions options =
-        new CommandLineOptions("--disable-proxy-client-connection-reuse", "true");
-    assertTrue(options.getDisableProxyClientConnectionReuse());
+    CommandLineOptions options = new CommandLineOptions("--disable-connection-reuse", "true");
+    assertTrue(options.getDisableConnectionReuse());
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
