@@ -37,7 +37,7 @@ public class FileItemPartAdapter implements Request.Part {
 
   @Override
   public String getName() {
-    return fileItem.getFieldName();
+    return fileItem.getName(); // Changed from getFieldName() to getName()
   }
 
   @Override
