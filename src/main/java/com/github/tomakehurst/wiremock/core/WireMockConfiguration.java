@@ -141,8 +141,8 @@ public class WireMockConfiguration implements Options {
 
   private int proxyTimeout = DEFAULT_TIMEOUT;
 
-  private int maxHttpClientConnections = DEFAULT_MAX_HTTP_CONNECTIONS;
-  private boolean disableConnectionReuse = DEFAULT_DISABLE_CONNECTION_REUSE;
+  private int maxProxyHttpClientConnections = DEFAULT_MAX_PROXY_CLIENT_HTTP_CONNECTIONS;
+  private boolean disableProxyClientConnectionReuse = DEFAULT_DISABLE_PROXY_CLIENT_CONNECTION_REUSE;
 
   private boolean templatingEnabled = true;
   private boolean globalTemplating = false;
@@ -550,12 +550,12 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration maxHttpClientConnections(int maxHttpClientConnections) {
-    this.maxHttpClientConnections = maxHttpClientConnections;
+    this.maxProxyHttpClientConnections = maxHttpClientConnections;
     return this;
   }
 
   public WireMockConfiguration disableConnectionReuse(boolean disableConnectionReuse) {
-    this.disableConnectionReuse = disableConnectionReuse;
+    this.disableProxyClientConnectionReuse = disableConnectionReuse;
     return this;
   }
 
@@ -849,13 +849,13 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public int getMaxHttpClientConnections() {
-    return maxHttpClientConnections;
+  public int getMaxProxyHttpClientConnections() {
+    return maxProxyHttpClientConnections;
   }
 
   @Override
-  public boolean getDisableConnectionReuse() {
-    return disableConnectionReuse;
+  public boolean getDisableProxyClientConnectionReuse() {
+    return disableProxyClientConnectionReuse;
   }
 
   @Override

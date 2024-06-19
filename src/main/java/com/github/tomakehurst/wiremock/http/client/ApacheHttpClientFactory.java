@@ -29,7 +29,7 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
       boolean useSystemProperties) {
     final CloseableHttpClient apacheClient =
         com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(
-            options.getMaxHttpClientConnections(),
+            options.getMaxProxyHttpClientConnections(),
             options.proxyTimeout(),
             options.proxyVia(),
             options.httpsSettings().trustStore(),
@@ -37,7 +37,7 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
             trustedHosts,
             useSystemProperties,
             options.getProxyTargetRules(),
-            options.getDisableConnectionReuse());
+            options.getDisableProxyClientConnectionReuse());
 
     return new ApacheBackedHttpClient(apacheClient, options.shouldPreserveUserAgentProxyHeader());
   }
