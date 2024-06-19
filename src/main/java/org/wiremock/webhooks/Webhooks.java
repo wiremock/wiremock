@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngi
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -81,7 +82,9 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       definition = applyTemplating(definition, serveEvent);
       request = buildRequest(definition);
     } catch (Exception e) {
-      notifier().error("Exception thrown while configuring webhook", e);
+      final String msg = "Exception thrown while configuring webhook";
+      notifier().error(msg, e);
+      serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
       return;
     }
 
@@ -90,28 +93,33 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         () -> {
           try {
             Response response = httpClient.execute(request);
-            notifier.info(
+            final String msg =
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
                     finalDefinition.getMethod(),
                     finalDefinition.getUrl(),
                     response.getStatus(),
-                    response.getBodyAsString()));
+                    response.getBodyAsString());
+            notifier.info(msg);
+            serveEvent.appendSubEvent(SubEvent.info(msg));
           } catch (ProhibitedNetworkAddressException e) {
-            notifier.error(
+            final String msg =
                 String.format(
                     "The target webhook address %s specified by stub %s is denied in WireMock's configuration.",
                     finalDefinition.getUrl(),
                     getFirstNonNull(
                         serveEvent.getStubMapping().getName(),
                         serveEvent.getStubMapping().getId(),
-                        "<no name or id>")));
+                        "<no name or id>"));
+            notifier.error(msg);
+            serveEvent.appendSubEvent(SubEvent.error(msg));
           } catch (Exception e) {
-            notifier.error(
+            final String msg =
                 String.format(
                     "Failed to fire webhook %s %s",
-                    finalDefinition.getMethod(), finalDefinition.getUrl()),
-                e);
+                    finalDefinition.getMethod(), finalDefinition.getUrl());
+            notifier.error(msg, e);
+            serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
           }
         },
         finalDefinition.getDelaySampleMillis(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.testsupport.ThrowingWebhookTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.concurrent.CountDownLatch;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class FailingWebhookTest {
+public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension targetServer =
@@ -62,35 +62,40 @@ public class FailingWebhookTest {
                       }))
           .build();
 
-  CountDownLatch latch;
-  TestNotifier notifier = new TestNotifier();
   WireMockTestClient client;
 
   @RegisterExtension
-  public WireMockExtension extension =
+  public WireMockExtension requestThrowingExtention =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
           .options(
               options()
                   .dynamicPort()
-                  .notifier(notifier)
+                  .notifier(testNotifier)
                   .extensions(new ThrowingWebhookTransformer()))
+          .build();
+
+  @RegisterExtension
+  public WireMockExtension nonThrowingExtention =
+      WireMockExtension.newInstance()
+          .configureStaticDsl(true)
+          .options(options().dynamicPort().notifier(testNotifier))
           .build();
 
   @BeforeEach
   public void init() {
-    notifier.reset();
-    targetServer.stubFor(any(anyUrl()).willReturn(aResponse().withStatus(200)));
+    testNotifier.reset();
+    targetServer.stubFor(post("/callback").willReturn(ok()));
     latch = new CountDownLatch(1);
-    client = new WireMockTestClient(extension.getPort());
+    client = new WireMockTestClient(requestThrowingExtention.getPort());
     WireMock.configureFor(targetServer.getPort());
   }
 
   @Test
-  public void failWhenExecutingTheWebhook() throws Exception {
-    extension.stubFor(
+  public void failWhenCreatingWebhookRequestAddsSubEvent() throws Exception {
+    requestThrowingExtention.stubFor(
         post(urlPathEqualTo("/something-async"))
-            .willReturn(aResponse().withStatus(200))
+            .willReturn(ok())
             .withPostServeAction(
                 "webhook",
                 webhook()
@@ -103,6 +108,42 @@ public class FailingWebhookTest {
 
     client.post("/something-async", new StringEntity("", TEXT_PLAIN));
     latch.await(1, SECONDS);
-    assertThat("No webook should have been made", latch.getCount(), is(1L));
+
+    printAllErrorNotifications();
+    assertThat("No webhook should have been made", latch.getCount(), is(1L));
+
+    assertErrorMessage("Exception thrown while configuring webhook");
+    assertSubEvent(
+        requestThrowingExtention.getAllServeEvents(),
+        SubEvent.ERROR,
+        "Exception thrown while configuring webhook: oh no");
+  }
+
+  @Test
+  public void genericExceptionWhileMakingWebhookRequestAddsSubEvent() throws Exception {
+    nonThrowingExtention.stubFor(
+        post(urlPathEqualTo("/error"))
+            .willReturn(ok())
+            .withPostServeAction(
+                "webhook",
+                webhook()
+                    .withMethod(POST)
+                    // this url contains no port so shouldn't connect
+                    .withUrl("http://localhost/callback-errors")
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{ \"result\": \"ERROR\" }")));
+
+    client = new WireMockTestClient(nonThrowingExtention.getPort());
+    client.post("/error", new StringEntity("", TEXT_PLAIN));
+    latch.await(1, SECONDS);
+
+    printAllErrorNotifications();
+    assertThat("No webhook should have been made", latch.getCount(), is(1L));
+
+    assertErrorMessage("Failed to fire webhook POST http://localhost/callback-errors");
+    assertSubEvent(
+        nonThrowingExtention.getAllServeEvents(),
+        SubEvent.ERROR,
+        "Failed to fire webhook POST http://localhost/callback-errors: Connect to http://localhost:80 [localhost/127.0.0.1] failed: Connection refused");
   }
 }
