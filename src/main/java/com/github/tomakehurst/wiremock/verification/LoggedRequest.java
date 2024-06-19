@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -45,6 +46,7 @@ public class LoggedRequest implements Request {
   private final String clientIp;
   private final RequestMethod method;
   private final HttpHeaders headers;
+  private final PathParams pathParams;
   private final Map<String, Cookie> cookies;
   private final Map<String, QueryParameter> queryParams;
   private final Map<String, FormParameter> formParameters;
@@ -67,6 +69,7 @@ public class LoggedRequest implements Request {
         request.getMethod(),
         request.getClientIp(),
         request.getHeaders(),
+        request.getPathParameters(),
         request.getCookies(),
         request.isBrowserProxyRequest(),
         new Date(),
@@ -99,6 +102,7 @@ public class LoggedRequest implements Request {
         method,
         clientIp,
         headers,
+        PathParams.empty(),
         cookies,
         isBrowserProxyRequest,
         loggedDate,
@@ -117,6 +121,7 @@ public class LoggedRequest implements Request {
       RequestMethod method,
       String clientIp,
       HttpHeaders headers,
+      PathParams pathParams,
       Map<String, Cookie> cookies,
       boolean isBrowserProxyRequest,
       Date loggedDate,
@@ -142,6 +147,7 @@ public class LoggedRequest implements Request {
     this.method = method;
     this.body = body;
     this.headers = headers;
+    this.pathParams = pathParams;
     this.cookies = cookies;
     this.queryParams = url != null ? splitQueryFromUrl(url) : Collections.emptyMap();
     this.formParameters = formParameters;
@@ -224,6 +230,12 @@ public class LoggedRequest implements Request {
   @Override
   public boolean containsHeader(String key) {
     return getHeader(key) != null;
+  }
+
+  @JsonIgnore
+  @Override
+  public PathParams getPathParameters() {
+    return pathParams;
   }
 
   @Override

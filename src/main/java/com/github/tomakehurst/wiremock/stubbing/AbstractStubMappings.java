@@ -94,7 +94,8 @@ public abstract class AbstractStubMappings implements StubMappings {
     ServeEvent serveEvent =
         initialServeEvent
             .withStubMapping(matchingStub)
-            .withResponseDefinition(initialResponseDefinition);
+            .withResponseDefinition(initialResponseDefinition)
+            .withPathParamDecoratedRequest();
 
     triggerListeners(serveEventListeners, AFTER_MATCH, serveEvent);
 
