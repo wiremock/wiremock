@@ -21,7 +21,9 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -32,6 +34,9 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.testsupport.ThrowingWebhookTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,16 +112,17 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
     verify(0, postRequestedFor(anyUrl()));
 
     client.post("/something-async", new StringEntity("", TEXT_PLAIN));
-    latch.await(1, SECONDS);
+    assertFalse(latch.await(1, SECONDS));
 
     printAllErrorNotifications();
     assertThat("No webhook should have been made", latch.getCount(), is(1L));
 
     assertErrorMessage("Exception thrown while configuring webhook");
+    List<SubEvent> subEvents =
+        new ArrayList<>(requestThrowingExtention.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(1));
     assertSubEvent(
-        requestThrowingExtention.getAllServeEvents(),
-        SubEvent.ERROR,
-        "Exception thrown while configuring webhook: oh no");
+        subEvents.get(0), SubEvent.ERROR, "Exception thrown while configuring webhook: oh no");
   }
 
   @Test
@@ -135,14 +141,27 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
     client = new WireMockTestClient(nonThrowingExtention.getPort());
     client.post("/error", new StringEntity("", TEXT_PLAIN));
-    latch.await(1, SECONDS);
+    assertFalse(latch.await(1, SECONDS));
 
     printAllErrorNotifications();
     assertThat("No webhook should have been made", latch.getCount(), is(1L));
 
     assertErrorMessage("Failed to fire webhook POST http://localhost/callback-errors");
+
+    // should be two sub events - the request and the error
+    List<SubEvent> subEvents =
+        new ArrayList<>(nonThrowingExtention.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(2));
+    Map<String, Object> expectedRequestEntries =
+        Map.of(
+            "url", "/callback-errors",
+            "absoluteUrl", "http://localhost/callback-errors",
+            "method", "POST",
+            "scheme", "http",
+            "body", "{ \"result\": \"ERROR\" }");
+    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
     assertSubEvent(
-        nonThrowingExtention.getAllServeEvents(),
+        subEvents.get(1),
         SubEvent.ERROR,
         "Failed to fire webhook POST http://localhost/callback-errors: Connect to http://localhost:80 [localhost/127.0.0.1] failed: Connection refused");
   }

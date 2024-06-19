@@ -44,6 +44,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -163,10 +164,19 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                     containsString("/callback returned status"),
                     containsString("200"))));
 
-    assertSubEventContains(
-        rule.getAllServeEvents(),
-        SubEvent.INFO,
-        List.of("Webhook POST request to", "/callback returned status", "200"));
+    // should be two sub events - the request and the response
+    List<SubEvent> subEvents = new ArrayList<>(rule.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(2));
+    Map<String, Object> expectedRequestEntries =
+        Map.of(
+            "url", "/callback",
+            "method", "POST",
+            "host", "localhost",
+            "scheme", "http",
+            "body", "{ \"result\": \"SUCCESS\" }");
+    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
+    Map<String, Object> expectedResponseEntries = Map.of("status", 200, "body", "");
+    assertSubEvent(subEvents.get(1), SubEvent.INFO, expectedResponseEntries);
   }
 
   @Test
@@ -442,7 +452,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     StubMapping stub =
         rule.stubFor(
             post(urlPathEqualTo("/webhook"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(ok())
                 .withServeEventListener(
                     "webhook",
                     webhook()
@@ -461,6 +471,18 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             + stub.getId()
             + " is denied in WireMock's configuration.";
     assertErrorMessage(expectedErrorMessage);
-    assertSubEvent(rule.getAllServeEvents(), SubEvent.ERROR, expectedErrorMessage);
+
+    // should be two sub events - the request and the error
+    List<SubEvent> subEvents = new ArrayList<>(rule.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(2));
+    Map<String, Object> expectedRequestEntries =
+        Map.of(
+            "url", "/foo",
+            "absoluteUrl", "http://169.254.2.34/foo",
+            "method", "POST",
+            "scheme", "http",
+            "body", "{ \"result\": \"SUCCESS\" }");
+    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
+    assertSubEvent(subEvents.get(1), SubEvent.ERROR, expectedErrorMessage);
   }
 }
