@@ -80,9 +80,10 @@ public class DefaultStores implements Stores {
   }
 
   @Override
-  public ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint) {
+  public ObjectStore getObjectStore(
+      String name, PersistenceType persistenceTypeHint, int maxItems) {
     if (persistenceTypeHint == EPHEMERAL) {
-      return objectStores.computeIfAbsent(name, n -> new InMemoryObjectStore(10000));
+      return objectStores.computeIfAbsent(name, n -> new InMemoryObjectStore(maxItems));
     } else {
       final FileSource child = fileRoot.child(name);
       return new FileSourceJsonObjectStore(child);
