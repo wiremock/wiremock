@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +59,12 @@ public interface Request {
   boolean containsHeader(String key);
 
   Set<String> getAllHeaderKeys();
+
+  // These are calculated from other fields so should not be serialised
+  @JsonIgnore
+  default PathParams getPathParameters() {
+    return PathParams.empty();
+  }
 
   QueryParameter queryParameter(String key);
 
