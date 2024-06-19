@@ -267,13 +267,13 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public int getMaxProxyHttpClientConnections() {
-    return DEFAULT_MAX_PROXY_CLIENT_HTTP_CONNECTIONS;
+  public int getMaxHttpClientConnections() {
+    return DEFAULT_MAX_HTTP_CONNECTIONS;
   }
 
   @Override
-  public boolean getDisableProxyClientConnectionReuse() {
-    return DEFAULT_DISABLE_PROXY_CLIENT_CONNECTION_REUSE;
+  public boolean getDisableConnectionReuse() {
+    return DEFAULT_DISABLE_CONNECTION_REUSE;
   }
 
   @Override
