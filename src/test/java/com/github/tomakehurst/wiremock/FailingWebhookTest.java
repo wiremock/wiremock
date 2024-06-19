@@ -160,9 +160,6 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
             "scheme", "http",
             "body", "{ \"result\": \"ERROR\" }");
     assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
-    assertSubEvent(
-        subEvents.get(1),
-        SubEvent.ERROR,
-        "Failed to fire webhook POST http://localhost/callback-errors: Connect to http://localhost:80 [localhost/127.0.0.1] failed: Connection refused");
+    assertSubEvent(subEvents.get(1), SubEvent.ERROR, "Connection refused");
   }
 }

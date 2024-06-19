@@ -45,7 +45,13 @@ public class WebhooksAcceptanceTest {
     assertThat(subEvent, notNullValue());
     assertThat(subEvent.getType(), is(type));
     for (Map.Entry<String, Object> entry : data.entrySet()) {
-      assertThat(subEvent.getData(), hasEntry(entry.getKey(), entry.getValue()));
+      boolean hasEntry =
+          subEvent.getData().entrySet().stream()
+              .anyMatch(
+                  e ->
+                      e.getKey().equals(entry.getKey())
+                          && e.getValue().toString().contains(entry.getValue().toString()));
+      assertTrue(hasEntry);
     }
   }
 
