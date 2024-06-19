@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -144,8 +144,14 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
   @Test
   public void supportsAccessingTheFilesFileSource() {
-    startWithExtensions(
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$FileAccessTransformer");
+    wm =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
+                .extensions(services -> List.of(new FileAccessTransformer(services.getFiles()))));
+    wm.start();
+    client = new WireMockTestClient(wm.port());
     createStub("/files-access-transform");
 
     WireMockResponse response = client.get("/files-access-transform");
@@ -167,9 +173,11 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
   @Test
   void pathParametersCanBeUsed() {
-    startWithExtensions("com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$PathParamUsingResponseDefinitionTransformer");
+    startWithExtensions(
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$PathParamUsingResponseDefinitionTransformer");
 
-    wm.stubFor(get(urlPathTemplate("/things/{thingId}"))
+    wm.stubFor(
+        get(urlPathTemplate("/things/{thingId}"))
             .willReturn(ok().withTransformers("path-param-to-header")));
 
     WireMockResponse response = client.get("/things/123");
@@ -331,7 +339,8 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     }
   }
 
-  public static class PathParamUsingResponseDefinitionTransformer implements ResponseDefinitionTransformerV2 {
+  public static class PathParamUsingResponseDefinitionTransformer
+      implements ResponseDefinitionTransformerV2 {
 
     @Override
     public String getName() {
@@ -340,9 +349,10 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
     @Override
     public ResponseDefinition transform(ServeEvent serveEvent) {
-      return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition()).but()
-              .withHeader("x-thing-id", serveEvent.getRequest().getPathParameters().get("thingId"))
-              .build();
+      return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
+          .but()
+          .withHeader("x-thing-id", serveEvent.getRequest().getPathParameters().get("thingId"))
+          .build();
     }
   }
 }
