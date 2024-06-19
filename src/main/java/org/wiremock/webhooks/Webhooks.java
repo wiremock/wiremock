@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
@@ -122,13 +121,15 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private WebhookDefinition applyTemplating(
       WebhookDefinition webhookDefinition, ServeEvent serveEvent) {
 
-    final Map<String, Object> model = new HashMap<>();
+    final Map<String, Object> model =
+        new HashMap<>(this.templateEngine.buildModelForRequest(serveEvent));
     model.put(
         "parameters",
         webhookDefinition.getExtraParameters() != null
             ? webhookDefinition.getExtraParameters()
             : Collections.<String, Object>emptyMap());
-    model.put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()));
+    model.put("originalRequest", model.get("request"));
+    model.remove("request");
 
     WebhookDefinition renderedWebhookDefinition =
         webhookDefinition
