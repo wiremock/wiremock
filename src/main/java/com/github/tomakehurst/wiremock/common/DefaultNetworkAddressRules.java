@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL_RANGES;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
 import static java.util.stream.Collectors.toSet;
 
@@ -37,7 +37,7 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
                     networkAddressRange ->
                         !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
                 .collect(toSet()),
-            Set.of(ALL));
+            ALL_RANGES);
     this.allowedHostPatterns =
         defaultIfEmpty(
             allowed.stream()
@@ -45,7 +45,7 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
                     networkAddressRange ->
                         (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
                 .collect(toSet()),
-            Set.of(ALL));
+            ALL_RANGES);
     this.denied =
         denied.stream()
             .filter(
@@ -83,8 +83,8 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
 
   @Override
   public boolean isAllowedAll() {
-    return allowed.equals(Set.of(ALL))
-        && allowedHostPatterns.equals(Set.of(ALL))
+    return allowed.equals(ALL_RANGES)
+        && allowedHostPatterns.equals(ALL_RANGES)
         && denied.isEmpty()
         && deniedHostPatterns.isEmpty();
   }
