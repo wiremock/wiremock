@@ -27,18 +27,19 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -141,9 +142,29 @@ public class TemplateEngine {
 
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
-    model.put("request", RequestTemplateModel.from(serveEvent));
+    model.put("request", buildRequestModel(serveEvent));
     model.putAll(additionalModelData);
     return model;
+  }
+
+  private static RequestTemplateModel buildRequestModel(ServeEvent serveEvent) {
+    final Request request =
+        RequestPathParamsDecorator.decorate(
+            serveEvent.getRequest(), serveEvent.getStubMapping().getRequest());
+    RequestLine requestLine = RequestLine.fromRequest(request);
+    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    adaptedHeaders.putAll(
+        Maps.toMap(
+            request.getAllHeaderKeys(), input -> ListOrSingle.of(request.header(input).values())));
+    Map<String, ListOrSingle<String>> adaptedCookies =
+        Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
+
+    return new RequestTemplateModel(
+        serveEvent.getId().toString(),
+        requestLine,
+        adaptedHeaders,
+        adaptedCookies,
+        request.getBodyAsString());
   }
 
   public long getCacheSize() {
