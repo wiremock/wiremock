@@ -124,9 +124,11 @@ public class ServeEvent {
   }
 
   public ServeEvent withPathParamDecoratedRequest() {
-    final LoggedRequest newLoggedRequest = LoggedRequest.createFrom(RequestPathParamsDecorator.decorate(request, stubMapping.getRequest()));
+    final LoggedRequest newLoggedRequest =
+        LoggedRequest.createFrom(
+            RequestPathParamsDecorator.decorate(request, stubMapping.getRequest()));
     return new ServeEvent(
-            id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
+        id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
   public ServeEvent complete(Response response, DataTruncationSettings dataTruncationSettings) {
