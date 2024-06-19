@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,37 @@ import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class RequestTemplateModel {
 
+  private final String id;
   private final RequestLine requestLine;
   private final Map<String, ListOrSingle<String>> headers;
   private final Map<String, ListOrSingle<String>> cookies;
   private final String body;
 
   protected RequestTemplateModel(
+      String id,
       RequestLine requestLine,
       Map<String, ListOrSingle<String>> headers,
       Map<String, ListOrSingle<String>> cookies,
       String body) {
+    this.id = id;
     this.requestLine = requestLine;
     this.headers = headers;
     this.cookies = cookies;
     this.body = body;
+  }
+
+  public static RequestTemplateModel from(ServeEvent serveEvent) {
+    return from(
+        serveEvent.getId().toString(),
+        serveEvent.getRequest(),
+        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate());
   }
 
   public static RequestTemplateModel from(final Request request) {
@@ -46,6 +57,11 @@ public class RequestTemplateModel {
   }
 
   public static RequestTemplateModel from(final Request request, final PathTemplate pathTemplate) {
+    return from(null, request, pathTemplate);
+  }
+
+  public static RequestTemplateModel from(
+      final String id, final Request request, final PathTemplate pathTemplate) {
     RequestLine requestLine = RequestLine.fromRequest(request, pathTemplate);
     Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     adaptedHeaders.putAll(
@@ -55,7 +71,11 @@ public class RequestTemplateModel {
         Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
 
     return new RequestTemplateModel(
-        requestLine, adaptedHeaders, adaptedCookies, request.getBodyAsString());
+        id, requestLine, adaptedHeaders, adaptedCookies, request.getBodyAsString());
+  }
+
+  public String getId() {
+    return id;
   }
 
   public RequestLine getRequestLine() {
