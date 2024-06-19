@@ -19,16 +19,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -37,17 +37,16 @@ public class WebhooksAcceptanceTest {
   protected CountDownLatch latch;
   protected TestNotifier testNotifier = new TestNotifier();
 
-  protected void assertSubEvent(List<ServeEvent> allServeEvents, String type, String message) {
-    assertSubEventContains(allServeEvents, type, List.of(message));
+  protected void assertSubEvent(SubEvent subEvent, String type, String message) {
+    assertSubEvent(subEvent, type, Map.of("message", message));
   }
 
-  protected void assertSubEventContains(
-      List<ServeEvent> allServeEvents, String type, List<String> messages) {
-    assertThat(allServeEvents.size(), greaterThanOrEqualTo(1));
-    SubEvent subEvent = allServeEvents.get(0).getSubEvents().stream().findFirst().orElse(null);
+  protected void assertSubEvent(SubEvent subEvent, String type, Map<String, Object> data) {
     assertThat(subEvent, notNullValue());
     assertThat(subEvent.getType(), is(type));
-    assertThat((String) subEvent.getData().get("message"), stringContainsInOrder(messages));
+    for (Map.Entry<String, Object> entry : data.entrySet()) {
+      assertThat(subEvent.getData(), hasEntry(entry.getKey(), entry.getValue()));
+    }
   }
 
   protected void assertErrorMessage(String expectedErrorMessage) {

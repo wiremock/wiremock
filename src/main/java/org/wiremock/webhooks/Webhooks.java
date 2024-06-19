@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -41,6 +42,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final HttpClient httpClient;
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
+  private final DataTruncationSettings dataTruncationSettings;
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -51,6 +53,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.httpClient = wireMockServices.getDefaultHttpClient();
     this.transformers = transformers;
     this.templateEngine = wireMockServices.getTemplateEngine();
+    this.dataTruncationSettings = wireMockServices.getOptions().getDataTruncationSettings();
   }
 
   @Override
@@ -81,6 +84,8 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       }
       definition = applyTemplating(definition, serveEvent);
       request = buildRequest(definition);
+
+      serveEvent.appendSubEvent(SubEvent.INFO, LoggedRequest.createFrom(request));
     } catch (Exception e) {
       final String msg = "Exception thrown while configuring webhook";
       notifier().error(msg, e);
@@ -93,15 +98,17 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         () -> {
           try {
             Response response = httpClient.execute(request);
-            final String msg =
+            notifier.info(
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
                     finalDefinition.getMethod(),
                     finalDefinition.getUrl(),
                     response.getStatus(),
-                    response.getBodyAsString());
-            notifier.info(msg);
-            serveEvent.appendSubEvent(SubEvent.info(msg));
+                    response.getBodyAsString()));
+            serveEvent.appendSubEvent(
+                SubEvent.INFO,
+                LoggedResponse.from(
+                    response, this.dataTruncationSettings.getMaxResponseBodySize()));
           } catch (ProhibitedNetworkAddressException e) {
             final String msg =
                 String.format(
