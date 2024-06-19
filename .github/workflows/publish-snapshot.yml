@@ -1,11 +1,11 @@
-name: Release
+name: Publish Snapshots
 
 on:
   push:
     branches: [ master ]
 
 jobs:
-  publish-core:
+  publish-core-snapshot:
     runs-on: ubuntu-latest
 
     permissions:
@@ -34,7 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  publish-jetty12:
+  publish-jetty12-snapshot:
     runs-on: ubuntu-latest
 
     permissions:
