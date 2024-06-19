@@ -838,6 +838,25 @@ public class CommandLineOptionsTest {
     assertThat(supportedProxyEncodings, hasItems("gzip", "deflate"));
   }
 
+  @Test
+  void testMaxHttpClientConnectionsOption() {
+    CommandLineOptions options = new CommandLineOptions("--max-http-client-connections", "5000");
+
+    assertThat(options.getMaxHttpClientConnections(), is(5000));
+  }
+
+  @Test
+  void testDisableConnectionReuseOptionPassedAsFalse() {
+    CommandLineOptions options = new CommandLineOptions("--disable-connection-reuse", "false");
+    assertFalse(options.getDisableConnectionReuse());
+  }
+
+  @Test
+  void testDisableConnectionReuseOptionPassedAsTrue() {
+    CommandLineOptions options = new CommandLineOptions("--disable-connection-reuse", "true");
+    assertTrue(options.getDisableConnectionReuse());
+  }
+
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
 
     @Override
