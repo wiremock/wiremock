@@ -30,13 +30,23 @@ import java.util.stream.Collectors;
 public abstract class MatchResult implements Comparable<MatchResult> {
 
   private final Queue<SubEvent> subEvents;
+  private final DiffDescription diffDescription;
 
   public MatchResult() {
-    this.subEvents = new LinkedBlockingQueue<>();
+    this(List.of(), null);
+    //    this.subEvents = new LinkedBlockingQueue<>();
+    //    this.diffDescription = null;
   }
 
   public MatchResult(List<SubEvent> subEvents) {
+    this(subEvents, null);
+    //    this.subEvents = new LinkedBlockingQueue<>(subEvents);
+    //    this.diffDescription = null;
+  }
+
+  public MatchResult(List<SubEvent> subEvents, DiffDescription diffDescription) {
     this.subEvents = new LinkedBlockingQueue<>(subEvents);
+    this.diffDescription = diffDescription;
   }
 
   protected void appendSubEvent(SubEvent subEvent) {
@@ -45,6 +55,10 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public List<SubEvent> getSubEvents() {
     return new ArrayList<>(subEvents);
+  }
+
+  public DiffDescription getDiffDescription() {
+    return this.diffDescription;
   }
 
   @JsonCreator
@@ -113,4 +127,16 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public static final java.util.function.Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
       WeightedMatchResult::isExactMatch;
+
+  public static class DiffDescription {
+    public final String expected;
+    public final String actual;
+    public final String errorMessage;
+
+    public DiffDescription(String expected, String actual, String errorMessage) {
+      this.expected = expected;
+      this.actual = actual;
+      this.errorMessage = errorMessage;
+    }
+  }
 }
