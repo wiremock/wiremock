@@ -16,13 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class RequestTemplateModel {
 
@@ -45,39 +40,14 @@ public class RequestTemplateModel {
     this.body = body;
   }
 
-  public static RequestTemplateModel from(ServeEvent serveEvent) {
-    return from(
-        serveEvent.getId().toString(),
-        serveEvent.getRequest(),
-        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate());
-  }
-
-  public static RequestTemplateModel from(final Request request) {
-    return from(request, null);
-  }
-
-  public static RequestTemplateModel from(final Request request, final PathTemplate pathTemplate) {
-    return from(null, request, pathTemplate);
-  }
-
-  public static RequestTemplateModel from(
-      final String id, final Request request, final PathTemplate pathTemplate) {
-    RequestLine requestLine = RequestLine.fromRequest(request, pathTemplate);
-    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    adaptedHeaders.putAll(
-        Maps.toMap(
-            request.getAllHeaderKeys(), input -> ListOrSingle.of(request.header(input).values())));
-    Map<String, ListOrSingle<String>> adaptedCookies =
-        Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
-
-    return new RequestTemplateModel(
-        id, requestLine, adaptedHeaders, adaptedCookies, request.getBodyAsString());
-  }
-
   public String getId() {
     return id;
   }
 
+  @Deprecated
+  /**
+   * @deprecated Use the direct accessors
+   */
   public RequestLine getRequestLine() {
     return requestLine;
   }
