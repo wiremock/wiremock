@@ -76,7 +76,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
   WireMockTestClient client;
 
   @RegisterExtension
-  public WireMockExtension requestThrowingExtention =
+  public WireMockExtension requestThrowingExtension =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
           .options(
@@ -87,7 +87,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
           .build();
 
   @RegisterExtension
-  public WireMockExtension nonThrowingExtention =
+  public WireMockExtension fakeHttpClientFactoryExtension =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
           .options(
@@ -102,13 +102,13 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
     testNotifier.reset();
     targetServer.stubFor(post("/callback").willReturn(ok()));
     latch = new CountDownLatch(1);
-    client = new WireMockTestClient(requestThrowingExtention.getPort());
+    client = new WireMockTestClient(requestThrowingExtension.getPort());
     WireMock.configureFor(targetServer.getPort());
   }
 
   @Test
   public void failWhenCreatingWebhookRequestAddsSubEvent() throws Exception {
-    requestThrowingExtention.stubFor(
+    requestThrowingExtension.stubFor(
         post(urlPathEqualTo("/something-async"))
             .willReturn(ok())
             .withPostServeAction(
@@ -129,7 +129,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
     assertErrorMessage("Exception thrown while configuring webhook");
     List<SubEvent> subEvents =
-        new ArrayList<>(requestThrowingExtention.getAllServeEvents().get(0).getSubEvents());
+        new ArrayList<>(requestThrowingExtension.getAllServeEvents().get(0).getSubEvents());
     assertThat(subEvents, hasSize(1));
     assertSubEvent(
         subEvents.get(0), SubEvent.ERROR, "Exception thrown while configuring webhook: oh no");
@@ -137,7 +137,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
   @Test
   public void genericExceptionWhileMakingWebhookRequestAddsSubEvent() throws Exception {
-    nonThrowingExtention.stubFor(
+    fakeHttpClientFactoryExtension.stubFor(
         post(urlPathEqualTo("/error"))
             .willReturn(ok())
             .withPostServeAction(
@@ -148,7 +148,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
                     .withHeader("Content-Type", "application/json")
                     .withBody("{ \"result\": \"ERROR\" }")));
 
-    client = new WireMockTestClient(nonThrowingExtention.getPort());
+    client = new WireMockTestClient(fakeHttpClientFactoryExtension.getPort());
     client.post("/error", new StringEntity("", TEXT_PLAIN));
     assertFalse(latch.await(1, SECONDS));
 
@@ -159,7 +159,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
     // should be two sub events - the request and the error
     List<SubEvent> subEvents =
-        new ArrayList<>(nonThrowingExtention.getAllServeEvents().get(0).getSubEvents());
+        new ArrayList<>(fakeHttpClientFactoryExtension.getAllServeEvents().get(0).getSubEvents());
     assertThat(subEvents, hasSize(2));
     Map<String, Object> expectedRequestEntries =
         Map.of(
