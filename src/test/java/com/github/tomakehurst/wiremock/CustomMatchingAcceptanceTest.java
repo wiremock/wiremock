@@ -41,7 +41,11 @@ public class CustomMatchingAcceptanceTest {
   @RegisterExtension
   public WireMockExtension wmRule =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().extensions(MyExtensionRequestMatcher.class))
+          .options(
+              options()
+                  .dynamicPort()
+                  .extensions(
+                      MyExtensionRequestMatcher.class, MyPathParameterAwareRequestMatcher.class))
           .failOnUnmatchedRequests(false)
           .build();
 
@@ -127,6 +131,30 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
+  void customMatcherCanMakeUseOfPathParameters() {
+    wm.register(
+        get(urlPathTemplate("/things/{thingId}"))
+            .andMatching("path-aware-matcher")
+            .willReturn(ok()));
+
+    assertThat(client.get("/things/123").statusCode(), is(200));
+    assertThat(client.get("/things/456").statusCode(), is(404));
+  }
+
+  @Test
+  void customMatcherCanBeUsedDuringVerification() {
+    client.get("/things/123");
+    wm.verifyThat(
+        getRequestedFor(urlPathTemplate("/things/{thingId}")).andMatching("path-aware-matcher"));
+
+    wm.resetRequests();
+
+    client.get("/things/456");
+    wm.verifyThat(
+        0, getRequestedFor(urlPathTemplate("/things/{thingId}")).andMatching("path-aware-matcher"));
+  }
+
+  @Test
   public void throwsExceptionIfInlineCustomMatcherUsedWithRemote() {
     assertThrows(
         AdminException.class,
@@ -156,6 +184,19 @@ public class CustomMatchingAcceptanceTest {
     @Override
     public String getName() {
       return "path-contains-param";
+    }
+  }
+
+  public static class MyPathParameterAwareRequestMatcher extends RequestMatcherExtension {
+
+    @Override
+    public String getName() {
+      return "path-aware-matcher";
+    }
+
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+      return MatchResult.of("123".equals(request.getPathParameters().get("thingId")));
     }
   }
 }

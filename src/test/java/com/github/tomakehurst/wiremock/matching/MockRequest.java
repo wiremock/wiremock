@@ -31,6 +31,8 @@ import java.util.*;
 
 public class MockRequest implements Request {
 
+  private UUID id = UUID.randomUUID();
+
   private String scheme = "http";
   private String host = "my.domain";
   private int port = 80;
@@ -52,6 +54,11 @@ public class MockRequest implements Request {
 
   public static MockRequest mockRequest() {
     return new MockRequest();
+  }
+
+  public MockRequest id(UUID id) {
+    this.id = id;
+    return this;
   }
 
   public MockRequest scheme(String scheme) {
@@ -143,6 +150,11 @@ public class MockRequest implements Request {
   public MockRequest protocol(String protocol) {
     this.protocol = protocol;
     return this;
+  }
+
+  @Override
+  public UUID getId() {
+    return id;
   }
 
   @Override
