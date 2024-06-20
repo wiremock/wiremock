@@ -168,7 +168,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
             "method", "POST",
             "scheme", "http",
             "body", "{ \"result\": \"ERROR\" }");
-    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
+    assertSubEvent(subEvents.get(0), WEBHOOK_SUB_EVENT_NAME, expectedRequestEntries);
     assertSubEvent(subEvents.get(1), SubEvent.ERROR, "Connection refused");
   }
 
