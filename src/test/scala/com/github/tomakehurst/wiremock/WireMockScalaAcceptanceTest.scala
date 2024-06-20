@@ -18,21 +18,20 @@ package com.github.tomakehurst.wiremock
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.Options
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.hamcrest.Matchers.is
 import org.hamcrest.MatcherAssert.assertThat
 
-
 class WireMockScalaAcceptanceTest {
 	
-	var wireMockServer: WireMockServer = null
-	var testClient: WireMockTestClient = null
+	var wireMockServer: WireMockServer = _
+	var testClient: WireMockTestClient = _
 
 	@BeforeEach
-	def init() {
+	def init(): Unit = {
 		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT)
 		wireMockServer.start()
 		WireMock.configureFor(wireMockServer.port())
@@ -40,7 +39,7 @@ class WireMockScalaAcceptanceTest {
 	}
 	
 	@AfterEach
-	def stopServer() {
+	def stopServer(): Unit = {
 		wireMockServer.stop()
 	}
 
@@ -55,7 +54,7 @@ class WireMockScalaAcceptanceTest {
 	}
 	
 	@Test
-	def buildsMappingFromStaticSyntax() {
+	def buildsMappingFromStaticSyntax(): Unit = {
 		givenThat(get(urlEqualTo("/my/new/resource"))
 					.willReturn(aResponse()
 						.withStatus(304)))
@@ -64,8 +63,8 @@ class WireMockScalaAcceptanceTest {
 	}
 	
 	@Test
-	def buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
-		val wireMock = new WireMock(wireMockServer.port());
+	def buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns(): Unit = {
+		val wireMock = new WireMock(wireMockServer.port())
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(
@@ -73,6 +72,6 @@ class WireMockScalaAcceptanceTest {
 						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
 						.withStatus(200)))
 
-		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"))
 	}
 }
