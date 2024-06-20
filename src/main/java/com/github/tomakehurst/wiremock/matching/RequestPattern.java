@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
 import java.util.function.Function;
@@ -244,6 +245,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
+    request = RequestPathParamsDecorator.decorate(request, this);
     final MatchResult standardMatchResult = matcher.match(request);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL_RANGES;
 import static java.util.Collections.emptySet;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public interface NetworkAddressRules {
-  NetworkAddressRules ALLOW_ALL = new DefaultNetworkAddressRules(Set.of(ALL), emptySet());
+  NetworkAddressRules ALLOW_ALL = new DefaultNetworkAddressRules(ALL_RANGES, emptySet());
 
   static Builder builder() {
     return new Builder();
   }
 
   boolean isAllowed(String testValue);
+
+  boolean isAllowedAll();
 
   public static class Builder {
     private final Set<NetworkAddressRange> allowed = new HashSet<>();
@@ -47,7 +49,7 @@ public interface NetworkAddressRules {
     public NetworkAddressRules build() {
       Set<NetworkAddressRange> allowedRanges = allowed;
       if (allowedRanges.isEmpty()) {
-        allowedRanges = Set.of(ALL);
+        allowedRanges = ALL_RANGES;
       }
       return new DefaultNetworkAddressRules(Set.copyOf(allowedRanges), Set.copyOf(denied));
     }
