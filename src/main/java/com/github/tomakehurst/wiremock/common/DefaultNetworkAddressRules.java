@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL_RANGES;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
 import static java.util.stream.Collectors.toSet;
 
@@ -37,7 +37,7 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
                     networkAddressRange ->
                         !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
                 .collect(toSet()),
-            Set.of(ALL));
+            ALL_RANGES);
     this.allowedHostPatterns =
         defaultIfEmpty(
             allowed.stream()
@@ -45,7 +45,7 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
                     networkAddressRange ->
                         (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
                 .collect(toSet()),
-            Set.of(ALL));
+            ALL_RANGES);
     this.denied =
         denied.stream()
             .filter(
@@ -79,5 +79,13 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
       return allowedHostPatterns.stream().anyMatch(rule -> rule.isIncluded(testValue))
           && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue));
     }
+  }
+
+  @Override
+  public boolean isAllowedAll() {
+    return allowed.equals(ALL_RANGES)
+        && allowedHostPatterns.equals(ALL_RANGES)
+        && denied.isEmpty()
+        && deniedHostPatterns.isEmpty();
   }
 }
