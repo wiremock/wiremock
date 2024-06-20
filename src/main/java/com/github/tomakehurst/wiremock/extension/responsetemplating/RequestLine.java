@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-@Deprecated
-/** @deprecated Use the accessors on {@link RequestTemplateModel} */
 public class RequestLine {
   private final RequestMethod method;
   private final String scheme;
@@ -37,7 +35,7 @@ public class RequestLine {
   private final String url;
   private final String clientIp;
 
-  private final PathTemplate pathTemplate;
+  private final PathParams pathParams;
 
   private RequestLine(
       RequestMethod method,
@@ -47,7 +45,7 @@ public class RequestLine {
       String url,
       String clientIp,
       Map<String, ListOrSingle<String>> query,
-      PathTemplate pathTemplate) {
+      PathParams pathParams) {
     this.method = method;
     this.scheme = scheme;
     this.host = host;
@@ -55,10 +53,10 @@ public class RequestLine {
     this.url = url;
     this.clientIp = clientIp;
     this.query = query;
-    this.pathTemplate = pathTemplate;
+    this.pathParams = pathParams;
   }
 
-  public static RequestLine fromRequest(final Request request, final PathTemplate pathTemplate) {
+  public static RequestLine fromRequest(final Request request) {
     URI url = URI.create(request.getUrl());
     Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
     Map<String, ListOrSingle<String>> adaptedQuery =
@@ -74,7 +72,7 @@ public class RequestLine {
         request.getUrl(),
         request.getClientIp(),
         adaptedQuery,
-        pathTemplate);
+        request.getPathParameters());
   }
 
   public RequestMethod getMethod() {
@@ -82,7 +80,7 @@ public class RequestLine {
   }
 
   public Object getPathSegments() {
-    return pathTemplate == null ? new UrlPath(url) : new TemplatedUrlPath(url, pathTemplate);
+    return pathParams.isEmpty() ? new UrlPath(url) : new TemplatedUrlPath(url, pathParams);
   }
 
   public String getPath() {
