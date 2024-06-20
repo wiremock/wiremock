@@ -159,9 +159,9 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             "host", "localhost",
             "scheme", "http",
             "body", "{ \"result\": \"SUCCESS\" }");
-    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
+    assertSubEvent(subEvents.get(0), WEBHOOK_SUB_EVENT_NAME, expectedRequestEntries);
     Map<String, Object> expectedResponseEntries = Map.of("status", 200, "body", "");
-    assertSubEvent(subEvents.get(1), SubEvent.INFO, expectedResponseEntries);
+    assertSubEvent(subEvents.get(1), WEBHOOK_SUB_EVENT_NAME, expectedResponseEntries);
   }
 
   @Test
@@ -405,7 +405,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             "method", "POST",
             "scheme", "http",
             "body", "{ \"result\": \"SUCCESS\" }");
-    assertSubEvent(subEvents.get(0), SubEvent.INFO, expectedRequestEntries);
+    assertSubEvent(subEvents.get(0), WEBHOOK_SUB_EVENT_NAME, expectedRequestEntries);
     assertSubEvent(subEvents.get(1), SubEvent.ERROR, expectedErrorMessage);
   }
 }
