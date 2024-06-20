@@ -146,6 +146,12 @@ public class TemplateEngine {
     return model;
   }
 
+  public Map<String, Object> buildModelForRequest(Request request) {
+    final Map<String, Object> model = new HashMap<>();
+    model.put("request", buildRequestModel(request));
+    return model;
+  }
+
   private static RequestTemplateModel buildRequestModel(Request request) {
     RequestLine requestLine = RequestLine.fromRequest(request);
     Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
