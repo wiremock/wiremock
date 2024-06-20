@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,14 @@ public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
       throw new ProhibitedNetworkAddressException();
     }
 
+    final InetAddress[] resolved = delegate.resolve(host);
+
+    if (networkAddressRules.isAllowedAll()) {
+      return resolved;
+    }
+
     final InetAddress[] resolvedIpv4 =
-        Arrays.stream(delegate.resolve(host))
+        Arrays.stream(resolved)
             .filter(inetAddress -> inetAddress instanceof Inet4Address)
             .toArray(InetAddress[]::new);
 
