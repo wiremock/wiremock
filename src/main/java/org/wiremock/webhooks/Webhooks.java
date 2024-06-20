@@ -38,8 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @SuppressWarnings("deprecation") // maintaining PostServeAction for backwards compatibility
 public class Webhooks extends PostServeAction implements ServeEventListener {
 
-  private static final String WEBHOOK_REQUEST_SUB_EVENT_NAME = "WEBHOOK_REQUEST";
-
   private final ScheduledExecutorService scheduler;
   private final HttpClient httpClient;
   private final List<WebhookTransformer> transformers;
@@ -87,7 +85,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       definition = applyTemplating(definition, serveEvent);
       request = buildRequest(definition);
 
-      serveEvent.appendSubEvent(WEBHOOK_REQUEST_SUB_EVENT_NAME, LoggedRequest.createFrom(request));
+      serveEvent.appendSubEvent("WEBHOOK_REQUEST", LoggedRequest.createFrom(request));
     } catch (Exception e) {
       final String msg = "Exception thrown while configuring webhook";
       notifier().error(msg, e);
@@ -108,7 +106,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                     response.getStatus(),
                     response.getBodyAsString()));
             serveEvent.appendSubEvent(
-                WEBHOOK_REQUEST_SUB_EVENT_NAME,
+                "WEBHOOK_RESPONSE",
                 LoggedResponse.from(
                     response, this.dataTruncationSettings.getMaxResponseBodySize()));
           } catch (ProhibitedNetworkAddressException e) {
