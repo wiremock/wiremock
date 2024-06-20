@@ -38,6 +38,7 @@ import java.util.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
+  private final UUID id;
   private final String scheme;
   private final String host;
   private final int port;
@@ -61,6 +62,7 @@ public class LoggedRequest implements Request {
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
+        request.getId(),
         request.getScheme(),
         request.getHost(),
         request.getPort(),
@@ -97,6 +99,7 @@ public class LoggedRequest implements Request {
         null,
         null,
         null,
+        null,
         url,
         absoluteUrl,
         method,
@@ -113,6 +116,7 @@ public class LoggedRequest implements Request {
   }
 
   private LoggedRequest(
+      UUID id,
       String scheme,
       String host,
       Integer port,
@@ -129,6 +133,7 @@ public class LoggedRequest implements Request {
       Collection<Part> multiparts,
       String protocol,
       Map<String, FormParameter> formParameters) {
+    this.id = id;
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
@@ -158,6 +163,11 @@ public class LoggedRequest implements Request {
 
     lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
     lazyBodyAsBase64 = lazy(() -> encodeBase64(body));
+  }
+
+  @Override
+  public UUID getId() {
+    return id;
   }
 
   @Override

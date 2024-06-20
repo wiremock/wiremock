@@ -131,6 +131,13 @@ public class ServeEvent {
         id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
+  public ServeEvent withIdDecoratedRequest() {
+    final LoggedRequest newLoggedRequest =
+        LoggedRequest.createFrom(new RequestIdDecorator(request, id));
+    return new ServeEvent(
+        id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
   public ServeEvent complete(Response response, DataTruncationSettings dataTruncationSettings) {
     timing.logProcessTime(stopwatch);
     timing.setAddedTime((int) response.getInitialDelay());
