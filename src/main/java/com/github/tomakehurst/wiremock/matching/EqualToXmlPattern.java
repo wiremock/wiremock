@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,18 @@ public class EqualToXmlPattern extends StringValuePattern {
   private final String placeholderClosingDelimiterRegex;
   private final DifferenceEvaluator diffEvaluator;
   private final Set<ComparisonType> exemptedComparisons;
+  private final Boolean ignoreOrderOfSameNode;
   private final Document expectedXmlDoc;
 
   public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
-    this(expectedValue, null, null, null, null);
+    this(expectedValue, null, null, null, null, false);
+  }
+
+  public EqualToXmlPattern(
+      @JsonProperty("equalToXml") String expectedValue,
+      @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
+      @JsonProperty("ignoreOrderOfSameNode") boolean ignoreOrderOfSameNode) {
+    this(expectedValue, enablePlaceholders, null, null, null, ignoreOrderOfSameNode);
   }
 
   public EqualToXmlPattern(
@@ -67,7 +75,8 @@ public class EqualToXmlPattern extends StringValuePattern {
       @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
       @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
       @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex,
-      @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons) {
+      @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons,
+      @JsonProperty("ignoreOrderOfSameNode") Boolean ignoreOrderOfSameNode) {
 
     super(expectedValue);
     expectedXmlDoc = Xml.read(expectedValue); // Throw an exception if we can't parse the document
@@ -75,6 +84,7 @@ public class EqualToXmlPattern extends StringValuePattern {
     this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
     this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
     this.exemptedComparisons = exemptedComparisons;
+    this.ignoreOrderOfSameNode = ignoreOrderOfSameNode;
 
     IgnoreUncountedDifferenceEvaluator baseDifferenceEvaluator =
         new IgnoreUncountedDifferenceEvaluator(exemptedComparisons);
@@ -130,7 +140,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .ignoreWhitespace()
                   .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
-                  .withNodeMatcher(new OrderInvariantNodeMatcher())
+                  .withNodeMatcher(new OrderInvariantNodeMatcher(ignoreOrderOfSameNode))
                   .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
                   .build();
 
@@ -232,10 +242,17 @@ public class EqualToXmlPattern extends StringValuePattern {
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        new HashSet<>(Arrays.asList(comparisons)));
+        new HashSet<>(Arrays.asList(comparisons)),
+        ignoreOrderOfSameNode);
   }
 
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
+    private static Boolean secondaryOrderByTextContent;
+
+    public OrderInvariantNodeMatcher(Boolean secondaryOrderByTextContent) {
+      OrderInvariantNodeMatcher.secondaryOrderByTextContent = secondaryOrderByTextContent;
+    }
+
     @Override
     public Iterable<Map.Entry<Node, Node>> match(
         Iterable<Node> controlNodes, Iterable<Node> testNodes) {
@@ -245,10 +262,16 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     private static Iterable<Node> sort(Iterable<Node> nodes) {
       return StreamSupport.stream(nodes.spliterator(), false)
-          .sorted(COMPARATOR)
+          .sorted(getComparator())
           .collect(Collectors.toList());
     }
 
-    private static final Comparator<Node> COMPARATOR = Comparator.comparing(Node::getLocalName);
+    private static Comparator<Node> getComparator() {
+      if (Objects.nonNull(secondaryOrderByTextContent) && secondaryOrderByTextContent) {
+        return Comparator.comparing(Node::getLocalName).thenComparing(Node::getTextContent);
+      } else {
+        return Comparator.comparing(Node::getLocalName);
+      }
+    }
   }
 }
