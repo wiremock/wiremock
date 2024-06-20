@@ -29,14 +29,10 @@ jobs:
 
       - name: Publish core package
         id: publish_package
-        run: ./gradlew :publish :closeAndReleaseStagingRepositories --stacktrace
+        run: ./gradlew :publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-          OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-          OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
 
   publish-jetty12-snapshot:
     runs-on: ubuntu-latest
@@ -62,11 +58,7 @@ jobs:
 
       - name: Publish Jetty 12 package
         id: publish_package
-        run: ./gradlew :wiremock-jetty12:publish :closeAndReleaseStagingRepositories --stacktrace
+        run: ./gradlew :wiremock-jetty12:publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-          OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-          OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
