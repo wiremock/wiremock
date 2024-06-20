@@ -40,6 +40,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -529,15 +530,15 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void serveEventIdIsUsedAsTheRequestIdInTheTemplateModel() {
-    final String UUID_REGEX = "[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
+  public void requestIdIsAvailableIdInTheTemplateModel() {
+    final UUID id = UUID.randomUUID();
 
     ResponseDefinition transformedResponseDef =
-        transform(mockRequest().url("/things"), aResponse().withBody("{{request.id}}"));
+        transform(mockRequest().url("/things").id(id), aResponse().withBody("{{request.id}}"));
 
     String requestId = transformedResponseDef.getBody();
     assertThat(requestId, notNullValue());
-    assertThat(requestId, matchesPattern(UUID_REGEX));
+    assertThat(requestId, is(id.toString()));
   }
 
   @Test

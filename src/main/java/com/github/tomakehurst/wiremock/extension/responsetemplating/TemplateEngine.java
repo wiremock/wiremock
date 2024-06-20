@@ -141,13 +141,12 @@ public class TemplateEngine {
 
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
-    model.put("request", buildRequestModel(serveEvent));
+    model.put("request", buildRequestModel(serveEvent.getRequest()));
     model.putAll(additionalModelData);
     return model;
   }
 
-  private static RequestTemplateModel buildRequestModel(ServeEvent serveEvent) {
-    final Request request = serveEvent.getRequest();
+  private static RequestTemplateModel buildRequestModel(Request request) {
     RequestLine requestLine = RequestLine.fromRequest(request);
     Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     adaptedHeaders.putAll(
@@ -157,7 +156,7 @@ public class TemplateEngine {
         Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
 
     return new RequestTemplateModel(
-        serveEvent.getId().toString(),
+        request.getId() != null ? request.getId().toString() : null,
         requestLine,
         adaptedHeaders,
         adaptedCookies,

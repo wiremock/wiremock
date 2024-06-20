@@ -71,7 +71,8 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   @Override
-  public ServeEvent serveFor(final ServeEvent initialServeEvent) {
+  public ServeEvent serveFor(ServeEvent initialServeEvent) {
+    initialServeEvent = initialServeEvent.withIdDecoratedRequest();
     final LoggedRequest request = initialServeEvent.getRequest();
 
     final List<SubEvent> subEvents = new LinkedList<>();

@@ -15,33 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class RequestPathParamsDecorator implements Request {
+public class RequestIdDecorator implements Request {
 
   private final Request request;
-  private final PathTemplate pathTemplate;
+  private final UUID id;
 
-  public static Request decorate(Request request, RequestPattern requestPattern) {
-    final PathTemplate pathTemplate = requestPattern.getUrlMatcher().getPathTemplate();
-    return pathTemplate != null ? new RequestPathParamsDecorator(request, pathTemplate) : request;
-  }
-
-  public RequestPathParamsDecorator(Request request, PathTemplate pathTemplate) {
+  public RequestIdDecorator(Request request, UUID id) {
     this.request = request;
-    this.pathTemplate = pathTemplate;
+    this.id = id;
   }
 
   @Override
   public UUID getId() {
-    return request.getId();
+    return id;
   }
 
   @Override
@@ -110,8 +104,9 @@ public class RequestPathParamsDecorator implements Request {
   }
 
   @Override
+  @JsonIgnore
   public PathParams getPathParameters() {
-    return pathTemplate.parse(getUrl());
+    return request.getPathParameters();
   }
 
   @Override

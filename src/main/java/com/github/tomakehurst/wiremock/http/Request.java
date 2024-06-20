@@ -21,8 +21,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public interface Request {
+
+  // This is populated by the serve event.
+  @JsonIgnore
+  default UUID getId() {
+    return null;
+  }
 
   interface Part {
     String getName();
