@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
 
 public class WebhooksAcceptanceTest {
 
-  protected static final String WEBHOOK_SUB_EVENT_NAME = "WEBHOOK_REQUEST";
+  protected static final String WEBHOOK_REQUEST_SUB_EVENT_NAME = "WEBHOOK_REQUEST";
+  protected static final String WEBHOOK_RESPONSE_SUB_EVENT_NAME = "WEBHOOK_RESPONSE";
   protected CountDownLatch latch;
   protected TestNotifier testNotifier = new TestNotifier();
 
