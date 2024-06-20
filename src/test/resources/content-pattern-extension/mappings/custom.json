@@ -1,0 +1,13 @@
+{
+  "request": {
+    "pathParameters": {"path": {"startsWith": "path"}},
+    "headers": {"header": {"startsWith": "header"}},
+    "method": "POST",
+    "queryParameters": {"query": {"startsWith": "query"}},
+    "bodyPatterns": [{"startsWith": "body"}],
+    "urlPathTemplate": "/{path}",
+    "formParameters": {"form": {"startsWith": "form"}},
+    "cookies": {"cookie": {"startsWith": "cookie"}}
+  },
+  "response": {"status": 200}
+}

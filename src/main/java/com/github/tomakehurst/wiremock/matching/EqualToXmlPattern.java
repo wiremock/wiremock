@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -62,6 +63,7 @@ public class EqualToXmlPattern extends StringValuePattern {
     this(expectedValue, null, null, null, null);
   }
 
+  @JsonCreator
   public EqualToXmlPattern(
       @JsonProperty("equalToXml") String expectedValue,
       @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,

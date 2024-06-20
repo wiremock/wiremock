@@ -658,7 +658,8 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
     assertThat(
         errors.first().getDetail(),
-        is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+        is(
+            "Could not resolve subtype of [simple type, class com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>]: Cannot deduce unique subtype of `com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>` (20 candidates match)"));
   }
 
   @Test
@@ -685,7 +686,8 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
     assertThat(
         errors.first().getDetail(),
-        is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+        is(
+            "Could not resolve subtype of [simple type, class com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>]: Cannot deduce unique subtype of `com.github.tomakehurst.wiremock.matching.ContentPattern<java.lang.Object>` (20 candidates match)"));
   }
 
   @Test
@@ -759,7 +761,7 @@ class AdminApiTest extends AcceptanceTestBase {
     Errors errors = Json.read(response.content(), Errors.class);
     assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    assertThat(errors.first().getDetail(), is("'contains' expected value cannot be null"));
   }
 
   @Test
@@ -771,7 +773,7 @@ class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"equalTo\": 12\n"
+                + "                \"equalTo\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -780,9 +782,12 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/equalTo"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("equalTo operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test
@@ -794,7 +799,7 @@ class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"contains\": 12\n"
+                + "                \"contains\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -803,9 +808,12 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/contains"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test
@@ -817,7 +825,7 @@ class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"matches\": 12\n"
+                + "                \"matches\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -826,9 +834,12 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/matches"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("matches operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test

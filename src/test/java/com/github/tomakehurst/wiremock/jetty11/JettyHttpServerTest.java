@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
@@ -80,7 +80,7 @@ public class JettyHttpServerTest {
             Collections.emptyList(),
             false,
             NO_TRUNCATION,
-            new PlainTextStubNotMatchedRenderer(Extensions.NONE));
+            new PlainTextStubNotMatchedRenderer(ServerExtensions.NONE));
   }
 
   @Test

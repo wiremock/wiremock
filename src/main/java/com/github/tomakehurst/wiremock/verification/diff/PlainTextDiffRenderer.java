@@ -53,8 +53,7 @@ public class PlainTextDiffRenderer {
     for (DiffLine<?> line : diff.getLines(customMatcherExtensions)) {
       boolean isBodyLine = line.getRequestAttribute().equals("Body");
       if (!isBodyLine || line.isForNonMatch()) {
-        writeLine(
-            sb, line.getPrintedPatternValue(), line.getActual().toString(), line.getMessage());
+        writeLine(sb, line.getPrintedPatternValue(), line.getActual(), line.getMessage());
       }
     }
 

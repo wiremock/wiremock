@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,17 +129,18 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
             .collect(Collectors.toList()));
   }
 
+  @SuppressWarnings("unchecked")
   private static MatchResult matchBody(Request.Part part, ContentPattern<?> bodyPattern) {
     Body body = part.getBody();
     if (body == null) {
       return MatchResult.noMatch();
     }
 
-    if (BinaryEqualToPattern.class.isAssignableFrom(bodyPattern.getClass())) {
-      return ((BinaryEqualToPattern) bodyPattern).match(body.asBytes());
+    if (StringValuePattern.class.isAssignableFrom(bodyPattern.getClass())) {
+      return ((StringValuePattern) bodyPattern).match(body.asString());
     }
 
-    return ((StringValuePattern) bodyPattern).match(body.asString());
+    return ((ContentPattern<byte[]>) bodyPattern).match(body.asBytes());
   }
 
   @Override

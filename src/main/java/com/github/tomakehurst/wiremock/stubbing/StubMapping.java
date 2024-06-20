@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
@@ -70,10 +71,16 @@ public class StubMapping {
   public static final StubMapping NOT_CONFIGURED =
       new StubMapping(null, ResponseDefinition.notConfigured());
 
+  /**
+   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been
+   *     registered. Instead, call {@link Admin#getJson()} and use one of the readValue methods.
+   */
+  @Deprecated
   public static StubMapping buildFrom(String mappingSpecJson) {
     return Json.read(mappingSpecJson, StubMapping.class);
   }
 
+  @Deprecated
   public static String buildJsonStringFor(StubMapping mapping) {
     return Json.write(mapping);
   }

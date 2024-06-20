@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public interface MappingsLoader {
 
+  @Deprecated
   void loadMappingsInto(StubMappings stubMappings);
+
+  default void loadMappingsInto(StubMappings stubMappings, ServerExtensions extensions) {
+    loadMappingsInto(stubMappings);
+  }
 }

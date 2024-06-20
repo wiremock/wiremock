@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.verification.diff;
+package com.github.tomakehurst.wiremock.extension;
 
-public class SpacerLine extends DiffLine<Void> {
+import java.util.List;
 
-  public static SpacerLine SPACER = new SpacerLine();
+public class ClientExtensions extends Extensions {
 
-  public SpacerLine() {
-    super("spacer", null, null, "");
+  private final boolean extensionScanningEnabled;
+
+  public ClientExtensions(
+      ExtensionDeclarations extensionDeclarations, boolean extensionScanningEnabled) {
+    super(extensionDeclarations);
+    this.extensionScanningEnabled = extensionScanningEnabled;
   }
 
   @Override
-  public String getActual() {
-    return "";
+  public void load() {
+    loadExtensions(extensionScanningEnabled);
   }
 
   @Override
-  public String getMessage() {
-    return null;
-  }
-
-  @Override
-  protected boolean isExactMatch() {
-    return true;
+  protected List<Extension> loadFactory(ExtensionFactory factory) {
+    return factory.createForClient();
   }
 }

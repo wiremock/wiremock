@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.junit;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -249,6 +250,11 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public GetGlobalSettingsResult getGlobalSettings() {
     return admin.getGlobalSettings();
+  }
+
+  @Override
+  public Json getJson() {
+    return admin.getJson();
   }
 
   @Override

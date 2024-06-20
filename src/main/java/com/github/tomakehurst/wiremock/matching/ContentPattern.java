@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,33 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Objects;
 
-@JsonDeserialize(using = ContentPatternDeserialiser.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+@JsonSubTypes({
+  @JsonSubTypes.Type(AbsentPattern.class),
+  @JsonSubTypes.Type(AfterDateTimePattern.class),
+  @JsonSubTypes.Type(AnythingPattern.class),
+  @JsonSubTypes.Type(BeforeDateTimePattern.class),
+  @JsonSubTypes.Type(BinaryEqualToPattern.class),
+  @JsonSubTypes.Type(ContainsPattern.class),
+  @JsonSubTypes.Type(EqualToDateTimePattern.class),
+  @JsonSubTypes.Type(EqualToJsonPattern.class),
+  @JsonSubTypes.Type(EqualToPattern.class),
+  @JsonSubTypes.Type(EqualToXmlPattern.class),
+  @JsonSubTypes.Type(LogicalAnd.class),
+  @JsonSubTypes.Type(LogicalOr.class),
+  @JsonSubTypes.Type(MatchesJsonPathPattern.class),
+  @JsonSubTypes.Type(MatchesJsonSchemaPattern.class),
+  @JsonSubTypes.Type(MatchesXPathPattern.class),
+  @JsonSubTypes.Type(NegativeContainsPattern.class),
+  @JsonSubTypes.Type(NegativeRegexPattern.class),
+  @JsonSubTypes.Type(NotPattern.class),
+  @JsonSubTypes.Type(PathTemplatePattern.class),
+  @JsonSubTypes.Type(RegexPattern.class)
+})
 public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
 
   protected final T expectedValue;

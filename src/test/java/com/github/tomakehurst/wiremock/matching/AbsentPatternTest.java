@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 public class AbsentPatternTest {
 
   @Test
-  public void correctlyDeserializesFromJson() {
+  public void serializesCorrectly() throws JSONException {
+    String expectedJson = "{\"absent\": \"(absent)\"}";
+    JSONAssert.assertEquals(expectedJson, Json.write(new AbsentPattern("(absent)")), true);
+  }
+
+  @Test
+  void deserializesCorrectly() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                             \n" + "  \"absent\": \"(absent)\"    \n" + "}",

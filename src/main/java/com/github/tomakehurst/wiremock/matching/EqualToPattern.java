@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Strings.normalisedLevenshteinDistance;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public class EqualToPattern extends StringValuePattern {
 
   private final Boolean caseInsensitive;
 
+  @JsonCreator
   public EqualToPattern(
       @JsonProperty("equalTo") String testValue,
       @JsonProperty("caseInsensitive") Boolean caseInsensitive) {

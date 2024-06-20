@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -45,10 +46,16 @@ public class MatchesXPathPattern extends PathPattern {
   }
 
   public MatchesXPathPattern(
-      @JsonProperty("matchesXPath") String xpath,
-      @JsonProperty("namespaces") Map<String, String> namespaces,
-      @JsonProperty("valuePattern") StringValuePattern valuePattern) {
+      String xpath, Map<String, String> namespaces, StringValuePattern valuePattern) {
     super(xpath, valuePattern);
+    xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
+  }
+
+  @JsonCreator
+  public MatchesXPathPattern(
+      @JsonProperty("matchesXPath") AdvancedPathPattern advancedPathPattern,
+      @JsonProperty("xPathNamespaces") Map<String, String> namespaces) {
+    super(advancedPathPattern.expression, advancedPathPattern.submatcher);
     xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
   }
 

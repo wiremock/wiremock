@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import java.io.IOException;
 
 public abstract class PathPatternJsonSerializer<T extends PathPattern> extends JsonSerializer<T> {
+
+  @Override
+  public void serializeWithType(
+      T value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+      throws IOException {
+    serialize(value, gen, serializers);
+  }
 
   @Override
   public void serialize(T value, JsonGenerator gen, SerializerProvider serializers)

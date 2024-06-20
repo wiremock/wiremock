@@ -22,7 +22,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
@@ -63,7 +63,7 @@ public class MockWireMockServices implements WireMockServices {
   }
 
   @Override
-  public Extensions getExtensions() {
+  public ServerExtensions getExtensions() {
     return null;
   }
 

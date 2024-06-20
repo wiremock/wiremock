@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import java.util.Arrays;
 
 class DiffLine<V> {
 
@@ -39,8 +40,11 @@ class DiffLine<V> {
     return requestAttribute;
   }
 
-  public Object getActual() {
-    return value;
+  public String getActual() {
+    if (value instanceof byte[]) {
+      return "\n" + Arrays.toString((byte[]) value);
+    }
+    return value.toString();
   }
 
   public String getPrintedPatternValue() {

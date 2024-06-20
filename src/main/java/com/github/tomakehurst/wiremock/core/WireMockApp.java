@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -70,7 +72,9 @@ public class WireMockApp implements StubServer, Admin {
 
   private Options options;
 
-  private Extensions extensions;
+  private ServerExtensions extensions;
+
+  private Json json;
 
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading()
@@ -99,7 +103,7 @@ public class WireMockApp implements StubServer, Admin {
     this.settingsStore = stores.getSettingsStore();
 
     extensions =
-        new Extensions(
+        new ServerExtensions(
             options.getDeclaredExtensions(),
             this,
             options,
@@ -139,6 +143,7 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
 
     this.container = container;
+    this.json = Json.build(extensions);
     extensions.startAll();
     loadDefaultMappings();
   }
@@ -188,6 +193,7 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
+    this.json = Json.build(extensions);
     loadDefaultMappings();
   }
 
@@ -209,11 +215,8 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, PostServeAction> postServeActions = extensions.ofType(PostServeAction.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
 
-    final com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
-        extensions
-            .ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
-            .values()
-            .stream()
+    final HttpClientFactory httpClientFactory =
+        extensions.ofType(HttpClientFactory.class).values().stream()
             .findFirst()
             .orElse(options.httpClientFactory());
 
@@ -281,11 +284,11 @@ public class WireMockApp implements StubServer, Admin {
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
     if (mappingsLoaderExtensions != null)
-      mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
+      mappingsLoaderExtensions.values().forEach(this::loadMappingsUsing);
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-    mappingsLoader.loadMappingsInto(stubMappings);
+    mappingsLoader.loadMappingsInto(stubMappings, extensions);
   }
 
   @Override
@@ -506,6 +509,11 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public Json getJson() {
+    return json;
+  }
+
+  @Override
   public void updateGlobalSettings(GlobalSettings newSettings) {
     GlobalSettings oldSettings = settingsStore.get();
 
@@ -529,7 +537,7 @@ public class WireMockApp implements StubServer, Admin {
     return options;
   }
 
-  public Extensions getExtensions() {
+  public ServerExtensions getExtensions() {
     return extensions;
   }
 

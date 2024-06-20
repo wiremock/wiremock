@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,8 @@ public class EqualToPatternTest {
       JsonException jsonException = (JsonException) e;
       assertThat(
           jsonException.getErrors().first().getDetail(),
-          containsString("{\"munches\":\"something\"} is not a valid match operation"));
+          containsString(
+              "Could not resolve subtype of [simple type, class com.github.tomakehurst.wiremock.matching.StringValuePattern]: Cannot deduce unique subtype of `com.github.tomakehurst.wiremock.matching.StringValuePattern` (20 candidates match)"));
     }
   }
 

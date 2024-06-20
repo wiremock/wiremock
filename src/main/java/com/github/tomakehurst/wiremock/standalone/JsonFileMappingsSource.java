@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
+import com.github.tomakehurst.wiremock.extension.ServerExtensions;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +101,11 @@ public class JsonFileMappingsSource implements MappingsSource {
 
   @Override
   public void loadMappingsInto(StubMappings stubMappings) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void loadMappingsInto(StubMappings stubMappings, ServerExtensions extensions) {
     if (!mappingsFileSource.exists()) {
       return;
     }
@@ -113,8 +116,9 @@ public class JsonFileMappingsSource implements MappingsSource {
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
+        final Json json = Json.build(extensions);
         StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContents(), StubMappingCollection.class);
+            json.readValue(mappingFile.readContentsAsString(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
           mapping.setDirty(false);
           stubMappings.addMapping(mapping);
@@ -124,8 +128,6 @@ public class JsonFileMappingsSource implements MappingsSource {
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
-      } catch (IOException e) {
-        throwUnchecked(e);
       }
     }
   }
