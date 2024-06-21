@@ -34,15 +34,17 @@ public class InMemoryObjectStore implements ObjectStore {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> Optional<T> get(String key, Class<T> type) {
     return get(key).map(type::cast);
   }
 
   @Override
   public Optional<Object> get(String key) {
-    touch(key);
-    return Optional.ofNullable(cache.get(key));
+    Optional<Object> value = Optional.ofNullable(cache.get(key));
+    if (value.isPresent()) {
+      touch(key);
+    }
+    return value;
   }
 
   @Override
@@ -53,7 +55,7 @@ public class InMemoryObjectStore implements ObjectStore {
   @Override
   public void put(String key, Object content) {
     cache.put(key, content);
-    touch(key);
+    touchAndResize(key);
   }
 
   @Override
@@ -61,7 +63,7 @@ public class InMemoryObjectStore implements ObjectStore {
   public <T> T compute(String key, Function<T, T> valueFunction) {
     final T result =
         (T) cache.compute(key, (k, currentValue) -> valueFunction.apply((T) currentValue));
-    touch(key);
+    touchAndResize(key);
     return result;
   }
 
@@ -77,10 +79,18 @@ public class InMemoryObjectStore implements ObjectStore {
     keyUseOrder.clear();
   }
 
+  private void touchAndResize(String key) {
+    touch(key);
+    resize();
+  }
+
   private void touch(String key) {
     keyUseOrder.remove(key);
     keyUseOrder.offer(key);
-    if (keyUseOrder.size() > maxItems) {
+  }
+
+  private void resize() {
+    while (keyUseOrder.size() > maxItems) {
       final String keyToRemove = keyUseOrder.poll();
       remove(keyToRemove);
     }
