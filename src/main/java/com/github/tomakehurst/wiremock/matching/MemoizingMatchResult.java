@@ -43,11 +43,6 @@ public class MemoizingMatchResult extends MatchResult {
   private final MatchResult target;
 
   public MemoizingMatchResult(MatchResult target) {
-    this(target, null);
-  }
-
-  public MemoizingMatchResult(MatchResult target, DiffDescription diffDescription) {
-    super(diffDescription);
     this.target = target;
   }
 
@@ -64,5 +59,10 @@ public class MemoizingMatchResult extends MatchResult {
   @Override
   public List<SubEvent> getSubEvents() {
     return target.getSubEvents();
+  }
+
+  @Override
+  public DiffDescription getDiffDescription() {
+    return target.getDiffDescription();
   }
 }
