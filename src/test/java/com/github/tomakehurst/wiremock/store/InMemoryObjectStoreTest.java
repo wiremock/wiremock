@@ -99,4 +99,19 @@ public class InMemoryObjectStoreTest {
 
     assertThat(store.getAllKeys().count(), is(0L));
   }
+
+  @Test
+  void tryingToRetrieveMissingKeyDoesNotEjectOtherKeys() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    assertThat(store.getAllKeys().count(), is(3L));
+
+    store.get("four");
+
+    assertThat(store.getAllKeys().count(), is(3L));
+  }
 }
