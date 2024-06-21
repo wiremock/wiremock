@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.Beta;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
 
@@ -34,19 +35,19 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public MatchResult() {
     this(List.of(), null);
-    //    this.subEvents = new LinkedBlockingQueue<>();
-    //    this.diffDescription = null;
   }
 
   public MatchResult(List<SubEvent> subEvents) {
     this(subEvents, null);
-    //    this.subEvents = new LinkedBlockingQueue<>(subEvents);
-    //    this.diffDescription = null;
   }
 
   public MatchResult(List<SubEvent> subEvents, DiffDescription diffDescription) {
     this.subEvents = new LinkedBlockingQueue<>(subEvents);
     this.diffDescription = diffDescription;
+  }
+
+  public MatchResult(DiffDescription diffDescription) {
+    this(List.of(), diffDescription);
   }
 
   protected void appendSubEvent(SubEvent subEvent) {
@@ -128,6 +129,9 @@ public abstract class MatchResult implements Comparable<MatchResult> {
   public static final java.util.function.Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
       WeightedMatchResult::isExactMatch;
 
+  @Beta(
+      justification =
+          "Add self-description callbacks for use in Diff - https://github.com/wiremock/wiremock/issues/2758")
   public static class DiffDescription {
     public final String expected;
     public final String actual;

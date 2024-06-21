@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 
-public class NamedCustomMatcherLine extends DiffLine<Request> {
+public class NamedCustomMatcherLine extends DiffDescriptionLine<Request> {
 
   private final RequestMatcherExtension customMatcher;
   private final Parameters parameters;
@@ -37,6 +38,11 @@ public class NamedCustomMatcherLine extends DiffLine<Request> {
 
   @Override
   protected boolean isExactMatch() {
-    return customMatcher.match(value, parameters).isExactMatch();
+    return getMatchResult().isExactMatch();
+  }
+
+  @Override
+  public MatchResult getMatchResult() {
+    return customMatcher.match(value, parameters);
   }
 }

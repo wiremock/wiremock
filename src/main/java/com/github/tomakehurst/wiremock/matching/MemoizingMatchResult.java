@@ -43,6 +43,11 @@ public class MemoizingMatchResult extends MatchResult {
   private final MatchResult target;
 
   public MemoizingMatchResult(MatchResult target) {
+    this(target, null);
+  }
+
+  public MemoizingMatchResult(MatchResult target, DiffDescription diffDescription) {
+    super(diffDescription);
     this.target = target;
   }
 
