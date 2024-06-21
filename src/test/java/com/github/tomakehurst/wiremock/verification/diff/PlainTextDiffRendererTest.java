@@ -32,9 +32,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.EagerMatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import java.util.Collections;
+import com.github.tomakehurst.wiremock.matching.WeightedAggregateMatchResult;
+import com.github.tomakehurst.wiremock.matching.WeightedMatchResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +57,10 @@ class PlainTextDiffRendererTest {
   void init() {
     diffRenderer =
         new PlainTextDiffRenderer(
-            Collections.singletonMap("my-custom-matcher", new MyCustomMatcher()));
+            Map.of(
+                "my-custom-matcher", new MyCustomMatcher(),
+                "my-self-describing-custom-matcher", new MySelfDescribingCustomMatcher(),
+                "weighted-self-describing-custom-matcher", new WeightedDescribingCustomMatcher()));
   }
 
   @Test
@@ -489,6 +494,47 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
+  void showsErrorInDiffWhenSelfDescribingNamedCustomMatcherNotSatisfiedInMixedStub() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withName("Standard and custom matched stub")
+                .andMatching(
+                    "my-self-describing-custom-matcher", Parameters.one("myVal", "present"))
+                .build(),
+            mockRequest().method(POST).url("/thing"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(
+        output,
+        equalsMultiLine(
+            file("not-found-diff-sample_mixed-matchers-self-describing-named-custom.txt")));
+  }
+
+  @Test
+  void showsErrorInDiffWhenWeightedSelfDescribingNamedCustomMatcherNotSatisfiedInMixedStub() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withName("Standard and weighted custom matched stub")
+                .andMatching(
+                    "weighted-self-describing-custom-matcher", Parameters.one("myVal", "present"))
+                .build(),
+            mockRequest().method(POST).url("/thing"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(
+        output,
+        equalsMultiLine(
+            file(
+                "not-found-diff-sample_mixed-matchers-weighted-self-describing-named-custom.txt")));
+  }
+
+  @Test
   void showsErrorInDiffWhenExactMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
     Diff diff =
         new Diff(
@@ -640,13 +686,52 @@ class PlainTextDiffRendererTest {
 
     @Override
     public MatchResult match(Request request, Parameters parameters) {
-      parameters.getString("myVal"); // Ensure we're getting passed parameters as expcted
+      parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
       return MatchResult.noMatch();
     }
 
     @Override
     public String getName() {
       return "my-custom-matcher";
+    }
+  }
+
+  public static class MySelfDescribingCustomMatcher extends RequestMatcherExtension {
+
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+      parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
+      final MatchResult.DiffDescription diffDescription =
+          new MatchResult.DiffDescription(
+              "[custom matcher: my-self-describing-custom-matcher]",
+              "self-describing-actual",
+              "Not matched because of x, y and z");
+      return new EagerMatchResult(1, List.of(), diffDescription);
+    }
+
+    @Override
+    public String getName() {
+      return "my-self-describing-custom-matcher";
+    }
+  }
+
+  public static class WeightedDescribingCustomMatcher extends RequestMatcherExtension {
+
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+      parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
+      final MatchResult.DiffDescription diffDescription =
+          new MatchResult.DiffDescription(
+              "[custom matcher: weighted-self-describing-custom-matcher]",
+              "weighted-self-describing-actual",
+              "Not matched because of x, y and z");
+      return new WeightedAggregateMatchResult(
+          List.of(WeightedMatchResult.weight(MatchResult.noMatch())), diffDescription);
+    }
+
+    @Override
+    public String getName() {
+      return "weighted-self-describing-custom-matcher";
     }
   }
 }

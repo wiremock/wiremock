@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,12 @@ public class EagerMatchResult extends MatchResult {
   }
 
   EagerMatchResult(double distance, List<SubEvent> subEvents) {
-    super(subEvents);
+    this(distance, subEvents, null);
+  }
+
+  public EagerMatchResult(
+      double distance, List<SubEvent> subEvents, DiffDescription diffDescription) {
+    super(subEvents, diffDescription);
     this.distance = distance;
   }
 

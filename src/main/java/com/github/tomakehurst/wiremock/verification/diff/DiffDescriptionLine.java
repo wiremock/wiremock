@@ -15,44 +15,53 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import org.wiremock.annotations.Beta;
 
-public class DiffDescriptionLine extends DiffLine<Request> {
-
-  private final MatchResult.DiffDescription diffDescription;
+@Beta(
+    justification =
+        "Add self-description callbacks for use in Diff - https://github.com/wiremock/wiremock/issues/2758")
+public class DiffDescriptionLine<T> extends DiffLine<T> {
 
   public DiffDescriptionLine(
-      String requestAttribute,
-      NamedValueMatcher<Request> pattern,
-      Request value,
-      String printedPatternValue) {
+      String requestAttribute, NamedValueMatcher<T> pattern, T value, String printedPatternValue) {
     super(requestAttribute, pattern, value, printedPatternValue);
-    this.diffDescription = pattern.match(value).getDiffDescription();
   }
 
   @Override
   public String getPrintedPatternValue() {
+    final DiffDescription diffDescription = getDiffDescription();
     if (diffDescription != null) {
-      return this.diffDescription.expected;
+      return diffDescription.expected;
     }
     return super.getPrintedPatternValue();
   }
 
   @Override
   public Object getActual() {
+    final DiffDescription diffDescription = getDiffDescription();
     if (diffDescription != null) {
-      return this.diffDescription.actual;
+      return diffDescription.actual;
     }
     return super.getActual();
   }
 
   @Override
   public String getMessage() {
+    final DiffDescription diffDescription = getDiffDescription();
     if (diffDescription != null) {
-      return this.diffDescription.errorMessage;
+      return diffDescription.errorMessage;
     }
     return super.getMessage();
+  }
+
+  private DiffDescription getDiffDescription() {
+    return this.getMatchResult().getDiffDescription();
+  }
+
+  public MatchResult getMatchResult() {
+    return pattern.match(value);
   }
 }
