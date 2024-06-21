@@ -514,7 +514,8 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  void showsErrorInDiffWhenWeightedSelfDescribingNamedCustomMatcherNotSatisfiedInMixedStub() {
+  void
+      showsErrorInDiffWhenWeightedSelfDescribingNamedCustomMatcherNotSatisfiedInMixedStubDoesNotShowCustomDiff() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -529,9 +530,7 @@ class PlainTextDiffRendererTest {
 
     assertThat(
         output,
-        equalsMultiLine(
-            file(
-                "not-found-diff-sample_mixed-matchers-weighted-self-describing-named-custom.txt")));
+        equalsMultiLine(file("not-found-diff-sample_mixed-matchers-weighted-named-custom.txt")));
   }
 
   @Test
@@ -726,7 +725,7 @@ class PlainTextDiffRendererTest {
               "weighted-self-describing-actual",
               "Not matched because of x, y and z");
       return new WeightedAggregateMatchResult(
-          List.of(WeightedMatchResult.weight(MatchResult.noMatch())), diffDescription);
+          List.of(WeightedMatchResult.weight(MatchResult.noMatch())));
     }
 
     @Override

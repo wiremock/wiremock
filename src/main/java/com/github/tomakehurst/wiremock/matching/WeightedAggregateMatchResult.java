@@ -31,12 +31,6 @@ public class WeightedAggregateMatchResult extends MatchResult {
   private final Lazy<Pair<Boolean, List<SubEvent>>> resultAndEvents;
 
   public WeightedAggregateMatchResult(List<WeightedMatchResult> matchResults) {
-    this(matchResults, null);
-  }
-
-  public WeightedAggregateMatchResult(
-      List<WeightedMatchResult> matchResults, DiffDescription diffDescription) {
-    super(diffDescription);
     this.matchResults = matchResults;
     resultAndEvents =
         lazy(
