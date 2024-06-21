@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.store;
 
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,6 +26,15 @@ public class InMemoryObjectStore implements ObjectStore {
   private final ConcurrentHashMap<String, Object> cache;
   private final Queue<String> keyUseOrder = new ConcurrentLinkedQueue<>();
   private final int maxItems;
+
+  private final Executor executor =
+      Executors.newSingleThreadExecutor(
+          r -> {
+            Thread t = Executors.defaultThreadFactory().newThread(r);
+            t.setDaemon(true);
+            return t;
+          });
+  private final Object lock = new Object();
 
   public InMemoryObjectStore(int maxItems) {
     this.cache = new ConcurrentHashMap<>();
@@ -42,7 +50,12 @@ public class InMemoryObjectStore implements ObjectStore {
   public Optional<Object> get(String key) {
     Optional<Object> value = Optional.ofNullable(cache.get(key));
     if (value.isPresent()) {
-      touch(key);
+      executor.execute(
+          () -> {
+            synchronized (lock) {
+              touch(key);
+            }
+          });
     }
     return value;
   }
@@ -54,29 +67,37 @@ public class InMemoryObjectStore implements ObjectStore {
 
   @Override
   public void put(String key, Object content) {
-    cache.put(key, content);
-    touchAndResize(key);
+    synchronized (lock) {
+      cache.put(key, content);
+      touchAndResize(key);
+    }
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T compute(String key, Function<T, T> valueFunction) {
-    final T result =
-        (T) cache.compute(key, (k, currentValue) -> valueFunction.apply((T) currentValue));
-    touchAndResize(key);
-    return result;
+    synchronized (lock) {
+      final T result =
+          (T) cache.compute(key, (k, currentValue) -> valueFunction.apply((T) currentValue));
+      touchAndResize(key);
+      return result;
+    }
   }
 
   @Override
   public void remove(String key) {
-    cache.remove(key);
-    keyUseOrder.remove(key);
+    synchronized (lock) {
+      cache.remove(key);
+      keyUseOrder.remove(key);
+    }
   }
 
   @Override
   public void clear() {
-    cache.clear();
-    keyUseOrder.clear();
+    synchronized (lock) {
+      cache.clear();
+      keyUseOrder.clear();
+    }
   }
 
   private void touchAndResize(String key) {
