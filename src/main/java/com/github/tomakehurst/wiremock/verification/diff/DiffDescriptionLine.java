@@ -18,11 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
-import org.wiremock.annotations.Beta;
 
-@Beta(
-    justification =
-        "Add self-description callbacks for use in Diff - https://github.com/wiremock/wiremock/issues/2758")
 public class DiffDescriptionLine<T> extends DiffLine<T> {
 
   public DiffDescriptionLine(
