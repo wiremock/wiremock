@@ -15,49 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
-import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 
 public class DiffDescriptionLine<T> extends DiffLine<T> {
 
-  public DiffDescriptionLine(
-      String requestAttribute, NamedValueMatcher<T> pattern, T value, String printedPatternValue) {
-    super(requestAttribute, pattern, value, printedPatternValue);
-  }
+  private final DiffDescription diffDescription;
 
-  @Override
-  public String getPrintedPatternValue() {
-    final DiffDescription diffDescription = getDiffDescription();
-    if (diffDescription != null) {
-      return diffDescription.expected;
-    }
-    return super.getPrintedPatternValue();
+  public DiffDescriptionLine(DiffDescription diffDescription) {
+    super("", null, null, diffDescription.getExpected());
+    this.diffDescription = diffDescription;
   }
 
   @Override
   public Object getActual() {
-    final DiffDescription diffDescription = getDiffDescription();
-    if (diffDescription != null) {
-      return diffDescription.actual;
-    }
-    return super.getActual();
+    return this.diffDescription.getActual();
   }
 
   @Override
   public String getMessage() {
-    final DiffDescription diffDescription = getDiffDescription();
-    if (diffDescription != null) {
-      return diffDescription.errorMessage;
-    }
-    return super.getMessage();
-  }
-
-  private DiffDescription getDiffDescription() {
-    return this.getMatchResult().getDiffDescription();
-  }
-
-  public MatchResult getMatchResult() {
-    return pattern.match(value);
+    return this.diffDescription.getErrorMessage();
   }
 }
