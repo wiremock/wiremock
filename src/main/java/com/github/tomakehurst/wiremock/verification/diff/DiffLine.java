@@ -17,8 +17,11 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import java.util.List;
 
 class DiffLine<V> {
 
@@ -92,5 +95,19 @@ class DiffLine<V> {
 
   private boolean isUrlRegexPattern() {
     return pattern instanceof UrlPattern && ((UrlPattern) pattern).isRegex();
+  }
+
+  public List<DiffDescription> getDiffDescriptions() {
+    List<DiffDescription> diffDescriptions = getMatchResult().getDiffDescriptions();
+    if (diffDescriptions.isEmpty()) {
+      return List.of(
+          new DiffDescription(
+              this.getPrintedPatternValue(), this.getActual().toString(), this.getMessage()));
+    }
+    return diffDescriptions;
+  }
+
+  public MatchResult getMatchResult() {
+    return pattern.match(value);
   }
 }
