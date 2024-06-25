@@ -11,6 +11,8 @@ Standard and weighted custom matched stub                  |
 POST                                                       | POST
 /thing                                                     | /thing
                                                            |
-[custom matcher: weighted-self-describing-custom-matcher]  |                                                     <<<<< custom matcher does not match
+Expected state in state store                              | key 'token' not found in state store                <<<<< Not matched due to key not found in state store
+Expected state in state store                              | key 'data' not found in state store                 <<<<< Not matched due to key not found in state store
+Expected state in state store                              | key 'stateData' incorrect value                     <<<<< Not matched due to unexpected value in state store
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

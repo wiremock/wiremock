@@ -11,6 +11,7 @@ Standard and custom matched stub                           |
 POST                                                       | POST
 /thing                                                     | /thing
                                                            |
-[custom matcher: my-self-describing-custom-matcher]        | self-describing-actual                              <<<<< Not matched because of x, y and z
+Property a: foo                                            | Property a: bar                                     <<<<< Not matched because of property a not matching
+Property b: foo                                            | Property b: bar                                     <<<<< Not matched because of property b not matching
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

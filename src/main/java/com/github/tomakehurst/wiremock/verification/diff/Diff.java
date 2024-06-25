@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Diff {
 
@@ -152,7 +153,10 @@ public class Diff {
         NamedCustomMatcherLine namedCustomMatcherLine =
             new NamedCustomMatcherLine(
                 customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
-        diffLineList.add(namedCustomMatcherLine);
+        diffLineList.addAll(
+            namedCustomMatcherLine.getDiffDescriptions().stream()
+                .map(DiffDescriptionLine::new)
+                .collect(Collectors.toList()));
       } else {
         diffLineList.add(
             new SectionDelimiter(
