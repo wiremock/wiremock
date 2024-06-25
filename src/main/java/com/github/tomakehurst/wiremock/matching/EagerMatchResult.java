@@ -27,12 +27,12 @@ public class EagerMatchResult extends MatchResult {
   }
 
   EagerMatchResult(double distance, List<SubEvent> subEvents) {
-    this(distance, subEvents, null);
+    this(distance, subEvents, List.of());
   }
 
   public EagerMatchResult(
-      double distance, List<SubEvent> subEvents, DiffDescription diffDescription) {
-    super(subEvents, diffDescription);
+      double distance, List<SubEvent> subEvents, List<DiffDescription> diffDescriptions) {
+    super(subEvents, diffDescriptions);
     this.distance = distance;
   }
 

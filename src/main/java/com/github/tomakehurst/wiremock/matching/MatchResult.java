@@ -31,23 +31,23 @@ import org.wiremock.annotations.Beta;
 public abstract class MatchResult implements Comparable<MatchResult> {
 
   private final Queue<SubEvent> subEvents;
-  private final DiffDescription diffDescription;
+  private final List<DiffDescription> diffDescriptions;
 
   public MatchResult() {
-    this(List.of(), null);
+    this(List.of(), List.of());
   }
 
   public MatchResult(List<SubEvent> subEvents) {
-    this(subEvents, null);
+    this(subEvents, List.of());
   }
 
   public MatchResult(List<SubEvent> subEvents, DiffDescription diffDescription) {
-    this.subEvents = new LinkedBlockingQueue<>(subEvents);
-    this.diffDescription = diffDescription;
+    this(subEvents, List.of(diffDescription));
   }
 
-  public MatchResult(DiffDescription diffDescription) {
-    this(List.of(), diffDescription);
+  public MatchResult(List<SubEvent> subEvents, List<DiffDescription> diffDescriptions) {
+    this.subEvents = new LinkedBlockingQueue<>(subEvents);
+    this.diffDescriptions = diffDescriptions;
   }
 
   protected void appendSubEvent(SubEvent subEvent) {
@@ -58,8 +58,8 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return new ArrayList<>(subEvents);
   }
 
-  public DiffDescription getDiffDescription() {
-    return this.diffDescription;
+  public List<DiffDescription> getDiffDescriptions() {
+    return this.diffDescriptions;
   }
 
   @JsonCreator
@@ -133,14 +133,26 @@ public abstract class MatchResult implements Comparable<MatchResult> {
       justification =
           "Add self-description callbacks for use in Diff - https://github.com/wiremock/wiremock/issues/2758")
   public static class DiffDescription {
-    public final String expected;
-    public final String actual;
-    public final String errorMessage;
+    private final String expected;
+    private final String actual;
+    private final String errorMessage;
 
     public DiffDescription(String expected, String actual, String errorMessage) {
       this.expected = expected;
       this.actual = actual;
       this.errorMessage = errorMessage;
+    }
+
+    public String getExpected() {
+      return expected;
+    }
+
+    public String getErrorMessage() {
+      return errorMessage;
+    }
+
+    public String getActual() {
+      return actual;
     }
   }
 }
