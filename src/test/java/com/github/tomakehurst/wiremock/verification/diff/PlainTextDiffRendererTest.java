@@ -59,7 +59,7 @@ class PlainTextDiffRendererTest {
         new PlainTextDiffRenderer(
             Map.of(
                 "my-custom-matcher", new MyCustomMatcher(),
-                "my-self-describing-custom-matcher", new MySelfDescribingCustomMatcher(),
+                "self-describing-custom-matcher", new SelfDescribingCustomMatcher(),
                 "weighted-self-describing-custom-matcher", new WeightedDescribingCustomMatcher()));
   }
 
@@ -499,8 +499,7 @@ class PlainTextDiffRendererTest {
         new Diff(
             post("/thing")
                 .withName("Standard and custom matched stub")
-                .andMatching(
-                    "my-self-describing-custom-matcher", Parameters.one("myVal", "present"))
+                .andMatching("self-describing-custom-matcher", Parameters.one("myVal", "present"))
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
@@ -695,22 +694,27 @@ class PlainTextDiffRendererTest {
     }
   }
 
-  public static class MySelfDescribingCustomMatcher extends RequestMatcherExtension {
+  public static class SelfDescribingCustomMatcher extends RequestMatcherExtension {
 
     @Override
     public MatchResult match(Request request, Parameters parameters) {
       parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
       final MatchResult.DiffDescription diffDescription =
           new MatchResult.DiffDescription(
-              "[custom matcher: my-self-describing-custom-matcher]",
-              "self-describing-actual",
-              "Not matched because of x, y and z");
-      return new EagerMatchResult(1, List.of(), diffDescription);
+              "Property a: foo",
+              "Property a: bar",
+              "Not matched because of property a not matching");
+      final MatchResult.DiffDescription diffDescription2 =
+          new MatchResult.DiffDescription(
+              "Property b: foo",
+              "Property b: bar",
+              "Not matched because of property b not matching");
+      return new EagerMatchResult(1, List.of(), List.of(diffDescription, diffDescription2));
     }
 
     @Override
     public String getName() {
-      return "my-self-describing-custom-matcher";
+      return "self-describing-custom-matcher";
     }
   }
 
@@ -721,11 +725,25 @@ class PlainTextDiffRendererTest {
       parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
       final MatchResult.DiffDescription diffDescription =
           new MatchResult.DiffDescription(
-              "[custom matcher: weighted-self-describing-custom-matcher]",
-              "weighted-self-describing-actual",
-              "Not matched because of x, y and z");
+              "Expected state in state store",
+              "key 'token' not found in state store",
+              "Not matched due to key not found in state store");
+      final MatchResult.DiffDescription diffDescription2 =
+          new MatchResult.DiffDescription(
+              "Expected state in state store",
+              "key 'data' not found in state store",
+              "Not matched due to key not found in state store");
+      final MatchResult.DiffDescription diffDescription3 =
+          new MatchResult.DiffDescription(
+              "Expected state in state store",
+              "key 'stateData' incorrect value",
+              "Not matched due to unexpected value in state store");
       return new WeightedAggregateMatchResult(
-          List.of(WeightedMatchResult.weight(MatchResult.noMatch())));
+          List.of(
+              WeightedMatchResult.weight(
+                  new EagerMatchResult(1, List.of(), List.of(diffDescription, diffDescription2))),
+              WeightedMatchResult.weight(
+                  new EagerMatchResult(1, List.of(), List.of(diffDescription3)))));
     }
 
     @Override
