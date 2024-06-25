@@ -62,7 +62,7 @@ public class MemoizingMatchResult extends MatchResult {
   }
 
   @Override
-  public DiffDescription getDiffDescription() {
-    return target.getDiffDescription();
+  public List<DiffDescription> getDiffDescriptions() {
+    return target.getDiffDescriptions();
   }
 }

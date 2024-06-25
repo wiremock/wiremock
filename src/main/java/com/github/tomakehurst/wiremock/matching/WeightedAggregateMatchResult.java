@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WeightedAggregateMatchResult extends MatchResult {
 
@@ -68,5 +69,13 @@ public class WeightedAggregateMatchResult extends MatchResult {
   @Override
   public List<SubEvent> getSubEvents() {
     return resultAndEvents.get().b;
+  }
+
+  @Override
+  public List<DiffDescription> getDiffDescriptions() {
+    return matchResults.stream()
+        .map(matchResult -> matchResult.getMatchResult().getDiffDescriptions())
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
   }
 }
