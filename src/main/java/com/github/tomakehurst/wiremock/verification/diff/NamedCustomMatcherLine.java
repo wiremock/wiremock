@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 
-public class NamedCustomMatcherLine extends DiffDescriptionLine<Request> {
+public class NamedCustomMatcherLine extends DiffLine<Request> {
 
   private final RequestMatcherExtension customMatcher;
   private final Parameters parameters;
