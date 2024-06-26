@@ -54,6 +54,7 @@ import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,12 +135,13 @@ public class Diff {
 
   private void addScenarioSectionIfPresent(List<DiffLine<?>> diffLineList) {
     if (scenarioName != null && expectedScenarioState != null) {
-      diffLineList.add(
-          new DiffLine<>(
-              "Scenario",
-              new EqualToPattern(expectedScenarioState),
-              buildScenarioLine(scenarioName, scenarioState),
-              buildScenarioLine(scenarioName, expectedScenarioState)));
+      diffLineList.addAll(
+          toDiffDescriptionLines(
+              new DiffLine<>(
+                  "Scenario",
+                  new EqualToPattern(expectedScenarioState),
+                  buildScenarioLine(scenarioName, scenarioState),
+                  buildScenarioLine(scenarioName, expectedScenarioState))));
     }
   }
 
@@ -153,10 +155,7 @@ public class Diff {
         NamedCustomMatcherLine namedCustomMatcherLine =
             new NamedCustomMatcherLine(
                 customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
-        diffLineList.addAll(
-            namedCustomMatcherLine.getDiffDescriptions().stream()
-                .map(DiffDescriptionLine::new)
-                .collect(Collectors.toList()));
+        diffLineList.addAll(toDiffDescriptionLines(namedCustomMatcherLine));
       } else {
         diffLineList.add(
             new SectionDelimiter(
@@ -169,7 +168,7 @@ public class Diff {
     if (requestPattern.hasInlineCustomMatcher()) {
       InlineCustomMatcherLine customMatcherLine =
           new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
-      diffLineList.add(customMatcherLine);
+      diffLineList.addAll(toDiffDescriptionLines(customMatcherLine));
     }
   }
 
@@ -220,7 +219,7 @@ public class Diff {
                 pattern,
                 cookie.isPresent() ? cookie.getValue() : "",
                 "Cookie: " + key + operator + pattern.getValue());
-        diffLineList.add(section);
+        diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!cookiesPattern.isEmpty()) {
         diffLineList.add(SPACER);
@@ -246,7 +245,7 @@ public class Diff {
                 pattern,
                 formParameter,
                 "Form: " + key + operator + pattern.getExpected());
-        diffLineList.add(section);
+        diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!formParameters.isEmpty()) {
         diffLineList.add(SPACER);
@@ -273,7 +272,7 @@ public class Diff {
                 pattern,
                 queryParameter,
                 "Query: " + key + operator + pattern.getExpected());
-        diffLineList.add(section);
+        diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!queryParameters.isEmpty()) {
         diffLineList.add(SPACER);
@@ -305,7 +304,7 @@ public class Diff {
                 pattern,
                 parameterValue,
                 "Path parameter: " + parameterName + operator + pattern.getValue());
-        diffLineList.add(section);
+        diffLineList.addAll(toDiffDescriptionLines(section));
       }
 
       diffLineList.add(SPACER);
@@ -317,7 +316,7 @@ public class Diff {
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
         new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
-    diffLineList.add(urlSection);
+    diffLineList.addAll(toDiffDescriptionLines(urlSection));
     diffLineList.add(SPACER);
     return urlSection;
   }
@@ -329,7 +328,7 @@ public class Diff {
             requestPattern.getMethod(),
             request.getMethod(),
             requestPattern.getMethod().getName());
-    diffLineList.add(methodSection);
+    diffLineList.addAll(toDiffDescriptionLines(methodSection));
   }
 
   private void addSchemeSectionIfPresent(List<DiffLine<?>> diffLineList) {
@@ -337,7 +336,7 @@ public class Diff {
       StringValuePattern expectedScheme = equalTo(String.valueOf(requestPattern.getScheme()));
       DiffLine<String> schemeSection =
           new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
-      diffLineList.add(schemeSection);
+      diffLineList.addAll(toDiffDescriptionLines(schemeSection));
     }
   }
 
@@ -347,7 +346,7 @@ public class Diff {
       String actualPort = String.valueOf(request.getPort());
       DiffLine<String> portSection =
           new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
-      diffLineList.add(portSection);
+      diffLineList.addAll(toDiffDescriptionLines(portSection));
     }
   }
 
@@ -358,7 +357,7 @@ public class Diff {
       DiffLine<String> hostSection =
           new DiffLine<>(
               "Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
-      diffLineList.add(hostSection);
+      diffLineList.addAll(toDiffDescriptionLines(hostSection));
     }
   }
 
@@ -369,7 +368,7 @@ public class Diff {
   private void addHeaderSectionWithSpacerIfPresent(
       Map<String, MultiValuePattern> headerPatterns,
       HttpHeaders headers,
-      List<DiffLine<?>> builder) {
+      List<DiffLine<?>> diffLineList) {
     if (headerPatterns != null && !headerPatterns.isEmpty()) {
       for (String key : headerPatterns.keySet()) {
         HttpHeader header = headers.getHeader(key);
@@ -382,14 +381,14 @@ public class Diff {
 
         DiffLine<MultiValue> section =
             new DiffLine<>("Header", headerPattern, header, printedPatternValue);
-        builder.add(section);
+        diffLineList.addAll(toDiffDescriptionLines(section));
       }
-      builder.add(SPACER);
+      diffLineList.add(SPACER);
     }
   }
 
   private void addBodySectionIfPresent(
-      List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> builder) {
+      List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> diffLineList) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
       for (ContentPattern<?> pattern : bodyPatterns) {
         String formattedBody = formatIfJsonOrXml(pattern, body);
@@ -404,29 +403,36 @@ public class Diff {
                     + "] "
                     + pathPattern.getValuePattern().getExpected();
             if (expressionResultString != null) {
-              builder.add(
-                  new DiffLine<>(
-                      "Body",
-                      pathPattern.getValuePattern(),
-                      expressionResultString,
-                      printedExpectedValue));
+              diffLineList.addAll(
+                  toDiffDescriptionLines(
+                      new DiffLine<>(
+                          "Body",
+                          pathPattern.getValuePattern(),
+                          expressionResultString,
+                          printedExpectedValue)));
             } else {
-              builder.add(new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue));
+              diffLineList.addAll(
+                  toDiffDescriptionLines(
+                      new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue)));
             }
           } else {
-            builder.add(new DiffLine<>("Body", pathPattern, formattedBody, pattern.getExpected()));
+            diffLineList.addAll(
+                toDiffDescriptionLines(
+                    new DiffLine<>("Body", pathPattern, formattedBody, pattern.getExpected())));
           }
         } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
           StringValuePattern stringValuePattern = (StringValuePattern) pattern;
           String printedPatternValue = "[" + pattern.getName() + "]\n" + pattern.getExpected();
-          builder.add(
-              new DiffLine<>(
-                  "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
+          diffLineList.addAll(
+              toDiffDescriptionLines(
+                  new DiffLine<>(
+                      "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue)));
         } else {
           BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
-          builder.add(
-              new DiffLine<>(
-                  "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected()));
+          diffLineList.addAll(
+              toDiffDescriptionLines(
+                  new DiffLine<>(
+                      "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected())));
         }
       }
     }
@@ -516,5 +522,14 @@ public class Diff {
         || pattern instanceof EqualToJsonPattern
         || pattern instanceof EqualToXmlPattern
         || pattern instanceof BinaryEqualToPattern;
+  }
+
+  private Collection<? extends DiffLine<?>> toDiffDescriptionLines(DiffLine<?> diffLine) {
+    return diffLine.getDiffDescriptions().stream()
+        .map(
+            diffDescription ->
+                new DiffDescriptionLine<>(
+                    diffDescription, diffLine.requestAttribute, diffLine.isExactMatch()))
+        .collect(Collectors.toList());
   }
 }

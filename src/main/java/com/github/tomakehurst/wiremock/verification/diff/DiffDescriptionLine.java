@@ -20,10 +20,13 @@ import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 public class DiffDescriptionLine<T> extends DiffLine<T> {
 
   private final DiffDescription diffDescription;
+  private final Boolean isExactMatch;
 
-  public DiffDescriptionLine(DiffDescription diffDescription) {
-    super("", null, null, diffDescription.getExpected());
+  public DiffDescriptionLine(
+      DiffDescription diffDescription, String requestAttribute, Boolean isExactMatch) {
+    super(requestAttribute, null, null, diffDescription.getExpected());
     this.diffDescription = diffDescription;
+    this.isExactMatch = isExactMatch;
   }
 
   @Override
@@ -34,5 +37,10 @@ public class DiffDescriptionLine<T> extends DiffLine<T> {
   @Override
   public String getMessage() {
     return this.diffDescription.getErrorMessage();
+  }
+
+  @Override
+  protected boolean isExactMatch() {
+    return this.isExactMatch;
   }
 }
