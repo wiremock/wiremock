@@ -724,20 +724,11 @@ class PlainTextDiffRendererTest {
     public MatchResult match(Request request, Parameters parameters) {
       parameters.getString("myVal"); // Ensure we're getting passed parameters as expected
       final MatchResult.DiffDescription diffDescription =
-          new MatchResult.DiffDescription(
-              "Expected state in state store",
-              "key 'token' not found in state store",
-              "Not matched due to key not found in state store");
+          new MatchResult.DiffDescription("Expected x", "Found y", "Not matched due to x != y");
       final MatchResult.DiffDescription diffDescription2 =
-          new MatchResult.DiffDescription(
-              "Expected state in state store",
-              "key 'data' not found in state store",
-              "Not matched due to key not found in state store");
+          new MatchResult.DiffDescription("Expected a", "Found b", "Not matched due to a != b");
       final MatchResult.DiffDescription diffDescription3 =
-          new MatchResult.DiffDescription(
-              "Expected state in state store",
-              "key 'stateData' incorrect value",
-              "Not matched due to unexpected value in state store");
+          new MatchResult.DiffDescription("Expected c", "Found d", "Not matched due to c != d");
       return new WeightedAggregateMatchResult(
           List.of(
               WeightedMatchResult.weight(
