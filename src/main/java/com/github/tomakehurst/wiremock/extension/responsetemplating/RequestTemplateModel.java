@@ -25,19 +25,26 @@ public class RequestTemplateModel {
   private final RequestLine requestLine;
   private final Map<String, ListOrSingle<String>> headers;
   private final Map<String, ListOrSingle<String>> cookies;
+
+  private final boolean isMultipart;
   private final String body;
+  private final Map<String, RequestPartTemplateModel> parts;
 
   protected RequestTemplateModel(
       String id,
       RequestLine requestLine,
       Map<String, ListOrSingle<String>> headers,
       Map<String, ListOrSingle<String>> cookies,
-      String body) {
+      boolean isMultipart,
+      String body,
+      Map<String, RequestPartTemplateModel> parts) {
     this.id = id;
     this.requestLine = requestLine;
     this.headers = headers;
     this.cookies = cookies;
+    this.isMultipart = isMultipart;
     this.body = body;
+    this.parts = parts;
   }
 
   public String getId() {
@@ -98,6 +105,14 @@ public class RequestTemplateModel {
 
   public String getBody() {
     return body;
+  }
+
+  public boolean isMultipart() {
+    return isMultipart;
+  }
+
+  public Map<String, RequestPartTemplateModel> getParts() {
+    return parts;
   }
 
   public String getClientIp() {
