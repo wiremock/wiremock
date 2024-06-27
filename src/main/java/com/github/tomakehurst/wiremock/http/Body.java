@@ -75,7 +75,7 @@ public class Body {
 
   public static Body ofBinaryOrText(byte[] content, ContentTypeHeader contentTypeHeader) {
     return new Body(
-        content, ContentTypes.determineIsTextFromMimeType(contentTypeHeader.mimeTypePart()));
+        content, !ContentTypes.determineIsTextFromMimeType(contentTypeHeader.mimeTypePart()));
   }
 
   public static Body fromOneOf(byte[] bytes, String str, JsonNode json, String base64) {
