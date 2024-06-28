@@ -52,5 +52,9 @@ public interface Stores extends StoresLifecycle {
     return getObjectStore(name, PersistenceType.EPHEMERAL);
   }
 
-  ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint);
+  default ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint) {
+    return getObjectStore(name, persistenceTypeHint, 10_000);
+  }
+
+  ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint, int maxSize);
 }

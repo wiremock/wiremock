@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValid
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public abstract class NetworkAddressRange {
 
   public static final NetworkAddressRange ALL = new All();
+  public static final Set<NetworkAddressRange> ALL_RANGES = Set.of(ALL);
 
   private static final Pattern SINGLE_IP =
       Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");

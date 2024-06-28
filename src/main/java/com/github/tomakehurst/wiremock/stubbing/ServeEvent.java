@@ -26,10 +26,7 @@ import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
-import com.github.tomakehurst.wiremock.http.LoggedResponse;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.*;
@@ -124,6 +121,21 @@ public class ServeEvent {
   public ServeEvent withResponseDefinition(ResponseDefinition responseDefinition) {
     return new ServeEvent(
         id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
+  public ServeEvent withPathParamDecoratedRequest() {
+    final LoggedRequest newLoggedRequest =
+        LoggedRequest.createFrom(
+            RequestPathParamsDecorator.decorate(request, stubMapping.getRequest()));
+    return new ServeEvent(
+        id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
+  public ServeEvent withIdDecoratedRequest() {
+    final LoggedRequest newLoggedRequest =
+        LoggedRequest.createFrom(new RequestIdDecorator(request, id));
+    return new ServeEvent(
+        id, newLoggedRequest, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
   public ServeEvent complete(Response response, DataTruncationSettings dataTruncationSettings) {

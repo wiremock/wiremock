@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,18 +40,22 @@ import org.apache.hc.core5.http.message.BasicHeader;
 public class ApacheBackedHttpClient implements HttpClient {
 
   private final CloseableHttpClient apacheHttpClient;
+  private final boolean preserveUserAgentProxyHeader;
 
-  public ApacheBackedHttpClient(CloseableHttpClient apacheHttpClient) {
+  public ApacheBackedHttpClient(
+      CloseableHttpClient apacheHttpClient, boolean preserveUserAgentProxyHeader) {
     this.apacheHttpClient = apacheHttpClient;
+    this.preserveUserAgentProxyHeader = preserveUserAgentProxyHeader;
   }
 
   @Override
   public Response execute(Request request) throws IOException {
-    ClassicHttpRequest apacheRequest = createApacheRequest(request);
+    ClassicHttpRequest apacheRequest = createApacheRequest(request, preserveUserAgentProxyHeader);
     return apacheHttpClient.execute(apacheRequest, ApacheBackedHttpClient::toWireMockHttpResponse);
   }
 
-  private static ClassicHttpRequest createApacheRequest(Request request) {
+  private static ClassicHttpRequest createApacheRequest(
+      Request request, boolean preserveUserAgentProxyHeader) {
     ContentType contentType =
         request.contentTypeHeader().isPresent()
             ? ContentType.parse(request.contentTypeHeader().firstValue())
@@ -63,7 +67,10 @@ public class ApacheBackedHttpClient implements HttpClient {
             .setHeaders(
                 request.getHeaders().all().stream()
                     .filter(
-                        header -> !FORBIDDEN_REQUEST_HEADERS.contains(header.key().toLowerCase()))
+                        header ->
+                            !FORBIDDEN_REQUEST_HEADERS.contains(header.key().toLowerCase())
+                                || (preserveUserAgentProxyHeader
+                                    && header.key().equalsIgnoreCase(USER_AGENT)))
                     .flatMap(
                         header ->
                             header.values().stream()
@@ -81,8 +88,7 @@ public class ApacheBackedHttpClient implements HttpClient {
       requestBuilder.setEntity(applyGzipWrapperIfRequired(request, entity));
     }
 
-    ClassicHttpRequest apacheRequest = requestBuilder.build();
-    return apacheRequest;
+    return requestBuilder.build();
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(

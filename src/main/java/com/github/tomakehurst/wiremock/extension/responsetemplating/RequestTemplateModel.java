@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,48 +16,38 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class RequestTemplateModel {
 
+  private final String id;
   private final RequestLine requestLine;
   private final Map<String, ListOrSingle<String>> headers;
   private final Map<String, ListOrSingle<String>> cookies;
   private final String body;
 
   protected RequestTemplateModel(
+      String id,
       RequestLine requestLine,
       Map<String, ListOrSingle<String>> headers,
       Map<String, ListOrSingle<String>> cookies,
       String body) {
+    this.id = id;
     this.requestLine = requestLine;
     this.headers = headers;
     this.cookies = cookies;
     this.body = body;
   }
 
-  public static RequestTemplateModel from(final Request request) {
-    return from(request, null);
+  public String getId() {
+    return id;
   }
 
-  public static RequestTemplateModel from(final Request request, final PathTemplate pathTemplate) {
-    RequestLine requestLine = RequestLine.fromRequest(request, pathTemplate);
-    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    adaptedHeaders.putAll(
-        Maps.toMap(
-            request.getAllHeaderKeys(), input -> ListOrSingle.of(request.header(input).values())));
-    Map<String, ListOrSingle<String>> adaptedCookies =
-        Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
-
-    return new RequestTemplateModel(
-        requestLine, adaptedHeaders, adaptedCookies, request.getBodyAsString());
-  }
-
+  @Deprecated
+  /**
+   * @deprecated Use the direct accessors
+   */
   public RequestLine getRequestLine() {
     return requestLine;
   }

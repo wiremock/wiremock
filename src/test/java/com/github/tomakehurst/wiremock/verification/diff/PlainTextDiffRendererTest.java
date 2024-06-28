@@ -620,6 +620,22 @@ class PlainTextDiffRendererTest {
         equalsMultiLine(file("not-found-diff-sample_json-path-body-not-json.txt")));
   }
 
+  @Test
+  void doesNotIncorrectlyShowUrlPathParametersNonMatchMessage() {
+    Diff diff =
+        new Diff(
+            get(urlPathTemplate("/contacts/{contactId}"))
+                .withPathParam("contactId", equalTo("123"))
+                .withHeader("Authorization", equalTo("Token 456"))
+                .build(),
+            mockRequest().method(GET).url("/contacts/123").header("Authorization", "Token 789"));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        output, equalsMultiLine(file("not-found-diff-sample_no_path_parameter_message.txt")));
+  }
+
   public static class MyCustomMatcher extends RequestMatcherExtension {
 
     @Override
