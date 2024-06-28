@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class RequestTemplateModel {
   private final Map<String, ListOrSingle<String>> cookies;
 
   private final boolean isMultipart;
-  private final String body;
+  private final Body body;
   private final Map<String, RequestPartTemplateModel> parts;
 
   protected RequestTemplateModel(
@@ -36,7 +37,7 @@ public class RequestTemplateModel {
       Map<String, ListOrSingle<String>> headers,
       Map<String, ListOrSingle<String>> cookies,
       boolean isMultipart,
-      String body,
+      Body body,
       Map<String, RequestPartTemplateModel> parts) {
     this.id = id;
     this.requestLine = requestLine;
@@ -104,7 +105,15 @@ public class RequestTemplateModel {
   }
 
   public String getBody() {
-    return body;
+    return body.asString();
+  }
+
+  public String getBodyAsBase64() {
+    return body.asBase64();
+  }
+
+  public boolean isBinary() {
+    return body.isBinary();
   }
 
   public boolean isMultipart() {

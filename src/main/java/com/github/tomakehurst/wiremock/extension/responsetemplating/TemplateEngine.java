@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -168,7 +169,7 @@ public class TemplateEngine {
         adaptedHeaders,
         adaptedCookies,
         request.isMultipart(),
-        request.getBodyAsString(),
+        Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
         buildRequestPartModel(request));
   }
 
