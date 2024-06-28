@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.http.Body;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 
 public class RequestPartTemplateModel {
@@ -52,5 +53,14 @@ public class RequestPartTemplateModel {
 
   public boolean isBinary() {
     return body.isBinary();
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", "[", "]")
+        .add("name='" + name + "'")
+        .add("headers=" + headers)
+        .add("body=" + body.asString())
+        .toString();
   }
 }
