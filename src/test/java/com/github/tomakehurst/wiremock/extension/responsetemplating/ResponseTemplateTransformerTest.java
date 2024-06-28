@@ -203,7 +203,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(mockRequest().url("/base64"), aResponse().withBase64Body(templateAsBase64));
 
-    assertThat(transformedResponseDef.getBody(), is(base64)); // SGVsbG8gV29ybGQ&#x3D;
+    assertThat(transformedResponseDef.getBody(), is(base64)); 
   }
 
   @Test
