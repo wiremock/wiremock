@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.http.Body;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class RequestPartTemplateModel {
 
@@ -28,7 +29,8 @@ public class RequestPartTemplateModel {
   public RequestPartTemplateModel(
       String name, Map<String, ListOrSingle<String>> headers, Body body) {
     this.name = name;
-    this.headers = headers;
+    this.headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    this.headers.putAll(headers);
     this.body = body;
   }
 
