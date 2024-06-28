@@ -154,4 +154,29 @@ public class MultipartTemplatingAcceptanceTest {
                 + "file:application/octet-stream:ABCD/\n"
                 + "text:text/plain; charset=ISO-8859-1:hello/\n"));
   }
+
+  @Test
+  public void requestPartTemplateModelCanBeOutputInATemplate() {
+    wm.stubFor(
+        post("/templated")
+            .willReturn(
+                ok(
+                    "multipart:{{request.multipart}}\n"
+                        + "{{#each request.parts as |part|}}{{part}}\n{{/each}}")));
+    WireMockResponse response =
+        client.post(
+            "/templated",
+            MultipartEntityBuilder.create()
+                .addTextBody("text", "hello", ContentType.TEXT_PLAIN)
+                .addBinaryBody(
+                    "file", "ABCD".getBytes(), ContentType.APPLICATION_OCTET_STREAM, "abcd.bin")
+                .build());
+
+    assertThat(
+        response.content(),
+        is(
+            "multipart:true\n"
+                + "[name='file', headers={content-disposition=form-data; name=\"file\"; filename=\"abcd.bin\", content-type=application/octet-stream}, body=ABCD]\n"
+                + "[name='text', headers={content-disposition=form-data; name=\"text\", content-type=text/plain; charset=ISO-8859-1}, body=hello]\n"));
+  }
 }
