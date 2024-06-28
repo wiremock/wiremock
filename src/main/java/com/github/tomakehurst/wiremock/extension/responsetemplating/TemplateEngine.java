@@ -32,6 +32,8 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -166,7 +168,29 @@ public class TemplateEngine {
         requestLine,
         adaptedHeaders,
         adaptedCookies,
-        request.getBodyAsString());
+        request.isMultipart(),
+        Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
+        buildRequestPartModel(request));
+  }
+
+  private static Map<String, RequestPartTemplateModel> buildRequestPartModel(Request request) {
+
+    if (request.isMultipart()) {
+      return request.getParts().stream()
+          .collect(
+              Collectors.toMap(
+                  Request.Part::getName,
+                  part ->
+                      new RequestPartTemplateModel(
+                          part.getName(),
+                          part.getHeaders().all().stream()
+                              .collect(
+                                  Collectors.toMap(
+                                      HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                          part.getBody())));
+    }
+
+    return Collections.emptyMap();
   }
 
   public long getCacheSize() {
