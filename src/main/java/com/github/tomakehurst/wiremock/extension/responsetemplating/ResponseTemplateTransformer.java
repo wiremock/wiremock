@@ -101,6 +101,12 @@ public class ResponseTemplateTransformer
                   file.readContentsAsString());
           applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
         }
+      } else if (responseDefinition.specifiesBinaryBodyContent()) {
+        HandlebarsOptimizedTemplate bodyTemplate =
+            templateEngine.getTemplate(
+                HttpTemplateCacheKey.forInlineBody(responseDefinition),
+                responseDefinition.getReponseBody().asString());
+        applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
       }
 
       if (responseDefinition.getHeaders() != null) {

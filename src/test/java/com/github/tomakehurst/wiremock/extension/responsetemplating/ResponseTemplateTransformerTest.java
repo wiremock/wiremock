@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -192,6 +193,17 @@ public class ResponseTemplateTransformerTest {
             aResponse().withBodyFile("/greet-{{request.query.name}}.txt"));
 
     assertThat(transformedResponseDef.getBody(), is("Hello Ram"));
+  }
+
+  @Test
+  public void templatizeBase64Body() {
+    var base64 = "SGVsbG8gV29ybGQ="; // Hello World
+    String template = "{{#val '" + base64 + "' assign='myBase64'}}{{/val}}{{{myBase64}}}";
+    String templateAsBase64 = Encoding.encodeBase64(template.getBytes());
+    ResponseDefinition transformedResponseDef =
+        transform(mockRequest().url("/base64"), aResponse().withBase64Body(templateAsBase64));
+
+    assertThat(transformedResponseDef.getBody(), is(base64)); // SGVsbG8gV29ybGQ&#x3D;
   }
 
   @Test
