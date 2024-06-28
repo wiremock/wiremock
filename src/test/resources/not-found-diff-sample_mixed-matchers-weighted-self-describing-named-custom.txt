@@ -1,0 +1,16 @@
+
+                                               Request was not matched
+                                               =======================
+
+-----------------------------------------------------------------------------------------------------------------------
+| Closest stub                                             | Request                                                  |
+-----------------------------------------------------------------------------------------------------------------------
+                                                           |
+Standard and weighted custom matched stub                  |
+                                                           |
+POST                                                       | POST
+/thing                                                     | /thing
+                                                           |
+[custom matcher: weighted-self-describing-custom-matcher]  | weighted-self-describing-actual                     <<<<< Not matched because of x, y and z
+                                                           |
+-----------------------------------------------------------------------------------------------------------------------

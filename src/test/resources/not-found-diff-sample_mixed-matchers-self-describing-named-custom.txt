@@ -1,0 +1,17 @@
+
+                                               Request was not matched
+                                               =======================
+
+-----------------------------------------------------------------------------------------------------------------------
+| Closest stub                                             | Request                                                  |
+-----------------------------------------------------------------------------------------------------------------------
+                                                           |
+Standard and custom matched stub                           |
+                                                           |
+POST                                                       | POST
+/thing                                                     | /thing
+                                                           |
+Property a: foo                                            | Property a: bar                                     <<<<< Not matched because of property a not matching
+Property b: foo                                            | Property b: bar                                     <<<<< Not matched because of property b not matching
+                                                           |
+-----------------------------------------------------------------------------------------------------------------------

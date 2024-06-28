@@ -60,4 +60,9 @@ public class MemoizingMatchResult extends MatchResult {
   public List<SubEvent> getSubEvents() {
     return target.getSubEvents();
   }
+
+  @Override
+  public List<DiffDescription> getDiffDescriptions() {
+    return target.getDiffDescriptions();
+  }
 }
