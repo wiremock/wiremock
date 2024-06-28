@@ -83,7 +83,7 @@ public class ResponseTemplateTransformer
             templateEngine.getTemplate(
                 HttpTemplateCacheKey.forInlineBody(responseDefinition),
                 responseDefinition.getTextBody());
-        applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
+        applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody, false);
       } else if (responseDefinition.specifiesBodyFile()) {
         HandlebarsOptimizedTemplate filePathTemplate =
             templateEngine.getUncachedTemplate(responseDefinition.getBodyFileName());
@@ -99,14 +99,16 @@ public class ResponseTemplateTransformer
               templateEngine.getTemplate(
                   HttpTemplateCacheKey.forFileBody(responseDefinition, compiledFilePath),
                   file.readContentsAsString());
-          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
+          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false, false);
         }
       } else if (responseDefinition.specifiesBinaryBodyContent()) {
-        HandlebarsOptimizedTemplate bodyTemplate =
-            templateEngine.getTemplate(
-                HttpTemplateCacheKey.forInlineBody(responseDefinition),
-                responseDefinition.getReponseBody().asString());
-        applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
+        String responseBodyAsString = responseDefinition.getReponseBody().asString();
+        if (containsHandlebars(responseBodyAsString)) {
+          HandlebarsOptimizedTemplate bodyTemplate =
+              templateEngine.getTemplate(
+                  HttpTemplateCacheKey.forInlineBody(responseDefinition), responseBodyAsString);
+          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false, true);
+        }
       }
 
       if (responseDefinition.getHeaders() != null) {
@@ -186,6 +188,10 @@ public class ResponseTemplateTransformer
     }
   }
 
+  private boolean containsHandlebars(String responseBody) {
+    return responseBody != null && responseBody.contains("{{") && responseBody.contains("}}");
+  }
+
   private static String cleanUpHandlebarsErrorMessage(String rawMessage) {
     return rawMessage.replaceAll("inline@[a-z0-9]+:", "").replaceAll("\n.*", "");
   }
@@ -203,13 +209,22 @@ public class ResponseTemplateTransformer
       ResponseDefinitionBuilder newResponseDefBuilder,
       Map<String, Object> model,
       HandlebarsOptimizedTemplate bodyTemplate,
-      boolean isJsonBody) {
+      boolean isJsonBody,
+      boolean isBinaryBody) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-    Body body =
-        isJsonBody
-            ? Body.fromJsonBytes(bodyString.getBytes(StandardCharsets.UTF_8))
-            : Body.fromOneOf(null, bodyString, null, null);
-    newResponseDefBuilder.withResponseBody(body);
+    if (isJsonBody) {
+      newResponseDefBuilder.withResponseBody(
+          Body.fromJsonBytes(bodyString.getBytes(StandardCharsets.UTF_8)));
+    } else if (isBinaryBody) {
+      newResponseDefBuilder.withResponseBody(Body.fromOneOf(null, null, null, bodyString));
+    } else {
+      newResponseDefBuilder.withResponseBody(Body.fromOneOf(null, bodyString, null, null));
+    }
+    //    Body body =
+    //        isJsonBody
+    //            ? Body.fromJsonBytes(bodyString.getBytes(StandardCharsets.UTF_8))
+    //            : Body.fromOneOf(null, bodyString, null, null);
+    //    newResponseDefBuilder.withResponseBody(body);
   }
 
   private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {
