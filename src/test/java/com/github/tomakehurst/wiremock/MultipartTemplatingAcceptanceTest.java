@@ -72,6 +72,33 @@ public class MultipartTemplatingAcceptanceTest {
   }
 
   @Test
+  public void multipartRequestPartsHeadersAreCaseInsensitive() {
+    wm.stubFor(
+        post("/templated")
+            .willReturn(
+                ok(
+                    "multipart:{{request.multipart}}\n"
+                        + "text:content-type={{request.parts.text.headers.CoNtEnT-TyPe}}\n"
+                        + "file:content-type={{request.parts.file.headers.cOnTeNt-tYpE}}")));
+
+    WireMockResponse response =
+        client.post(
+            "/templated",
+            MultipartEntityBuilder.create()
+                .addTextBody("text", "hello", ContentType.TEXT_PLAIN)
+                .addBinaryBody(
+                    "file", "ABCD".getBytes(), ContentType.APPLICATION_OCTET_STREAM, "abcd.bin")
+                .build());
+
+    assertThat(
+        response.content(),
+        is(
+            "multipart:true\n"
+                + "text:content-type=text/plain; charset=ISO-8859-1\n"
+                + "file:content-type=application/octet-stream"));
+  }
+
+  @Test
   public void returnsEmptyPartsInTemplateWhenRequestIsNotMultipart() {
     wm.stubFor(
         post("/templated")
@@ -85,8 +112,46 @@ public class MultipartTemplatingAcceptanceTest {
     assertThat(response.content(), is("multipart:false\n" + "text::"));
   }
 
-  // TODO list parts and/or get the count
+  @Test
+  public void ableToReturnTheNumberOfParts() {
+    wm.stubFor(
+        post("/templated")
+            .willReturn(
+                ok("multipart:{{request.multipart}}\n" + "part count = {{size request.parts}}")));
+    WireMockResponse response =
+        client.post(
+            "/templated",
+            MultipartEntityBuilder.create()
+                .addTextBody("text", "hello", ContentType.TEXT_PLAIN)
+                .addBinaryBody(
+                    "file", "ABCD".getBytes(), ContentType.APPLICATION_OCTET_STREAM, "abcd.bin")
+                .build());
 
-  // TODO case-insensitive map for headers or normalisation of key case?
+    assertThat(response.content(), is("multipart:true\n" + "part count = 2"));
+  }
 
+  @Test
+  public void ableToIterateOverParts() {
+    wm.stubFor(
+        post("/templated")
+            .willReturn(
+                ok(
+                    "multipart:{{request.multipart}}\n"
+                        + "{{#each request.parts as |part|}}{{part.name}}:{{part.headers.content-type}}:{{part.body}}/\n{{/each}}")));
+    WireMockResponse response =
+        client.post(
+            "/templated",
+            MultipartEntityBuilder.create()
+                .addTextBody("text", "hello", ContentType.TEXT_PLAIN)
+                .addBinaryBody(
+                    "file", "ABCD".getBytes(), ContentType.APPLICATION_OCTET_STREAM, "abcd.bin")
+                .build());
+
+    assertThat(
+        response.content(),
+        is(
+            "multipart:true\n"
+                + "file:application/octet-stream:ABCD/\n"
+                + "text:text/plain; charset=ISO-8859-1:hello/\n"));
+  }
 }
