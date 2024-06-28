@@ -87,8 +87,6 @@ public class MultipartTemplatingAcceptanceTest {
 
   // TODO list parts and/or get the count
 
-  // TODO add bodyAsBase64 to main request body template model for consistency
-
   // TODO case-insensitive map for headers or normalisation of key case?
 
 }
