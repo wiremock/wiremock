@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.matching.WeightedMatchResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
@@ -678,6 +679,84 @@ class PlainTextDiffRendererTest {
 
     assertThat(
         output, equalsMultiLine(file("not-found-diff-sample_no_path_parameter_message.txt")));
+  }
+
+  @Test
+  void showsIsOneOfMissingMethodMessage() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v1.txt")));
+  }
+
+  @Test
+  void showsIsNoneOfMissingMethodMessage() {
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v1.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion1() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v2.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion1() {
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v2.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion2() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v3.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion2() {
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(PUT).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v3.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {
