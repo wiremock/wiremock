@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -79,6 +80,8 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
       distance = calculateDistance(localExpected, localActual);
     } else if (isLocal && zonedActual != null) {
       distance = calculateDistance(localExpected, zonedActual.toLocalDateTime());
+    } else if (isZoned && localActual != null) {
+      distance = calculateDistance(zonedExpected, localActual.atZone(ZoneId.systemDefault()));
     }
 
     return distance;

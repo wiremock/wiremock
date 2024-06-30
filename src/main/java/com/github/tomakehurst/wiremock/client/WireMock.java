@@ -251,7 +251,12 @@ public class WireMock {
   }
 
   public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
-    return new EqualToXmlPattern(value, enablePlaceholders, null, null, null);
+    return new EqualToXmlPattern(value, enablePlaceholders, null, null, null, false);
+  }
+
+  public static EqualToXmlPattern equalToXml(
+      String value, boolean enablePlaceholders, boolean ignoreOrderOfSameNode) {
+    return new EqualToXmlPattern(value, enablePlaceholders, ignoreOrderOfSameNode);
   }
 
   public static EqualToXmlPattern equalToXml(
@@ -264,7 +269,23 @@ public class WireMock {
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        null);
+        null,
+        false);
+  }
+
+  public static EqualToXmlPattern equalToXml(
+      String value,
+      boolean enablePlaceholders,
+      String placeholderOpeningDelimiterRegex,
+      String placeholderClosingDelimiterRegex,
+      boolean ignoreOrderOfSameNode) {
+    return new EqualToXmlPattern(
+        value,
+        enablePlaceholders,
+        placeholderOpeningDelimiterRegex,
+        placeholderClosingDelimiterRegex,
+        null,
+        ignoreOrderOfSameNode);
   }
 
   public static MatchesXPathPattern matchingXPath(String value) {

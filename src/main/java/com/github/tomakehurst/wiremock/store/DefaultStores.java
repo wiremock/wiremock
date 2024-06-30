@@ -76,23 +76,16 @@ public class DefaultStores implements Stores {
   @Override
   public BlobStore getBlobStore(String name) {
     final FileSource child = fileRoot.child(name);
-    child.createIfNecessary();
     return new FileSourceBlobStore(child);
   }
 
   @Override
-  public ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint) {
+  public ObjectStore getObjectStore(
+      String name, PersistenceType persistenceTypeHint, int maxItems) {
     if (persistenceTypeHint == EPHEMERAL) {
-      ObjectStore store = objectStores.get(name);
-      if (store == null) {
-        store = new InMemoryObjectStore(10000);
-        objectStores.putIfAbsent(name, store);
-      }
-
-      return store;
+      return objectStores.computeIfAbsent(name, n -> new InMemoryObjectStore(maxItems));
     } else {
       final FileSource child = fileRoot.child(name);
-      child.createIfNecessary();
       return new FileSourceJsonObjectStore(child);
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   @Test
   public void transformerSpecifiedByClassTransformsHeadersStatusAndBody() {
     startWithExtensions(
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$ExampleTransformer");
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$ExampleTransformer");
     createStub("/to-transform");
 
     WireMockResponse response = client.get("/to-transform");
@@ -52,8 +53,8 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   @Test
   public void supportsMultipleTransformers() {
     startWithExtensions(
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$MultiTransformer1",
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$MultiTransformer2");
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$MultiTransformer1",
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$MultiTransformer2");
     createStub("/to-multi-transform");
 
     WireMockResponse response = client.get("/to-multi-transform");
@@ -143,8 +144,14 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
   @Test
   public void supportsAccessingTheFilesFileSource() {
-    startWithExtensions(
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$FileAccessTransformer");
+    wm =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
+                .extensions(services -> List.of(new FileAccessTransformer(services.getFiles()))));
+    wm.start();
+    client = new WireMockTestClient(wm.port());
     createStub("/files-access-transform");
 
     WireMockResponse response = client.get("/files-access-transform");
@@ -154,7 +161,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   @Test
   public void supportsParameters() {
     startWithExtensions(
-        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$ParameterisedTransformer");
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$ParameterisedTransformer");
 
     wm.stubFor(
         get(urlEqualTo("/transform-with-params"))
@@ -162,6 +169,20 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
                 aResponse().withStatus(200).withTransformerParameter("newBody", "Use this body")));
 
     assertThat(client.get("/transform-with-params").content(), is("Use this body"));
+  }
+
+  @Test
+  void pathParametersCanBeUsed() {
+    startWithExtensions(
+        "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$PathParamUsingResponseDefinitionTransformer");
+
+    wm.stubFor(
+        get(urlPathTemplate("/things/{thingId}"))
+            .willReturn(ok().withTransformers("path-param-to-header")));
+
+    WireMockResponse response = client.get("/things/123");
+
+    assertThat(response.firstHeader("x-thing-id"), is("123"));
   }
 
   private void startWithExtensions(String... extensions) {
@@ -315,6 +336,23 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     @Override
     public String getName() {
       return "params";
+    }
+  }
+
+  public static class PathParamUsingResponseDefinitionTransformer
+      implements ResponseDefinitionTransformerV2 {
+
+    @Override
+    public String getName() {
+      return "path-param-to-header";
+    }
+
+    @Override
+    public ResponseDefinition transform(ServeEvent serveEvent) {
+      return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
+          .but()
+          .withHeader("x-thing-id", serveEvent.getRequest().getPathParameters().get("thingId"))
+          .build();
     }
   }
 }

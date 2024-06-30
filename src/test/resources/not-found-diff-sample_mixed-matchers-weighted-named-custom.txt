@@ -6,10 +6,13 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-GET                                                        | GET
-[path template] /contacts/{contactId}                      | /contacts/345
+Standard and weighted custom matched stub                  |
                                                            |
-Path parameter: contactId = 123                            | 345                                                 <<<<< Path parameter does not match
+POST                                                       | POST
+/thing                                                     | /thing
                                                            |
+Expected x                                                 | Found y                                             <<<<< Not matched due to x != y
+Expected a                                                 | Found b                                             <<<<< Not matched due to a != b
+Expected c                                                 | Found d                                             <<<<< Not matched due to c != d
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

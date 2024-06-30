@@ -6,10 +6,12 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-GET                                                        | GET
-[path template] /contacts/{contactId}                      | /contacts/345
+Standard and custom matched stub                           |
                                                            |
-Path parameter: contactId = 123                            | 345                                                 <<<<< Path parameter does not match
+POST                                                       | POST
+/thing                                                     | /thing
                                                            |
+Property a: foo                                            | Property a: bar                                     <<<<< Not matched because of property a not matching
+Property b: foo                                            | Property b: bar                                     <<<<< Not matched because of property b not matching
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

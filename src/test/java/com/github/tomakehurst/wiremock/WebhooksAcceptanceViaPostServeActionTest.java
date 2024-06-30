@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,9 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
-import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -39,22 +37,21 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.testsupport.CompositeNotifier;
-import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WebhooksAcceptanceViaPostServeActionTest {
-
-  CountDownLatch latch;
+public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension targetServer =
@@ -79,7 +76,6 @@ public class WebhooksAcceptanceViaPostServeActionTest {
                   .notifier(new ConsoleNotifier("Target", true)))
           .build();
 
-  TestNotifier testNotifier = new TestNotifier();
   CompositeNotifier notifier =
       new CompositeNotifier(testNotifier, new ConsoleNotifier("Main", true));
   WireMockTestClient client;
@@ -99,7 +95,7 @@ public class WebhooksAcceptanceViaPostServeActionTest {
   @BeforeEach
   public void init() {
     testNotifier.reset();
-    targetServer.stubFor(any(anyUrl()).willReturn(aResponse().withStatus(200)));
+    targetServer.stubFor(any(anyUrl()).willReturn(ok()));
     latch = new CountDownLatch(1);
     client = new WireMockTestClient(rule.getPort());
     WireMock.configureFor(targetServer.getPort());
@@ -112,7 +108,7 @@ public class WebhooksAcceptanceViaPostServeActionTest {
   public void firesASingleWebhookWhenRequested() throws Exception {
     rule.stubFor(
         post(urlPathEqualTo("/something-async"))
-            .willReturn(aResponse().withStatus(200))
+            .willReturn(ok())
             .withPostServeAction(
                 "webhook",
                 webhook()
@@ -142,11 +138,7 @@ public class WebhooksAcceptanceViaPostServeActionTest {
             .values();
     assertThat(multiHeaderValues, hasItems("one", "two"));
 
-    System.out.println(
-        "All info notifications:\n"
-            + testNotifier.getInfoMessages().stream()
-                .map(message -> message.replace("\n", "\n>>> "))
-                .collect(Collectors.joining("\n>>> ")));
+    printAllInfoNotifications();
 
     waitAtMost(5, SECONDS)
         .until(
@@ -156,6 +148,20 @@ public class WebhooksAcceptanceViaPostServeActionTest {
                     containsString("Webhook POST request to"),
                     containsString("/callback returned status"),
                     containsString("200"))));
+
+    // should be two sub events - the request and the response
+    List<SubEvent> subEvents = new ArrayList<>(rule.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(2));
+    Map<String, Object> expectedRequestEntries =
+        Map.of(
+            "url", "/callback",
+            "method", "POST",
+            "host", "localhost",
+            "scheme", "http",
+            "body", "{ \"result\": \"SUCCESS\" }");
+    assertSubEvent(subEvents.get(0), WEBHOOK_REQUEST_SUB_EVENT_NAME, expectedRequestEntries);
+    Map<String, Object> expectedResponseEntries = Map.of("status", 200, "body", "");
+    assertSubEvent(subEvents.get(1), WEBHOOK_RESPONSE_SUB_EVENT_NAME, expectedResponseEntries);
   }
 
   @Test
@@ -365,11 +371,11 @@ public class WebhooksAcceptanceViaPostServeActionTest {
   }
 
   @Test
-  public void doesNotFireAWebhookWhenRequestedForDeniedTarget() throws Exception {
+  public void doesNotFireAWebhookWhenRequestedForDeniedTarget() {
     StubMapping stub =
         rule.stubFor(
             post(urlPathEqualTo("/webhook"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(ok())
                 .withPostServeAction(
                     "webhook",
                     webhook()
@@ -381,24 +387,25 @@ public class WebhooksAcceptanceViaPostServeActionTest {
 
     client.post("/webhook", new StringEntity("", TEXT_PLAIN));
 
-    System.out.println(
-        "All info notifications:\n"
-            + testNotifier.getInfoMessages().stream()
-                .map(message -> message.replace("\n", "\n>>> "))
-                .collect(Collectors.joining("\n>>> ")));
+    printAllInfoNotifications();
 
-    List<String> errorMessages =
-        await().until(() -> testNotifier.getErrorMessages(), hasSize(greaterThanOrEqualTo(1)));
-    assertThat(
-        errorMessages.get(0),
-        is(
-            "The target webhook address http://169.254.2.34/foo specified by stub "
-                + stub.getId()
-                + " is denied in WireMock's configuration."));
-  }
+    final String expectedErrorMessage =
+        "The target webhook address http://169.254.2.34/foo specified by stub "
+            + stub.getId()
+            + " is denied in WireMock's configuration.";
+    assertErrorMessage(expectedErrorMessage);
 
-  private void waitForRequestToTargetServer() throws Exception {
-    assertTrue(
-        latch.await(20, SECONDS), "Timed out waiting for target server to receive a request");
+    // should be two sub events - the request and the error
+    List<SubEvent> subEvents = new ArrayList<>(rule.getAllServeEvents().get(0).getSubEvents());
+    assertThat(subEvents, hasSize(2));
+    Map<String, Object> expectedRequestEntries =
+        Map.of(
+            "url", "/foo",
+            "absoluteUrl", "http://169.254.2.34/foo",
+            "method", "POST",
+            "scheme", "http",
+            "body", "{ \"result\": \"SUCCESS\" }");
+    assertSubEvent(subEvents.get(0), WEBHOOK_REQUEST_SUB_EVENT_NAME, expectedRequestEntries);
+    assertSubEvent(subEvents.get(1), SubEvent.ERROR, expectedErrorMessage);
   }
 }

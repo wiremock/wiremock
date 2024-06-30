@@ -27,20 +27,20 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -131,13 +131,9 @@ public class TemplateEngine {
   }
 
   public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
-    final Request request = serveEvent.getRequest();
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     final Parameters parameters =
         getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
-
-    final PathTemplate pathTemplate =
-        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
 
     final Map<String, Object> additionalModelData =
         templateModelDataProviders.stream()
@@ -147,9 +143,54 @@ public class TemplateEngine {
 
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
-    model.put("request", RequestTemplateModel.from(request, pathTemplate));
+    model.put("request", buildRequestModel(serveEvent.getRequest()));
     model.putAll(additionalModelData);
     return model;
+  }
+
+  public Map<String, Object> buildModelForRequest(Request request) {
+    final Map<String, Object> model = new HashMap<>();
+    model.put("request", buildRequestModel(request));
+    return model;
+  }
+
+  private static RequestTemplateModel buildRequestModel(Request request) {
+    RequestLine requestLine = RequestLine.fromRequest(request);
+    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    adaptedHeaders.putAll(
+        Maps.toMap(
+            request.getAllHeaderKeys(), input -> ListOrSingle.of(request.header(input).values())));
+    Map<String, ListOrSingle<String>> adaptedCookies =
+        Maps.transformValues(request.getCookies(), cookie -> ListOrSingle.of(cookie.getValues()));
+
+    return new RequestTemplateModel(
+        request.getId() != null ? request.getId().toString() : null,
+        requestLine,
+        adaptedHeaders,
+        adaptedCookies,
+        request.isMultipart(),
+        Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
+        buildRequestPartModel(request));
+  }
+
+  private static Map<String, RequestPartTemplateModel> buildRequestPartModel(Request request) {
+
+    if (request.isMultipart()) {
+      return request.getParts().stream()
+          .collect(
+              Collectors.toMap(
+                  Request.Part::getName,
+                  part ->
+                      new RequestPartTemplateModel(
+                          part.getName(),
+                          part.getHeaders().all().stream()
+                              .collect(
+                                  Collectors.toMap(
+                                      HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                          part.getBody())));
+    }
+
+    return Collections.emptyMap();
   }
 
   public long getCacheSize() {

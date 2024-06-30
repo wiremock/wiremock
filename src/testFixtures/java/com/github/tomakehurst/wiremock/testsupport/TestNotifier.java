@@ -66,11 +66,11 @@ public class TestNotifier implements Notifier {
   }
 
   public List<String> getInfoMessages() {
-    return info;
+    return List.copyOf(info);
   }
 
   public List<String> getErrorMessages() {
-    return error;
+    return List.copyOf(error);
   }
 
   public void reset() {

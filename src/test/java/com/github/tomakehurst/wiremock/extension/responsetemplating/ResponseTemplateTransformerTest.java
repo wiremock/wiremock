@@ -40,6 +40,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -526,6 +527,18 @@ public class ResponseTemplateTransformerTest {
                     "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"));
 
     assertThat(transformedResponseDef.getBody(), is("Multi 1: one, Multi 2: two, Single 1: 1234"));
+  }
+
+  @Test
+  public void requestIdIsAvailableIdInTheTemplateModel() {
+    final UUID id = UUID.randomUUID();
+
+    ResponseDefinition transformedResponseDef =
+        transform(mockRequest().url("/things").id(id), aResponse().withBody("{{request.id}}"));
+
+    String requestId = transformedResponseDef.getBody();
+    assertThat(requestId, notNullValue());
+    assertThat(requestId, is(id.toString()));
   }
 
   @Test

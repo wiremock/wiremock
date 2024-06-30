@@ -26,11 +26,12 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -41,6 +42,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final HttpClient httpClient;
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
+  private final DataTruncationSettings dataTruncationSettings;
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -51,6 +53,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.httpClient = wireMockServices.getDefaultHttpClient();
     this.transformers = transformers;
     this.templateEngine = wireMockServices.getTemplateEngine();
+    this.dataTruncationSettings = wireMockServices.getOptions().getDataTruncationSettings();
   }
 
   @Override
@@ -81,8 +84,12 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       }
       definition = applyTemplating(definition, serveEvent);
       request = buildRequest(definition);
+
+      serveEvent.appendSubEvent("WEBHOOK_REQUEST", LoggedRequest.createFrom(request));
     } catch (Exception e) {
-      notifier().error("Exception thrown while configuring webhook", e);
+      final String msg = "Exception thrown while configuring webhook";
+      notifier().error(msg, e);
+      serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
       return;
     }
 
@@ -98,21 +105,28 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                     finalDefinition.getUrl(),
                     response.getStatus(),
                     response.getBodyAsString()));
+            serveEvent.appendSubEvent(
+                "WEBHOOK_RESPONSE",
+                LoggedResponse.from(
+                    response, this.dataTruncationSettings.getMaxResponseBodySize()));
           } catch (ProhibitedNetworkAddressException e) {
-            notifier.error(
+            final String msg =
                 String.format(
                     "The target webhook address %s specified by stub %s is denied in WireMock's configuration.",
                     finalDefinition.getUrl(),
                     getFirstNonNull(
                         serveEvent.getStubMapping().getName(),
                         serveEvent.getStubMapping().getId(),
-                        "<no name or id>")));
+                        "<no name or id>"));
+            notifier.error(msg);
+            serveEvent.appendSubEvent(SubEvent.error(msg));
           } catch (Exception e) {
-            notifier.error(
+            final String msg =
                 String.format(
                     "Failed to fire webhook %s %s",
-                    finalDefinition.getMethod(), finalDefinition.getUrl()),
-                e);
+                    finalDefinition.getMethod(), finalDefinition.getUrl());
+            notifier.error(msg, e);
+            serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
           }
         },
         finalDefinition.getDelaySampleMillis(),
@@ -122,13 +136,15 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private WebhookDefinition applyTemplating(
       WebhookDefinition webhookDefinition, ServeEvent serveEvent) {
 
-    final Map<String, Object> model = new HashMap<>();
+    final Map<String, Object> model =
+        new HashMap<>(this.templateEngine.buildModelForRequest(serveEvent));
     model.put(
         "parameters",
         webhookDefinition.getExtraParameters() != null
             ? webhookDefinition.getExtraParameters()
             : Collections.<String, Object>emptyMap());
-    model.put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()));
+    model.put("originalRequest", model.get("request"));
+    model.remove("request");
 
     WebhookDefinition renderedWebhookDefinition =
         webhookDefinition

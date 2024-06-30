@@ -157,6 +157,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public boolean shouldPreserveUserAgentProxyHeader() {
+    return false;
+  }
+
+  @Override
   public String proxyHostHeader() {
     return null;
   }
@@ -259,6 +264,16 @@ public class WarConfiguration implements Options {
   @Override
   public int proxyTimeout() {
     return DEFAULT_TIMEOUT;
+  }
+
+  @Override
+  public int getMaxHttpClientConnections() {
+    return DEFAULT_MAX_HTTP_CONNECTIONS;
+  }
+
+  @Override
+  public boolean getDisableConnectionReuse() {
+    return DEFAULT_DISABLE_CONNECTION_REUSE;
   }
 
   @Override

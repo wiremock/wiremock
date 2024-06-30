@@ -6,10 +6,11 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-GET                                                        | GET
-[path template] /contacts/{contactId}                      | /contacts/345
+Standard and weighted custom matched stub                  |
                                                            |
-Path parameter: contactId = 123                            | 345                                                 <<<<< Path parameter does not match
+POST                                                       | POST
+/thing                                                     | /thing
                                                            |
+[custom matcher: weighted-self-describing-custom-matcher]  | weighted-self-describing-actual                     <<<<< Not matched because of x, y and z
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

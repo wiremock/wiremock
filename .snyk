@@ -4,19 +4,19 @@ ignore: {}
 patch: {}
 exclude:
   global:
-    - ./sample-war/**:
+    - ./sample-war/**/*:
         reason: test only sub-project
         expires: 2044-05-23T00:00:00.000Z
         created: 2024-05-23T13:24:10.953Z
-    - ./perf-test/**:
+    - ./perf-test/**/*:
         reason: test only sub-project
         expires: 2044-05-23T00:00:00.000Z
         created: 2024-05-23T13:24:46.178Z
-    - ./test-logging/**:
+    - ./test-logging/**/*:
         reason: test only sub-project
         expires: 2044-05-23T00:00:00.000Z
         created: 2024-05-23T13:25:17.519Z
-    - ./test-extension/**:
+    - ./test-extension/**/*:
         reason: test only sub-project
         expires: 2044-05-23T00:00:00.000Z
         created: 2024-05-23T13:25:37.801Z

@@ -25,6 +25,7 @@ plugins {
   id "org.sonarqube" version "5.0.0.4638"
   id 'jacoco'
   id "me.champeau.jmh" version "0.7.2"
+  id 'com.dorongold.task-tree' version '3.0.0'
 }
 
 group = 'org.wiremock'
@@ -33,11 +34,11 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
-    guava          : '33.2.0-jre',
+    guava          : '33.2.1-jre',
     jackson        : '2.17.1',
     xmlUnit        : '2.10.0',
     jsonUnit       : '2.38.0',
-    junitJupiter   : '5.10.2'
+    junitJupiter   : '5.10.3'
   ]
 }
 
@@ -98,7 +99,7 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.5'
 
-  api 'com.networknt:json-schema-validator:1.4.0'
+  api 'com.networknt:json-schema-validator:1.4.3'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")
@@ -201,7 +202,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.6.0'
+  version = '3.8.0'
 
   compileJava {
     options.encoding = 'UTF-8'
@@ -446,90 +447,58 @@ task localRelease {
   dependsOn clean, assemble, publishToMavenLocal
 }
 
-task 'bump-beta-version' {
-  doLast {
-    def filesWithVersion = [
-      'build.gradle'                                      : { "version = '${it}" },
-      'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'src/main/resources/version.properties'             : { "version=${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
-      'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}"
-      }
-    ]
+void updateFiles(String currentVersion, String nextVersion) {
 
-    def currentVersion = project.version
-    def nextVersion = "3.0.0-beta-${betaVersion + 1}"
+  def filesWithVersion = [
+    'build.gradle'                                      : { "version = '${it}" },
+    'ui/package.json'                                   : { "\"version\": \"${it}\"" },
+    'src/main/resources/version.properties'             : { "version=${it}" },
+    'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
+    'src/main/resources/swagger/wiremock-admin-api.yaml': {
+      "version: ${it}"
+    }
+  ]
 
-    filesWithVersion.each { fileName, lineWithVersionTemplates ->
-      def file = file(fileName)
-      def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
+  filesWithVersion.each { fileName, lineWithVersionTemplates ->
+    def file = file(fileName)
+    def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
 
-      lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-        def oldLine = lineWithVersionTemplate.call(currentVersion)
-        def newLine = lineWithVersionTemplate.call(nextVersion)
-        println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-        file.text = file.text.replace(oldLine, newLine)
-      }
+    lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+      def oldLine = lineWithVersionTemplate.call(currentVersion)
+      def newLine = lineWithVersionTemplate.call(nextVersion)
+      println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+      file.text = file.text.replace(oldLine, newLine)
     }
   }
 }
 
 task 'bump-patch-version' {
   doLast {
-    def filesWithVersion = [
-      'build.gradle'                                      : { "version = '${it}" },
-      'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'src/main/resources/version.properties'             : { "version=${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
-      'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}"
-      }
-    ]
 
     def currentVersion = project.version
     def nextVersion = "${majorVersion}.${minorVersion}.${patchVersion + 1}"
 
-    filesWithVersion.each { fileName, lineWithVersionTemplates ->
-      def file = file(fileName)
-      def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
-
-      lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-        def oldLine = lineWithVersionTemplate.call(currentVersion)
-        def newLine = lineWithVersionTemplate.call(nextVersion)
-        println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-        file.text = file.text.replace(oldLine, newLine)
-      }
-    }
+    updateFiles(currentVersion, nextVersion)
   }
 }
 
 task 'bump-minor-version' {
   doLast {
-    def filesWithVersion = [
-      'build.gradle'                                      : { "version = '${it}" },
-      'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'src/main/resources/version.properties'             : { "version=${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
-      'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}"
-      }
-    ]
 
     def currentVersion = project.version
     def nextVersion = "${majorVersion}.${minorVersion + 1}.0"
 
-    filesWithVersion.each { fileName, lineWithVersionTemplates ->
-      def file = file(fileName)
-      def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
+    updateFiles(currentVersion, nextVersion)
+  }
+}
 
-      lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-        def oldLine = lineWithVersionTemplate.call(currentVersion)
-        def newLine = lineWithVersionTemplate.call(nextVersion)
-        println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-        file.text = file.text.replace(oldLine, newLine)
-      }
-    }
+task 'set-snapshot-version' {
+  doLast {
+
+    def currentVersion = project.version
+    def nextVersion = "${majorVersion}.${minorVersion + 1}.0-SNAPSHOT"
+
+    updateFiles(currentVersion, nextVersion)
   }
 }
 
