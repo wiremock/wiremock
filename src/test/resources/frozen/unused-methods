@@ -50,7 +50,6 @@ Method <com.github.tomakehurst.wiremock.http.RequestMethod.hasEntity()> is unref
 Method <com.github.tomakehurst.wiremock.http.RequestMethod.value()> is unreferenced in (RequestMethod.java:51)
 Method <com.github.tomakehurst.wiremock.http.RequestMethod.values()> is unreferenced in (RequestMethod.java:97)
 Method <com.github.tomakehurst.wiremock.jetty9.JettyHttpServer.stopTimeout()> is unreferenced in (JettyHttpServer.java:265)
-Method <com.github.tomakehurst.wiremock.junit.WireMockStaticRule.stopServer()> is unreferenced in (WireMockStaticRule.java:45)
 Method <com.github.tomakehurst.wiremock.matching.AbstractDateTimePattern.actualFormat(java.lang.String)> is unreferenced in (AbstractDateTimePattern.java:155)
 Method <com.github.tomakehurst.wiremock.matching.AbstractDateTimePattern.expectedOffset(int, com.github.tomakehurst.wiremock.common.DateTimeUnit)> is unreferenced in (AbstractDateTimePattern.java:162)
 Method <com.github.tomakehurst.wiremock.matching.EqualToXmlPattern.exemptingComparisons([Lorg.xmlunit.diff.ComparisonType;)> is unreferenced in (EqualToXmlPattern.java:228)
