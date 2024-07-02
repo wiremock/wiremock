@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.isNotNullOrEmptyCollection;
 import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 
@@ -69,6 +70,8 @@ public class Diff {
   private final String scenarioName;
   private final String scenarioState;
   private final String expectedScenarioState;
+
+  private static final String HTTP_METHOD = "HTTP method";
 
   public Diff(RequestPattern expected, Request actual) {
     this.requestPattern = expected;
@@ -322,13 +325,26 @@ public class Diff {
   }
 
   private void addMethodSection(List<DiffLine<?>> diffLineList) {
-    DiffLine<RequestMethod> methodSection =
-        new DiffLine<>(
-            "HTTP method",
-            requestPattern.getMethod(),
-            request.getMethod(),
-            requestPattern.getMethod().getName());
+    DiffLine<RequestMethod> methodSection = defineRequestMethodSection();
     diffLineList.addAll(toDiffDescriptionLines(methodSection));
+  }
+
+  private DiffLine<RequestMethod> defineRequestMethodSection() {
+    if (requestPattern.getMethods() != null
+        && (isNotNullOrEmptyCollection(requestPattern.getMethods().getNoneOf())
+            || isNotNullOrEmptyCollection(requestPattern.getMethods().getOneOf()))) {
+      return new DiffLine<>(
+          HTTP_METHOD,
+          requestPattern.getMethods(),
+          request.getMethod(),
+          requestPattern.getMethods().getName());
+    } else {
+      return new DiffLine<>(
+          HTTP_METHOD,
+          requestPattern.getMethod(),
+          request.getMethod(),
+          requestPattern.getMethod().getName());
+    }
   }
 
   private void addSchemeSectionIfPresent(List<DiffLine<?>> diffLineList) {
