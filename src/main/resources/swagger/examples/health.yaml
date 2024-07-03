@@ -1,0 +1,5 @@
+status: "healthy"
+message: "Wiremock is ok"
+version: "3.8.0"
+uptimeInSeconds: 14355
+timestamp: "2024-07-03T13:16:06.172362Z"

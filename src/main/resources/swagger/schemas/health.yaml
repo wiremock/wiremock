@@ -1,0 +1,17 @@
+type: object
+properties:
+  status:
+    type: string
+    example: "health"
+  message:
+    type: string
+    example: "Wiremock is ok"
+  version:
+    type: string
+    example: "3.8.0"
+  uptimeInSeconds:
+    type: integer
+    example: 14355
+  timestamp:
+    type: string
+    example: "2024-07-03T13:16:06.172362Z"
