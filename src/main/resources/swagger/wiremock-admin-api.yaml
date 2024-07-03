@@ -37,6 +37,8 @@ tags:
     externalDocs:
       description: User documentation
       url: https://wiremock.org/docs/stateful-behaviour/
+  - name: Files
+    description: Manage the files used to support WireMock stubs
   - name: System
     description: Global operations
 
@@ -331,6 +333,7 @@ paths:
                 $ref: "examples/requests.yaml"
                     
                     
+
   /__admin/requests/remove-by-metadata:
     post:
       operationId: removeRequestsByMetadata
@@ -525,6 +528,66 @@ paths:
         '200':
           description: Successfully reset
 
+
+  /__admin/files:
+    get:
+      operationId: getAllFileNames
+      summary: Get all file names
+      tags:
+        - Files
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["file1.json", "file2.json", "file3.txt"]
+          description: All scenarios
+          
+  /__admin/files/{fileId}:
+    parameters:
+      - description: The name of the file
+        in: path
+        name: fileId
+        required: true
+        example: file1.json
+        schema:
+          type: string
+    get:
+      operationId: getFileById
+      summary: Get file by ID
+      tags:
+        - Files
+      responses:
+        '404':
+          description: File not found
+        '200':
+          description: The contents of the file
+    put:
+      operationId: updateFileById
+      summary: Update or create a file
+      tags:
+        - Files
+      requestBody:
+        content:
+          application/octet-stream:
+            schema: 
+              type: string
+              format: byte
+      responses:
+        '200':
+          description: OK - contents of the request body as a string
+    delete:
+      operationId: deleteFileById
+      summary: Delete a file if it exists
+      tags:
+        - Files
+      responses:
+        '200':
+          description: OK
+
   /__admin/settings:
     post:
       operationId: updateGlobalSettings
@@ -570,6 +633,7 @@ paths:
         '200':
           description: Server will be shut down
           
+
   /__admin/version:
     get:
       operationId: getVersion
@@ -598,13 +662,13 @@ paths:
         - System
       responses:
         '200':
+          description: Successful health and uptime data
           content:
             application/json:
               schema:
                 $ref: 'schemas/health.yaml'
               example:
                 $ref: 'examples/health.yaml'
-          description: Successful health and uptime data
 
 components:
   requestBodies:
