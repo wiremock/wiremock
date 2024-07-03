@@ -6,7 +6,7 @@
   },
   "externalDocs": {
     "description": "WireMock user documentation",
-    "url": "http://wiremock.org/docs/"
+    "url": "https://wiremock.org/docs/"
   },
   "servers": [
     {
@@ -19,7 +19,7 @@
       "description": "Operations on stub mappings",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/stubbing/"
+        "url": "https://wiremock.org/docs/stubbing/"
       }
     },
     {
@@ -27,7 +27,7 @@
       "description": "Logged requests and responses received by the mock service",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/verifying/"
+        "url": "https://wiremock.org/docs/verifying/"
       }
     },
     {
@@ -35,7 +35,7 @@
       "description": "Near misses allow querying of received requests or request patterns according to similarity",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/verifying/#near-misses"
+        "url": "https://wiremock.org/docs/verifying/#near-misses"
       }
     },
     {
@@ -43,7 +43,7 @@
       "description": "Stub mapping record and snapshot functions",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/record-playback/"
+        "url": "https://wiremock.org/docs/record-playback/"
       }
     },
     {
@@ -51,8 +51,12 @@
       "description": "Scenarios support modelling of stateful behaviour",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/stateful-behaviour/"
+        "url": "https://wiremock.org/docs/stateful-behaviour/"
       }
+    },
+    {
+      "name": "Files",
+      "description": "Manage the files used to support WireMock stubs"
     },
     {
       "name": "System",
@@ -4021,14 +4025,14 @@
                       "targetBaseUrl": {
                         "type": "string",
                         "description": "Target URL when using the record and playback API",
-                        "example": "http://example.mocklab.io"
+                        "example" : "https://example.wiremock.org"
                       }
                     }
                   }
                 ]
               },
               "example": {
-                "targetBaseUrl": "http://example.mocklab.io",
+                "targetBaseUrl": "https://example.wiremock.org",
                 "filters": {
                   "urlPathPattern": "/api/.*",
                   "method": "GET"
@@ -5786,14 +5790,14 @@
                     "targetBaseUrl": {
                       "type": "string",
                       "description": "Target URL when using the record and playback API",
-                      "example": "http://example.mocklab.io"
+                      "example": "https://example.wiremock.org"
                     }
                   }
                 }
               ]
             },
             "example": {
-              "targetBaseUrl": "http://example.mocklab.io",
+              "targetBaseUrl": "https://example.wiremock.org",
               "filters": {
                 "urlPathPattern": "/api/.*",
                 "method": "GET"
