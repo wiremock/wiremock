@@ -5187,6 +5187,90 @@
           }
         }
       }
+    },
+    "/__admin/version" : {
+      "get" : {
+        "operationId" : "getVersion",
+        "summary" : "Return the version of the WireMock server",
+        "description" : "Returns the version of the WireMock server",
+        "tags" : [ "System" ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully returned the version of the WireMock server",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "version" : {
+                      "type" : "string",
+                      "example" : "3.8.0"
+                    }
+                  }
+                },
+                "example" : {
+                  "version" : "3.8.0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/health" : {
+      "get" : {
+        "operationId" : "getHealth",
+        "summary" : "Return the health of the WireMock server",
+        "description" : "Returns the health of the WireMock server",
+        "tags" : [ "System" ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful health and uptime data",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "The status of the server",
+                      "example": "healthy",
+                      "enum": ["healthy", "unhealthy"]
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Longer message regarding the status of the server",
+                      "example": "Wiremock is ok"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "The WireMock version",
+                      "example": "3.8.0"
+                    },
+                    "upTimeInSeconds": {
+                      "type": "integer",
+                      "description": "How long the server has been running",
+                      "example": 14355
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "description": "The current timestamp",
+                      "example": "2024-07-03T13:16:06.172362Z"
+                    }
+                  }
+                },
+                "example" : {
+                  "status" : "healthy",
+                  "message" : "Wiremock is ok",
+                  "version" : "3.8.0",
+                  "uptimeInSeconds" : 14355,
+                  "timestamp" : "2024-07-03T13:16:06.172362Z"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
