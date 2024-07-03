@@ -569,6 +569,42 @@ paths:
       responses:
         '200':
           description: Server will be shut down
+          
+  /__admin/version:
+    get:
+      operationId: getVersion
+      summary: Return the version of the WireMock server
+      description: Returns the version of the WireMock server
+      tags:
+        - System
+      responses:
+        '200':
+          description: Successfully returned the version of the WireMock server
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: "3.8.0"
+
+  /__admin/health:
+    get:
+      operationId: getHealth
+      summary: Return the health of the WireMock server
+      description: Returns the health of the WireMock server
+      tags:
+        - System
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/health.yaml'
+              example:
+                $ref: 'examples/health.yaml'
+          description: Successful health and uptime data
 
 components:
   requestBodies:
