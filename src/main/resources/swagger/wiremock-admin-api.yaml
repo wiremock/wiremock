@@ -6,7 +6,7 @@ info:
 
 externalDocs:
   description: WireMock user documentation
-  url: http://wiremock.org/docs/
+  url: https://wiremock.org/docs/
 
 servers:
   - url: /
@@ -16,27 +16,27 @@ tags:
     description: Operations on stub mappings
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/stubbing/
+      url: https://wiremock.org/docs/stubbing/
   - name: Requests
     description: Logged requests and responses received by the mock service
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/verifying/
+      url: https://wiremock.org/docs/verifying/
   - name: Near Misses
     description: Near misses allow querying of received requests or request patterns according to similarity
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/verifying/#near-misses
+      url: https://wiremock.org/docs/verifying/#near-misses
   - name: Recordings
     description: Stub mapping record and snapshot functions
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/record-playback/
+      url: https://wiremock.org/docs/record-playback/
   - name: Scenarios
     description: Scenarios support modelling of stateful behaviour
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/stateful-behaviour/
+      url: https://wiremock.org/docs/stateful-behaviour/
   - name: System
     description: Global operations
 
@@ -330,6 +330,7 @@ paths:
               example:
                 $ref: "examples/requests.yaml"
                     
+                    
   /__admin/requests/remove-by-metadata:
     post:
       operationId: removeRequestsByMetadata
@@ -561,6 +562,7 @@ paths:
   /__admin/shutdown:
     post:
       operationId: shutdownServer
+      summary: Shutdown the WireMock server
       description: Shutdown the WireMock server
       tags:
          - System
@@ -602,7 +604,7 @@ components:
                   targetBaseUrl:
                     type: string
                     description: Target URL when using the record and playback API
-                    example: http://example.mocklab.io
+                    example: https://example.wiremock.org
           example:
             $ref: "examples/record-spec.yaml"
 
