@@ -385,7 +385,7 @@ public class MatchesJsonPathPatternTest {
   @Test
   public void correctlySerialisesWhenSubMatcherHasExtraParameters() {
     StringValuePattern matcher =
-        new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true));
+        new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true, true));
 
     String json = Json.write(matcher);
 
@@ -397,7 +397,8 @@ public class MatchesJsonPathPatternTest {
                 + "        \"expression\": \"$..thing\",   \n"
                 + "        \"equalToJson\": \"{}\",        \n"
                 + "        \"ignoreExtraElements\": true,  \n"
-                + "        \"ignoreArrayOrder\": true      \n"
+                + "        \"ignoreArrayOrder\": true,      \n"
+                + "        \"failFast\": true               \n"
                 + "    }                                   \n"
                 + "}"));
   }

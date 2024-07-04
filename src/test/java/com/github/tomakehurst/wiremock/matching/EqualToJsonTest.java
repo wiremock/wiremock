@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -290,13 +290,15 @@ public class EqualToJsonTest {
             "{\n"
                 + "    \"equalToJson\": \"2\",\n"
                 + "    \"ignoreArrayOrder\": true,\n"
-                + "    \"ignoreExtraElements\": true\n"
+                + "    \"ignoreExtraElements\": true,\n"
+                + "    \"failFast\": true\n"
                 + "}",
             StringValuePattern.class);
 
     assertThat(pattern, instanceOf(EqualToJsonPattern.class));
     assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
     assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
+    assertThat(((EqualToJsonPattern) pattern).isFailFast(), is(true));
     assertThat(pattern.getExpected(), is("2"));
   }
 
@@ -309,7 +311,8 @@ public class EqualToJsonTest {
             + expectedJson
             + ",  \n"
             + "    \"ignoreArrayOrder\": true,             \n"
-            + "    \"ignoreExtraElements\": true           \n"
+            + "    \"ignoreExtraElements\": true,           \n"
+            + "    \"failFast\": true                       \n"
             + "}                                             ";
     StringValuePattern pattern = Json.read(serializedJson, StringValuePattern.class);
 
@@ -323,7 +326,7 @@ public class EqualToJsonTest {
   public void correctlySerialisesToJsonValueWhenAdditionalParamsPresentAndConstructedWithJsonValue()
       throws JSONException {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
-    EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), true, true);
+    EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), true, true, true);
 
     String serialised = Json.write(pattern);
     String expected =
@@ -332,7 +335,8 @@ public class EqualToJsonTest {
             + expectedJson
             + ",  \n"
             + "    \"ignoreArrayOrder\": true,             \n"
-            + "    \"ignoreExtraElements\": true           \n"
+            + "    \"ignoreExtraElements\": true,           \n"
+            + "    \"failFast\": true                       \n"
             + "}                                             ";
     JSONAssert.assertEquals(expected, serialised, false);
   }
@@ -340,14 +344,15 @@ public class EqualToJsonTest {
   @Test
   public void correctlySerialisesToJsonWhenAdditionalParamsPresentAndConstructedWithString()
       throws JSONException {
-    EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true);
+    EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true, true);
 
     String serialised = Json.write(pattern);
     JSONAssert.assertEquals(
         "{\n"
             + "    \"equalToJson\": \"4444\",\n"
             + "    \"ignoreArrayOrder\": true,\n"
-            + "    \"ignoreExtraElements\": true\n"
+            + "    \"ignoreExtraElements\": true,\n"
+            + "    \"failFast\": true\n"
             + "}",
         serialised,
         false);
@@ -617,12 +622,7 @@ public class EqualToJsonTest {
 
     assertThat(match.getSubEvents().size(), is(1));
     Errors.Error error =
-        match.getSubEvents().stream()
-            .findFirst()
-            .get()
-            .getDataAs(Errors.class)
-            .getErrors()
-            .stream()
+        match.getSubEvents().stream().findFirst().get().getDataAs(Errors.class).getErrors().stream()
             .findFirst()
             .get();
     assertThat(error.getDetail(), startsWith("Unexpected end-of-input"));

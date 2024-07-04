@@ -224,12 +224,17 @@ public class WireMock {
   }
 
   public static StringValuePattern equalToJson(String value) {
-    return new EqualToJsonPattern(value, null, null);
+    return new EqualToJsonPattern(value, null, null, null);
   }
 
   public static StringValuePattern equalToJson(
       String value, boolean ignoreArrayOrder, boolean ignoreExtraElements) {
-    return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements);
+    return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements, false);
+  }
+
+  public static StringValuePattern equalToJson(
+      String value, boolean ignoreArrayOrder, boolean ignoreExtraElements, boolean failFast) {
+    return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements, failFast);
   }
 
   public static StringValuePattern matchingJsonPath(String value) {

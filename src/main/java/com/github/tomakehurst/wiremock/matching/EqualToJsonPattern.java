@@ -35,25 +35,38 @@ public class EqualToJsonPattern extends StringValuePattern {
   private final Boolean ignoreArrayOrder;
   private final Boolean ignoreExtraElements;
   private final Boolean serializeAsString;
+  private final Boolean failFast;
 
   public EqualToJsonPattern(
       @JsonProperty("equalToJson") String json,
       @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
-      @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
+      @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements,
+      @JsonProperty("failFast") Boolean failFast) {
     super(json);
     expected = Json.read(json, JsonNode.class);
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
     this.serializeAsString = true;
+    this.failFast = failFast;
+  }
+
+  public EqualToJsonPattern(String json, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
+    this(json, ignoreArrayOrder, ignoreExtraElements, false);
   }
 
   public EqualToJsonPattern(
-      JsonNode jsonNode, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
+      JsonNode jsonNode, Boolean ignoreArrayOrder, Boolean ignoreExtraElements, Boolean failFast) {
     super(Json.write(jsonNode));
     expected = jsonNode;
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
     this.serializeAsString = false;
+    this.failFast = failFast;
+  }
+
+  public EqualToJsonPattern(
+      JsonNode jsonNode, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
+    this(jsonNode, ignoreArrayOrder, ignoreExtraElements, false);
   }
 
   @Override
@@ -71,6 +84,10 @@ public class EqualToJsonPattern extends StringValuePattern {
     if (shouldIgnoreExtraElements()) {
       diffConfig =
           diffConfig.withOptions(Option.IGNORING_EXTRA_ARRAY_ITEMS, Option.IGNORING_EXTRA_FIELDS);
+    }
+
+    if (shouldFailFast()) {
+      diffConfig = diffConfig.withOptions(Option.FAIL_FAST);
     }
 
     final JsonNode actual;
@@ -128,6 +145,14 @@ public class EqualToJsonPattern extends StringValuePattern {
 
   public Boolean isIgnoreExtraElements() {
     return ignoreExtraElements;
+  }
+
+  private boolean shouldFailFast() {
+    return failFast != null && failFast;
+  }
+
+  public Boolean isFailFast() {
+    return failFast;
   }
 
   @Override

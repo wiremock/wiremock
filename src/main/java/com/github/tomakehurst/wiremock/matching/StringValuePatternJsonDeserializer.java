@@ -137,12 +137,14 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
     Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
+    Boolean failFast = fromNullable(rootNode.findValue("failFast"));
 
     // Allow either a JSON value or a string containing JSON
     if (operand.isTextual()) {
-      return new EqualToJsonPattern(operand.textValue(), ignoreArrayOrder, ignoreExtraElements);
+      return new EqualToJsonPattern(
+          operand.textValue(), ignoreArrayOrder, ignoreExtraElements, failFast);
     } else {
-      return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+      return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements, failFast);
     }
   }
 
