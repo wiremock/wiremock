@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static java.util.Objects.requireNonNull;
+import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
 import com.github.tomakehurst.wiremock.admin.*;
@@ -446,12 +447,14 @@ public class HttpAdminClient implements Admin {
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
     HttpPost post = new HttpPost(url);
+    post.addHeader(CONTENT_TYPE, "application/json");
     post.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
     return safelyExecuteRequest(url, post);
   }
 
   private String putJsonAssertOkAndReturnBody(String url, String json) {
     HttpPut put = new HttpPut(url);
+    put.addHeader(CONTENT_TYPE, "application/json");
     put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
     return safelyExecuteRequest(url, put);
   }
@@ -502,6 +505,7 @@ public class HttpAdminClient implements Admin {
     if (requestSpec.method().hasEntity()) {
       requestBuilder.setEntity(
           jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
+      requestBuilder.addHeader(CONTENT_TYPE, "application/json");
     }
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
