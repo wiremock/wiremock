@@ -101,7 +101,7 @@ properties:
 
   multipartPatterns:
     type: array
-    description: Multipart patterns to match against headers and body
+    description: Multipart patterns to match against headers and body.
     items:
       type: object
       properties:
@@ -109,14 +109,19 @@ properties:
           type: string
         matchingType:
           type: string
+          description: Determines whether all or any of the parts must match the criteria for an overall match.
           default: ANY
           enum:
             - ALL
             - ANY
         headers:
           type: object
+          description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+          additionalProperties:
+            $ref: "content-pattern.yaml"
 
         bodyPatterns:
           type: array
+          description: 'Body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
           items:
-            type: object
+            $ref: "content-pattern.yaml"
