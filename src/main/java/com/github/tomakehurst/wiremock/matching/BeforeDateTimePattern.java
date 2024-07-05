@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
       @JsonProperty("actualFormat") String actualDateFormat,
       @JsonProperty("truncateExpected") String truncateExpected,
       @JsonProperty("truncateActual") String truncateActual,
+      @JsonProperty("applyTruncationLast") boolean applyTruncationLast,
       @JsonProperty("expectedOffset") Integer expectedOffsetAmount,
       @JsonProperty("expectedOffsetUnit") DateTimeUnit expectedOffsetUnit) {
     super(
@@ -47,6 +48,7 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
         actualDateFormat,
         truncateExpected,
         truncateActual,
+        applyTruncationLast,
         expectedOffsetAmount,
         expectedOffsetUnit);
   }
