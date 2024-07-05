@@ -1,0 +1,8 @@
+title: Absent matcher
+type: object
+properties:
+  absent:
+    type: boolean
+
+required:
+  - absent

@@ -1,67 +1,23 @@
+type: object
+$schema: https://json-schema.org/draft/2020-12/schema,
+title: Content pattern
 oneOf:
-  - title: String equals
-    type: object
-    properties:
-      equalTo:
-        type: boolean
-      caseInsensitive:
-        type: boolean
-    required:
-      - equalTo
-  - title: String contains
-    type: object
-    properties:
-      contains:
-        type: string
-    required:
-      - contains
-  - title: Regular expression match
-    type: object
-    properties:
-      matches:
-        type: string
-    required:
-      - matches
-  - title: Negative regular expression match
-    type: object
-    properties:
-      doesNotMatch:
-        type: string
-    required:
-      - doesNotMatch
-  - title: JSON equals
-    type: object
-    properties:
-      equalToJson:
-        type: string
-    required:
-      - equalToJson
-  - title: JSONPath match
-    type: object
-    properties:
-      matchesJsonPath:
-        type: string
-      ignoreArrayOrder:
-        type: boolean
-      ignoreExtraElements:
-        type: boolean
-    required:
-      - matchesJsonPath
-  - title: XML equality
-    type: object
-    properties:
-      equalToXml:
-        type: string
-    required:
-      - equalToXml
-  - title: XPath match
-    type: object
-    properties:
-      matchesXpath:
-        type: string
-      namespaces:
-        type: object
-      valuePattern:
-        type: object
-    required:
-      - matchesXpath
+  - $ref: "equal-to-pattern.yaml"
+  - $ref: "binary-equal-to-pattern.yaml"
+  - $ref: "contains-pattern.yaml"
+  - $ref: "does-not-contain-pattern.yaml"
+  - $ref: "matches-pattern.yaml"
+  - $ref: "does-not-match-pattern.yaml"
+  - $ref: "not-pattern.yaml"
+  - $ref: "before-pattern.yaml"
+  - $ref: "after-pattern.yaml"
+  - $ref: "equal-to-date-time-pattern.yaml"
+  - $ref: "equal-to-json-pattern.yaml"
+  - $ref: "matches-json-path-pattern.yaml"
+  - $ref: "equal-to-xml-pattern.yaml"
+  - $ref: "matches-xpath-pattern.yaml"
+  - $ref: "matches-json-schema-pattern.yaml"
+  - $ref: "absent-pattern.yaml"
+  - $ref: "and-pattern.yaml"
+  - $ref: "or-pattern.yaml"
+

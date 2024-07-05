@@ -1,0 +1,17 @@
+title: XML equality
+type: object
+properties:
+  equalToXml:
+    type: string
+    example: "<amount>123</amount>"
+  enablePlaceholders:
+    type: boolean
+  placeholderOpeningDelimiterRegex:
+    type: string
+    example: "["
+  placeholderClosingDelimiterRegex:
+    type: string
+    example: "]"
+
+required:
+  - equalToXml
