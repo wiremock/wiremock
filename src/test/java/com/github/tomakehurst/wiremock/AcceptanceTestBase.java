@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,14 +84,27 @@ public class AcceptanceTestBase {
   public static void setupServer(WireMockConfiguration options) {
     System.out.println(
         "Configuring WireMockServer with root directory: " + options.filesRoot().getPath());
-    if (options.portNumber() == Options.DEFAULT_PORT) {
+
+    // SERVER_PORT + CLIENT PORT are here to support routing through an external proxy for e.g.
+    // validation
+    final String serverPort = System.getenv("SERVER_PORT");
+    if (serverPort != null) {
+      options.port(Integer.parseInt(serverPort));
+    } else if (options.portNumber() == Options.DEFAULT_PORT) {
       options.dynamicPort();
     }
 
     wireMockServer = new WireMockServer(options);
     wireMockServer.start();
     testClient = new WireMockTestClient(wireMockServer.port());
-    WireMock.configureFor(wireMockServer.port());
+
+    int clientPort =
+        Optional.ofNullable(System.getenv("CLIENT_PORT"))
+            .map(Integer::parseInt)
+            .orElse(wireMockServer.port());
+
+    WireMock wireMockClient = new WireMock(clientPort);
+    WireMock.configureFor(wireMockClient);
     wm = wireMockServer;
   }
 

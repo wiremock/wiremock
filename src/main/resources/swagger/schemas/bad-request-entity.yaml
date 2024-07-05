@@ -1,0 +1,16 @@
+title: Bad request entity
+type: object
+properties:
+  errors:
+    type: array
+    items:
+      type: object
+      properties:
+        code:
+          type: integer
+        source:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string

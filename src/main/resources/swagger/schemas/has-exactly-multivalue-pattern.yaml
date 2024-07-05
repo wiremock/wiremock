@@ -1,0 +1,10 @@
+title: Has exactly multi value matcher
+type: object
+properties:
+  hasExactly:
+    type: array
+    items:
+      $ref: "content-pattern.yaml"
+
+required:
+  - hasExactly

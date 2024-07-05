@@ -2,13 +2,13 @@ title: Before datetime
 type: object
 properties:
   before:
-    $ref: "date-time-elements.yaml#/definitions/dateTimeExpression"
+    $ref: "date-time-elements.yaml#/dateTimeExpression"
   actualFormat:
-    $ref: "date-time-elements.yaml#/definitions/format"
+    $ref: "date-time-elements.yaml#/format"
   truncateExpected:
-    $ref: "date-time-elements.yaml#/definitions/truncation"
+    $ref: "date-time-elements.yaml#/truncation"
   truncateActual:
-    $ref: "date-time-elements.yaml#/definitions/truncation"
+    $ref: "date-time-elements.yaml#/truncation"
 
 required:
   - before
