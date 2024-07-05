@@ -1,3 +1,5 @@
+type: object
+description: The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.
 oneOf:
   - title: Log normal
     description: Log normal randomly distributed response delay.
@@ -8,18 +10,38 @@ oneOf:
       sigma:
         type: number
       type:
+        type: string
         enum:
           - lognormal
-        type: string
+    required:
+      - median
+      - sigma
+
   - title: Uniform
     description: Uniformly distributed random response delay.
     type: object
     properties:
       lower:
         type: integer
-      type:
-        enum:
-          - uniform
-        type: string
       upper:
         type: integer
+      type:
+        type: string
+        enum:
+          - uniform
+    required:
+      - lower
+      - upper
+
+  - title: Fixed
+    description: Fixed response delay.
+    type: object
+    properties:
+      milliseconds:
+        type: integer
+      type:
+        type: string
+        enum:
+          - fixed
+    required:
+      - milliseconds
