@@ -1,0 +1,25 @@
+title: XPath match
+type: object
+properties:
+  matchesXPath:
+    oneOf:
+      - type: string
+        example: "//Order/Amount"
+      - type: object
+        allOf:
+          - properties:
+              expression:
+                type: string
+                example: "//Order/Amount"
+          - $ref: "content-pattern.yaml"
+
+        required:
+          - expression
+
+  xPathNamespaces:
+    type: object
+    additionalProperties:
+      type: string
+
+required:
+  - matchesXPath
