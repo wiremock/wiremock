@@ -1,0 +1,7 @@
+title: String does not contain
+type: object
+properties:
+  doesNotContain:
+    type: string
+required:
+  - doesNotContain

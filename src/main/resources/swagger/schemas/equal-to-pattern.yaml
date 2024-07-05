@@ -1,0 +1,9 @@
+title: String equals
+type: object
+required:
+  - equalTo
+properties:
+  equalTo:
+    type: string
+  caseInsensitive:
+    type: boolean
