@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_DAY_OF_MONTH;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.LAST_DAY_OF_MONTH;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.DAYS;
@@ -332,6 +333,18 @@ public class ContentPatternsJsonValidityTest {
                 + "  ]\n"
                 + "}"),
         Matchers.not(empty()));
+  }
+
+  @Test
+  void hasExactlyValidates() {
+    assertThat(validate(havingExactly(equalTo("1"), containing("2"))), empty());
+    assertThat(validate("{ \"hasExactly\": \"blah\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void includesExactlyValidates() {
+    assertThat(validate(including(equalTo("1"), containing("2"))), empty());
+    assertThat(validate("{ \"includes\": \"blah\" }"), Matchers.not(empty()));
   }
 
   private static Set<ValidationMessage> validate(Object obj) {

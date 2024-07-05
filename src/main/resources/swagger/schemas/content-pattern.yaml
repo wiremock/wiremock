@@ -1,5 +1,4 @@
 type: object
-$schema: https://json-schema.org/draft/2020-12/schema,
 title: Content pattern
 oneOf:
   - $ref: "equal-to-pattern.yaml"
@@ -20,4 +19,6 @@ oneOf:
   - $ref: "absent-pattern.yaml"
   - $ref: "and-pattern.yaml"
   - $ref: "or-pattern.yaml"
+  - $ref: "has-exactly-multivalue-pattern.yaml"
+  - $ref: "includes-multivalue-pattern.yaml"
 

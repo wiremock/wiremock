@@ -25,8 +25,10 @@ allOf:
         type: string
         description: The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.
       jsonBody:
-        type: object
         description: The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.
+        oneOf:
+          - type: object
+          - type: array
       bodyFileName:
         type: string
         description: The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.
