@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 
 public class TestFiles {
@@ -56,7 +57,11 @@ public class TestFiles {
   }
 
   public static String filePath(String path) {
-    return new File(getResourceURI(TestFiles.class, path)).getAbsolutePath();
+    return new File(fileUri(path)).getAbsolutePath();
+  }
+
+  public static URI fileUri(String path) {
+    return getResourceURI(TestFiles.class, path);
   }
 
   public static String sampleWarRootDir() {

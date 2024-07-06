@@ -1,0 +1,20 @@
+title: JSONPath match
+type: object
+properties:
+  matchesJsonPath:
+    oneOf:
+      - type: string
+        example: "$.name"
+      - type: object
+        allOf:
+          - properties:
+              expression:
+                type: string
+                example: "$.name"
+          - $ref: "content-pattern.yaml"
+
+        required:
+          - expression
+
+required:
+  - matchesJsonPath

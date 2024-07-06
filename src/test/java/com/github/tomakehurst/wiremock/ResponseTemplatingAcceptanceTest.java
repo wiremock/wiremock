@@ -296,7 +296,7 @@ public class ResponseTemplatingAcceptanceTest {
     }
 
     @Test
-    void canReadNumericPathVariableValuesWhenUsingPathTemnplate() {
+    void canReadNumericPathVariableValuesWhenUsingPathTemplate() {
       wm.stubFor(
           get(urlPathTemplate("/v1/first/{0}/second/{1}"))
               .willReturn(ok("1: {{request.path.0}}, 2: {{request.path.1}}")));
@@ -315,6 +315,15 @@ public class ResponseTemplatingAcceptanceTest {
       String content = client.get("/v1/first/first1/second/second2").content();
 
       assertThat(content, is(" v1 first first1 second second2 "));
+    }
+
+    @Test
+    void bodyAsBase64IsAvailableOnTheRequestModel() {
+      wm.stubFor(post("/v1/base64").willReturn(ok("{{request.bodyAsBase64}}")));
+
+      String content = client.postJson("/v1/base64", "{'foo':'bar'}").content();
+
+      assertThat(content, is("eydmb28nOidiYXInfQ=="));
     }
 
     @Test

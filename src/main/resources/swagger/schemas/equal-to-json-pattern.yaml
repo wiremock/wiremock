@@ -1,0 +1,14 @@
+title: JSON equals
+type: object
+properties:
+  equalToJson:
+    type: string
+    example: |
+      { "message": "hello" }
+  ignoreExtraElements:
+    type: boolean
+  ignoreArrayOrder:
+    type: boolean
+
+required:
+  - equalToJson
