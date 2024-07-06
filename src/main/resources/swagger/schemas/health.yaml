@@ -1,0 +1,25 @@
+type: object
+properties:
+  status:
+    type: string
+    example: "healthy"
+    description: "The status of the server"
+    enum:
+      - healthy
+      - unhealthy
+  message:
+    type: string
+    description: "Longer message regarding the status of the server"
+    example: "Wiremock is ok"
+  version:
+    type: string
+    description: "The WireMock version"
+    example: "3.8.0"
+  uptimeInSeconds:
+    type: integer
+    description: "How long the server has been running"
+    example: 14355
+  timestamp:
+    type: string
+    description: "The current timestamp"
+    example: "2024-07-03T13:16:06.172362Z"

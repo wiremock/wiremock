@@ -1,24 +1,31 @@
 type: object
-example:
-  bodyPatterns:
-    - equalToJson: '{ "numbers": [1, 2, 3] }'
-  headers:
-    Content-Type:
-      equalTo: application/json
-  method: POST
-  url: /some/thing
+example: |
+  {
+    "urlPath" : "/charges",
+    "method" : "POST",
+    "headers" : {
+      "Content-Type" : {
+        "equalTo" : "application/json"
+      }
+    }
 properties:
   scheme:
     type: string
-    description: The URI scheme
+    enum:
+      - http
+      - https
+    description: The scheme (protocol) part of the request URL
   host:
-    type: object
-    description: 'URI host pattern to match against in the "<predicate>": "<value>" form'
+    type: string
+    description: The hostname part of the request URL
   port:
     type: integer
-    description: The HTTP port number
+    minimum: 1
+    maximum: 65535
+    description: The HTTP port number of the request URL
   method:
     type: string
+    pattern: ^[A-Z]+$
     description: The HTTP request method e.g. GET
   url:
     type: string
@@ -32,12 +39,34 @@ properties:
   urlPattern:
     type: string
     description: The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+
+  pathParameters:
+    type: object
+    description: |
+      Path parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form. Can only
+      be used when the urlPathPattern URL match type is in use and all keys must be present as variables
+      in the path template.
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
   queryParameters:
     type: object
     description: 'Query parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  formParameters:
+    type: object
+    description: 'application/x-www-form-urlencoded form parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
   headers:
     type: object
     description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
   basicAuthCredentials:
     type: object
     description: Pre-emptive basic auth credentials to match against
@@ -52,11 +81,14 @@ properties:
   cookies:
     type: object
     description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
   bodyPatterns:
     type: array
     description: 'Request body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
     items:
-      type: object
+      $ref: "content-pattern.yaml"
+
   customMatcher:
     type: object
     description: Custom request matcher to match against
@@ -66,9 +98,10 @@ properties:
         description: The matcher's name specified in the implementation of the matcher.
       parameters:
         type: object
+
   multipartPatterns:
     type: array
-    description: Multipart patterns to match against headers and body
+    description: Multipart patterns to match against headers and body.
     items:
       type: object
       properties:
@@ -76,13 +109,19 @@ properties:
           type: string
         matchingType:
           type: string
+          description: Determines whether all or any of the parts must match the criteria for an overall match.
           default: ANY
           enum:
             - ALL
             - ANY
         headers:
           type: object
+          description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+          additionalProperties:
+            $ref: "content-pattern.yaml"
+
         bodyPatterns:
           type: array
+          description: 'Body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
           items:
-            type: object
+            $ref: "content-pattern.yaml"

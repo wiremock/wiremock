@@ -3,10 +3,11 @@ openapi: 3.0.0
 info:
   title: WireMock
   version: 3.8.0
+  description: "WireMock offers a REST API for administration, troubleshooting and analysis purposes"
 
 externalDocs:
   description: WireMock user documentation
-  url: http://wiremock.org/docs/
+  url: https://wiremock.org/docs/
 
 servers:
   - url: /
@@ -16,27 +17,29 @@ tags:
     description: Operations on stub mappings
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/stubbing/
+      url: https://wiremock.org/docs/stubbing/
   - name: Requests
     description: Logged requests and responses received by the mock service
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/verifying/
+      url: https://wiremock.org/docs/verifying/
   - name: Near Misses
     description: Near misses allow querying of received requests or request patterns according to similarity
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/verifying/#near-misses
+      url: https://wiremock.org/docs/verifying/#near-misses
   - name: Recordings
     description: Stub mapping record and snapshot functions
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/record-playback/
+      url: https://wiremock.org/docs/record-playback/
   - name: Scenarios
     description: Scenarios support modelling of stateful behaviour
     externalDocs:
       description: User documentation
-      url: http://wiremock.org/docs/stateful-behaviour/
+      url: https://wiremock.org/docs/stateful-behaviour/
+  - name: Files
+    description: Manage the files used to support WireMock stubs
   - name: System
     description: Global operations
 
@@ -81,6 +84,8 @@ paths:
       responses:
         '201':
           $ref: "#/components/responses/stubMapping"
+        '422':
+          $ref: "#/components/responses/badRequestEntity"
     delete:
       operationId: deleteAllStubMappings
       summary: Delete all stub mappings
@@ -330,6 +335,8 @@ paths:
               example:
                 $ref: "examples/requests.yaml"
                     
+                    
+
   /__admin/requests/remove-by-metadata:
     post:
       operationId: removeRequestsByMetadata
@@ -524,6 +531,66 @@ paths:
         '200':
           description: Successfully reset
 
+
+  /__admin/files:
+    get:
+      operationId: getAllFileNames
+      summary: Get all file names
+      tags:
+        - Files
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["file1.json", "file2.json", "file3.txt"]
+          description: All scenarios
+          
+  /__admin/files/{fileId}:
+    parameters:
+      - description: The name of the file
+        in: path
+        name: fileId
+        required: true
+        example: file1.json
+        schema:
+          type: string
+    get:
+      operationId: getFileById
+      summary: Get file by ID
+      tags:
+        - Files
+      responses:
+        '404':
+          description: File not found
+        '200':
+          description: The contents of the file
+    put:
+      operationId: updateFileById
+      summary: Update or create a file
+      tags:
+        - Files
+      requestBody:
+        content:
+          application/octet-stream:
+            schema: 
+              type: string
+              format: byte
+      responses:
+        '200':
+          description: OK - contents of the request body as a string
+    delete:
+      operationId: deleteFileById
+      summary: Delete a file if it exists
+      tags:
+        - Files
+      responses:
+        '200':
+          description: OK
+
   /__admin/settings:
     post:
       operationId: updateGlobalSettings
@@ -561,12 +628,50 @@ paths:
   /__admin/shutdown:
     post:
       operationId: shutdownServer
+      summary: Shutdown the WireMock server
       description: Shutdown the WireMock server
       tags:
          - System
       responses:
         '200':
           description: Server will be shut down
+          
+
+  /__admin/version:
+    get:
+      operationId: getVersion
+      summary: Return the version of the WireMock server
+      description: Returns the version of the WireMock server
+      tags:
+        - System
+      responses:
+        '200':
+          description: Successfully returned the version of the WireMock server
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: "3.8.0"
+
+  /__admin/health:
+    get:
+      operationId: getHealth
+      summary: Return the health of the WireMock server
+      description: Returns the health of the WireMock server
+      tags:
+        - System
+      responses:
+        '200':
+          description: Successful health and uptime data
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/health.yaml'
+              example:
+                $ref: 'examples/health.yaml'
 
 components:
   requestBodies:
@@ -602,7 +707,7 @@ components:
                   targetBaseUrl:
                     type: string
                     description: Target URL when using the record and playback API
-                    example: http://example.mocklab.io
+                    example: https://example.wiremock.org
           example:
             $ref: "examples/record-spec.yaml"
 
@@ -652,3 +757,10 @@ components:
                   $ref: "schemas/logged-request.yaml"
           example:
             $ref: 'examples/near-misses.yaml'
+
+    badRequestEntity:
+      description: Bad request body
+      content:
+        application/json:
+          schema:
+            $ref: "schemas/bad-request-entity.yaml"

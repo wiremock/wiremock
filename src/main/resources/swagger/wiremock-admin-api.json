@@ -2,11 +2,12 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "3.8.0"
+    "version": "3.8.0",
+    "description": "WireMock offers a REST API for administration, troubleshooting and analysis purposes"
   },
   "externalDocs": {
     "description": "WireMock user documentation",
-    "url": "http://wiremock.org/docs/"
+    "url": "https://wiremock.org/docs/"
   },
   "servers": [
     {
@@ -19,7 +20,7 @@
       "description": "Operations on stub mappings",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/stubbing/"
+        "url": "https://wiremock.org/docs/stubbing/"
       }
     },
     {
@@ -27,7 +28,7 @@
       "description": "Logged requests and responses received by the mock service",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/verifying/"
+        "url": "https://wiremock.org/docs/verifying/"
       }
     },
     {
@@ -35,7 +36,7 @@
       "description": "Near misses allow querying of received requests or request patterns according to similarity",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/verifying/#near-misses"
+        "url": "https://wiremock.org/docs/verifying/#near-misses"
       }
     },
     {
@@ -43,7 +44,7 @@
       "description": "Stub mapping record and snapshot functions",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/record-playback/"
+        "url": "https://wiremock.org/docs/record-playback/"
       }
     },
     {
@@ -51,8 +52,12 @@
       "description": "Scenarios support modelling of stateful behaviour",
       "externalDocs": {
         "description": "User documentation",
-        "url": "http://wiremock.org/docs/stateful-behaviour/"
+        "url": "https://wiremock.org/docs/stateful-behaviour/"
       }
+    },
+    {
+      "name": "Files",
+      "description": "Manage the files used to support WireMock stubs"
     },
     {
       "name": "System",
@@ -4021,14 +4026,14 @@
                       "targetBaseUrl": {
                         "type": "string",
                         "description": "Target URL when using the record and playback API",
-                        "example": "http://example.mocklab.io"
+                        "example": "https://example.wiremock.org"
                       }
                     }
                   }
                 ]
               },
               "example": {
-                "targetBaseUrl": "http://example.mocklab.io",
+                "targetBaseUrl": "https://example.wiremock.org",
                 "filters": {
                   "urlPathPattern": "/api/.*",
                   "method": "GET"
@@ -5077,6 +5082,98 @@
         }
       }
     },
+    "/__admin/files": {
+      "get": {
+        "operationId": "getAllFileNames",
+        "summary": "Get all file names",
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "file1.json",
+                    "file2.json",
+                    "file3.txt"
+                  ]
+                }
+              }
+            },
+            "description": "All scenarios"
+          }
+        }
+      }
+    },
+    "/__admin/files/{fileId}": {
+      "parameters": [
+        {
+          "description": "The name of the file",
+          "in": "path",
+          "name": "fileId",
+          "required": true,
+          "example": "file1.json",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getFileById",
+        "summary": "Get file by ID",
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "404": {
+            "description": "File not found"
+          },
+          "200": {
+            "description": "The contents of the file"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateFileById",
+        "summary": "Update or create a file",
+        "tags": [
+          "Files"
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - contents of the request body as a string"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteFileById",
+        "summary": "Delete a file if it exists",
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/__admin/settings": {
       "post": {
         "operationId": "updateGlobalSettings",
@@ -5170,16 +5267,106 @@
         }
       }
     },
-    "/__admin/shutdown": {
-      "post": {
-        "operationId": "shutdownServer",
-        "description": "Shutdown the WireMock server",
+    "/__admin/shutdown" : {
+      "post" : {
+        "operationId" : "shutdownServer",
+        "summary" : "Shutdown the WireMock server",
+        "description" : "Shutdown the WireMock server",
+        "tags" : [ "System" ],
+        "responses" : {
+          "200" : {
+            "description" : "Server will be shut down"
+          }
+        }
+      }
+    },
+    "/__admin/version": {
+      "get": {
+        "operationId": "getVersion",
+        "summary": "Return the version of the WireMock server",
+        "description": "Returns the version of the WireMock server",
         "tags": [
           "System"
         ],
         "responses": {
           "200": {
-            "description": "Server will be shut down"
+            "description": "Successfully returned the version of the WireMock server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "example": "3.8.0"
+                    }
+                  }
+                },
+                "example": {
+                  "version": "3.8.0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Return the health of the WireMock server",
+        "description": "Returns the health of the WireMock server",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful health and uptime data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "The status of the server",
+                      "example": "healthy",
+                      "enum": [
+                        "healthy",
+                        "unhealthy"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Longer message regarding the status of the server",
+                      "example": "Wiremock is ok"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "The WireMock version",
+                      "example": "3.8.0"
+                    },
+                    "upTimeInSeconds": {
+                      "type": "integer",
+                      "description": "How long the server has been running",
+                      "example": 14355
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "description": "The current timestamp",
+                      "example": "2024-07-03T13:16:06.172362Z"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "healthy",
+                  "message": "Wiremock is ok",
+                  "version": "3.8.0",
+                  "uptimeInSeconds": 14355,
+                  "timestamp": "2024-07-03T13:16:06.172362Z"
+                }
+              }
+            }
           }
         }
       }
@@ -5786,14 +5973,14 @@
                     "targetBaseUrl": {
                       "type": "string",
                       "description": "Target URL when using the record and playback API",
-                      "example": "http://example.mocklab.io"
+                      "example": "https://example.wiremock.org"
                     }
                   }
                 }
               ]
             },
             "example": {
-              "targetBaseUrl": "http://example.mocklab.io",
+              "targetBaseUrl": "https://example.wiremock.org",
               "filters": {
                 "urlPathPattern": "/api/.*",
                 "method": "GET"
