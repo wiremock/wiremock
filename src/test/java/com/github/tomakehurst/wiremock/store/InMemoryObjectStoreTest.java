@@ -55,7 +55,7 @@ public class InMemoryObjectStoreTest {
   }
 
   @Test
-  void removesLeastRecentlyAccessedWhenPuttingInExcessOfLimit() {
+  void removesLeastRecentlyAccessedWhenPuttingInExcessOfLimit() throws InterruptedException {
     InMemoryObjectStore store = new InMemoryObjectStore(3);
 
     store.put("one", "1");
@@ -63,6 +63,7 @@ public class InMemoryObjectStoreTest {
     store.put("three", "3");
 
     store.get("one");
+    Thread.sleep(100L);
 
     store.put("four", "4");
     assertThat(store.getAllKeys().count(), is(3L));
@@ -101,7 +102,7 @@ public class InMemoryObjectStoreTest {
   }
 
   @Test
-  void tryingToRetrieveMissingKeyDoesNotEjectOtherKeys() {
+  void tryingToRetrieveMissingKeyDoesNotEjectOtherKeys() throws InterruptedException {
     InMemoryObjectStore store = new InMemoryObjectStore(3);
 
     store.put("one", "1");
@@ -111,6 +112,7 @@ public class InMemoryObjectStoreTest {
     assertThat(store.getAllKeys().count(), is(3L));
 
     store.get("four");
+    Thread.sleep(100L);
 
     assertThat(store.getAllKeys().count(), is(3L));
   }
