@@ -24,16 +24,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.jayway.jsonpath.JsonPath;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class MatchesJsonSchemaPatternTest {
 
@@ -356,6 +362,95 @@ public class MatchesJsonSchemaPatternTest {
         Arguments.of("{ \"name\": \"invalid_child\", \"children\": [{}] }"),
         Arguments.of(
             "{ \"name\": \"invalid_grandchild\", \"children\": [{ \"name\": \"invalid_child\", \"children\": [{}] }] }"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "",
+        "not json",
+        "{\"id\": 1, \"name\": \"alice\"}",
+        "{\"type\": \"array\", \"items\": {\"$ref\": \"#/does/not/exist\"}}",
+      })
+  void invalidJsonSchemaNeverMatches(String schema) {
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema);
+
+    assertThat(pattern.match("{\"field\":\"value\"}").isExactMatch(), is(false));
+    assertThat(pattern.match("\"json string\"").isExactMatch(), is(false));
+    assertThat(pattern.match("{\"id\":1,\"name\":\"alice\"}").isExactMatch(), is(false));
+    assertThat(pattern.match("[{\"id\":1,\"name\":\"alice\"}]").isExactMatch(), is(false));
+  }
+
+  @Test
+  void invalidJsonSchemaMatchResultsContainExplanatorySubEvent() {
+    class SubEventMatcher extends TypeSafeMatcher<SubEvent> {
+
+      private final Map<String, Object> expectedData;
+
+      SubEventMatcher(Errors expectedData) {
+        this.expectedData = Json.objectToMap(expectedData);
+      }
+
+      @Override
+      protected boolean matchesSafely(SubEvent item) {
+        return item.getType().equals(SubEvent.ERROR) && item.getData().equals(expectedData);
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(
+            "a sub event of type " + SubEvent.ERROR + " with data " + expectedData);
+      }
+    }
+
+    MatchResult matchResult1 =
+        new MatchesJsonSchemaPattern("not json").match("{\"field\":\"value\"}");
+    assertThat(matchResult1.isExactMatch(), is(false));
+    Errors expectedErrors1 =
+        Errors.single(
+            10,
+            null,
+            "Invalid JSON Schema",
+            "Unrecognized token 'not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"not json\"; line: 1, column: 4]");
+    assertThat(matchResult1.getSubEvents(), contains(new SubEventMatcher(expectedErrors1)));
+
+    MatchResult matchResult2 =
+        new MatchesJsonSchemaPattern("{\"id\":1,\"name\":\"alice\"}")
+            .match("{\"field\":\"value\"}");
+    assertThat(matchResult2.isExactMatch(), is(false));
+    Errors expectedErrors2 =
+        Errors.singleWithDetail(10, "Invalid JSON Schema", "No suitable validator for id");
+    assertThat(matchResult2.getSubEvents(), contains(new SubEventMatcher(expectedErrors2)));
+
+    MatchResult matchResult3 =
+        new MatchesJsonSchemaPattern(
+                "{\"type\": \"array\", \"items\": {\"$ref\": \"#/does/not/exist\"}}")
+            .match("[{\"id\":1,\"name\":\"alice\"}]");
+    assertThat(matchResult3.isExactMatch(), is(false));
+    Errors expectedErrors3 =
+        Errors.singleWithDetail(
+            10, "Invalid JSON Schema", ": Reference /does/not/exist cannot be resolved");
+    assertThat(matchResult3.getSubEvents(), contains(new SubEventMatcher(expectedErrors3)));
+
+    // Check for false positives.
+    MatchResult matchResult4 =
+        new MatchesJsonSchemaPattern("{\"type\": \"string\"}").match("\"my value\"");
+    assertThat(matchResult4.isExactMatch(), is(true));
+    assertThat(
+        matchResult4.getSubEvents(),
+        not(
+            contains(
+                new TypeSafeMatcher<>() {
+                  @Override
+                  protected boolean matchesSafely(SubEvent item) {
+                    return item.getType().equals(SubEvent.ERROR);
+                  }
+
+                  @Override
+                  public void describeTo(Description description) {
+                    description.appendText("a sub event of type " + SubEvent.ERROR);
+                  }
+                })));
   }
 
   private static String stringify(String json) {
