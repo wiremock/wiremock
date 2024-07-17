@@ -78,6 +78,12 @@ public class InMemoryObjectStore implements ObjectStore {
   }
 
   @Override
+  public Optional<Object> getAndRemove(String key) {
+    keyUseOrder.remove(key);
+    return Optional.ofNullable(cache.remove(key));
+  }
+
+  @Override
   public void clear() {
     cache.clear();
     keyUseOrder.clear();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.store.files;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class FileSourceBlobStoreTest {
   private static final String DIRECTORY_PATH =
@@ -46,5 +51,15 @@ class FileSourceBlobStoreTest {
           Optional<InputStream> result = fileSourceBlobStore.getStream("any-key");
           assertEquals(Optional.empty(), result);
         });
+  }
+
+  @Test
+  void returnsFileContentsBeforeDeletion(@TempDir Path tempDir) {
+    BlobStore blobStore = new FileSourceBlobStore(tempDir.toString());
+
+    String filePath = "folder/tmp-file.json";
+    String contents = "{}";
+    blobStore.put(filePath, contents.getBytes());
+    assertThat(blobStore.getAndRemove(filePath).map(String::new), is(Optional.of(contents)));
   }
 }

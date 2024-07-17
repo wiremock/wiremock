@@ -102,6 +102,17 @@ public class FileSourceJsonObjectStore implements ObjectStore, PathBased {
   }
 
   @Override
+  public Optional<Object> getAndRemove(String key) {
+    return keyLocks.withLock(
+        key,
+        () -> {
+          final Optional<Object> value = get(key);
+          remove(key);
+          return value;
+        });
+  }
+
+  @Override
   public void clear() {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
   }

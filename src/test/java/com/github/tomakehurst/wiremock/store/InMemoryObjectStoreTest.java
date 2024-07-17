@@ -138,4 +138,22 @@ public class InMemoryObjectStoreTest {
     store.compute("three", previousValue::getAndSet);
     assertThat(previousValue.get(), is(nullValue()));
   }
+
+  @Test
+  void gettingAndRemovingAnItemObeysCacheLimits() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    assertThat(store.getAndRemove("two"), is(Optional.of("2")));
+    assertThat(store.getAndRemove("two"), is(Optional.empty()));
+
+    store.put("four", "4");
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("one", "three", "four"));
+
+    store.put("five", "5");
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("three", "four", "five"));
+  }
 }
