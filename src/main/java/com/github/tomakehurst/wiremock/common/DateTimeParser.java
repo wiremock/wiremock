@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,6 +111,22 @@ public class DateTimeParser {
   public LocalDate parseLocalDate(String dateTimeString) {
     if (dateTimeFormatter != null) {
       return LocalDate.parse(dateTimeString, dateTimeFormatter);
+    }
+
+    return null;
+  }
+
+  public YearMonth parseYearMonth(String dateTimeString) {
+    if (dateTimeFormatter != null) {
+      return YearMonth.parse(dateTimeString, dateTimeFormatter);
+    }
+
+    return null;
+  }
+
+  public Year parseYear(String dateTimeString) {
+    if (dateTimeFormatter != null) {
+      return Year.parse(dateTimeString, dateTimeFormatter);
     }
 
     return null;
