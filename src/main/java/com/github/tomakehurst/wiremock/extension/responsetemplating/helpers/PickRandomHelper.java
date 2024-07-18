@@ -30,33 +30,24 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
           "Must specify either a single list argument or a set of single value arguments.");
     }
 
-    List<Object> candidateValueList = new ArrayList<>();
+    List<Object> valueList = new ArrayList<>();
     if (Iterable.class.isAssignableFrom(context.getClass())) {
-      ((Iterable<Object>) context).forEach(candidateValueList::add);
+      ((Iterable<Object>) context).forEach(valueList::add);
     } else {
-      candidateValueList.add(context);
-      candidateValueList.addAll(Arrays.asList(options.params));
+      valueList.add(context);
+      valueList.addAll(Arrays.asList(options.params));
     }
 
     Integer count = (Integer) options.hash.get("count");
     if (count != null && count > 0) {
-      final List<Object> outputValueList = new ArrayList<>(count);
-      final Set<Integer> usedIndexes = new HashSet<>();
-
-      for (int i = 0; i < count && usedIndexes.size() < candidateValueList.size(); i++) {
-        int index = -1;
-        while (index == -1 || usedIndexes.contains(index)) {
-          index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
-        }
-
-        outputValueList.add(candidateValueList.get(index));
-        usedIndexes.add(index);
+      int desiredLength = Math.min(valueList.size(), count);
+      for (int i = 0; i < desiredLength; i++) {
+        Collections.swap(valueList, i, ThreadLocalRandom.current().nextInt(i, valueList.size()));
       }
-
-      return outputValueList;
+      return valueList.subList(0, desiredLength);
     }
 
-    int index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
-    return candidateValueList.get(index);
+    int index = ThreadLocalRandom.current().nextInt(valueList.size());
+    return valueList.get(index);
   }
 }
