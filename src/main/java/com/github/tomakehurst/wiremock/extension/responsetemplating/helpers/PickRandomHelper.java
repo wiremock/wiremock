@@ -17,9 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PickRandomHelper extends HandlebarsHelper<Object> {
@@ -32,15 +30,33 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
           "Must specify either a single list argument or a set of single value arguments.");
     }
 
-    List<Object> valueList = new ArrayList<>();
+    List<Object> candidateValueList = new ArrayList<>();
     if (Iterable.class.isAssignableFrom(context.getClass())) {
-      ((Iterable<Object>) context).forEach(valueList::add);
+      ((Iterable<Object>) context).forEach(candidateValueList::add);
     } else {
-      valueList.add(context);
-      valueList.addAll(Arrays.asList(options.params));
+      candidateValueList.add(context);
+      candidateValueList.addAll(Arrays.asList(options.params));
     }
 
-    int index = ThreadLocalRandom.current().nextInt(valueList.size());
-    return valueList.get(index);
+    Integer count = (Integer) options.hash.get("count");
+    if (count != null && count > 0) {
+      final List<Object> outputValueList = new ArrayList<>(count);
+      final Set<Integer> usedIndexes = new HashSet<>();
+
+      for (int i = 0; i < count && usedIndexes.size() < candidateValueList.size(); i++) {
+        int index = -1;
+        while (index == -1 || usedIndexes.contains(index)) {
+          index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
+        }
+
+        outputValueList.add(candidateValueList.get(index));
+        usedIndexes.add(index);
+      }
+
+      return outputValueList;
+    }
+
+    int index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
+    return candidateValueList.get(index);
   }
 }
