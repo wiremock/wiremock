@@ -744,6 +744,18 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  void picksRandomObjectFromListVariable() {
+    String body =
+        transform(
+            "{{val (parseJson '{\"level\":1}') assign='one'}}\n"
+                + "{{val (parseJson '{\"level\":2}') assign='two'}}\n"
+                + "{{val (parseJson '{\"level\":3}') assign='three'}}\n"
+                + "{{lookup (pickRandom (array one two three)) 'level'}}");
+
+    assertThat(body.trim(), anyOf(is("1"), is("2"), is("3")));
+  }
+
+  @Test
   public void squareBracketedRequestParameters1() {
     String body =
         transform(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,6 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
     }
 
     int index = ThreadLocalRandom.current().nextInt(valueList.size());
-    return valueList.get(index).toString();
+    return valueList.get(index);
   }
 }
