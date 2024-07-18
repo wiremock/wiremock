@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.store;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
@@ -32,7 +33,7 @@ public interface Store<K, V> {
 
   void clear();
 
-  default void registerEventListener(StoreEventHandler<K, V> handler) {
+  default void registerEventListener(Consumer<StoreEvent<K, V>> handler) {
     throw new UnsupportedOperationException();
   }
 }
