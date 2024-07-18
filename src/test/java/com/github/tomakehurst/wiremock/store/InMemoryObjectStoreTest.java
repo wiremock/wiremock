@@ -156,4 +156,21 @@ public class InMemoryObjectStoreTest {
     store.put("five", "5");
     assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("three", "four", "five"));
   }
+
+  @Test
+  void gettingAndPuttingAnItemObeysCacheLimits() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    assertThat(store.getAndPut("one", "4"), is(Optional.of("1")));
+
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("one", "two", "three"));
+
+    assertThat(store.getAndPut("four", "4"), is(Optional.empty()));
+
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("one", "three", "four"));
+  }
 }

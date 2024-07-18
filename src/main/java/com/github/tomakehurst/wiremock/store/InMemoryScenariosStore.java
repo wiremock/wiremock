@@ -47,6 +47,11 @@ public class InMemoryScenariosStore implements ScenariosStore {
   }
 
   @Override
+  public Optional<Scenario> getAndPut(String key, Scenario content) {
+    return Optional.ofNullable(scenarioMap.put(key, content));
+  }
+
+  @Override
   public void remove(String key) {
     scenarioMap.remove(key);
   }

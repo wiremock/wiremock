@@ -89,6 +89,13 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
   }
 
   @Override
+  public Optional<byte[]> getAndPut(String key, byte[] content) {
+    Optional<byte[]> previousValue = get(key);
+    put(key, content);
+    return previousValue;
+  }
+
+  @Override
   public void remove(String key) {
     fileSource.deleteFile(key);
   }

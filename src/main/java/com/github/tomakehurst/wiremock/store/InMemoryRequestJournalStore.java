@@ -59,8 +59,15 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
 
   @Override
   public void put(UUID id, ServeEvent event) {
+    getAndPut(id, event);
+  }
+
+  @Override
+  public Optional<ServeEvent> getAndPut(UUID id, ServeEvent event) {
     if (deque.contains(id)) {
-      serveEvents.put(id, event);
+      return Optional.ofNullable(serveEvents.put(id, event));
+    } else {
+      return Optional.empty();
     }
   }
 

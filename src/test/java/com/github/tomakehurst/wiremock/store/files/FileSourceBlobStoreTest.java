@@ -62,4 +62,18 @@ class FileSourceBlobStoreTest {
     blobStore.put(filePath, contents.getBytes());
     assertThat(blobStore.getAndRemove(filePath).map(String::new), is(Optional.of(contents)));
   }
+
+  @Test
+  void returnsPreviousFileContentsBeforeOverwrite(@TempDir Path tempDir) {
+    BlobStore blobStore = new FileSourceBlobStore(tempDir.toString());
+
+    String filePath = "folder/tmp-file.json";
+    String contents = "{}";
+    blobStore.put(filePath, contents.getBytes());
+    String newContent = "[\"new content\"]";
+    assertThat(
+        blobStore.getAndPut(filePath, newContent.getBytes()).map(String::new),
+        is(Optional.of(contents)));
+    assertThat(blobStore.get(filePath).map(String::new), is(Optional.of(newContent)));
+  }
 }

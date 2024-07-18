@@ -28,6 +28,8 @@ public interface Store<K, V> {
 
   void put(K key, V content);
 
+  Optional<V> getAndPut(K key, V content);
+
   void remove(K key);
 
   Optional<V> getAndRemove(K key);

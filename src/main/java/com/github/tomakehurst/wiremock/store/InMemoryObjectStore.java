@@ -59,6 +59,13 @@ public class InMemoryObjectStore implements ObjectStore {
   }
 
   @Override
+  public Optional<Object> getAndPut(String key, Object content) {
+    Object previousValue = cache.put(key, content);
+    touchAndResize(key);
+    return Optional.ofNullable(previousValue);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T compute(String key, Function<T, T> valueFunction) {
     final T result =

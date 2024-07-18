@@ -171,6 +171,11 @@ public class BlobStoreFileSourceTest {
     public void put(String key, byte[] content) {}
 
     @Override
+    public Optional<byte[]> getAndPut(String key, byte[] content) {
+      return Optional.empty();
+    }
+
+    @Override
     public void remove(String key) {}
 
     @Override
