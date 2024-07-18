@@ -18,6 +18,15 @@ package com.github.tomakehurst.wiremock.store;
 import java.util.Objects;
 
 public class StoreEvent<K, V> {
+
+  public static <K, V> StoreEvent<K, V> set(K key, V previousValue, V newValue) {
+    return new StoreEvent<>(key, previousValue, newValue);
+  }
+
+  public static <K, V> StoreEvent<K, V> remove(K key, V previousValue) {
+    return new StoreEvent<>(key, previousValue, null);
+  }
+
   private final K key;
   private final V oldValue;
   private final V newValue;
