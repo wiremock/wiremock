@@ -44,6 +44,7 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTemplateTransformerTest {
@@ -753,6 +754,24 @@ public class ResponseTemplateTransformerTest {
                 + "{{lookup (pickRandom (array one two three)) 'level'}}");
 
     assertThat(body.trim(), anyOf(is("1"), is("2"), is("3")));
+  }
+
+  @RepeatedTest(10)
+  void picksMultipleRandomItemsFromListVariableWhenCountSpecified() {
+    String body =
+        transform(
+            "{{val (pickRandom (array 1 2 3 4 5) count=3) assign='values'}}{{values.0}} {{values.1}} {{values.2}}");
+
+    assertThat(body, matchesRegex("\\d\\ \\d \\d"));
+    assertThat(body.split(" ")[0], not(body.split(" ")[1]));
+  }
+
+  @Test
+  void picksAsManyRandomItemsAsPossibleFromListVariableWhenCountSpecifiedHigherThanItemCount() {
+    String body =
+        transform("{{val (pickRandom (array 1 2 3 4 5) count=8) assign='values'}}{{size values}}");
+
+    assertThat(body, matchesRegex("5"));
   }
 
   @Test
