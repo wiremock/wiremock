@@ -24,6 +24,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ public class InMemoryObjectStore implements ObjectStore {
   private final ConcurrentHashMap<String, Object> cache;
   private final Queue<String> keyUseOrder = new ConcurrentLinkedQueue<>();
   private final int maxItems;
-  private final List<StoreEventHandler<String, Object>> listeners = new ArrayList<>();
+  private final List<Consumer<StoreEvent<String, Object>>> listeners = new ArrayList<>();
 
   public InMemoryObjectStore(int maxItems) {
     this.cache = new ConcurrentHashMap<>();
@@ -102,14 +103,14 @@ public class InMemoryObjectStore implements ObjectStore {
   }
 
   @Override
-  public void registerEventListener(StoreEventHandler<String, Object> handler) {
+  public void registerEventListener(Consumer<StoreEvent<String, Object>> handler) {
     listeners.add(handler);
   }
 
   private void handleEvent(StoreEvent<String, Object> event) {
-    for (StoreEventHandler<String, Object> listener : listeners) {
+    for (Consumer<StoreEvent<String, Object>> listener : listeners) {
       try {
-        listener.handle(event);
+        listener.accept(event);
       } catch (Exception e) {
         notifier().error("Error handling store event", e);
       }
