@@ -19,6 +19,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -137,5 +139,137 @@ public class InMemoryObjectStoreTest {
     AtomicReference<Object> previousValue = new AtomicReference<>("");
     store.compute("three", previousValue::getAndSet);
     assertThat(previousValue.get(), is(nullValue()));
+  }
+
+  @Test
+  void eventEmittedOnPut() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    List<StoreEvent<String, Object>> events1 = new ArrayList<>();
+    store.registerEventListener(events1::add);
+    assertThat(events1, is(empty()));
+
+    store.put("one", "1");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
+
+    List<StoreEvent<String, Object>> events2 = new ArrayList<>();
+    store.registerEventListener(events2::add);
+    assertThat(events2, is(empty()));
+    events1.clear();
+
+    store.put("two", "2");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("two", null, "2")));
+    assertThat(events2, containsInAnyOrder(new StoreEvent<>("two", null, "2")));
+
+    events1.clear();
+    events2.clear();
+    store.put("one", "3");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("one", "1", "3")));
+    assertThat(events2, containsInAnyOrder(new StoreEvent<>("one", "1", "3")));
+  }
+
+  @Test
+  void eventEmittedOnRemoval() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    List<StoreEvent<String, Object>> events1 = new ArrayList<>();
+    store.registerEventListener(events1::add);
+    assertThat(events1, is(empty()));
+
+    store.remove("two");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("two", "2", null)));
+
+    List<StoreEvent<String, Object>> events2 = new ArrayList<>();
+    store.registerEventListener(events2::add);
+    events1.clear();
+
+    store.remove("three");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("three", "3", null)));
+    assertThat(events2, containsInAnyOrder(new StoreEvent<>("three", "3", null)));
+
+    events1.clear();
+    events2.clear();
+    // No event is emitted when nothing is removed.
+    store.remove("does not exist");
+
+    assertThat(events1, is(empty()));
+    assertThat(events2, is(empty()));
+  }
+
+  @Test
+  void eventEmittedOnCompute() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    List<StoreEvent<String, Object>> events = new ArrayList<>();
+    store.registerEventListener(events::add);
+
+    store.compute("one", o -> "1");
+
+    assertThat(events, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
+
+    events.clear();
+    store.compute("two", o -> "2");
+
+    assertThat(events, containsInAnyOrder(new StoreEvent<>("two", null, "2")));
+
+    events.clear();
+    store.compute("one", o -> "3");
+
+    assertThat(events, containsInAnyOrder(new StoreEvent<>("one", "1", "3")));
+  }
+
+  @Test
+  void eventEmittedOnRemovalByMaxItemLimit() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    List<StoreEvent<String, Object>> events = new ArrayList<>();
+    store.registerEventListener(events::add);
+
+    store.put("four", "4");
+
+    assertThat(
+        events,
+        containsInAnyOrder(
+            new StoreEvent<>("four", null, "4"), new StoreEvent<>("one", "1", null)));
+
+    events.clear();
+    store.compute("five", o -> "5");
+
+    assertThat(
+        events,
+        containsInAnyOrder(
+            new StoreEvent<>("five", null, "5"), new StoreEvent<>("two", "2", null)));
+  }
+
+  @Test
+  void exceptionsThrownInAnEventHandlerAreCaught() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    List<StoreEvent<String, Object>> events1 = new ArrayList<>();
+    store.registerEventListener(events1::add);
+    store.registerEventListener(
+        event -> {
+          throw new RuntimeException();
+        });
+    List<StoreEvent<String, Object>> events2 = new ArrayList<>();
+    store.registerEventListener(events2::add);
+
+    store.put("one", "1");
+
+    assertThat(events1, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
+    assertThat(events2, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
   }
 }

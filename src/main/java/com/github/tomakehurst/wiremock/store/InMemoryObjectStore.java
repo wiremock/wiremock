@@ -15,10 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,6 +32,7 @@ public class InMemoryObjectStore implements ObjectStore {
   private final ConcurrentHashMap<String, Object> cache;
   private final Queue<String> keyUseOrder = new ConcurrentLinkedQueue<>();
   private final int maxItems;
+  private final List<StoreEventHandler<String, Object>> listeners = new ArrayList<>();
 
   public InMemoryObjectStore(int maxItems) {
     this.cache = new ConcurrentHashMap<>();
@@ -54,33 +60,60 @@ public class InMemoryObjectStore implements ObjectStore {
 
   @Override
   public void put(String key, Object content) {
-    cache.put(key, content);
+    Object previousValue = cache.put(key, content);
     touchAndResize(key);
+    handleEvent(new StoreEvent<>(key, previousValue, content));
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T compute(String key, Function<T, T> valueFunction) {
+    final AtomicReference<T> previousValue = new AtomicReference<>();
     final T result =
-        (T) cache.compute(key, (k, currentValue) -> valueFunction.apply((T) currentValue));
+        (T)
+            cache.compute(
+                key,
+                (k, currentValue) -> {
+                  previousValue.set((T) currentValue);
+                  return valueFunction.apply((T) currentValue);
+                });
     if (result != null) {
       touchAndResize(key);
     } else {
       keyUseOrder.remove(key);
     }
+    handleEvent(new StoreEvent<>(key, previousValue.get(), result));
     return result;
   }
 
   @Override
   public void remove(String key) {
-    cache.remove(key);
+    Object previousValue = cache.remove(key);
     keyUseOrder.remove(key);
+    if (previousValue != null) {
+      handleEvent(new StoreEvent<>(key, previousValue, null));
+    }
   }
 
   @Override
   public void clear() {
     cache.clear();
     keyUseOrder.clear();
+  }
+
+  @Override
+  public void registerEventListener(StoreEventHandler<String, Object> handler) {
+    listeners.add(handler);
+  }
+
+  private void handleEvent(StoreEvent<String, Object> event) {
+    for (StoreEventHandler<String, Object> listener : listeners) {
+      try {
+        listener.handle(event);
+      } catch (Exception e) {
+        notifier().error("Error handling store event", e);
+      }
+    }
   }
 
   private void touchAndResize(String key) {
