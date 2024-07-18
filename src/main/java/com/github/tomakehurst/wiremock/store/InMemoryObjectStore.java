@@ -63,7 +63,7 @@ public class InMemoryObjectStore implements ObjectStore {
   public void put(String key, Object content) {
     Object previousValue = cache.put(key, content);
     touchAndResize(key);
-    handleEvent(new StoreEvent<>(key, previousValue, content));
+    handleEvent(StoreEvent.set(key, previousValue, content));
   }
 
   @Override
@@ -83,7 +83,7 @@ public class InMemoryObjectStore implements ObjectStore {
     } else {
       keyUseOrder.remove(key);
     }
-    handleEvent(new StoreEvent<>(key, previousValue.get(), result));
+    handleEvent(StoreEvent.set(key, previousValue.get(), result));
     return result;
   }
 
@@ -92,7 +92,7 @@ public class InMemoryObjectStore implements ObjectStore {
     Object previousValue = cache.remove(key);
     keyUseOrder.remove(key);
     if (previousValue != null) {
-      handleEvent(new StoreEvent<>(key, previousValue, null));
+      handleEvent(StoreEvent.remove(key, previousValue));
     }
   }
 
