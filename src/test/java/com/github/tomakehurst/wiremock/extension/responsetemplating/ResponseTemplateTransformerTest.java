@@ -760,16 +760,16 @@ public class ResponseTemplateTransformerTest {
   void picksMultipleRandomItemsFromListVariableWhenCountSpecified() {
     String body =
         transform(
-            "{{val (pickRandom (array 1 2 3 4 5) count=3) assign='values'}}{{values.0}} {{values.1}} {{values.2}}");
+            "{{val (pickRandom (array 1 2 3 4 5) count=3) assign='result'}}{{result.0}} {{result.1}} {{result.2}}");
 
-    assertThat(body, matchesRegex("\\d\\ \\d \\d"));
+    assertThat(body, matchesRegex("\\d \\d \\d"));
     assertThat(body.split(" ")[0], not(body.split(" ")[1]));
   }
 
   @Test
   void picksAsManyRandomItemsAsPossibleFromListVariableWhenCountSpecifiedHigherThanItemCount() {
     String body =
-        transform("{{val (pickRandom (array 1 2 3 4 5) count=8) assign='values'}}{{size values}}");
+        transform("{{val (pickRandom (array 1 2 3 4 5) count=8) assign='result'}}{{size result}}");
 
     assertThat(body, matchesRegex("5"));
   }
