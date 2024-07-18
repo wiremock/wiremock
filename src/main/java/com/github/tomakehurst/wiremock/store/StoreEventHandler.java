@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-import org.wiremock.annotations.Beta;
-
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface Store<K, V> {
-
-  Stream<K> getAllKeys();
-
-  Optional<V> get(K key);
-
-  void put(K key, V content);
-
-  void remove(K key);
-
-  void clear();
-
-  default void registerEventListener(StoreEventHandler<K, V> handler) {
-    throw new UnsupportedOperationException();
-  }
+@FunctionalInterface
+public interface StoreEventHandler<K, V> {
+  void handle(StoreEvent<K, V> event);
 }
