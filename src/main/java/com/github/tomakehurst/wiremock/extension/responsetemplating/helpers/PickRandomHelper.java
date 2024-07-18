@@ -40,20 +40,8 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
 
     Integer count = (Integer) options.hash.get("count");
     if (count != null && count > 0) {
-      final List<Object> outputValueList = new ArrayList<>(count);
-      final Set<Integer> usedIndexes = new HashSet<>();
-
-      for (int i = 0; i < count && usedIndexes.size() < candidateValueList.size(); i++) {
-        int index = -1;
-        while (index == -1 || usedIndexes.contains(index)) {
-          index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
-        }
-
-        outputValueList.add(candidateValueList.get(index));
-        usedIndexes.add(index);
-      }
-
-      return outputValueList;
+      Collections.shuffle(candidateValueList);
+      return candidateValueList.subList(0, Math.min(candidateValueList.size(), count));
     }
 
     int index = ThreadLocalRandom.current().nextInt(candidateValueList.size());
