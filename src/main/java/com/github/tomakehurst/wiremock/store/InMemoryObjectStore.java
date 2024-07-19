@@ -63,7 +63,11 @@ public class InMemoryObjectStore implements ObjectStore {
   public <T> T compute(String key, Function<T, T> valueFunction) {
     final T result =
         (T) cache.compute(key, (k, currentValue) -> valueFunction.apply((T) currentValue));
-    touchAndResize(key);
+    if (result != null) {
+      touchAndResize(key);
+    } else {
+      keyUseOrder.remove(key);
+    }
     return result;
   }
 

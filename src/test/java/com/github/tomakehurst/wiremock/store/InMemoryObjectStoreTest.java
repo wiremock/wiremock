@@ -19,6 +19,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 public class InMemoryObjectStoreTest {
@@ -113,5 +115,27 @@ public class InMemoryObjectStoreTest {
     store.get("four");
 
     assertThat(store.getAllKeys().count(), is(3L));
+  }
+
+  @Test
+  void computingNullValueIsEquivalentToRemoval() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    store.compute("three", current -> null);
+
+    assertThat(store.get("three"), is(Optional.empty()));
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("one", "two"));
+
+    store.put("four", "4");
+
+    assertThat(store.getAllKeys().collect(toList()), containsInAnyOrder("one", "two", "four"));
+
+    AtomicReference<Object> previousValue = new AtomicReference<>("");
+    store.compute("three", previousValue::getAndSet);
+    assertThat(previousValue.get(), is(nullValue()));
   }
 }
