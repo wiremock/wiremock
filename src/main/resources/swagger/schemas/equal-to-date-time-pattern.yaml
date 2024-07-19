@@ -1,0 +1,14 @@
+title: Before datetime
+type: object
+properties:
+  equalToDateTime:
+    $ref: "date-time-elements.yaml#/dateTimeExpression"
+  actualFormat:
+    $ref: "date-time-elements.yaml#/format"
+  truncateExpected:
+    $ref: "date-time-elements.yaml#/truncation"
+  truncateActual:
+    $ref: "date-time-elements.yaml#/truncation"
+
+required:
+  - equalToDateTime

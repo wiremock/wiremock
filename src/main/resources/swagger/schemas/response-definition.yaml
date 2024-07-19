@@ -7,29 +7,38 @@ allOf:
       statusMessage:
         type: string
         description: The HTTP status message to be returned
+
       headers:
         type: object
         description: Map of response headers to send
+        additionalProperties:
+          type: string
       additionalProxyRequestHeaders:
         type: object
         description: Extra request headers to send when proxying to another host.
+        additionalProperties:
+          type: string
       removeProxyRequestHeaders:
         type: array
         description: Request headers to remove when proxying to another host.
         items:
           type: string
+
       body:
         type: string
         description: The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.
       base64Body:
-        type: string
-        description: The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.
+        $ref: "base64-string.yaml"
       jsonBody:
-        type: object
         description: The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.
+        oneOf:
+          - type: object
+          - type: array
       bodyFileName:
         type: string
         description: The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.
+        example: user-profile-responses/user1.json
+
       fault:
         type: string
         description: The fault to apply (instead of a full, valid response).
@@ -38,18 +47,35 @@ allOf:
           - EMPTY_RESPONSE
           - MALFORMED_RESPONSE_CHUNK
           - RANDOM_DATA_THEN_CLOSE
+
       fixedDelayMilliseconds:
         type: integer
         description: Number of milliseconds to delay be before sending the response.
       delayDistribution:
-        description: The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.
         $ref: "delay-distribution.yaml"
+      chunkedDribbleDelay:
+        type: object
+        description: The parameters for chunked dribble delay - chopping the response into pieces and sending them at delayed intervals
+        properties:
+          numberOfChunks:
+            type: integer
+          totalDuration:
+            type: integer
+        required:
+          - numberOfChunks
+          - totalDuration
+
       fromConfiguredStub:
         type: boolean
         description: Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.
+
       proxyBaseUrl:
         type: string
         description: The base URL of the target to proxy matching requests to.
+      proxyUrlPrefixToRemove:
+        type: string
+        description: A path segment to remove from the beginning in incoming request URL paths before proxying to the target.
+
       transformerParameters:
         type: object
         description: Parameters to apply to response transformers.

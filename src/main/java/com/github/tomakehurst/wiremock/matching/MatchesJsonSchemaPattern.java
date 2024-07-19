@@ -19,8 +19,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -32,6 +35,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
   private final JsonSchema schema;
   private final WireMock.JsonSchemaVersion schemaVersion;
   private final int schemaPropertyCount;
+  private final Errors invalidSchemaErrors;
 
   public MatchesJsonSchemaPattern(String schemaJson) {
     this(schemaJson, WireMock.JsonSchemaVersion.V202012);
@@ -48,10 +52,25 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
     final JsonSchemaFactory schemaFactory =
         JsonSchemaFactory.getInstance(schemaVersion.toVersionFlag());
-    schema = schemaFactory.getSchema(schemaJson, config);
+    JsonSchema schema;
+    JsonNode schemaAsJson;
+    int schemaPropertyCount;
+    Errors invalidSchemaErrors;
+    try {
+      schemaAsJson = Json.read(schemaJson, JsonNode.class);
+      schema = schemaFactory.getSchema(schemaAsJson, config);
+      schemaPropertyCount = Json.schemaPropertyCount(schemaAsJson);
+      invalidSchemaErrors = null;
+    } catch (Exception e) {
+      schema = null;
+      schemaPropertyCount = 0;
+      invalidSchemaErrors = getInvalidSchemaErrors(e);
+    }
+    this.schema = schema;
     this.schemaVersion = schemaVersion;
 
-    schemaPropertyCount = Json.schemaPropertyCount(Json.read(schemaJson, JsonNode.class));
+    this.schemaPropertyCount = schemaPropertyCount;
+    this.invalidSchemaErrors = invalidSchemaErrors;
   }
 
   public MatchesJsonSchemaPattern(
@@ -74,6 +93,9 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
   @Override
   public MatchResult match(String json) {
+    if (schema == null) {
+      return MatchResult.noMatch(new SubEvent(SubEvent.ERROR, invalidSchemaErrors));
+    }
     if (json == null) {
       return MatchResult.noMatch();
     }
@@ -85,7 +107,13 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
       jsonNode = new TextNode(json);
     }
 
-    final Set<ValidationMessage> validationMessages = validate(jsonNode, json);
+    final Set<ValidationMessage> validationMessages;
+    try {
+      validationMessages = validate(jsonNode, json);
+    } catch (Exception e) {
+      return MatchResult.noMatch(new SubEvent(SubEvent.ERROR, getInvalidSchemaErrors(e)));
+    }
+
     if (validationMessages.isEmpty()) {
       return MatchResult.exactMatch();
     }
@@ -105,6 +133,30 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
         return (double) validationMessages.size() / schemaPropertyCount;
       }
     };
+  }
+
+  private static Errors getInvalidSchemaErrors(Exception e) {
+    Errors invalidSchemaErrors;
+    if (e instanceof ClientError) {
+      Errors.Error error = ((ClientError) e).getErrors().first();
+      invalidSchemaErrors =
+          Errors.single(
+              error.getCode(),
+              error.getSource().getPointer(),
+              "Invalid JSON Schema",
+              error.getDetail());
+    } else {
+      invalidSchemaErrors =
+          Errors.singleWithDetail(10, "Invalid JSON Schema", getRootCause(e).getMessage());
+    }
+    return invalidSchemaErrors;
+  }
+
+  private static Throwable getRootCause(Throwable e) {
+    if (e.getCause() != null) {
+      return getRootCause(e.getCause());
+    }
+    return e;
   }
 
   private Set<ValidationMessage> validate(JsonNode jsonNode, String originalJson) {

@@ -35,7 +35,7 @@ project.ext {
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
     guava          : '33.2.1-jre',
-    jackson        : '2.17.1',
+    jackson        : '2.17.2',
     xmlUnit        : '2.10.0',
     jsonUnit       : '2.40.0',
     junitJupiter   : '5.10.3'
@@ -99,7 +99,7 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.5'
 
-  api 'com.networknt:json-schema-validator:1.4.3'
+  api 'com.networknt:json-schema-validator:1.5.0'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")
@@ -202,7 +202,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.8.0'
+  version = '3.9.0'
 
   compileJava {
     options.encoding = 'UTF-8'

@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 3.8.0
+  version: 3.9.0
   description: "WireMock offers a REST API for administration, troubleshooting and analysis purposes"
 
 externalDocs:
@@ -84,6 +84,8 @@ paths:
       responses:
         '201':
           $ref: "#/components/responses/stubMapping"
+        '422':
+          $ref: "#/components/responses/badRequestEntity"
     delete:
       operationId: deleteAllStubMappings
       summary: Delete all stub mappings
@@ -755,3 +757,10 @@ components:
                   $ref: "schemas/logged-request.yaml"
           example:
             $ref: 'examples/near-misses.yaml'
+
+    badRequestEntity:
+      description: Bad request body
+      content:
+        application/json:
+          schema:
+            $ref: "schemas/bad-request-entity.yaml"

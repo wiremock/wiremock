@@ -31,10 +31,8 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.collect.Lists;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 
 public class EqualToDateTimePatternTest {
@@ -80,6 +78,62 @@ public class EqualToDateTimePatternTest {
 
     String good = localExpected;
     String bad = LocalDateTime.parse(localExpected).minusSeconds(1).toString();
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesNowToYearMonth() {
+    YearMonth currentYearMonth = YearMonth.now();
+    YearMonth previousYearMonth = currentYearMonth.minusMonths(1);
+    StringValuePattern matcher =
+        WireMock.isNow().truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH);
+
+    String good = currentYearMonth.toString();
+    String bad = previousYearMonth.toString();
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesNowToYearMonthInCustomFormat() {
+    YearMonth currentYearMonth = YearMonth.now();
+    StringValuePattern matcher =
+        WireMock.isNow()
+            .truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH)
+            .actualFormat("MM/yyyy");
+
+    String good = currentYearMonth.format(DateTimeFormatter.ofPattern("MM/yyyy"));
+    String bad = currentYearMonth.toString();
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesNowToYear() {
+    Year currentYear = Year.now();
+    Year previousYear = currentYear.minusYears(1);
+    StringValuePattern matcher =
+        WireMock.isNow().truncateExpected(DateTimeTruncation.FIRST_DAY_OF_YEAR);
+
+    String good = currentYear.toString();
+    String bad = previousYear.toString();
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesNowToYearInCustomFormat() {
+    Year currentYear = Year.now();
+    StringValuePattern matcher =
+        WireMock.isNow().truncateExpected(DateTimeTruncation.FIRST_DAY_OF_YEAR).actualFormat("yy");
+
+    String good = currentYear.format(DateTimeFormatter.ofPattern("yy"));
+    String bad = currentYear.toString();
 
     assertTrue(matcher.match(good).isExactMatch());
     assertFalse(matcher.match(bad).isExactMatch());

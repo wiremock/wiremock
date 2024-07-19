@@ -1,0 +1,21 @@
+dateTimeExpression:
+  type: string
+  example: now +3 days
+
+format:
+  type: string
+  example: yyyy-MM-dd
+
+truncation:
+  type: string
+  enum:
+    - first second of minute
+    - first minute of hour
+    - first hour of day
+    - first day of month
+    - first day of next month
+    - last day of month
+    - first day of year
+    - first day of next year
+    - last day of year
+  example: first day of month
