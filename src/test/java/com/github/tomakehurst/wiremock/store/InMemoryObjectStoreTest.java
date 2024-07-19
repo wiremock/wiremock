@@ -272,4 +272,17 @@ public class InMemoryObjectStoreTest {
     assertThat(events1, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
     assertThat(events2, containsInAnyOrder(new StoreEvent<>("one", null, "1")));
   }
+
+  @Test
+  void eventsCanBeEmittedToAMoreGeneralEventListener() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    List<StoreEvent<?, ?>> events1 = new ArrayList<>();
+
+    // Do not remove the event type, it then compiles without the fix
+    store.registerEventListener((StoreEvent<?, ?> e) -> events1.add(e));
+    store.put("1", 1);
+
+    assertThat(events1, contains(new StoreEvent<>("1", null, 1)));
+  }
 }

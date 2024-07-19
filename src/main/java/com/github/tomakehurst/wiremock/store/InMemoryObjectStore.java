@@ -33,7 +33,7 @@ public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<Strin
   private final ConcurrentHashMap<String, Object> cache;
   private final Queue<String> keyUseOrder = new ConcurrentLinkedQueue<>();
   private final int maxItems;
-  private final List<Consumer<StoreEvent<String, Object>>> listeners = new ArrayList<>();
+  private final List<Consumer<? super StoreEvent<String, Object>>> listeners = new ArrayList<>();
 
   public InMemoryObjectStore(int maxItems) {
     this.cache = new ConcurrentHashMap<>();
@@ -103,12 +103,12 @@ public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<Strin
   }
 
   @Override
-  public void registerEventListener(Consumer<StoreEvent<String, Object>> handler) {
+  public void registerEventListener(Consumer<? super StoreEvent<String, Object>> handler) {
     listeners.add(handler);
   }
 
   private void handleEvent(StoreEvent<String, Object> event) {
-    for (Consumer<StoreEvent<String, Object>> listener : listeners) {
+    for (Consumer<? super StoreEvent<String, Object>> listener : listeners) {
       try {
         listener.accept(event);
       } catch (Exception e) {
