@@ -44,6 +44,7 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTemplateTransformerTest {
@@ -741,6 +742,36 @@ public class ResponseTemplateTransformerTest {
             "{{{pickRandom (jsonPath request.body '$.names')}}}",
             "{ \"names\": [\"Rob\", \"Tom\", \"Gus\"] }");
     assertThat(body, anyOf(is("Gus"), is("Tom"), is("Rob")));
+  }
+
+  @Test
+  void picksRandomObjectFromListVariable() {
+    String body =
+        transform(
+            "{{val (parseJson '{\"level\":1}') assign='one'}}\n"
+                + "{{val (parseJson '{\"level\":2}') assign='two'}}\n"
+                + "{{val (parseJson '{\"level\":3}') assign='three'}}\n"
+                + "{{lookup (pickRandom (array one two three)) 'level'}}");
+
+    assertThat(body.trim(), anyOf(is("1"), is("2"), is("3")));
+  }
+
+  @RepeatedTest(10)
+  void picksMultipleRandomItemsFromListVariableWhenCountSpecified() {
+    String body =
+        transform(
+            "{{val (pickRandom (array 1 2 3 4 5) count=3) assign='result'}}{{result.0}} {{result.1}} {{result.2}} size={{size result}}");
+
+    assertThat(body, matchesRegex("\\d \\d \\d size=3"));
+    assertThat(body.split(" ")[0], not(body.split(" ")[1]));
+  }
+
+  @Test
+  void picksAsManyRandomItemsAsPossibleFromListVariableWhenCountSpecifiedHigherThanItemCount() {
+    String body =
+        transform("{{val (pickRandom (array 1 2 3 4 5) count=8) assign='result'}}{{size result}}");
+
+    assertThat(body, matchesRegex("5"));
   }
 
   @Test
