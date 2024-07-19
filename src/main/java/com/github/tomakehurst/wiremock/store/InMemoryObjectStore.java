@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class InMemoryObjectStore implements ObjectStore {
+public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<String, Object> {
 
   private final ConcurrentHashMap<String, Object> cache;
   private final Queue<String> keyUseOrder = new ConcurrentLinkedQueue<>();

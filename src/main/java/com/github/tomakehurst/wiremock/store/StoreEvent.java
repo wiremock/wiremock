@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import org.wiremock.annotations.Beta;
+
 import java.util.Objects;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class StoreEvent<K, V> {
 
   public static <K, V> StoreEvent<K, V> set(K key, V previousValue, V newValue) {
