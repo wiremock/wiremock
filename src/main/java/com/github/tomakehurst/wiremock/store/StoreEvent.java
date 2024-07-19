@@ -15,9 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import org.wiremock.annotations.Beta;
-
 import java.util.Objects;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class StoreEvent<K, V> {
