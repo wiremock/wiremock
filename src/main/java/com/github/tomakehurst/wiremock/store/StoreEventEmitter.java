@@ -21,5 +21,5 @@ import org.wiremock.annotations.Beta;
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface StoreEventEmitter<K, V> {
 
-  void registerEventListener(Consumer<StoreEvent<K, V>> handler);
+  void registerEventListener(Consumer<? super StoreEvent<K, V>> handler);
 }
