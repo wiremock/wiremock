@@ -508,7 +508,7 @@ public class EqualToJsonTest {
     assertFalse(matchWithoutFailFast.isExactMatch());
 
     MatchResult matchWithFailFast = patternWithFailFast.match(jsonToMatch);
-    assertFalse(matchWithFailFast.isExactMatch());
+    assertFalse(matchWithFailFast.isExactMatch());  
 
     assertThat(matchWithFailFast.getDistance(), lessThan(matchWithoutFailFast.getDistance()));
   }
