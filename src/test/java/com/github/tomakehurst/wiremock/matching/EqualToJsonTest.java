@@ -481,6 +481,39 @@ public class EqualToJsonTest {
   }
 
   @Test
+  public void whenFailingFastTheDistanceShouldBeLessDueToNotProcessingAllTheDifferences() {
+    String json =
+        "{\n"
+            + "    \"outer\": {\n"
+            + "        \"diff:\": true,\n"
+            + "        \"inner:\": {\n"
+            + "            \"wrong\": 1\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
+    String jsonToMatch =
+        "{\n"
+            + "    \"outer\": {\n"
+            + "        \"inner:\": {\n"
+            + "            \"thing\": 1\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
+
+    EqualToJsonPattern patternWithoutFailFast = new EqualToJsonPattern(json, false, false, false);
+
+    EqualToJsonPattern patternWithFailFast = new EqualToJsonPattern(json, false, false, true);
+
+    MatchResult matchWithoutFailFast = patternWithoutFailFast.match(jsonToMatch);
+    assertFalse(matchWithoutFailFast.isExactMatch());
+
+    MatchResult matchWithFailFast = patternWithFailFast.match(jsonToMatch);
+    assertFalse(matchWithFailFast.isExactMatch());
+
+    assertThat(matchWithFailFast.getDistance(), lessThan(matchWithoutFailFast.getDistance()));
+  }
+
+  @Test
   public void doesNotBreakWhenComparingNestedArraysOfDifferentSizes() {
     String expected =
         "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
