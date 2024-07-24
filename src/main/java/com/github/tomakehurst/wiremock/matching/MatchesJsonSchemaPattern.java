@@ -53,11 +53,10 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     final JsonSchemaFactory schemaFactory =
         JsonSchemaFactory.getInstance(schemaVersion.toVersionFlag());
     JsonSchema schema;
-    JsonNode schemaAsJson;
+    JsonNode schemaAsJson = Json.read(schemaJson, JsonNode.class);
     int schemaPropertyCount;
     Errors invalidSchemaErrors;
     try {
-      schemaAsJson = Json.read(schemaJson, JsonNode.class);
       schema = schemaFactory.getSchema(schemaAsJson, config);
       schemaPropertyCount = Json.schemaPropertyCount(schemaAsJson);
       invalidSchemaErrors = null;
