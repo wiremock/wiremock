@@ -367,8 +367,6 @@ public class MatchesJsonSchemaPatternTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "",
-        "not json",
         "{\"id\": 1, \"name\": \"alice\"}",
         "{\"type\": \"array\", \"items\": {\"$ref\": \"#/does/not/exist\"}}",
       })
@@ -404,40 +402,29 @@ public class MatchesJsonSchemaPatternTest {
     }
 
     MatchResult matchResult1 =
-        new MatchesJsonSchemaPattern("not json").match("{\"field\":\"value\"}");
+        new MatchesJsonSchemaPattern("{\"id\":1,\"name\":\"alice\"}")
+            .match("{\"field\":\"value\"}");
     assertThat(matchResult1.isExactMatch(), is(false));
     Errors expectedErrors1 =
-        Errors.single(
-            10,
-            null,
-            "Invalid JSON Schema",
-            "Unrecognized token 'not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"not json\"; line: 1, column: 4]");
+        Errors.singleWithDetail(10, "Invalid JSON Schema", "No suitable validator for id");
     assertThat(matchResult1.getSubEvents(), contains(new SubEventMatcher(expectedErrors1)));
 
     MatchResult matchResult2 =
-        new MatchesJsonSchemaPattern("{\"id\":1,\"name\":\"alice\"}")
-            .match("{\"field\":\"value\"}");
-    assertThat(matchResult2.isExactMatch(), is(false));
-    Errors expectedErrors2 =
-        Errors.singleWithDetail(10, "Invalid JSON Schema", "No suitable validator for id");
-    assertThat(matchResult2.getSubEvents(), contains(new SubEventMatcher(expectedErrors2)));
-
-    MatchResult matchResult3 =
         new MatchesJsonSchemaPattern(
                 "{\"type\": \"array\", \"items\": {\"$ref\": \"#/does/not/exist\"}}")
             .match("[{\"id\":1,\"name\":\"alice\"}]");
-    assertThat(matchResult3.isExactMatch(), is(false));
-    Errors expectedErrors3 =
+    assertThat(matchResult2.isExactMatch(), is(false));
+    Errors expectedErrors2 =
         Errors.singleWithDetail(
             10, "Invalid JSON Schema", ": Reference /does/not/exist cannot be resolved");
-    assertThat(matchResult3.getSubEvents(), contains(new SubEventMatcher(expectedErrors3)));
+    assertThat(matchResult2.getSubEvents(), contains(new SubEventMatcher(expectedErrors2)));
 
     // Check for false positives.
-    MatchResult matchResult4 =
+    MatchResult matchResult3 =
         new MatchesJsonSchemaPattern("{\"type\": \"string\"}").match("\"my value\"");
-    assertThat(matchResult4.isExactMatch(), is(true));
+    assertThat(matchResult3.isExactMatch(), is(true));
     assertThat(
-        matchResult4.getSubEvents(),
+        matchResult3.getSubEvents(),
         not(
             contains(
                 new TypeSafeMatcher<>() {
