@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "3.9.0",
+    "version": "3.9.1",
     "description": "WireMock offers a REST API for administration, troubleshooting and analysis purposes"
   },
   "externalDocs": {
@@ -5303,7 +5303,7 @@
                   }
                 },
                 "example": {
-                  "version": "3.9.0"
+                  "version": "3.9.1"
                 }
               }
             }
@@ -5361,7 +5361,7 @@
                 "example": {
                   "status": "healthy",
                   "message": "Wiremock is ok",
-                  "version": "3.9.0",
+                  "version": "3.9.1",
                   "uptimeInSeconds": 14355,
                   "timestamp": "2024-07-03T13:16:06.172362Z"
                 }
