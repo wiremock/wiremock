@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PickRandomHelper extends HandlebarsHelper<Object> {
@@ -40,7 +38,16 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
       valueList.addAll(Arrays.asList(options.params));
     }
 
+    Integer count = (Integer) options.hash.get("count");
+    if (count != null && count > 0) {
+      int desiredLength = Math.min(valueList.size(), count);
+      for (int i = 0; i < desiredLength; i++) {
+        Collections.swap(valueList, i, ThreadLocalRandom.current().nextInt(i, valueList.size()));
+      }
+      return valueList.subList(0, desiredLength);
+    }
+
     int index = ThreadLocalRandom.current().nextInt(valueList.size());
-    return valueList.get(index).toString();
+    return valueList.get(index);
   }
 }
