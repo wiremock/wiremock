@@ -55,7 +55,7 @@ public class AcceptanceTestBase {
 
   @AfterAll
   public static void serverShutdown() {
-    wireMockServer.stop();
+    wireMockServer.close();
   }
 
   public static void setupServerWithEmptyFileRoot() {

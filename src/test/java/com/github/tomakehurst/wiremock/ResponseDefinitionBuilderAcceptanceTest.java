@@ -36,7 +36,7 @@ public class ResponseDefinitionBuilderAcceptanceTest {
 
   @AfterEach
   public void stopServer() {
-    wm.stop();
+    wm.close();
   }
 
   private void initialise() {

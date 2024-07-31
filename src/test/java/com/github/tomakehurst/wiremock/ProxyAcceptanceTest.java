@@ -102,8 +102,8 @@ public class ProxyAcceptanceTest {
 
   @AfterEach
   public void stop() {
-    targetService.stop();
-    proxyingService.stop();
+    targetService.close();
+    proxyingService.close();
   }
 
   @Test

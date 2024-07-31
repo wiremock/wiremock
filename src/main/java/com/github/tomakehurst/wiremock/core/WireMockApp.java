@@ -619,6 +619,11 @@ public class WireMockApp implements StubServer, Admin {
     }
   }
 
+  @Override
+  public void close() {
+    shutdownServer();
+  }
+
   public Set<String> getLoadedExtensionNames() {
     return extensions.getAllExtensionNames();
   }

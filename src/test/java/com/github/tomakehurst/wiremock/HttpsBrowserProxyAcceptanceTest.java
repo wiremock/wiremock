@@ -182,7 +182,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
       assertThat(response.statusCode(), is(500));
     } finally {
-      scepticalProxy.stop();
+      scepticalProxy.close();
     }
   }
 
@@ -208,7 +208,7 @@ public class HttpsBrowserProxyAcceptanceTest {
       assertThat(response.statusCode(), is(200));
       assertThat(response.content(), is("Got it"));
     } finally {
-      scepticalProxy.stop();
+      scepticalProxy.close();
     }
   }
 
@@ -233,7 +233,7 @@ public class HttpsBrowserProxyAcceptanceTest {
       assertThat(response.statusCode(), is(200));
       assertThat(response.content(), is("Got it"));
     } finally {
-      scepticalProxy.stop();
+      scepticalProxy.close();
     }
   }
 
@@ -281,7 +281,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
       // then no exception is thrown
     } finally {
-      proxyWithCustomCaKeyStore.stop();
+      proxyWithCustomCaKeyStore.close();
     }
   }
 

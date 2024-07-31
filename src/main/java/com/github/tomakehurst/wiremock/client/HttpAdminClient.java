@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -432,6 +433,11 @@ public class HttpAdminClient implements Admin {
   public GetGlobalSettingsResult getGlobalSettings() {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetGlobalSettingsTask.class), GetGlobalSettingsResult.class);
+  }
+
+  @Override
+  public void close() throws IOException {
+    httpClient.close();
   }
 
   public int port() {

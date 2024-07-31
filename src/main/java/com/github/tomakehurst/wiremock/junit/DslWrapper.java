@@ -351,4 +351,9 @@ public class DslWrapper implements Admin, Stubbing {
   public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
     return stubbing.findAllNearMissesFor(requestPatternBuilder);
   }
+
+  @Override
+  public void close() throws Exception {
+    admin.close();
+  }
 }

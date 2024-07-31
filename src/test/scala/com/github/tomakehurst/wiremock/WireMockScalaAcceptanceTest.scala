@@ -40,7 +40,7 @@ class WireMockScalaAcceptanceTest {
 	
 	@AfterEach
 	def stopServer(): Unit = {
-		wireMockServer.stop()
+		wireMockServer.close()
 	}
 
 	@Test

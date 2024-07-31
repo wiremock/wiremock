@@ -46,7 +46,7 @@ public class WireMockClientWithProxyAcceptanceTest {
 
   @AfterAll
   public static void stopServer() {
-    wireMockServer.stop();
+    wireMockServer.close();
   }
 
   @Test

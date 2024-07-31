@@ -48,7 +48,7 @@ public class DeadlockTest {
 
   @AfterAll
   public static void tearDown() {
-    wireMockServer.stop();
+    wireMockServer.close();
   }
 
   @BeforeEach

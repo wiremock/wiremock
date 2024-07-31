@@ -79,7 +79,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   @AfterEach
   public void proxyServerShutdown() {
     proxyingService.resetMappings();
-    proxyingService.stop();
+    proxyingService.close();
   }
 
   @Test

@@ -212,7 +212,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
               } catch (InterruptedException e) {
                 throw new RuntimeException(e);
               }
-              server.stop();
+              server.close();
             });
     shutdownThread.start();
   }
@@ -569,6 +569,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public GetGlobalSettingsResult getGlobalSettings() {
     return wireMockApp.getGlobalSettings();
+  }
+
+  @Override
+  public void close() {
+    stop();
+    wireMockApp.close();
   }
 
   public void checkForUnmatchedRequests() {

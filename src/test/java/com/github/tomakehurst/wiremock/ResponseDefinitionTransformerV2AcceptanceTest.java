@@ -199,7 +199,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   @AfterEach
   public void cleanup() {
     if (wm != null) {
-      wm.stop();
+      wm.close();
     }
   }
 

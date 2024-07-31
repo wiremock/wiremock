@@ -60,7 +60,7 @@ public class PathAndMethodMatchingBenchmark {
 
     @TearDown
     public void tearDown() {
-      wm.stop();
+      wm.close();
     }
   }
 
