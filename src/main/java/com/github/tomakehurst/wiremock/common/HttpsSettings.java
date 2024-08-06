@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import java.util.Arrays;
 
 public class HttpsSettings {
 
@@ -29,6 +30,8 @@ public class HttpsSettings {
   private final String trustStorePath;
   private final String trustStorePassword;
   private final String trustStoreType;
+  private final String[] cipherSuites;
+  private final String[] tlsProtocols;
   private final boolean needClientAuth;
 
   public HttpsSettings(
@@ -40,6 +43,8 @@ public class HttpsSettings {
       String trustStorePath,
       String trustStorePassword,
       String trustStoreType,
+      String[] cipherSuites,
+      String[] tlsProtocols,
       boolean needClientAuth) {
     this.port = port;
     this.keyStorePath = keyStorePath;
@@ -49,6 +54,8 @@ public class HttpsSettings {
     this.trustStorePath = trustStorePath;
     this.trustStorePassword = trustStorePassword;
     this.trustStoreType = trustStoreType;
+    this.cipherSuites = cipherSuites;
+    this.tlsProtocols = tlsProtocols;
     this.needClientAuth = needClientAuth;
   }
 
@@ -88,12 +95,28 @@ public class HttpsSettings {
     return trustStoreType;
   }
 
+  public String[] cipherSuites() {
+    return cipherSuites;
+  }
+
+  public String[] tlsProtocols() {
+    return tlsProtocols;
+  }
+
   public boolean needClientAuth() {
     return needClientAuth;
   }
 
   public boolean hasTrustStore() {
     return trustStorePath != null;
+  }
+
+  public boolean hasCipherSuites() {
+    return cipherSuites != null;
+  }
+
+  public boolean hasTlsProtocols() {
+    return tlsProtocols != null;
   }
 
   public KeyStoreSettings trustStore() {
@@ -123,6 +146,12 @@ public class HttpsSettings {
         + ", trustStoreType='"
         + trustStoreType
         + '\''
+        + ", cipherSuites='"
+        + Arrays.toString(cipherSuites)
+        + '\''
+        + ", tlsProtocols='"
+        + Arrays.toString(tlsProtocols)
+        + '\''
         + ", needClientAuth="
         + needClientAuth
         + '}';
@@ -138,6 +167,8 @@ public class HttpsSettings {
     private String trustStorePath = null;
     private String trustStorePassword = "password";
     private String trustStoreType = "JKS";
+    private String[] cipherSuites = null;
+    private String[] tlsProtocols = null;
     private boolean needClientAuth = false;
 
     public Builder port(int port) {
@@ -180,6 +211,16 @@ public class HttpsSettings {
       return this;
     }
 
+    public Builder cipherSuites(String... cipherSuites) {
+      this.cipherSuites = cipherSuites;
+      return this;
+    }
+
+    public Builder tlsProtocols(String... tlsProtocols) {
+      this.tlsProtocols = tlsProtocols;
+      return this;
+    }
+
     public Builder needClientAuth(boolean needClientAuth) {
       this.needClientAuth = needClientAuth;
       return this;
@@ -195,6 +236,8 @@ public class HttpsSettings {
           trustStorePath,
           trustStorePassword,
           trustStoreType,
+          cipherSuites,
+          tlsProtocols,
           needClientAuth);
     }
   }

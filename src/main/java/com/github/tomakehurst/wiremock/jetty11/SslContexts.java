@@ -39,6 +39,8 @@ public class SslContexts {
         SslContexts.defaultSslContextFactory(httpsSettings.keyStore());
     sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
     setupClientAuth(sslContextFactory, httpsSettings);
+    setupCipherSuites(sslContextFactory, httpsSettings);
+    setupTlsProtocols(sslContextFactory, httpsSettings);
     sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
     return sslContextFactory;
   }
@@ -70,6 +72,20 @@ public class SslContexts {
       sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
     }
     sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
+  }
+
+  private static void setupCipherSuites(
+      SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
+    if (httpsSettings.hasCipherSuites()) {
+      sslContextFactory.setIncludeCipherSuites(httpsSettings.cipherSuites());
+    }
+  }
+
+  private static void setupTlsProtocols(
+      SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
+    if (httpsSettings.hasTlsProtocols()) {
+      sslContextFactory.setIncludeProtocols(httpsSettings.tlsProtocols());
+    }
   }
 
   private static SslContextFactory.Server buildSslContextFactory(

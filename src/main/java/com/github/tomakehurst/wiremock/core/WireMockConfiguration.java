@@ -79,6 +79,8 @@ public class WireMockConfiguration implements Options {
   private String trustStorePath;
   private String trustStorePassword = "password";
   private String trustStoreType = "JKS";
+  private String[] cipherSuites;
+  private String[] tlsProtocols;
   private boolean needClientAuth;
 
   private boolean browserProxyingEnabled = false;
@@ -315,6 +317,16 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration trustStoreType(String trustStoreType) {
     this.trustStoreType = trustStoreType;
+    return this;
+  }
+
+  public WireMockConfiguration cipherSuites(String... cipherSuites) {
+    this.cipherSuites = cipherSuites;
+    return this;
+  }
+
+  public WireMockConfiguration tlsProtocols(String... tlsProtocols) {
+    this.tlsProtocols = cipherSuites;
     return this;
   }
 
@@ -629,6 +641,8 @@ public class WireMockConfiguration implements Options {
         .trustStorePath(trustStorePath)
         .trustStorePassword(trustStorePassword)
         .trustStoreType(trustStoreType)
+        .cipherSuites(cipherSuites)
+        .tlsProtocols(tlsProtocols)
         .needClientAuth(needClientAuth)
         .build();
   }
