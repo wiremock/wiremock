@@ -113,7 +113,7 @@ dependencies {
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
-  testFixturesApi 'org.awaitility:awaitility:4.2.1'
+  testFixturesApi 'org.awaitility:awaitility:4.2.2'
   testFixturesApi "commons-io:commons-io:2.16.1"
 
   testImplementation "junit:junit:4.13.2"
