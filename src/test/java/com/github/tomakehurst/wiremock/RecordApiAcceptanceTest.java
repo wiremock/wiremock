@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   public void proxyServerShutdown() {
     // delete any persisted stub mappings to ensure test isolation
     proxyingService.resetMappings();
-    proxyingService.stop();
+    proxyingService.close();
   }
 
   private static final String DEFAULT_SNAPSHOT_RESPONSE =
