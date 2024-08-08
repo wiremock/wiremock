@@ -33,7 +33,10 @@ import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.collect.Lists;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 public class EqualToDateTimePatternTest {
 
@@ -188,7 +191,8 @@ public class EqualToDateTimePatternTest {
         WireMock.isNow()
             .expectedOffset(DateTimeOffset.fromString("now -5 days"))
             .truncateExpected(DateTimeTruncation.LAST_DAY_OF_MONTH)
-            .truncateActual(DateTimeTruncation.FIRST_DAY_OF_YEAR);
+            .truncateActual(DateTimeTruncation.FIRST_DAY_OF_YEAR)
+            .applyTruncationLast(true);
 
     assertThat(
         Json.write(matcher),
@@ -196,7 +200,8 @@ public class EqualToDateTimePatternTest {
             "{\n"
                 + "  \"equalToDateTime\": \"now -5 days\",\n"
                 + "  \"truncateExpected\": \"last day of month\",\n"
-                + "  \"truncateActual\": \"first day of year\"\n"
+                + "  \"truncateActual\": \"first day of year\",\n"
+                + "  \"applyTruncationLast\": true\n"
                 + "}"));
   }
 
@@ -216,6 +221,40 @@ public class EqualToDateTimePatternTest {
 
     assertTrue(matcher.match(good.toString()).isExactMatch());
     assertFalse(matcher.match(bad.toString()).isExactMatch());
+  }
+
+  @Test
+  public void deserialisesFromJsonWithApplyTruncationLast() {
+    AbstractDateTimePattern matcher =
+        Json.read(
+            "{\n"
+                + "  \"equalToDateTime\": \"now\",\n"
+                + "  \"expectedOffset\": 1,\n"
+                + "  \"expectedOffsetUnit\": \"months\",\n"
+                + "  \"truncateExpected\": \"last day of month\",\n"
+                + "  \"applyTruncationLast\": true\n"
+                + "}",
+            EqualToDateTimePattern.class);
+
+    ZonedDateTime february1st = ZonedDateTime.parse("2024-02-01T00:00:00Z");
+
+    ZonedDateTime march31st = february1st.plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+
+    ZonedDateTime march29th = february1st.with(TemporalAdjusters.lastDayOfMonth()).plusMonths(1);
+
+    // Mock static method ZonedDateTime::now so that it always returns 2024-02-01
+    try (MockedStatic<ZonedDateTime> mockedZonedDateTime =
+        Mockito.mockStatic(ZonedDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+      mockedZonedDateTime.when(ZonedDateTime::now).thenReturn(february1st);
+
+      // Matcher expects March 31st when applyTruncationLast is set to true
+      assertTrue(matcher.match(march31st.toString()).isExactMatch());
+
+      AbstractDateTimePattern matcherWithApplyTruncationLast = matcher.applyTruncationLast(false);
+
+      // Matcher expects March 29th when applyTruncationLast is set to false
+      assertTrue(matcherWithApplyTruncationLast.match(march29th.toString()).isExactMatch());
+    }
   }
 
   @Test
