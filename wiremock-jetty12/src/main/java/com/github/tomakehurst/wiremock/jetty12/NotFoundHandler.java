@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty12;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import org.eclipse.jetty.ee10.servlet.Dispatcher;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -29,10 +30,10 @@ public class NotFoundHandler extends ErrorHandler {
 
   private final ErrorHandler DEFAULT_HANDLER = new ErrorHandler();
 
-  private final ServletContextHandler adminServiceHandler;
+  private final ServletContextHandler mockServiceHandler;
 
-  public NotFoundHandler(ServletContextHandler adminServiceHandler) {
-    this.adminServiceHandler = adminServiceHandler;
+  public NotFoundHandler(ServletContextHandler mockServiceHandler) {
+    this.mockServiceHandler = mockServiceHandler;
   }
 
   @Override
@@ -44,9 +45,8 @@ public class NotFoundHandler extends ErrorHandler {
   public boolean handle(Request request, Response response, Callback callback) throws Exception {
     if (response.getStatus() == 404) {
 
-      // Jetty 12 does not currently support cross context dispatch
-      Dispatcher requestDispatcher =
-          (Dispatcher) adminServiceHandler.getServletContext().getRequestDispatcher("/not-matched");
+      ServletContext adminContext = mockServiceHandler.getServletContext().getContext("/__admin");
+      Dispatcher requestDispatcher = (Dispatcher) adminContext.getRequestDispatcher("/not-matched");
 
       try {
         requestDispatcher.error(
