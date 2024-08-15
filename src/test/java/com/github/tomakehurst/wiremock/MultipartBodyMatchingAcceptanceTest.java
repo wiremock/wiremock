@@ -15,8 +15,21 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Strings.randomAlphanumeric;
+import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
+import static java.util.Collections.singletonList;
+import static org.apache.hc.core5.http.ContentType.MULTIPART_FORM_DATA;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.UUID;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -27,20 +40,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.Strings.randomAlphanumeric;
-import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
-import static java.util.Collections.singletonList;
-import static org.apache.hc.core5.http.ContentType.MULTIPART_FORM_DATA;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
@@ -57,12 +56,12 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart")
-                             .setEntity(
-                                 MultipartEntityBuilder.create()
-                                                       .addTextBody("text", "hello")
-                                                       .addBinaryBody("file", "ABCD".getBytes())
-                                                       .build())
-                             .build();
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .addTextBody("text", "hello")
+                    .addBinaryBody("file", "ABCD".getBytes())
+                    .build())
+            .build();
 
     ClassicHttpResponse response = httpClient.execute(request);
 
@@ -78,11 +77,11 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/empty-multipart")
-                             .setHeader(
-                                 "Content-Type",
-                                 "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
-                             .setEntity(new StringEntity("", MULTIPART_FORM_DATA))
-                             .build();
+            .setHeader(
+                "Content-Type",
+                "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
+            .setEntity(new StringEntity("", MULTIPART_FORM_DATA))
+            .build();
 
     HttpResponse response = httpClient.execute(request);
 
@@ -103,13 +102,13 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-mixed")
-                             .setEntity(
-                                 MultipartEntityBuilder.create()
-                                                       .setMimeSubtype("mixed")
-                                                       .addTextBody("text", "hello")
-                                                       .addBinaryBody("file", "ABCD".getBytes())
-                                                       .build())
-                             .build();
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .setMimeSubtype("mixed")
+                    .addTextBody("text", "hello")
+                    .addBinaryBody("file", "ABCD".getBytes())
+                    .build())
+            .build();
 
     ClassicHttpResponse response = httpClient.execute(request);
 
@@ -130,13 +129,13 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-related")
-                             .setEntity(
-                                 MultipartEntityBuilder.create()
-                                                       .setMimeSubtype("related")
-                                                       .addTextBody("text", "hello")
-                                                       .addBinaryBody("file", "ABCD".getBytes())
-                                                       .build())
-                             .build();
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .setMimeSubtype("related")
+                    .addTextBody("text", "hello")
+                    .addBinaryBody("file", "ABCD".getBytes())
+                    .build())
+            .build();
 
     ClassicHttpResponse response = httpClient.execute(request);
 
@@ -212,20 +211,20 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   private byte[] getRequestBodyForCamelasedContentTypeInformationWithBoundary(String boundary) {
     return ("--"
-        + boundary
-        + "\r\n"
-        + "Content-Disposition: form-data; name=\"field1\"\r\n"
-        + "\r\n"
-        + "hello\r\n"
-        + "--"
-        + boundary
-        + "\r\n"
-        + "Content-Disposition: form-data; name=\"field2\"\r\n"
-        + "\r\n"
-        + "world\r\n"
-        + "--"
-        + boundary
-        + "--")
+            + boundary
+            + "\r\n"
+            + "Content-Disposition: form-data; name=\"field1\"\r\n"
+            + "\r\n"
+            + "hello\r\n"
+            + "--"
+            + boundary
+            + "\r\n"
+            + "Content-Disposition: form-data; name=\"field2\"\r\n"
+            + "\r\n"
+            + "world\r\n"
+            + "--"
+            + boundary
+            + "--")
         .getBytes();
   }
 
@@ -296,22 +295,22 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     try (final OutputStream contentStream = connection.getOutputStream()) {
       contentStream.write(
           ("--"
-              + boundary
-              + "\r\n"
-              + "content-type: application/xop+xml; type=\"application/soap+xml\"\r\n"
-              + "\r\n"
-              + soapBody
-              + "\r\n"
-              + "--"
-              + boundary
-              + "\r\n"
-              + "Content-Type: text/plain\r\n"
-              + "content-id: <ref-to-attachment@some.domain.org>\r\n"
-              + "\r\n"
-              + "some text/plain content\r\n"
-              + "--"
-              + boundary
-              + "--\r\n")
+                  + boundary
+                  + "\r\n"
+                  + "content-type: application/xop+xml; type=\"application/soap+xml\"\r\n"
+                  + "\r\n"
+                  + soapBody
+                  + "\r\n"
+                  + "--"
+                  + boundary
+                  + "\r\n"
+                  + "Content-Type: text/plain\r\n"
+                  + "content-id: <ref-to-attachment@some.domain.org>\r\n"
+                  + "\r\n"
+                  + "some text/plain content\r\n"
+                  + "--"
+                  + boundary
+                  + "--\r\n")
               .getBytes());
     }
 
