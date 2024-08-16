@@ -300,6 +300,7 @@ public class Diff {
         String parameterName = entry.getKey();
         final String parameterValue = entry.getValue();
         final StringValuePattern pattern = pathParameters.get(parameterName);
+        if (pattern == null) continue;
         String operator = generateOperatorString(pattern, " = ");
         DiffLine<String> section =
             new DiffLine<>(
