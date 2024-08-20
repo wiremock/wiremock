@@ -22,7 +22,7 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.25.0'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
-  id "org.sonarqube" version "5.0.0.4638"
+  id "org.sonarqube" version "5.1.0.4882"
   id 'jacoco'
   id "me.champeau.jmh" version "0.7.2"
   id 'com.dorongold.task-tree' version '4.0.0'
@@ -34,11 +34,11 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
-    guava          : '33.2.1-jre',
+    guava          : '33.3.0-jre',
     jackson        : '2.17.2',
     xmlUnit        : '2.10.0',
     jsonUnit       : '2.40.1',
-    junitJupiter   : '5.10.3'
+    junitJupiter   : '5.11.0'
   ]
 }
 
@@ -99,7 +99,7 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.5'
 
-  api 'com.networknt:json-schema-validator:1.5.0'
+  api 'com.networknt:json-schema-validator:1.5.1'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")

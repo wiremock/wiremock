@@ -251,6 +251,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     JsonNode formatNode = rootNode.findValue("actualFormat");
     JsonNode truncateExpectedNode = rootNode.findValue("truncateExpected");
     JsonNode truncateActualNode = rootNode.findValue("truncateActual");
+    JsonNode applyTruncationLastNode = rootNode.findValue("applyTruncationLast");
     JsonNode expectedOffsetAmountNode = rootNode.findValue("expectedOffset");
     JsonNode expectedOffsetUnitNode = rootNode.findValue("expectedOffsetUnit");
 
@@ -261,6 +262,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             formatNode != null ? formatNode.textValue() : null,
             truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
             truncateActualNode != null ? truncateActualNode.textValue() : null,
+            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
             expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
             expectedOffsetUnitNode != null
                 ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
@@ -271,6 +273,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             formatNode != null ? formatNode.textValue() : null,
             truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
             truncateActualNode != null ? truncateActualNode.textValue() : null,
+            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
             expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
             expectedOffsetUnitNode != null
                 ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
@@ -281,6 +284,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             formatNode != null ? formatNode.textValue() : null,
             truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
             truncateActualNode != null ? truncateActualNode.textValue() : null,
+            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
             expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
             expectedOffsetUnitNode != null
                 ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
