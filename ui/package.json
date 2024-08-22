@@ -9,6 +9,9 @@
     "@redocly/cli": "^1.20.1",
     "swagger-ui-dist": "^5.17.14"
   },
+  "overrides": {
+    "glob": "11.0.0"
+  },
   "scripts": {
     "swaggerui": "cp -rf node_modules/swagger-ui-dist/ ../src/main/resources/assets/swagger-ui/swagger-ui-dist/",
     "swaggerjson": "npx redocly bundle --ext json ../src/main/resources/swagger/wiremock-admin-api.yaml -o ../src/main/resources/swagger/wiremock-admin-api.json",
