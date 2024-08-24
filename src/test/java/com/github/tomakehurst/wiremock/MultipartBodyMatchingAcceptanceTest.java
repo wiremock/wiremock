@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
-
 import org.apache.hc.client5.http.entity.mime.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.*;
@@ -259,8 +258,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             + "  <soap:Body>\n"
             + "    <ns1:Test xmlns:ns1=\"http://www.test.org/some-test-namespace\">\n"
             + "      <ns1:Attachment>\n"
-            + "        <xop:Include xmlns:xop=\"http://www.w3.org/2004/08/xop/include\" "
-            + "href=\"ref-to-attachment%40some.domain.org\"/>\n"
+            + "        <xop:Include xmlns:xop=\"http://www.w3.org/2004/08/xop/include\" href=\"ref-to-attachment%40some.domain.org\"/>\n"
             + "      </ns1:Attachment>\n"
             + "    </ns1:Test>\n"
             + "  </soap:Body>\n"
@@ -283,29 +281,28 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     final ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-related")
-                             .setEntity(MultipartEntityBuilder
-                                 .create()
-                                 .setMimeSubtype("related")
-                                 .addPart(MultipartPartBuilder
-                                     .create()
-                                     .setBody(new StringBody(
-                                         soapBody,
-                                         ContentType.create("application/xop+xml")
-                                                    .withParameters(new BasicNameValuePair(
-                                                        "type",
-                                                        "application/soap+xml"))))
-                                     .build())
-                                 .addPart(MultipartPartBuilder
-                                     .create()
-                                     .setHeader(
-                                         "content-id",
-                                         "<ref-to-attachment@some.domain.org>")
-                                     .setBody(new StringBody(
-                                         "some text/plain content",
-                                         ContentType.create("text/plain")))
-                                     .build())
-                                 .build())
-                             .build();
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .setMimeSubtype("related")
+                    .addPart(
+                        MultipartPartBuilder.create()
+                            .setBody(
+                                new StringBody(
+                                    soapBody,
+                                    ContentType.create("application/xop+xml")
+                                        .withParameters(
+                                            new BasicNameValuePair(
+                                                "type", "application/soap+xml"))))
+                            .build())
+                    .addPart(
+                        MultipartPartBuilder.create()
+                            .setHeader("content-id", "<ref-to-attachment@some.domain.org>")
+                            .setBody(
+                                new StringBody(
+                                    "some text/plain content", ContentType.create("text/plain")))
+                            .build())
+                    .build())
+            .build();
 
     ClassicHttpResponse response = httpClient.execute(request);
 
