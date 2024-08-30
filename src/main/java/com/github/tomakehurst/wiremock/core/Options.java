@@ -158,4 +158,6 @@ public interface Options {
   Set<String> getSupportedProxyEncodings();
 
   boolean getDisableConnectionReuse();
+
+  boolean getVirtualThreadsEnabled();
 }

@@ -305,4 +305,9 @@ public class WarConfiguration implements Options {
   public Set<String> getSupportedProxyEncodings() {
     return null;
   }
+
+  @Override
+  public boolean getVirtualThreadsEnabled() {
+    return false;
+  }
 }

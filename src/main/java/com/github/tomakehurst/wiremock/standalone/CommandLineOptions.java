@@ -97,6 +97,7 @@ public class CommandLineOptions implements Options {
   private static final String JETTY_HEADER_RESPONSE_SIZE = "jetty-header-response-size";
   private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
   private static final String JETTY_IDLE_TIMEOUT = "jetty-idle-timeout";
+  private static final String JETTY_USE_VIRTUAL_THREADS = "jetty-use-virtual-threads";
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -1051,5 +1052,10 @@ public class CommandLineOptions implements Options {
     return optionSet.has(DISABLE_CONNECTION_REUSE)
         ? Boolean.parseBoolean((String) optionSet.valueOf(DISABLE_CONNECTION_REUSE))
         : DEFAULT_DISABLE_CONNECTION_REUSE;
+  }
+
+  @Override
+  public boolean getVirtualThreadsEnabled() {
+    return optionSet.has(JETTY_USE_VIRTUAL_THREADS);
   }
 }
