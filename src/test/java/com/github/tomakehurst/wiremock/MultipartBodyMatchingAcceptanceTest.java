@@ -262,7 +262,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             + "      </ns1:Attachment>\n"
             + "    </ns1:Test>\n"
             + "  </soap:Body>\n"
-            + "</soap:Envelope>\n";
+            + "</soap:Envelope>";
 
     stubFor(
         post("/multipart-related")
