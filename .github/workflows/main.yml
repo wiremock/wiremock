@@ -1,0 +1,32 @@
+name: WireMock Test Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  wiremock-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      wiremock:
+        image: wiremock/wiremock:latest
+        ports:
+          - 8080:8080
+        options: > 
+          --name wiremock-server 
+          --rm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run WireMock Health Check
+        run: |
+          curl --fail http://localhost:8080/__admin/mappings
+
+      - name: Run Tests
+        run: |
+          ./gradlew test  # Assuming you're using Gradle for testing
