@@ -55,7 +55,7 @@ jobs:
 
     - name: Archive WireMock test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wiremock-core-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
         path: |
@@ -101,7 +101,7 @@ jobs:
 
     - name: Archive Jetty12 test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wiremock-jetty12-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
         path: |
