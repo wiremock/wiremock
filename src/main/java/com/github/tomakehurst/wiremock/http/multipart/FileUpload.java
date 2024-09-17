@@ -57,6 +57,9 @@ import org.apache.commons.fileupload.util.Streams;
  * re-implementing this part of the upload.
  */
 class FileUpload {
+  /** HTTP content type header for multiple related data. */
+  private static final String MULTIPART_RELATED = "multipart/related";
+
   private final FileItemFactory fileItemFactory;
 
   FileUpload(FileItemFactory fileItemFactory) {
@@ -548,6 +551,9 @@ class FileUpload {
     /** Whether we have seen the end of the file. */
     private boolean eof;
 
+    /** Is this a multipart/related Request */
+    private final boolean multipartRelated;
+
     /**
      * Creates a new instance.
      *
@@ -565,9 +571,14 @@ class FileUpload {
           || (!contentType.toLowerCase(Locale.ENGLISH).startsWith(FileUploadBase.MULTIPART))) {
         throw new InvalidContentTypeException(
             format(
-                "the request doesn't contain a %s or %s stream, content type header is %s",
-                FileUploadBase.MULTIPART_FORM_DATA, FileUploadBase.MULTIPART_MIXED, contentType));
+                "the request neither contain a %s nor a %s nor a %s stream, content type header is %s",
+                FileUploadBase.MULTIPART_FORM_DATA,
+                FileUploadBase.MULTIPART_MIXED,
+                MULTIPART_RELATED,
+                contentType));
       }
+
+      multipartRelated = contentType.toLowerCase(Locale.ENGLISH).startsWith(MULTIPART_RELATED);
 
       @SuppressWarnings("deprecation") // still has to be backward compatible
       final int contentLengthInt = ctx.getContentLength();
@@ -667,7 +678,19 @@ class FileUpload {
           continue;
         }
         FileItemHeaders headers = getParsedHeaders(multi.readHeaders());
-        if (currentFieldName == null) {
+        if (multipartRelated) {
+          currentFieldName = "";
+          currentItem =
+              new FileItemStreamImpl(
+                  null,
+                  null,
+                  headers.getHeader(FileUploadBase.CONTENT_TYPE),
+                  false,
+                  getContentLength(headers));
+          currentItem.setHeaders(headers);
+          itemValid = true;
+          return true;
+        } else if (currentFieldName == null) {
           // We're parsing the outer multipart
           String fieldName = getFieldName(headers);
           if (fieldName != null) {
