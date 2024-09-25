@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,17 @@ public class RequestWrapperTest {
     HttpHeader headerTwo = wrappedRequest.header("Two");
     assertThat(headerTwo.values().get(0), is("22"));
     assertThat(headerTwo.values().get(1), is("32"));
+  }
+
+  @Test
+  public void containsHeaderChecksAreCaseInsensitive() {
+    MockRequest request = mockRequest().header("One", "1");
+
+    RequestWrapper wrappedRequest = new RequestWrapper(request);
+
+    assertThat(wrappedRequest.containsHeader("one"), is(true));
+    assertThat(wrappedRequest.containsHeader("onE"), is(true));
+    assertThat(wrappedRequest.containsHeader("ONE"), is(true));
   }
 
   @Test
