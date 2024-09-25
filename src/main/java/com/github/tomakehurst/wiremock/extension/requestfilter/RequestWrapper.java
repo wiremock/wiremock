@@ -169,7 +169,7 @@ public class RequestWrapper implements Request {
 
   @Override
   public boolean containsHeader(String key) {
-    return getHeaders().keys().contains(key);
+    return getHeaders().getHeader(key).isPresent();
   }
 
   @Override
