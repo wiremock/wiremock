@@ -105,7 +105,7 @@ dependencies {
   testFixturesApi("org.junit.platform:junit-platform-testkit")
   testFixturesApi("org.junit.platform:junit-platform-launcher")
   testFixturesApi("org.junit.jupiter:junit-jupiter-params")
-  testFixturesApi('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi('org.junit-pioneer:junit-pioneer:2.3.0')
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
   testFixturesApi 'org.mockito:mockito-core:5.14.1'
