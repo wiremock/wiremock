@@ -50,7 +50,7 @@ public class ExtensionFactoryTest {
   @AfterEach
   void stopServer() {
     if (wm != null) {
-      wm.stop();
+      wm.close();
     }
   }
 

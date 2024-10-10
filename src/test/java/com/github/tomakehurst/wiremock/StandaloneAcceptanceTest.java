@@ -97,7 +97,7 @@ public class StandaloneAcceptanceTest {
   public void stopServerRunner() {
     runner.stop();
     if (otherServer != null) {
-      otherServer.stop();
+      otherServer.close();
     }
     System.setOut(stdOut);
     System.setErr(stdErr);
