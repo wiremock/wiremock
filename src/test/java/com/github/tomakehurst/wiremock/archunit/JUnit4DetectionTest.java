@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRuleFailOnUnmatchedRequestsTest;
-import com.github.tomakehurst.wiremock.junit.WireMockStaticRule;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -54,7 +53,6 @@ class JUnit4DetectionTest {
       Stream.of(
               WireMockClassRule.class,
               WireMockRule.class,
-              WireMockStaticRule.class,
               JUnit4DetectionTest.class,
               WireMockJUnitRuleTest.class,
               WireMockRuleFailOnUnmatchedRequestsTest.class)
