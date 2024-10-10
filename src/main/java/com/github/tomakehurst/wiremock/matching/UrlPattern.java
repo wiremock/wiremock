@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,19 +87,27 @@ public class UrlPattern implements NamedValueMatcher<String> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public final boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof UrlPattern)) return false;
     UrlPattern that = (UrlPattern) o;
+    if (this.matchesOnRawPath() && that.matchesOnRawPath()) {
+      return this.pattern.expectedValue.equals(that.pattern.expectedValue);
+    }
+    if (getClass() != o.getClass()) return false;
     return regex == that.regex && Objects.equals(pattern, that.pattern);
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return Objects.hash(pattern, regex);
   }
 
   public boolean isSpecified() {
     return pattern.getClass() != AnythingPattern.class;
+  }
+
+  protected boolean matchesOnRawPath() {
+    return !regex && pattern instanceof EqualToPattern && !pattern.expectedValue.contains("?");
   }
 }
