@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyFaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
@@ -72,6 +73,14 @@ public class Jetty12HttpServer extends JettyHttpServer {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
     super(options, adminRequestHandler, stubRequestHandler);
+  }
+
+  @Override
+  protected Server createServer(Options options, ThreadPoolFactory threadPoolFactory) {
+    if (options.getVirtualThreadsEnabled()) {
+      threadPoolFactory = new VirtualThreadPoolFactory();
+    }
+    return new Server(threadPoolFactory.buildThreadPool(options));
   }
 
   @Override

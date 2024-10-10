@@ -152,6 +152,8 @@ public class WireMockConfiguration implements Options {
 
   private Set<String> supportedProxyEncodings = null;
 
+  private boolean virtualThreadsEnabled = false;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource =
@@ -593,6 +595,11 @@ public class WireMockConfiguration implements Options {
     return withSupportedProxyEncodings(Set.of(supportedProxyEncodings));
   }
 
+  public WireMockConfiguration virtualThreadsEnabled(boolean virtualThreadsEnabled) {
+    this.virtualThreadsEnabled = virtualThreadsEnabled;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -886,5 +893,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public Set<String> getSupportedProxyEncodings() {
     return supportedProxyEncodings;
+  }
+
+  @Override
+  public boolean getVirtualThreadsEnabled() {
+    return virtualThreadsEnabled;
   }
 }
