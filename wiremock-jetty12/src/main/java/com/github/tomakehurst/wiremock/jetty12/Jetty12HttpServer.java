@@ -195,7 +195,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
     ServletContextHandler adminContext = addAdminContext(adminRequestHandler, notifier);
     ServletContextHandler mockServiceContext =
         addMockServiceContext(
-            adminContext,
             stubRequestHandler,
             // Setting the files to the real path here since Jetty 12 does not include
             // the servlet context path in forwarded request (and at the moment, there
@@ -256,6 +255,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     ServletContextHandler adminContext = new ServletContextHandler();
     adminContext.setServer(jettyServer);
     adminContext.setContextPath(ADMIN_CONTEXT_ROOT);
+    adminContext.setCrossContextDispatchSupported(true);
 
     decorateAdminServiceContextBeforeConfig(adminContext);
 
@@ -309,7 +309,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
   }
 
   private ServletContextHandler addMockServiceContext(
-      ServletContextHandler adminContext,
       StubRequestHandler stubRequestHandler,
       FileSource fileSource,
       AsynchronousResponseSettings asynchronousResponseSettings,
@@ -320,6 +319,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     ServletContextHandler mockServiceContext = new ServletContextHandler();
     mockServiceContext.setServer(jettyServer);
     mockServiceContext.setContextPath("/");
+    mockServiceContext.setCrossContextDispatchSupported(true);
 
     decorateMockServiceContextBeforeConfig(mockServiceContext);
 
@@ -372,9 +372,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     mockServiceContext.setWelcomeFiles(
         new String[] {"index.json", "index.html", "index.xml", "index.txt"});
 
-    // Jetty 12 does not currently support cross context dispatch, we
-    // need to use the adminContext explicitly.
-    NotFoundHandler errorHandler = new NotFoundHandler(adminContext);
+    NotFoundHandler errorHandler = new NotFoundHandler(mockServiceContext);
     mockServiceContext.setErrorHandler(errorHandler);
 
     mockServiceContext.addFilter(
