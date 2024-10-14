@@ -192,7 +192,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     connection.setRequestProperty(
         "Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
     try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(getRequestBodyForCamelasedContentTypeInformationWithBoundary(boundary));
+      contentStream.write(getRequestBodyForCamelcasedContentTypeInformationWithBoundary(boundary));
     }
     assertThat(connection.getResponseCode(), is(200));
   }
@@ -208,7 +208,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     return connection;
   }
 
-  private byte[] getRequestBodyForCamelasedContentTypeInformationWithBoundary(String boundary) {
+  private byte[] getRequestBodyForCamelcasedContentTypeInformationWithBoundary(String boundary) {
     return ("--"
             + boundary
             + "\r\n"
@@ -245,7 +245,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     connection.setRequestProperty(
         "Content-Type", "    Multipart/Form-Data; boundary=\"" + boundary + "\"");
     try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(getRequestBodyForCamelasedContentTypeInformationWithBoundary(boundary));
+      contentStream.write(getRequestBodyForCamelcasedContentTypeInformationWithBoundary(boundary));
     }
     assertThat(connection.getResponseCode(), is(200));
   }
