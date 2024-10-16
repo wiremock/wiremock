@@ -15,24 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.jetty12;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.eclipse.jetty.http.HttpVersion.HTTP_2;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.eclipse.jetty.http.HttpVersion.HTTP_2;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+
 public class Http2AcceptanceTest {
+
+  static TestNotifier notifier = new TestNotifier();
 
   @RegisterExtension
   public WireMockExtension wm =
@@ -42,8 +45,18 @@ public class Http2AcceptanceTest {
                   .extensionScanningEnabled(true)
                   .dynamicPort()
                   .dynamicHttpsPort()
-                  .httpServerFactory(new Jetty12HttpServerFactory()))
+                  .notifier(notifier))
           .build();
+
+  @BeforeAll
+  static void init() {
+    notifier.reset();
+  }
+
+  @AfterAll
+  static void checkCorrectImpl() {
+    assertThat(notifier.getInfoMessages(), hasItem("Using HTTP server impl: Jetty12HttpServer"));
+  }
 
   @Test
   public void supportsHttp2Connections() throws Exception {

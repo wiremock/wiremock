@@ -716,6 +716,11 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
+  public boolean hasDefaultHttpServerFactory() {
+    return httpServerFactory.getClass().equals(JettyHttpServerFactory.class);
+  }
+
+  @Override
   public HttpClientFactory httpClientFactory() {
     return httpClientFactory;
   }
