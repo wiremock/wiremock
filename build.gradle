@@ -67,7 +67,7 @@ dependencies {
       "com.fasterxml.jackson.core:jackson-annotations",
       "com.fasterxml.jackson.core:jackson-databind",
       "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-  api "org.apache.httpcomponents.client5:httpclient5:5.3.1"
+  api "org.apache.httpcomponents.client5:httpclient5:5.4"
   api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
   api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
     exclude group: 'junit', module: 'junit'
