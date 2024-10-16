@@ -160,7 +160,7 @@ public class RequestFilterV2AcceptanceTest {
 
     assertThat(client.get("/subpath/item").content(), is("From the proxy"));
 
-    proxyTarget.stop();
+    proxyTarget.close();
   }
 
   @Test
@@ -196,7 +196,7 @@ public class RequestFilterV2AcceptanceTest {
 
   @AfterEach
   public void stopServer() {
-    wm.stop();
+    wm.close();
   }
 
   private void initialise(Extension... filters) {

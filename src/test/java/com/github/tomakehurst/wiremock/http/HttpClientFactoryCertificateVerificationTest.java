@@ -101,7 +101,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
   @AfterEach
   public void stopServer() {
     if (server != null) {
-      server.stop();
+      server.close();
     }
   }
 

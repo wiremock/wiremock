@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class WireMockServerTests {
       wireMockServer.start();
     } finally {
       if (wireMockServer != null) {
-        wireMockServer.stop();
+        wireMockServer.close();
       }
     }
   }
@@ -62,7 +62,8 @@ public class WireMockServerTests {
 
   @Test
   public void addFilenameTemplateAsOptionAndValidFormat() {
-    Options options = options().dynamicPort().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
+    Options options =
+        options().dynamicPort().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
     WireMockServer wireMockServer = new WireMockServer(options);
     wireMockServer.start();
     assertThat(wireMockServer.getOptions(), is(options));

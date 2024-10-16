@@ -44,7 +44,7 @@ class WireMockClientAcceptanceTest {
 
   @AfterEach
   public void stopServer() {
-    wireMockServer.stop();
+    wireMockServer.close();
   }
 
   @Test
