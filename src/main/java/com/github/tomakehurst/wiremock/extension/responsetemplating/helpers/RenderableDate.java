@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -42,6 +43,7 @@ public class RenderableDate extends Date {
   }
 
   @Override
+  @JsonValue
   public String toString() {
     if (format != null) {
       if (format.equals("epoch")) {
