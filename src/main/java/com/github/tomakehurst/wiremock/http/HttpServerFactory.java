@@ -23,7 +23,7 @@ public interface HttpServerFactory extends Extension {
 
   @Override
   default String getName() {
-    return "http-server-factory";
+    return "http-server-factory-" + getClass().getSimpleName();
   }
 
   HttpServer buildHttpServer(
