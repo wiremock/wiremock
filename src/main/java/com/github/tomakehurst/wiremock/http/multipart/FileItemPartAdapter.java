@@ -38,6 +38,11 @@ public class FileItemPartAdapter implements Request.Part {
   }
 
   @Override
+  public String getFilename() {
+    return fileItem.getName();
+  }
+
+  @Override
   public HttpHeader getHeader(String name) {
     Iterator<String> headerValues = fileItem.getHeaders().getHeaders(name);
     List<String> values = new ArrayList<>();
