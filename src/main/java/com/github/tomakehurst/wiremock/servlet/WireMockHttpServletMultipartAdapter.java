@@ -53,7 +53,7 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
   }
 
   @Override
-  public String getFilename() {
+  public String getFileName() {
     return mPart.getSubmittedFileName();
   }
 

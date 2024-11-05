@@ -28,7 +28,7 @@ public class MissingMultipart implements Request.Part {
   }
 
   @Override
-  public String getFilename() {
+  public String getFileName() {
     return "[request is not multipart]";
   }
 
