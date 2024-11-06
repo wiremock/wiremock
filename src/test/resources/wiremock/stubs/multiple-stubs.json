@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "method": "GET",
+      "url": "/test1"
+    },
+    "response": {
+      "status": 200,
+      "body": "Test 1"
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "url": "/test2"
+    },
+    "response": {
+      "status": 200,
+      "body": "Test 2"
+    }
+  }
+] 
