@@ -22,11 +22,10 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Extensions;
-import org.eclipse.jetty.util.Jetty;
-
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
+import org.eclipse.jetty.util.Jetty;
 
 public class HttpServerFactoryLoader {
 
