@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
@@ -29,7 +28,6 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -48,7 +46,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
 import org.eclipse.jetty.util.Jetty;
@@ -88,11 +85,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return new HttpServerFactoryLoader(
             options,
             wireMockApp.getExtensions(),
-            () ->
-                ServiceLoader.load(Extension.class).stream()
-                    .filter(extension -> HttpServerFactory.class.isAssignableFrom(extension.type()))
-                    .map(e -> (HttpServerFactory) e.get())
-                    .collect(toList()),
+            HttpServerFactoryLoader.systemServiceLoader(),
             isJetty11())
         .load();
   }
