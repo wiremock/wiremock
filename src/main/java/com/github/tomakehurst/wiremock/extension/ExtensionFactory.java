@@ -18,5 +18,13 @@ package com.github.tomakehurst.wiremock.extension;
 import java.util.List;
 
 public interface ExtensionFactory {
+
+  /**
+   * Allows the factory to check the runtime environment and prevent itself being used if not compatible e.g.
+   * because the wrong Jetty version is present.
+   * @return true if the factory can be loaded.
+   */
+  default boolean isLoadable() { return true; }
+
   List<Extension> create(WireMockServices services);
 }

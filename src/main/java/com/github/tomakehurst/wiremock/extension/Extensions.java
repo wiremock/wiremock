@@ -117,7 +117,7 @@ public class Extensions implements WireMockServices {
 
   private Stream<ExtensionFactory> loadExtensionFactoriesAsServices() {
     final ServiceLoader<ExtensionFactory> loader = ServiceLoader.load(ExtensionFactory.class);
-    return loader.stream().map(ServiceLoader.Provider::get);
+    return loader.stream().map(ServiceLoader.Provider::get).filter(ExtensionFactory::isLoadable);
   }
 
   private void configureTemplating() {

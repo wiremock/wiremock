@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Extensions;
+import org.eclipse.jetty.util.Jetty;
+
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
@@ -79,5 +81,13 @@ public class HttpServerFactoryLoader {
   private static FatalStartupException couldNotFindSuitableServerException() {
     return new FatalStartupException(
         "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information.");
+  }
+
+  public static boolean isJetty11() {
+    try {
+      return Jetty.VERSION.startsWith("11");
+    } catch (Throwable e) {
+      return false;
+    }
   }
 }
