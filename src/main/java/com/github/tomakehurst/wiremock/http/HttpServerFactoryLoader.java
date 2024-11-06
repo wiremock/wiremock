@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
 public class HttpServerFactoryLoader {
@@ -54,6 +57,14 @@ public class HttpServerFactoryLoader {
     }
 
     return options.httpServerFactory();
+  }
+
+  public static Supplier<List<HttpServerFactory>> systemServiceLoader() {
+    return () ->
+        ServiceLoader.load(Extension.class).stream()
+            .filter(extension -> HttpServerFactory.class.isAssignableFrom(extension.type()))
+            .map(e -> (HttpServerFactory) e.get())
+            .collect(toList());
   }
 
   private static HttpServerFactory pickMostAppropriateFrom(List<HttpServerFactory> candidates) {
