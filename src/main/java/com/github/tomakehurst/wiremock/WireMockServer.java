@@ -43,22 +43,16 @@ import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.standalone.SingleFileMappingsSource;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
-
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
-
 import org.eclipse.jetty.util.Jetty;
 
 public class WireMockServer implements Container, Stubbing, Admin {
@@ -83,8 +77,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
     HttpServerFactory httpServerFactory = getHttpServerFactory();
 
-    httpServer = httpServerFactory.buildHttpServer(
-        options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
+    httpServer =
+        httpServerFactory.buildHttpServer(
+            options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
 
     client = new WireMock(wireMockApp);
   }
@@ -96,8 +91,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
           .findFirst()
           .map(e -> (HttpServerFactory) e.get())
           .orElseThrow(
-              () -> new FatalStartupException(
-                  "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information."));
+              () ->
+                  new FatalStartupException(
+                      "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information."));
     }
 
     return wireMockApp.getExtensions().ofType(HttpServerFactory.class).values().stream()
@@ -187,8 +183,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   public void start() {
-    // Try to ensure this is warmed up on the main thread so that it's inherited by
-    // worker threads
+    // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
     Json.getObjectMapper();
     try {
       httpServer.start();
@@ -200,27 +195,25 @@ public class WireMockServer implements Container, Stubbing, Admin {
   /**
    * Gracefully shutdown the server.
    *
-   * <p>
-   * This method assumes it is being called as the result of an incoming HTTP
-   * request.
+   * <p>This method assumes it is being called as the result of an incoming HTTP request.
    */
   @Override
   public void shutdown() {
     final WireMockServer server = this;
-    Thread shutdownThread = new Thread(
-        () -> {
-          try {
-            // We have to sleep briefly to finish serving the shutdown request before
-            // stopping
-            // the server, as
-            // there's no support in Jetty for shutting down after the current request.
-            // See http://stackoverflow.com/questions/4650713
-            Thread.sleep(100);
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-          }
-          server.stop();
-        });
+    Thread shutdownThread =
+        new Thread(
+            () -> {
+              try {
+                // We have to sleep briefly to finish serving the shutdown request before stopping
+                // the server, as
+                // there's no support in Jetty for shutting down after the current request.
+                // See http://stackoverflow.com/questions/4650713
+                Thread.sleep(100);
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              }
+              server.stop();
+            });
     shutdownThread.start();
   }
 
@@ -592,17 +585,5 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return wireMockApp.getLoadedExtensionNames();
-  }
-
-  public void loadStubFromResource(String resourcePath) {
-    try {
-      URL resource = getClass().getResource(resourcePath);
-      if (resource == null) {
-        throw new IllegalArgumentException("Resource not found: " + resourcePath);
-      }
-      loadMappingsUsing(new SingleFileMappingsSource(Path.of(resource.toURI())));
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Invalid resource path: " + resourcePath, e);
-    }
   }
 }
