@@ -43,12 +43,17 @@ import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.SingleFileMappingsSource;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
+
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -585,5 +590,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return wireMockApp.getLoadedExtensionNames();
+  }
+
+   public void loadStubFromResource(String resourcePath) {
+    try {
+      URL resource = getClass().getResource(resourcePath);
+      if (resource == null) {
+        throw new IllegalArgumentException("Resource not found: " + resourcePath);
+      }
+      loadMappingsUsing(new SingleFileMappingsSource(Path.of(resource.toURI())));
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Invalid resource path: " + resourcePath, e);
+    }
   }
 }

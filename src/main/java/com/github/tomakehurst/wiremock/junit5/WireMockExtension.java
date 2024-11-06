@@ -296,11 +296,22 @@ public class WireMockExtension extends DslWrapper
 
     setAdditionalOptions(context);
 
+    loadTestStub(context);
+
     if (proxyMode) {
       JvmProxyConfigurer.configureFor(wireMockServer);
     }
 
     onBeforeEach(context, runtimeInfo);
+  }
+
+  private void loadTestStub(ExtensionContext context) {
+    WireMockStub annotation = context.getRequiredTestMethod()
+        .getAnnotation(WireMockStub.class);
+
+    if (annotation != null) {
+      wireMockServer.loadStubFromResource(annotation.value());
+    }
   }
 
   @Override
