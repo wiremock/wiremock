@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,14 @@ import java.util.List;
 public interface ExtensionFactory {
 
   /**
-   * Allows the factory to check the runtime environment and prevent itself being used if not compatible e.g.
-   * because the wrong Jetty version is present.
+   * Allows the factory to check the runtime environment and prevent itself being used if not
+   * compatible e.g. because the wrong Jetty version is present.
+   *
    * @return true if the factory can be loaded.
    */
-  default boolean isLoadable() { return true; }
+  default boolean isLoadable() {
+    return true;
+  }
 
   List<Extension> create(WireMockServices services);
 }
