@@ -48,7 +48,6 @@ import com.github.tomakehurst.wiremock.verification.*;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.eclipse.jetty.util.Jetty;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -86,16 +85,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
             options,
             wireMockApp.getExtensions(),
             HttpServerFactoryLoader.systemServiceLoader(),
-            isJetty11())
+            HttpServerFactoryLoader.isJetty11())
         .load();
-  }
-
-  private static boolean isJetty11() {
-    try {
-      return Jetty.VERSION.startsWith("11");
-    } catch (Throwable e) {
-      return false;
-    }
   }
 
   public WireMockServer(
