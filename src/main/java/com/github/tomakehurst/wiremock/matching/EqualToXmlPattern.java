@@ -60,7 +60,7 @@ public class EqualToXmlPattern extends StringValuePattern {
   private final Document expectedXmlDoc;
 
   public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
-    this(expectedValue, null, null, null, null, false);
+    this(expectedValue, null, null, null, null, null);
   }
 
   public EqualToXmlPattern(
@@ -110,6 +110,10 @@ public class EqualToXmlPattern extends StringValuePattern {
 
   public Boolean isEnablePlaceholders() {
     return enablePlaceholders;
+  }
+
+  public Boolean isIgnoreOrderOfSameNode() {
+    return ignoreOrderOfSameNode;
   }
 
   public String getPlaceholderOpeningDelimiterRegex() {
