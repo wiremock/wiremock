@@ -100,28 +100,28 @@ public class RequestPatternBuilder {
     builder.url = requestPattern.getUrlMatcher();
     builder.method = requestPattern.getMethod();
     if (requestPattern.getHeaders() != null) {
-      builder.headers = requestPattern.getHeaders();
+      builder.headers = new LinkedHashMap<>(requestPattern.getHeaders());
     }
     if (requestPattern.getPathParameters() != null) {
-      builder.pathParams = requestPattern.getPathParameters();
+      builder.pathParams = new LinkedHashMap<>(requestPattern.getPathParameters());
     }
     if (requestPattern.getQueryParameters() != null) {
-      builder.queryParams = requestPattern.getQueryParameters();
+      builder.queryParams = new LinkedHashMap<>(requestPattern.getQueryParameters());
     }
     if (requestPattern.getFormParameters() != null) {
-      builder.formParams = requestPattern.getFormParameters();
+      builder.formParams = new LinkedHashMap<>(requestPattern.getFormParameters());
     }
     if (requestPattern.getCookies() != null) {
-      builder.cookies = requestPattern.getCookies();
+      builder.cookies = new LinkedHashMap<>(requestPattern.getCookies());
     }
     if (requestPattern.getBodyPatterns() != null) {
-      builder.bodyPatterns = requestPattern.getBodyPatterns();
+      builder.bodyPatterns = new ArrayList<>(requestPattern.getBodyPatterns());
     }
     if (requestPattern.hasInlineCustomMatcher()) {
       builder.customMatcher = requestPattern.getMatcher();
     }
     if (requestPattern.getMultipartPatterns() != null) {
-      builder.multiparts = requestPattern.getMultipartPatterns();
+      builder.multiparts = new LinkedList<>(requestPattern.getMultipartPatterns());
     }
     builder.basicCredentials = requestPattern.getBasicAuthCredentials();
     builder.customMatcherDefinition = requestPattern.getCustomMatcher();
