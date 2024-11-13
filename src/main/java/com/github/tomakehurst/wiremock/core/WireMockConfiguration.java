@@ -41,7 +41,6 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
-import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -105,7 +104,7 @@ public class WireMockConfiguration implements Options {
   private String proxyHostHeader;
   private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
   private HttpClientFactory httpClientFactory = new ApacheHttpClientFactory();
-  private ThreadPoolFactory threadPoolFactory = new QueuedThreadPoolFactory();
+  private ThreadPoolFactory threadPoolFactory;
   private Integer jettyAcceptors;
   private Integer jettyAcceptQueueSize;
   private Integer jettyHeaderBufferSize;
