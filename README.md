@@ -11,6 +11,7 @@
 [![a](https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
 [![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](./CONTRIBUTING.md)
 [![Maven Central](https://img.shields.io/maven-central/v/org.wiremock/wiremock.svg)](https://search.maven.org/artifact/org.wiremock/wiremock)
+[![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20WireMock%20Guru-006BFF)](https://gurubase.io/g/wiremock)
 
 WireMock is a popular open-source tool for API mock testing with over 5 million downloads per month.
 It can help you to create stable test and development environments,
