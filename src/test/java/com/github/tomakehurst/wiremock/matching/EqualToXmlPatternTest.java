@@ -369,6 +369,7 @@ public class EqualToXmlPatternTest {
   @Test
   public void deserializesEqualToXmlWithAllParameters() {
     Boolean enablePlaceholders = Boolean.TRUE;
+    Boolean ignoreOrderOfSameNode = Boolean.TRUE;
     String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
     String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
     String patternJson =
@@ -376,6 +377,9 @@ public class EqualToXmlPatternTest {
             + "\"equalToXml\" : \"<a/>\", "
             + "\"enablePlaceholders\" : "
             + enablePlaceholders
+            + ", "
+            + "\"ignoreOrderOfSameNode\" : "
+            + ignoreOrderOfSameNode
             + ", "
             + "\"placeholderOpeningDelimiterRegex\" : \""
             + placeholderOpeningDelimiterRegex
@@ -389,6 +393,7 @@ public class EqualToXmlPatternTest {
     assertTrue(stringValuePattern instanceof EqualToXmlPattern);
     EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
     assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
+    assertEquals(ignoreOrderOfSameNode, equalToXmlPattern.isIgnoreOrderOfSameNode());
     assertEquals(
         placeholderOpeningDelimiterRegex, equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
     assertEquals(
@@ -402,6 +407,7 @@ public class EqualToXmlPatternTest {
   public void serializesEqualToXmlWithAllParameters() {
     String xml = "<stuff />";
     Boolean enablePlaceholders = Boolean.TRUE;
+    Boolean ignoreOrderOfSameNode = Boolean.TRUE;
     String placeholderOpeningDelimiterRegex = "[";
     String placeholderClosingDelimiterRegex = "]";
 
@@ -412,7 +418,7 @@ public class EqualToXmlPatternTest {
             placeholderOpeningDelimiterRegex,
             placeholderClosingDelimiterRegex,
             Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE),
-            false);
+            ignoreOrderOfSameNode);
 
     String json = Json.write(pattern);
 
@@ -422,6 +428,7 @@ public class EqualToXmlPatternTest {
             "{\n"
                 + "  \"equalToXml\": \"<stuff />\",\n"
                 + "  \"enablePlaceholders\": true,\n"
+                + "  \"ignoreOrderOfSameNode\": true,\n"
                 + "  \"placeholderOpeningDelimiterRegex\": \"[\",\n"
                 + "  \"placeholderClosingDelimiterRegex\": \"]\",\n"
                 + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"ATTR_VALUE\", \"NAMESPACE_URI\"]\n"

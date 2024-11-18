@@ -33,12 +33,12 @@ group = 'org.wiremock'
 project.ext {
   versions = [
     handlebars     : '4.3.1',
-    jetty          : '11.0.20',
-    guava          : '33.3.0-jre',
+    jetty          : '11.0.24',
+    guava          : '33.3.1-jre',
     jackson        : '2.17.2',
     xmlUnit        : '2.10.0',
     jsonUnit       : '2.40.1',
-    junitJupiter   : '5.11.0'
+    junitJupiter   : '5.11.3'
   ]
 }
 
@@ -99,26 +99,26 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.5'
 
-  api 'com.networknt:json-schema-validator:1.5.1'
+  api 'com.networknt:json-schema-validator:1.5.2'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")
   testFixturesApi("org.junit.platform:junit-platform-launcher")
   testFixturesApi("org.junit.jupiter:junit-jupiter-params")
-  testFixturesApi('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi('org.junit-pioneer:junit-pioneer:2.3.0')
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
-  testFixturesApi 'org.mockito:mockito-core:5.13.0'
-  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.13.0'
+  testFixturesApi 'org.mockito:mockito-core:5.14.2'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.14.2'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.2.2'
-  testFixturesApi "commons-io:commons-io:2.16.1"
+  testFixturesApi "commons-io:commons-io:2.17.0"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation 'org.scala-lang:scala-library:2.13.14'
+  testImplementation 'org.scala-lang:scala-library:2.13.15'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
   testImplementation "org.eclipse.jetty:jetty-client"
@@ -202,7 +202,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.9.1'
+  version = '3.9.2'
 
   compileJava {
     options.encoding = 'UTF-8'
