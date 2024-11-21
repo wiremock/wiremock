@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
+
+import com.github.tomakehurst.wiremock.common.Json;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 
 public class HelperUtils {
 
@@ -48,4 +53,12 @@ public class HelperUtils {
 
     return null;
   }
+
+  static final Configuration jsonPathConfig =
+      Configuration.defaultConfiguration()
+          .addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL)
+          // Explicitly use Jackson for JSON parsing because the default provider allows invalid
+          // JSON to be parsed as a JSON string in certain circumstances, which, in my opinion,
+          // creates a confusing user experience.
+          .jsonProvider(new JacksonJsonProvider(Json.getObjectMapper()));
 }
