@@ -296,5 +296,14 @@ public enum WireMockHelpers implements Helper<Object> {
     public Object apply(Object context, Options options) throws IOException {
       return helper.apply(context, options);
     }
+  },
+
+  jsonMerge {
+    private final JsonMergeHelper helper = new JsonMergeHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
   }
 }
