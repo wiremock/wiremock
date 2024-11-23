@@ -30,11 +30,7 @@ import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.common.ClientError;
@@ -52,6 +48,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -758,6 +756,86 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         testClient.postWithMultiparts(
             "/match/this/part/too", singletonList(part("part", "BlahBlahBlah", TEXT_PLAIN)));
     assertThat(response.statusCode(), is(HTTP_OK));
+  }
+
+  @Test
+  void matchingOnMultipartRequestBodyWithFilename() {
+    stubFor(
+        post(urlEqualTo("/match/this/part/filename"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withHeader("Content-Type", containing("application/octet-stream"))
+                    .withFileName("plain-example.txt"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.post(
+            "/match/this/part/filename",
+            MultipartEntityBuilder.create()
+                .addBinaryBody(
+                    "file",
+                    "ABCD".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example.txt")
+                .build());
+    assertThat(response.statusCode(), is(HTTP_OK));
+
+    response =
+        testClient.post(
+            "/match/this/part/filename",
+            MultipartEntityBuilder.create()
+                .addBinaryBody(
+                    "file",
+                    "ABCD".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example1.txt")
+                .build());
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+  }
+
+  @Test
+  void matchingOnMultipartRequestBodyWithFilenameWithMultipleParts() {
+    stubFor(
+        post(urlEqualTo("/match/this/part/filename"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withHeader("Content-Type", containing("application/octet-stream"))
+                    .withFileName("plain-example.txt"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.post(
+            "/match/this/part/filename",
+            MultipartEntityBuilder.create()
+                .addBinaryBody(
+                    "file",
+                    "ABCD".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example.txt")
+                .addBinaryBody(
+                    "file1",
+                    "XYZ".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example1.txt")
+                .build());
+    assertThat(response.statusCode(), is(HTTP_OK));
+
+    response =
+        testClient.post(
+            "/match/this/part/filename",
+            MultipartEntityBuilder.create()
+                .addBinaryBody(
+                    "file",
+                    "ABCD".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example1.txt")
+                .addBinaryBody(
+                    "file",
+                    "XYZ".getBytes(),
+                    ContentType.APPLICATION_OCTET_STREAM,
+                    "plain-example2.txt")
+                .build());
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
   }
 
   @Test
