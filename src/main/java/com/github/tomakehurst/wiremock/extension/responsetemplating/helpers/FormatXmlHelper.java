@@ -42,7 +42,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Handlebars helper to allow json to be formatted :
+ * Handlebars helper to allow xml to be formatted :
  *
  * <p>```handlebars {{#formatXml format='pretty'}} // Badly formatted XML {{/formatXml}} ```
  * `format` can be `pretty` or `compact` and defaults to `pretty`
