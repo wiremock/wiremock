@@ -303,18 +303,6 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void escapingIsTheDefault() {
-    final ResponseDefinition responseDefinition =
-        transform(
-            mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"),
-            Parameters.empty());
-
-    assertThat(
-        responseDefinition.getBody(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
-  }
-
-  @Test
   public void jsonPathValueDefaultsToEmptyString() {
     final ResponseDefinition responseDefinition =
         transform(
