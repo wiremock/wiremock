@@ -22,14 +22,20 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
 
   static String compactJson = "{\"foo\":true,\"bar\":{\"baz\":false}}";
 
   static String prettyJson = "{\n  \"foo\" : true,\n  \"bar\" : {\n    \"baz\" : false\n  }\n}";
+  static String prettyJsonWindows =
+      "{\r\n  \"foo\" : true,\r\n  \"bar\" : {\r\n    \"baz\" : false\r\n  }\r\n}";
 
   @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void formatJsonDefaultsToPrettyFormatWhenNoFormatSpecified() {
     String responseTemplate = "{{#formatJson}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
@@ -39,12 +45,33 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void formatJsonDefaultsToPrettyFormatWhenNoFormatSpecifiedWindows() {
+    String responseTemplate = "{{#formatJson}} " + compactJson + " {{/formatJson}}";
+    final ResponseDefinition responseDefinition =
+        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+
+    assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
+  }
+
+  @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void formatJsonPrettyFormatReturnsJsonPrettyPrinted() {
     String responseTemplate = "{{#formatJson format='pretty'}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(prettyJson));
+  }
+
+  @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void formatJsonPrettyFormatReturnsJsonPrettyPrintedWindows() {
+    String responseTemplate = "{{#formatJson format='pretty'}} " + compactJson + " {{/formatJson}}";
+    final ResponseDefinition responseDefinition =
+        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+
+    assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
   }
 
   @Test
