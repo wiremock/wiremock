@@ -22,6 +22,9 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class ToJsonHelperTest extends HandlebarsHelperTestBase {
 
@@ -53,6 +56,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void convertMapToJson() {
     String responseTemplate = "{{ toJson request.headers }}";
     ResponseDefinition responseDefinition =
@@ -64,6 +68,21 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     assertThat(
         responseDefinition.getBody(),
         is("{\n  \"Authorization\" : \"whatever\",\n  \"Content-Type\" : \"text/plain\"\n}"));
+  }
+
+  @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void convertMapToJsonWindows() {
+    String responseTemplate = "{{ toJson request.headers }}";
+    ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().header("Authorization", "whatever").header("Content-Type", "text/plain"),
+            aResponse().withBody(responseTemplate));
+
+    assertThat(
+        responseDefinition.getBody(),
+        is("{\r\n  \"Authorization\" : \"whatever\",\r\n  \"Content-Type\" : \"text/plain\"\r\n}"));
   }
 
   @Test

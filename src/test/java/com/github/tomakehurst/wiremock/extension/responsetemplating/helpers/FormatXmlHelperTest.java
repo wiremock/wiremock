@@ -22,10 +22,14 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
 
   @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void formatXmlHelperFormatsXmlPrettilyByDefault() {
     String responseTemplate =
         "{{#formatXml}}\n<foo><bar\n    >wh</bar></foo\n    >\n{{/formatXml}}";
@@ -36,6 +40,18 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void formatXmlHelperFormatsXmlPrettilyByDefaultWindows() {
+    String responseTemplate =
+        "{{#formatXml}}\n<foo><bar\n    >wh</bar></foo\n    >\n{{/formatXml}}";
+    ResponseDefinition responseDefinition =
+        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+
+    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
+  }
+
+  @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void formatXmlHelperFormatsXmlInAVariable() {
     String responseTemplate =
         "{{~#assign 'someXml'~}}\n"
@@ -51,6 +67,23 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void formatXmlHelperFormatsXmlInAVariableWindows() {
+    String responseTemplate =
+        "{{~#assign 'someXml'~}}\n"
+            + "<foo><bar\n"
+            + "    >wh</bar></foo\n"
+            + "    >\n"
+            + "{{/assign}}\n"
+            + "{{~formatXml someXml format='pretty'~}}";
+    ResponseDefinition responseDefinition =
+        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+
+    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
+  }
+
+  @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   void formatXmlHelperFormatsXmlPrettily() {
     String responseTemplate =
         "{{#formatXml format='pretty'}}\n"
@@ -62,6 +95,21 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
+  }
+
+  @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  void formatXmlHelperFormatsXmlPrettilyWindows() {
+    String responseTemplate =
+        "{{#formatXml format='pretty'}}\n"
+            + "  <foo><bar\n"
+            + ">wh</bar></foo\n"
+            + ">\n"
+            + "{{/formatXml}}";
+    ResponseDefinition responseDefinition =
+        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+
+    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
 
   @Test
