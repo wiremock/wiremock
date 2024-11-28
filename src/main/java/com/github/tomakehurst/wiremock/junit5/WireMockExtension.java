@@ -267,7 +267,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   private void stopServerIfRunning() {
-    if (wireMockServer.isRunning()) {
+    if (wireMockServer != null && wireMockServer.isRunning()) {
       wireMockServer.stop();
     }
   }
