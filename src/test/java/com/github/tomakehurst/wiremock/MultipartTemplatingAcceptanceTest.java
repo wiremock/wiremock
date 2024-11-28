@@ -67,7 +67,7 @@ public class MultipartTemplatingAcceptanceTest {
         response.content(),
         is(
             "multipart:true\n"
-                + "text:binary=false:text/plain; charset=ISO-8859-1:hello\n"
+                + "text:binary=false:text/plain; charset=UTF-8:hello\n"
                 + "file:binary=true:application/octet-stream:QUJDRA=="));
   }
 
@@ -94,7 +94,7 @@ public class MultipartTemplatingAcceptanceTest {
         response.content(),
         is(
             "multipart:true\n"
-                + "text:content-type=text/plain; charset=ISO-8859-1\n"
+                + "text:content-type=text/plain; charset=UTF-8\n"
                 + "file:content-type=application/octet-stream"));
   }
 
@@ -152,7 +152,7 @@ public class MultipartTemplatingAcceptanceTest {
         is(
             "multipart:true\n"
                 + "file:application/octet-stream:ABCD/\n"
-                + "text:text/plain; charset=ISO-8859-1:hello/\n"));
+                + "text:text/plain; charset=UTF-8:hello/\n"));
   }
 
   @Test
@@ -177,6 +177,6 @@ public class MultipartTemplatingAcceptanceTest {
         is(
             "multipart:true\n"
                 + "[name='file', headers={content-disposition=form-data; name=\"file\"; filename=\"abcd.bin\", content-type=application/octet-stream}, body=ABCD]\n"
-                + "[name='text', headers={content-disposition=form-data; name=\"text\", content-type=text/plain; charset=ISO-8859-1}, body=hello]\n"));
+                + "[name='text', headers={content-disposition=form-data; name=\"text\", content-type=text/plain; charset=UTF-8}, body=hello]\n"));
   }
 }
