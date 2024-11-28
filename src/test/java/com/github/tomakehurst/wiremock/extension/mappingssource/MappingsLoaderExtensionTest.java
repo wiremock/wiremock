@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class MappingsLoaderExtensionTest {
 
   @AfterEach
   public void stopWireMock() {
-    wireMockServer.stop();
+    wireMockServer.close();
   }
 
   private void buildWireMock(Options options) {

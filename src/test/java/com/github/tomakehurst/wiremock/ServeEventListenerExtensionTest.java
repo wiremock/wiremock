@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class ServeEventListenerExtensionTest {
   @AfterEach
   public void cleanup() {
     if (wm != null) {
-      wm.stop();
+      wm.close();
     }
   }
 

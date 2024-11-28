@@ -156,6 +156,6 @@ public class TransferEncodingAcceptanceTest {
 
   @AfterEach
   public void cleanup() {
-    wm.stop();
+    wm.close();
   }
 }

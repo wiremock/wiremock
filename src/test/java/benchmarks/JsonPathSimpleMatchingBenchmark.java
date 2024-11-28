@@ -78,7 +78,7 @@ public class JsonPathSimpleMatchingBenchmark {
 
     @TearDown
     public void tearDown() {
-      wm.stop();
+      wm.close();
     }
   }
 
