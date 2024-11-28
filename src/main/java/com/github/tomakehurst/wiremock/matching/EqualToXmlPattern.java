@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -70,6 +71,7 @@ public class EqualToXmlPattern extends StringValuePattern {
     this(expectedValue, enablePlaceholders, null, null, null, ignoreOrderOfSameNode);
   }
 
+  @JsonCreator
   public EqualToXmlPattern(
       @JsonProperty("equalToXml") String expectedValue,
       @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
