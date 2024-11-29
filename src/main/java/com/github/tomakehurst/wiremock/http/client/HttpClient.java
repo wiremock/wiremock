@@ -27,7 +27,10 @@ public interface HttpClient {
   List<String> FORBIDDEN_RESPONSE_HEADERS = List.of(TRANSFER_ENCODING, "connection");
   String CONTENT_ENCODING = "content-encoding";
   String CONTENT_LENGTH = "content-length";
-  List<String> FORBIDDEN_REQUEST_HEADERS = List.of(TRANSFER_ENCODING, CONTENT_LENGTH, USER_AGENT);
+  String CONNECTION = "connection";
+  String UPGRADE = "upgrade";
+  List<String> FORBIDDEN_REQUEST_HEADERS =
+      List.of(TRANSFER_ENCODING, CONTENT_LENGTH, CONNECTION, UPGRADE, USER_AGENT);
   String HOST_HEADER = "host";
   String ACCEPT_ENCODING_HEADER = "accept-encoding";
 
