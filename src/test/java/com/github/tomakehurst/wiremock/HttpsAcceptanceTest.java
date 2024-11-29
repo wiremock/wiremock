@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,9 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -99,7 +101,11 @@ class HttpsAcceptanceTest {
               wireMockServer = new WireMockServer(config);
               wireMockServer.start();
               WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
-              httpClient = HttpClientFactory.createClient();
+              httpClient =
+                  HttpClientBuilder.create()
+                      .setDefaultRequestConfig(
+                          RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
+                      .build();
 
               stubFor(
                   get(urlEqualTo("/https-test"))
@@ -312,7 +318,11 @@ class HttpsAcceptanceTest {
     proxy.start();
     proxy.stubFor(get("/no-proxying-thanks").willReturn(ok("proxyless")));
 
-    httpClient = HttpClientFactory.createClient();
+    httpClient =
+        HttpClientBuilder.create()
+            .setDefaultRequestConfig(
+                RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
+            .build();
 
     String url = "https://localhost:" + proxy.httpsPort() + "/no-proxying-thanks";
     HttpGet get = new HttpGet(url);
@@ -374,7 +384,11 @@ class HttpsAcceptanceTest {
     wireMockServer.start();
     WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
 
-    httpClient = HttpClientFactory.createClient();
+    httpClient =
+        HttpClientBuilder.create()
+            .setDefaultRequestConfig(
+                RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
+            .build();
   }
 
   private void startServerWithKeystore(

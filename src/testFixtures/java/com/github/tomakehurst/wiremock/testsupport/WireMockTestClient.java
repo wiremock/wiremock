@@ -36,6 +36,7 @@ import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -143,6 +144,8 @@ public class WireMockTestClient {
 
     try (CloseableHttpClient httpClientUsingProxy =
         HttpClientBuilder.create()
+            .setDefaultRequestConfig(
+                RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
             .disableAuthCaching()
             .disableAutomaticRetries()
             .disableCookieManagement()
@@ -392,6 +395,7 @@ public class WireMockTestClient {
   private static CloseableHttpClient httpClient() {
     return HttpClientBuilder.create()
         .setUserAgent("WireMock Test Client")
+        .setDefaultRequestConfig(RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
         .disableAuthCaching()
         .disableAutomaticRetries()
         .disableCookieManagement()

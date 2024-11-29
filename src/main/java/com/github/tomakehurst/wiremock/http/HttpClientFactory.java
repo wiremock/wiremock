@@ -73,6 +73,8 @@ public class HttpClientFactory {
 
     HttpClientBuilder builder =
         HttpClientBuilder.create()
+            .setDefaultRequestConfig(
+                RequestConfig.custom().setProtocolUpgradeEnabled(false).build())
             .disableAuthCaching()
             .disableAutomaticRetries()
             .disableCookieManagement()
