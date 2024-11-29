@@ -10,7 +10,8 @@
     <appender-ref ref="STDOUT" />
   </root>
 
-  <logger name="org.apache.hc.client5.http.wire" level="ERROR" />
+  <logger name="org.apache.hc" level="TRACE" />
+  <logger name="org.eclipse.jetty.server" level="TRACE" />
   <logger name="org.eclipse.jetty.util.thread" level="WARN" />
   <logger name="org.eclipse.jetty.util.component" level="WARN" />
 </configuration>
