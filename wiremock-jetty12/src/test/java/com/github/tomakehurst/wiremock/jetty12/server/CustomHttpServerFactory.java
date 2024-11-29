@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty12;
+package com.github.tomakehurst.wiremock.jetty12.server;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
-public class Jetty12HttpServerFactory implements HttpServerFactory, DefaultFactory {
+public class CustomHttpServerFactory implements HttpServerFactory {
 
   @Override
   public String getName() {
-    return "jetty12-http-server-factory";
+    return HttpServerFactory.super.getName();
   }
 
   @Override
@@ -30,6 +33,6 @@ public class Jetty12HttpServerFactory implements HttpServerFactory, DefaultFacto
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    return new Jetty12HttpServer(options, adminRequestHandler, stubRequestHandler);
+    return new CustomHttpServer(options, adminRequestHandler, stubRequestHandler);
   }
 }

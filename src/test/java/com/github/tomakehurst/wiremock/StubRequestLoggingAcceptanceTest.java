@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
     wm.start();
     testClient = new WireMockTestClient(wm.port());
 
+    notifier.infoMessages.clear();
+
     wm.stubFor(get("/log-me").willReturn(ok("body text")));
 
     testClient.get("/log-me");
@@ -56,6 +58,8 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
             wireMockConfig().dynamicPort().stubRequestLoggingDisabled(true).notifier(notifier));
     wm.start();
     testClient = new WireMockTestClient(wm.port());
+
+    notifier.infoMessages.clear();
 
     wm.stubFor(get("/log-me").willReturn(ok("body")));
 
