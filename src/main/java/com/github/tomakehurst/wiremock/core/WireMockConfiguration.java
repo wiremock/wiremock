@@ -427,6 +427,10 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration extensionFactories(ExtensionFactory... extensionFactories) {
+    return extensions(extensionFactories);
+  }
+
   public WireMockConfiguration extensions(ExtensionFactory... extensionFactories) {
     extensions.add(extensionFactories);
     return this;
@@ -434,6 +438,12 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
     extensions.add(classes);
+    return this;
+  }
+
+  public WireMockConfiguration extensionFactories(
+      Class<? extends ExtensionFactory>... factoryClasses) {
+    extensions.addFactories(factoryClasses);
     return this;
   }
 
