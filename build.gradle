@@ -69,7 +69,6 @@ dependencies {
       "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
   api "org.apache.httpcomponents.client5:httpclient5:5.4.1"
   api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
-  api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
     exclude group: 'junit', module: 'junit'
   }
   api "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
@@ -124,6 +123,9 @@ dependencies {
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
+
+  // TODO: remove
+  testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.12'
 
   testImplementation files('test-extension/test-extension.jar')
 
