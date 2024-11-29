@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package com.github.tomakehurst.wiremock.http;
 
-import java.util.List;
-
-public interface ExtensionFactory {
-
-  /**
-   * Allows the factory to check the runtime environment and prevent itself being used if not
-   * compatible e.g. because the wrong Jetty version is present.
-   *
-   * @return true if the factory can be loaded.
-   */
-  default boolean isLoadable() {
-    return true;
-  }
-
-  List<Extension> create(WireMockServices services);
-}
+/**
+ * Marker interface signifying this factory should only be used if user-supplied extensions are not
+ * present.
+ */
+public interface DefaultFactory {}
