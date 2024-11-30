@@ -32,10 +32,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
-import com.github.tomakehurst.wiremock.http.Body;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -144,6 +141,9 @@ public class TemplateEngine {
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
     model.put("request", buildRequestModel(serveEvent.getRequest()));
+    if (serveEvent.getResponse() != null) {
+      model.put("response", buildResponseModel(serveEvent.getResponse()));
+    }
     model.putAll(additionalModelData);
     return model;
   }
@@ -191,6 +191,19 @@ public class TemplateEngine {
     }
 
     return Collections.emptyMap();
+  }
+
+  private static ResponseTemplateModel buildResponseModel(LoggedResponse response) {
+    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    if (response.getHeaders() != null) {
+      adaptedHeaders.putAll(
+          Maps.toMap(
+              response.getHeaders().keys(),
+              input -> ListOrSingle.of(response.getHeaders().getHeader(input).values())));
+    }
+    return new ResponseTemplateModel(
+        adaptedHeaders,
+        Body.ofBinaryOrText(response.getBody(), response.getHeaders().getContentTypeHeader()));
   }
 
   public long getCacheSize() {
