@@ -766,7 +766,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 aMultipart()
                     .withHeader("Content-Type", containing("application/octet-stream"))
                     .withFileName("plain-example.txt"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(ok()));
 
     WireMockResponse response =
         testClient.post(
@@ -801,7 +801,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 aMultipart()
                     .withHeader("Content-Type", containing("application/octet-stream"))
                     .withFileName("plain-example.txt"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(ok()));
 
     WireMockResponse response =
         testClient.post(
