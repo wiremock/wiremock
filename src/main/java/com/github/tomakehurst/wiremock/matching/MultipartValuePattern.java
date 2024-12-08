@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   }
 
   private final String name;
+  private final String filename;
   private final Map<String, MultiValuePattern> headers;
   private final List<ContentPattern<?>> bodyPatterns;
   private final MatchingType matchingType;
@@ -41,10 +42,12 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   @JsonCreator
   public MultipartValuePattern(
       @JsonProperty("name") String name,
+      @JsonProperty("fileName") String filename,
       @JsonProperty("matchingType") MatchingType type,
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
       @JsonProperty("bodyPatterns") List<ContentPattern<?>> body) {
     this.name = name;
+    this.filename = filename;
     this.matchingType = type;
     this.headers = headers;
     this.bodyPatterns = body;
@@ -65,7 +68,8 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     if (headers != null || bodyPatterns != null) {
       return MatchResult.aggregate(
           headers != null ? matchHeaderPatterns(value) : MatchResult.exactMatch(),
-          bodyPatterns != null ? matchBodyPatterns(value) : MatchResult.exactMatch());
+          bodyPatterns != null ? matchBodyPatterns(value) : MatchResult.exactMatch(),
+          filename != null ? matchFileName(value) : MatchResult.exactMatch());
     }
 
     return MatchResult.exactMatch();
@@ -97,6 +101,10 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     return name;
   }
 
+  public String getFileName() {
+    return filename;
+  }
+
   public Map<String, MultiValuePattern> getHeaders() {
     return headers;
   }
@@ -107,6 +115,13 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
   public List<ContentPattern<?>> getBodyPatterns() {
     return bodyPatterns;
+  }
+
+  private MatchResult matchFileName(final Request.Part part) {
+    if (filename != null && !filename.isEmpty()) {
+      return MatchResult.of(filename.equals(part.getFileName()));
+    }
+    return MatchResult.exactMatch();
   }
 
   private MatchResult matchHeaderPatterns(final Request.Part part) {
@@ -150,6 +165,7 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     MultipartValuePattern that = (MultipartValuePattern) o;
 
     return Objects.equals(name, that.name)
+        && Objects.equals(filename, that.filename)
         && Objects.equals(headers, that.headers)
         && Objects.equals(bodyPatterns, that.bodyPatterns)
         && matchingType == that.matchingType;
@@ -157,6 +173,6 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, headers, bodyPatterns, matchingType);
+    return Objects.hash(name, filename, headers, bodyPatterns, matchingType);
   }
 }

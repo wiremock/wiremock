@@ -107,6 +107,8 @@ properties:
       properties:
         name:
           type: string
+        filename:
+          type: string
         matchingType:
           type: string
           description: Determines whether all or any of the parts must match the criteria for an overall match.

@@ -34,6 +34,8 @@ public interface Request {
   interface Part {
     String getName();
 
+    String getFileName();
+
     HttpHeader getHeader(String name);
 
     HttpHeaders getHeaders();
