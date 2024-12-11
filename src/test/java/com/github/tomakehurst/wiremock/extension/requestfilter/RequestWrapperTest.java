@@ -194,19 +194,26 @@ public class RequestWrapperTest {
   @Test
   public void transformsMultiparts() {
     MockRequest request =
-        mockRequest().part(mockPart().name("one").body("1")).part(mockPart().name("two").body("2"));
+        mockRequest()
+            .part(mockPart().name("one").filename("text1.txt").body("1"))
+            .part(mockPart().name("two").filename("text2.txt").body("2"));
 
     Request wrappedRequest =
         RequestWrapper.create()
             .transformParts(
                 existingPart ->
                     existingPart.getName().equals("one")
-                        ? mockPart().name("one").body("1111")
-                        : mockPart().name("two").body("2222"))
+                        ? mockPart().name("one").filename("text1.txt").body("1111")
+                        : mockPart().name("two").filename("sample2.txt").body("2222"))
             .wrap(request);
 
     assertThat(wrappedRequest.getPart("one").getBody().asString(), is("1111"));
     assertThat(wrappedRequest.getPart("two").getBody().asString(), is("2222"));
-    assertThat(wrappedRequest.getParts(), hasItem(mockPart().name("one").body("1111")));
+    assertThat(
+        wrappedRequest.getParts(),
+        hasItem(mockPart().name("one").filename("text1.txt").body("1111")));
+    assertThat(
+        wrappedRequest.getParts(),
+        hasItem(mockPart().name("two").filename("sample2.txt").body("2222")));
   }
 }
