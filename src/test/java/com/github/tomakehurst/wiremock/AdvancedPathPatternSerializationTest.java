@@ -37,7 +37,7 @@ public class AdvancedPathPatternSerializationTest {
   }
 
   @Test
-  void matchingXpathSerializesCorrectly() throws JSONException {
+  void matchingXpathWithPatternSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "        \"matchesXPath\" : {\n"
@@ -50,18 +50,34 @@ public class AdvancedPathPatternSerializationTest {
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
-  // TODO: This is not correct, the submatcher should not be there
+  @Test
+  void matchingXpathWithNameSpacesSerializesCorrectly() throws JSONException {
+    String expectedJson =
+        "{\n"
+            + "           \"matchesXPath\" : \"//AccountId\",\n"
+            + "           \"xPathNamespaces\" : {\n"
+            + "               \"one\" : \"https://example.com/one\",\n"
+            + "               \"two\" : \"https://example.com/two\"\n"
+            + "            }\n"
+            + "}";
+    StringValuePattern pattern =
+        matchingXPath(
+            "//AccountId",
+            Map.of("one", "https://example.com/one", "two", "https://example.com/two"));
+
+    String serializedPattern = Json.write(pattern);
+    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+  }
+
   @Test
   void nestedMatchingXpathWithPatternSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "    \"matchesJsonPath\" : {\n"
             + "        \"expression\" : \"$.LinkageDetails.AccountId\",\n"
-            + "        \"submatcher\" : {\n"
-            + "           \"matchesXPath\" : {\n"
-            + "               \"expression\" : \"//AccountId\",\n"
-            + "               \"equalTo\" : \"123\"\n"
-            + "           }\n"
+            + "        \"matchesXPath\" : {\n"
+            + "            \"expression\" : \"//AccountId\",\n"
+            + "            \"equalTo\" : \"123\"\n"
             + "        }\n"
             + "    }\n"
             + "}";
@@ -69,24 +85,20 @@ public class AdvancedPathPatternSerializationTest {
         matchingJsonPath(
             "$.LinkageDetails.AccountId", matchingXPath("//AccountId", equalTo("123")));
     String serializedPattern = Json.write(pattern);
-    System.out.println(serializedPattern);
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
-  // TODO: This should fail - the submatcher shouldn't be there
   @Test
   void nestedMatchingXpathWithNameSpacesSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "    \"matchesJsonPath\" : {\n"
             + "        \"expression\" : \"$.LinkageDetails.AccountId\",\n"
-            + "        \"submatcher\" : {\n"
-            + "           \"matchesXPath\" : \"//AccountId\",\n"
-            + "           \"xPathNamespaces\" : {\n"
-            + "               \"one\" : \"https://example.com/one\",\n"
-            + "               \"two\" : \"https://example.com/two\"\n"
-            + "            }\n"
-            + "        }\n"
+            + "        \"matchesXPath\" : \"//AccountId\",\n"
+            + "        \"xPathNamespaces\" : {\n"
+            + "            \"one\" : \"https://example.com/one\",\n"
+            + "            \"two\" : \"https://example.com/two\"\n"
+            + "         }\n"
             + "    }\n"
             + "}";
     StringValuePattern pattern =
@@ -96,7 +108,6 @@ public class AdvancedPathPatternSerializationTest {
                 "//AccountId",
                 Map.of("one", "https://example.com/one", "two", "https://example.com/two")));
     String serializedPattern = Json.write(pattern);
-    System.out.println(serializedPattern);
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
@@ -122,37 +133,30 @@ public class AdvancedPathPatternSerializationTest {
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
-  // TODO: This is not correct, the submatcher should not be there
   @Test
   void nestedMatchingJsonPathWithOnlyValueSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
             + "        \"expression\" : \"//AccountId\",\n"
-            + "        \"submatcher\" : {\n"
-            + "           \"matchesJsonPath\" : \"$.LinkageDetails.AccountId\"\n"
-            + "        }\n"
+            + "        \"matchesJsonPath\" : \"$.LinkageDetails.AccountId\"\n"
             + "    }\n"
             + "}";
     StringValuePattern pattern =
         matchingXPath("//AccountId", matchingJsonPath("$.LinkageDetails.AccountId"));
     String serializedPattern = Json.write(pattern);
-    System.out.println(serializedPattern);
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
-  // TODO: This is not correct, the submatcher should not be there
   @Test
   void nestedMatchingJsonPathWithPatternSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
             + "        \"expression\" : \"//AccountId\",\n"
-            + "        \"submatcher\" : {\n"
-            + "           \"matchesJsonPath\" : {\n"
-            + "               \"expression\" : \"$.LinkageDetails.AccountId\",\n"
-            + "               \"equalTo\" : \"123\"\n"
-            + "           }\n"
+            + "        \"matchesJsonPath\" : {\n"
+            + "            \"expression\" : \"$.LinkageDetails.AccountId\",\n"
+            + "            \"equalTo\" : \"123\"\n"
             + "        }\n"
             + "    }\n"
             + "}";
@@ -160,22 +164,18 @@ public class AdvancedPathPatternSerializationTest {
         matchingXPath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
     String serializedPattern = Json.write(pattern);
-    System.out.println(serializedPattern);
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 
-  // TODO: This is not correct, the submatcher should not be there
   @Test
   void nestedMatchingJsonPathSerializesCorrectly() throws JSONException {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
             + "        \"expression\" : \"//AccountId\",\n"
-            + "        \"submatcher\" : {\n"
-            + "           \"matchesJsonPath\" : {\n"
-            + "               \"expression\" : \"$.LinkageDetails.AccountId\",\n"
-            + "               \"equalTo\" : \"123\"\n"
-            + "           }\n"
+            + "        \"matchesJsonPath\" : {\n"
+            + "            \"expression\" : \"$.LinkageDetails.AccountId\",\n"
+            + "            \"equalTo\" : \"123\"\n"
             + "        }\n"
             + "    }\n"
             + "}";
@@ -183,7 +183,6 @@ public class AdvancedPathPatternSerializationTest {
         matchingXPath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
     String serializedPattern = Json.write(pattern);
-    System.out.println(serializedPattern);
     JSONAssert.assertEquals(expectedJson, serializedPattern, true);
   }
 }
