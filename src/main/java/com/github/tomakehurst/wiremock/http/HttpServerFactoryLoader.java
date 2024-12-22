@@ -69,6 +69,10 @@ public class HttpServerFactoryLoader {
   }
 
   private static HttpServerFactory pickMostAppropriateFrom(List<HttpServerFactory> candidates) {
+    if (candidates.isEmpty()) {
+      throw couldNotFindSuitableServerException();
+    }
+
     return candidates.size() > 1
         ? candidates.stream()
             .filter(factory -> !DefaultFactory.class.isAssignableFrom(factory.getClass()))
