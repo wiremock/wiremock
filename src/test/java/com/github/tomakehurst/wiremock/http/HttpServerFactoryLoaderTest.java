@@ -17,13 +17,17 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -127,6 +131,19 @@ public class HttpServerFactoryLoaderTest {
     HttpServerFactory result = loader.load();
 
     assertThat(result, instanceOf(CustomHttpServerFactory.class));
+  }
+
+  @Test
+  void throwsDescriptiveExceptionWhenNoSuitableServerFactoryIsFound() {
+    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
+    serverFactoriesAsExtensions(Collections.emptyList());
+    serverFactoriesFromServiceLoader(Collections.emptyList());
+
+    var exception = assertThrows(FatalStartupException.class, () -> loader.load());
+    assertThat(
+        exception.getMessage(),
+        equalTo(
+            "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information."));
   }
 
   private void serverFactoriesAsExtensions(List<HttpServerFactory> extensionList) {
