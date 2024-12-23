@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,12 @@ public abstract class PathPatternJsonSerializer<T extends PathPattern> extends J
   public void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
       throws IOException {
     gen.writeStartObject();
+    this.serializePathPattern(value, gen, serializers);
+    gen.writeEndObject();
+  }
 
+  protected void serializePathPattern(T value, JsonGenerator gen, SerializerProvider serializers)
+      throws IOException {
     if (value.isSimple()) {
       gen.writeStringField(value.getName(), value.getExpected());
     } else {
@@ -41,10 +46,7 @@ public abstract class PathPatternJsonSerializer<T extends PathPattern> extends J
           BeanSerializerFactory.instance.createSerializer(serializers, javaType);
       serializer.serialize(advancedPathPattern, gen, serializers);
     }
-
     serializeAdditionalFields(value, gen, serializers);
-
-    gen.writeEndObject();
   }
 
   protected abstract void serializeAdditionalFields(
