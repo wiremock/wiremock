@@ -25,10 +25,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import org.apache.hc.client5.http.entity.mime.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -195,6 +199,53 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
       contentStream.write(getRequestBodyForCamelcasedContentTypeInformationWithBoundary(boundary));
     }
     assertThat(connection.getResponseCode(), is(200));
+  }
+
+  @Test
+  void multipartFieldsAreReturnedInTheServeEvents() throws Exception {
+    stubFor(
+        post("/multipart")
+            .withMultipartRequestBody(
+                aMultipart("foo-1")
+                    .withHeader("Content-Type", equalTo("text/plain"))
+                    .withBody(equalTo("Foo")))
+            .withMultipartRequestBody(
+                aMultipart("bar-1")
+                    .withHeader("Content-Type", equalTo("text/plain"))
+                    .withBody(equalTo("Bar")))
+            .willReturn(ok()));
+
+    final URL url = new URL(wireMockServer.baseUrl() + "/multipart");
+
+    String multipartContent =
+        "--foob\r\nContent-Disposition: form-data; name=\"foo-1\"\r\nContent-Type: text/plain\r\n\r\nFoo\r\n--foob\r\nContent-Disposition: form-data; name=\"bar-1\"\r\nContent-Type: text/plain\r\n\r\nBar\r\n--foob--";
+
+    HttpURLConnection connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty("Content-Type", "Multipart/Form-Data; boundary=\"foob\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(multipartContent.getBytes());
+    }
+    assertThat(connection.getResponseCode(), is(200));
+
+    List<ServeEvent> serveEvents = wm.getAllServeEvents();
+    assertThat(serveEvents.size(), is(1));
+
+    ServeEvent serveEvent = serveEvents.get(0);
+    assertThat(serveEvent.getRequest().isMultipart(), is(true));
+    assertThat(serveEvent.getRequest().getParts().size(), is(2));
+
+    Collection<Request.Part> parts = serveEvent.getRequest().getParts();
+
+    assertThat(
+        parts.stream()
+            .anyMatch(
+                part -> part.getName().equals("foo-1") && part.getBody().asString().equals("Foo")),
+        is(true));
+    assertThat(
+        parts.stream()
+            .anyMatch(
+                part -> part.getName().equals("bar-1") && part.getBody().asString().equals("Bar")),
+        is(true));
   }
 
   private HttpURLConnection prepareUrlConnectionForCamelcasedContentTypeInformation(URL url)
