@@ -18,22 +18,22 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.Map;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 public class AdvancedPathPatternSerializationTest {
 
   @Test
-  void matchesXpathWithOnlyAValueSerializesCorrectly() throws JSONException {
+  void matchesXpathWithOnlyAValueSerializesCorrectly() {
     String expectedJson = "{\"matchesXPath\" : \"//AccountId\"}";
     StringValuePattern pattern = matchingXPath("//AccountId");
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
@@ -46,12 +46,11 @@ public class AdvancedPathPatternSerializationTest {
             + "        }\n"
             + "}";
     StringValuePattern pattern = matchingXPath("//AccountId", equalTo("123"));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void matchingXpathWithNameSpacesSerializesCorrectly() throws JSONException {
+  void matchingXpathWithNameSpacesSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "           \"matchesXPath\" : \"//AccountId\",\n"
@@ -65,12 +64,11 @@ public class AdvancedPathPatternSerializationTest {
             "//AccountId",
             Map.of("one", "https://example.com/one", "two", "https://example.com/two"));
 
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void nestedMatchingXpathWithPatternSerializesCorrectly() throws JSONException {
+  void nestedMatchingXpathWithPatternSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "    \"matchesJsonPath\" : {\n"
@@ -84,12 +82,11 @@ public class AdvancedPathPatternSerializationTest {
     StringValuePattern pattern =
         matchingJsonPath(
             "$.LinkageDetails.AccountId", matchingXPath("//AccountId", equalTo("123")));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void nestedMatchingXpathWithNameSpacesSerializesCorrectly() throws JSONException {
+  void nestedMatchingXpathWithNameSpacesSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "    \"matchesJsonPath\" : {\n"
@@ -107,20 +104,18 @@ public class AdvancedPathPatternSerializationTest {
             matchingXPath(
                 "//AccountId",
                 Map.of("one", "https://example.com/one", "two", "https://example.com/two")));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void matchesJsonPathWithOnlyAValueSerializesCorrectly() throws JSONException {
+  void matchesJsonPathWithOnlyAValueSerializesCorrectly() {
     String expectedJson = "{\"matchesJsonPath\" : \"$.LinkageDetails.AccountId\"}";
     StringValuePattern pattern = matchingJsonPath("$.LinkageDetails.AccountId");
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void matchingJsonPathSerializesCorrectly() throws JSONException {
+  void matchingJsonPathSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "        \"matchesJsonPath\" : {\n"
@@ -129,12 +124,11 @@ public class AdvancedPathPatternSerializationTest {
             + "        }\n"
             + "}";
     StringValuePattern pattern = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123"));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void nestedMatchingJsonPathWithOnlyValueSerializesCorrectly() throws JSONException {
+  void nestedMatchingJsonPathWithOnlyValueSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
@@ -144,12 +138,11 @@ public class AdvancedPathPatternSerializationTest {
             + "}";
     StringValuePattern pattern =
         matchingXPath("//AccountId", matchingJsonPath("$.LinkageDetails.AccountId"));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void nestedMatchingJsonPathWithPatternSerializesCorrectly() throws JSONException {
+  void nestedMatchingJsonPathWithPatternSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
@@ -163,12 +156,11 @@ public class AdvancedPathPatternSerializationTest {
     StringValuePattern pattern =
         matchingXPath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
   @Test
-  void nestedMatchingJsonPathSerializesCorrectly() throws JSONException {
+  void nestedMatchingJsonPathSerializesCorrectly() {
     String expectedJson =
         "{\n"
             + "    \"matchesXPath\" : {\n"
@@ -182,7 +174,6 @@ public class AdvancedPathPatternSerializationTest {
     StringValuePattern pattern =
         matchingXPath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
-    String serializedPattern = Json.write(pattern);
-    JSONAssert.assertEquals(expectedJson, serializedPattern, true);
+    assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 }
