@@ -526,6 +526,11 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public boolean hasDefaultHttpServerFactory() {
+    return true;
+  }
+
+  @Override
   public HttpClientFactory httpClientFactory() {
     return new ApacheHttpClientFactory();
   }

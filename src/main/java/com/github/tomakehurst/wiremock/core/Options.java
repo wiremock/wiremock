@@ -103,6 +103,8 @@ public interface Options {
 
   HttpServerFactory httpServerFactory();
 
+  boolean hasDefaultHttpServerFactory();
+
   HttpClientFactory httpClientFactory();
 
   ThreadPoolFactory threadPoolFactory();

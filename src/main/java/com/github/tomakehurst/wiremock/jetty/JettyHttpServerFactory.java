@@ -16,13 +16,10 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.HttpServer;
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.Jetty11HttpServer;
 
-public class JettyHttpServerFactory implements HttpServerFactory {
+public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {
   @Override
   public HttpServer buildHttpServer(
       Options options,

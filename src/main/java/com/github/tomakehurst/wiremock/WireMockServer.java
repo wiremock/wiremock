@@ -28,12 +28,8 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.HttpServer;
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -55,10 +51,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
-import org.eclipse.jetty.util.Jetty;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -86,32 +80,18 @@ public class WireMockServer implements Container, Stubbing, Admin {
         httpServerFactory.buildHttpServer(
             options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
 
+    notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
+
     client = new WireMock(wireMockApp);
   }
 
   private HttpServerFactory getHttpServerFactory() {
-    if (!options.isExtensionScanningEnabled() && !isJetty11()) {
-      return ServiceLoader.load(Extension.class).stream()
-          .filter(extension -> HttpServerFactory.class.isAssignableFrom(extension.type()))
-          .findFirst()
-          .map(e -> (HttpServerFactory) e.get())
-          .orElseThrow(
-              () ->
-                  new FatalStartupException(
-                      "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information."));
-    }
-
-    return wireMockApp.getExtensions().ofType(HttpServerFactory.class).values().stream()
-        .findFirst()
-        .orElseGet(options::httpServerFactory);
-  }
-
-  private static boolean isJetty11() {
-    try {
-      return Jetty.VERSION.startsWith("11");
-    } catch (Throwable e) {
-      return false;
-    }
+    return new HttpServerFactoryLoader(
+            options,
+            wireMockApp.getExtensions(),
+            HttpServerFactoryLoader.systemServiceLoader(),
+            HttpServerFactoryLoader.isJetty11())
+        .load();
   }
 
   public WireMockServer(

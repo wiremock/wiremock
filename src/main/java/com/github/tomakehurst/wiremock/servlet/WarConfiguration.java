@@ -172,6 +172,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public boolean hasDefaultHttpServerFactory() {
+    return false;
+  }
+
+  @Override
   public HttpClientFactory httpClientFactory() {
     return new ApacheHttpClientFactory();
   }

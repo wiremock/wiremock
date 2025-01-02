@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock.extension;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -38,8 +37,8 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
             .dynamicPort()
             .notifier(notifier)
             .extensions(new StartStopLoggingExtension(notifier)));
-    assertThat(notifier.infoMessages.size(), is(1));
-    assertThat(notifier.infoMessages.get(0), containsString("Extension started"));
+    assertThat(notifier.infoMessages.size(), greaterThanOrEqualTo(1));
+    assertThat(notifier.infoMessages, hasItem(containsString("Extension started")));
   }
 
   @Test
