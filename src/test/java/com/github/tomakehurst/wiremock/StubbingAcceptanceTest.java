@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.*;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
@@ -638,6 +639,32 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
 
     response = testClient.delete("/form");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void matchesWithMultipleFormParams() {
+    stubFor(
+        put(urlPathEqualTo("/form"))
+            .withFormParams(
+                Map.of(
+                    "key1", MultiValuePattern.of(equalTo("value1")),
+                    "key2", MultiValuePattern.of(equalTo("value2")))));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/form",
+            "key1=value1&key2=value2",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+
+    response =
+        testClient.putWithBody(
+            "/form",
+            "key1=value1",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
     assertThat(response.statusCode(), is(404));
   }
 
