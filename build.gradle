@@ -20,7 +20,7 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.25.0'
+  id 'com.diffplug.spotless' version '7.0.1'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
   id "org.sonarqube" version "6.0.1.5171"
   id 'jacoco'
@@ -109,7 +109,7 @@ dependencies {
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
   testFixturesApi 'org.mockito:mockito-core:5.15.2'
-  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.14.2'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.15.2'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
@@ -118,7 +118,7 @@ dependencies {
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation 'org.scala-lang:scala-library:2.13.15'
+  testImplementation 'org.scala-lang:scala-library:2.13.16'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
   testImplementation "org.eclipse.jetty:jetty-client"
