@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAss
 import static java.util.stream.Collectors.toMap;
 
 import com.github.jknack.handlebars.Helper;
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -93,11 +94,15 @@ public class Extensions implements WireMockServices {
           loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
     }
 
+    final Stream<ExtensionFactory> declaredFactories =
+        Stream.concat(
+            extensionDeclarations.getFactories().stream(),
+            extensionDeclarations.getFactoryClasses().stream()
+                .map(Extensions::instantiateExtensionFactory));
     final Stream<ExtensionFactory> allFactories =
         options.isExtensionScanningEnabled()
-            ? Stream.concat(
-                extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices())
-            : extensionDeclarations.getFactories().stream();
+            ? Stream.concat(declaredFactories, loadExtensionFactoriesAsServices())
+            : declaredFactories;
 
     loadedExtensions.putAll(
         allFactories
@@ -117,7 +122,7 @@ public class Extensions implements WireMockServices {
 
   private Stream<ExtensionFactory> loadExtensionFactoriesAsServices() {
     final ServiceLoader<ExtensionFactory> loader = ServiceLoader.load(ExtensionFactory.class);
-    return loader.stream().map(ServiceLoader.Provider::get);
+    return loader.stream().map(ServiceLoader.Provider::get).filter(ExtensionFactory::isLoadable);
   }
 
   private void configureTemplating() {
@@ -254,5 +259,11 @@ public class Extensions implements WireMockServices {
                         Map.Entry::getValue,
                         (entry1, entry2) -> entry1,
                         LinkedHashMap::new)));
+  }
+
+  private static ExtensionFactory instantiateExtensionFactory(
+      Class<? extends ExtensionFactory> factoryClass) {
+    return Exceptions.uncheck(
+        () -> factoryClass.getDeclaredConstructor().newInstance(), ExtensionFactory.class);
   }
 }

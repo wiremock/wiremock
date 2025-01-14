@@ -12,8 +12,8 @@ plugins {
   id 'java-test-fixtures'
   id 'signing'
   id 'maven-publish'
-  id 'com.diffplug.spotless' version '6.25.0'
-  id "org.sonarqube" version "5.1.0.4882"
+  id 'com.diffplug.spotless' version '7.0.1'
+  id "org.sonarqube" version "6.0.1.5171"
   id 'jacoco'
   id 'idea'
 }
@@ -36,13 +36,14 @@ project.ext {
 
 dependencies {
 
+  api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+  api platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
+
   api project(':'), {
     exclude group: 'org.eclipse.jetty'
     exclude group: 'org.eclipse.jetty.http2'
   }
 
-  api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
-  api platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
   api "org.eclipse.jetty:jetty-server"
   api "org.eclipse.jetty:jetty-proxy"
   api "org.eclipse.jetty:jetty-alpn-server"
