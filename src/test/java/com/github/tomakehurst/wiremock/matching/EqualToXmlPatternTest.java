@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -256,7 +256,7 @@ public class EqualToXmlPatternTest {
 
   @Test
   public void doesNotReturnExactMatchWhenActualHasMissingNamespaceUri() {
-    EqualToXmlPattern pattern = 
+    EqualToXmlPattern pattern =
         new EqualToXmlPattern(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -280,10 +280,10 @@ public class EqualToXmlPatternTest {
                     + "</soap:Envelope>\n")
             .isExactMatch());
   }
-  
+
   @Test
   public void doesNotReturnExactMatchWhenActualHasAddedNamespaceUri() {
-    EqualToXmlPattern pattern = 
+    EqualToXmlPattern pattern =
         new EqualToXmlPattern(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -307,10 +307,10 @@ public class EqualToXmlPatternTest {
                     + "</soap:Envelope>\n")
             .isExactMatch());
   }
-  
+
   @Test
   public void doesNotReturnExactMatchWhenActualHasMissingNamespacePrefix() {
-    EqualToXmlPattern pattern = 
+    EqualToXmlPattern pattern =
         new EqualToXmlPattern(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -334,10 +334,10 @@ public class EqualToXmlPatternTest {
                     + "</soap:Envelope>\n")
             .isExactMatch());
   }
-  
+
   @Test
   public void doesNotReturnExactMatchWhenActualHasAddedNamespacePrefix() {
-    EqualToXmlPattern pattern = 
+    EqualToXmlPattern pattern =
         new EqualToXmlPattern(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -558,7 +558,8 @@ public class EqualToXmlPatternTest {
             + "    <st:thing>Match this</st:thing>\n"
             + "</stuff>";
 
-    MatchResult matchResult = equalToXml(expected).match(actual);
+    MatchResult matchResult =
+        equalToXml(expected).exemptingComparisons(NAMESPACE_URI).match(actual);
 
     assertTrue(matchResult.isExactMatch());
   }
