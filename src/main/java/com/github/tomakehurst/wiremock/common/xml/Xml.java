@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,8 +105,11 @@ public class Xml {
   }
 
   public static Document read(String xml) {
+    return read(xml, newDocumentBuilderFactory());
+  }
+
+  public static Document read(String xml, DocumentBuilderFactory dbf) {
     try {
-      DocumentBuilderFactory dbf = newDocumentBuilderFactory();
       DocumentBuilder db = dbf.newDocumentBuilder();
       InputSource is = new InputSource(new StringReader(xml));
       return db.parse(is);
@@ -138,40 +141,19 @@ public class Xml {
     return new SkipResolvingEntitiesDocumentBuilderFactory();
   }
 
+  public static DocumentBuilderFactory newDocumentBuilderFactory(boolean isNamespaceAware) {
+    return isNamespaceAware
+        ? new SkipResolvingEntitiesDocumentBuilderFactoryNS()
+        : new SkipResolvingEntitiesDocumentBuilderFactory();
+  }
+
   private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
 
     private static final ThreadLocal<DocumentBuilderFactory> DBF_CACHE =
-        ThreadLocal.withInitial(
-            () -> {
-              try {
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setFeature("http://xml.org/sax/features/validation", false);
-                dbf.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                dbf.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                dbf.setXIncludeAware(false);
-                dbf.setExpandEntityReferences(false);
-                dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                return dbf;
-              } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilderFactory.class);
-              }
-            });
+        ThreadLocal.withInitial(() -> createInternalDocumentBuilderFactory(false));
+
     private static final ThreadLocal<DocumentBuilder> DB_CACHE =
-        ThreadLocal.withInitial(
-            () -> {
-              try {
-                DocumentBuilder documentBuilder = DBF_CACHE.get().newDocumentBuilder();
-                documentBuilder.setEntityResolver(new ResolveToEmptyString());
-                documentBuilder.setErrorHandler(new SilentErrorHandler());
-                return documentBuilder;
-              } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilder.class);
-              }
-            });
+        ThreadLocal.withInitial(() -> createInternalDocumentBuilder(DBF_CACHE.get()));
 
     @Override
     public DocumentBuilder newDocumentBuilder() {
@@ -187,22 +169,76 @@ public class Xml {
 
     @Override
     public void setAttribute(String name, Object value) {
-      DBF_CACHE.get().setAttribute(name, value);
+      getCachedDocumentBuilderFactory().setAttribute(name, value);
     }
 
     @Override
     public Object getAttribute(String name) {
-      return DBF_CACHE.get().getAttribute(name);
+      return getCachedDocumentBuilderFactory().getAttribute(name);
     }
 
     @Override
     public void setFeature(String name, boolean value) throws ParserConfigurationException {
-      DBF_CACHE.get().setFeature(name, value);
+      getCachedDocumentBuilderFactory().setFeature(name, value);
     }
 
     @Override
     public boolean getFeature(String name) throws ParserConfigurationException {
-      return DBF_CACHE.get().getFeature(name);
+      return getCachedDocumentBuilderFactory().getFeature(name);
+    }
+
+    protected DocumentBuilderFactory getCachedDocumentBuilderFactory() {
+      return DBF_CACHE.get();
+    }
+
+    protected static DocumentBuilderFactory createInternalDocumentBuilderFactory(
+        boolean isNamespaceAware) {
+      try {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(isNamespaceAware);
+        dbf.setFeature("http://xml.org/sax/features/validation", false);
+        dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+        dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return dbf;
+      } catch (ParserConfigurationException e) {
+        return throwUnchecked(e, DocumentBuilderFactory.class);
+      }
+    }
+
+    protected static DocumentBuilder createInternalDocumentBuilder(DocumentBuilderFactory factory) {
+      try {
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new ResolveToEmptyString());
+        documentBuilder.setErrorHandler(new SilentErrorHandler());
+        return documentBuilder;
+      } catch (ParserConfigurationException e) {
+        return throwUnchecked(e, DocumentBuilder.class);
+      }
+    }
+  }
+
+  private static class SkipResolvingEntitiesDocumentBuilderFactoryNS
+      extends SkipResolvingEntitiesDocumentBuilderFactory {
+
+    private static final ThreadLocal<DocumentBuilderFactory> DBF_NS_CACHE =
+        ThreadLocal.withInitial(() -> createInternalDocumentBuilderFactory(true));
+
+    private static final ThreadLocal<DocumentBuilder> DB_NS_CACHE =
+        ThreadLocal.withInitial(() -> createInternalDocumentBuilder(DBF_NS_CACHE.get()));
+
+    @Override
+    public DocumentBuilder newDocumentBuilder() {
+      return DB_NS_CACHE.get();
+    }
+
+    @Override
+    protected DocumentBuilderFactory getCachedDocumentBuilderFactory() {
+      return DBF_NS_CACHE.get();
     }
   }
 }

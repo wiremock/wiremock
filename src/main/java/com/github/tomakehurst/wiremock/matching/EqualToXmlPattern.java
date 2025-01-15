@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.*;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
@@ -59,6 +60,7 @@ public class EqualToXmlPattern extends StringValuePattern {
   private final Set<ComparisonType> exemptedComparisons;
   private final Boolean ignoreOrderOfSameNode;
   private final Document expectedXmlDoc;
+  private final DocumentBuilderFactory documentBuilderFactory;
 
   public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
     this(expectedValue, null, null, null, null, null);
@@ -81,7 +83,11 @@ public class EqualToXmlPattern extends StringValuePattern {
       @JsonProperty("ignoreOrderOfSameNode") Boolean ignoreOrderOfSameNode) {
 
     super(expectedValue);
-    expectedXmlDoc = Xml.read(expectedValue); // Throw an exception if we can't parse the document
+    this.documentBuilderFactory = Xml.newDocumentBuilderFactory(true);
+    expectedXmlDoc =
+        Xml.read(
+            expectedValue,
+            documentBuilderFactory); // Throw an exception if we can't parse the document
     this.enablePlaceholders = enablePlaceholders;
     this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
     this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
@@ -147,7 +153,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withNodeMatcher(new OrderInvariantNodeMatcher(ignoreOrderOfSameNode))
-                  .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                  .withDocumentBuilderFactory(documentBuilderFactory)
                   .build();
 
           return !diff.hasDifferences();
@@ -193,7 +199,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                           }
                         }
                       })
-                  .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                  .withDocumentBuilderFactory(documentBuilderFactory)
                   .build();
         } catch (XMLUnitException e) {
           notifier()
@@ -233,8 +239,7 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     @Override
     public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-      if (finalCountedComparisons.contains(comparison.getType())
-          && comparison.getControlDetails().getValue() != null) {
+      if (finalCountedComparisons.contains(comparison.getType())) {
         return outcome;
       }
 
