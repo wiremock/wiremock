@@ -255,6 +255,114 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
+  public void doesNotReturnExactMatchWhenActualHasMissingNamespaceUri() {
+    EqualToXmlPattern pattern = 
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "    <soap:Body>\n"
+                + "        <stuff xmlns=\"https://example.com/mynamespace\">\n"
+                + "            <things />\n"
+                + "        </stuff>\n"
+                + "    </soap:Body>\n"
+                + "</soap:Envelope>\n");
+
+    assertFalse(
+        pattern
+            .match(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "    <soap:Body>\n"
+                    + "        <stuff>\n"
+                    + "            <things />\n"
+                    + "        </stuff>\n"
+                    + "    </soap:Body>\n"
+                    + "</soap:Envelope>\n")
+            .isExactMatch());
+  }
+  
+  @Test
+  public void doesNotReturnExactMatchWhenActualHasAddedNamespaceUri() {
+    EqualToXmlPattern pattern = 
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "    <soap:Body>\n"
+                + "        <stuff>\n"
+                + "            <things />\n"
+                + "        </stuff>\n"
+                + "    </soap:Body>\n"
+                + "</soap:Envelope>\n");
+
+    assertFalse(
+        pattern
+            .match(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "    <soap:Body>\n"
+                    + "        <stuff xmlns=\"http://example.com/mynamespace\">\n"
+                    + "            <things />\n"
+                    + "        </stuff>\n"
+                    + "    </soap:Body>\n"
+                    + "</soap:Envelope>\n")
+            .isExactMatch());
+  }
+  
+  @Test
+  public void doesNotReturnExactMatchWhenActualHasMissingNamespacePrefix() {
+    EqualToXmlPattern pattern = 
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "    <soap:Body>\n"
+                + "        <soap:stuff>\n"
+                + "            <things />\n"
+                + "        </soap:stuff>\n"
+                + "    </soap:Body>\n"
+                + "</soap:Envelope>\n");
+
+    assertFalse(
+        pattern
+            .match(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "    <soap:Body>\n"
+                    + "        <stuff>\n"
+                    + "            <things />\n"
+                    + "        </stuff>\n"
+                    + "    </soap:Body>\n"
+                    + "</soap:Envelope>\n")
+            .isExactMatch());
+  }
+  
+  @Test
+  public void doesNotReturnExactMatchWhenActualHasAddedNamespacePrefix() {
+    EqualToXmlPattern pattern = 
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "    <soap:Body>\n"
+                + "        <stuff>\n"
+                + "            <things />\n"
+                + "        </stuff>\n"
+                + "    </soap:Body>\n"
+                + "</soap:Envelope>\n");
+
+    assertFalse(
+        pattern
+            .match(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "    <soap:Body>\n"
+                    + "        <soap:stuff>\n"
+                    + "            <things />\n"
+                    + "        </soap:stuff>\n"
+                    + "    </soap:Body>\n"
+                    + "</soap:Envelope>\n")
+            .isExactMatch());
+  }
+
+  @Test
   public void returnsExactMatchWhenAttributesAreInDifferentOrder() {
     EqualToXmlPattern pattern =
         new EqualToXmlPattern("<my-attribs one=\"1\" two=\"2\" three=\"3\"/>");
