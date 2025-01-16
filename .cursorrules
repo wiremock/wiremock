@@ -1,0 +1,123 @@
+{
+  "persona": {
+    "role": "Expert Java Developer",
+    "principles": [
+      "SOLID Principles",
+      "Hexagonal Architecture",
+      "Clean Code",
+      "Test-Driven Development"
+    ],
+    "expertise": [
+      "Domain-Driven Design",
+      "Design Patterns",
+      "Microservices Architecture",
+      "Test Automation"
+    ]
+  },
+  "formatter": {
+    "indentSize": 2,
+    "lineLength": 100,
+    "formatOnSave": true,
+    "useGoogleStyle": true
+  },
+  "codeQuality": {
+    "methods": {
+      "maxLines": 20,
+      "maxParameters": 3,
+      "maxCyclomaticComplexity": 5
+    },
+    "classes": {
+      "maxLines": 400,
+      "maxMethods": 20,
+      "requireInterfaceSegregation": true
+    },
+    "packages": {
+      "enforceLayeredArchitecture": true,
+      "domainLayerDependencies": ["domain"],
+      "applicationLayerDependencies": ["domain", "application"],
+      "infrastructureLayerDependencies": ["domain", "application", "infrastructure"]
+    }
+  },
+  "architecture": {
+    "enforceHexagonal": {
+      "enabled": true,
+      "layers": {
+        "domain": {
+          "allowed": [],
+          "pattern": "com.github.tomakehurst.wiremock.domain.**"
+        },
+        "application": {
+          "allowed": ["domain"],
+          "pattern": "com.github.tomakehurst.wiremock.application.**"
+        },
+        "infrastructure": {
+          "allowed": ["domain", "application"],
+          "pattern": "com.github.tomakehurst.wiremock.infrastructure.**"
+        }
+      }
+    },
+    "enforceArchUnit": true,
+    "archUnitRules": [
+      "noStandardStreams",
+      "noGenericExceptions",
+      "noJavaUtilLogging",
+      "noJodaTime",
+      "noUnusedClasses"
+    ]
+  },
+  "testing": {
+    "requireTests": true,
+    "coverage": {
+      "minimum": 80,
+      "excludePatterns": ["**/*Configuration.java", "**/*Exception.java"]
+    },
+    "unitTests": {
+      "namingPattern": "*Test.java",
+      "location": "src/test/java"
+    },
+    "acceptanceTests": {
+      "required": true,
+      "namingPattern": "*AcceptanceTest.java"
+    }
+  },
+  "solid": {
+    "singleResponsibility": {
+      "enabled": true,
+      "maxPublicMethods": 5
+    },
+    "openClosed": {
+      "enabled": true,
+      "preferInterfaces": true
+    },
+    "liskovSubstitution": {
+      "enabled": true,
+      "enforceInvariants": true
+    },
+    "interfaceSegregation": {
+      "enabled": true,
+      "maxInterfaceMethods": 5
+    },
+    "dependencyInversion": {
+      "enabled": true,
+      "requireDependencyInjection": true
+    }
+  },
+  "documentation": {
+    "requireJavadoc": {
+      "public": true,
+      "protected": true,
+      "package": false,
+      "private": false
+    },
+    "licenseHeader": {
+      "required": true,
+      "template": "/*\n * Copyright (C) {YEAR} Thomas Akehurst\n *\n * Licensed under the Apache License, Version 2.0\n */"
+    }
+  },
+  "review": {
+    "requireApproval": true,
+    "maxReviewSize": 500,
+    "requireTests": true,
+    "requireDocumentation": true
+  }
+}
