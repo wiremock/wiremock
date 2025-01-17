@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -286,7 +286,13 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaDSL() throws Exception {
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
-            .willReturn(ok())
+            .willReturn(
+                ok(
+                    "{\n"
+                        + "  \"eventId\": \"7412\",\n"
+                        + "  \"messageId\": \"2318\",\n"
+                        + "  \"status\": \"success\"\n"
+                        + "}"))
             .withServeEventListener(
                 "webhook",
                 webhook()
@@ -296,7 +302,8 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                             + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
                     .withHeader("X-Single", "{{math 1 '+' 2}}")
                     .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
-                    .withBody("{{jsonPath originalRequest.body '$.name'}}")
+                    .withBody(
+                        "{{jsonPath originalRequest.body '$.name'}} - {{jsonPath originalResponse.body '$.status'}}")
                     .withExtraParameter("one", "param-one-value")));
 
     verify(0, postRequestedFor(anyUrl()));
@@ -319,7 +326,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     assertThat(request.header("X-Single").firstValue(), is("3"));
     assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
-    assertThat(request.getBodyAsString(), is("Tom"));
+    assertThat(request.getBodyAsString(), is("Tom - success"));
   }
 
   @Test
