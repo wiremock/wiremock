@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.Syst
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -144,6 +145,9 @@ public class TemplateEngine {
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
     model.put("request", buildRequestModel(serveEvent.getRequest()));
+    if (serveEvent.getResponse() != null) {
+      model.put("response", buildResponseModel(serveEvent.getResponse()));
+    }
     model.putAll(additionalModelData);
     return model;
   }
@@ -171,6 +175,20 @@ public class TemplateEngine {
         request.isMultipart(),
         Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
         buildRequestPartModel(request));
+  }
+
+  private static ResponseTemplateModel buildResponseModel(LoggedResponse response) {
+    Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    if (response.getHeaders() != null) {
+      adaptedHeaders.putAll(
+          Maps.toMap(
+              response.getHeaders().keys(),
+              input -> ListOrSingle.of(response.getHeaders().getHeader(input).values())));
+    }
+
+    return new ResponseTemplateModel(
+        adaptedHeaders,
+        Body.ofBinaryOrText(response.getBody(), response.getHeaders().getContentTypeHeader()));
   }
 
   private static Map<String, RequestPartTemplateModel> buildRequestPartModel(Request request) {
