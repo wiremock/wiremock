@@ -92,6 +92,17 @@ public class HttpAdminClient implements Admin {
     this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
   }
 
+  public HttpAdminClient(String scheme, String host, int port, String hostHeader, CloseableHttpClient httpClient) {
+    this.scheme = scheme;
+    this.host = host;
+    this.port = port;
+    this.urlPathPrefix = "";
+    this.hostHeader = hostHeader;
+    this.authenticator = noClientAuthenticator();
+    this.httpClient = httpClient;
+    this.adminRoutes = AdminRoutes.forClient();
+  }
+
   public HttpAdminClient(
       String scheme,
       String host,
