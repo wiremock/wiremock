@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
@@ -38,11 +37,11 @@ import org.junit.jupiter.api.Test;
 class HttpAdminClientTest {
   private static final String ADMIN_TEST_PREFIX = "/admin-test";
 
-  @Test 
+  @Test
   void shouldSetHttpClientInConstructor() {
     var httpClient = HttpClientBuilder.create().build();
-    HttpAdminClient adminClient = new HttpAdminClient("https", "localhost", 8080, "localhost", httpClient);
-    assertThat(adminClient).hasFieldOrProperty("httpClient");
+    HttpAdminClient adminClient = new HttpAdminClient("https", "localhost", 8080, "","localhost", httpClient);
+    assertThat(adminClient).hasFieldOrPropertyWithValue("httpClient", adminClient);
   }
 
   @Test
