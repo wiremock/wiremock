@@ -568,4 +568,12 @@ public class EqualToXmlPatternTest {
     MatchResult result = pattern.match("<body><entry/><entry/></body>");
     assertTrue(result.isExactMatch());
   }
+
+  @Test
+  void matchesIfCommentsDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<body><!-- Comment --><entry/><entry/></body>", false, true);
+    MatchResult result = pattern.match("<body><entry/><entry/><!-- A different comment --></body>");
+    assertTrue(result.isExactMatch());
+  }
 }
