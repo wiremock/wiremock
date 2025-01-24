@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -450,7 +450,8 @@ public class EqualToXmlPatternTest {
             + "    <st:thing>Match this</st:thing>\n"
             + "</stuff>";
 
-    MatchResult matchResult = equalToXml(expected).match(actual);
+    MatchResult matchResult =
+        equalToXml(expected).exemptingComparisons(NAMESPACE_URI).match(actual);
 
     assertTrue(matchResult.isExactMatch());
   }

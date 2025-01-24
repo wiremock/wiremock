@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,26 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class Xml {
+
+  public static final DocumentBuilderFactory DEFAULT_DOCUMENT_BUILDER_FACTORY =
+      new DelegateDocumentBuilderFactory(newDocumentBuilderFactory()) {
+        private final DocumentBuilder documentBuilder;
+
+        {
+          DocumentBuilder db;
+          try {
+            db = delegate.newDocumentBuilder();
+          } catch (ParserConfigurationException e) {
+            db = throwUnchecked(e, DocumentBuilder.class);
+          }
+          documentBuilder = db;
+        }
+
+        @Override
+        public DocumentBuilder newDocumentBuilder() {
+          return documentBuilder;
+        }
+      };
 
   private Xml() {
     // Hide constructor
@@ -105,8 +125,11 @@ public class Xml {
   }
 
   public static Document read(String xml) {
+    return read(xml, DEFAULT_DOCUMENT_BUILDER_FACTORY);
+  }
+
+  public static Document read(String xml, DocumentBuilderFactory dbf) {
     try {
-      DocumentBuilderFactory dbf = newDocumentBuilderFactory();
       DocumentBuilder db = dbf.newDocumentBuilder();
       InputSource is = new InputSource(new StringReader(xml));
       return db.parse(is);
@@ -118,9 +141,13 @@ public class Xml {
   }
 
   public static XmlDocument parse(String xml) {
+    return parse(xml, getDocumentBuilder());
+  }
+
+  public static XmlDocument parse(String xml, DocumentBuilder db) {
     try {
       InputSource source = new InputSource(new StringReader(xml));
-      return new XmlDocument(getDocumentBuilder().parse(source));
+      return new XmlDocument(db.parse(source));
     } catch (SAXException | IOException e) {
       throw new XmlException(Errors.single(50, e.getMessage()));
     }
@@ -128,54 +155,48 @@ public class Xml {
 
   private static DocumentBuilder getDocumentBuilder() {
     try {
-      return newDocumentBuilderFactory().newDocumentBuilder();
+      return DEFAULT_DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
     } catch (ParserConfigurationException e) {
       return throwUnchecked(e, DocumentBuilder.class);
     }
   }
 
   public static DocumentBuilderFactory newDocumentBuilderFactory() {
-    return new SkipResolvingEntitiesDocumentBuilderFactory();
+    try {
+      DocumentBuilderFactory dbf =
+          new SilentErrorDocumentBuilderFactory(
+              new SkipResolvingEntitiesDocumentBuilderFactory(
+                  DocumentBuilderFactory.newInstance()));
+      dbf.setFeature("http://xml.org/sax/features/validation", false);
+      dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      dbf.setXIncludeAware(false);
+      dbf.setExpandEntityReferences(false);
+      dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      return dbf;
+    } catch (ParserConfigurationException e) {
+      return throwUnchecked(e, DocumentBuilderFactory.class);
+    }
   }
 
-  private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
+  private static class SkipResolvingEntitiesDocumentBuilderFactory
+      extends DelegateDocumentBuilderFactory {
 
-    private static final ThreadLocal<DocumentBuilderFactory> DBF_CACHE =
-        ThreadLocal.withInitial(
-            () -> {
-              try {
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setFeature("http://xml.org/sax/features/validation", false);
-                dbf.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                dbf.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                dbf.setXIncludeAware(false);
-                dbf.setExpandEntityReferences(false);
-                dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                return dbf;
-              } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilderFactory.class);
-              }
-            });
-    private static final ThreadLocal<DocumentBuilder> DB_CACHE =
-        ThreadLocal.withInitial(
-            () -> {
-              try {
-                DocumentBuilder documentBuilder = DBF_CACHE.get().newDocumentBuilder();
-                documentBuilder.setEntityResolver(new ResolveToEmptyString());
-                documentBuilder.setErrorHandler(new SilentErrorHandler());
-                return documentBuilder;
-              } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilder.class);
-              }
-            });
+    public SkipResolvingEntitiesDocumentBuilderFactory(DocumentBuilderFactory delegate) {
+      super(delegate);
+    }
 
     @Override
     public DocumentBuilder newDocumentBuilder() {
-      return DB_CACHE.get();
+      try {
+        DocumentBuilder documentBuilder = delegate.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new ResolveToEmptyString());
+        return documentBuilder;
+      } catch (ParserConfigurationException e) {
+        return throwUnchecked(e, DocumentBuilder.class);
+      }
     }
 
     private static class ResolveToEmptyString implements EntityResolver {
@@ -184,25 +205,51 @@ public class Xml {
         return new InputSource(new StringReader(""));
       }
     }
+  }
 
-    @Override
-    public void setAttribute(String name, Object value) {
-      DBF_CACHE.get().setAttribute(name, value);
+  private static class SilentErrorDocumentBuilderFactory extends DelegateDocumentBuilderFactory {
+
+    public SilentErrorDocumentBuilderFactory(DocumentBuilderFactory delegate) {
+      super(delegate);
     }
 
     @Override
-    public Object getAttribute(String name) {
-      return DBF_CACHE.get().getAttribute(name);
+    public DocumentBuilder newDocumentBuilder() {
+      try {
+        DocumentBuilder documentBuilder = delegate.newDocumentBuilder();
+        documentBuilder.setErrorHandler(new SilentErrorHandler());
+        return documentBuilder;
+      } catch (ParserConfigurationException e) {
+        return throwUnchecked(e, DocumentBuilder.class);
+      }
+    }
+  }
+
+  private abstract static class DelegateDocumentBuilderFactory extends DocumentBuilderFactory {
+    protected final DocumentBuilderFactory delegate;
+
+    public DelegateDocumentBuilderFactory(DocumentBuilderFactory delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void setAttribute(String name, Object value) throws IllegalArgumentException {
+      delegate.setAttribute(name, value);
+    }
+
+    @Override
+    public Object getAttribute(String name) throws IllegalArgumentException {
+      return delegate.getAttribute(name);
     }
 
     @Override
     public void setFeature(String name, boolean value) throws ParserConfigurationException {
-      DBF_CACHE.get().setFeature(name, value);
+      delegate.setFeature(name, value);
     }
 
     @Override
     public boolean getFeature(String name) throws ParserConfigurationException {
-      return DBF_CACHE.get().getFeature(name);
+      return delegate.getFeature(name);
     }
   }
 }
