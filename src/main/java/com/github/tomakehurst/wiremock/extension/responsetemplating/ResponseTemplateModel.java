@@ -22,15 +22,21 @@ import java.util.Map;
 public class ResponseTemplateModel {
 
   private final Body body;
+  private final int status;
   private final Map<String, ListOrSingle<String>> headers;
 
-  public ResponseTemplateModel(Map<String, ListOrSingle<String>> headers, Body body) {
+  public ResponseTemplateModel(int status, Map<String, ListOrSingle<String>> headers, Body body) {
     this.body = body;
+    this.status = status;
     this.headers = headers;
   }
 
+  public int getStatus() {
+    return status;
+  }
+
   public String getBody() {
-    return body.asString();
+    return body.asBase64();
   }
 
   public Map<String, ListOrSingle<String>> getHeaders() {

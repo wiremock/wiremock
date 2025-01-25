@@ -187,6 +187,7 @@ public class TemplateEngine {
     }
 
     return new ResponseTemplateModel(
+        response.getStatus(),
         adaptedHeaders,
         Body.ofBinaryOrText(response.getBody(), response.getHeaders().getContentTypeHeader()));
   }
