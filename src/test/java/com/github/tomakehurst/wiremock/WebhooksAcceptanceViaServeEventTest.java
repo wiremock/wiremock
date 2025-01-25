@@ -287,12 +287,12 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
             .willReturn(
-                ok(
-                    "{\n"
+                ok("{\n"
                         + "  \"eventId\": \"7412\",\n"
                         + "  \"messageId\": \"2318\",\n"
                         + "  \"status\": \"success\"\n"
-                        + "}"))
+                        + "}")
+                    .withHeader("X-App-Id", "12345"))
             .withServeEventListener(
                 "webhook",
                 webhook()
@@ -302,8 +302,14 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                             + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
                     .withHeader("X-Single", "{{math 1 '+' 2}}")
                     .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
+                    .withHeader("X-Response-Status", "{{ originalResponse.status }}")
+                    .withHeader(
+                        "X-Response-App-Id-Header", "{{ originalResponse.headers.X-App-Id }}")
+                    .withHeader(
+                        "X-Response-Not-Present-Header",
+                        "{{ originalResponse.headers.X-Not-Present-Header }}")
                     .withBody(
-                        "{{jsonPath originalRequest.body '$.name'}} - {{jsonPath originalResponse.body '$.status'}}")
+                        "{{jsonPath originalRequest.body '$.name'}} - {{ jsonPath (base64 originalResponse.body decode=true) '$.status' }}")
                     .withExtraParameter("one", "param-one-value")));
 
     verify(0, postRequestedFor(anyUrl()));
@@ -326,6 +332,9 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     assertThat(request.header("X-Single").firstValue(), is("3"));
     assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+    assertThat(request.header("X-Response-Status").firstValue(), is("200"));
+    assertThat(request.header("X-Response-App-Id-Header").firstValue(), is("12345"));
+    assertThat(request.header("X-Response-Not-Present-Header").firstValue(), is(""));
     assertThat(request.getBodyAsString(), is("Tom - success"));
   }
 
