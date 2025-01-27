@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,8 @@ public class FormatXmlHelper extends AbstractFormattingHelper {
     return "XML";
   }
 
-  private final DocumentBuilderFactory documentBuilderFactory = Xml.newDocumentBuilderFactory();
+  private final DocumentBuilderFactory documentBuilderFactory =
+      Xml.DEFAULT_DOCUMENT_BUILDER_FACTORY;
 
   private final TransformerFactory transformerFactory;
 
