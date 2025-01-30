@@ -29,7 +29,7 @@ java {
 
 project.ext {
   versions = [
-    jetty        : '12.0.14',
+    jetty        : '12.0.16',
     junitJupiter : '5.10.2'
   ]
 }
