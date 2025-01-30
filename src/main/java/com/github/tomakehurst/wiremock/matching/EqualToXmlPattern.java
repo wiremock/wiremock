@@ -151,7 +151,6 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .withTest(value)
                   .withComparisonController(ComparisonControllers.StopWhenDifferent)
                   .ignoreWhitespace()
-                  .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withNodeMatcher(new OrderInvariantNodeMatcher(ignoreOrderOfSameNode))
                   .withDocumentBuilderFactory(DOCUMENT_BUILDER_FACTORY)
@@ -188,7 +187,6 @@ public class EqualToXmlPattern extends StringValuePattern {
               DiffBuilder.compare(Input.from(expectedValue))
                   .withTest(value)
                   .ignoreWhitespace()
-                  .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
                       (comparison, outcome) -> {
@@ -228,6 +226,7 @@ public class EqualToXmlPattern extends StringValuePattern {
   private static DocumentBuilderFactory newDocumentBuilderFactory() {
     DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
     try {
+      factory.setFeature("http://apache.org/xml/features/include-comments", false);
       factory.setFeature("http://xml.org/sax/features/namespaces", true);
     } catch (ParserConfigurationException e) {
       throwUnchecked(e);
