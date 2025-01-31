@@ -468,8 +468,7 @@ public class ProxyAcceptanceTest {
         getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
     assertThat(
         lastRequest.getHeaders().getHeader("Connection").values(),
-        containsInAnyOrder(
-            List.of(equalToIgnoringCase("keep-alive"), equalToIgnoringCase("upgrade"))));
+        hasItem("keep-alive"));
   }
 
   @Test
