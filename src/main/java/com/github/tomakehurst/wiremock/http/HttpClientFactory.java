@@ -81,6 +81,7 @@ public class HttpClientFactory {
             .setDefaultRequestConfig(
                 RequestConfig.custom()
                     .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
+                    .setProtocolUpgradeEnabled(false)
                     .build());
 
     if (disableConnectionReuse) {
