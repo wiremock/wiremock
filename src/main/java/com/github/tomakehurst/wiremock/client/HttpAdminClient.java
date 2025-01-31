@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpStatus;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
@@ -54,7 +55,6 @@ import java.util.UUID;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -73,7 +73,7 @@ public class HttpAdminClient implements Admin {
 
   private final AdminRoutes adminRoutes;
 
-  private final CloseableHttpClient httpClient;
+  private final HttpClient httpClient;
 
   public HttpAdminClient(String scheme, String host, int port) {
     this(scheme, host, port, "");
@@ -92,7 +92,7 @@ public class HttpAdminClient implements Admin {
     this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
   }
 
-  public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader, CloseableHttpClient httpClient) {
+  public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader, HttpClient httpClient) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
