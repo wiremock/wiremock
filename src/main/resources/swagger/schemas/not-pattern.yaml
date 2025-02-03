@@ -1,4 +1,4 @@
-title: NOT modifier
+title: Logical NOT modifier
 type: object
 properties:
   not:
