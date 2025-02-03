@@ -2,9 +2,15 @@ title: JSON equals
 type: object
 properties:
   equalToJson:
-    type: string
-    example: |-
-      { "message": "hello" }
+    oneOf:
+      - type: object
+        description: The JSON object to match.
+        example:
+          message: hello
+      - type: string
+        description: A JSON-encoded JSON string to match.
+        example: |-
+          { "message": "hello" }
   ignoreExtraElements:
     type: boolean
   ignoreArrayOrder:
