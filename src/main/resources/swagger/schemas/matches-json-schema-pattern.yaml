@@ -3,18 +3,43 @@ type: object
 properties:
   matchesJsonSchema:
     oneOf:
-      - type: string
-        example: "//Order/Amount"
       - type: object
-        allOf:
-          - properties:
-              expression:
-                type: string
-                example: "//Order/Amount"
-          - $ref: "content-pattern.yaml"
+        description: A valid JSON schema object
+        example: |-
+          {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+            "name": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+      - type: string
+        description: A valid string containing a JSON-encoded JSON schema
+        example: |-
+          {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+            "name": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
 
-        required:
-          - expression
+  schemaVersion:
+    type: string
+    description: The JSON schema version to interpret the schema against
+    example: "V202012"
 
 required:
   - matchesJsonSchema
