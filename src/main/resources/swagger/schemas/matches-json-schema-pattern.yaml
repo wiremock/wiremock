@@ -5,20 +5,16 @@ properties:
     oneOf:
       - type: object
         description: A valid JSON schema object
-        example: |-
-          {
-            "type": "object",
-            "required": [
-              "name"
-            ],
-            "properties": {
-            "name": {
-              "type": "string"
-            },
-            "tag": {
-              "type": "string"
-            }
-          }
+        example:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+            tag:
+              type: string
+
       - type: string
         description: A valid string containing a JSON-encoded JSON schema
         example: |-

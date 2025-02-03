@@ -15,19 +15,19 @@ properties:
   headers:
     description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
     type: object
-    example: |-
-      {
-        "Connection": { "equalTo": "keep-alive" },
-        "Host": { "equalTo": "localhost:56738" },
-        "User-Agent": { "equalTo": "Apache-HttpClient/4.5.1 (Java/1.7.0_51)" }
-      }
+    example:
+      Connection:
+        equalTo: keep-alive
+      Host:
+        equalTo: "localhost:56738"
+      User-Agent:
+        equalTo: "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
   cookies:
     description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
     type: object
-    example: |-
-      {
-        "user_id": { "equalTo": "tom1234" }
-      }
+    example:
+      user_id:
+        equalTo: tom1234
   body:
     description: Body string to match against
     type: string
