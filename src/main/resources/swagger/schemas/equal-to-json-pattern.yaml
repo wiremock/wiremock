@@ -3,7 +3,7 @@ type: object
 properties:
   equalToJson:
     type: string
-    example: |
+    example: |-
       { "message": "hello" }
   ignoreExtraElements:
     type: boolean
