@@ -16,10 +16,5 @@ properties:
         required:
           - expression
 
-  xPathNamespaces:
-    type: object
-    additionalProperties:
-      type: string
-
 required:
   - matchesJsonSchema
