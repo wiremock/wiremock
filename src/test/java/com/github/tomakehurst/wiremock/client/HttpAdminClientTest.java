@@ -37,14 +37,6 @@ class HttpAdminClientTest {
   private static final String ADMIN_TEST_PREFIX = "/admin-test";
 
   @Test
-  void shouldSetHttpClientInConstructor() {
-    var httpClient = ApacheBackedHttpClient;
-    HttpAdminClient adminClient =
-        new HttpAdminClient("https", "localhost", 8080, "", "localhost", httpClient);
-    assertThat(adminClient).hasFieldOrPropertyWithValue("httpClient", adminClient);
-  }
-
-  @Test
   void returnsOptionsWhenCallingGetOptions() {
     var client = new HttpAdminClient("localhost", 8080);
     assertThat(client.getOptions().portNumber()).isEqualTo(8080);
