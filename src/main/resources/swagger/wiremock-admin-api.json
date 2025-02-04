@@ -1946,6 +1946,10 @@
           "placeholderClosingDelimiterRegex": {
             "type": "string",
             "example": "]"
+          },
+          "namespaceAwareness": {
+            "type": "string",
+            "enum": ["LEGACY", "STRICT", "NONE"]
           }
         },
         "required": [

@@ -45,6 +45,7 @@ public class EqualToXmlPattern extends StringValuePattern {
           SCHEMA_LOCATION,
           NO_NAMESPACE_SCHEMA_LOCATION,
           NODE_TYPE,
+          NAMESPACE_PREFIX,
           NAMESPACE_URI,
           TEXT_VALUE,
           PROCESSING_INSTRUCTION_TARGET,
@@ -55,8 +56,7 @@ public class EqualToXmlPattern extends StringValuePattern {
           CHILD_LOOKUP,
           ATTR_NAME_LOOKUP);
 
-  private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY =
-      newDocumentBuilderFactory();
+  private final DocumentBuilderFactory documentBuilderFactory;
 
   private final Boolean enablePlaceholders;
   private final String placeholderOpeningDelimiterRegex;
@@ -64,17 +64,19 @@ public class EqualToXmlPattern extends StringValuePattern {
   private final DifferenceEvaluator diffEvaluator;
   private final Set<ComparisonType> exemptedComparisons;
   private final Boolean ignoreOrderOfSameNode;
+  private final NamespaceAwareness namespaceAwareness;
+  private final Set<ComparisonType> countedComparisons;
   private final Document expectedXmlDoc;
 
   public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
-    this(expectedValue, null, null, null, null, null);
+    this(expectedValue, null, null, null, null, null, null);
   }
 
   public EqualToXmlPattern(
       @JsonProperty("equalToXml") String expectedValue,
       @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
       @JsonProperty("ignoreOrderOfSameNode") boolean ignoreOrderOfSameNode) {
-    this(expectedValue, enablePlaceholders, null, null, null, ignoreOrderOfSameNode);
+    this(expectedValue, enablePlaceholders, null, null, null, ignoreOrderOfSameNode, null);
   }
 
   @JsonCreator
@@ -84,19 +86,33 @@ public class EqualToXmlPattern extends StringValuePattern {
       @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
       @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex,
       @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons,
-      @JsonProperty("ignoreOrderOfSameNode") Boolean ignoreOrderOfSameNode) {
+      @JsonProperty("ignoreOrderOfSameNode") Boolean ignoreOrderOfSameNode,
+      @JsonProperty("namespaceAwareness") NamespaceAwareness namespaceAwareness) {
 
     super(expectedValue);
+    documentBuilderFactory = newDocumentBuilderFactory(namespaceAwareness);
     // Throw an exception if we can't parse the document
-    expectedXmlDoc = Xml.read(expectedValue, DOCUMENT_BUILDER_FACTORY);
+    expectedXmlDoc = Xml.read(expectedValue, documentBuilderFactory);
     this.enablePlaceholders = enablePlaceholders;
     this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
     this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
     this.exemptedComparisons = exemptedComparisons;
     this.ignoreOrderOfSameNode = ignoreOrderOfSameNode;
+    this.namespaceAwareness = namespaceAwareness;
+    Set<ComparisonType> comparisonsToExempt = new HashSet<>();
+    if (exemptedComparisons != null) {
+      comparisonsToExempt.addAll(exemptedComparisons);
+    }
+    if (namespaceAwareness == NamespaceAwareness.LEGACY) {
+      comparisonsToExempt.add(NAMESPACE_PREFIX);
+    }
+    this.countedComparisons =
+        COUNTED_COMPARISONS.stream()
+            .filter(e -> !comparisonsToExempt.contains(e))
+            .collect(Collectors.toSet());
 
     IgnoreUncountedDifferenceEvaluator baseDifferenceEvaluator =
-        new IgnoreUncountedDifferenceEvaluator(exemptedComparisons);
+        new IgnoreUncountedDifferenceEvaluator(comparisonsToExempt);
     if (enablePlaceholders != null && enablePlaceholders) {
       diffEvaluator =
           DifferenceEvaluators.chain(
@@ -137,6 +153,10 @@ public class EqualToXmlPattern extends StringValuePattern {
     return exemptedComparisons;
   }
 
+  public NamespaceAwareness getNamespaceAwareness() {
+    return namespaceAwareness;
+  }
+
   @Override
   public MatchResult match(final String value) {
     return new MatchResult() {
@@ -146,15 +166,19 @@ public class EqualToXmlPattern extends StringValuePattern {
           return false;
         }
         try {
-          Diff diff =
+          DiffBuilder diffBuilder =
               DiffBuilder.compare(Input.from(expectedXmlDoc))
                   .withTest(value)
                   .withComparisonController(ComparisonControllers.StopWhenDifferent)
                   .ignoreWhitespace()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withNodeMatcher(new OrderInvariantNodeMatcher(ignoreOrderOfSameNode))
-                  .withDocumentBuilderFactory(DOCUMENT_BUILDER_FACTORY)
-                  .build();
+                  .withDocumentBuilderFactory(documentBuilderFactory);
+          if (namespaceAwareness == NamespaceAwareness.LEGACY) {
+            // See NamespaceAwareness javadoc for details of why this is set here.
+            diffBuilder.ignoreComments();
+          }
+          Diff diff = diffBuilder.build();
 
           return !diff.hasDifferences();
         } catch (XMLUnitException e) {
@@ -183,14 +207,14 @@ public class EqualToXmlPattern extends StringValuePattern {
 
         Diff diff;
         try {
-          diff =
+          DiffBuilder diffBuilder =
               DiffBuilder.compare(Input.from(expectedValue))
                   .withTest(value)
                   .ignoreWhitespace()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
                       (comparison, outcome) -> {
-                        if (COUNTED_COMPARISONS.contains(comparison.getType())
+                        if (countedComparisons.contains(comparison.getType())
                             && comparison.getControlDetails().getValue() != null) {
                           totalComparisons.incrementAndGet();
                           if (outcome == ComparisonResult.DIFFERENT) {
@@ -198,8 +222,11 @@ public class EqualToXmlPattern extends StringValuePattern {
                           }
                         }
                       })
-                  .withDocumentBuilderFactory(DOCUMENT_BUILDER_FACTORY)
-                  .build();
+                  .withDocumentBuilderFactory(documentBuilderFactory);
+          if (namespaceAwareness == NamespaceAwareness.LEGACY) {
+            diffBuilder.ignoreComments();
+          }
+          diff = diffBuilder.build();
         } catch (XMLUnitException e) {
           notifier()
               .info(
@@ -223,11 +250,14 @@ public class EqualToXmlPattern extends StringValuePattern {
     };
   }
 
-  private static DocumentBuilderFactory newDocumentBuilderFactory() {
+  private static DocumentBuilderFactory newDocumentBuilderFactory(
+      NamespaceAwareness namespaceAwareness) {
     DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
     try {
       factory.setFeature("http://apache.org/xml/features/include-comments", false);
-      factory.setFeature("http://xml.org/sax/features/namespaces", true);
+      factory.setFeature(
+          "http://xml.org/sax/features/namespaces",
+          namespaceAwareness == null || namespaceAwareness == NamespaceAwareness.STRICT);
     } catch (ParserConfigurationException e) {
       throwUnchecked(e);
     }
@@ -265,7 +295,19 @@ public class EqualToXmlPattern extends StringValuePattern {
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
         new HashSet<>(Arrays.asList(comparisons)),
-        ignoreOrderOfSameNode);
+        ignoreOrderOfSameNode,
+        namespaceAwareness);
+  }
+
+  public EqualToXmlPattern withNamespaceAwareness(NamespaceAwareness namespaceAwareness) {
+    return new EqualToXmlPattern(
+        expectedValue,
+        enablePlaceholders,
+        placeholderOpeningDelimiterRegex,
+        placeholderClosingDelimiterRegex,
+        exemptedComparisons,
+        ignoreOrderOfSameNode,
+        namespaceAwareness);
   }
 
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
@@ -295,5 +337,102 @@ public class EqualToXmlPattern extends StringValuePattern {
         return Comparator.comparing(Node::getLocalName);
       }
     }
+  }
+
+  /**
+   * This enum represents how the pattern will treat XML namespaces when matching.
+   *
+   * <p>{@link NamespaceAwareness#LEGACY} represents the old way that namespaces were treated. This
+   * had a lot of unpredictability and some behaviours were more of a side effect of other
+   * implementation details, rather than intentional. A key detail is that the original {@link
+   * DocumentBuilderFactory} was not namespace aware, but the XSLT transform performed by {@link
+   * DiffBuilder#ignoreComments()} seems to return a document that is semi-namespace aware, so some
+   * namespace aware functionality was available. Now {@link DiffBuilder#ignoreComments()} has been
+   * replaced by setting the {@link DocumentBuilderFactory} to ignore comment on read (much more
+   * performant and predictable), so is only used to produce the legacy namespace aware behaviour.
+   *
+   * <p>{@link NamespaceAwareness#STRICT} and {@link NamespaceAwareness#NONE} represent firmer, more
+   * intentional behaviour around how namespaces are handled. The details of how each option behaves
+   * are documented below:
+   *
+   * <p>{@link NamespaceAwareness#LEGACY} behaviour:
+   *
+   * <ul>
+   *   <li>Namespace prefixes do not need to be bound to a namespace URI.
+   *   <li>Element namespace prefixes (and their corresponding namespace URIs) are ignored (e.g.
+   *       `&lt;th:thing>Match this&lt;/th:thing>` == `&lt;st:thing>Match this&lt;/st:thing>`)
+   *       <ul>
+   *         <li>Element prefixes seem to effectively be totally removed from the document by the
+   *             XSLT transform performed by {@link DiffBuilder#ignoreComments()} (and no namespace
+   *             URI is assigned to the element).
+   *       </ul>
+   *   <li>Attributes are compared by their full name (i.e. namespace prefixes are NOT ignored)
+   *       (e.g. `&lt;thing th:attr="abc">Match this&lt;/thing>` != `&lt;thing st:attr="abc">Match
+   *       this&lt;/thing>`)
+   *       <ul>
+   *         <li>The XSLT transform performed by {@link DiffBuilder#ignoreComments()} does not
+   *             assign a namespace URI to attributes, so XMLUnit uses the attribute's full name.
+   *       </ul>
+   *   <li>xmlns namespaced attributes are ignored (e.g. `&lt;thing
+   *       xmlns:th="https://thing.com">Match this&lt;/thing>` == `&lt;thing
+   *       xmlns:st="https://stuff.com">Match this&lt;/thing>`)
+   *       <ul>
+   *         <li>XMLUnit ignores all attributes namespaced to http://www.w3.org/2000/xmlns/, which
+   *             all xmlns prefixed attributes are assigned to by the XSLT transform performed by
+   *             {@link DiffBuilder#ignoreComments()}.
+   *       </ul>
+   *   <li>Element default namespace attributes (i.e. `xmlns` attributes) are NOT ignored unless
+   *       NAMESPACE_URI comparison type is explicitly excluded (e.g. `&lt;thing
+   *       xmlns="https://thing.com">Match this&lt;/thing>` != `&lt;thing
+   *       xmlns="https://stuff.com">Match this&lt;/thing>`)
+   *       <ul>
+   *         <li>Like xmlns namespaced attributes, XMLUnit ignores all attributes namespaced to
+   *             http://www.w3.org/2000/xmlns/, which all xmlns attributes are assigned to by the
+   *             XSLT transform performed by {@link DiffBuilder#ignoreComments()}.
+   *         <li>The difference between default xmlns attributes and xmlns <i>prefixed</i>
+   *             attributes is that the XSLT transform performed by {@link
+   *             DiffBuilder#ignoreComments()} assigns the namespace URI of default xmlns attributes
+   *             to the attributed element, which is why matching will fail (unless NAMESPACE_URI
+   *             comparison type is explicitly excluded).
+   *       </ul>
+   * </ul>
+   *
+   * <p>{@link NamespaceAwareness#STRICT} behaviour:
+   *
+   * <ul>
+   *   <li>Namespace prefixes need to be bound to a namespace URI.
+   *   <li>Element and attribute namespace prefixes AND their corresponding namespace URIs are
+   *       compared.
+   *       <ul>
+   *         <li>Prefixes can be explicitly excluded and only the underlying namespace URIs are
+   *             compared.
+   *         <li>Namespace URIs can be explicitly excluded and only the prefixes are compared.
+   *             Although, due to a seeming inconsistency in XMLUnit, excluding NAMESPACE_URI does
+   *             not work with attributes (<a
+   *             href="https://github.com/xmlunit/xmlunit/issues/282">see XMLUnit issue</a>).
+   *         <li>Both prefixes and namespace URIs can be explicitly excluded.
+   *       </ul>
+   *   <li>The namespaces defined by xmlns namespaced attributes are compared, but the attributes
+   *       themselves are ignored (e.g. `&lt;thing xmlns:th="https://thing.com">Match
+   *       this&lt;/thing>` == `&lt;thing xmlns:st="https://stuff.com">Match this&lt;/thing>`)
+   *       <ul>
+   *         <li>XMLUnit ignores all attributes namespaced to http://www.w3.org/2000/xmlns/, which
+   *             all default and prefixed xmlns attributes are assigned to by when the document
+   *             builder factory is namespace aware.
+   *       </ul>
+   * </ul>
+   *
+   * <p>{@link NamespaceAwareness#NONE} behaviour:
+   *
+   * <ul>
+   *   <li>Namespace prefixes do not need to be bound to a namespace URI.
+   *   <li>Element and attribute are compared by their full name and all namespace URIs are ignored.
+   *   <li>xmlns attributes are not ignored and are treated like any other attribute.
+   * </ul>
+   */
+  public enum NamespaceAwareness {
+    STRICT,
+    LEGACY,
+    NONE,
   }
 }
