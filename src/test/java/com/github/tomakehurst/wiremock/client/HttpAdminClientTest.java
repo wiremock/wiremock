@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
-
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -39,8 +38,9 @@ class HttpAdminClientTest {
 
   @Test
   void shouldSetHttpClientInConstructor() {
-    var httpClient = HttpClientBuilder.create().build();
-    HttpAdminClient adminClient = new HttpAdminClient("https", "localhost", 8080, "","localhost", httpClient);
+    var httpClient = ApacheBackedHttpClient;
+    HttpAdminClient adminClient =
+        new HttpAdminClient("https", "localhost", 8080, "", "localhost", httpClient);
     assertThat(adminClient).hasFieldOrPropertyWithValue("httpClient", adminClient);
   }
 

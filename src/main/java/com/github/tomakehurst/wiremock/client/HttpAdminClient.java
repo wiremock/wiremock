@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,64 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
-import com.github.tomakehurst.wiremock.admin.*;
-import com.github.tomakehurst.wiremock.admin.model.*;
-import com.github.tomakehurst.wiremock.admin.tasks.*;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.FindStubMappingsByMetadataTask;
+import com.github.tomakehurst.wiremock.admin.GetAllScenariosTask;
+import com.github.tomakehurst.wiremock.admin.GetGlobalSettingsTask;
+import com.github.tomakehurst.wiremock.admin.GetRecordingStatusTask;
+import com.github.tomakehurst.wiremock.admin.ImportStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventsByRequestPatternTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventsByStubMetadataTask;
+import com.github.tomakehurst.wiremock.admin.RemoveStubMappingsByMetadataTask;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.SetScenarioStateTask;
+import com.github.tomakehurst.wiremock.admin.StartRecordingTask;
+import com.github.tomakehurst.wiremock.admin.StopRecordingTask;
+import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ScenarioState;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.tasks.CreateStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.EditStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForRequestPatternTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForRequestTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForUnmatchedTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindUnmatchedRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetAllRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetAllStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetRequestCountTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetServedStubTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GlobalSettingsUpdateTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RemoveMatchingStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RemoveStubMappingByIdTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetScenariosTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetToDefaultMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ShutdownServerTask;
+import com.github.tomakehurst.wiremock.admin.tasks.SnapshotTask;
+import com.github.tomakehurst.wiremock.common.AdminException;
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -36,6 +83,9 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpStatus;
+import com.github.tomakehurst.wiremock.http.ImmutableRequest;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -47,18 +97,15 @@ import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 public class HttpAdminClient implements Admin {
 
@@ -92,7 +139,13 @@ public class HttpAdminClient implements Admin {
     this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
   }
 
-  public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader, HttpClient httpClient) {
+  public HttpAdminClient(
+      String scheme,
+      String host,
+      int port,
+      String urlPathPrefix,
+      String hostHeader,
+      HttpClient httpClient) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
@@ -139,8 +192,8 @@ public class HttpAdminClient implements Admin {
     this.authenticator = authenticator;
 
     adminRoutes = AdminRoutes.forClient();
-
-    httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
+    var httpCLient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
+    this.httpClient = new ApacheBackedHttpClient(httpCLient, true);
   }
 
   public HttpAdminClient(String host, int port) {
@@ -457,21 +510,28 @@ public class HttpAdminClient implements Admin {
   }
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
-    HttpPost post = new HttpPost(url);
-    post.addHeader(CONTENT_TYPE, "application/json");
-    post.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
+    ImmutableRequest.Builder post =
+        ImmutableRequest.create().withAbsoluteUrl(url).withMethod(RequestMethod.POST);
+    post.withHeader(CONTENT_TYPE, "application/json");
+    if (json != null) {
+      post.withBody(json.getBytes(StandardCharsets.UTF_8));
+    }
     return safelyExecuteRequest(url, post);
   }
 
   private String putJsonAssertOkAndReturnBody(String url, String json) {
-    HttpPut put = new HttpPut(url);
-    put.addHeader(CONTENT_TYPE, "application/json");
-    put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
+    ImmutableRequest.Builder put =
+        ImmutableRequest.create().withAbsoluteUrl(url).withMethod(RequestMethod.PUT);
+    put.withHeader(CONTENT_TYPE, "application/json");
+    if (json != null) {
+      put.withBody(json.getBytes(StandardCharsets.UTF_8));
+    }
     return safelyExecuteRequest(url, put);
   }
 
   protected String getJsonAssertOkAndReturnBody(String url) {
-    HttpGet get = new HttpGet(url);
+    ImmutableRequest.Builder get =
+        ImmutableRequest.create().withAbsoluteUrl(url).withMethod(RequestMethod.GET);
     return safelyExecuteRequest(url, get);
   }
 
@@ -510,29 +570,29 @@ public class HttpAdminClient implements Admin {
             host,
             port,
             urlPathPrefix);
-    ClassicRequestBuilder requestBuilder =
-        ClassicRequestBuilder.create(requestSpec.method().getName()).setUri(url);
+    var requestBuilder =
+        ImmutableRequest.create().withMethod(requestSpec.method()).withAbsoluteUrl(url);
 
     if (requestSpec.method().hasEntity()) {
-      requestBuilder.setEntity(
-          jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
-      requestBuilder.addHeader(CONTENT_TYPE, "application/json");
+      if (requestBody != null) {
+        requestBuilder.withBody(Json.write(requestBody).getBytes(StandardCharsets.UTF_8));
+      }
+      requestBuilder.withHeader(CONTENT_TYPE, "application/json");
     }
-
-    String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
+    String responseBodyString = safelyExecuteRequest(url, requestBuilder);
 
     return responseType == Void.class ? null : Json.read(responseBodyString, responseType);
   }
 
-  private void injectHeaders(ClassicHttpRequest request) {
+  private void injectHeaders(ImmutableRequest.Builder requestBuilder) {
     if (hostHeader != null) {
-      request.addHeader(HOST, hostHeader);
+      requestBuilder.withHeader(HOST, hostHeader);
     }
 
     List<HttpHeader> httpHeaders = authenticator.generateAuthHeaders();
     for (HttpHeader header : httpHeaders) {
       for (String value : header.values()) {
-        request.addHeader(header.key(), value);
+        requestBuilder.withHeader(header.key(), value);
       }
     }
   }
@@ -551,19 +611,17 @@ public class HttpAdminClient implements Admin {
     return "Expected status 2xx for " + url + " but was " + responseStatusCode;
   }
 
-  private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
+  private String safelyExecuteRequest(String url, ImmutableRequest.Builder request) {
     injectHeaders(request);
-
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
-      int statusCode = response.getCode();
-
+    try {
+      var response = httpClient.execute(request.build());
+      int statusCode = response.getStatus();
       verifyResponseStatus(url, statusCode);
 
-      String body = getEntityAsStringAndCloseStream(response);
+      String body = response.getBodyAsString();
       if (HttpStatus.isClientError(statusCode)) {
         throwParsedClientError(url, body, statusCode);
       }
-
       return body;
     } catch (Exception e) {
       return throwUnchecked(e, String.class);
