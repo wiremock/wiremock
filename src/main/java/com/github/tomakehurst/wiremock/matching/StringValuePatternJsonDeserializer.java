@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,13 +189,25 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     Set<ComparisonType> exemptedComparisons =
         comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
     Boolean ignoreOrderOfSameNode = fromNullable(rootNode.findValue("ignoreOrderOfSameNode"));
+    EqualToXmlPattern.NamespaceAwareness namespaceAwareness =
+        deserializeNamespaceAwareness(rootNode);
     return new EqualToXmlPattern(
         operand.textValue(),
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
         exemptedComparisons,
-        ignoreOrderOfSameNode);
+        ignoreOrderOfSameNode,
+        namespaceAwareness);
+  }
+
+  private static EqualToXmlPattern.NamespaceAwareness deserializeNamespaceAwareness(
+      JsonNode rootNode) {
+    String namespaceAwarenessString =
+        fromNullableTextNode(rootNode.findValue("namespaceAwareness"));
+    return namespaceAwarenessString == null
+        ? null
+        : EqualToXmlPattern.NamespaceAwareness.valueOf(namespaceAwarenessString);
   }
 
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
