@@ -24,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
+import static org.xmlunit.diff.ComparisonType.NAMESPACE_PREFIX;
 import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
 import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.xml.XmlException;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import java.util.Locale;
@@ -172,9 +174,9 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void returnsExactMatchOnNamespacedXml() {
+  public void legacyNamespaceAwarenessReturnsExactMatchOnNamespacedXml() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern(
+        equalToXml(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                 + "    <soap:Body>\n"
@@ -182,7 +184,8 @@ public class EqualToXmlPatternTest {
                 + "            <things />\n"
                 + "        </stuff>\n"
                 + "    </soap:Body>\n"
-                + "</soap:Envelope>\n");
+                + "</soap:Envelope>\n",
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
 
     MatchResult match =
         pattern.match(
@@ -200,9 +203,10 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void returnsExactMatchOnNamespacedXmlWhenNamespacePrefixesDiffer() {
+  public void
+      legacyNamespaceAwarenessReturnsExactMatchOnNamespacedXmlWhenNamespacePrefixesDiffer() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern(
+        equalToXml(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<shampoo:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:shampoo=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                 + "    <shampoo:Body>\n"
@@ -210,7 +214,8 @@ public class EqualToXmlPatternTest {
                 + "            <things />\n"
                 + "        </stuff>\n"
                 + "    </shampoo:Body>\n"
-                + "</shampoo:Envelope>\n");
+                + "</shampoo:Envelope>\n",
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
 
     MatchResult match =
         pattern.match(
@@ -228,9 +233,9 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void doesNotReturnExactMatchWhenNamespaceUriDiffers() {
+  public void legacyNamespaceAwarenessDoesNotReturnExactMatchWhenDefaultNamespaceUriDiffers() {
     EqualToXmlPattern pattern =
-        new EqualToXmlPattern(
+        equalToXml(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                 + "    <soap:Body>\n"
@@ -238,7 +243,8 @@ public class EqualToXmlPatternTest {
                 + "            <things />\n"
                 + "        </stuff>\n"
                 + "    </soap:Body>\n"
-                + "</soap:Envelope>\n");
+                + "</soap:Envelope>\n",
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
 
     assertFalse(
         pattern
@@ -335,7 +341,15 @@ public class EqualToXmlPatternTest {
   public void returnsMatchWhenTextNodeIsIgnored() {
     String expectedXml = "<a>#{xmlunit.ignore}</a>";
     String actualXml = "<a>123</a>";
-    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}", null, false);
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            expectedXml,
+            true,
+            "#\\{",
+            "}",
+            null,
+            false,
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
     MatchResult matchResult = pattern.match(actualXml);
 
     assertTrue(matchResult.isExactMatch());
@@ -346,7 +360,15 @@ public class EqualToXmlPatternTest {
   public void returnsMatchWhenTextNodeIsIgnored_DefaultDelimiters() {
     String expectedXml = "<a>${xmlunit.ignore}</a>";
     String actualXml = "<a>123</a>";
-    EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null, null, false);
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            expectedXml,
+            true,
+            null,
+            null,
+            null,
+            false,
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
     MatchResult matchResult = pattern.match(actualXml);
 
     assertTrue(matchResult.isExactMatch());
@@ -358,12 +380,13 @@ public class EqualToXmlPatternTest {
     String patternJson = "{" + "\"equalToXml\" : \"<a/>\"" + "}";
     StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
 
-    assertTrue(stringValuePattern instanceof EqualToXmlPattern);
-    EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
+    EqualToXmlPattern equalToXmlPattern =
+        assertInstanceOf(EqualToXmlPattern.class, stringValuePattern);
     assertThat(equalToXmlPattern.isEnablePlaceholders(), nullValue());
     assertThat(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex(), nullValue());
     assertThat(equalToXmlPattern.getPlaceholderClosingDelimiterRegex(), nullValue());
     assertThat(equalToXmlPattern.getExemptedComparisons(), nullValue());
+    assertThat(equalToXmlPattern.getNamespaceAwareness(), nullValue());
   }
 
   @Test
@@ -387,11 +410,14 @@ public class EqualToXmlPatternTest {
             + "\"placeholderClosingDelimiterRegex\" : \""
             + placeholderClosingDelimiterRegex
             + "\", "
-            + "\"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"] }";
+            + "\"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"]"
+            + ", "
+            + "\"namespaceAwareness\": \"LEGACY\""
+            + " }";
     StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
 
-    assertTrue(stringValuePattern instanceof EqualToXmlPattern);
-    EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
+    EqualToXmlPattern equalToXmlPattern =
+        assertInstanceOf(EqualToXmlPattern.class, stringValuePattern);
     assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
     assertEquals(ignoreOrderOfSameNode, equalToXmlPattern.isIgnoreOrderOfSameNode());
     assertEquals(
@@ -401,6 +427,8 @@ public class EqualToXmlPatternTest {
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
         Matchers.is(Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+    assertThat(
+        equalToXmlPattern.getNamespaceAwareness(), is(EqualToXmlPattern.NamespaceAwareness.LEGACY));
   }
 
   @Test
@@ -418,7 +446,8 @@ public class EqualToXmlPatternTest {
             placeholderOpeningDelimiterRegex,
             placeholderClosingDelimiterRegex,
             Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE),
-            ignoreOrderOfSameNode);
+            ignoreOrderOfSameNode,
+            EqualToXmlPattern.NamespaceAwareness.NONE);
 
     String json = Json.write(pattern);
 
@@ -431,13 +460,37 @@ public class EqualToXmlPatternTest {
                 + "  \"ignoreOrderOfSameNode\": true,\n"
                 + "  \"placeholderOpeningDelimiterRegex\": \"[\",\n"
                 + "  \"placeholderClosingDelimiterRegex\": \"]\",\n"
-                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"ATTR_VALUE\", \"NAMESPACE_URI\"]\n"
+                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"ATTR_VALUE\", \"NAMESPACE_URI\"],\n"
+                + "  \"namespaceAwareness\": \"NONE\"\n"
                 + "}",
             JSONCompareMode.NON_EXTENSIBLE));
   }
 
   @Test
-  public void namespaceComparisonCanBeExcluded() {
+  public void
+      legacyNamespaceAwarenessReturnsExactMatchWhenElementNamespacePrefixesDifferButTheirCorrespondingNamespaceUrisAreTheSame() {
+    String expected =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:th=\"https://thing.com\">\n"
+            + "    <th:thing>Match this</th:thing>\n"
+            + "</stuff>";
+
+    String actual =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:st=\"https://thing.com\">\n"
+            + "    <st:thing>Match this</st:thing>\n"
+            + "</stuff>";
+
+    MatchResult matchResult =
+        equalToXml(expected, false, null, null, false, EqualToXmlPattern.NamespaceAwareness.LEGACY)
+            .match(actual);
+
+    assertTrue(matchResult.isExactMatch());
+  }
+
+  @Test
+  public void
+      legacyNamespaceAwarenessReturnsExactMatchWhenElementNamespacePrefixesAndTheirCorrespondingNamespaceUrisDiffer() {
     String expected =
         "<?xml version=\"1.0\"?>\n"
             + "<stuff xmlns:th=\"https://thing.com\">\n"
@@ -451,13 +504,73 @@ public class EqualToXmlPatternTest {
             + "</stuff>";
 
     MatchResult matchResult =
-        equalToXml(expected).exemptingComparisons(NAMESPACE_URI).match(actual);
+        equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.LEGACY).match(actual);
 
     assertTrue(matchResult.isExactMatch());
   }
 
   @Test
-  public void namespaceComparisonCanBeExcluded2() {
+  public void
+      legacyNamespaceAwarenessDoesNotMatchWhenAttrNamespacePrefixesDifferButNamespaceUrisAreTheSame() {
+    String expected =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:th=\"https://thing.com\">\n"
+            + "    <thing th:attr=\"abc\">Match this</thing>\n"
+            + "</stuff>";
+
+    String actual =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:st=\"https://thing.com\">\n"
+            + "    <thing st:attr=\"abc\">Match this</thing>\n"
+            + "</stuff>";
+
+    MatchResult matchResult =
+        equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.LEGACY).match(actual);
+
+    assertFalse(matchResult.isExactMatch());
+    assertThat(matchResult.getDistance(), not(equalTo(0.0)));
+  }
+
+  @Test
+  public void
+      legacyNamespaceAwarenessDoesNotMatchWhenAttrNamespacePrefixesAndNamespaceUrisDiffer() {
+    String expected =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:th=\"https://thing.com\">\n"
+            + "    <thing th:attr=\"abc\">Match this</thing>\n"
+            + "</stuff>";
+
+    String actual =
+        "<?xml version=\"1.0\"?>\n"
+            + "<stuff xmlns:st=\"https://stuff.com\">\n"
+            + "    <thing st:attr=\"abc\">Match this</thing>\n"
+            + "</stuff>";
+
+    MatchResult matchResult =
+        equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.LEGACY).match(actual);
+
+    assertFalse(matchResult.isExactMatch());
+    assertThat(matchResult.getDistance(), not(equalTo(0.0)));
+  }
+
+  @Test
+  public void defaultNamespaceUriComparisonCanBeExcludedOnLegacyNamespaceAwareness() {
+    String expected = "<GetValue xmlns=\"http://CIS/BIR/PUBL/2014/07/DataContract\"/>";
+
+    String actual = "<GetValue/>";
+
+    EqualToXmlPattern pattern = equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.LEGACY);
+    EqualToXmlPattern patternWithExclusion =
+        equalToXml(expected).exemptingComparisons(NAMESPACE_URI);
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(equalTo(0.0)));
+    assertTrue(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), equalTo(0.0));
+  }
+
+  @Test
+  public void defaultNamespaceUriComparisonCanBeExcludedOnLegacyNamespaceAwareness2() {
     String expected =
         "<ns2:GetValue\n"
             + "        xmlns=\"http://CIS/BIR/PUBL/2014/07/DataContract\"\n"
@@ -474,7 +587,23 @@ public class EqualToXmlPatternTest {
             + "        xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serializa\n"
             + "        tion/\"/>";
 
-    StringValuePattern pattern = equalToXml(expected).exemptingComparisons(NAMESPACE_URI);
+    StringValuePattern pattern =
+        equalToXml(expected, false, null, null, false, EqualToXmlPattern.NamespaceAwareness.LEGACY)
+            .exemptingComparisons(NAMESPACE_URI);
+
+    assertTrue(pattern.match(actual).isExactMatch());
+  }
+
+  @Test
+  public void xmlnsNamespacedAttributesAreNotComparedWhenUsingLegacyNamespaceAwareness() {
+    String expected =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/2014/07\" xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>";
+
+    String actual =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/PUBL/2014/07/DataContract\" xmlns:ns3=\"http://CIS/BIR/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\" xmlns:ns5=\"http://stuff.com\"/>";
+
+    StringValuePattern pattern =
+        equalToXml(expected).withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.LEGACY);
 
     assertTrue(pattern.match(actual).isExactMatch());
   }
@@ -575,5 +704,332 @@ public class EqualToXmlPatternTest {
         new EqualToXmlPattern("<body><!-- Comment --><entry/><entry/></body>", false, true);
     MatchResult result = pattern.match("<body><entry/><entry/><!-- A different comment --></body>");
     assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void legacyNamespaceAwarenessAllowsUnboundNamespacesOnElements() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<tns:companyID>100</tns:companyID>\n",
+            null,
+            null,
+            null,
+            null,
+            null,
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
+    MatchResult result =
+        pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><tns:companyID>100</tns:companyID>");
+    assertTrue(result.isExactMatch());
+    assertThat(result.getDistance(), is(0.0));
+  }
+
+  @Test
+  void legacyNamespaceAwarenessAllowsUnboundNamespacesOnAttributes() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            "<companyID tns:abc=\"123\">100</companyID>\n",
+            null,
+            null,
+            null,
+            null,
+            null,
+            EqualToXmlPattern.NamespaceAwareness.LEGACY);
+    MatchResult result = pattern.match("<companyID tns:abc=\"123\">100</companyID>");
+    assertTrue(result.isExactMatch());
+    assertThat(result.getDistance(), is(0.0));
+  }
+
+  @Test
+  void strictNamespaceAwarenessDoesNotAllowUnboundNamespacesOnElements() {
+    XmlException exception =
+        assertThrows(
+            XmlException.class,
+            () ->
+                new EqualToXmlPattern(
+                    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<tns:companyID>100</tns:companyID>\n",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    EqualToXmlPattern.NamespaceAwareness.STRICT));
+    assertThat(
+        exception.getMessage(),
+        containsString("The prefix \\\"tns\\\" for element \\\"tns:companyID\\\" is not bound."));
+  }
+
+  @Test
+  void strictNamespaceAwarenessDoesNotAllowUnboundNamespacesOnAttributes() {
+    XmlException exception =
+        assertThrows(
+            XmlException.class,
+            () ->
+                new EqualToXmlPattern(
+                    "<companyID tns:abc=\"123\">100</companyID>\n",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    EqualToXmlPattern.NamespaceAwareness.STRICT));
+    assertThat(
+        exception.getMessage(),
+        containsString(
+            "The prefix \\\"tns\\\" for attribute \\\"tns:abc\\\" associated with an element type \\\"companyID\\\" is not bound."));
+  }
+
+  @Test
+  void noNamespaceAwarenessAllowsUnboundNamespacesOnElements() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<tns:companyID>100</tns:companyID>\n",
+            null,
+            null,
+            null,
+            null,
+            null,
+            EqualToXmlPattern.NamespaceAwareness.NONE);
+    MatchResult result =
+        pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><tns:companyID>100</tns:companyID>");
+    assertTrue(result.isExactMatch());
+    assertThat(result.getDistance(), is(0.0));
+  }
+
+  @Test
+  void noNamespaceAwarenessAllowsUnboundNamespacesOnAttributes() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+            "<companyID tns:abc=\"123\">100</companyID>\n",
+            null,
+            null,
+            null,
+            null,
+            null,
+            EqualToXmlPattern.NamespaceAwareness.NONE);
+    MatchResult result = pattern.match("<companyID tns:abc=\"123\">100</companyID>");
+    assertTrue(result.isExactMatch());
+    assertThat(result.getDistance(), is(0.0));
+  }
+
+  @Test
+  void strictNamespaceAwarenessMatchesWhenElementNamespacePrefixesDifferUnless() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<ns1:companyID xmlns:ns1=\"https://thing.com\">100</ns1:companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    String actual = "<ns2:companyID xmlns:ns2=\"https://thing.com\">100</ns2:companyID>";
+    assertTrue(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), is(0.0));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_PREFIX);
+    assertTrue(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), is(0.0));
+  }
+
+  @Test
+  void strictNamespaceAwarenessMatchesWhenAttributeNamespacePrefixesDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+                "<companyID xmlns:ns1=\"https://thing.com\" ns1:abc=\"123\">100</companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    String actual = "<companyID xmlns:ns2=\"https://thing.com\" ns2:abc=\"123\">100</companyID>";
+    assertTrue(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), is(0.0));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_PREFIX);
+    assertTrue(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), is(0.0));
+  }
+
+  @Test
+  void
+      strictNamespaceAwarenessDoesNotMatchWhenElementNamespaceUrisDifferUnlessExplicitlyExcluded() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<ns1:companyID xmlns:ns1=\"https://stuff.com\">100</ns1:companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    String actual = "<ns1:companyID xmlns:ns1=\"https://thing.com\">100</ns1:companyID>";
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertTrue(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), is(0.0));
+  }
+
+  @Test
+  void strictNamespaceAwarenessDoesNotMatchWhenAttributeNamespaceUrisDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+                "<companyID xmlns:ns1=\"https://thing.com\" ns1:abc=\"123\">100</companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    String actual = "<companyID xmlns:ns1=\"https://stuff.com\" ns1:abc=\"123\">100</companyID>";
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  void noNamespaceAwarenessDoesNotMatchWhenElementNamespacePrefixesDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<ns1:companyID xmlns:ns1=\"https://stuff.com\">100</ns1:companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+    String actual = "<ns2:companyID xmlns:ns2=\"https://stuff.com\">100</ns2:companyID>";
+
+    // Expect
+    EqualToXmlPattern patternWithLegacyNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    assertTrue(patternWithLegacyNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithLegacyNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_PREFIX);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  void noNamespaceAwarenessDoesNotMatchWhenAttributeNamespacePrefixesDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+                "<companyID xmlns:ns1=\"https://thing.com\" ns1:abc=\"123\">100</companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+    String actual = "<companyID xmlns:ns2=\"https://thing.com\" ns2:abc=\"123\">100</companyID>";
+
+    // Expect
+    EqualToXmlPattern patternWithStrictNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    assertTrue(patternWithStrictNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithStrictNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_PREFIX);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  void noNamespaceAwarenessDoesNotMatchWhenElementNamespaceUrisDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern("<ns1:companyID xmlns:ns1=\"https://thing.com\">100</ns1:companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+    String actual = "<ns1:companyID xmlns:ns1=\"https://stuff.com\">100</ns1:companyID>";
+
+    // Expect
+    EqualToXmlPattern patternWithLegacyNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.LEGACY);
+    assertTrue(patternWithLegacyNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithLegacyNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  void noNamespaceAwarenessDoesNotMatchWhenAttributeNamespaceUrisDiffer() {
+    EqualToXmlPattern pattern =
+        new EqualToXmlPattern(
+                "<companyID xmlns:ns1=\"https://thing.com\" ns1:abc=\"123\">100</companyID>")
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+    String actual = "<companyID xmlns:ns1=\"https://stuff.com\" ns1:abc=\"123\">100</companyID>";
+
+    // Expect
+    EqualToXmlPattern patternWithLegacyNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.LEGACY);
+    assertTrue(patternWithLegacyNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithLegacyNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  public void xmlnsNamespacedAttributesAreNotComparedWhenUsingStrictNamespaceAwareness() {
+    String expected =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/2014/07\" xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>";
+
+    String actual =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/PUBL/2014/07/DataContract\" xmlns:ns3=\"http://CIS/BIR/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\" xmlns:ns5=\"http://stuff.com\"/>";
+
+    EqualToXmlPattern pattern =
+        equalToXml(expected).withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+
+    // Expect
+    EqualToXmlPattern patternWithNoNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+    assertFalse(patternWithNoNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithNoNsAwareness.match(actual).getDistance(), not(is(0.0)));
+
+    assertTrue(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), is(0.0));
+  }
+
+  @Test
+  public void xmlnsNamespacedAttributesAreComparedWhenUsingNoNamespaceAwareness() {
+    String expected =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/2014/07\" xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>";
+
+    String actual =
+        "<GetValue xmlns:ns2=\"http://CIS/BIR/PUBL/2014/07/DataContract\" xmlns:ns3=\"http://CIS/BIR/2014/07\" xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serialization/\" xmlns:ns5=\"http://stuff.com\"/>";
+
+    EqualToXmlPattern pattern =
+        equalToXml(expected).withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+
+    // Expect
+    EqualToXmlPattern patternWithStrictNsAwareness =
+        pattern.withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+    assertTrue(patternWithStrictNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithStrictNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
+  }
+
+  @Test
+  public void
+      defaultNamespaceUrisOfXmlnsAttributesAreComparedWhenUsingStrictNamespaceAwarenessUnlessExplicitlyExcluded() {
+    String expected = "<GetValue xmlns=\"http://thing.com\"/>";
+
+    String actual = "<GetValue xmlns=\"http://stuff.com\"/>";
+
+    EqualToXmlPattern pattern =
+        equalToXml(expected).withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT);
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertTrue(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), is(0.0));
+  }
+
+  @Test
+  public void defaultXmlnsAttributesAreComparedWhenUsingNoNamespaceAwareness() {
+    String expected = "<GetValue xmlns=\"http://thing.com\"/>";
+
+    String actual = "<GetValue xmlns=\"http://stuff.com\"/>";
+
+    EqualToXmlPattern pattern =
+        equalToXml(expected).withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.NONE);
+
+    // Expect
+    EqualToXmlPattern patternWithStrictNsAwareness =
+        pattern
+            .withNamespaceAwareness(EqualToXmlPattern.NamespaceAwareness.STRICT)
+            .exemptingComparisons(NAMESPACE_URI);
+    assertTrue(patternWithStrictNsAwareness.match(actual).isExactMatch());
+    assertThat(patternWithStrictNsAwareness.match(actual).getDistance(), is(0.0));
+
+    assertFalse(pattern.match(actual).isExactMatch());
+    assertThat(pattern.match(actual).getDistance(), not(is(0.0)));
+    EqualToXmlPattern patternWithExclusion = pattern.exemptingComparisons(NAMESPACE_URI);
+    assertFalse(patternWithExclusion.match(actual).isExactMatch());
+    assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
   }
 }
