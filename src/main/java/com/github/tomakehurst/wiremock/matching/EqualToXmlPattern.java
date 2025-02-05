@@ -45,7 +45,6 @@ public class EqualToXmlPattern extends StringValuePattern {
           SCHEMA_LOCATION,
           NO_NAMESPACE_SCHEMA_LOCATION,
           NODE_TYPE,
-          NAMESPACE_PREFIX,
           NAMESPACE_URI,
           TEXT_VALUE,
           PROCESSING_INSTRUCTION_TARGET,
@@ -102,9 +101,6 @@ public class EqualToXmlPattern extends StringValuePattern {
     Set<ComparisonType> comparisonsToExempt = new HashSet<>();
     if (exemptedComparisons != null) {
       comparisonsToExempt.addAll(exemptedComparisons);
-    }
-    if (namespaceAwareness == NamespaceAwareness.LEGACY) {
-      comparisonsToExempt.add(NAMESPACE_PREFIX);
     }
     this.countedComparisons =
         COUNTED_COMPARISONS.stream()
@@ -401,16 +397,11 @@ public class EqualToXmlPattern extends StringValuePattern {
    *
    * <ul>
    *   <li>Namespace prefixes need to be bound to a namespace URI.
-   *   <li>Element and attribute namespace prefixes AND their corresponding namespace URIs are
-   *       compared.
+   *   <li>Element and attribute namespace URIs are compared, but their prefixes are ignored.
    *       <ul>
-   *         <li>Prefixes can be explicitly excluded and only the underlying namespace URIs are
-   *             compared.
-   *         <li>Namespace URIs can be explicitly excluded and only the prefixes are compared.
-   *             Although, due to a seeming inconsistency in XMLUnit, excluding NAMESPACE_URI does
-   *             not work with attributes (<a
+   *         <li>Namespace URIs can be explicitly excluded. Although, due to how XMLUnit's engine is
+   *             implemented, excluding NAMESPACE_URI does not work with attributes (<a
    *             href="https://github.com/xmlunit/xmlunit/issues/282">see XMLUnit issue</a>).
-   *         <li>Both prefixes and namespace URIs can be explicitly excluded.
    *       </ul>
    *   <li>The namespaces defined by xmlns namespaced attributes are compared, but the attributes
    *       themselves are ignored (e.g. `&lt;thing xmlns:th="https://thing.com">Match
