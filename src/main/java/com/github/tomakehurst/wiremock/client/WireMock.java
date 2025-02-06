@@ -250,8 +250,13 @@ public class WireMock {
     return new EqualToXmlPattern(value);
   }
 
+  public static EqualToXmlPattern equalToXml(
+      String value, EqualToXmlPattern.NamespaceAwareness namespaceAwareness) {
+    return new EqualToXmlPattern(value, null, null, null, null, null, namespaceAwareness);
+  }
+
   public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
-    return new EqualToXmlPattern(value, enablePlaceholders, null, null, null, false);
+    return equalToXml(value, enablePlaceholders, false);
   }
 
   public static EqualToXmlPattern equalToXml(
@@ -264,12 +269,11 @@ public class WireMock {
       boolean enablePlaceholders,
       String placeholderOpeningDelimiterRegex,
       String placeholderClosingDelimiterRegex) {
-    return new EqualToXmlPattern(
+    return equalToXml(
         value,
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        null,
         false);
   }
 
@@ -279,13 +283,30 @@ public class WireMock {
       String placeholderOpeningDelimiterRegex,
       String placeholderClosingDelimiterRegex,
       boolean ignoreOrderOfSameNode) {
+    return equalToXml(
+        value,
+        enablePlaceholders,
+        placeholderOpeningDelimiterRegex,
+        placeholderClosingDelimiterRegex,
+        ignoreOrderOfSameNode,
+        null);
+  }
+
+  public static EqualToXmlPattern equalToXml(
+      String value,
+      boolean enablePlaceholders,
+      String placeholderOpeningDelimiterRegex,
+      String placeholderClosingDelimiterRegex,
+      boolean ignoreOrderOfSameNode,
+      EqualToXmlPattern.NamespaceAwareness namespaceAwareness) {
     return new EqualToXmlPattern(
         value,
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
         null,
-        ignoreOrderOfSameNode);
+        ignoreOrderOfSameNode,
+        namespaceAwareness);
   }
 
   public static MatchesXPathPattern matchingXPath(String value) {

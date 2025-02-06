@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,15 +41,29 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
           .registerHelper("jsonMerge", new JsonMergeHelper());
 
   private String resolveInlineMerge(Object baseJson, Object jsonToMerge) throws IOException {
+    return resolveInlineMerge(baseJson, jsonToMerge, false);
+  }
+
+  private String resolveInlineMerge(Object baseJson, Object jsonToMerge, boolean removeNulls)
+      throws IOException {
     Map<String, Object> context = new HashMap<>();
     context.put("baseJson", baseJson);
     context.put("jsonToMerge", jsonToMerge);
-    return handlebars.compileInline("{{jsonMerge baseJson jsonToMerge}}").apply(context);
+    return handlebars
+        .compileInline(
+            removeNulls
+                ? "{{jsonMerge baseJson jsonToMerge removeNulls=true}}"
+                : "{{jsonMerge baseJson jsonToMerge}}")
+        .apply(context);
   }
 
-  private String resolveBlockMerge(Object baseJson, String block) throws IOException {
+  private String resolveBlockMerge(Object baseJson, String block, boolean removeNulls)
+      throws IOException {
     return handlebars
-        .compileInline("{{#jsonMerge baseJson}}" + block + "{{/jsonMerge}}")
+        .compileInline(
+            (removeNulls ? "{{#jsonMerge baseJson removeNulls=true}}" : "{{#jsonMerge baseJson}}")
+                + block
+                + "{{/jsonMerge}}")
         .apply(Map.of("baseJson", baseJson));
   }
 
@@ -141,7 +155,7 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
   void jsonToMergeCanBeSpecifiedInAHandlebarsBlock(String block, String expectedOutput)
       throws IOException {
     assertThat(
-        resolveBlockMerge("{\"id\":456,\"name\":\"bob\",\"roles\":[\"viewer\"]}", block),
+        resolveBlockMerge("{\"id\":456,\"name\":\"bob\",\"roles\":[\"viewer\"]}", block, false),
         is(expectedOutput));
   }
 
@@ -156,7 +170,7 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
   void returnsAnErrorWhenJsonToMergeInAHandlebarsBlockDoesNotResolveToValidJson(String block)
       throws IOException {
     assertThat(
-        resolveBlockMerge("{\"id\":456,\"name\":\"bob\"}", block),
+        resolveBlockMerge("{\"id\":456,\"name\":\"bob\"}", block, false),
         is("[ERROR: JSON to merge is not valid JSON ('" + block + "')]"));
   }
 
@@ -214,5 +228,103 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
     String expectedOutput =
         "{ \"id\": 456, \"name\": \"bob\", \"data\": { \"nestedObject\": { \"value\": \"new value\", \"veryNestedArray\": [ \"newItem\" ], \"anOldField\": \"with an old value\", \"aNewField\": \"with a new value\" }, \"someNumber\": 456, \"newNestedObject\": { \"someBoolean\": true } } }";
     assertThat(output, jsonEquals(expectedOutput));
+  }
+
+  @Test
+  void nullAttributesAreRemovedWhenRemoveNullsParameterIsSetInline() throws IOException {
+    String baseJson =
+        "{\n"
+            + "  \"simple1\": 0.1,\n"
+            + "  \"simple2\": 5,\n"
+            + "  \"list1\": [\"one\", \"two\", \"three\"],\n"
+            + "  \"list2\": [\"four\", \"five\", \"six\"],\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"shallowObject2\": {\n"
+            + "    \"thing\": \"gone\"\n"
+            + "  },\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested1\": \"gone\",\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    String jsonToMerge =
+        "{\n"
+            + "  \"simple2\": null,\n"
+            + "  \"list2\": null,\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"shallowObject2\": null,\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested1\": null,\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    String expectedJson =
+        "{\n"
+            + "  \"simple1\": 0.1,\n"
+            + "  \"list1\": [\"one\", \"two\", \"three\"],\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    assertThat(resolveInlineMerge(baseJson, jsonToMerge, true), jsonEquals(expectedJson));
+  }
+
+  @Test
+  void nullAttributesAreRemovedWhenRemoveNullsParameterIsSetBlock() throws IOException {
+    String baseJson =
+        "{\n"
+            + "  \"simple1\": 0.1,\n"
+            + "  \"simple2\": 5,\n"
+            + "  \"list1\": [\"one\", \"two\", \"three\"],\n"
+            + "  \"list2\": [\"four\", \"five\", \"six\"],\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"shallowObject2\": {\n"
+            + "    \"thing\": \"gone\"\n"
+            + "  },\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested1\": \"gone\",\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    String jsonToMerge =
+        "{\n"
+            + "  \"simple2\": null,\n"
+            + "  \"list2\": null,\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"shallowObject2\": null,\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested1\": null,\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    String expectedJson =
+        "{\n"
+            + "  \"simple1\": 0.1,\n"
+            + "  \"list1\": [\"one\", \"two\", \"three\"],\n"
+            + "  \"shallowObject1\": {\n"
+            + "    \"thing\": \"here\"\n"
+            + "  },\n"
+            + "  \"deepObject\": {\n"
+            + "    \"nested2\": \"here\"\n"
+            + "  }\n"
+            + "}";
+
+    assertThat(resolveBlockMerge(baseJson, jsonToMerge, true), jsonEquals(expectedJson));
   }
 }

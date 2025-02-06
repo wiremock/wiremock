@@ -20,11 +20,11 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '7.0.1'
+  id 'com.diffplug.spotless' version '6.25.0'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
   id "org.sonarqube" version "6.0.1.5171"
   id 'jacoco'
-  id "me.champeau.jmh" version "0.7.2"
+  id "me.champeau.jmh" version "0.7.3"
   id 'com.dorongold.task-tree' version '4.0.0'
 }
 
@@ -67,7 +67,7 @@ dependencies {
       "com.fasterxml.jackson.core:jackson-annotations",
       "com.fasterxml.jackson.core:jackson-databind",
       "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-  api "org.apache.httpcomponents.client5:httpclient5:5.4.1"
+  api "org.apache.httpcomponents.client5:httpclient5:5.4.2"
   api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
   api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
     exclude group: 'junit', module: 'junit'
@@ -99,7 +99,7 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.5'
 
-  api 'com.networknt:json-schema-validator:1.5.4'
+  api 'com.networknt:json-schema-validator:1.5.5'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")
@@ -202,7 +202,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.10.0'
+  version = '3.11.0'
 
   compileJava {
     options.encoding = 'UTF-8'

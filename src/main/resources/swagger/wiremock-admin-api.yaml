@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 3.10.0
+  version: 3.11.0
   description: "WireMock offers a REST API for administration, troubleshooting and analysis purposes"
 
 externalDocs:
