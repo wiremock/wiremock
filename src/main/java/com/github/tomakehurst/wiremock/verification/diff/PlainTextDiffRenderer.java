@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public class PlainTextDiffRenderer {
   }
 
   private void writeSingleLine(StringBuilder sb, String left, String right, String message) {
-    sb.append("").append(rightPad(left, getMiddle() + 1, " ")).append("|");
+    sb.append(rightPad(left, getMiddle() + 1, " ")).append("|");
 
     if (isNotEmpty(right)) {
       sb.append(" ");
