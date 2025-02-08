@@ -45,10 +45,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
@@ -65,7 +62,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class StubbingAcceptanceTest extends AcceptanceTestBase {
+class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @BeforeAll
   public static void setupServer() {
@@ -1411,6 +1408,90 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         testClient.get("/foo").headers().get("Content-Type"),
         is(List.of("application/json", "application/json")));
+  }
+
+  @Test
+  void testStubWithIsOneOfRequestMethods() {
+    stubFor(
+        oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(200));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(200));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(404));
+  }
+
+  @Test
+  void testStubWithIsNoneOfRequestMethods() {
+    stubFor(
+        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(404));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(404));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(200));
+  }
+
+  @Test
+  void testStubWithInvalidIsOneOfRequestMethods() {
+    stubFor(
+        oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response = testClient.request("GET", "/some/url");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void testStubWithInvalidIsNoneOfRequestMethods() {
+    stubFor(
+        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response = testClient.request("GET", "/some/url");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void testStubWithIsOneOfAndAnyRequestMethod() {
+    stubFor(
+        oneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(200));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(200));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(404));
+  }
+
+  @Test
+  void testStubWithIsNoneOfAndAnyRequestMethod() {
+    stubFor(
+        noneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(404));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(404));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(200));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
