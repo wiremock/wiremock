@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ public class JUnitStyleDiffRenderer {
 
     String expected =
         lines.stream().map(EXPECTED).map(Object::toString).collect(Collectors.joining("\n"));
+
     String actual =
         lines.stream().map(ACTUAL).map(Object::toString).collect(Collectors.joining("\n"));
 
@@ -35,7 +36,7 @@ public class JUnitStyleDiffRenderer {
 
   public static String junitStyleDiffMessage(Object expected, Object actual) {
     return String.format(
-        " expected:<\n%s> but was:<\n%s>",
+        " expected:<%n%s> but was:<%n%s>",
         Strings.normaliseLineBreaks(expected.toString()),
         Strings.normaliseLineBreaks(actual.toString()));
   }

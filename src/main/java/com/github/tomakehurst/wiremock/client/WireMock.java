@@ -56,10 +56,7 @@ import com.networknt.schema.SpecVersion;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -627,16 +624,26 @@ public class WireMock {
     return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
   }
 
-  /**
-   * A mapping builder that can be used for both GET and HEAD http method. Returns a response body
-   * in case for GET and not in case of HEAD method. In case of tie the request is treated as a GET
-   * request
-   *
-   * @param urlPattern for the specified method
-   * @return a mapping builder for {@link RequestMethod#GET_OR_HEAD} http method
-   */
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.GET_OR_HEAD, urlPattern);
+    return isOneOf(Set.of("GET", "HEAD"), urlPattern);
+  }
+
+  public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
+    return requestIsOneOf(methods, urlPattern);
+  }
+
+  public static MappingBuilder requestIsOneOf(Set<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(
+        new Methods(RequestMethod.fromSet(methods), new HashSet<>()), urlPattern);
+  }
+
+  public static MappingBuilder isNoneOf(Set<String> methods, UrlPattern urlPattern) {
+    return requestIsNoneOf(methods, urlPattern);
+  }
+
+  public static MappingBuilder requestIsNoneOf(Set<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(
+        new Methods(new HashSet<>(), RequestMethod.fromSet(methods)), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
