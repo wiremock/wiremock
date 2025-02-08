@@ -27,6 +27,7 @@ public class JUnitStyleDiffRenderer {
 
     String expected =
         lines.stream().map(EXPECTED).map(Object::toString).collect(Collectors.joining("\n"));
+
     String actual =
         lines.stream().map(ACTUAL).map(Object::toString).collect(Collectors.joining("\n"));
 
@@ -35,7 +36,7 @@ public class JUnitStyleDiffRenderer {
 
   public static String junitStyleDiffMessage(Object expected, Object actual) {
     return String.format(
-        " expected:<\n%s> but was:<\n%s>",
+        " expected:<%n%s> but was:<%n%s>",
         Strings.normaliseLineBreaks(expected.toString()),
         Strings.normaliseLineBreaks(actual.toString()));
   }
