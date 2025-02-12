@@ -21,7 +21,10 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.github.tomakehurst.wiremock.junit.DslWrapper;
+
+import java.lang.reflect.Method;
 import java.util.Optional;
+
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
@@ -296,11 +299,21 @@ public class WireMockExtension extends DslWrapper
 
     setAdditionalOptions(context);
 
+    loadTestStub(context);
+
     if (proxyMode) {
       JvmProxyConfigurer.configureFor(wireMockServer);
     }
 
     onBeforeEach(context, runtimeInfo);
+  }
+
+  private void loadTestStub(ExtensionContext context) {
+    Method testMethod = context.getRequiredTestMethod();
+    if (testMethod != null && testMethod.isAnnotationPresent(WireMockStub.class)) {
+      WireMockStub annotation = testMethod.getAnnotation(WireMockStub.class);
+      wireMockServer.loadStubFromResource(annotation.value());
+    }
   }
 
   @Override
