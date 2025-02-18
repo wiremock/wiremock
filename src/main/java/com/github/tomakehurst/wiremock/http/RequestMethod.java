@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
@@ -33,7 +35,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
-  public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
+
   private final String name;
 
   public RequestMethod(String name) {
@@ -46,19 +48,18 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return new RequestMethod(value);
   }
 
+  @JsonCreator
+  public static Set<RequestMethod> fromSet(Set<String> values) {
+    return values.stream().map(RequestMethod::fromString).collect(Collectors.toSet());
+  }
+
   @JsonValue
   public String value() {
     return name;
   }
 
-  public boolean isOneOf(RequestMethod... methods) {
-    return asList(methods).contains(this);
-  }
-
   public MatchResult match(RequestMethod method) {
-    boolean getOrHeadMatch =
-        this.equals(GET_OR_HEAD) && (method.equals(GET) || method.equals(HEAD));
-    return MatchResult.of(this.equals(ANY) || this.equals(method) || getOrHeadMatch);
+    return MatchResult.of(this.equals(ANY) || this.equals(method));
   }
 
   @Override
@@ -95,8 +96,6 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public static RequestMethod[] values() {
-    return new RequestMethod[] {
-      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD
-    };
+    return new RequestMethod[] {GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY};
   }
 }
