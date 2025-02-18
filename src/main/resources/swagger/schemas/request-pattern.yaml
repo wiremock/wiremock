@@ -107,7 +107,7 @@ properties:
       properties:
         name:
           type: string
-        filename:
+        fileName:
           type: string
         matchingType:
           type: string
