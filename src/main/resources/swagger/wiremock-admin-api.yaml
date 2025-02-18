@@ -334,8 +334,6 @@ paths:
             application/json:
               example:
                 $ref: "examples/requests.yaml"
-                    
-                    
 
   /__admin/requests/remove-by-metadata:
     post:
@@ -548,7 +546,7 @@ paths:
                   type: string
                 example: ["file1.json", "file2.json", "file3.txt"]
           description: All scenarios
-          
+
   /__admin/files/{fileId}:
     parameters:
       - description: The name of the file
@@ -576,7 +574,7 @@ paths:
       requestBody:
         content:
           application/octet-stream:
-            schema: 
+            schema:
               type: string
               format: byte
       responses:
@@ -635,7 +633,6 @@ paths:
       responses:
         '200':
           description: Server will be shut down
-          
 
   /__admin/version:
     get:
@@ -647,7 +644,7 @@ paths:
       responses:
         '200':
           description: Successfully returned the version of the WireMock server
-          content: 
+          content:
             application/json:
               schema:
                 type: object

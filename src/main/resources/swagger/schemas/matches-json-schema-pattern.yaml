@@ -2,24 +2,27 @@ title: JSON Schema match
 type: object
 properties:
   matchesJsonSchema:
-    oneOf:
-      - type: string
-        example: "//Order/Amount"
-      - type: object
-        allOf:
-          - properties:
-              expression:
-                type: string
-                example: "//Order/Amount"
-          - $ref: "content-pattern.yaml"
-
-        required:
-          - expression
-
-  xPathNamespaces:
     type: object
-    additionalProperties:
-      type: string
+    description: A valid JSON schema object
+    example:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        tag:
+          type: string
+
+  schemaVersion:
+    description: The JSON schema version to interpret the schema against
+    example: "V202012"
+    enum:
+      - V4
+      - V6
+      - V7
+      - V201909
+      - V202012
 
 required:
   - matchesJsonSchema
