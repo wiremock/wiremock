@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 
 public class WireMockApp implements StubServer, Admin {
 
-  public static final String FILES_ROOT = "__files";
-  public static final String ADMIN_CONTEXT_ROOT = "/__admin";
-  public static final String MAPPINGS_ROOT = "mappings";
+  public static final String FILES_ROOT = Constants.FILES_ROOT;
+  public static final String ADMIN_CONTEXT_ROOT = Constants.ADMIN_CONTEXT_ROOT;
+  public static final String MAPPINGS_ROOT = Constants.MAPPINGS_ROOT;
   private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;

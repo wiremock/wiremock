@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -273,7 +273,9 @@ public class ProxyAcceptanceTest {
   @Test
   public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingEnabled()
       throws Exception {
-    init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.ALWAYS));
+    init(
+        wireMockConfig()
+            .useChunkedTransferEncoding(HttpServerFactoryOptions.ChunkedEncodingPolicy.ALWAYS));
 
     String path = "/response/length";
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
@@ -290,7 +292,9 @@ public class ProxyAcceptanceTest {
   @Test
   public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingDisabled()
       throws Exception {
-    init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER));
+    init(
+        wireMockConfig()
+            .useChunkedTransferEncoding(HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER));
 
     String path = "/response/length";
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
@@ -466,9 +470,7 @@ public class ProxyAcceptanceTest {
     testClient.get("/duplicate/connection-header");
     LoggedRequest lastRequest =
         getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
-    assertThat(
-        lastRequest.getHeaders().getHeader("Connection").values(),
-        hasItem("keep-alive"));
+    assertThat(lastRequest.getHeaders().getHeader("Connection").values(), hasItem("keep-alive"));
   }
 
   @Test

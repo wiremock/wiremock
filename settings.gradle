@@ -1,4 +1,7 @@
 rootProject.name = 'wiremock'
+include 'wiremock-common'
+include 'wiremock-extensions'
+include 'wiremock-jetty11'
 if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   include 'wiremock-jetty12'
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.*;
@@ -530,7 +531,9 @@ public class CommandLineOptionsTest {
   @Test
   public void setsChunkedEncodingPolicy() {
     CommandLineOptions options = new CommandLineOptions("--use-chunked-encoding", "always");
-    assertThat(options.getChunkedEncodingPolicy(), is(Options.ChunkedEncodingPolicy.ALWAYS));
+    assertThat(
+        options.getChunkedEncodingPolicy(),
+        is(HttpServerFactoryOptions.ChunkedEncodingPolicy.ALWAYS));
   }
 
   @Test
