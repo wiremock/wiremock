@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
-import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
+import static com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions.ChunkedEncodingPolicy.BODY_FILE;
+import static com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
@@ -31,6 +31,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
@@ -109,7 +110,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     chunkedEncodingPolicy =
         chunkedEncodingPolicyAttr != null
             ? (Options.ChunkedEncodingPolicy) chunkedEncodingPolicyAttr
-            : Options.ChunkedEncodingPolicy.ALWAYS;
+            : HttpServerFactoryOptions.ChunkedEncodingPolicy.ALWAYS;
 
     browserProxyingEnabled =
         Boolean.parseBoolean(

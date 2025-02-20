@@ -58,6 +58,9 @@ dependencies {
   api "org.eclipse.jetty:jetty-alpn-java-server"
   api "org.eclipse.jetty:jetty-alpn-java-client"
   api "org.eclipse.jetty:jetty-alpn-client"
+  api project(':wiremock-jetty11')
+  api project(':wiremock-common')
+  api project(':wiremock-extensions')
 
   api "com.google.guava:guava:$versions.guava", {
     exclude group: 'com.google.code.findbugs', module: 'jsr305'
