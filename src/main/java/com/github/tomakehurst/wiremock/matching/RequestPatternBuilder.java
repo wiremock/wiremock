@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,7 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RequestPatternBuilder {
 
@@ -35,6 +31,7 @@ public class RequestPatternBuilder {
   private Integer port;
   private UrlPattern url = UrlPattern.ANY;
   private RequestMethod method = RequestMethod.ANY;
+  private Methods methods = new Methods(new HashSet<>(), new HashSet<>());
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
   private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
 
@@ -57,6 +54,11 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
     this.method = method;
+    this.url = url;
+  }
+
+  public RequestPatternBuilder(Methods methods, UrlPattern url) {
+    this.methods = methods;
     this.url = url;
   }
 
@@ -99,6 +101,7 @@ public class RequestPatternBuilder {
     builder.port = requestPattern.getPort();
     builder.url = requestPattern.getUrlMatcher();
     builder.method = requestPattern.getMethod();
+    builder.methods = requestPattern.getMethods();
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }
@@ -272,6 +275,7 @@ public class RequestPatternBuilder {
         port,
         url,
         method,
+        methods,
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
