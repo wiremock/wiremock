@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.extension.ProxyRenderer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -35,19 +36,22 @@ public class StubResponseRenderer implements ResponseRenderer {
   private final BlobStore filesBlobStore;
   private final FileSource filesFileSource;
   private final SettingsStore settingsStore;
-  private final ProxyResponseRenderer proxyResponseRenderer;
+  private final List<ProxyRenderer> proxyResponseRenderers;
+  private final ProxyResponseRenderer defaultProxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
   private final List<ResponseTransformerV2> v2ResponseTransformers;
 
   public StubResponseRenderer(
       BlobStore filesBlobStore,
       SettingsStore settingsStore,
-      ProxyResponseRenderer proxyResponseRenderer,
+      List<ProxyRenderer> proxyResponseRenderers,
+      ProxyResponseRenderer defaultProxyResponseRenderer,
       List<ResponseTransformer> responseTransformers,
       List<ResponseTransformerV2> v2ResponseTransformers) {
     this.filesBlobStore = filesBlobStore;
     this.settingsStore = settingsStore;
-    this.proxyResponseRenderer = proxyResponseRenderer;
+    this.proxyResponseRenderers = proxyResponseRenderers;
+    this.defaultProxyResponseRenderer = defaultProxyResponseRenderer;
     this.responseTransformers = responseTransformers;
     this.v2ResponseTransformers = v2ResponseTransformers;
 
@@ -77,7 +81,12 @@ public class StubResponseRenderer implements ResponseRenderer {
 
   private Response buildResponse(ServeEvent serveEvent) {
     if (serveEvent.getResponseDefinition().isProxyResponse()) {
-      return proxyResponseRenderer.render(serveEvent);
+      for (ProxyRenderer renderer : proxyResponseRenderers) {
+        if (renderer.applyFor(serveEvent)) {
+          return renderer.render(serveEvent);
+        }
+      }
+      return defaultProxyResponseRenderer.render(serveEvent);
     } else {
       Response.Builder responseBuilder = renderDirectly(serveEvent);
       return responseBuilder.build();

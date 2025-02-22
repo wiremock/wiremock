@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
   public ContentPattern<?> forRequest(Request request) {
     final String mimeType = request.getHeaders().getContentTypeHeader().mimeTypePart();
     if (mimeType != null) {
-      if (mimeType.contains("json")) {
+      if (mimeType.contains("json") || mimeType.contains("grpc")) {
         return new EqualToJsonPattern(
             request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
       } else if (mimeType.contains("xml")) {
