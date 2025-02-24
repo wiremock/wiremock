@@ -129,12 +129,6 @@ dependencies {
 
   testImplementation 'org.openjdk.jmh:jmh-core:1.37'
   testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
-
-  constraints {
-    implementation "net.minidev:json-smart:2.5.2", {
-      because 'Pinning this above the transitive version from json-path to get CVE fix'
-    }
-  }
 }
 
 allprojects {
