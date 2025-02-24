@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.servlet.NotMatchedServlet;
+import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
@@ -34,13 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-public interface Options {
-
-  enum ChunkedEncodingPolicy {
-    ALWAYS,
-    NEVER,
-    BODY_FILE
-  }
+public interface Options extends HttpServerFactoryOptions {
 
   int DEFAULT_PORT = 8080;
   int DYNAMIC_PORT = 0;
@@ -160,4 +157,19 @@ public interface Options {
   Set<String> getSupportedProxyEncodings();
 
   boolean getDisableConnectionReuse();
+
+  @Override
+  default Class<WireMockHandlerDispatchingServlet> wireMockHandlerDispatchingServletClass() {
+    return WireMockHandlerDispatchingServlet.class;
+  }
+
+  @Override
+  default Class<StubRequestHandler> stubRequestHandlerClass() {
+    return StubRequestHandler.class;
+  }
+
+  @Override
+  default Class<NotMatchedServlet> notMatchedServletClass() {
+    return NotMatchedServlet.class;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -62,7 +62,7 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
 
   public static class InstrumentedThreadPoolFactory implements ThreadPoolFactory {
     @Override
-    public ThreadPool buildThreadPool(Options options) {
+    public ThreadPool buildThreadPool(HttpServerFactoryOptions options) {
       return new InstrumentedQueuedThreadPool(options.containerThreads());
     }
   }
