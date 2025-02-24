@@ -126,7 +126,13 @@ public class EqualToXmlPattern extends StringValuePattern {
 
   @Override
   public String getExpected() {
-    return Xml.prettyPrint(getValue());
+    try {
+      // as of writing, Xml.prettyPrint will throw an exception if the provided XML has unbound
+      // namespace prefixes.
+      return Xml.prettyPrint(getValue());
+    } catch (Exception e) {
+      return getValue();
+    }
   }
 
   public Boolean isEnablePlaceholders() {
