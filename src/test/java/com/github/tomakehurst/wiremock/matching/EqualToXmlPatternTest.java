@@ -1032,4 +1032,11 @@ public class EqualToXmlPatternTest {
     assertFalse(patternWithExclusion.match(actual).isExactMatch());
     assertThat(patternWithExclusion.match(actual).getDistance(), not(is(0.0)));
   }
+
+  @Test
+  void getExpectedHandlesUndeclaredNamespacePrefixes() {
+    String expected = "<abc asdas:atdf=\"asdas\">123</abc>";
+    EqualToXmlPattern pattern = equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.NONE);
+    assertThat(pattern.getExpected(), is(expected));
+  }
 }
