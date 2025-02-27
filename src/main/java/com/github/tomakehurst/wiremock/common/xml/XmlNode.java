@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public abstract class XmlNode {
   protected static final ThreadLocal<XPath> XPATH_CACHE =
       ThreadLocal.withInitial(
           () -> {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            final XPathFactory xPathfactory = XPathFactory.newDefaultInstance();
             return xPathfactory.newXPath();
           });
 
@@ -52,7 +52,7 @@ public abstract class XmlNode {
                           .getDeclaredConstructor()
                           .newInstance();
             } catch (Exception e) {
-              transformerFactory = TransformerFactory.newInstance();
+              transformerFactory = TransformerFactory.newDefaultInstance();
             }
             transformerFactory.setAttribute("indent-number", 2);
 
