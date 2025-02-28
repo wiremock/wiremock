@@ -43,21 +43,21 @@ public class Xml {
 
   public static final DocumentBuilderFactory DEFAULT_DOCUMENT_BUILDER_FACTORY =
       new DelegateDocumentBuilderFactory(newDocumentBuilderFactory()) {
-        private final DocumentBuilder documentBuilder;
+        // DocumentBuilder is NOT thread safe.
+        private final ThreadLocal<DocumentBuilder> documentBuilder =
+            ThreadLocal.withInitial(this::build);
 
-        {
-          DocumentBuilder db;
+        private DocumentBuilder build() {
           try {
-            db = delegate.newDocumentBuilder();
+            return delegate.newDocumentBuilder();
           } catch (ParserConfigurationException e) {
-            db = throwUnchecked(e, DocumentBuilder.class);
+            return throwUnchecked(e, DocumentBuilder.class);
           }
-          documentBuilder = db;
         }
 
         @Override
         public DocumentBuilder newDocumentBuilder() {
-          return documentBuilder;
+          return documentBuilder.get();
         }
       };
 
