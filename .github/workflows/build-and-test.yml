@@ -37,7 +37,7 @@ jobs:
       run: chmod +x gradlew
     
     - name: Cache SonarCloud packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
@@ -89,7 +89,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Cache SonarCloud packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-jetty12-sonar
