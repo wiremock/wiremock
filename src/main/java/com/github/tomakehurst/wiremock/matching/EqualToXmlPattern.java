@@ -89,7 +89,7 @@ public class EqualToXmlPattern extends StringValuePattern {
       @JsonProperty("namespaceAwareness") NamespaceAwareness namespaceAwareness) {
 
     super(expectedValue);
-    documentBuilderFactory = newDocumentBuilderFactory(namespaceAwareness);
+    documentBuilderFactory = getDocumentBuilderFactory(namespaceAwareness);
     // Throw an exception if we can't parse the document
     expectedXmlDoc = Xml.read(expectedValue, documentBuilderFactory);
     this.enablePlaceholders = enablePlaceholders;
@@ -252,14 +252,23 @@ public class EqualToXmlPattern extends StringValuePattern {
     };
   }
 
-  private static DocumentBuilderFactory newDocumentBuilderFactory(
+  private static final DocumentBuilderFactory namespaceAware = newDocumentBuilderFactory(true);
+  private static final DocumentBuilderFactory namespaceUnaware = newDocumentBuilderFactory(false);
+
+  private static DocumentBuilderFactory getDocumentBuilderFactory(
       NamespaceAwareness namespaceAwareness) {
+    if (namespaceAwareness == null || namespaceAwareness == NamespaceAwareness.STRICT) {
+      return namespaceAware;
+    } else {
+      return namespaceUnaware;
+    }
+  }
+
+  private static DocumentBuilderFactory newDocumentBuilderFactory(boolean namespaceAware) {
     DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
     try {
       factory.setFeature("http://apache.org/xml/features/include-comments", false);
-      factory.setFeature(
-          "http://xml.org/sax/features/namespaces",
-          namespaceAwareness == null || namespaceAwareness == NamespaceAwareness.STRICT);
+      factory.setFeature("http://xml.org/sax/features/namespaces", namespaceAware);
     } catch (ParserConfigurationException e) {
       throwUnchecked(e);
     }
