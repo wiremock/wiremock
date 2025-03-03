@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
 public class Xml {
 
   public static final DocumentBuilderFactory DEFAULT_DOCUMENT_BUILDER_FACTORY =
-      new BuilderPerThreadDocumentBuilderFactory(newDocumentBuilderFactory());
+      newDocumentBuilderFactory();
 
   private Xml() {
     // Hide constructor
@@ -145,9 +145,10 @@ public class Xml {
   public static DocumentBuilderFactory newDocumentBuilderFactory() {
     try {
       DocumentBuilderFactory dbf =
-          new SilentErrorDocumentBuilderFactory(
-              new SkipResolvingEntitiesDocumentBuilderFactory(
-                  DocumentBuilderFactory.newInstance()));
+          new BuilderPerThreadDocumentBuilderFactory(
+              new SilentErrorDocumentBuilderFactory(
+                  new SkipResolvingEntitiesDocumentBuilderFactory(
+                      DocumentBuilderFactory.newInstance())));
       dbf.setFeature("http://xml.org/sax/features/validation", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -161,5 +162,4 @@ public class Xml {
       return throwUnchecked(e, DocumentBuilderFactory.class);
     }
   }
-
 }
