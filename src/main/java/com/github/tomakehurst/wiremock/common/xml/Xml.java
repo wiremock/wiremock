@@ -20,7 +20,6 @@ import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -35,31 +34,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class Xml {
 
   public static final DocumentBuilderFactory DEFAULT_DOCUMENT_BUILDER_FACTORY =
-      new DelegateDocumentBuilderFactory(newDocumentBuilderFactory()) {
-        // DocumentBuilder is NOT thread safe.
-        private final ThreadLocal<DocumentBuilder> documentBuilder =
-            ThreadLocal.withInitial(this::build);
-
-        private DocumentBuilder build() {
-          try {
-            return delegate.newDocumentBuilder();
-          } catch (ParserConfigurationException e) {
-            return throwUnchecked(e, DocumentBuilder.class);
-          }
-        }
-
-        @Override
-        public DocumentBuilder newDocumentBuilder() {
-          return documentBuilder.get();
-        }
-      };
+      newDocumentBuilderFactory();
 
   private Xml() {
     // Hide constructor
@@ -164,9 +145,10 @@ public class Xml {
   public static DocumentBuilderFactory newDocumentBuilderFactory() {
     try {
       DocumentBuilderFactory dbf =
-          new SilentErrorDocumentBuilderFactory(
-              new SkipResolvingEntitiesDocumentBuilderFactory(
-                  DocumentBuilderFactory.newInstance()));
+          new BuilderPerThreadDocumentBuilderFactory(
+              new SilentErrorDocumentBuilderFactory(
+                  new SkipResolvingEntitiesDocumentBuilderFactory(
+                      DocumentBuilderFactory.newInstance())));
       dbf.setFeature("http://xml.org/sax/features/validation", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -178,78 +160,6 @@ public class Xml {
       return dbf;
     } catch (ParserConfigurationException e) {
       return throwUnchecked(e, DocumentBuilderFactory.class);
-    }
-  }
-
-  private static class SkipResolvingEntitiesDocumentBuilderFactory
-      extends DelegateDocumentBuilderFactory {
-
-    public SkipResolvingEntitiesDocumentBuilderFactory(DocumentBuilderFactory delegate) {
-      super(delegate);
-    }
-
-    @Override
-    public DocumentBuilder newDocumentBuilder() {
-      try {
-        DocumentBuilder documentBuilder = delegate.newDocumentBuilder();
-        documentBuilder.setEntityResolver(new ResolveToEmptyString());
-        return documentBuilder;
-      } catch (ParserConfigurationException e) {
-        return throwUnchecked(e, DocumentBuilder.class);
-      }
-    }
-
-    private static class ResolveToEmptyString implements EntityResolver {
-      @Override
-      public InputSource resolveEntity(String publicId, String systemId) {
-        return new InputSource(new StringReader(""));
-      }
-    }
-  }
-
-  private static class SilentErrorDocumentBuilderFactory extends DelegateDocumentBuilderFactory {
-
-    public SilentErrorDocumentBuilderFactory(DocumentBuilderFactory delegate) {
-      super(delegate);
-    }
-
-    @Override
-    public DocumentBuilder newDocumentBuilder() {
-      try {
-        DocumentBuilder documentBuilder = delegate.newDocumentBuilder();
-        documentBuilder.setErrorHandler(new SilentErrorHandler());
-        return documentBuilder;
-      } catch (ParserConfigurationException e) {
-        return throwUnchecked(e, DocumentBuilder.class);
-      }
-    }
-  }
-
-  private abstract static class DelegateDocumentBuilderFactory extends DocumentBuilderFactory {
-    protected final DocumentBuilderFactory delegate;
-
-    public DelegateDocumentBuilderFactory(DocumentBuilderFactory delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    public void setAttribute(String name, Object value) throws IllegalArgumentException {
-      delegate.setAttribute(name, value);
-    }
-
-    @Override
-    public Object getAttribute(String name) throws IllegalArgumentException {
-      return delegate.getAttribute(name);
-    }
-
-    @Override
-    public void setFeature(String name, boolean value) throws ParserConfigurationException {
-      delegate.setFeature(name, value);
-    }
-
-    @Override
-    public boolean getFeature(String name) throws ParserConfigurationException {
-      return delegate.getFeature(name);
     }
   }
 }
