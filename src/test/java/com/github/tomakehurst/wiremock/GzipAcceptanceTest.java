@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -103,7 +103,8 @@ public class GzipAcceptanceTest {
             .options(
                 wireMockConfig()
                     .dynamicPort()
-                    .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER))
+                    .useChunkedTransferEncoding(
+                        HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER))
             .build();
 
     WireMockTestClient testClient;
