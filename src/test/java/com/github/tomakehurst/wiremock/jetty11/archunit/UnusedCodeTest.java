@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,18 +70,21 @@ class UnusedCodeTest {
 
   @ArchTest
   static ArchRule classesShouldNotBeUnused =
-      classes()
-          .that(
-              describe(
-                  "do not implement interface", clazz -> clazz.getAllRawInterfaces().isEmpty()))
-          .and(describe("do not extend class", clazz -> 1 == clazz.getAllRawSuperclasses().size()))
-          .and(
-              not(
-                  assignableTo(
-                      com.github.tomakehurst.wiremock.standalone.WireMockServerRunner.class)))
-          .should(beReferencedClass)
-          .as("should use all classes")
-          .because("unused classes should be removed");
+      freeze(
+          classes()
+              .that(
+                  describe(
+                      "do not implement interface", clazz -> clazz.getAllRawInterfaces().isEmpty()))
+              .and(
+                  describe(
+                      "do not extend class", clazz -> 1 == clazz.getAllRawSuperclasses().size()))
+              .and(
+                  not(
+                      assignableTo(
+                          com.github.tomakehurst.wiremock.standalone.WireMockServerRunner.class)))
+              .should(beReferencedClass)
+              .as("should use all classes")
+              .because("unused classes should be removed"));
 
   private static ArchCondition<? super JavaMethod> beReferencedMethod =
       new ArchCondition<JavaMethod>("be referenced") {

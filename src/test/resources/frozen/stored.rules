@@ -1,5 +1,6 @@
 #
-#Tue Mar 26 06:43:05 AEDT 2024
+#Sat Mar 08 03:10:40 AEDT 2025
 no\ classes\ should\ throw\ generic\ exceptions=do-not-throw-generic-exception
 classes\ should\ not\ access\ standard\ streams=no-standard-streams
+should\ use\ all\ classes,\ because\ unused\ classes\ should\ be\ removed=unused-classes
 should\ use\ all\ methods,\ because\ unused\ methods\ should\ be\ removed=unused-methods
