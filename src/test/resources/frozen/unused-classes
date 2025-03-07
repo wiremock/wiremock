@@ -1,0 +1,6 @@
+Class <com.github.tomakehurst.wiremock.client.WireMock$2> is unreferenced in (WireMock.java:0)
+Class <com.github.tomakehurst.wiremock.common.ContentTypes$1> is unreferenced in (ContentTypes.java:0)
+Class <com.github.tomakehurst.wiremock.common.xml.XmlNode$1> is unreferenced in (XmlNode.java:0)
+Class <com.github.tomakehurst.wiremock.extension.ServeEventListener$1> is unreferenced in (ServeEventListener.java:0)
+Class <com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.FormatJsonHelper$1> is unreferenced in (FormatJsonHelper.java:0)
+Class <com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.FormatXmlHelper$1> is unreferenced in (FormatXmlHelper.java:0)
