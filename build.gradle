@@ -25,7 +25,7 @@ plugins {
   id "org.sonarqube" version "6.0.1.5171"
   id 'jacoco'
   id "me.champeau.jmh" version "0.7.3"
-  id 'com.dorongold.task-tree' version '4.0.0'
+  id 'com.dorongold.task-tree' version '4.0.1'
 }
 
 group = 'org.wiremock'
