@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -404,6 +404,13 @@ public class HttpAdminClient implements Admin {
   @Override
   public void shutdownServer() {
     postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null);
+  }
+
+  @Override
+  public ListStubMappingsResult findUnmatchedStubs() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetUnmatchedStubMappingsTask.class),
+        ListStubMappingsResult.class);
   }
 
   @Override
