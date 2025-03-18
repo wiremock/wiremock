@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,12 @@ public class StubResponseRendererTest {
     v2ResponseTransformers = new ArrayList<>();
     stubResponseRenderer =
         new StubResponseRenderer(
-            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
+            filesBlobStore,
+            settingsStore,
+            null,
+            null,
+            responseTransformers,
+            v2ResponseTransformers);
   }
 
   @Test
