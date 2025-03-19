@@ -125,16 +125,13 @@ public class HttpAdminClient implements Admin {
       String proxyHost,
       int proxyPort,
       ClientAuthenticator authenticator) {
-    this.scheme = scheme;
-    this.host = host;
-    this.port = port;
-    this.urlPathPrefix = urlPathPrefix;
-    this.hostHeader = hostHeader;
-    this.authenticator = authenticator;
-
-    adminRoutes = AdminRoutes.forClient();
-
-    httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
+    this(scheme,
+            host,
+            port,
+            urlPathPrefix,
+            hostHeader,
+            authenticator,
+            HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
   }
 
   public HttpAdminClient(
@@ -462,7 +459,7 @@ public class HttpAdminClient implements Admin {
     return port;
   }
 
-  private ProxySettings createProxySettings(String proxyHost, int proxyPort) {
+  private static ProxySettings createProxySettings(String proxyHost, int proxyPort) {
     if (isNotBlank(proxyHost)) {
       return new ProxySettings(proxyHost, proxyPort);
     }
