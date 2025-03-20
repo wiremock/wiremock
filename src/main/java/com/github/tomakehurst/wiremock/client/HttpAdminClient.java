@@ -125,13 +125,14 @@ public class HttpAdminClient implements Admin {
       String proxyHost,
       int proxyPort,
       ClientAuthenticator authenticator) {
-    this(scheme,
-            host,
-            port,
-            urlPathPrefix,
-            hostHeader,
-            authenticator,
-            HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
+    this(
+        scheme,
+        host,
+        port,
+        urlPathPrefix,
+        hostHeader,
+        authenticator,
+        HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
   }
 
   public HttpAdminClient(
