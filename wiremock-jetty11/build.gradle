@@ -72,6 +72,7 @@ dependencies {
 
   api project(':wiremock-common')
   api project(':wiremock-extensions')
+  api project(':wiremock-jetty-common')
 
   implementation "org.slf4j:slf4j-api:1.7.36"
 
@@ -123,6 +124,8 @@ dependencies {
 
   testImplementation 'org.openjdk.jmh:jmh-core:1.37'
   testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+
+  testImplementation(testFixtures(project(':wiremock-common')))
 
   constraints {
     implementation "net.minidev:json-smart:2.5.2", {
@@ -193,5 +196,13 @@ test {
   testLogging {
     events "FAILED", "SKIPPED"
     exceptionFormat "full"
+  }
+}
+
+sourceSets {
+  test {
+    resources {
+      srcDirs += [new File('../test-resources')]
+    }
   }
 }

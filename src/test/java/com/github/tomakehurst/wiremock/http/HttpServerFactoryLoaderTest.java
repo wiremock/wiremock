@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -89,13 +88,13 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheDefaultFactoryWhenNoExtensionsArePresentAndJettyVersionIs11() {
+  void usesTheServiceLoaderWhenNoExtensionsArePresentAndJettyVersionIs11() {
     loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, true);
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory()));
 
     HttpServerFactory result = loader.load();
 
-    assertThat(result, instanceOf(JettyHttpServerFactory.class));
+    assertThat(result, instanceOf(CustomHttpServerFactory.class));
   }
 
   @Test

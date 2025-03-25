@@ -40,16 +40,9 @@ project.ext {
 
 dependencies {
   api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
-  api "org.eclipse.jetty:jetty-server"
-  api "org.eclipse.jetty:jetty-servlet"
-  api "org.eclipse.jetty:jetty-servlets"
-  api "org.eclipse.jetty:jetty-webapp"
-  api "org.eclipse.jetty:jetty-proxy"
-  api "org.eclipse.jetty.http2:http2-server"
-  api "org.eclipse.jetty:jetty-alpn-server"
-  api "org.eclipse.jetty:jetty-alpn-java-server"
-  api "org.eclipse.jetty:jetty-alpn-java-client"
-  api "org.eclipse.jetty:jetty-alpn-client"
+  api 'org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:5.0.2'
+  api 'org.eclipse.jetty:jetty-util'
+  compileOnly 'org.eclipse.jetty:jetty-server'
 
   api "com.google.guava:guava:$versions.guava", {
     exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -112,8 +105,6 @@ dependencies {
   testImplementation 'org.scala-lang:scala-library:2.13.16'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
-  testImplementation "org.eclipse.jetty:jetty-client"
-  testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
   testImplementation files('test-extension/test-extension.jar')

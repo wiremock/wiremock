@@ -39,10 +39,8 @@ dependencies {
   api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
   api platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
 
-  api project(':'), {
-    exclude group: 'org.eclipse.jetty'
-    exclude group: 'org.eclipse.jetty.http2'
-  }
+  api project(':wiremock-common')
+  api project(':wiremock-jetty-common')
 
   api "org.eclipse.jetty:jetty-server"
   api "org.eclipse.jetty:jetty-proxy"
@@ -60,10 +58,7 @@ dependencies {
   testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty"
   testImplementation "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
 
-  testImplementation(testFixtures(project(":")), {
-    exclude group: 'org.eclipse.jetty'
-    exclude group: 'org.eclipse.jetty.http2'
-  })
+  testImplementation(testFixtures(project(':wiremock-common')))
 }
 
 idea {

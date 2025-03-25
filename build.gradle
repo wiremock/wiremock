@@ -126,12 +126,14 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
-  testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
+  testRuntimeOnly files('test-resources/classpath file source/classpathfiles.zip', 'test-resources/classpath-filesource.jar')
 
   testImplementation files('test-extension/test-extension.jar')
 
   testImplementation 'org.openjdk.jmh:jmh-core:1.37'
   testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+
+  testImplementation(testFixtures(project(':wiremock-common')))
 }
 
 allprojects {
@@ -253,6 +255,14 @@ allprojects {
 }
 
 test.classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+
+sourceSets {
+  test {
+    resources {
+      srcDirs += [new File('./test-resources')]
+    }
+  }
+}
 
 java {
   sourceCompatibility = 11
