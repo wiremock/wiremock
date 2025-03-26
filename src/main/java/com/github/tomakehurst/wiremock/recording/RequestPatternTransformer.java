@@ -29,11 +29,13 @@ import java.util.function.Function;
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
   private final Map<String, CaptureHeadersSpec> headers;
   private final RequestBodyPatternFactory bodyPatternFactory;
+  private final Boolean captureHost;
 
   public RequestPatternTransformer(
-      Map<String, CaptureHeadersSpec> headers, RequestBodyPatternFactory bodyPatternFactory) {
+      Map<String, CaptureHeadersSpec> headers, RequestBodyPatternFactory bodyPatternFactory, Boolean captureHost) {
     this.headers = headers;
     this.bodyPatternFactory = bodyPatternFactory;
+    this.captureHost = captureHost;
   }
 
   /** Returns a RequestPatternBuilder matching a given Request */
@@ -41,6 +43,10 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
   public RequestPatternBuilder apply(Request request) {
     final RequestPatternBuilder builder =
         new RequestPatternBuilder(request.getMethod(), urlEqualTo(request.getUrl()));
+
+    if (captureHost) {
+        builder.withHost(new EqualToPattern(request.getHost()));
+    }
 
     if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {

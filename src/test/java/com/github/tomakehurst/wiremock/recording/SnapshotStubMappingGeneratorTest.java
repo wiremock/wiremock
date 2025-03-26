@@ -42,7 +42,7 @@ public class SnapshotStubMappingGeneratorTest {
     SnapshotStubMappingGenerator stubMappingTransformer =
         new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition));
+            responseDefinitionTransformer(responseDefinition), false);
 
     StubMapping actual = stubMappingTransformer.apply(serveEvent());
     StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
@@ -60,7 +60,7 @@ public class SnapshotStubMappingGeneratorTest {
     SnapshotStubMappingGenerator stubMappingTransformer =
         new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition));
+            responseDefinitionTransformer(responseDefinition), false);
 
     StubMapping actual =
         stubMappingTransformer.apply(serveEventWithPath("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?"));
@@ -72,7 +72,7 @@ public class SnapshotStubMappingGeneratorTest {
 
   private static RequestPatternTransformer requestPatternTransformer(
       final RequestPatternBuilder requestPatternBuilder) {
-    return new RequestPatternTransformer(null, null) {
+    return new RequestPatternTransformer(null, null, false) {
       @Override
       public RequestPatternBuilder apply(Request request) {
         return requestPatternBuilder;
