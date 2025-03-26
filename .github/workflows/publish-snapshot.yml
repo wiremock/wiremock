@@ -2,11 +2,6 @@ name: Publish Snapshots
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: The name of the branch to publish. The snapshot will be published with the version set to this branch name.
-        type: string
-        required: true
   push:
     branches: [ master ]
 
@@ -31,7 +26,7 @@ jobs:
           validate-wrappers: true
 
       - name: Set snapshot version
-        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}', inputs.branch) || '' }}
+        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}', github.ref_name) || '' }}
 
       - name: Publish core package
         id: publish_package
@@ -60,7 +55,7 @@ jobs:
           validate-wrappers: true
 
       - name: Set snapshot version
-        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}', inputs.branch) || '' }}
+        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}', github.ref_name) || '' }}
 
       - name: Publish Jetty 12 package
         id: publish_package
