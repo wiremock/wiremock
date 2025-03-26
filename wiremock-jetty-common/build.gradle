@@ -55,10 +55,10 @@ dependencies {
 }
 
 jar {
-  archiveBaseName.set('wiremock-jetty11')
+  archiveBaseName.set('wiremock-jetty-common')
   manifest {
     attributes("Implementation-Version": project.version)
-    attributes("Implementation-Title": "WireMock with Jetty 11")
+    attributes("Implementation-Title": "Common WireMock classes shared between Jetty 11 and 12")
   }
 }
 
