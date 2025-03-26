@@ -491,7 +491,7 @@ task 'set-snapshot-version' {
   doLast {
 
     def currentVersion = project.version
-    def nextVersion = snapshotVersion ?: "${majorVersion}.${minorVersion + 1}.0-SNAPSHOT"
+    def nextVersion = project.findProperty('snapshotVersion') ?: "${majorVersion}.${minorVersion + 1}.0-SNAPSHOT"
 
     updateFiles(currentVersion, nextVersion)
   }
