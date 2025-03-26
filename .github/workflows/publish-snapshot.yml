@@ -60,7 +60,7 @@ jobs:
           validate-wrappers: true
 
       - name: Set snapshot version
-        run: ./gradlew set-snapshot-version --stacktrace
+        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}', inputs.branch) || '' }}
 
       - name: Publish Jetty 12 package
         id: publish_package
