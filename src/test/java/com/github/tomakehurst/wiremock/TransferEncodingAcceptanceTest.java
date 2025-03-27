@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -41,7 +42,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNever() {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER);
 
     final String url = "/content-length-encoding";
     final String body = "Body content";
@@ -58,7 +59,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsTransferEncodingChunkedWhenPolicyIsAlways() {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.ALWAYS);
 
     final String url = "/chunked-encoding-always";
     final String body = "Body content";
@@ -74,7 +75,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsTransferEncodingChunkedWhenPolicyIsBodyFileAndBodyFileIsUsed() {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.BODY_FILE);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.BODY_FILE);
 
     final String fileUrl = "/chunked-encoding-body";
     final String inlineBodyUrl = "/chunked-encoding-body-file";
@@ -95,7 +96,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNeverAndDribbleDelayIsApplied() {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER);
 
     final String url = "/content-length-encoding";
     final String body = "Slightly longer body content in this string";
@@ -112,7 +113,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingEnabled() throws Exception {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.ALWAYS);
 
     String path = "/length";
     wm.stubFor(
@@ -128,7 +129,7 @@ public class TransferEncodingAcceptanceTest {
 
   @Test
   public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingDisabled() throws Exception {
-    startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
+    startWithChunkedEncodingPolicy(HttpServerFactoryOptions.ChunkedEncodingPolicy.NEVER);
 
     String path = "/length";
     wm.stubFor(

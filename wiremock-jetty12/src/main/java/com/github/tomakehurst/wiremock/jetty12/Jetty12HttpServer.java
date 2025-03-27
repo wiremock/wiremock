@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.HttpServerFactoryOptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -143,7 +144,8 @@ public class Jetty12HttpServer extends JettyHttpServer {
   }
 
   @Override
-  protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {
+  protected void applyAdditionalServerConfiguration(
+      Server jettyServer, HttpServerFactoryOptions options) {
     if (options.browserProxySettings().enabled()) {
       final SslConnectionFactory ssl =
           new SslConnectionFactory(
@@ -188,9 +190,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
   @Override
   protected Handler createHandler(
-      Options options,
-      AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler) {
+      HttpServerFactoryOptions options, Object adminRequestHandler, Object stubRequestHandler) {
     Notifier notifier = options.notifier();
     ServletContextHandler adminContext = addAdminContext(adminRequestHandler, notifier);
     ServletContextHandler mockServiceContext =
@@ -251,8 +251,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
   }
 
-  private ServletContextHandler addAdminContext(
-      AdminRequestHandler adminRequestHandler, Notifier notifier) {
+  private ServletContextHandler addAdminContext(Object adminRequestHandler, Notifier notifier) {
     ServletContextHandler adminContext = new ServletContextHandler();
     adminContext.setServer(jettyServer);
     adminContext.setContextPath(ADMIN_CONTEXT_ROOT);
@@ -310,7 +309,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
   private ServletContextHandler addMockServiceContext(
       ServletContextHandler adminContext,
-      StubRequestHandler stubRequestHandler,
+      Object stubRequestHandler,
       FileSource fileSource,
       AsynchronousResponseSettings asynchronousResponseSettings,
       Options.ChunkedEncodingPolicy chunkedEncodingPolicy,

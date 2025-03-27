@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public class ClasspathFileSourceTest {
   }
 
   private void initForCustomClassLoader() throws MalformedURLException {
-    URL[] urls = {new File("src/main/resources/classpath-filesource.jar").toURI().toURL()};
+    URL[] urls = {new File("test-resources/classpath-filesource.jar").toURI().toURL()};
     ClassLoader cl = new URLClassLoader(urls);
     classpathFileSource = new ClasspathFileSource(cl, "jar-filesource");
   }
