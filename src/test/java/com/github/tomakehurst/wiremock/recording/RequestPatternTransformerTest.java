@@ -39,7 +39,7 @@ public class RequestPatternTransformerTest {
         new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
 
     assertEquals(
-        expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
+        expected.build(), new RequestPatternTransformer(null, null, false).apply(request).build());
   }
 
   @Test
@@ -65,6 +65,6 @@ public class RequestPatternTransformerTest {
             new CaptureHeadersSpec(true));
 
     assertEquals(
-        expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());
+        expected.build(), new RequestPatternTransformer(headers, null, false).apply(request).build());
   }
 }
