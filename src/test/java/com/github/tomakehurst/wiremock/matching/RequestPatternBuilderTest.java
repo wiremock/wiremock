@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -152,5 +153,54 @@ class RequestPatternBuilderTest {
 
     RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
     assertThat(newRequestPattern, is(requestPattern));
+  }
+
+  @Test
+  void likeRequestPatternCreatesIsolatedInstance() {
+    RequestPattern newRequestPattern =
+        RequestPatternBuilder.newRequestPattern()
+            .withUrl(new UrlPathTemplatePattern("/bar/*"))
+            .withScheme("https")
+            .withHost(WireMock.equalTo("bar"))
+            .withHeader("foo", WireMock.equalTo("bar"))
+            .withPathParam("foo", WireMock.equalTo("bar"))
+            .withQueryParam("foo", WireMock.equalTo("bar"))
+            .withFormParam("foo", WireMock.equalTo("bar"))
+            .withCookie("foo", WireMock.equalTo("bar"))
+            .withRequestBody(WireMock.equalTo("bar"))
+            .withAnyRequestBodyPart(new MultipartValuePatternBuilder("bar"))
+            .build();
+
+    RequestPattern newDerivedRequestPattern =
+        RequestPatternBuilder.like(newRequestPattern)
+            .withUrl(new UrlPathTemplatePattern("/baz/*"))
+            .withScheme("http")
+            .withHost(WireMock.equalTo("baz"))
+            .withHeader("foo", WireMock.equalTo("baz"))
+            .withPathParam("foo", WireMock.equalTo("baz"))
+            .withQueryParam("foo", WireMock.equalTo("baz"))
+            .withFormParam("foo", WireMock.equalTo("baz"))
+            .withCookie("foo", WireMock.equalTo("baz"))
+            .withRequestBody(WireMock.equalTo("baz"))
+            .withAnyRequestBodyPart(new MultipartValuePatternBuilder("baz"))
+            .build();
+
+    assertThat(
+        newRequestPattern.getUrlPathTemplate(), not(newDerivedRequestPattern.getUrlPathTemplate()));
+    assertThat(newRequestPattern.getScheme(), not(newDerivedRequestPattern.getScheme()));
+    assertThat(newRequestPattern.getHost(), not(newDerivedRequestPattern.getHost()));
+    assertThat(newRequestPattern.getHeaders(), not(newDerivedRequestPattern.getHeaders()));
+    assertThat(
+        newRequestPattern.getPathParameters(), not(newDerivedRequestPattern.getPathParameters()));
+    assertThat(
+        newRequestPattern.getQueryParameters(), not(newDerivedRequestPattern.getQueryParameters()));
+    assertThat(
+        newRequestPattern.getFormParameters(), not(newDerivedRequestPattern.getFormParameters()));
+    assertThat(newRequestPattern.getCookies(), not(newDerivedRequestPattern.getCookies()));
+    assertThat(
+        newRequestPattern.getBodyPatterns(), not(newDerivedRequestPattern.getBodyPatterns()));
+    assertThat(
+        newRequestPattern.getMultipartPatterns(),
+        not(newDerivedRequestPattern.getMultipartPatterns()));
   }
 }
