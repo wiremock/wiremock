@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,7 +169,10 @@ public class Extensions implements WireMockServices {
         ofType(WebhookTransformer.class).values().stream().collect(Collectors.toUnmodifiableList());
 
     final Webhooks webhooks =
-        new Webhooks(this, Executors.newScheduledThreadPool(10), webhookTransformers);
+        new Webhooks(
+            this,
+            Executors.newScheduledThreadPool(options.getWebhookThreadPoolSize()),
+            webhookTransformers);
     loadedExtensions.put(webhooks.getName(), webhooks);
   }
 
