@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.wiremock.webhooks.WebhookDefinition;
-import org.wiremock.webhooks.Webhooks;
-import testsupport.CompositeNotifier;
-import testsupport.TestNotifier;
-import testsupport.WireMockTestClient;
 
 public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest {
 
@@ -295,7 +290,6 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             .willReturn(ok())
             .withPostServeAction(
                 "webhook",
-
                 webhook()
                     .withBodyFileName("myFile.json")
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
@@ -418,7 +412,8 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
   @ParameterizedTest
   @ValueSource(strings = {"", "myFile.json"})
-  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON(String bodyFileNameParam) throws Exception {
+  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON(String bodyFileNameParam)
+      throws Exception {
     client.postJson(
         "/__admin/mappings",
         "{\n"
