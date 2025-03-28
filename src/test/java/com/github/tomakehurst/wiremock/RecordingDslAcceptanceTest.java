@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -39,6 +40,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -415,5 +417,77 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, proxyingService::stopRecording);
+  }
+
+  @Test
+  void recordsQueryParametersToQueryParameterMatchers() {
+    targetService.stubFor(
+        get(urlPathEqualTo("/record-this")).willReturn(okForContentType("text/plain", "Got it")));
+
+    startRecording(targetBaseUrl);
+
+    client.get("/record-this?q1=my-value&second-q=another-value&q1=my-other-value");
+
+    List<StubMapping> returnedMappings = stopRecording().getStubMappings();
+
+    assertThat(returnedMappings.size(), is(1));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), nullValue());
+    assertThat(returnedMappings.get(0).getRequest().getUrlPath(), is("/record-this"));
+    Map<String, MultiValuePattern> queryParameters =
+        returnedMappings.get(0).getRequest().getQueryParameters();
+    assertThat(queryParameters.size(), is(2));
+    assertThat(queryParameters.get("q1"), is(havingExactly("my-value", "my-other-value")));
+    assertThat(queryParameters.get("second-q"), is(havingExactly("another-value")));
+
+    assertThat(
+        client
+            .get("/record-this?q1=my-other-value&q1=my-value&second-q=another-value")
+            .statusCode(),
+        is(200));
+    assertThat(
+        client
+            .get(
+                "/record-this?q1=my-other-value&q1=my-value&second-q=another-value&q1=a-third-value")
+            .statusCode(),
+        is(404));
+  }
+
+  @Test
+  void canDetermineFileExtensionWhenRequestContainsQueryParameters() {
+    targetService.stubFor(
+        get(urlPathEqualTo("/myimage.png"))
+            .willReturn(aResponse().withBase64Body(IMAGE_CONTENT_BASE64)));
+
+    proxyingService.startRecording(recordSpec().forTarget(targetBaseUrl));
+
+    client.get("/myimage.png?q1=my-value&q1=my-other-value");
+
+    List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
+    StubMapping mapping = mappings.get(0);
+    String bodyFileName = mapping.getResponse().getBodyFileName();
+
+    assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
+    File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
+    assertThat(bodyFile.exists(), is(true));
+  }
+
+  @Test
+  void canCreateScenarioStubsFromRequestsWithQueryParameters() {
+    proxyingService.startRecording(targetService.baseUrl());
+    targetService.stubFor(get(urlPathEqualTo("/sequence")).willReturn(ok("1")));
+    client.get("/sequence?q1=my-value&q2=another-value&q1=my-other-value");
+    targetService.stubFor(get(urlPathEqualTo("/sequence")).willReturn(ok("2")));
+    client.get("/sequence?q1=my-value&q2=another-value&q1=my-other-value");
+    targetService.stubFor(get(urlPathEqualTo("/sequence")).willReturn(ok("3")));
+    client.get("/sequence?q1=my-value&q2=another-value&q1=my-other-value");
+    proxyingService.stopRecording();
+
+    assertThat(client.get("/sequence").statusCode(), is(404));
+    assertThat(
+        client.get("/sequence?q1=my-value&q2=another-value&q1=my-other-value").content(), is("1"));
+    assertThat(
+        client.get("/sequence?q2=another-value&q1=my-value&q1=my-other-value").content(), is("2"));
+    assertThat(
+        client.get("/sequence?q1=my-value&q1=my-other-value&q2=another-value").content(), is("3"));
   }
 }
