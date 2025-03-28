@@ -86,7 +86,7 @@ public class WireMockConfigurationTest {
     Options config = WireMockConfiguration.wireMockConfig().withWebhookThreadPoolSize(1000);
     assertThat(config.getWebhookThreadPoolSize(), is(1000));
   }
-  
+
   @Test
   void webhookThreadpoolSizeWhenNotSpecified() {
     Options config = WireMockConfiguration.wireMockConfig();
