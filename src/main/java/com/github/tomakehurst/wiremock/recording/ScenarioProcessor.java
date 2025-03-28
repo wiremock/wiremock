@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.recording;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -60,7 +62,11 @@ public class ScenarioProcessor {
         "scenario-"
             + scenarioIndex
             + "-"
-            + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
+            + Urls.urlToPathParts(
+                URI.create(
+                    getFirstNonNull(
+                        firstScenario.getRequest().getUrl(),
+                        firstScenario.getRequest().getUrlPath())));
 
     int count = 1;
     for (StubMapping stub : stubMappings) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
@@ -62,5 +63,18 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
   @JsonIgnore
   public String getOperator() {
     return "";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    MultipleMatchMultiValuePattern that = (MultipleMatchMultiValuePattern) o;
+    return Objects.equals(getValues(), that.getValues());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getValues());
   }
 }
