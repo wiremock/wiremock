@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.recording;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
@@ -41,7 +43,8 @@ public class SnapshotStubMappingBodyExtractor {
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
     String extension =
         ContentTypes.determineFileExtension(
-            stubMapping.getRequest().getUrl(),
+            getFirstNonNull(
+                stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()),
             responseHeaders != null
                 ? responseHeaders.getContentTypeHeader()
                 : ContentTypeHeader.absent(),
