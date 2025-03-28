@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.standalone;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
 import static java.util.Arrays.asList;
@@ -857,6 +858,20 @@ public class CommandLineOptionsTest {
     assertTrue(options.getDisableConnectionReuse());
   }
 
+  @Test
+  public void configuresWebhookThreadPoolSizeIfSpecified() {
+    CommandLineOptions options = new CommandLineOptions("--webhook-threadpool-size", "5");
+
+    assertThat(options.getWebhookThreadPoolSize(), is(5));
+  }
+
+  @Test
+  public void configuresWebhookThreadPoolSizeSetToDefaultIfNotSpecified() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    assertThat(options.getWebhookThreadPoolSize(), is(DEFAULT_WEBHOOK_THREADPOOL_SIZE));
+  }
+  
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
 
     @Override
