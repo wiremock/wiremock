@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,7 +109,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       final Response httpResponse = client.execute(request);
       return Response.Builder.like(httpResponse)
           .fromProxy(true)
-          .headers(headersFrom(httpResponse, responseDefinition))
+          .headers(HeaderUtil.headersFrom(httpResponse, responseDefinition, stubCorsEnabled))
           .configureDelay(
               settings.getFixedDelay(),
               settings.getDelayDistribution(),
@@ -149,21 +148,6 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     } else {
       return reverseProxyClient;
     }
-  }
-
-  private HttpHeaders headersFrom(Response response, ResponseDefinition responseDefinition) {
-    List<HttpHeader> httpHeaders = new LinkedList<>();
-    for (HttpHeader header : response.getHeaders().all()) {
-      if (responseHeaderShouldBeTransferred(header.getKey())) {
-        httpHeaders.add(header);
-      }
-    }
-
-    if (responseDefinition.getHeaders() != null) {
-      httpHeaders.addAll(responseDefinition.getHeaders().all());
-    }
-
-    return new HttpHeaders(httpHeaders);
   }
 
   private void addRequestHeaders(
@@ -234,11 +218,5 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       ImmutableRequest.Builder requestBuilder, String key, Request originalRequest) {
     List<String> values = originalRequest.header(key).values();
     requestBuilder.withHeader(key, values);
-  }
-
-  public boolean responseHeaderShouldBeTransferred(String key) {
-    final String lowerCaseKey = key.toLowerCase();
-    return !HttpClient.FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey)
-        && (!stubCorsEnabled || !lowerCaseKey.startsWith("access-control"));
   }
 }
