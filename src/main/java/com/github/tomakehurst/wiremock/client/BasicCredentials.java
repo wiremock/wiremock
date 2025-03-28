@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToIgnoreCase;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
 public class BasicCredentials {
@@ -39,11 +39,16 @@ public class BasicCredentials {
   }
 
   public MultiValuePattern asAuthorizationMultiValuePattern() {
-    return MultiValuePattern.of(equalToIgnoreCase(asAuthorizationHeaderValue()));
+    return MultiValuePattern.of(
+        new EqualToPatternWithCaseInsensitivePrefix("Basic ", encodedUsernameAndPassword()));
   }
 
   public String asAuthorizationHeaderValue() {
+    return "Basic " + encodedUsernameAndPassword();
+  }
+
+  private String encodedUsernameAndPassword() {
     byte[] usernameAndPassword = (username + ":" + password).getBytes();
-    return "Basic " + encodeBase64(usernameAndPassword);
+    return encodeBase64(usernameAndPassword);
   }
 }
