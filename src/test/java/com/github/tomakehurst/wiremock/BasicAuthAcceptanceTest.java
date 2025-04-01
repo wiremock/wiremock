@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,17 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.http.MultiValue;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
@@ -67,5 +75,27 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
                 withHeader("Authorization", "BASIC dG9tOnNlY3JldA=="))
             .statusCode(),
         is(200));
+  }
+
+  @Test
+  public void doesNotMatchWhenBase64UsesIncorrectCase() {
+    MultiValuePattern matcher =
+        new BasicCredentials("tom", "my-secret").asAuthorizationMultiValuePattern();
+
+    String goodCreds = "dG9tOm15LXNlY3JldA==";
+    String badCreds = "dG9tom15LXNlY3JldA==";
+
+    // expect
+    assertThat(goodCreds, not(badCreds));
+    assertThat(goodCreds, equalToIgnoringCase(badCreds));
+    assertTrue(
+        matcher
+            .match(new MultiValue("Authorization", List.of("Basic " + goodCreds)))
+            .isExactMatch());
+
+    assertFalse(
+        matcher
+            .match(new MultiValue("Authorization", List.of("Basic " + badCreds)))
+            .isExactMatch());
   }
 }
