@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,11 +228,25 @@ public class WireMockApp implements StubServer, Admin {
                 : browserProxySettings.trustedProxyTargets(),
             false);
 
+    List<ProxyRenderer> proxyRenderers = new ArrayList<>();
+    extensions
+        .ofType(ProxyRendererFactory.class)
+        .values()
+        .forEach(
+            f -> {
+              ProxyRenderer renderer = f.build(options);
+              if (renderer != null) {
+                proxyRenderers.add(renderer);
+              }
+            });
+    proxyRenderers.sort(Comparator.comparing(ProxyRenderer::Order));
+
     return new StubRequestHandler(
         this,
         new StubResponseRenderer(
             options.getStores().getFilesBlobStore(),
             settingsStore,
+            proxyRenderers,
             new ProxyResponseRenderer(
                 options.shouldPreserveHostHeader(),
                 options.proxyHostHeader(),
