@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -495,6 +495,21 @@ class DiffTest {
             junitStyleDiffMessage(
                 "[contains] my.host\n" + "ANY\n" + "/thing\n",
                 "wrong.host\n" + "ANY\n" + "/thing\n")));
+  }
+
+  @Test
+  void includeClientIpIfSpecified() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, anyUrl()).withClientIp(equalTo("192.168.1.1")).build(),
+            mockRequest().clientIp("192.168.2.2").url("/thing"));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "equalTo 192.168.1.1\n" + "ANY\n" + "/thing\n",
+                "192.168.2.2\n" + "ANY\n" + "/thing\n")));
   }
 
   @Test

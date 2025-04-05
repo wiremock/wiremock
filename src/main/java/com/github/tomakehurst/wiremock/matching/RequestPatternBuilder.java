@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ public class RequestPatternBuilder {
   private String scheme;
   private StringValuePattern hostPattern;
   private Integer port;
+  private StringValuePattern clientIpPattern;
   private UrlPattern url = UrlPattern.ANY;
   private RequestMethod method = RequestMethod.ANY;
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
@@ -97,6 +98,7 @@ public class RequestPatternBuilder {
     builder.scheme = requestPattern.getScheme();
     builder.hostPattern = requestPattern.getHost();
     builder.port = requestPattern.getPort();
+    builder.clientIpPattern = requestPattern.getClientIp();
     builder.url = requestPattern.getUrlMatcher();
     builder.method = requestPattern.getMethod();
     if (requestPattern.getHeaders() != null) {
@@ -144,6 +146,11 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder withPort(int port) {
     this.port = port;
+    return this;
+  }
+
+  public RequestPatternBuilder withClientIp(StringValuePattern clientIpPattern) {
+    this.clientIpPattern = clientIpPattern;
     return this;
   }
 
@@ -270,6 +277,7 @@ public class RequestPatternBuilder {
         scheme,
         hostPattern,
         port,
+        clientIpPattern,
         url,
         method,
         headers.isEmpty() ? null : headers,
