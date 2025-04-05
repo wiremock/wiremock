@@ -2134,6 +2134,10 @@
             "maximum": 65535,
             "description": "The HTTP port number of the request URL"
           },
+          "clientIp": {
+            "type": "string",
+            "description": "The IP of the client making the request"
+          },
           "method": {
             "type": "string",
             "pattern": "^[A-Z]+$",
