@@ -150,6 +150,23 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
+  public void responseWithTruncatedLogNormalDistributedDelay() {
+    stubFor(
+        get(urlEqualTo("/truncatedlognormal/delayed/resource"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody("Content")
+                    .withLogNormalRandomDelay(90, 0.1, 95L)));
+
+    long start = System.currentTimeMillis();
+    testClient.get("/truncatedlognormal/delayed/resource");
+    int duration = (int) (System.currentTimeMillis() - start);
+
+    assertThat(duration, greaterThanOrEqualTo(60));
+  }
+
+  @Test
   public void responseWithUniformDistributedDelay() {
     stubFor(
         get(urlEqualTo("/uniform/delayed/resource"))
