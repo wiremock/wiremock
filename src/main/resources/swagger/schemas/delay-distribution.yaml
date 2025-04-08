@@ -9,6 +9,8 @@ oneOf:
         type: integer
       sigma:
         type: number
+      maxValue:
+        type: integer
       type:
         type: string
         enum:

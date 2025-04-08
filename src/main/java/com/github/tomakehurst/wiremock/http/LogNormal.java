@@ -37,18 +37,61 @@ public final class LogNormal implements DelayDistribution {
   @JsonProperty("sigma")
   private final double sigma;
 
+  @JsonProperty(value = "maxValue", required = false)
+  private final Long maxValue;
+
   /**
    * @param median 50th percentile of the distribution in millis
    * @param sigma standard deviation of the distribution, a larger value produces a longer tail
    */
   @JsonCreator
-  public LogNormal(@JsonProperty("median") double median, @JsonProperty("sigma") double sigma) {
+  public LogNormal(
+      @JsonProperty("median") double median,
+      @JsonProperty("sigma") double sigma,
+      @JsonProperty("maxValue") Long maxValue) {
     this.median = median;
     this.sigma = sigma;
+    this.maxValue = maxValue;
+
+    if (maxValue != null && maxValue < median) {
+      throw new IllegalArgumentException(
+          "The max value has to be greater than or equal to the median");
+    }
+  }
+
+  /**
+   * @param median 50th percentile of the distribution in millis
+   * @param sigma standard deviation of the distribution, a larger value produces a longer tail
+   */
+  public LogNormal(double median, double sigma) {
+    // Initialise maxValue to null to disable long tail truncation
+    this(median, sigma, null);
   }
 
   @Override
   public long sampleMillis() {
+
+    long generatedValue = generateDelayMillis();
+
+    if (maxValue == null) {
+      // Don't want to truncate any potential long tails
+      return generatedValue;
+    }
+
+    // Rather than truncating the value at the max, if it's over the max value, then resample, but
+    // only do that a few times
+    int i = 0;
+    while (generatedValue > maxValue && i < 10) {
+      generatedValue = generateDelayMillis();
+      i++;
+    }
+
+    // Belt and braces, in the unlikely event the generated value is still over the max, truncate
+    // it at the max
+    return Math.round(Math.min(maxValue, generatedValue));
+  }
+
+  private long generateDelayMillis() {
     return Math.round(Math.exp(ThreadLocalRandom.current().nextGaussian() * sigma) * median);
   }
 }
