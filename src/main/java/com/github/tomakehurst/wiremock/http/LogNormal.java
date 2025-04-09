@@ -21,7 +21,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Returns log normally distributed values. Takes two parameters, the median (50th percentile) of
- * the lognormal and the standard deviation of the underlying normal distribution.
+ * the lognormal and the standard deviation of the underlying normal distribution, plus an optional
+ * maximum value to truncate the result by resampling to prevent an extra long tail
  *
  * <p>The larger the standard deviation the longer the tails.
  *
@@ -43,6 +44,7 @@ public final class LogNormal implements DelayDistribution {
   /**
    * @param median 50th percentile of the distribution in millis
    * @param sigma standard deviation of the distribution, a larger value produces a longer tail
+   * @param maxValue the maximum value to truncate the distribution at, or null to disable truncation
    */
   @JsonCreator
   public LogNormal(
