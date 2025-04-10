@@ -2,17 +2,23 @@ title: JSON Schema match
 type: object
 properties:
   matchesJsonSchema:
-    type: object
-    description: A valid JSON schema object
-    example:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-        tag:
-          type: string
+    type: string
+    description: A valid JSON schema as a string
+    example: |-
+      {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          }
+        }
+      }
 
   schemaVersion:
     description: The JSON schema version to interpret the schema against
