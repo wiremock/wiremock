@@ -625,25 +625,17 @@ public class WireMock {
   }
 
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return isOneOf(Set.of("GET", "HEAD"), urlPattern);
+    return oneOf(Set.of("GET", "HEAD"), urlPattern);
   }
 
-  public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
-    return requestIsOneOf(methods, urlPattern);
-  }
-
-  public static MappingBuilder requestIsOneOf(Set<String> methods, UrlPattern urlPattern) {
+  public static MappingBuilder oneOf(Set<String> methods, UrlPattern urlPattern) {
     return new BasicMappingBuilder(
-        new Methods(RequestMethod.fromSet(methods), new HashSet<>()), urlPattern);
+        new MultiRequestMethodPattern.IsOneOf(RequestMethod.fromSet(methods)), urlPattern);
   }
 
-  public static MappingBuilder isNoneOf(Set<String> methods, UrlPattern urlPattern) {
-    return requestIsNoneOf(methods, urlPattern);
-  }
-
-  public static MappingBuilder requestIsNoneOf(Set<String> methods, UrlPattern urlPattern) {
+  public static MappingBuilder noneOf(Set<String> methods, UrlPattern urlPattern) {
     return new BasicMappingBuilder(
-        new Methods(new HashSet<>(), RequestMethod.fromSet(methods)), urlPattern);
+        new MultiRequestMethodPattern.IsNoneOf(RequestMethod.fromSet(methods)), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {

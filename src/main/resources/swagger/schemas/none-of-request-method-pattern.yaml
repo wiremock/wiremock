@@ -1,0 +1,10 @@
+title: One of request method pattern
+type: object
+properties:
+  noneOf:
+    type: array
+    items:
+      type: string
+
+required:
+  - noneOf

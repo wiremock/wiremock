@@ -685,7 +685,7 @@ class PlainTextDiffRendererTest {
   void showsIsOneOfMissingMethodMessage() {
     Diff diff =
         new Diff(
-            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            oneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(POST).url("/url"));
 
     String output = diffRenderer.render(diff);
@@ -698,7 +698,7 @@ class PlainTextDiffRendererTest {
   void showsIsNoneOfMissingMethodMessage() {
     Diff diff =
         new Diff(
-            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            noneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/url"));
 
     String output = diffRenderer.render(diff);
@@ -711,7 +711,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsOneOfVersion1() {
     Diff diff =
         new Diff(
-            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            oneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -724,7 +724,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsNoneOfVersion1() {
     Diff diff =
         new Diff(
-            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            noneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(POST).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -737,7 +737,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsOneOfVersion2() {
     Diff diff =
         new Diff(
-            isOneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            oneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -750,7 +750,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsNoneOfVersion2() {
     Diff diff =
         new Diff(
-            isNoneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            noneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(PUT).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);

@@ -17,13 +17,16 @@ package com.github.tomakehurst.wiremock.http;
 
 import static java.util.Arrays.asList;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@JsonDeserialize(using = RequestMethodJsonDeserializer.class)
+@JsonSerialize(using = RequestMethodJsonSerializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   public static final RequestMethod GET = new RequestMethod("GET");
@@ -36,19 +39,17 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
 
-  private final String name;
+  protected final String name;
 
   public RequestMethod(String name) {
     if (name == null) throw new NullPointerException("Method name cannot be null");
     this.name = name;
   }
 
-  @JsonCreator
   public static RequestMethod fromString(String value) {
     return new RequestMethod(value);
   }
 
-  @JsonCreator
   public static Set<RequestMethod> fromSet(Set<String> values) {
     return values.stream().map(RequestMethod::fromString).collect(Collectors.toSet());
   }

@@ -25,9 +25,12 @@ properties:
     maximum: 65535
     description: The HTTP port number of the request URL
   method:
-    type: string
-    pattern: ^[A-Z]+$
-    description: The HTTP request method e.g. GET
+    oneOf:
+      - type: string
+        pattern: ^[A-Z]+$
+        description: The HTTP request method e.g. GET
+      - $ref: "one-of-request-method-pattern.yaml"
+      - $ref: "none-of-request-method-pattern.yaml"
   url:
     type: string
     description: The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.

@@ -33,6 +33,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -1328,7 +1329,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithIsOneOfRequestMethods() {
     stubFor(
-        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+        WireMock.oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
@@ -1344,7 +1345,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithIsNoneOfRequestMethods() {
     stubFor(
-        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
@@ -1360,7 +1361,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithInvalidIsOneOfRequestMethods() {
     stubFor(
-        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+        WireMock.oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
@@ -1370,7 +1371,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithInvalidIsNoneOfRequestMethods() {
     stubFor(
-        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
@@ -1380,7 +1381,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithIsOneOfAndAnyRequestMethod() {
     stubFor(
-        isOneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+        WireMock.oneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
@@ -1396,7 +1397,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithIsNoneOfAndAnyRequestMethod() {
     stubFor(
-        isNoneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+        noneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
