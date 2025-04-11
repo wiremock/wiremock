@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,27 +125,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public Servlet getServlet(String name) throws ServletException {
-      return null;
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Enumeration getServlets() {
-      return null;
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Enumeration getServletNames() {
-      return null;
-    }
-
-    @Override
     public void log(String msg) {}
-
-    @Override
-    public void log(Exception exception, String msg) {}
 
     @Override
     public void log(String message, Throwable throwable) {}

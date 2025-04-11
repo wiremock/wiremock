@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
   private Notifier notifier;
   private String wiremockFileSourceRoot = "/";
   private boolean shouldForwardToFilesContext;
-  private MultipartRequestConfigurer multipartRequestConfigurer;
   private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean browserProxyingEnabled;
   private JettyHttpUtils utils;
@@ -100,9 +99,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             : new NoFaultInjectorFactory();
 
     notifier = (Notifier) context.getAttribute(Notifier.KEY);
-
-    multipartRequestConfigurer =
-        (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
 
     Object chunkedEncodingPolicyAttr =
         context.getAttribute(Options.ChunkedEncodingPolicy.class.getName());
@@ -148,11 +144,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     Request request =
         new WireMockHttpServletRequestAdapter(
-            httpServletRequest,
-            multipartRequestConfigurer,
-            mappedUnder,
-            browserProxyingEnabled,
-            utils);
+            httpServletRequest, mappedUnder, browserProxyingEnabled, utils);
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,14 @@ public class HttpServerFactoryLoaderTest {
 
   Options options = wireMockConfig();
   Extensions extensions = mock(Extensions.class);
+
+  @SuppressWarnings("unchecked")
   Supplier<List<HttpServerFactory>> serviceLoader = mock(Supplier.class);
 
   HttpServerFactoryLoader loader;
 
   @Test
-  void loadsExtensionWhenOneIsPresentAndJettyVersionIs11() {
+  void loadsExtensionWhenOneIsPresentAndJettyVersionIs12() {
     loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, true);
 
     serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
@@ -55,7 +57,7 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void loadsExtensionWhenOneIsPresentAndJettyVersionIsNot11() {
+  void loadsExtensionWhenOneIsPresentAndJettyVersionIsNot12() {
     loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
     serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory2()));
@@ -79,7 +81,7 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheServiceLoaderWhenNoExtensionsArePresentAndJettyVersionIsNot11() {
+  void usesTheServiceLoaderWhenNoExtensionsArePresentAndJettyVersionIsNot12() {
     loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory()));
 
@@ -89,7 +91,7 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheDefaultFactoryWhenNoExtensionsArePresentAndJettyVersionIs11() {
+  void usesTheDefaultFactoryWhenNoExtensionsArePresentAndJettyVersionIs12() {
     loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, true);
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory()));
 
@@ -110,7 +112,7 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIs11() {
+  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIs12() {
     Options config = wireMockConfig().httpServerFactory(new CustomHttpServerFactory());
     loader = new HttpServerFactoryLoader(config, extensions, serviceLoader, true);
     serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
@@ -122,7 +124,7 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIsNot11() {
+  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIsNot12() {
     Options config = wireMockConfig().httpServerFactory(new CustomHttpServerFactory());
     loader = new HttpServerFactoryLoader(config, extensions, serviceLoader, false);
     serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
@@ -143,7 +145,7 @@ public class HttpServerFactoryLoaderTest {
     assertThat(
         exception.getMessage(),
         equalTo(
-            "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information."));
+            "Jetty 12 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See https://wiremock.org/docs/extending-wiremock/ for more information."));
   }
 
   private void serverFactoriesAsExtensions(List<HttpServerFactory> extensionList) {
