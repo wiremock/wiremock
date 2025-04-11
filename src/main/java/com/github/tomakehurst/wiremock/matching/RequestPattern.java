@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final String scheme;
   private final StringValuePattern host;
   private final Integer port;
+  private final StringValuePattern clientIp;
   private final UrlPattern url;
   private final RequestMethod method;
   private final Map<String, MultiValuePattern> headers;
@@ -66,6 +67,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final String scheme,
       final StringValuePattern host,
       final Integer port,
+      final StringValuePattern clientIp,
       final UrlPattern url,
       final RequestMethod method,
       final Map<String, MultiValuePattern> headers,
@@ -81,6 +83,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
+    this.clientIp = clientIp;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
@@ -103,6 +106,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
             requestPartMatchResults.add(weight(hostMatches(request), 10.0));
             requestPartMatchResults.add(weight(portMatches(request), 10.0));
+            requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
             requestPartMatchResults.add(
                 weight(RequestPattern.this.url.match(request.getUrl()), 10.0));
             requestPartMatchResults.add(
@@ -146,6 +150,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("host") StringValuePattern host,
       @JsonProperty("port") Integer port,
       @JsonProperty("url") String url,
+      @JsonProperty("clientIp") StringValuePattern clientIp,
       @JsonProperty("urlPattern") String urlPattern,
       @JsonProperty("urlPath") String urlPath,
       @JsonProperty("urlPathPattern") String urlPathPattern,
@@ -165,6 +170,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         scheme,
         host,
         port,
+        clientIp,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
         method,
         headers,
@@ -181,6 +187,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public static final RequestPattern ANYTHING =
       new RequestPattern(
+          null,
           null,
           null,
           null,
@@ -202,6 +209,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         null,
+        null,
         UrlPattern.ANY,
         RequestMethod.ANY,
         null,
@@ -218,6 +226,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
     this(
+        null,
         null,
         null,
         null,
@@ -297,6 +306,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   private MatchResult portMatches(final Request request) {
     return port != null ? MatchResult.of(request.getPort() == port) : MatchResult.exactMatch();
+  }
+
+  private MatchResult clientIpMatches(final Request request) {
+    return clientIp != null ? clientIp.match(request.getClientIp()) : MatchResult.exactMatch();
   }
 
   private MatchResult allHeadersMatchResult(final Request request) {
@@ -425,6 +438,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public Integer getPort() {
     return port;
+  }
+
+  public StringValuePattern getClientIp() {
+    return clientIp;
   }
 
   public String getUrl() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,45 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     stubFor(get(urlPathEqualTo("/mypath")).withPort(1234).willReturn(ok(EXPECTED_RESPONSE_BODY)));
 
     ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:4321/mypath").build();
+    makeRequestAndAssertNotOk(request);
+  }
+
+  @Test
+  public void matchesClientIp() throws Exception {
+    stubFor(
+        get(urlPathEqualTo("/mypath"))
+            .withClientIp(equalTo("192.168.1.1"))
+            .willReturn(ok(EXPECTED_RESPONSE_BODY)));
+
+    ClassicHttpRequest request =
+        ClassicRequestBuilder.get("http://localhost:1234/mypath")
+            .addHeader("X-Forwarded-For", "192.168.1.1")
+            .build();
+    makeRequestAndAssertOk(request);
+  }
+
+  @Test
+  public void doesNotMatchClientIpWhenItIsIncorrect() throws Exception {
+    stubFor(
+        get(urlPathEqualTo("/mypath"))
+            .withClientIp(equalTo("192.168.1.1"))
+            .willReturn(ok(EXPECTED_RESPONSE_BODY)));
+
+    ClassicHttpRequest request =
+        ClassicRequestBuilder.get("http://localhost:1234/mypath")
+            .addHeader("X-Forwarded-For", "192.168.100.1")
+            .build();
+    makeRequestAndAssertNotOk(request);
+  }
+
+  @Test
+  public void doesNotMatchClientIpWhenHeaderIsNotPresent() throws Exception {
+    stubFor(
+        get(urlPathEqualTo("/mypath"))
+            .withClientIp(equalTo("5.5.5.5"))
+            .willReturn(ok(EXPECTED_RESPONSE_BODY)));
+
+    ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:1234/mypath").build();
     makeRequestAndAssertNotOk(request);
   }
 
