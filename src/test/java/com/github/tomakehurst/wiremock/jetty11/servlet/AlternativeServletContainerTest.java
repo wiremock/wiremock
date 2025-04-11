@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class AlternativeServletContainerTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().httpServerFactory(new AltHttpServerFactory()))
+          .options(options().dynamicPort().httpServerFactory(new AltHttpServerFactory()))
           .build();
 
   private WireMockTestClient client;

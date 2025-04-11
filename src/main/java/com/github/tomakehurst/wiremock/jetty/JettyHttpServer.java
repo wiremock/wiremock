@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -217,8 +217,8 @@ public abstract class JettyHttpServer implements HttpServer {
       NetworkTrafficListener listener);
 
   // Override this for platform-specific impls
-  protected MultipartRequestConfigurer buildMultipartRequestConfigurer() {
-    return new DefaultMultipartRequestConfigurer();
+  protected MultipartRequestConfigElementBuilder buildMultipartRequestConfigurer() {
+    return new DefaultMultipartRequestConfigElementBuilder();
   }
 
   private static class NetworkTrafficListenerAdapter implements NetworkTrafficListener {
