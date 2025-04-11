@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
       attributes.forEach(httpServletRequest::setAttribute);
 
-      if (isAsyncSupported(response, httpServletRequest)) {
+      if (isAsyncSupportedAndDelayConfigured(response, httpServletRequest)) {
         respondAsync(request, response);
       } else {
         respondSync(request, response);
@@ -206,10 +206,13 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       }
     }
 
-    private boolean isAsyncSupported(Response response, HttpServletRequest httpServletRequest) {
-      return scheduledExecutorService != null
-          && response.getInitialDelay() > 0
-          && httpServletRequest.isAsyncSupported();
+    private boolean isAsyncSupportedAndDelayConfigured(
+        Response response, HttpServletRequest httpServletRequest) {
+      if (scheduledExecutorService == null || !httpServletRequest.isAsyncSupported()) {
+        return false;
+      }
+
+      return response.getInitialDelay() > 0 || response.shouldAddChunkedDribbleDelay();
     }
 
     private void respondAsync(final Request request, final Response response) {
