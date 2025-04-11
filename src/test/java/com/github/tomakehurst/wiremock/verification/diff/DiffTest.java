@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class DiffTest {
   void correctlyRendersJUnitStyleDiffMessage() {
     String diff = junitStyleDiffMessage("expected", "actual");
 
-    assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
+    assertThat(diff, is(String.format(" expected:<%nexpected> but was:<%nactual>")));
   }
 
   @Test
