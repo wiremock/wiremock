@@ -22,13 +22,16 @@ import static com.github.tomakehurst.wiremock.common.Strings.randomAlphabetic;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -38,6 +41,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class GzipAcceptanceTest {
 
@@ -91,6 +97,12 @@ public class GzipAcceptanceTest {
       WireMockResponse response = testClient.post("/gzip-request", compressedBody);
 
       assertThat(response.content(), is("response body"));
+
+      List<LoggedRequest> loggedRequests = wireMockServer.findAll(postRequestedFor(anyUrl()));
+      assertThat(loggedRequests, hasSize(1));
+      assertThat(loggedRequests.get(0).getBodyAsString(), is("request body"));
+      assertThat(loggedRequests.get(0).getBody(), is("request body".getBytes(StandardCharsets.UTF_8)));
+      assertThat(loggedRequests.get(0).getRawBody(), is(Gzip.gzip("request body")));
     }
   }
 

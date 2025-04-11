@@ -120,6 +120,11 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return target.getRawBody();
+  }
+
+  @Override
   public String getBodyAsString() {
     return target.getBodyAsString();
   }

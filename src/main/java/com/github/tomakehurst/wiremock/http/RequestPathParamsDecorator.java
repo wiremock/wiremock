@@ -140,6 +140,11 @@ public class RequestPathParamsDecorator implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return request.getRawBody();
+  }
+
+  @Override
   public String getBodyAsString() {
     return request.getBodyAsString();
   }
