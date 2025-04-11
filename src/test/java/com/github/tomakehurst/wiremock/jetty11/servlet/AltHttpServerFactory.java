@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,15 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
 public class AltHttpServerFactory implements HttpServerFactory {
 
@@ -44,11 +42,10 @@ public class AltHttpServerFactory implements HttpServerFactory {
     ServletContextHandler adminContext =
         addAdminContext(jettyServer, adminRequestHandler, notifier);
     ServletContextHandler mockServiceContext =
-        addMockServiceContext(jettyServer, stubRequestHandler, options.filesRoot(), notifier);
+        addMockServiceContext(jettyServer, stubRequestHandler, notifier);
 
-    HandlerCollection handlers = new HandlerCollection();
-    handlers.setHandlers(new Handler[] {adminContext, mockServiceContext});
-    jettyServer.setHandler(handlers);
+    Handler.Abstract handler = new Handler.Sequence(adminContext, mockServiceContext);
+    jettyServer.setHandler(handler);
 
     return new HttpServer() {
 
@@ -89,11 +86,10 @@ public class AltHttpServerFactory implements HttpServerFactory {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private ServletContextHandler addMockServiceContext(
-      Server jettyServer,
-      StubRequestHandler stubRequestHandler,
-      FileSource fileSource,
-      Notifier notifier) {
-    ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
+      Server jettyServer, StubRequestHandler stubRequestHandler, Notifier notifier) {
+    ServletContextHandler mockServiceContext = new ServletContextHandler();
+    mockServiceContext.setServer(jettyServer);
+    mockServiceContext.setContextPath("/");
 
     mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
     mockServiceContext.setAttribute(Notifier.KEY, notifier);
@@ -109,7 +105,9 @@ public class AltHttpServerFactory implements HttpServerFactory {
 
   private ServletContextHandler addAdminContext(
       Server jettyServer, AdminRequestHandler adminRequestHandler, Notifier notifier) {
-    ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
+    ServletContextHandler adminContext = new ServletContextHandler();
+    adminContext.setServer(jettyServer);
+    adminContext.setContextPath(ADMIN_CONTEXT_ROOT);
     ServletHolder servletHolder =
         adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
     servletHolder.setInitParameter(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,6 +169,45 @@ public class StandaloneAcceptanceTest {
     assertThat(response.content(), is("{ \"key\": \"value\" }"));
     // The "Content-Type" header may include charset, fe "application/json;charset=utf-8"
     assertThat(response.firstHeader("Content-Type"), startsWith("application/json"));
+  }
+
+  @Test
+  void servesTheSwaggerUi() {
+    startRunner();
+
+    WireMockResponse response = testClient.get("/__admin/swagger-ui/");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), startsWith("text/html"));
+    assertThat(
+        response.content(), containsString("<title>WireMock Admin API | Swagger UI</title>"));
+
+    response = testClient.get("/__admin/swagger-ui/swagger-ui-dist/swagger-ui-bundle.js");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), startsWith("text/javascript"));
+  }
+
+  @Test
+  void servesTheRecordingUi() {
+    startRunner();
+
+    WireMockResponse response = testClient.get("/__admin/recorder/");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), startsWith("text/html"));
+    assertThat(response.content(), containsString("<title>WireMock Recorder</title>"));
+
+    response = testClient.get("/__admin/recorder/lib/jquery-3.6.0.min.js");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), startsWith("text/javascript"));
+  }
+
+  @Test
+  void servesTheAdminApi() {
+    startRunner();
+
+    WireMockResponse response = testClient.get("/__admin/mappings");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), startsWith("application/json"));
+    assertThat(response.content(), containsString("mappings"));
   }
 
   @EnabledIfJettyVersion(

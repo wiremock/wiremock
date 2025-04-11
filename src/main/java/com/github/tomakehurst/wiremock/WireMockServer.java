@@ -85,7 +85,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
             options,
             wireMockApp.getExtensions(),
             HttpServerFactoryLoader.systemServiceLoader(),
-            HttpServerFactoryLoader.isJetty11())
+            HttpServerFactoryLoader.isJetty12())
         .load();
   }
 

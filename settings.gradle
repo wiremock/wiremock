@@ -1,2 +1,1 @@
 rootProject.name = 'wiremock'
-include 'wiremock-jetty12'

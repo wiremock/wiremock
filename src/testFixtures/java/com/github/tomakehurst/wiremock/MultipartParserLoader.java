@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public interface MultipartParserLoader {
     throw new IllegalStateException(
         "Unable to find MultipartParserLoader for Jetty version "
             + jettyMajorVersion
-            + " (only Jetty 11/12 are supported at the moment). Please make sure the right Jetty dependencies are on the classpath.",
+            + " (only Jetty 12 is supported at the moment). Please make sure the right Jetty dependencies are on the classpath.",
         cause);
   }
 }
