@@ -252,8 +252,8 @@ allprojects {
 test.classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
 
 java {
-  sourceCompatibility = 11
-  targetCompatibility = 11
+  sourceCompatibility = 17
+  targetCompatibility = 17
   withSourcesJar()
   withJavadocJar()
 }
@@ -364,32 +364,30 @@ publishing {
     }
   }
 
-  if (JavaVersion.current().isJava11()) {
-    publications {
-      mavenJava(MavenPublication) { publication ->
-        artifactId = "${jar.getArchiveBaseName().get()}"
-        from components.java
-        artifact testJar
+  publications {
+    mavenJava(MavenPublication) { publication ->
+      artifactId = "${jar.getArchiveBaseName().get()}"
+      from components.java
+      artifact testJar
 
-        pom.withXml {
-          asNode().appendNode('description', 'A web service test double for all occasions')
-          asNode().children().last() + pomInfo
-        }
+      pom.withXml {
+        asNode().appendNode('description', 'A web service test double for all occasions')
+        asNode().children().last() + pomInfo
       }
+    }
 
-      standaloneJar(MavenPublication) { publication ->
-        artifactId = "${jar.getArchiveBaseName().get()}-standalone"
-        project.shadow.component(publication)
+    standaloneJar(MavenPublication) { publication ->
+      artifactId = "${jar.getArchiveBaseName().get()}-standalone"
+      project.shadow.component(publication)
 
-        artifact sourcesJar
-        artifact javadocJar
-        artifact testJar
+      artifact sourcesJar
+      artifact javadocJar
+      artifact testJar
 
-        pom.packaging 'jar'
-        pom.withXml {
-          asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
-          asNode().children().last() + pomInfo
-        }
+      pom.packaging 'jar'
+      pom.withXml {
+        asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
+        asNode().children().last() + pomInfo
       }
     }
   }
