@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,12 +173,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public String getRealPath(String path) {
-
-    return null;
-  }
-
-  @Override
   public int getRemotePort() {
 
     return 0;
@@ -239,6 +233,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
+  public String getRequestId() {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
+
+  @Override
+  public String getProtocolRequestId() {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
+
+  @Override
+  public ServletConnection getServletConnection() {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
+
+  @Override
   public String getAuthType() {
 
     return null;
@@ -283,6 +292,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
+  public HttpServletMapping getHttpServletMapping() {
+    return HttpServletRequest.super.getHttpServletMapping();
+  }
+
+  @Override
   public String getMethod() {
 
     return null;
@@ -298,6 +312,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public String getPathTranslated() {
 
     return null;
+  }
+
+  @Override
+  public PushBuilder newPushBuilder() {
+    return HttpServletRequest.super.newPushBuilder();
   }
 
   @Override
@@ -390,12 +409,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public boolean isRequestedSessionIdFromUrl() {
-
-    return false;
-  }
-
-  @Override
   public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
     throw new UnsupportedOperationException("not yet implemented");
   }
@@ -424,5 +437,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
       throws IOException, ServletException {
     throw new UnsupportedOperationException("not yet implemented");
+  }
+
+  @Override
+  public Map<String, String> getTrailerFields() {
+    return HttpServletRequest.super.getTrailerFields();
+  }
+
+  @Override
+  public boolean isTrailerFieldsReady() {
+    return HttpServletRequest.super.isTrailerFieldsReady();
   }
 }

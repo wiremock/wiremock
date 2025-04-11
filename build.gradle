@@ -33,7 +33,7 @@ group = 'org.wiremock'
 project.ext {
   versions = [
     handlebars     : '4.3.1',
-    jetty          : '11.0.24',
+    jetty          : '12.0.16',
     guava          : '33.4.6-jre',
     jackson        : '2.18.3',
     xmlUnit        : '2.10.0',
@@ -48,16 +48,17 @@ configurations {
 
 dependencies {
   api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+  api platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
   api "org.eclipse.jetty:jetty-server"
-  api "org.eclipse.jetty:jetty-servlet"
-  api "org.eclipse.jetty:jetty-servlets"
-  api "org.eclipse.jetty:jetty-webapp"
   api "org.eclipse.jetty:jetty-proxy"
-  api "org.eclipse.jetty.http2:http2-server"
+  api "org.eclipse.jetty.http2:jetty-http2-server"
   api "org.eclipse.jetty:jetty-alpn-server"
   api "org.eclipse.jetty:jetty-alpn-java-server"
   api "org.eclipse.jetty:jetty-alpn-java-client"
   api "org.eclipse.jetty:jetty-alpn-client"
+  api "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+  api "org.eclipse.jetty.ee10:jetty-ee10-servlets"
+  api "org.eclipse.jetty.ee10:jetty-ee10-webapp"
 
   api "com.google.guava:guava:$versions.guava", {
     exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -122,13 +123,64 @@ dependencies {
   testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.0'
 
   testImplementation "org.eclipse.jetty:jetty-client"
-  testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
   testImplementation files('test-extension/test-extension.jar')
 
   testImplementation 'org.openjdk.jmh:jmh-core:1.37'
   testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+
+  testImplementation "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty"
+  testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty"
+  testImplementation "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
+
+  modules {
+    module("org.apache.logging.log4j:log4j-core") {
+      replacedBy("org.apache.logging.log4j:log4j-to-slf4j")
+    }
+    module("commons-logging:commons-logging") {
+      replacedBy("org.slf4j:jcl-over-slf4j")
+    }
+    module("log4j:log4j") {
+      replacedBy("org.slf4j:log4j-over-slf4j")
+    }
+    module("javax.activation:activation") {
+      replacedBy("jakarta.activation:jakarta.activation-api")
+    }
+    module("javax.activation:javax.activation-api") {
+      replacedBy("jakarta.activation:jakarta.activation-api")
+    }
+    module("javax.validation:validation-api") {
+      replacedBy("jakarta.validation:jakarta.validation-api")
+    }
+    module("javax.xml.bind:jaxb-api") {
+      replacedBy("jakarta.xml.bind:jakarta.xml.bind-api")
+    }
+    module("org.hamcrest:hamcrest-core") {
+      replacedBy("org.hamcrest:hamcrest")
+    }
+    module("org.hamcrest:hamcrest-library") {
+      replacedBy("org.hamcrest:hamcrest")
+    }
+    module("javax.ws.rs:jsr311-api") {
+      replacedBy("jakarta.ws.rs:jakarta.ws.rs-api")
+    }
+    module("javax.ws.rs:javax.ws.rs-api") {
+      replacedBy("jakarta.ws.rs:jakarta.ws.rs-api")
+    }
+    module("javax.servlet:javax.servlet-api") {
+      replacedBy("jakarta.servlet:jakarta.servlet-api")
+    }
+    module("org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api") {
+      replacedBy("jakarta.servlet:jakarta.servlet-api")
+    }
+    module("javax.annotation:javax.annotation-api") {
+      replacedBy("jakarta.annotation:jakarta.annotation-api")
+    }
+    module("com.sun.activation:jakarta.activation") {
+      replacedBy("jakarta.activation:jakarta.activation-api")
+    }
+  }
 }
 
 allprojects {

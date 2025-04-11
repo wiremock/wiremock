@@ -62,16 +62,3 @@ jobs:
         path: |
           build/reports/tests/test
           build/test-results/test
-
-    - name: Test Jetty12 JAR
-      if: ${{ !(matrix.os == 'ubuntu-latest' && github.event_name == 'push') }}
-      run: ./gradlew :wiremock-jetty12:check --stacktrace --no-daemon
-
-    - name: Archive Jetty12 test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: wiremock-jetty12-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
-        path: |
-          wiremock-jetty12/build/reports/tests/test
-          wiremock-jetty12/build/test-results/test

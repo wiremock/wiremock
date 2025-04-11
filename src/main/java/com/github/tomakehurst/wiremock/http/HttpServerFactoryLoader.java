@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -32,27 +31,27 @@ public class HttpServerFactoryLoader {
   private final Options options;
   private final Extensions extensions;
   private final Supplier<List<HttpServerFactory>> serviceLoader;
-  private final boolean isJetty11;
+  private final boolean isJetty12;
 
   public HttpServerFactoryLoader(
       Options options,
       Extensions extensions,
       Supplier<List<HttpServerFactory>> serviceLoader,
-      boolean isJetty11) {
+      boolean isJetty12) {
     this.options = options;
     this.extensions = extensions;
     this.serviceLoader = serviceLoader;
-    this.isJetty11 = isJetty11;
+    this.isJetty12 = isJetty12;
   }
 
   public HttpServerFactory load() {
     final List<HttpServerFactory> extensionCandidates =
-        extensions.ofType(HttpServerFactory.class).values().stream().collect(toUnmodifiableList());
+        extensions.ofType(HttpServerFactory.class).values().stream().toList();
     if (!extensionCandidates.isEmpty()) {
       return pickMostAppropriateFrom(extensionCandidates);
     }
 
-    if (options.hasDefaultHttpServerFactory() && !isJetty11) {
+    if (options.hasDefaultHttpServerFactory() && !isJetty12) {
       final List<HttpServerFactory> serviceLoadedCandidates = serviceLoader.get();
       return pickMostAppropriateFrom(serviceLoadedCandidates);
     }
@@ -83,12 +82,12 @@ public class HttpServerFactoryLoader {
 
   private static FatalStartupException couldNotFindSuitableServerException() {
     return new FatalStartupException(
-        "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information.");
+        "Jetty 12 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See https://wiremock.org/docs/extending-wiremock/ for more information.");
   }
 
-  public static boolean isJetty11() {
+  public static boolean isJetty12() {
     try {
-      return Jetty.VERSION.startsWith("11");
+      return Jetty.VERSION.startsWith("12");
     } catch (Throwable e) {
       return false;
     }

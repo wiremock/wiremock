@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
+import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigElementBuilder;
 import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.http.HttpServletRequest;
 
-public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
+public class DefaultMultipartRequestConfigElementBuilder
+    implements MultipartRequestConfigElementBuilder {
 
-  @Override
-  public void configure(HttpServletRequest request) {
-    request.setAttribute(
-        org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT,
-        new MultipartConfigElement(
-            System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0));
+  public MultipartConfigElement build() {
+    return new MultipartConfigElement(
+        System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0);
   }
 }

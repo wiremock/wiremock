@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   public WireMockHttpServletRequestAdapter(
       HttpServletRequest request,
-      MultipartRequestConfigurer multipartRequestConfigurer,
       String urlPrefixToRemove,
       boolean browserProxyingEnabled,
       JettyHttpUtils utils) {
@@ -67,10 +66,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
     cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
 
     this.cachedFormParameters = getFormParameters(request);
-
-    if (multipartRequestConfigurer != null) {
-      multipartRequestConfigurer.configure(request);
-    }
   }
 
   @Override
@@ -207,7 +202,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   private static HttpHeaders getHeadersLinear(org.eclipse.jetty.server.Request request) {
     List<HttpHeader> headers =
-        request.getHttpFields().stream()
+        request.getHeaders().stream()
             .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
             .collect(Collectors.toList());
     return new HttpHeaders(headers);

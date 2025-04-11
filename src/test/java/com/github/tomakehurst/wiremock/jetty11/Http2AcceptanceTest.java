@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,15 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class Http2AcceptanceTest {
 
   @RegisterExtension
-  public WireMockExtension wm =
+  public static WireMockExtension wm =
       WireMockExtension.newInstance()
           .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
           .build();
