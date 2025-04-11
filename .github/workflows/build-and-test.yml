@@ -5,9 +5,9 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, v4.x ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, v4.x ]
   workflow_dispatch:
 
 jobs:
