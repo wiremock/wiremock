@@ -196,7 +196,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.12.1'
+  version = '4.0.0-beta.1'
 
   compileJava {
     options.encoding = 'UTF-8'
