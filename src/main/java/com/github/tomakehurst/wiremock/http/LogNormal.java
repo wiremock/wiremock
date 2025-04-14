@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,18 +39,20 @@ public final class LogNormal implements DelayDistribution {
   private final double sigma;
 
   @JsonProperty(value = "maxValue", required = false)
-  private final Long maxValue;
+  private final Double maxValue;
 
   /**
    * @param median 50th percentile of the distribution in millis
-   * @param sigma standard deviation of the distribution, a larger value produces a longer tail
-   * @param maxValue the maximum value to truncate the distribution at, or null to disable truncation
+   * @param sigma standard deviation of the underlying normal distribution, a larger value produces
+   *     a longer tail
+   * @param maxValue the maximum value to truncate the distribution at, or null to disable
+   *     truncation
    */
   @JsonCreator
   public LogNormal(
       @JsonProperty("median") double median,
       @JsonProperty("sigma") double sigma,
-      @JsonProperty("maxValue") Long maxValue) {
+      @JsonProperty("maxValue") Double maxValue) {
     this.median = median;
     this.sigma = sigma;
     this.maxValue = maxValue;
