@@ -104,6 +104,10 @@ public class WireMock {
     admin = new HttpAdminClient(scheme, host, port);
   }
 
+  public WireMock(String scheme, String host) {
+    admin = new HttpAdminClient(scheme, host);
+  }
+
   public WireMock(String scheme, String host, int port, String urlPathPrefix) {
     admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
   }
