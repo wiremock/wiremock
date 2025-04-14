@@ -46,27 +46,27 @@ public class LogNormalTest {
     // This test should, on occasion, exercise the resampling of the distribution value when the
     // initial generated
     // value(s) are higher than the max.
-    samplingTruncatedLogNormalHasExpectedMean((long) median, 67.82);
+    samplingTruncatedLogNormalHasExpectedMean(median, 67.82);
   }
 
   @Test
   public void samplingTruncatedLogNormalFailsIfMaxLessThanMedian() {
     try {
-      new LogNormal(median, sigma, (long) median);
+      new LogNormal(median, sigma, median);
     } catch (IllegalArgumentException ex) {
       // Fail - max = median is okay
       Assertions.fail("A maxValue matching median should not throw an exception");
     }
 
     try {
-      new LogNormal(median, sigma, ((long) median) - 1);
+      new LogNormal(median, sigma, (median - 1));
       Assertions.fail("A maxValue less than median should throw an exception");
     } catch (IllegalArgumentException ex) {
       // Exception expected
     }
   }
 
-  private void samplingTruncatedLogNormalHasExpectedMean(long maxCapValue, double expectedMean) {
+  private void samplingTruncatedLogNormalHasExpectedMean(double maxCapValue, double expectedMean) {
     LogNormal distribution = new LogNormal(median, sigma, maxCapValue);
     samplingLogNormalHasExpectedMean(distribution, expectedMean);
   }
