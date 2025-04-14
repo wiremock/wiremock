@@ -10,7 +10,7 @@ oneOf:
       sigma:
         type: number
       maxValue:
-        type: integer
+        type: number
       type:
         type: string
         enum:
