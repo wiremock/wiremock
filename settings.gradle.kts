@@ -1,1 +1,1 @@
-rootProject.name = 'wiremock'
+rootProject.name = "wiremock"
