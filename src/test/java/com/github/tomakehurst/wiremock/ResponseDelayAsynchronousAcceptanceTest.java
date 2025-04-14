@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -34,7 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -67,8 +66,8 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
     for (Future<TimedHttpResponse> response : responses) {
       TimedHttpResponse timedResponse = response.get();
-      assertThat(timedResponse.response.getCode(), is(200));
-      assertThat(timedResponse.milliseconds, greaterThan((double) SHORTER_THAN_SOCKET_TIMEOUT));
+      assertThat(timedResponse.status, is(200));
+      assertThat(timedResponse.milliseconds, greaterThan((long) SHORTER_THAN_SOCKET_TIMEOUT));
     }
   }
 
@@ -81,13 +80,31 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
     for (Future<TimedHttpResponse> response : responses) {
       TimedHttpResponse timedResponse = response.get();
-      assertThat(timedResponse.response.getCode(), is(200));
-      assertThat(timedResponse.milliseconds, greaterThan(100.0));
+      assertThat(timedResponse.status, is(200));
+      assertThat(timedResponse.milliseconds, greaterThan(100L));
     }
   }
 
-  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount)
-      throws IOException {
+  @Test
+  public void addsChunkedDribbleDelayAsynchronously() throws Exception {
+    String body = "chunked-body-to-return";
+    stubFor(
+        get("/delayed")
+            .willReturn(
+                ok().withBody(body).withChunkedDribbleDelay(5, SHORTER_THAN_SOCKET_TIMEOUT)));
+
+    List<Future<TimedHttpResponse>> responses =
+        httpClientExecutor.invokeAll(getHttpRequestCallables(5));
+
+    for (Future<TimedHttpResponse> response : responses) {
+      TimedHttpResponse timedResponse = response.get();
+      assertThat(timedResponse.status, is(200));
+      assertThat(timedResponse.body, is(body));
+      assertThat(timedResponse.milliseconds, greaterThan((long) SHORTER_THAN_SOCKET_TIMEOUT));
+    }
+  }
+
+  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount) {
     List<Callable<TimedHttpResponse>> requests = new ArrayList<>();
     for (int i = 0; i < requestCount; i++) {
       final Stopwatch stopwatch = Stopwatch.createStarted();
@@ -96,19 +113,24 @@ public class ResponseDelayAsynchronousAcceptanceTest {
             CloseableHttpResponse response =
                 HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
                     .execute(new HttpGet(wireMockRule.url("/delayed")));
-
-            return new TimedHttpResponse(response, stopwatch.stop().elapsed(MILLISECONDS));
+            int status = response.getCode();
+            String body = EntityUtils.toString(response.getEntity());
+            long milliseconds = stopwatch.elapsed(MILLISECONDS);
+            return new TimedHttpResponse(status, body, milliseconds);
           });
     }
     return requests;
   }
 
   private static class TimedHttpResponse {
-    public final HttpResponse response;
-    public final double milliseconds;
 
-    public TimedHttpResponse(HttpResponse response, long milliseconds) {
-      this.response = response;
+    public final int status;
+    public final String body;
+    public final long milliseconds;
+
+    public TimedHttpResponse(int status, String body, long milliseconds) {
+      this.status = status;
+      this.body = body;
       this.milliseconds = milliseconds;
     }
   }
