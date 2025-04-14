@@ -48,12 +48,12 @@ public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
       channel.connect(address);
       promise.succeeded(channel);
     } catch (Throwable x) {
-      close(channel);
+      closeSafely(channel);
       promise.failed(x);
     }
   }
 
-  private void close(Closeable closeable) {
+  private void closeSafely(Closeable closeable) {
     try {
       if (closeable != null) closeable.close();
     } catch (Throwable x) {
