@@ -211,6 +211,33 @@ paths:
         '200':
           description: 'The stub mappings were successfully removed'
 
+  /__admin/mappings/remove-by-id:
+    post:
+      summary: Delete multiple stub matching given stub ids
+      tags:
+        - Stub Mappings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  description: array of stub ids to be deleted
+                  items:
+                    type: string
+                    description: stub mapping's unique identifier
+                    example: "730d3e32-d098-4169-a20c-554c3bedce58"
+      responses:
+        '200':
+          description: 'The stub mappings were successfully removed'
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/stub-mappings.yaml'
   /__admin/requests:
     get:
       operationId: getAllRequestsInJournal
