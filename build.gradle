@@ -114,7 +114,7 @@ dependencies {
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.3.0'
-  testFixturesApi "commons-io:commons-io:2.18.0"
+  testFixturesApi "commons-io:commons-io:2.19.0"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
