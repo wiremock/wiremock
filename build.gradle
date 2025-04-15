@@ -109,7 +109,7 @@ dependencies {
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
   testFixturesApi 'org.mockito:mockito-core:5.17.0'
-  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.16.1'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.17.0'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
