@@ -59,7 +59,9 @@ public final class LogNormal implements DelayDistribution {
 
     if (maxValue != null && maxValue < median) {
       throw new IllegalArgumentException(
-          "The max value has to be greater than or equal to the median");
+          String.format(
+              "The max value (%s) has to be greater than or equal to the median (%s). Sigma: %s",
+              maxValue, median, sigma));
     }
   }
 
