@@ -48,8 +48,8 @@ public class WebhookDefinition {
         parameters.getString("url"),
         toHttpHeaders(parameters.getMetadata("headers", null)),
         parameters.getString("body", null),
-        parameters.getString("base64Body", null),
         parameters.getString("bodyFileName", null),
+        parameters.getString("base64Body", null),
         getDelayDistribution(parameters.getMetadata("delay", null)),
         parameters);
   }
@@ -104,6 +104,8 @@ public class WebhookDefinition {
       this.body = new Body(body);
     } else if (base64Body != null) {
       this.body = new Body(decodeBase64(base64Body));
+    } else if (bodyFileName != null) {
+      this.bodyFileName = bodyFileName;
     }
 
     this.delay = delay;

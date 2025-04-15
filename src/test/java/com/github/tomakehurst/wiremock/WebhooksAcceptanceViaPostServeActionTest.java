@@ -50,8 +50,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptanceTest {
 
@@ -216,6 +214,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
     verify(postRequestedFor(urlPathEqualTo("/callback2")));
   }
 
+  @Test
   public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaDSL() throws Exception {
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
@@ -223,14 +222,13 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             .withPostServeAction(
                 "webhook",
                 webhook()
-                    .withBodyFileName("myFile.json")
+                    .withBodyFileName("test-file-root/__files/myBodyFileName.json")
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
                     .withUrl(
                         targetServer.baseUrl()
                             + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
                     .withHeader("X-Single", "{{math 1 '+' 2}}")
                     .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
-                    .withBody("{{jsonPath originalRequest.body '$.name'}}")
                     .withExtraParameter("one", "param-one-value")));
 
     verify(0, postRequestedFor(anyUrl()));
@@ -250,9 +248,10 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
 
     assertThat(request.header("X-Single").firstValue(), is("3"));
     assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
-    assertThat(request.getBodyAsString(), is("Tom"));
+    assertThat(request.getBodyAsString(), is("{\"CONTENTS_OF_MYFILE\": \"Tom\"}\n"));
   }
 
+  @Test
   public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaJSON() throws Exception {
     client.postJson(
         "/__admin/mappings",
@@ -277,7 +276,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
             + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
             + "      },\n"
-            + "      \"bodyFileName\" : \"myFile.json\",\n"
+            + "      \"bodyFileName\" : \"test-file-root/__files/myBodyFileName.json\",\n"
             + "      \"one\" : \"param-one-value\"\n"
             + "    }\n"
             + "  }]\n"
@@ -300,7 +299,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
 
     assertThat(request.header("X-Single").firstValue(), is("3"));
     assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
-    assertThat(request.getBodyAsString(), is("Tom"));
+    assertThat(request.getBodyAsString(), is("{\"CONTENTS_OF_MYFILE\": \"Tom\"}\n"));
   }
 
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaDSL() throws Exception {
@@ -339,10 +338,8 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
     assertThat(request.getBodyAsString(), is("Tom"));
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"", "myFile.json"})
-  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON(String bodyFileNameParam)
-      throws Exception {
+  @Test
+  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON() throws Exception {
     client.postJson(
         "/__admin/mappings",
         "{\n"

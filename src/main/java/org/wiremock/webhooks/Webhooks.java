@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
@@ -32,6 +33,8 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -161,12 +164,24 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                                     .collect(toList())))
                     .collect(toList()));
 
-    if (webhookDefinition.specifiesBodyFile()) { 
-      renderedWebhookDefinition =
-          webhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBodyFileName()));
-    } else if (webhookDefinition.getBody() != null) {
-      renderedWebhookDefinition =
-          webhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBody()));
+    if (webhookDefinition.specifiesBodyFile()) {
+      FileSource fileSource = WireMockConfiguration.wireMockConfig().filesRoot();
+      try {
+        BinaryFile bodyFile = fileSource.getBinaryFileNamed(webhookDefinition.getBodyFileName());
+        webhookDefinition.withBody(new String(bodyFile.readContents()));
+      } catch (Exception ex) {
+        StringWriter writer = new StringWriter();
+        writer.append(
+            webhookDefinition.getBodyFileName()
+                + " not found in fileSource path: "
+                + fileSource.getPath());
+        ex.printStackTrace(new PrintWriter(writer));
+        renderedWebhookDefinition.withBody(writer.toString());
+      }
+    }
+
+    if (webhookDefinition.getBody() != null) {
+      renderedWebhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBody()));
     }
 
     return renderedWebhookDefinition;
