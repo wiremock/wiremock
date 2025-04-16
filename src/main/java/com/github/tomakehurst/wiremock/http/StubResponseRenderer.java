@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -134,7 +135,11 @@ public class StubResponseRenderer implements ResponseRenderer {
               .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
 
       if (stubMapping.getName() != null) {
-        headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
+        // ensure stub name is compliant with http spec header values
+        // https://www.rfc-editor.org/rfc/rfc9110.html#name-field-values.
+        String sanitisedStubName =
+            new String(stubMapping.getName().getBytes(StandardCharsets.US_ASCII));
+        headers = headers.plus(new HttpHeader("Matched-Stub-Name", sanitisedStubName));
       }
     }
 

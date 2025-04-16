@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,5 +59,13 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(response.firstHeader("Matched-Stub-Id"), nullValue());
     assertThat(response.firstHeader("Matched-Stub-Name"), nullValue());
+  }
+
+  @Test
+  public void nonAsciiCharactersAreReplacedByQuestionMarksInStubNameHeader() {
+    wireMockServer.stubFor(any(anyUrl()).withName("start Запрос ?? åéã end").willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/the-match");
+    assertThat(response.firstHeader("Matched-Stub-Name"), is("start ?????? ?? ??? end"));
   }
 }
