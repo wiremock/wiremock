@@ -1,0 +1,105 @@
+[versions]
+jetty = "12.0.16"
+jackson = "2.18.3"
+xmlUnit = "2.10.0"
+jsonUnit = "2.40.1"
+junitJupiter = "5.12.2"
+handlebars = "4.3.1"
+slf4j = "1.7.36"
+hamcrest = "3.0"
+mockito = "5.17.0"
+jmh = "1.37"
+
+[libraries]
+# Jetty dependencies
+jetty-bom = { module = "org.eclipse.jetty:jetty-bom", version.ref = "jetty" }
+jetty-ee10-bom = { module = "org.eclipse.jetty.ee10:jetty-ee10-bom", version.ref = "jetty" }
+jetty-server = { module = "org.eclipse.jetty:jetty-server" }
+jetty-proxy = { module = "org.eclipse.jetty:jetty-proxy" }
+jetty-http2-server = { module = "org.eclipse.jetty.http2:jetty-http2-server" }
+jetty-alpn-server = { module = "org.eclipse.jetty:jetty-alpn-server" }
+jetty-alpn-java-server = { module = "org.eclipse.jetty:jetty-alpn-java-server" }
+jetty-alpn-java-client = { module = "org.eclipse.jetty:jetty-alpn-java-client" }
+jetty-alpn-client = { module = "org.eclipse.jetty:jetty-alpn-client" }
+jetty-ee10-servlet = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlet" }
+jetty-ee10-servlets = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlets" }
+jetty-ee10-webapp = { module = "org.eclipse.jetty.ee10:jetty-ee10-webapp" }
+jetty-client = { module = "org.eclipse.jetty:jetty-client" }
+jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client", version.ref = "jetty" }
+jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport", version.ref = "jetty" }
+
+# Jackson dependencies
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+
+# Guava
+guava = { module = "com.google.guava:guava", version = "33.4.8-jre" }
+
+# HTTP Client
+httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.3" }
+
+# XML Unit
+xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
+xmlunit-legacy = { module = "org.xmlunit:xmlunit-legacy", version.ref = "xmlUnit" }
+xmlunit-placeholders = { module = "org.xmlunit:xmlunit-placeholders", version.ref = "xmlUnit" }
+
+# JSON Unit
+json-unit-core = { module = "net.javacrumbs.json-unit:json-unit-core", version.ref = "jsonUnit" }
+json-unit = { module = "net.javacrumbs.json-unit:json-unit", version.ref = "jsonUnit" }
+
+# JSON Path
+json-path = { module = "com.jayway.jsonpath:json-path", version = "2.9.0" }
+
+# SLF4J
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+
+# Command line options
+jopt-simple = { module = "net.sf.jopt-simple:jopt-simple", version = "5.0.4" }
+
+# JUnit
+junit4 = { module = "junit:junit", version = "4.13.2" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params" }
+junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
+junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version = "2.3.0" }
+
+# Handlebars
+handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
+handlebars-helpers = { module = "com.github.jknack:handlebars-helpers", version.ref = "handlebars" }
+
+# File upload
+commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.5" }
+
+# JSON Schema
+json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.6" }
+
+# Testing
+hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest" }
+hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
+jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
+awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.19.0" }
+scala-library = { module = "org.scala-lang:scala-library", version = "2.13.16" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version = "1.4.0" }
+
+# JMH
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
+
+[plugins]
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
+spotless = { id = "com.diffplug.spotless", version = "6.25.0" }
+shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
+sonarqube = { id = "org.sonarqube", version = "6.1.0.5360" }
+jmh = { id = "me.champeau.jmh", version = "0.7.3" }
+task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }
