@@ -16,120 +16,109 @@ plugins {
   id("scala")
   id("signing")
   id("maven-publish")
-  id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+  alias(libs.plugins.nexus.publish)
   id("idea")
   id("eclipse")
   id("project-report")
-  id("com.diffplug.spotless") version "6.25.0"
-  id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("org.sonarqube") version "6.1.0.5360"
+  alias(libs.plugins.spotless)
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.sonarqube)
   id("jacoco")
-  id("me.champeau.jmh") version "0.7.3"
-  id("com.dorongold.task-tree") version "4.0.1"
+  alias(libs.plugins.jmh)
+  alias(libs.plugins.task.tree)
 }
 
 group = "org.wiremock"
 
-@Suppress("ConstPropertyName")
-object Versions {
-  const val handlebars     = "4.3.1"
-  const val jetty          = "12.0.16"
-  const val guava          = "33.4.6-jre"
-  const val jackson        = "2.18.3"
-  const val xmlUnit        = "2.10.0"
-  const val jsonUnit       = "2.40.1"
-  const val junitJupiter   = "5.12.1"
-}
-
 val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
-  api(platform("org.eclipse.jetty:jetty-bom:${Versions.jetty}"))
-  api(platform("org.eclipse.jetty.ee10:jetty-ee10-bom:${Versions.jetty}"))
-  api("org.eclipse.jetty:jetty-server")
-  api("org.eclipse.jetty:jetty-proxy")
-  api("org.eclipse.jetty.http2:jetty-http2-server")
-  api("org.eclipse.jetty:jetty-alpn-server")
-  api("org.eclipse.jetty:jetty-alpn-java-server")
-  api("org.eclipse.jetty:jetty-alpn-java-client")
-  api("org.eclipse.jetty:jetty-alpn-client")
-  api("org.eclipse.jetty.ee10:jetty-ee10-servlet")
-  api("org.eclipse.jetty.ee10:jetty-ee10-servlets")
-  api("org.eclipse.jetty.ee10:jetty-ee10-webapp")
+  api(platform(libs.jetty.bom))
+  api(platform(libs.jetty.ee10.bom))
+  api(libs.jetty.server)
+  api(libs.jetty.proxy)
+  api(libs.jetty.http2.server)
+  api(libs.jetty.alpn.server)
+  api(libs.jetty.alpn.java.server)
+  api(libs.jetty.alpn.java.client)
+  api(libs.jetty.alpn.client)
+  api(libs.jetty.ee10.servlet)
+  api(libs.jetty.ee10.servlets)
+  api(libs.jetty.ee10.webapp)
 
-  api("com.google.guava:guava:${Versions.guava}") {
+  api(libs.guava) {
     exclude(group = "com.google.code.findbugs", module = "jsr305")
   }
-  api(platform("com.fasterxml.jackson:jackson-bom:${Versions.jackson}"))
-  api("com.fasterxml.jackson.core:jackson-core")
-  api("com.fasterxml.jackson.core:jackson-annotations")
-  api("com.fasterxml.jackson.core:jackson-databind")
-  api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-  api("org.apache.httpcomponents.client5:httpclient5:5.4.3")
-  api("org.xmlunit:xmlunit-core:${Versions.xmlUnit}")
-  api("org.xmlunit:xmlunit-legacy:${Versions.xmlUnit}") {
+  api(platform(libs.jackson.bom))
+  api(libs.jackson.core)
+  api(libs.jackson.annotations)
+  api(libs.jackson.databind)
+  api(libs.jackson.datatype.jsr310)
+  api(libs.httpclient5)
+  api(libs.xmlunit.core)
+  api(libs.xmlunit.legacy) {
     exclude(group = "junit", module = "junit")
   }
-  api("org.xmlunit:xmlunit-placeholders:${Versions.xmlUnit}")
-  api("net.javacrumbs.json-unit:json-unit-core:${Versions.jsonUnit}")
-  api("com.jayway.jsonpath:json-path:2.9.0") {
+  api(libs.xmlunit.placeholders)
+  api(libs.json.unit.core)
+  api(libs.json.path) {
     exclude(group = "org.ow2.asm", module = "asm")
   }
 
-  implementation("org.slf4j:slf4j-api:1.7.36")
-  add("standaloneOnly", "org.slf4j:slf4j-nop:1.7.36")
+  implementation(libs.slf4j.api)
+  add("standaloneOnly", libs.slf4j.nop)
 
-  api("net.sf.jopt-simple:jopt-simple:5.0.4")
+  api(libs.jopt.simple)
 
-  compileOnly("junit:junit:4.13.2") {
+  compileOnly(libs.junit4) {
     exclude(group = "org.hamcrest", module = "hamcrest-core")
   }
-  compileOnly(platform("org.junit:junit-bom:${Versions.junitJupiter}"))
-  compileOnly("org.junit.jupiter:junit-jupiter")
+  compileOnly(platform(libs.junit.bom))
+  compileOnly(libs.junit.jupiter)
 
-  api("com.github.jknack:handlebars:${Versions.handlebars}") {
+  api(libs.handlebars) {
     exclude(group = "org.mozilla", module = "rhino")
   }
-  api("com.github.jknack:handlebars-helpers:${Versions.handlebars}") {
+  api(libs.handlebars.helpers) {
     exclude(group = "org.mozilla", module = "rhino")
     exclude(group = "org.apache.commons", module = "commons-lang3")
   }
 
-  api("commons-fileupload:commons-fileupload:1.5")
+  api(libs.commons.fileupload)
 
-  api("com.networknt:json-schema-validator:1.5.6")
+  api(libs.json.schema.validator)
 
-  testFixturesApi("org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}")
-  testFixturesApi("org.junit.platform:junit-platform-testkit")
-  testFixturesApi("org.junit.platform:junit-platform-launcher")
-  testFixturesApi("org.junit.jupiter:junit-jupiter-params")
-  testFixturesApi("org.junit-pioneer:junit-pioneer:2.3.0")
-  testFixturesApi("org.hamcrest:hamcrest-core:3.0")
-  testFixturesApi("org.hamcrest:hamcrest-library:3.0")
-  testFixturesApi("org.mockito:mockito-core:5.16.1")
-  testFixturesApi("org.mockito:mockito-junit-jupiter:5.16.1")
-  testFixturesApi("net.javacrumbs.json-unit:json-unit:${Versions.jsonUnit}")
-  testFixturesApi("org.skyscreamer:jsonassert:1.5.1")
-  testFixturesApi("com.toomuchcoding.jsonassert:jsonassert:0.8.0")
-  testFixturesApi("org.awaitility:awaitility:4.3.0")
-  testFixturesApi("commons-io:commons-io:2.18.0")
+  testFixturesApi(libs.junit.jupiter)
+  testFixturesApi(libs.junit.platform.testkit)
+  testFixturesApi(libs.junit.platform.launcher)
+  testFixturesApi(libs.junit.jupiter.params)
+  testFixturesApi(libs.junit.pioneer)
+  testFixturesApi(libs.hamcrest.core)
+  testFixturesApi(libs.hamcrest.library)
+  testFixturesApi(libs.mockito.core)
+  testFixturesApi(libs.mockito.junit.jupiter)
+  testFixturesApi(libs.json.unit)
+  testFixturesApi(libs.jsonassert)
+  testFixturesApi(libs.jsonassert.toomuchcoding)
+  testFixturesApi(libs.awaitility)
+  testFixturesApi(libs.commons.io)
 
-  testImplementation("junit:junit:4.13.2")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation("org.scala-lang:scala-library:2.13.16")
-  testImplementation("com.tngtech.archunit:archunit-junit5:1.4.0")
+  testImplementation(libs.junit4)
+  testRuntimeOnly(libs.junit.vintage.engine)
+  testImplementation(libs.scala.library)
+  testImplementation(libs.archunit.junit5)
 
-  testImplementation("org.eclipse.jetty:jetty-client")
+  testImplementation(libs.jetty.client)
   testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
 
   testImplementation(files("test-extension/test-extension.jar"))
 
-  testImplementation("org.openjdk.jmh:jmh-core:1.37")
-  testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.37")
+  testImplementation(libs.jmh.core)
+  testImplementation(libs.jmh.generator.annprocess)
 
-  testImplementation("org.eclipse.jetty.http2:jetty-http2-client:${Versions.jetty}")
-  testImplementation("org.eclipse.jetty.http2:jetty-http2-client-transport:${Versions.jetty}")
-  testImplementation("org.eclipse.jetty:jetty-alpn-java-client:${Versions.jetty}")
+  testImplementation(libs.jetty.http2.client)
+  testImplementation(libs.jetty.http2.client.transport)
+  testImplementation(libs.jetty.alpn.java.client)
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {
