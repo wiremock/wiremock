@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,12 +187,13 @@ public class MultipartTemplatingAcceptanceTest {
   void acceptsAMultipartRelatedRFC2387Request() throws Exception {
     final String boundary = "boundary_example";
 
-    final String expectBody = "{\n" +
-        "  \"error\": {\n" +
-        "    \"code\": 404,\n" +
-        "    \"message\": \"parent not found.\"\n" +
-        "  }\n" +
-        "}";
+    final String expectBody =
+        "{\n"
+            + "  \"error\": {\n"
+            + "    \"code\": 404,\n"
+            + "    \"message\": \"parent not found.\"\n"
+            + "  }\n"
+            + "}";
 
     wm.stubFor(
         post(urlPathMatching("/templated"))
@@ -200,29 +201,35 @@ public class MultipartTemplatingAcceptanceTest {
             .withHeader("Authorization", matching("^Bearer [a-zA-Z0-9_\\-.]+$"))
             .withHeader("Content-Type", equalTo("multipart/related; boundary=" + boundary))
             .withHeader("Content-Length", equalTo("255"))
-            .willReturn(aResponse()
-                .withStatus(404)
-                .withHeader("Content-Type", "application/json; charset=UTF-8")
-                .withBody(expectBody)));
+            .willReturn(
+                aResponse()
+                    .withStatus(404)
+                    .withHeader("Content-Type", "application/json; charset=UTF-8")
+                    .withBody(expectBody)));
 
     String rfc2387Body =
-        "--" + boundary + "\r\n" +
-            "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-            "{\"parents\": [\"parents_example\"], \"name\": \"test_upload.txt\"}\r\n" +
-            "--" + boundary + "\r\n" +
-            "Content-Transfer-Encoding: base64\r\n\r\n" +
-            "VGhpcyBpcyBhbiBleGFtcGxlIGJpbmFyeSBkYXRhLg==\r\n" +
-            "--" + boundary + "--\r\n";
+        "--"
+            + boundary
+            + "\r\n"
+            + "Content-Type: application/json; charset=UTF-8\r\n\r\n"
+            + "{\"parents\": [\"parents_example\"], \"name\": \"test_upload.txt\"}\r\n"
+            + "--"
+            + boundary
+            + "\r\n"
+            + "Content-Transfer-Encoding: base64\r\n\r\n"
+            + "VGhpcyBpcyBhbiBleGFtcGxlIGJpbmFyeSBkYXRhLg==\r\n"
+            + "--"
+            + boundary
+            + "--\r\n";
 
-    HttpEntity entity = new StringEntity(
-        rfc2387Body,
-        ContentType.create("multipart/related", "UTF-8")
-    );
+    HttpEntity entity =
+        new StringEntity(rfc2387Body, ContentType.create("multipart/related", "UTF-8"));
 
-    TestHttpHeader[] headers = new TestHttpHeader[]{
-        new TestHttpHeader("Authorization", "Bearer token"),
-        new TestHttpHeader("Content-Type", "multipart/related; boundary=" + boundary)
-    };
+    TestHttpHeader[] headers =
+        new TestHttpHeader[] {
+          new TestHttpHeader("Authorization", "Bearer token"),
+          new TestHttpHeader("Content-Type", "multipart/related; boundary=" + boundary)
+        };
 
     WireMockResponse response = client.post("/templated?uploadType=multipart", entity, headers);
 

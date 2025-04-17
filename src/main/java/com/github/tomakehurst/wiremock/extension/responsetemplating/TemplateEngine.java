@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -185,12 +184,15 @@ public class TemplateEngine {
         int partIndex = 0;
         for (Request.Part part : request.getParts()) {
           String key = part.getName() != null ? part.getName() : "part-" + partIndex++;
-          result.put(key, new RequestPartTemplateModel(
+          result.put(
               key,
-              part.getHeaders().all().stream()
-                  .collect(Collectors.toMap(
-                      HttpHeader::key, header -> ListOrSingle.of(header.values()))),
-              part.getBody()));
+              new RequestPartTemplateModel(
+                  key,
+                  part.getHeaders().all().stream()
+                      .collect(
+                          Collectors.toMap(
+                              HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                  part.getBody()));
         }
 
         return result;
@@ -205,7 +207,8 @@ public class TemplateEngine {
                             part.getHeaders().all().stream()
                                 .collect(
                                     Collectors.toMap(
-                                        HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                                        HttpHeader::key,
+                                        header -> ListOrSingle.of(header.values()))),
                             part.getBody())));
       }
     }
