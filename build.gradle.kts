@@ -33,49 +33,11 @@ group = "org.wiremock"
 val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
-  api(platform(libs.jetty.bom))
-  api(platform(libs.jetty.ee10.bom))
-  api(libs.jetty.server)
-  api(libs.jetty.proxy)
-  api(libs.jetty.http2.server)
-  api(libs.jetty.alpn.server)
-  api(libs.jetty.alpn.java.server)
-  api(libs.jetty.alpn.java.client)
-  api(libs.jetty.alpn.client)
-  api(libs.jetty.ee10.servlet)
-  api(libs.jetty.ee10.servlets)
-  api(libs.jetty.ee10.webapp)
-
+  api(libs.apache.http5.client)
+  api(libs.commons.fileupload)
   api(libs.guava) {
     exclude(group = "com.google.code.findbugs", module = "jsr305")
   }
-  api(platform(libs.jackson.bom))
-  api(libs.jackson.core)
-  api(libs.jackson.annotations)
-  api(libs.jackson.databind)
-  api(libs.jackson.datatype.jsr310)
-  api(libs.httpclient5)
-  api(libs.xmlunit.core)
-  api(libs.xmlunit.legacy) {
-    exclude(group = "junit", module = "junit")
-  }
-  api(libs.xmlunit.placeholders)
-  api(libs.json.unit.core)
-  api(libs.json.path) {
-    exclude(group = "org.ow2.asm", module = "asm")
-  }
-
-  implementation(libs.slf4j.api)
-  add("standaloneOnly", libs.slf4j.nop)
-
-  api(libs.jopt.simple)
-
-  compileOnly(libs.junit4) {
-    exclude(group = "org.hamcrest", module = "hamcrest-core")
-  }
-  compileOnly(platform(libs.junit.bom))
-  compileOnly(libs.junit.jupiter)
-
   api(libs.handlebars) {
     exclude(group = "org.mozilla", module = "rhino")
   }
@@ -84,41 +46,76 @@ dependencies {
     exclude(group = "org.apache.commons", module = "commons-lang3")
   }
 
-  api(libs.commons.fileupload)
+  api(platform(libs.jackson.bom))
+  api(libs.jackson.annotations)
+  api(libs.jackson.core)
+  api(libs.jackson.databind)
+  api(libs.jackson.datatype.jsr310)
 
+  api(platform(libs.jetty.bom))
+  api(platform(libs.jetty.ee10.bom))
+  api(libs.jetty.alpn.client)
+  api(libs.jetty.alpn.java.client)
+  api(libs.jetty.alpn.java.server)
+  api(libs.jetty.alpn.server)
+  api(libs.jetty.ee10.servlet)
+  api(libs.jetty.ee10.servlets)
+  api(libs.jetty.ee10.webapp)
+  api(libs.jetty.http2.server)
+  api(libs.jetty.proxy)
+  api(libs.jetty.server)
+  api(libs.jopt.simple)
+  api(libs.json.path) {
+    exclude(group = "org.ow2.asm", module = "asm")
+  }
   api(libs.json.schema.validator)
+  api(libs.json.unit.core)
 
-  testFixturesApi(libs.junit.jupiter)
-  testFixturesApi(libs.junit.platform.testkit)
-  testFixturesApi(libs.junit.platform.launcher)
-  testFixturesApi(libs.junit.jupiter.params)
-  testFixturesApi(libs.junit.pioneer)
+  api(platform(libs.junit.bom))
+
+  api(libs.xmlunit.core)
+  api(libs.xmlunit.legacy) {
+    exclude(group = "junit", module = "junit")
+  }
+  api(libs.xmlunit.placeholders)
+
+  implementation(libs.slf4j.api)
+
+  compileOnly(libs.junit4) {
+    exclude(group = "org.hamcrest", module = "hamcrest-core")
+  }
+  compileOnly(libs.junit.jupiter)
+
+  add("standaloneOnly", libs.slf4j.nop)
+
+  testFixturesApi(libs.awaitility)
+  testFixturesApi(libs.commons.io)
   testFixturesApi(libs.hamcrest.core)
   testFixturesApi(libs.hamcrest.library)
-  testFixturesApi(libs.mockito.core)
-  testFixturesApi(libs.mockito.junit.jupiter)
   testFixturesApi(libs.json.unit)
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.jsonassert.toomuchcoding)
-  testFixturesApi(libs.awaitility)
-  testFixturesApi(libs.commons.io)
+  testFixturesApi(libs.junit.jupiter)
+  testFixturesApi(libs.junit.jupiter.params)
+  testFixturesApi(libs.junit.pioneer)
+  testFixturesApi(libs.junit.platform.launcher)
+  testFixturesApi(libs.junit.platform.testkit)
+  testFixturesApi(libs.mockito.core)
+  testFixturesApi(libs.mockito.junit.jupiter)
 
-  testImplementation(libs.junit4)
-  testRuntimeOnly(libs.junit.vintage.engine)
-  testImplementation(libs.scala.library)
   testImplementation(libs.archunit.junit5)
-
-  testImplementation(libs.jetty.client)
-  testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
-
   testImplementation(files("test-extension/test-extension.jar"))
-
-  testImplementation(libs.jmh.core)
-  testImplementation(libs.jmh.generator.annprocess)
-
+  testImplementation(libs.jetty.alpn.java.client)
+  testImplementation(libs.jetty.client)
   testImplementation(libs.jetty.http2.client)
   testImplementation(libs.jetty.http2.client.transport)
-  testImplementation(libs.jetty.alpn.java.client)
+  testImplementation(libs.jmh.core)
+  testImplementation(libs.jmh.generator.annprocess)
+  testImplementation(libs.junit4)
+  testImplementation(libs.scala.library)
+
+  testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
+  testRuntimeOnly(libs.junit.vintage.engine)
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {
