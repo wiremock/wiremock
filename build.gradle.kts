@@ -225,6 +225,12 @@ allprojects {
       endWithNewline()
       targetExclude("**/Tmp*.java")
     }
+    kotlinGradle {
+      target("**/*.gradle.kts")
+      indentWithSpaces(2)
+      trimTrailingWhitespace()
+      endWithNewline()
+    }
     groovyGradle {
       target("**/*.gradle")
       greclipse()
