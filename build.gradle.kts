@@ -34,6 +34,7 @@ val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
   api(libs.apache.http5.client)
+  api(libs.apache.http5.core)
   api(libs.commons.fileupload)
   api(libs.guava) {
     exclude(group = "com.google.code.findbugs", module = "jsr305")
@@ -41,81 +42,99 @@ dependencies {
   api(libs.handlebars) {
     exclude(group = "org.mozilla", module = "rhino")
   }
-  api(libs.handlebars.helpers) {
-    exclude(group = "org.mozilla", module = "rhino")
-    exclude(group = "org.apache.commons", module = "commons-lang3")
-  }
 
   api(platform(libs.jackson.bom))
   api(libs.jackson.annotations)
   api(libs.jackson.core)
   api(libs.jackson.databind)
-  api(libs.jackson.datatype.jsr310)
+
+  api(libs.jakarta.servlet.api)
 
   api(platform(libs.jetty.bom))
   api(platform(libs.jetty.ee10.bom))
-  api(libs.jetty.alpn.client)
-  api(libs.jetty.alpn.java.client)
-  api(libs.jetty.alpn.java.server)
-  api(libs.jetty.alpn.server)
   api(libs.jetty.ee10.servlet)
-  api(libs.jetty.ee10.servlets)
-  api(libs.jetty.ee10.webapp)
-  api(libs.jetty.http2.server)
-  api(libs.jetty.proxy)
+  api(libs.jetty.io)
   api(libs.jetty.server)
-  api(libs.jopt.simple)
-  api(libs.json.path) {
-    exclude(group = "org.ow2.asm", module = "asm")
-  }
+  api(libs.jetty.util)
   api(libs.json.schema.validator)
   api(libs.json.unit.core)
 
-  api(platform(libs.junit.bom))
-
   api(libs.xmlunit.core)
-  api(libs.xmlunit.legacy) {
+
+  implementation(libs.handlebars.helpers) {
+    exclude(group = "org.mozilla", module = "rhino")
+    exclude(group = "org.apache.commons", module = "commons-lang3")
+  }
+  implementation(libs.jackson.datatype.jsr310)
+  implementation(libs.jetty.alpn.server)
+  implementation(libs.jetty.ee10.servlets)
+  implementation(libs.jetty.http)
+  implementation(libs.jetty.http2.common)
+  implementation(libs.jetty.http2.server)
+  implementation(libs.jopt.simple)
+  implementation(libs.json.path) {
+    exclude(group = "org.ow2.asm", module = "asm")
+  }
+  implementation(libs.slf4j.api)
+  implementation(libs.xmlunit.legacy) {
     exclude(group = "junit", module = "junit")
   }
-  api(libs.xmlunit.placeholders)
-
-  implementation(libs.slf4j.api)
+  implementation(libs.xmlunit.placeholders)
 
   compileOnly(libs.junit4) {
     exclude(group = "org.hamcrest", module = "hamcrest-core")
   }
-  compileOnly(libs.junit.jupiter)
+  compileOnly(platform(libs.junit.bom))
+  compileOnly(libs.junit.jupiter.api)
+  compileOnly(libs.junit.platform.commons)
+
+  runtimeOnly(libs.jetty.alpn.java.server)
 
   add("standaloneOnly", libs.slf4j.nop)
 
-  testFixturesApi(libs.awaitility)
-  testFixturesApi(libs.commons.io)
-  testFixturesApi(libs.hamcrest.core)
-  testFixturesApi(libs.hamcrest.library)
-  testFixturesApi(libs.json.unit)
+  testFixturesApi(libs.apache.http5.client)
+  testFixturesApi(libs.apache.http5.core)
+  testFixturesApi(libs.guava)
+  testFixturesApi(libs.hamcrest)
+  testFixturesApi(libs.handlebars)
+  testFixturesApi(libs.jakarta.servlet.api)
   testFixturesApi(libs.jsonassert)
-  testFixturesApi(libs.jsonassert.toomuchcoding)
-  testFixturesApi(libs.junit.jupiter)
-  testFixturesApi(libs.junit.jupiter.params)
-  testFixturesApi(libs.junit.pioneer)
-  testFixturesApi(libs.junit.platform.launcher)
-  testFixturesApi(libs.junit.platform.testkit)
-  testFixturesApi(libs.mockito.core)
-  testFixturesApi(libs.mockito.junit.jupiter)
 
-  testImplementation(libs.archunit.junit5)
-  testImplementation(files("test-extension/test-extension.jar"))
-  testImplementation(libs.jetty.alpn.java.client)
+  testFixturesImplementation(libs.jetty.util)
+  testFixturesImplementation(platform(libs.junit.bom))
+  testFixturesImplementation(libs.junit.jupiter.api)
+  testFixturesImplementation(libs.mockito.core)
+
+  testImplementation(libs.android.json)
+  testImplementation(libs.archunit)
+  testImplementation(libs.archunit.junit5.api)
+  testImplementation(libs.assertj.core)
+  testImplementation(libs.awaitility)
   testImplementation(libs.jetty.client)
+  testImplementation(libs.jetty.ee10.webapp)
   testImplementation(libs.jetty.http2.client)
   testImplementation(libs.jetty.http2.client.transport)
   testImplementation(libs.jmh.core)
-  testImplementation(libs.jmh.generator.annprocess)
+  testImplementation(libs.json.unit)
+  testImplementation(libs.jsonassert.toomuchcoding)
+  testImplementation(platform(libs.junit.bom))
+  testImplementation(libs.junit.jupiter.api)
+  testImplementation(libs.junit.jupiter.params)
+  testImplementation(libs.junit.pioneer)
+  testImplementation(libs.junit.platform.engine)
+  testImplementation(libs.junit.platform.launcher)
+  testImplementation(libs.junit.platform.testkit)
   testImplementation(libs.junit4)
+  testImplementation(libs.mockito.core)
+  testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)
 
   testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
+  testRuntimeOnly(files("test-extension/test-extension.jar"))
+  testRuntimeOnly(libs.archunit.junit5)
+  testRuntimeOnly(libs.jmh.generator.annprocess)
   testRuntimeOnly(libs.junit.vintage.engine)
+  testRuntimeOnly(libs.junit.jupiter)
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {
