@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1370,6 +1370,72 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
     assertThat(response.firstHeader("Content-Type"), is("text/plain"));
     assertThat(response.content(), is("X.X.X"));
+  }
+
+  @Test
+  void findUnmatchedStubMappingsWithNoMappings() {
+    WireMockResponse response = testClient.get("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+    JsonVerifiable check = JsonAssertion.assertThat(response.content());
+    check.field("meta").field("total").isEqualTo(0);
+    check.field("mappings").isEmpty();
+  }
+
+  @Test
+  void findUnmatchedStubMappingsWithMatchingMapping() {
+    wm.stubFor(get("/one"));
+    assertThat(testClient.get("/one").statusCode(), is(200));
+
+    WireMockResponse response = testClient.get("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+    JsonVerifiable check = JsonAssertion.assertThat(response.content());
+    check.field("meta").field("total").isEqualTo(0);
+    check.field("mappings").isEmpty();
+  }
+
+  @Test
+  void findUnmatchedStubMappingsWithMultipleMappings() {
+    wm.stubFor(get("/one"));
+    StubMapping stub2 = wm.stubFor(get("/two"));
+
+    assertThat(testClient.get("/one").statusCode(), is(200));
+
+    WireMockResponse response = testClient.get("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+    JsonVerifiable check = JsonAssertion.assertThat(response.content());
+    check.field("meta").field("total").isEqualTo(1);
+    check.field("mappings").hasSize(1).elementWithIndex(0).field("id").isEqualTo(stub2.getId());
+  }
+
+  @Test
+  void removeUnmatchedStubMappingsWithNoMappings() {
+    WireMockResponse response = testClient.delete("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void removeUnmatchedStubMappingsWithMatchingMapping() {
+    wm.stubFor(get("/one"));
+    assertThat(testClient.get("/one").statusCode(), is(200));
+
+    WireMockResponse response = testClient.delete("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+
+    assertThat(testClient.get("/one").statusCode(), is(200));
+  }
+
+  @Test
+  void removeUnmatchedStubMappingsWithMultipleMappings() {
+    wm.stubFor(get("/one"));
+    wm.stubFor(get("/two"));
+
+    assertThat(testClient.get("/one").statusCode(), is(200));
+
+    WireMockResponse response = testClient.delete("/__admin/mappings/unmatched");
+    assertThat(response.statusCode(), is(200));
+
+    assertThat(testClient.get("/one").statusCode(), is(200));
+    assertThat(testClient.get("/two").statusCode(), is(404));
   }
 
   public static class TestExtendedSettingsData {

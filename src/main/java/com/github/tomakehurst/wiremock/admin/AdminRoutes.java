@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,8 @@ public class AdminRoutes {
 
     router.add(POST, "/mappings/save", new SaveMappingsTask());
     router.add(POST, "/mappings/reset", new ResetToDefaultMappingsTask());
+    router.add(GET, "/mappings/unmatched", new GetUnmatchedStubMappingsTask());
+    router.add(DELETE, "/mappings/unmatched", new RemoveUnmatchedStubMappingsTask());
     router.add(GET, "/mappings/{id}", new GetStubMappingTask());
     router.add(PUT, "/mappings/{id}", new EditStubMappingTask());
     router.add(POST, "/mappings/remove", new RemoveMatchingStubMappingTask());
