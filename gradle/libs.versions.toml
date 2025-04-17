@@ -9,6 +9,8 @@ slf4j = "1.7.36"
 hamcrest = "3.0"
 mockito = "5.17.0"
 jmh = "1.37"
+apache-http5 = "5.4.3"
+archunit = "1.4.0"
 
 [libraries]
 # Jetty dependencies
@@ -25,8 +27,12 @@ jetty-ee10-servlet = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlet" }
 jetty-ee10-servlets = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlets" }
 jetty-ee10-webapp = { module = "org.eclipse.jetty.ee10:jetty-ee10-webapp" }
 jetty-client = { module = "org.eclipse.jetty:jetty-client" }
-jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client", version.ref = "jetty" }
-jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport", version.ref = "jetty" }
+jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client" }
+jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport" }
+jetty-http2-common = { module = "org.eclipse.jetty.http2:jetty-http2-common" }
+jetty-http = { module = "org.eclipse.jetty:jetty-http" }
+jetty-io = { module = "org.eclipse.jetty:jetty-io" }
+jetty-util = { module = "org.eclipse.jetty:jetty-util" }
 
 # Jackson dependencies
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
@@ -39,7 +45,8 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 guava = { module = "com.google.guava:guava", version = "33.4.8-jre" }
 
 # HTTP Client
-httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.3" }
+apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.3" }
+apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.4" }
 
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
@@ -63,10 +70,13 @@ jopt-simple = { module = "net.sf.jopt-simple:jopt-simple", version = "5.0.4" }
 # JUnit
 junit4 = { module = "junit:junit", version = "4.13.2" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params" }
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-platform-engine = { module = "org.junit.platform:junit-platform-engine" }
+junit-platform-commons = { module = "org.junit.platform:junit-platform-commons" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
 junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version = "2.3.0" }
 
@@ -81,6 +91,7 @@ commons-fileupload = { module = "commons-fileupload:commons-fileupload", version
 json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.6" }
 
 # Testing
+hamcrest-all = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest" }
 hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
@@ -90,7 +101,9 @@ jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert",
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
 commons-io = { module = "commons-io:commons-io", version = "2.19.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.16" }
-archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version = "1.4.0" }
+archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }
 
 # JMH
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
