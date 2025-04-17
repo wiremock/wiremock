@@ -302,6 +302,12 @@ allprojects {
   }
 }
 
+tasks {
+  check {
+    dependsOn(buildHealth)
+  }
+}
+
 tasks.test {
   // Without this the archunit tests fail. I do not know why.
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
@@ -461,7 +467,6 @@ publishing {
   }
 }
 
-@Suppress("UnstableApiUsage")
 val checkReleasePreconditions by tasks.registering  {
   doLast {
     val requiredBranch = "master"
@@ -474,7 +479,6 @@ val checkReleasePreconditions by tasks.registering  {
   }
 }
 
-@Suppress("UnstableApiUsage")
 val addGitTag by tasks.registering {
   doLast {
     println(providers.exec { commandLine("git", "tag", version) }.standardOutput.asText.get())
@@ -618,4 +622,25 @@ tasks.register("listRuntimeDependencies") {
             dependencies.forEach { writer.println("  $it") }
         }
     }
+}
+
+dependencyAnalysis {
+  issues {
+    // configure for all projects
+    all {
+      // set behavior for all issue types
+      onAny {
+        severity("fail")
+      }
+      onDuplicateClassWarnings {
+        severity("fail")
+      }
+    }
+  }
+  useTypesafeProjectAccessors(true)
+  usage {
+    analysis {
+      checkSuperClasses(true)
+    }
+  }
 }
