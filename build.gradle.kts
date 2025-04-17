@@ -597,3 +597,28 @@ jmh {
   includes = listOf(".*benchmarks.*")
   threads = 50
 }
+
+tasks.register("listRuntimeDependencies") {
+    group = "help"
+    description = "Writes a flat, sorted list of runtime dependencies to a file"
+
+    val outputFile = layout.buildDirectory.file("reports/flat-runtime-dependencies.txt")
+
+    inputs.files(configurations.runtimeClasspath)
+    outputs.file(outputFile)
+
+    doLast {
+        val dependencies = configurations.runtimeClasspath.get()
+            .resolvedConfiguration
+            .resolvedArtifacts
+            .map { "${it.moduleVersion.id.group}:${it.name}:${it.moduleVersion.id.version}" }
+            .toSortedSet()
+
+        val file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.printWriter().use { writer ->
+            writer.println("Runtime dependencies:")
+            dependencies.forEach { writer.println("  $it") }
+        }
+    }
+}
