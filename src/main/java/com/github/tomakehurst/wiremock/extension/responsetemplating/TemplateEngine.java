@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,18 +176,41 @@ public class TemplateEngine {
   private static Map<String, RequestPartTemplateModel> buildRequestPartModel(Request request) {
 
     if (request.isMultipart()) {
-      return request.getParts().stream()
-          .collect(
-              Collectors.toMap(
-                  Request.Part::getName,
-                  part ->
-                      new RequestPartTemplateModel(
-                          part.getName(),
-                          part.getHeaders().all().stream()
-                              .collect(
-                                  Collectors.toMap(
-                                      HttpHeader::key, header -> ListOrSingle.of(header.values()))),
-                          part.getBody())));
+      String contentType = request.getHeader("Content-Type");
+      boolean isMultipartRelated = contentType != null && contentType.contains("multipart/related");
+
+      if (isMultipartRelated) {
+        Map<String, RequestPartTemplateModel> result = new HashMap<>();
+        int partIndex = 0;
+        for (Request.Part part : request.getParts()) {
+          String key = part.getName() != null ? part.getName() : "part-" + partIndex++;
+          result.put(
+              key,
+              new RequestPartTemplateModel(
+                  key,
+                  part.getHeaders().all().stream()
+                      .collect(
+                          Collectors.toMap(
+                              HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                  part.getBody()));
+        }
+
+        return result;
+      } else {
+        return request.getParts().stream()
+            .collect(
+                Collectors.toMap(
+                    Request.Part::getName,
+                    part ->
+                        new RequestPartTemplateModel(
+                            part.getName(),
+                            part.getHeaders().all().stream()
+                                .collect(
+                                    Collectors.toMap(
+                                        HttpHeader::key,
+                                        header -> ListOrSingle.of(header.values()))),
+                            part.getBody())));
+      }
     }
 
     return Collections.emptyMap();
