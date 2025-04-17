@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class WireMockExtension extends DslWrapper
 
   private final boolean configureStaticDsl;
   private final boolean failOnUnmatchedRequests;
+  private final boolean resetOnEachTest;
 
   private final boolean isDeclarative;
 
@@ -54,6 +55,7 @@ public class WireMockExtension extends DslWrapper
     configureStaticDsl = true;
     failOnUnmatchedRequests = false;
     isDeclarative = true;
+    resetOnEachTest = true;
   }
 
   /**
@@ -71,6 +73,7 @@ public class WireMockExtension extends DslWrapper
     this.failOnUnmatchedRequests = builder.failOnUnmatchedRequests;
     this.proxyMode = builder.proxyMode;
     this.isDeclarative = false;
+    this.resetOnEachTest = builder.resetOnEachTest;
   }
 
   private WireMockExtension(
@@ -83,6 +86,21 @@ public class WireMockExtension extends DslWrapper
     this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     this.proxyMode = proxyMode;
     this.isDeclarative = false;
+    this.resetOnEachTest = true;
+  }
+
+  private WireMockExtension(
+      Options options,
+      boolean configureStaticDsl,
+      boolean failOnUnmatchedRequests,
+      boolean proxyMode,
+      boolean resetOnEachTest) {
+    this.options = options;
+    this.configureStaticDsl = configureStaticDsl;
+    this.failOnUnmatchedRequests = failOnUnmatchedRequests;
+    this.proxyMode = proxyMode;
+    this.isDeclarative = false;
+    this.resetOnEachTest = resetOnEachTest;
   }
 
   /**
@@ -291,7 +309,9 @@ public class WireMockExtension extends DslWrapper
       isNonStatic = true;
       startServerIfRequired(context);
     } else {
-      resetToDefaultMappings();
+      if (resetOnEachTest) {
+        resetToDefaultMappings();
+      }
     }
 
     setAdditionalOptions(context);
@@ -352,6 +372,7 @@ public class WireMockExtension extends DslWrapper
     private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();
     private boolean configureStaticDsl = false;
     private boolean failOnUnmatchedRequests = false;
+    private boolean resetOnEachTest = true;
     private boolean proxyMode = false;
 
     public Builder options(Options options) {
@@ -374,6 +395,11 @@ public class WireMockExtension extends DslWrapper
       return this;
     }
 
+    public Builder resetOnEachTest(boolean resetOnEachTest) {
+      this.resetOnEachTest = resetOnEachTest;
+      return this;
+    }
+
     public WireMockExtension build() {
       if (proxyMode
           && !options.browserProxySettings().enabled()
@@ -381,7 +407,8 @@ public class WireMockExtension extends DslWrapper
         ((WireMockConfiguration) options).enableBrowserProxying(true);
       }
 
-      return new WireMockExtension(options, configureStaticDsl, failOnUnmatchedRequests, proxyMode);
+      return new WireMockExtension(
+          options, configureStaticDsl, failOnUnmatchedRequests, proxyMode, resetOnEachTest);
     }
   }
 }
