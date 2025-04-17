@@ -91,7 +91,7 @@ commons-fileupload = { module = "commons-fileupload:commons-fileupload", version
 json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.6" }
 
 # Testing
-hamcrest-all = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest" }
 hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
@@ -104,10 +104,14 @@ scala-library = { module = "org.scala-lang:scala-library", version = "2.13.16" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }
+android-json = { module = "com.vaadin.external.google:android-json", version = "0.0.20131108.vaadin1" }
+assertj-core = { module = "org.assertj:assertj-core", version = "3.27.3" }
 
 # JMH
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
+
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.0.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
