@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,6 +150,8 @@ public class WireMockConfiguration implements Options {
   private boolean templateEscapingDisabled = true;
 
   private Set<String> supportedProxyEncodings = null;
+
+  private int webhookThreadPoolSize = DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -607,6 +609,11 @@ public class WireMockConfiguration implements Options {
     return withSupportedProxyEncodings(Set.of(supportedProxyEncodings));
   }
 
+  public WireMockConfiguration withWebhookThreadPoolSize(Integer webhookThreadPoolSize) {
+    this.webhookThreadPoolSize = webhookThreadPoolSize;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -905,5 +912,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public Set<String> getSupportedProxyEncodings() {
     return supportedProxyEncodings;
+  }
+
+  @Override
+  public int getWebhookThreadPoolSize() {
+    return webhookThreadPoolSize;
   }
 }
