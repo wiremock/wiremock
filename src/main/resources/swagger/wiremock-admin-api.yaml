@@ -211,6 +211,32 @@ paths:
         '200':
           description: 'The stub mappings were successfully removed'
 
+  /__admin/mappings/unmatched:
+    get:
+      operationId: findUnmatchedStubMappings
+      summary: Find unmatched stub mappings
+      description: Find stub mappings that haven't matched any requests in the journal
+      tags:
+        - Stub Mappings
+      responses:
+        '200':
+          description: Unmatched stub mappings
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/stub-mappings.yaml'
+    delete:
+      operationId: removeUnmatchedStubMappings
+      summary: Remove unmatched stub mappings
+      description: Remove stub mappings that haven't matched any requests in the journal
+      tags:
+        - Stub Mappings
+      responses:
+        '200':
+          description: OK
+
   /__admin/requests:
     get:
       operationId: getAllRequestsInJournal

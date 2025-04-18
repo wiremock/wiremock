@@ -34,11 +34,11 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.24',
-    guava          : '33.4.6-jre',
+    guava          : '33.4.8-jre',
     jackson        : '2.18.3',
     xmlUnit        : '2.10.0',
     jsonUnit       : '2.40.1',
-    junitJupiter   : '5.12.1'
+    junitJupiter   : '5.12.2'
   ]
 }
 
@@ -108,13 +108,13 @@ dependencies {
   testFixturesApi('org.junit-pioneer:junit-pioneer:2.3.0')
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
-  testFixturesApi 'org.mockito:mockito-core:5.16.1'
-  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.16.1'
+  testFixturesApi 'org.mockito:mockito-core:5.17.0'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.17.0'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.3.0'
-  testFixturesApi "commons-io:commons-io:2.18.0"
+  testFixturesApi "commons-io:commons-io:2.19.0"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")

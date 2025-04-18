@@ -429,6 +429,13 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ListStubMappingsResult findUnmatchedStubs() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetUnmatchedStubMappingsTask.class),
+        ListStubMappingsResult.class);
+  }
+
+  @Override
   public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
     return executeRequest(
         adminRoutes.requestSpecForTask(FindStubMappingsByMetadataTask.class),
