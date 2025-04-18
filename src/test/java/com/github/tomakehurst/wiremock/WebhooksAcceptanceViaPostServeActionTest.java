@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -86,6 +87,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
           .options(
               options()
                   .dynamicPort()
+                  .withRootDirectoryChild("test-file-root")
                   .notifier(notifier)
                   .limitProxyTargets(
                       NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
@@ -222,7 +224,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             .withPostServeAction(
                 "webhook",
                 webhook()
-                    .withBodyFileName("test-file-root/__files/myBodyFileName.json")
+                    .withBodyFile("myBodyFileName.json")
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
                     .withUrl(
                         targetServer.baseUrl()
@@ -276,7 +278,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
             + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
             + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
             + "      },\n"
-            + "      \"bodyFileName\" : \"test-file-root/__files/myBodyFileName.json\",\n"
+            + "      \"bodyFileName\" : \"myBodyFileName.json\",\n"
             + "      \"one\" : \"param-one-value\"\n"
             + "    }\n"
             + "  }]\n"

@@ -22,11 +22,12 @@ import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
@@ -46,6 +47,9 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
   private final DataTruncationSettings dataTruncationSettings;
+  private final FileSource files;
+  private Parameters parameters;
+
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -57,6 +61,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.transformers = transformers;
     this.templateEngine = wireMockServices.getTemplateEngine();
     this.dataTruncationSettings = wireMockServices.getOptions().getDataTruncationSettings();
+    this.files = wireMockServices.getOptions().filesRoot().child(FILES_ROOT);
   }
 
   @Override
@@ -80,6 +85,8 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
 
     WebhookDefinition definition;
     Request request;
+    this.parameters = parameters;
+
     try {
       definition = WebhookDefinition.from(parameters);
       for (WebhookTransformer transformer : transformers) {
@@ -165,22 +172,32 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                     .collect(toList()));
 
     if (webhookDefinition.specifiesBodyFile()) {
-      FileSource fileSource = WireMockConfiguration.wireMockConfig().filesRoot();
       try {
-        BinaryFile bodyFile = fileSource.getBinaryFileNamed(webhookDefinition.getBodyFileName());
-        webhookDefinition.withBody(new String(bodyFile.readContents()));
+        HandlebarsOptimizedTemplate filePathTemplate =
+            templateEngine.getUncachedTemplate(webhookDefinition.getBodyFile());
+        String compiledFilePath = filePathTemplate.apply(model);
+
+        boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
+        if (disableBodyFileTemplating) {
+          webhookDefinition.withBodyFile(compiledFilePath);
+        } else {
+          TextFile file = files.getTextFileNamed(compiledFilePath);
+          HandlebarsOptimizedTemplate bodyTemplate =
+              templateEngine.getTemplate(
+                  //HttpTemplateCacheKey.forFileBody(responseDefinition, compiledFilePath),
+                  compiledFilePath,
+                  file.readContentsAsString());
+          webhookDefinition.withBody(bodyTemplate.apply(model));
+        }
       } catch (Exception ex) {
         StringWriter writer = new StringWriter();
-        writer.append(
-            webhookDefinition.getBodyFileName()
+        writer.append(webhookDefinition.getBodyFile()
                 + " not found in fileSource path: "
-                + fileSource.getPath());
+                + files.getPath());
         ex.printStackTrace(new PrintWriter(writer));
         renderedWebhookDefinition.withBody(writer.toString());
       }
-    }
-
-    if (webhookDefinition.getBody() != null) {
+    } else if (webhookDefinition.getBody() != null) {
       renderedWebhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBody()));
     }
 

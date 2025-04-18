@@ -291,7 +291,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             .withPostServeAction(
                 "webhook",
                 webhook()
-                    .withBodyFileName("myFile.json")
+                    .withBodyFile("myFile.json")
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
                     .withUrl(
                         targetServer.baseUrl()

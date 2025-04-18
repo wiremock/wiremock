@@ -347,6 +347,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration withRootDirectoryChild(String path) {
+      filesRoot = new SingleRootFileSource(this.filesRoot.child(path).getPath());
+      return this;
+  }
+  
   public WireMockConfiguration usingFilesUnderDirectory(String path) {
     return withRootDirectory(path);
   }

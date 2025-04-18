@@ -38,7 +38,7 @@ public class WebhookDefinition {
   private String url;
   private List<HttpHeader> headers;
   private Body body = Body.none();
-  private String bodyFileName;
+  private String bodyFile;
   private DelayDistribution delay;
   private Parameters parameters;
 
@@ -105,7 +105,7 @@ public class WebhookDefinition {
     } else if (base64Body != null) {
       this.body = new Body(decodeBase64(base64Body));
     } else if (bodyFileName != null) {
-      this.bodyFileName = bodyFileName;
+      this.bodyFile = bodyFileName;
     }
 
     this.delay = delay;
@@ -139,13 +139,13 @@ public class WebhookDefinition {
     return body.isBinary() ? null : body.asString();
   }
 
-  public String getBodyFileName() {
-    return bodyFileName;
+  public String getBodyFile() {
+    return bodyFile;
   }
 
   @JsonIgnore
   public boolean specifiesBodyFile() {
-    return bodyFileName != null && body.isAbsent();
+    return bodyFile != null && body.isAbsent();
   }
 
   public DelayDistribution getDelay() {
@@ -211,8 +211,8 @@ public class WebhookDefinition {
     return this;
   }
 
-  public WebhookDefinition withBodyFileName(String bodyFileName) {
-    this.bodyFileName = bodyFileName;
+  public WebhookDefinition withBodyFile(String bodyFile) {
+    this.bodyFile = bodyFile;
     return this;
   }
 
