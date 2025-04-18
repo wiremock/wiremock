@@ -174,7 +174,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     if (webhookDefinition.specifiesBodyFile()) {
       try {
         HandlebarsOptimizedTemplate filePathTemplate =
-            templateEngine.getUncachedTemplate(webhookDefinition.getBodyFile());
+            templateEngine.getUncachedTemplate(webhookDefinition.getBodyFileName());
         String compiledFilePath = filePathTemplate.apply(model);
 
         boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
@@ -191,7 +191,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         }
       } catch (Exception ex) {
         StringWriter writer = new StringWriter();
-        writer.append(webhookDefinition.getBodyFile()
+        writer.append(webhookDefinition.getBodyFileName()
                 + " not found in fileSource path: "
                 + files.getPath());
         ex.printStackTrace(new PrintWriter(writer));

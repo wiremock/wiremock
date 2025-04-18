@@ -139,7 +139,7 @@ public class WebhookDefinition {
     return body.isBinary() ? null : body.asString();
   }
 
-  public String getBodyFile() {
+  public String getBodyFileName() {
     return bodyFile;
   }
 
