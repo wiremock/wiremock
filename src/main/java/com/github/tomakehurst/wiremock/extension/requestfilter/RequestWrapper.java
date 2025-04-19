@@ -221,6 +221,11 @@ public class RequestWrapper implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return delegate.getRawBody();
+  }
+
+  @Override
   public String getBodyAsString() {
     if (bodyTransformer != null) {
       return bodyTransformer.transform(new Body(delegate.getBodyAsString())).asString();
