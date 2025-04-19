@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Returns log normally distributed values. Takes two parameters, the median (50th percentile) of
- * the lognormal and the standard deviation of the underlying normal distribution.
+ * the lognormal and the standard deviation of the underlying normal distribution, plus an optional
+ * maximum value to truncate the result by resampling to prevent an extra long tail
  *
  * <p>The larger the standard deviation the longer the tails.
  *
@@ -37,18 +38,66 @@ public final class LogNormal implements DelayDistribution {
   @JsonProperty("sigma")
   private final double sigma;
 
+  @JsonProperty(value = "maxValue", required = false)
+  private final Double maxValue;
+
+  /**
+   * @param median 50th percentile of the distribution in millis
+   * @param sigma standard deviation of the underlying normal distribution, a larger value produces
+   *     a longer tail
+   * @param maxValue the maximum value to truncate the distribution at, or null to disable
+   *     truncation
+   */
+  @JsonCreator
+  public LogNormal(
+      @JsonProperty("median") double median,
+      @JsonProperty("sigma") double sigma,
+      @JsonProperty("maxValue") Double maxValue) {
+    this.median = median;
+    this.sigma = sigma;
+    this.maxValue = maxValue;
+
+    if (maxValue != null && maxValue < median) {
+      throw new IllegalArgumentException(
+          String.format(
+              "The max value (%s) has to be greater than or equal to the median (%s). Sigma: %s",
+              maxValue, median, sigma));
+    }
+  }
+
   /**
    * @param median 50th percentile of the distribution in millis
    * @param sigma standard deviation of the distribution, a larger value produces a longer tail
    */
-  @JsonCreator
-  public LogNormal(@JsonProperty("median") double median, @JsonProperty("sigma") double sigma) {
-    this.median = median;
-    this.sigma = sigma;
+  public LogNormal(double median, double sigma) {
+    // Initialise maxValue to null to disable long tail truncation
+    this(median, sigma, null);
   }
 
   @Override
   public long sampleMillis() {
+
+    long generatedValue = generateDelayMillis();
+
+    if (maxValue == null) {
+      // Don't want to truncate any potential long tails
+      return generatedValue;
+    }
+
+    // Rather than truncating the value at the max, if it's over the max value, then resample, but
+    // only do that a few times
+    int i = 0;
+    while (generatedValue > maxValue && i < 10) {
+      generatedValue = generateDelayMillis();
+      i++;
+    }
+
+    // Belt and braces, in the unlikely event the generated value is still over the max, truncate
+    // it at the max
+    return Math.round(Math.min(maxValue, generatedValue));
+  }
+
+  private long generateDelayMillis() {
     return Math.round(Math.exp(ThreadLocalRandom.current().nextGaussian() * sigma) * median);
   }
 }
