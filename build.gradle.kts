@@ -187,9 +187,6 @@ dependencies {
 
 val runningOnCI = System.getenv("CI") == "true"
 
-val repoUser = if (hasProperty("sonatypeUser")) property("sonatypeUser") else "default"
-val repoPassword = if (hasProperty("sonatypePassword")) property("sonatypePassword") else "default"
-
 val pomInfo: MavenPom.() -> Unit = {
   name.set("WireMock")
   url.set("https://wiremock.org")
