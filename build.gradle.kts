@@ -491,12 +491,12 @@ publishing {
 
 val checkReleasePreconditions by tasks.registering  {
   doLast {
-    val requiredBranch = "master"
+    val releaseBranches = listOf("master", "v4.x")
     val currentGitBranch = providers.exec {
       commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
     }.standardOutput.asText.get()
-    require(currentGitBranch == requiredBranch) {
-      "Must be on the $requiredBranch branch in order to release to Sonatype"
+    require(currentGitBranch in releaseBranches) {
+      "Must be on one of $releaseBranches branches in order to release to Sonatype; was on [$currentGitBranch]"
     }
   }
 }
