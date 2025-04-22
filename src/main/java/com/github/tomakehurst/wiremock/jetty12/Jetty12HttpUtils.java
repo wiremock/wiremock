@@ -34,16 +34,24 @@ import org.eclipse.jetty.server.Response;
 
 public class Jetty12HttpUtils implements JettyHttpUtils {
   @Override
-  public Response unwrapResponse(HttpServletResponse httpServletResponse) {
+  public Response unwrapResponse(ServletResponse httpServletResponse) {
     if (httpServletResponse instanceof HttpServletResponseWrapper) {
       ServletResponse unwrapped = ((HttpServletResponseWrapper) httpServletResponse).getResponse();
-      return (Response) unwrapped;
-    } else if (httpServletResponse instanceof ServletApiResponse) {
-      Response unwrapped = ((ServletApiResponse) httpServletResponse).getResponse();
-      return unwrapped;
+      return unwrapResponse(unwrapped);
+    } else {
+      return unwrap(httpServletResponse);
     }
+  }
 
-    return (Response) httpServletResponse;
+  private static Response unwrap(ServletResponse wrapped) {
+    if (wrapped instanceof Response) {
+      return (Response) wrapped;
+    } else if (wrapped instanceof ServletApiResponse) {
+      return ((ServletApiResponse) wrapped).getResponse();
+    } else {
+      throw new IllegalStateException(
+          "Cannot unwrap a" + Response.class.getName() + " from a " + wrapped.getClass().getName());
+    }
   }
 
   @Override
