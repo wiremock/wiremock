@@ -524,11 +524,11 @@ tasks.assemble {
   dependsOn(tasks.jar, tasks.shadowJar)
 }
 
-val release by tasks.registering {
+tasks.register("release") {
   dependsOn(tasks.clean, tasks.assemble, tasks.publish, addGitTag)
 }
 
-val localRelease by tasks.registering {
+tasks.register("localRelease") {
   dependsOn(tasks.clean, tasks.assemble, tasks.publishToMavenLocal)
 }
 
