@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.Socket;
@@ -23,7 +24,7 @@ import org.eclipse.jetty.server.Response;
 
 /** Helper utility interface to inject Jetty 11/12/... specific response / request handling */
 public interface JettyHttpUtils {
-  static final boolean IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
+  boolean IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
 
   static boolean isJetty() {
     return IS_JETTY;
@@ -46,7 +47,7 @@ public interface JettyHttpUtils {
    * @param httpServletResponse {@link HttpServletResponse} instance
    * @return unwrapped {@link Response} instance
    */
-  Response unwrapResponse(HttpServletResponse httpServletResponse);
+  Response unwrapResponse(ServletResponse httpServletResponse);
 
   /**
    * Extracts the raw network socket of out Jetty's {@link Response}
