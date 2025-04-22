@@ -36,12 +36,8 @@ dependencies {
   api(libs.apache.http5.client)
   api(libs.apache.http5.core)
   api(libs.commons.fileupload)
-  api(libs.guava) {
-    exclude(group = "com.google.code.findbugs", module = "jsr305")
-  }
-  api(libs.handlebars) {
-    exclude(group = "org.mozilla", module = "rhino")
-  }
+  api(libs.guava)
+  api(libs.handlebars)
 
   api(platform(libs.jackson.bom))
   api(libs.jackson.annotations)
@@ -62,7 +58,8 @@ dependencies {
   api(libs.xmlunit.core)
 
   implementation(libs.handlebars.helpers) {
-    exclude(group = "org.mozilla", module = "rhino")
+    // Excluded in 75bd657e99321ee5c32667d17f56d74438583d6a / https://github.com/wiremock/wiremock/pull/2622
+    // Means calling NumberHelper.registerHelper or static NumberHelper.register would fail, but we never call them
     exclude(group = "org.apache.commons", module = "commons-lang3")
   }
   implementation(libs.jackson.datatype.jsr310)
@@ -73,17 +70,20 @@ dependencies {
   implementation(libs.jetty.http2.server)
   implementation(libs.jopt.simple)
   implementation(libs.json.path) {
+    // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
   implementation(libs.slf4j.api)
+  // Can we stop using xmlunit-legacy? It is only used in
+  // com.github.tomakehurst.wiremock.common.xml.Xml.optimizeFactoriesLoading
   implementation(libs.xmlunit.legacy) {
+    // Excluded because we do not want junit on the classpath, users should provide it themselves
     exclude(group = "junit", module = "junit")
   }
   implementation(libs.xmlunit.placeholders)
 
-  compileOnly(libs.junit4) {
-    exclude(group = "org.hamcrest", module = "hamcrest-core")
-  }
+  // We do not want JUnit on the classpath, users should provide it themselves
+  compileOnly(libs.junit4)
   compileOnly(platform(libs.junit.bom))
   compileOnly(libs.junit.jupiter.api)
   compileOnly(libs.junit.platform.commons)
