@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ class RequestPatternBuilderTest {
             "https",
             WireMock.equalTo("my.wiremock.org"),
             1234,
+            WireMock.equalTo("192.168.2.2"),
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -127,6 +128,7 @@ class RequestPatternBuilderTest {
             "https",
             WireMock.equalTo("my.wiremock.org"),
             1234,
+            WireMock.equalTo("192.168.1.1"),
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
