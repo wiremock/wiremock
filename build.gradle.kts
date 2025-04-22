@@ -613,6 +613,7 @@ fun getMinorVersion(): Int =
 fun getPatchVersion(): Int =
   Integer.valueOf(project.version.toString().substring(project.version.toString().lastIndexOf('.') + 1))
 
+@Suppress("unused")
 fun getBetaVersion(): Int =
   Integer.valueOf(project.version.toString().substring(project.version.toString().lastIndexOf('-') + 1))
 
