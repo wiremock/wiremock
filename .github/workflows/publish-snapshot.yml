@@ -14,14 +14,14 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
 
@@ -31,35 +31,6 @@ jobs:
       - name: Publish core package
         id: publish_package
         run: ./gradlew :publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-jetty12-snapshot:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - uses: gradle/actions/setup-gradle@v3
-        with:
-          validate-wrappers: true
-
-      - name: Set snapshot version
-        run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}-SNAPSHOT', github.ref_name) || '' }}
-
-      - name: Publish Jetty 12 package
-        id: publish_package
-        run: ./gradlew :wiremock-jetty12:publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
