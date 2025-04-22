@@ -3,11 +3,11 @@ jetty = "12.0.16"
 jackson = "2.18.3"
 xmlUnit = "2.10.0"
 jsonUnit = "2.40.1"
-junitJupiter = "5.12.1"
+junitJupiter = "5.12.2"
 handlebars = "4.3.1"
 slf4j = "1.7.36"
 hamcrest = "3.0"
-mockito = "5.16.1"
+mockito = "5.17.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.0"
@@ -42,7 +42,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
 
 # Guava
-guava = { module = "com.google.guava:guava", version = "33.4.6-jre" }
+guava = { module = "com.google.guava:guava", version = "33.4.8-jre" }
 
 # HTTP Client
 apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.3" }
@@ -99,7 +99,7 @@ mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.
 jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.18.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.19.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.16" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }

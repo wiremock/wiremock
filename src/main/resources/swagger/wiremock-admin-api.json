@@ -399,6 +399,85 @@
         }
       }
     },
+    "/__admin/mappings/unmatched": {
+      "get": {
+        "operationId": "findUnmatchedStubMappings",
+        "summary": "Find unmatched stub mappings",
+        "description": "Find stub mappings that haven't matched any requests in the journal",
+        "tags": [
+          "Stub Mappings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Unmatched stub mappings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/stub-mappings"
+                },
+                "example": {
+                  "meta": {
+                    "total": 2
+                  },
+                  "mappings": [
+                    {
+                      "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+                      "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+                      "request": {
+                        "method": "GET",
+                        "url": "/search?q=things",
+                        "headers": {
+                          "Accept": {
+                            "equalTo": "application/json"
+                          }
+                        }
+                      },
+                      "response": {
+                        "status": 200,
+                        "jsonBody": [
+                          "thing1",
+                          "thing2"
+                        ],
+                        "headers": {
+                          "Content-Type": "application/json"
+                        }
+                      }
+                    },
+                    {
+                      "request": {
+                        "method": "POST",
+                        "urlPath": "/some/things",
+                        "bodyPatterns": [
+                          {
+                            "equalToXml": "<stuff />"
+                          }
+                        ]
+                      },
+                      "response": {
+                        "status": 201
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeUnmatchedStubMappings",
+        "summary": "Remove unmatched stub mappings",
+        "description": "Remove stub mappings that haven't matched any requests in the journal",
+        "tags": [
+          "Stub Mappings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/__admin/requests": {
       "get": {
         "operationId": "getAllRequestsInJournal",
@@ -1832,7 +1911,7 @@
         ]
       },
       "after-pattern": {
-        "title": "Before datetime",
+        "title": "After datetime",
         "type": "object",
         "properties": {
           "after": {
@@ -1949,7 +2028,11 @@
           },
           "namespaceAwareness": {
             "type": "string",
-            "enum": ["LEGACY", "STRICT", "NONE"]
+            "enum": [
+              "LEGACY",
+              "STRICT",
+              "NONE"
+            ]
           }
         },
         "required": [
@@ -2134,6 +2217,10 @@
             "maximum": 65535,
             "description": "The HTTP port number of the request URL"
           },
+          "clientIp": {
+            "type": "string",
+            "description": "The IP of the client making the request"
+          },
           "method": {
             "type": "string",
             "pattern": "^[A-Z]+$",
@@ -2233,6 +2320,9 @@
               "type": "object",
               "properties": {
                 "name": {
+                  "type": "string"
+                },
+                "fileName": {
                   "type": "string"
                 },
                 "matchingType": {

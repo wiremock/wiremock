@@ -532,6 +532,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public ListStubMappingsResult findUnmatchedStubs() {
+    return wireMockApp.findUnmatchedStubs();
+  }
+
+  @Override
   public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
     return wireMockApp.findAllStubsByMetadata(pattern);
   }
