@@ -1,3 +1,4 @@
+import com.github.gundy.semver4j.model.Version
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugins.ide.eclipse.model.Classpath
@@ -7,6 +8,9 @@ import java.net.URI
 buildscript {
   repositories {
     mavenCentral()
+  }
+  dependencies {
+    classpath("com.github.gundy:semver4j:0.16.4")
   }
 }
 
@@ -558,8 +562,8 @@ fun updateFiles(currentVersion: String, nextVersion: String) {
 tasks.register("bump-patch-version") {
   doLast {
 
-    val currentVersion = project.version
-    val nextVersion = "${getMajorVersion()}.${getMinorVersion()}.${getPatchVersion() + 1}"
+    val currentVersion = Version.fromString(project.version.toString())
+    val nextVersion = currentVersion.incrementPatch().toString()
 
     updateFiles(currentVersion.toString(), nextVersion)
   }
@@ -568,8 +572,21 @@ tasks.register("bump-patch-version") {
 tasks.register("bump-minor-version") {
   doLast {
 
-    val currentVersion = project.version
-    val nextVersion = "${getMajorVersion()}.${getMinorVersion() + 1}.0"
+    val currentVersion = Version.fromString(project.version.toString())
+    val nextVersion = currentVersion.incrementMinor().toString()
+
+    updateFiles(currentVersion.toString(), nextVersion)
+  }
+}
+
+tasks.register("bump-pre-release-version") {
+  doLast {
+
+    val currentVersion = Version.fromString(project.version.toString())
+    val preReleaseType = currentVersion.preReleaseIdentifiers.getOrNull(0) ?: "beta"
+    val preReleaseVersion = currentVersion.preReleaseIdentifiers.getOrNull(1)?.toString()?.toInt() ?: 0
+
+    val nextVersion = "${currentVersion.major}.${currentVersion.minor}.${currentVersion.patch}-${preReleaseType}.${preReleaseVersion + 1}"
 
     updateFiles(currentVersion.toString(), nextVersion)
   }
@@ -578,8 +595,8 @@ tasks.register("bump-minor-version") {
 tasks.register("set-snapshot-version") {
   doLast {
 
-    val currentVersion = project.version
-    val nextVersion = project.findProperty("snapshotVersion")?.toString() ?: "${getMajorVersion()}.${getMinorVersion() + 1}.0-SNAPSHOT"
+    val currentVersion = Version.fromString(project.version.toString())
+    val nextVersion = currentVersion.incrementMinor().toString() + "-SNAPSHOT"
 
     updateFiles(currentVersion.toString(), nextVersion)
   }
@@ -603,19 +620,6 @@ eclipse.classpath.file {
       }
   }
 }
-
-fun getMajorVersion(): Int =
-  Integer.valueOf(project.version.toString().substring(0, project.version.toString().indexOf('.')))
-
-fun getMinorVersion(): Int =
-  Integer.valueOf(project.version.toString().substring(project.version.toString().indexOf('.') + 1, project.version.toString().lastIndexOf('.')))
-
-fun getPatchVersion(): Int =
-  Integer.valueOf(project.version.toString().substring(project.version.toString().lastIndexOf('.') + 1))
-
-@Suppress("unused")
-fun getBetaVersion(): Int =
-  Integer.valueOf(project.version.toString().substring(project.version.toString().lastIndexOf('-') + 1))
 
 jmh {
   includes = listOf(".*benchmarks.*")
