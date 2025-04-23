@@ -67,8 +67,6 @@ dependencies {
   compileOnly(libs.junit.jupiter.api)
   compileOnly(libs.junit.platform.commons)
 
-  runtimeOnly(libs.jetty.alpn.java.server)
-
   add("standaloneOnly", libs.slf4j.nop)
 
   testFixturesApi(project(":wiremock-common"))
