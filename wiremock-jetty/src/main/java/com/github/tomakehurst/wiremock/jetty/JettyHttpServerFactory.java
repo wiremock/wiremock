@@ -15,16 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
 
 public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {
+
+  private final JettySettings settings;
+
+  public JettyHttpServerFactory() {
+    this(JettySettings.Builder.aJettySettings().build());
+  }
+
+  public JettyHttpServerFactory(JettySettings settings) {
+    this.settings = settings;
+  }
+
+  public JettySettings getSettings() {
+    return settings;
+  }
+
   @Override
   public HttpServer buildHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    return new Jetty12HttpServer(options, adminRequestHandler, stubRequestHandler);
+    return new Jetty12HttpServer(options, adminRequestHandler, stubRequestHandler, settings);
   }
 }

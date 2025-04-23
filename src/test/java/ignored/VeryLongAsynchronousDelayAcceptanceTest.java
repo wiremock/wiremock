@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package ignored;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.IOException;
@@ -40,7 +42,11 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
 
   private WireMockConfiguration getOptions() {
     WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
-    wireMockConfiguration.jettyAcceptors(1).containerThreads(4);
+    wireMockConfiguration
+        .httpServerFactory(
+            new JettyHttpServerFactory(
+                JettySettings.Builder.aJettySettings().withAcceptors(1).build()))
+        .containerThreads(4);
     wireMockConfiguration.asynchronousResponseEnabled(true);
     wireMockConfiguration.asynchronousResponseThreads(10);
     wireMockConfiguration.dynamicPort();

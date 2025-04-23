@@ -31,7 +31,6 @@ dependencies {
         exclude(group = "org.apache.commons", module = "commons-lang3")
     }
     implementation(libs.jackson.datatype.jsr310)
-    implementation(libs.jopt.simple)
     implementation(libs.json.path) {
         exclude(group = "org.ow2.asm", module = "asm")
     }

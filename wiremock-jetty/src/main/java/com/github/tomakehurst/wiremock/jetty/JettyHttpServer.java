@@ -48,6 +48,7 @@ public abstract class JettyHttpServer implements HttpServer {
       new String[] {"POST", "PUT", "PATCH", "DELETE"};
 
   protected final Options options;
+  protected final JettySettings jettySettings;
 
   protected final Server jettyServer;
   protected final ServerConnector httpConnector;
@@ -58,8 +59,10 @@ public abstract class JettyHttpServer implements HttpServer {
   public JettyHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler) {
+      StubRequestHandler stubRequestHandler,
+      JettySettings jettySettings) {
     this.options = options;
+    this.jettySettings = jettySettings;
 
     if (!options.getDisableStrictHttpHeaders()
         && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {
@@ -79,7 +82,7 @@ public abstract class JettyHttpServer implements HttpServer {
           createHttpConnector(
               options.bindAddress(),
               options.portNumber(),
-              options.jettySettings(),
+              jettySettings,
               networkTrafficListenerAdapter);
       jettyServer.addConnector(httpConnector);
     }
@@ -89,7 +92,7 @@ public abstract class JettyHttpServer implements HttpServer {
           createHttpsConnector(
               options.bindAddress(),
               options.httpsSettings(),
-              options.jettySettings(),
+              jettySettings,
               networkTrafficListenerAdapter);
       jettyServer.addConnector(httpsConnector);
     } else {
@@ -101,7 +104,7 @@ public abstract class JettyHttpServer implements HttpServer {
     final Handler handlers = createHandler(options, adminRequestHandler, stubRequestHandler);
     jettyServer.setHandler(handlers);
 
-    finalizeSetup(options);
+    finalizeSetup();
   }
 
   protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {}
@@ -111,15 +114,14 @@ public abstract class JettyHttpServer implements HttpServer {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler);
 
-  protected void finalizeSetup(Options options) {
-    if (options.jettySettings().getStopTimeout().isEmpty()) {
+  protected void finalizeSetup() {
+    if (jettySettings.getStopTimeout().isEmpty()) {
       jettyServer.setStopTimeout(1000);
     }
   }
 
   protected Server createServer(Options options) {
     final Server server = new Server(new QueuedThreadPool(options.containerThreads()));
-    final JettySettings jettySettings = options.jettySettings();
     final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
     stopTimeout.ifPresent(server::setStopTimeout);
 
