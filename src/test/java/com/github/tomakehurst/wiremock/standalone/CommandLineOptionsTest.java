@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -330,68 +331,114 @@ public class CommandLineOptionsTest {
   @Test
   public void returnsCorrectlyParsedJettyAcceptorThreads() {
     CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
-    assertThat(options.jettySettings().getAcceptors().get(), is(400));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getAcceptors().get(),
+        is(400));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyAcceptQueueSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
-    assertThat(options.jettySettings().getAcceptQueueSize().get(), is(10));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptQueueSize()
+            .get(),
+        is(10));
   }
 
   @Test
   @Deprecated
   public void returnsCorrectlyParsedJettyHeaderBufferSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-buffer-size", "16384");
-    assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyHeaderRequestSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-request-size", "16384");
-    assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyHeaderResponseSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-response-size", "16384");
-    assertThat(options.jettySettings().getResponseHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getResponseHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyStopTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
-    assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getStopTimeout().get(),
+        is(1000L));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyIdleTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
-    assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getIdleTimeout().get(),
+        is(2000L));
   }
 
   @Test
   public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptQueueSize()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyAcceptorsNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptors()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getRequestHeaderSize().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyStopTimeoutNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getStopTimeout().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getStopTimeout()
+            .isPresent(),
+        is(false));
   }
 
   @Test

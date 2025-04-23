@@ -68,8 +68,9 @@ public class Jetty12HttpServer extends JettyHttpServer {
   public Jetty12HttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler) {
-    super(options, adminRequestHandler, stubRequestHandler);
+      StubRequestHandler stubRequestHandler,
+      JettySettings jettySettings) {
+    super(options, adminRequestHandler, stubRequestHandler, jettySettings);
   }
 
   @Override
@@ -170,7 +171,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
                */
               HttpVersion.HTTP_1_1.asString());
 
-      JettySettings jettySettings = options.jettySettings();
       HttpConfiguration httpConfig = createHttpConfig(jettySettings);
       HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
       mitmProxyConnector =

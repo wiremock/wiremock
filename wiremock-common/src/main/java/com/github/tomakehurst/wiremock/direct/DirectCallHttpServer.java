@@ -132,10 +132,6 @@ public class DirectCallHttpServer implements HttpServer {
   }
 
   private static long getTimeout(Options options) {
-    if (options.jettySettings().getStopTimeout().isPresent()) {
-      return options.jettySettings().getStopTimeout().get();
-    } else {
-      return DEFAULT_TIMEOUT;
-    }
+    return options.timeout();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
@@ -87,7 +88,12 @@ public class JettyHttpServerTest {
   public void testStopTimeout() {
     long expectedStopTimeout = 1000L;
     WireMockConfiguration config =
-        WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
+        WireMockConfiguration.wireMockConfig()
+            .httpServerFactory(
+                new JettyHttpServerFactory(
+                    JettySettings.Builder.aJettySettings()
+                        .withStopTimeout(expectedStopTimeout)
+                        .build()));
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)

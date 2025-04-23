@@ -34,31 +34,32 @@ val standaloneOnly: Configuration by configurations.creating
 dependencies {
   api(project(":wiremock-common"))
   api(project(":wiremock-jetty"))
-  api(libs.apache.http5.client)
-  api(libs.apache.http5.core)
-  api(libs.guava)
-  api(libs.handlebars)
+  testImplementation(libs.apache.http5.client)
+  testImplementation(libs.apache.http5.core)
+  testImplementation(libs.guava)
+  testImplementation(libs.handlebars)
 
-  api(platform(libs.jackson.bom))
-  api(libs.jackson.annotations)
+  testImplementation(platform(libs.jackson.bom))
+  testImplementation(libs.jackson.annotations)
 
-  api(libs.jakarta.servlet.api)
+  testImplementation(libs.jakarta.servlet.api)
 
-  api(platform(libs.jetty.bom))
-  api(platform(libs.jetty.ee10.bom))
-  api(libs.jetty.ee10.servlet)
-  api(libs.jetty.io)
-  api(libs.jetty.server)
-  api(libs.jetty.util)
-  api(libs.json.schema.validator)
+  testImplementation(platform(libs.jetty.bom))
+  testImplementation(platform(libs.jetty.ee10.bom))
+  testImplementation(libs.jetty.ee10.servlet)
+  testImplementation(libs.jetty.io)
+  testImplementation(libs.jetty.server)
+  testImplementation(libs.jetty.util)
+  testImplementation(libs.json.schema.validator)
 
-  api(libs.xmlunit.core)
+  testImplementation(libs.xmlunit.core)
 
-  implementation(libs.json.path) {
+  implementation(libs.jopt.simple)
+  testImplementation(libs.json.path) {
     // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
-  implementation(libs.slf4j.api)
+  testImplementation(libs.slf4j.api)
 
   // We do not want JUnit on the classpath, users should provide it themselves
   compileOnly(libs.junit4)
@@ -84,6 +85,7 @@ dependencies {
   testFixturesImplementation(platform(libs.junit.bom))
   testFixturesImplementation(libs.junit.jupiter.api)
   testFixturesImplementation(libs.mockito.core)
+  testFixturesImplementation(libs.xmlunit.core)
 
   testImplementation(libs.android.json)
   testImplementation(libs.archunit)
@@ -526,6 +528,15 @@ dependencyAnalysis {
       }
       onDuplicateClassWarnings {
         severity("fail")
+      }
+    }
+    project(project.path) {
+      sourceSet("main") {
+        onIncorrectConfiguration {
+          exclude(
+            ":wiremock-jetty",
+          )
+        }
       }
     }
   }
