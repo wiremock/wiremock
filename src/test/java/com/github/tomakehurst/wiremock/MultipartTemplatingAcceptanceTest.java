@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -178,5 +181,59 @@ public class MultipartTemplatingAcceptanceTest {
             "multipart:true\n"
                 + "[name='file', headers={content-disposition=form-data; name=\"file\"; filename=\"abcd.bin\", content-type=application/octet-stream}, body=ABCD]\n"
                 + "[name='text', headers={content-disposition=form-data; name=\"text\", content-type=text/plain; charset=UTF-8}, body=hello]\n"));
+  }
+
+  @Test
+  void acceptsAMultipartRelatedRFC2387Request() throws Exception {
+    final String boundary = "boundary_example";
+
+    final String expectBody =
+        "{\n"
+            + "  \"error\": {\n"
+            + "    \"code\": 404,\n"
+            + "    \"message\": \"parent not found.\"\n"
+            + "  }\n"
+            + "}";
+
+    wm.stubFor(
+        post(urlPathMatching("/templated"))
+            .withQueryParam("uploadType", equalTo("multipart"))
+            .withHeader("Authorization", matching("^Bearer [a-zA-Z0-9_\\-.]+$"))
+            .withHeader("Content-Type", equalTo("multipart/related; boundary=" + boundary))
+            .withHeader("Content-Length", equalTo("255"))
+            .willReturn(
+                aResponse()
+                    .withStatus(404)
+                    .withHeader("Content-Type", "application/json; charset=UTF-8")
+                    .withBody(expectBody)));
+
+    String rfc2387Body =
+        "--"
+            + boundary
+            + "\r\n"
+            + "Content-Type: application/json; charset=UTF-8\r\n\r\n"
+            + "{\"parents\": [\"parents_example\"], \"name\": \"test_upload.txt\"}\r\n"
+            + "--"
+            + boundary
+            + "\r\n"
+            + "Content-Transfer-Encoding: base64\r\n\r\n"
+            + "VGhpcyBpcyBhbiBleGFtcGxlIGJpbmFyeSBkYXRhLg==\r\n"
+            + "--"
+            + boundary
+            + "--\r\n";
+
+    HttpEntity entity =
+        new StringEntity(rfc2387Body, ContentType.create("multipart/related", "UTF-8"));
+
+    TestHttpHeader[] headers =
+        new TestHttpHeader[] {
+          new TestHttpHeader("Authorization", "Bearer token"),
+          new TestHttpHeader("Content-Type", "multipart/related; boundary=" + boundary)
+        };
+
+    WireMockResponse response = client.post("/templated?uploadType=multipart", entity, headers);
+
+    assertThat(response.content(), is(expectBody));
+    assertThat(response.statusCode(), is(404));
   }
 }

@@ -109,7 +109,8 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 public class HttpAdminClient implements Admin {
 
-  private static final String ADMIN_URL_PREFIX = "%s://%s:%d%s/__admin";
+  private static final String ADMIN_URL_PREFIX = "%s://%s%s%s/__admin";
+  private static final int NO_PORT_DEFINED = -1;
 
   private final String scheme;
   private final String host;
@@ -124,6 +125,10 @@ public class HttpAdminClient implements Admin {
 
   public HttpAdminClient(String scheme, String host, int port) {
     this(scheme, host, port, "");
+  }
+
+  public HttpAdminClient(String scheme, String host) {
+    this(scheme, host, NO_PORT_DEFINED, "");
   }
 
   public HttpAdminClient(String host, int port, String urlPathPrefix) {
@@ -184,12 +189,31 @@ public class HttpAdminClient implements Admin {
       String proxyHost,
       int proxyPort,
       ClientAuthenticator authenticator) {
+    this(
+        scheme,
+        host,
+        port,
+        urlPathPrefix,
+        hostHeader,
+        authenticator,
+        HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
+  }
+
+  public HttpAdminClient(
+      String scheme,
+      String host,
+      int port,
+      String urlPathPrefix,
+      String hostHeader,
+      ClientAuthenticator authenticator,
+      HttpClient httpClient) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
     this.urlPathPrefix = urlPathPrefix;
     this.hostHeader = hostHeader;
     this.authenticator = authenticator;
+    this.httpClient = httpClient;
 
     adminRoutes = AdminRoutes.forClient();
     var httpCLient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
@@ -471,6 +495,13 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ListStubMappingsResult findUnmatchedStubs() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetUnmatchedStubMappingsTask.class),
+        ListStubMappingsResult.class);
+  }
+
+  @Override
   public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
     return executeRequest(
         adminRoutes.requestSpecForTask(FindStubMappingsByMetadataTask.class),
@@ -502,7 +533,7 @@ public class HttpAdminClient implements Admin {
     return port;
   }
 
-  private ProxySettings createProxySettings(String proxyHost, int proxyPort) {
+  private static ProxySettings createProxySettings(String proxyHost, int proxyPort) {
     if (isNotBlank(proxyHost)) {
       return new ProxySettings(proxyHost, proxyPort);
     }
@@ -563,13 +594,7 @@ public class HttpAdminClient implements Admin {
       QueryParams queryParams,
       B requestBody,
       Class<R> responseType) {
-    String url =
-        String.format(
-            ADMIN_URL_PREFIX + requestSpec.path(pathParams) + queryParams,
-            scheme,
-            host,
-            port,
-            urlPathPrefix);
+    String url = getAdminUrl(requestSpec.path(pathParams) + queryParams);
     var requestBuilder =
         ImmutableRequest.create().withMethod(requestSpec.method()).withAbsoluteUrl(url);
 
@@ -664,7 +689,11 @@ public class HttpAdminClient implements Admin {
   private String urlFor(Class<? extends AdminTask> taskClass, PathParams pathParams) {
     RequestSpec requestSpec = adminRoutes.requestSpecForTask(taskClass);
     requireNonNull(requestSpec, "No admin task URL is registered for " + taskClass.getSimpleName());
-    return String.format(
-        ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
+    return getAdminUrl(requestSpec.path(pathParams));
+  }
+
+  private String getAdminUrl(String pathSuffix) {
+    String portPart = port == NO_PORT_DEFINED ? "" : ":" + port;
+    return String.format(ADMIN_URL_PREFIX + pathSuffix, scheme, host, portPart, urlPathPrefix);
   }
 }

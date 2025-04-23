@@ -1,5 +1,5 @@
 type: object
-example: |
+example: |-
   {
     "urlPath" : "/charges",
     "method" : "POST",
@@ -8,6 +8,7 @@ example: |
         "equalTo" : "application/json"
       }
     }
+  }
 properties:
   scheme:
     type: string
@@ -42,7 +43,7 @@ properties:
 
   pathParameters:
     type: object
-    description: |
+    description: |-
       Path parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form. Can only
       be used when the urlPathPattern URL match type is in use and all keys must be present as variables
       in the path template.
@@ -78,6 +79,7 @@ properties:
     required:
       - username
       - password
+
   cookies:
     type: object
     description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
@@ -85,7 +87,7 @@ properties:
       $ref: "content-pattern.yaml"
   bodyPatterns:
     type: array
-    description: 'Request body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    description: 'Request body patterns to match against in the { "<predicate>": "<value>" } form'
     items:
       $ref: "content-pattern.yaml"
 
@@ -107,7 +109,7 @@ properties:
       properties:
         name:
           type: string
-        filename:
+        fileName:
           type: string
         matchingType:
           type: string
@@ -124,6 +126,6 @@ properties:
 
         bodyPatterns:
           type: array
-          description: 'Body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+          description: 'Body patterns to match against in the { "<predicate>": "<value>" } form'
           items:
             $ref: "content-pattern.yaml"

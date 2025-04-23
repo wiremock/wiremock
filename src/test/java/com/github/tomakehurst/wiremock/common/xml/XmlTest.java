@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package com.github.tomakehurst.wiremock.common.xml;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -130,5 +132,23 @@ public class XmlTest {
     ListOrSingle<XmlNode> xmlNodes = xmlDocument.findNodes("/things/fluff/inner[@id=\"123\"]");
 
     assertThat(xmlNodes.toString(), is("<fl:inner fl:code=\"D1\" id=\"123\">Innards</fl:inner>"));
+  }
+
+  @Test
+  void canReadConcurrently() {
+    String xml =
+        "<?xml version=\"1.0\"?>\n"
+            + "<things xmlns:s=\"https://stuff.biz\" id=\"1\">\n"
+            + "    <stuff id=\"1\"/>\n"
+            + "    <fl:fluff xmlns:fl=\"https://fluff.abc\" id=\"2\">\n"
+            + "        <fl:inner id=\"123\" fl:code=\"D1\">Innards</fl:inner>\n"
+            + "        <fl:inner>More Innards</fl:inner>\n"
+            + "    </fl:fluff>\n"
+            + "</things>";
+    int iterations = 10000;
+    IntStream.range(0, iterations)
+        .parallel()
+        .mapToObj(i -> Xml.read(xml))
+        .forEach(document -> assertThat(document, notNullValue()));
   }
 }

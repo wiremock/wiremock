@@ -19,19 +19,28 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 class HttpAdminClientTest {
   private static final String ADMIN_TEST_PREFIX = "/admin-test";
@@ -67,6 +76,29 @@ class HttpAdminClientTest {
     var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
 
     client.resetAll();
+  }
+
+  @Test
+  void shouldBeAbleToContactWiremockIfPortIsNotSpecified() throws IOException, URISyntaxException {
+
+    CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+    ClientAuthenticator authenticator = mock(ClientAuthenticator.class);
+    when(authenticator.generateAuthHeaders()).thenReturn(Collections.emptyList());
+    ArgumentCaptor<ClassicHttpRequest> httpRequestSentCaptor =
+        ArgumentCaptor.forClass(ClassicHttpRequest.class);
+    var scheme = "https";
+    var domain = "my.domain.name";
+    var client =
+        new HttpAdminClient(scheme, domain, -1, "", "", authenticator, closeableHttpClient);
+
+    try {
+      client.getAllScenarios();
+    } catch (Exception e) {
+      // ignore
+    }
+    Mockito.verify(closeableHttpClient).execute(httpRequestSentCaptor.capture());
+    ClassicHttpRequest value = httpRequestSentCaptor.getValue();
+    assertThat(value.getUri().toString()).isEqualTo(scheme + "://" + domain + "/__admin/scenarios");
   }
 
   @Test

@@ -3,15 +3,19 @@ type: object
 properties:
   equalToXml:
     type: string
-    example: "<amount>123</amount>"
+    example: |-
+      <amount>123</amount>
   enablePlaceholders:
     type: boolean
   placeholderOpeningDelimiterRegex:
     type: string
-    example: "["
+    example: "\\["
   placeholderClosingDelimiterRegex:
     type: string
     example: "]"
+  namespaceAwareness:
+    type: string
+    enum: ['LEGACY', 'STRICT', 'NONE']
 
 required:
   - equalToXml
