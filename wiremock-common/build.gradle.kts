@@ -63,3 +63,21 @@ dependencies {
         }
     }
 }
+
+tasks.jar {
+    archiveBaseName.set("wiremock-common")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = tasks.jar.get().archiveBaseName.get()
+            from(components["java"])
+
+            pom {
+                name = "WireMock Common"
+                description = "The core engine of WireMock"
+            }
+        }
+    }
+}

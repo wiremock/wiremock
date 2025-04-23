@@ -1,9 +1,13 @@
+import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import java.net.URI
 
 plugins {
   `java-library`
   `java-test-fixtures`
   jacoco
+  signing
+  `maven-publish`
   id("com.diffplug.spotless")
   id("com.github.johnrengelman.shadow")
   id("org.sonarqube")
@@ -14,6 +18,21 @@ version = "4.0.0-beta.2"
 
 repositories {
   mavenCentral()
+}
+
+java {
+  sourceCompatibility = VERSION_17
+  targetCompatibility = VERSION_17
+  withSourcesJar()
+  withJavadocJar()
+}
+
+tasks.jar {
+  manifest {
+    attributes("Add-Exports" to "java.base/sun.security.x509")
+    attributes("Implementation-Version" to project.version)
+    attributes("Implementation-Title" to "WireMock")
+  }
 }
 
 val runningOnCI = System.getenv("CI") == "true"
@@ -126,4 +145,73 @@ spotless {
 tasks.withType<AbstractArchiveTask>().configureEach {
   isPreserveFileTimestamps = false
   isReproducibleFileOrder = true
+}
+
+fun MavenPom.pomInfo() {
+  url.set("https://wiremock.org")
+  scm {
+    connection.set("https://github.com/wiremock/wiremock.git")
+    developerConnection.set("https://github.com/wiremock/wiremock.git")
+    url.set("https://github.com/wiremock/wiremock")
+  }
+  licenses {
+    license {
+      name.set("The Apache Software License, Version 2.0")
+      url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+      distribution.set("repo")
+    }
+  }
+  developers {
+    developer {
+      id.set("tomakehurst")
+      name.set("Tom Akehurst")
+    }
+  }
+}
+
+tasks.javadoc {
+  exclude("**/CertificateAuthority.java")
+  options.quiet()
+  (options as StandardJavadocDocletOptions)
+    .addBooleanOption("Xdoclint:none", true)
+}
+
+signing {
+  isRequired = !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+  val signingKey = providers.environmentVariable("OSSRH_GPG_SECRET_KEY").orElse("").get()
+  val signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
+  if (signingKey.isNotEmpty() && signingPassphrase.isNotEmpty()) {
+    useInMemoryPgpKeys(signingKey, signingPassphrase)
+  }
+  sign(publishing.publications)
+}
+
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = URI.create("https://maven.pkg.github.com/wiremock/wiremock")
+      credentials {
+        username = System.getenv("GITHUB_ACTOR")
+        password = System.getenv("GITHUB_TOKEN")
+      }
+    }
+  }
+
+  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
+  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
+
+  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
+    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
+      skip()
+    }
+  }
+
+  publications {
+    withType<MavenPublication> {
+      pom {
+        pomInfo()
+      }
+    }
+  }
 }
