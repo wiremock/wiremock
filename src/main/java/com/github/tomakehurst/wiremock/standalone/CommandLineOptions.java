@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
@@ -40,6 +39,7 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -517,14 +517,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public HttpServerFactory httpServerFactory() {
-    try {
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
-      Class<?> cls =
-          loader.loadClass("com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory");
-      return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
-    } catch (Exception e) {
-      return throwUnchecked(e, null);
-    }
+    return new JettyHttpServerFactory(jettySettings());
   }
 
   @Override
@@ -597,8 +590,7 @@ public class CommandLineOptions implements Options {
         .build();
   }
 
-  @Override
-  public JettySettings jettySettings() {
+  private JettySettings jettySettings() {
 
     JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
 

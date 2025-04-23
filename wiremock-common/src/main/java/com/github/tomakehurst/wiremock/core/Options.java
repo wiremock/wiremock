@@ -61,8 +61,6 @@ public interface Options {
 
   HttpsSettings httpsSettings();
 
-  JettySettings jettySettings();
-
   int containerThreads();
 
   /**

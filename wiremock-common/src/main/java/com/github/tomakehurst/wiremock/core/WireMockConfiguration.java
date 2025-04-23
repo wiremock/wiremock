@@ -102,13 +102,6 @@ public class WireMockConfiguration implements Options {
   private String proxyHostHeader;
   private HttpServerFactory httpServerFactory = null;
   private HttpClientFactory httpClientFactory = new ApacheHttpClientFactory();
-  private Integer jettyAcceptors;
-  private Integer jettyAcceptQueueSize;
-  private Integer jettyHeaderBufferSize;
-  private Integer jettyHeaderRequestSize;
-  private Integer jettyHeaderResponseSize;
-  private Long jettyStopTimeout;
-  private Long jettyIdleTimeout;
 
   private ExtensionDeclarations extensions = new ExtensionDeclarations();
   private boolean extensionScanningEnabled = false;
@@ -222,42 +215,6 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration containerThreads(Integer containerThreads) {
     this.containerThreads = containerThreads;
-    return this;
-  }
-
-  public WireMockConfiguration jettyAcceptors(Integer jettyAcceptors) {
-    this.jettyAcceptors = jettyAcceptors;
-    return this;
-  }
-
-  public WireMockConfiguration jettyAcceptQueueSize(Integer jettyAcceptQueueSize) {
-    this.jettyAcceptQueueSize = jettyAcceptQueueSize;
-    return this;
-  }
-
-  @Deprecated
-  public WireMockConfiguration jettyHeaderBufferSize(Integer jettyHeaderBufferSize) {
-    this.jettyHeaderBufferSize = jettyHeaderBufferSize;
-    return this;
-  }
-
-  public WireMockConfiguration jettyHeaderRequestSize(Integer jettyHeaderRequestSize) {
-    this.jettyHeaderRequestSize = jettyHeaderRequestSize;
-    return this;
-  }
-
-  public WireMockConfiguration jettyHeaderResponseSize(Integer jettyHeaderResponseSize) {
-    this.jettyHeaderResponseSize = jettyHeaderResponseSize;
-    return this;
-  }
-
-  public WireMockConfiguration jettyStopTimeout(Long jettyStopTimeout) {
-    this.jettyStopTimeout = jettyStopTimeout;
-    return this;
-  }
-
-  public WireMockConfiguration jettyIdleTimeout(Long jettyIdleTimeout) {
-    this.jettyIdleTimeout = jettyIdleTimeout;
     return this;
   }
 
@@ -638,19 +595,6 @@ public class WireMockConfiguration implements Options {
         .trustStorePassword(trustStorePassword)
         .trustStoreType(trustStoreType)
         .needClientAuth(needClientAuth)
-        .build();
-  }
-
-  @Override
-  public JettySettings jettySettings() {
-    return JettySettings.Builder.aJettySettings()
-        .withAcceptors(jettyAcceptors)
-        .withAcceptQueueSize(jettyAcceptQueueSize)
-        .withRequestHeaderSize(jettyHeaderBufferSize)
-        .withRequestHeaderSize(jettyHeaderRequestSize)
-        .withResponseHeaderSize(jettyHeaderResponseSize)
-        .withStopTimeout(jettyStopTimeout)
-        .withIdleTimeout(jettyIdleTimeout)
         .build();
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -38,6 +39,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -426,26 +428,29 @@ public class Examples extends AcceptanceTestBase {
         // Set the number of request handling threads in Jetty. Defaults to 10.
         .containerThreads(5)
 
-        // Set the number of connection acceptor threads in Jetty. Defaults to 2.
-        .jettyAcceptors(4)
+        // Set the HTTP server factory with custom settings. Defaults to JettyHttpServerFactory with
+        // default settings.
+        .httpServerFactory(
+            new JettyHttpServerFactory(
+                JettySettings.Builder.aJettySettings()
+                    // Set the number of connection acceptor threads in Jetty. Defaults to 2.
+                    .withAcceptors(4)
 
-        // Set the Jetty accept queue size. Defaults to Jetty's default of unbounded.
-        .jettyAcceptQueueSize(100)
+                    // Set the Jetty accept queue size. Defaults to Jetty's default of unbounded.
+                    .withAcceptQueueSize(100)
 
-        // Deprecated. Set the size of Jetty's header buffer (to avoid exceptions when very large
-        // request headers are sent). Defaults to 8192.
-        .jettyHeaderBufferSize(16834)
+                    // Set the size of Jetty's request header buffer (to avoid exceptions when very
+                    // large request headers are sent). Defaults to 8192.
+                    .withRequestHeaderSize(16834)
 
-        // Set the size of Jetty's request header buffer (to avoid exceptions when very large
-        // request headers are sent). Defaults to 8192.
-        .jettyHeaderRequestSize(16834)
+                    // Set the size of Jetty's response header buffer (to avoid exceptions when very
+                    // large request headers are sent). Defaults to 8192.
+                    .withResponseHeaderSize(16834)
 
-        // Set the size of Jetty's response header buffer (to avoid exceptions when very large
-        // request headers are sent). Defaults to 8192.
-        .jettyHeaderResponseSize(16834)
-
-        // Set the timeout to wait for Jetty to stop in milliseconds. Defaults to 0 (no wait)
-        .jettyStopTimeout(5000L)
+                    // Set the timeout to wait for Jetty to stop in milliseconds. Defaults to 0 (no
+                    // wait)
+                    .withStopTimeout(5000L)
+                    .build()))
 
         // Set the keystore containing the HTTPS certificate
         .keystorePath("/path/to/https-certs-keystore.jks")

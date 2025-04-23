@@ -77,11 +77,6 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public JettySettings jettySettings() {
-    return null;
-  }
-
-  @Override
   public int containerThreads() {
     return 0;
   }

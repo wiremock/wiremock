@@ -21,8 +21,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
@@ -50,7 +52,11 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
   private static WireMockConfiguration getOptions() {
     WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
-    wireMockConfiguration.jettyAcceptors(1).containerThreads(8);
+    wireMockConfiguration
+        .httpServerFactory(
+            new JettyHttpServerFactory(
+                JettySettings.Builder.aJettySettings().withAcceptors(1).build()))
+        .containerThreads(8);
     wireMockConfiguration.asynchronousResponseEnabled(true);
     wireMockConfiguration.asynchronousResponseThreads(10);
     wireMockConfiguration.dynamicPort();
