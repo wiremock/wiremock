@@ -596,7 +596,8 @@ tasks.register("set-snapshot-version") {
   doLast {
 
     val currentVersion = Version.fromString(project.version.toString())
-    val nextVersion = currentVersion.incrementMinor().toString() + "-SNAPSHOT"
+    val nextVersion = project.findProperty("snapshotVersion")?.toString()
+      ?: "${currentVersion.incrementMinor()}-SNAPSHOT"
 
     updateFiles(currentVersion.toString(), nextVersion)
   }
