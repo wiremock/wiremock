@@ -59,3 +59,21 @@ dependencies {
         }
     }
 }
+
+tasks.jar {
+    archiveBaseName.set("wiremock-jetty")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = tasks.jar.get().archiveBaseName.get()
+            from(components["java"])
+
+            pom {
+                name = "WireMock Jetty"
+                description = "A Jetty implementation of WireMock's HttpServer"
+            }
+        }
+    }
+}

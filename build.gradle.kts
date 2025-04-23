@@ -1,9 +1,6 @@
 import com.github.gundy.semver4j.model.Version
-import org.gradle.api.JavaVersion.VERSION_17
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
-import java.net.URI
 
 buildscript {
   repositories {
@@ -17,8 +14,6 @@ buildscript {
 plugins {
   id("wiremock.common-conventions")
   id("scala")
-  id("signing")
-  id("maven-publish")
   alias(libs.plugins.nexus.publish)
   id("idea")
   id("eclipse")
@@ -26,8 +21,6 @@ plugins {
   alias(libs.plugins.jmh)
   alias(libs.plugins.task.tree)
 }
-
-group = "org.wiremock"
 
 val standaloneOnly: Configuration by configurations.creating
 
@@ -167,31 +160,6 @@ dependencies {
   }
 }
 
-val runningOnCI = System.getenv("CI") == "true"
-
-val pomInfo: MavenPom.() -> Unit = {
-  name.set("WireMock")
-  url.set("https://wiremock.org")
-  scm {
-    connection.set("https://github.com/wiremock/wiremock.git")
-    developerConnection.set("https://github.com/wiremock/wiremock.git")
-    url.set("https://github.com/wiremock/wiremock")
-  }
-  licenses {
-    license {
-      name.set("The Apache Software License, Version 2.0")
-      url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-      distribution.set("repo")
-    }
-  }
-  developers {
-    developer {
-      id.set("tomakehurst")
-      name.set("Tom Akehurst")
-    }
-  }
-}
-
 tasks {
   check {
     dependsOn(buildHealth)
@@ -203,13 +171,6 @@ tasks.test {
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 }
 
-java {
-  sourceCompatibility = VERSION_17
-  targetCompatibility = VERSION_17
-  withSourcesJar()
-  withJavadocJar()
-}
-
 val testJar by tasks.registering(Jar::class) {
   archiveClassifier.set("tests")
   from(sourceSets.test.get().output)
@@ -219,9 +180,6 @@ tasks.jar {
   archiveBaseName.set("wiremock")
   manifest {
     attributes("Main-Class" to "wiremock.Run")
-    attributes("Add-Exports" to "java.base/sun.security.x509")
-    attributes("Implementation-Version" to project.version)
-    attributes("Implementation-Title" to "WireMock")
   }
 }
 
@@ -276,44 +234,7 @@ tasks.shadowJar {
   exclude("handlebars-*.js")
 }
 
-tasks.javadoc {
-  exclude("**/CertificateAuthority.java")
-  options.quiet()
-  (options as StandardJavadocDocletOptions)
-    .addBooleanOption("Xdoclint:none", true)
-}
-
-signing {
-  isRequired = !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
-  val signingKey = providers.environmentVariable("OSSRH_GPG_SECRET_KEY").orElse("").get()
-  val signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
-  if (signingKey.isNotEmpty() && signingPassphrase.isNotEmpty()) {
-    useInMemoryPgpKeys(signingKey, signingPassphrase)
-  }
-  sign(publishing.publications)
-}
-
 publishing {
-  repositories {
-    maven {
-      name = "GitHubPackages"
-      url = URI.create("https://maven.pkg.github.com/wiremock/wiremock")
-      credentials {
-        username = System.getenv("GITHUB_ACTOR")
-        password = System.getenv("GITHUB_TOKEN")
-      }
-    }
-  }
-
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
-
-  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
-    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-      skip()
-    }
-  }
-
   publications {
     create<MavenPublication>("mavenJava") {
       artifactId = tasks.jar.get().archiveBaseName.get()
@@ -321,8 +242,8 @@ publishing {
       artifact(testJar)
 
       pom {
-        description.set("A web service test double for all occasions")
-        pomInfo()
+        name = "WireMock"
+        description = "A web service test double for all occasions"
       }
     }
 
@@ -336,8 +257,8 @@ publishing {
 
       pom.packaging = "jar"
       pom {
-        description.set("A web service test double for all occasions - standalone edition")
-        pomInfo()
+        name = "WireMock"
+        description = "A web service test double for all occasions - standalone edition"
       }
     }
   }
