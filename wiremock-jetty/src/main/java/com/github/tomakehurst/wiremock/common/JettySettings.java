@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import java.util.Optional;
 
 /**
@@ -29,6 +30,7 @@ public class JettySettings {
   private final Long stopTimeout;
   private final Long idleTimeout;
   private final Long shutdownIdleTimeout;
+  private final ThreadPoolFactory threadPoolFactory;
 
   private JettySettings(
       Integer acceptors,
@@ -37,7 +39,8 @@ public class JettySettings {
       Integer responseHeaderSize,
       Long stopTimeout,
       Long idleTimeout,
-      Long shutdownIdleTimeout) {
+      Long shutdownIdleTimeout,
+      ThreadPoolFactory threadPoolFactory) {
     this.acceptors = acceptors;
     this.acceptQueueSize = acceptQueueSize;
     this.requestHeaderSize = requestHeaderSize;
@@ -45,6 +48,7 @@ public class JettySettings {
     this.stopTimeout = stopTimeout;
     this.idleTimeout = idleTimeout;
     this.shutdownIdleTimeout = shutdownIdleTimeout;
+    this.threadPoolFactory = threadPoolFactory;
   }
 
   public Optional<Integer> getAcceptors() {
@@ -75,6 +79,10 @@ public class JettySettings {
     return Optional.ofNullable(shutdownIdleTimeout);
   }
 
+  public Optional<ThreadPoolFactory> getThreadPoolFactory() {
+    return Optional.ofNullable(threadPoolFactory);
+  }
+
   @Override
   public String toString() {
     return "JettySettings{"
@@ -86,6 +94,14 @@ public class JettySettings {
         + requestHeaderSize
         + ", responseHeaderSize="
         + responseHeaderSize
+        + ", stopTimeout="
+        + stopTimeout
+        + ", idleTimeout="
+        + idleTimeout
+        + ", shutdownIdleTimeout="
+        + shutdownIdleTimeout
+        + ", threadPoolFactory="
+        + threadPoolFactory
         + '}';
   }
 
@@ -97,6 +113,7 @@ public class JettySettings {
     private Long stopTimeout;
     private Long idleTimeout;
     private Long shutdownIdleTimeout;
+    private ThreadPoolFactory threadPoolFactory;
 
     private Builder() {}
 
@@ -139,6 +156,11 @@ public class JettySettings {
       return this;
     }
 
+    public Builder withThreadPoolFactory(ThreadPoolFactory threadPoolFactory) {
+      this.threadPoolFactory = threadPoolFactory;
+      return this;
+    }
+
     public JettySettings build() {
       return new JettySettings(
           acceptors,
@@ -147,7 +169,8 @@ public class JettySettings {
           responseHeaderSize,
           stopTimeout,
           idleTimeout,
-          shutdownIdleTimeout);
+          shutdownIdleTimeout,
+          threadPoolFactory);
     }
   }
 }

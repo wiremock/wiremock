@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.common;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class JettySettingsTest {
 
@@ -27,6 +29,7 @@ public class JettySettingsTest {
 
   @Test
   public void testBuilderWithValues() {
+    ThreadPoolFactory threadPoolFactory = Mockito.mock(ThreadPoolFactory.class);
     JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
     builder
         .withAcceptors(number)
@@ -34,7 +37,8 @@ public class JettySettingsTest {
         .withRequestHeaderSize(number)
         .withResponseHeaderSize(number)
         .withStopTimeout(longNumber)
-        .withIdleTimeout(longNumber);
+        .withIdleTimeout(longNumber)
+        .withThreadPoolFactory(threadPoolFactory);
 
     JettySettings jettySettings = builder.build();
 
@@ -44,6 +48,7 @@ public class JettySettingsTest {
     ensurePresent(jettySettings.getResponseHeaderSize());
     ensureLongPresent(jettySettings.getStopTimeout());
     ensureLongPresent(jettySettings.getIdleTimeout());
+    assertEquals(Optional.of(threadPoolFactory), jettySettings.getThreadPoolFactory());
   }
 
   @Test
@@ -57,6 +62,7 @@ public class JettySettingsTest {
     assertFalse(jettySettings.getRequestHeaderSize().isPresent());
     assertFalse(jettySettings.getStopTimeout().isPresent());
     assertFalse(jettySettings.getIdleTimeout().isPresent());
+    assertFalse(jettySettings.getThreadPoolFactory().isPresent());
   }
 
   private void ensurePresent(Optional<Integer> optional) {

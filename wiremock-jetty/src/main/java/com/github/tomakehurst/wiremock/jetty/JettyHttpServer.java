@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
 import java.io.IOException;
@@ -37,7 +38,6 @@ import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public abstract class JettyHttpServer implements HttpServer {
   private static final AtomicBoolean STRICT_HTTP_HEADERS_APPLIED = new AtomicBoolean(false);
@@ -121,7 +121,9 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   protected Server createServer(Options options) {
-    final Server server = new Server(new QueuedThreadPool(options.containerThreads()));
+    final ThreadPoolFactory threadPoolFactory =
+        jettySettings.getThreadPoolFactory().orElse(new QueuedThreadPoolFactory());
+    final Server server = new Server(threadPoolFactory.buildThreadPool(options));
     final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
     stopTimeout.ifPresent(server::setStopTimeout);
 
