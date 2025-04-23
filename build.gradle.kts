@@ -15,8 +15,7 @@ buildscript {
 }
 
 plugins {
-  id("java-library")
-  id("java-test-fixtures")
+  id("wiremock.common-conventions")
   id("scala")
   id("signing")
   id("maven-publish")
@@ -24,10 +23,6 @@ plugins {
   id("idea")
   id("eclipse")
   id("project-report")
-  alias(libs.plugins.spotless)
-  alias(libs.plugins.shadow)
-  alias(libs.plugins.sonarqube)
-  id("jacoco")
   alias(libs.plugins.jmh)
   alias(libs.plugins.task.tree)
 }
@@ -37,16 +32,15 @@ group = "org.wiremock"
 val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
+  api(project(":wiremock-common"))
+  api(project(":wiremock-jetty"))
   api(libs.apache.http5.client)
   api(libs.apache.http5.core)
-  api(libs.commons.fileupload)
   api(libs.guava)
   api(libs.handlebars)
 
   api(platform(libs.jackson.bom))
   api(libs.jackson.annotations)
-  api(libs.jackson.core)
-  api(libs.jackson.databind)
 
   api(libs.jakarta.servlet.api)
 
@@ -57,34 +51,14 @@ dependencies {
   api(libs.jetty.server)
   api(libs.jetty.util)
   api(libs.json.schema.validator)
-  api(libs.json.unit.core)
 
   api(libs.xmlunit.core)
 
-  implementation(libs.handlebars.helpers) {
-    // Excluded in 75bd657e99321ee5c32667d17f56d74438583d6a / https://github.com/wiremock/wiremock/pull/2622
-    // Means calling NumberHelper.registerHelper or static NumberHelper.register would fail, but we never call them
-    exclude(group = "org.apache.commons", module = "commons-lang3")
-  }
-  implementation(libs.jackson.datatype.jsr310)
-  implementation(libs.jetty.alpn.server)
-  implementation(libs.jetty.ee10.servlets)
-  implementation(libs.jetty.http)
-  implementation(libs.jetty.http2.common)
-  implementation(libs.jetty.http2.server)
-  implementation(libs.jopt.simple)
   implementation(libs.json.path) {
     // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
   implementation(libs.slf4j.api)
-  // Can we stop using xmlunit-legacy? It is only used in
-  // com.github.tomakehurst.wiremock.common.xml.Xml.optimizeFactoriesLoading
-  implementation(libs.xmlunit.legacy) {
-    // Excluded because we do not want junit on the classpath, users should provide it themselves
-    exclude(group = "junit", module = "junit")
-  }
-  implementation(libs.xmlunit.placeholders)
 
   // We do not want JUnit on the classpath, users should provide it themselves
   compileOnly(libs.junit4)
@@ -95,6 +69,8 @@ dependencies {
   runtimeOnly(libs.jetty.alpn.java.server)
 
   add("standaloneOnly", libs.slf4j.nop)
+
+  testFixturesApi(project(":wiremock-common"))
 
   testFixturesApi(libs.apache.http5.client)
   testFixturesApi(libs.apache.http5.core)
@@ -114,8 +90,10 @@ dependencies {
   testImplementation(libs.archunit.junit5.api)
   testImplementation(libs.assertj.core)
   testImplementation(libs.awaitility)
+  testImplementation(libs.jackson.databind)
   testImplementation(libs.jetty.client)
   testImplementation(libs.jetty.ee10.webapp)
+  testImplementation(libs.jetty.http)
   testImplementation(libs.jetty.http2.client)
   testImplementation(libs.jetty.http2.client.transport)
   testImplementation(libs.jmh.core)
@@ -210,120 +188,6 @@ val pomInfo: MavenPom.() -> Unit = {
     developer {
       id.set("tomakehurst")
       name.set("Tom Akehurst")
-    }
-  }
-}
-
-allprojects {
-  apply(plugin = "com.diffplug.spotless")
-  spotless {
-    java {
-      target("src/**/*.java")
-      googleJavaFormat("1.17.0")
-      licenseHeaderFile("$rootDir/gradle/spotless.java.license.txt")
-      ratchetFrom("origin/master")
-      trimTrailingWhitespace()
-      endWithNewline()
-      targetExclude("**/Tmp*.java")
-    }
-    kotlinGradle {
-      target("**/*.gradle.kts")
-      indentWithSpaces(2)
-      trimTrailingWhitespace()
-      endWithNewline()
-    }
-    groovyGradle {
-      target("**/*.gradle")
-      greclipse()
-      indentWithSpaces(2)
-      trimTrailingWhitespace()
-      endWithNewline()
-    }
-    json {
-      target("src/**/*.json")
-      targetExclude(
-        "**/tmp*.json",
-        "src/test/resources/sample.json",
-        "src/main/resources/swagger/*.json",
-        "src/test/resources/filesource/subdir/deepfile.json",
-        "src/test/resources/schema-validation/*.json",
-        "src/test/resources/test-file-root/mappings/testjsonmapping.json",
-        "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
-      )
-      simple().indentWithSpaces(2)
-    }
-  }
-
-  tasks.withType<AbstractArchiveTask>().configureEach {
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-  }
-
-  repositories {
-    mavenCentral()
-  }
-
-  version = "4.0.0-beta.2"
-
-  tasks {
-
-    compileJava {
-      options.encoding = "UTF-8"
-      options.compilerArgs.addAll(
-        listOf(
-          "-XDenableSunApiLintControl",
-          "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-        )
-      )
-    }
-
-    compileTestJava {
-      options.encoding = "UTF-8"
-      options.compilerArgs.addAll(
-        listOf(
-          "-XDenableSunApiLintControl",
-          "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-        )
-      )
-    }
-
-    compileTestFixturesJava {
-      options.encoding = "UTF-8"
-    }
-
-    test {
-      // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-      systemProperty("user.timezone", "Australia/Sydney")
-
-      useJUnitPlatform()
-      exclude("ignored/**")
-
-      maxParallelForks = if (runningOnCI) 1 else 3
-
-      testLogging {
-        events("FAILED", "SKIPPED")
-        exceptionFormat = FULL
-      }
-
-      finalizedBy(jacocoTestReport)
-    }
-
-    jacocoTestReport {
-      reports {
-        xml.required = true
-      }
-    }
-
-    sonarqube {
-      properties {
-        property( "sonar.projectKey", "wiremock_wiremock")
-        property( "sonar.organization", "wiremock")
-        property( "sonar.host.url", "https://sonarcloud.io")
-      }
-    }
-
-    shadowJar {
-      dependsOn(jar)
     }
   }
 }
