@@ -263,7 +263,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = "4.0.0-beta.1"
+  version = "4.0.0-beta.2"
 
   tasks {
 
