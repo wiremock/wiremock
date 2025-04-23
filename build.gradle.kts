@@ -450,12 +450,11 @@ dependencyAnalysis {
       }
     }
     project(project.path) {
-      sourceSet("main") {
-        onIncorrectConfiguration {
-          exclude(
-            ":wiremock-jetty",
-          )
-        }
+      onUnusedDependencies {
+        exclude(
+          ":wiremock-jetty",
+          ":wiremock-common",
+        )
       }
     }
   }
