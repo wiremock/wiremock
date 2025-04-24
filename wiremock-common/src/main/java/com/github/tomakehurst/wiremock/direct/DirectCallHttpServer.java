@@ -29,8 +29,6 @@ import java.util.concurrent.TimeoutException;
  * i.e. running in Serverless applications.
  */
 public class DirectCallHttpServer implements HttpServer {
-  private static final long DEFAULT_TIMEOUT = 1000;
-
   private final AdminRequestHandler adminRequestHandler;
   private final StubRequestHandler stubRequestHandler;
   private final long timeout;
