@@ -219,15 +219,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
-  public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
+  public BasicMappingBuilder withPostServeAction(String extensionName, Object parameters) {
     postServeActions.add(
         new PostServeActionDefinition(extensionName, resolveParameters(parameters)));
     return this;
   }
 
   @Override
-  public <P> MappingBuilder withServeEventListener(
-      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters) {
+  public MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, Object parameters) {
     serveEventListeners.add(
         new ServeEventListenerDefinition(
             extensionName, requestPhases, resolveParameters(parameters)));
@@ -235,13 +235,13 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
-  public <P> MappingBuilder withServeEventListener(String extensionName, P parameters) {
+  public MappingBuilder withServeEventListener(String extensionName, Object parameters) {
     serveEventListeners.add(
         new ServeEventListenerDefinition(extensionName, resolveParameters(parameters)));
     return this;
   }
 
-  private static <P> Parameters resolveParameters(P parameters) {
+  private static Parameters resolveParameters(Object parameters) {
     return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
 
