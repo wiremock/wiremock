@@ -1,0 +1,6 @@
+type: object
+title: Request method pattern
+oneOf:
+  - $ref: "one-of-request-method-pattern.yaml"
+  - $ref: "none-of-request-method-pattern.yaml"
+
