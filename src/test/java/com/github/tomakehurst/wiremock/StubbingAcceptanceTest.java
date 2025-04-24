@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -1325,6 +1326,22 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(exception.getErrors().first().getSource(), nullValue());
     assertThat(testClient.get("/second-stub-with-id").statusCode(), is(404));
     assertThat(testClient.get("/first-stub-with-id").statusCode(), is(200));
+  }
+
+  @Test
+  void returnsConfiguredNumberOfContentTypeHeaders() {
+    stubFor(
+        get(urlPathEqualTo("/foo"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withBody("{}")));
+
+    assertThat(
+        testClient.get("/foo").headers().get("Content-Type"),
+        is(List.of("application/json", "application/json")));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
