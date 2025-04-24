@@ -83,7 +83,21 @@ public interface Request {
 
   Map<String, Cookie> getCookies();
 
+  /**
+   * Returns the body of the request.
+   * <p>
+   * It will transparently decode the body if it is encoded with gzip.
+   * @return the body of the request
+   */
   byte[] getBody();
+
+  /**
+   * Returns the raw body of the request.
+   * <p>
+   * It will not decode the body if it is encoded with gzip.
+   * @return the raw body of the request
+   */
+  byte[] getRawBody();
 
   String getBodyAsString();
 

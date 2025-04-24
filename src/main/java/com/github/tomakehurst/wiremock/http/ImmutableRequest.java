@@ -163,6 +163,11 @@ public class ImmutableRequest implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return body;
+  }
+
+  @Override
   public String getBodyAsString() {
     return Strings.stringFromBytes(body);
   }
