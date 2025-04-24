@@ -450,7 +450,7 @@ dependencyAnalysis {
       }
     }
     project(project.path) {
-      onUnusedDependencies {
+      onAny {
         exclude(
           ":wiremock-jetty",
           ":wiremock-common",
