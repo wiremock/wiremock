@@ -54,7 +54,7 @@ jobs:
     - name: Test WireMock
       run: ./gradlew :check --stacktrace --no-daemon
 
-    - name: Archive WireMock test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
+    - name: Archive WireMock reports - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -62,3 +62,4 @@ jobs:
         path: |
           build/reports/tests/test
           build/test-results/test
+          build/reports/dependency-analysis/build-health-report.txt
