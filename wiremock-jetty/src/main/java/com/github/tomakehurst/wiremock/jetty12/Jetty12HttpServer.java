@@ -60,6 +60,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.ThreadPool;
 
 public class Jetty12HttpServer extends JettyHttpServer {
 
@@ -69,8 +70,9 @@ public class Jetty12HttpServer extends JettyHttpServer {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
-      JettySettings jettySettings) {
-    super(options, adminRequestHandler, stubRequestHandler, jettySettings);
+      JettySettings jettySettings,
+      ThreadPool threadPool) {
+    super(options, adminRequestHandler, stubRequestHandler, jettySettings, threadPool);
   }
 
   @Override

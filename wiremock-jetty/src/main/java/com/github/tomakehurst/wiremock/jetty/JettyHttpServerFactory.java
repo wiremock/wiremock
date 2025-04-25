@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {
 
@@ -41,6 +42,11 @@ public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    return new Jetty12HttpServer(options, adminRequestHandler, stubRequestHandler, settings);
+    return new Jetty12HttpServer(
+        options,
+        adminRequestHandler,
+        stubRequestHandler,
+        settings,
+        new QueuedThreadPool(options.containerThreads()));
   }
 }

@@ -19,12 +19,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ThreadPool;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -35,10 +32,13 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
     setupServer(
         new WireMockConfiguration()
             .httpServerFactory(
-                new JettyHttpServerFactory(
-                    JettySettings.Builder.aJettySettings()
-                        .withThreadPoolFactory(new InstrumentedThreadPoolFactory())
-                        .build())));
+                (options, adminRequestHandler, stubRequestHandler) ->
+                    new Jetty12HttpServer(
+                        options,
+                        adminRequestHandler,
+                        stubRequestHandler,
+                        JettySettings.Builder.aJettySettings().build(),
+                        new InstrumentedQueuedThreadPool(options.containerThreads()))));
   }
 
   @Test
@@ -65,13 +65,6 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
     protected void doStart() throws Exception {
       super.doStart();
       flag = true;
-    }
-  }
-
-  public static class InstrumentedThreadPoolFactory implements ThreadPoolFactory {
-    @Override
-    public ThreadPool buildThreadPool(Options options) {
-      return new InstrumentedQueuedThreadPool(options.containerThreads());
     }
   }
 }
