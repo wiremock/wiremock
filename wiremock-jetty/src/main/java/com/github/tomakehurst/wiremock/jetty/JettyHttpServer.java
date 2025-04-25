@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
 import java.io.IOException;
@@ -38,6 +37,7 @@ import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.thread.ThreadPool;
 
 public abstract class JettyHttpServer implements HttpServer {
   private static final AtomicBoolean STRICT_HTTP_HEADERS_APPLIED = new AtomicBoolean(false);
@@ -60,7 +60,8 @@ public abstract class JettyHttpServer implements HttpServer {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
-      JettySettings jettySettings) {
+      JettySettings jettySettings,
+      ThreadPool threadPool) {
     this.options = options;
     this.jettySettings = jettySettings;
 
@@ -70,7 +71,7 @@ public abstract class JettyHttpServer implements HttpServer {
       STRICT_HTTP_HEADERS_APPLIED.set(true);
     }
 
-    jettyServer = createServer(options);
+    jettyServer = createServer(threadPool);
 
     NetworkTrafficListenerAdapter networkTrafficListenerAdapter =
         new NetworkTrafficListenerAdapter(options.networkTrafficListener());
@@ -120,10 +121,8 @@ public abstract class JettyHttpServer implements HttpServer {
     }
   }
 
-  protected Server createServer(Options options) {
-    final ThreadPoolFactory threadPoolFactory =
-        jettySettings.getThreadPoolFactory().orElse(new QueuedThreadPoolFactory());
-    final Server server = new Server(threadPoolFactory.buildThreadPool(options));
+  protected Server createServer(ThreadPool threadPool) {
+    final Server server = new Server(threadPool);
     final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
     stopTimeout.ifPresent(server::setStopTimeout);
 
