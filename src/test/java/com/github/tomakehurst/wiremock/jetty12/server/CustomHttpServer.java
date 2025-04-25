@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class CustomHttpServer extends Jetty12HttpServer {
   public CustomHttpServer(
@@ -30,6 +31,7 @@ public class CustomHttpServer extends Jetty12HttpServer {
         options,
         adminRequestHandler,
         stubRequestHandler,
-        JettySettings.Builder.aJettySettings().build());
+        JettySettings.Builder.aJettySettings().build(),
+        new QueuedThreadPool(options.containerThreads()));
   }
 }
