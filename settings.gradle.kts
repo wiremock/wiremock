@@ -5,4 +5,4 @@ plugins {
 rootProject.name = "wiremock"
 
 include("wiremock-common")
-include("wiremock-jetty")
+include("wiremock-jetty-12")

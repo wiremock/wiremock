@@ -26,7 +26,7 @@ val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
   api(project(":wiremock-common"))
-  api(project(":wiremock-jetty"))
+  api(project(":wiremock-jetty-12"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)
@@ -446,7 +446,7 @@ dependencyAnalysis {
     project(project.path) {
       onAny {
         exclude(
-          ":wiremock-jetty",
+          ":wiremock-jetty-12",
           ":wiremock-common",
         )
       }
