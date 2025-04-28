@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,23 +41,11 @@ public class HttpServerFactoryLoaderTest {
   @SuppressWarnings("unchecked")
   Supplier<List<HttpServerFactory>> serviceLoader = mock(Supplier.class);
 
-  HttpServerFactoryLoader loader;
-
   @Test
-  void loadsExtensionWhenOneIsPresentAndJettyVersionIs12() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, true);
+  void loadsExtensionWhenOneIsPresentAndOptionsHasNoHttpServerConfigured() {
+    HttpServerFactoryLoader loader =
+        new HttpServerFactoryLoader(options, extensions, serviceLoader);
 
-    serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
-    serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory2()));
-
-    HttpServerFactory result = loader.load();
-
-    assertThat(result, instanceOf(CustomHttpServerFactory.class));
-  }
-
-  @Test
-  void loadsExtensionWhenOneIsPresentAndJettyVersionIsNot12() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
     serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory2()));
 
@@ -70,7 +57,8 @@ public class HttpServerFactoryLoaderTest {
   @Test
   void loadsTheNonStandardExtensionWhenMoreThanOneIsPresent() {
     options = wireMockConfig().extensionScanningEnabled(false);
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
+    HttpServerFactoryLoader loader =
+        new HttpServerFactoryLoader(options, extensions, serviceLoader);
 
     serverFactoriesAsExtensions(
         List.of(new DefaultHttpServerFactory(), new CustomHttpServerFactory()));
@@ -81,8 +69,9 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheServiceLoaderWhenNoExtensionsArePresentAndJettyVersionIsNot12() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
+  void usesTheServiceLoaderWhenNoExtensionsArePresentAndOptionsHasNoHttpServerConfigured() {
+    HttpServerFactoryLoader loader =
+        new HttpServerFactoryLoader(options, extensions, serviceLoader);
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory()));
 
     HttpServerFactory result = loader.load();
@@ -91,18 +80,9 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheDefaultFactoryWhenNoExtensionsArePresentAndJettyVersionIs12() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, true);
-    serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory()));
-
-    HttpServerFactory result = loader.load();
-
-    assertThat(result, instanceOf(JettyHttpServerFactory.class));
-  }
-
-  @Test
   void loadsTheNonStandardFactoryViaTheServiceLoaderWhenMoreThanOneIsPresent() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
+    HttpServerFactoryLoader loader =
+        new HttpServerFactoryLoader(options, extensions, serviceLoader);
     serverFactoriesFromServiceLoader(
         List.of(new DefaultHttpServerFactory(), new CustomHttpServerFactory()));
 
@@ -112,32 +92,30 @@ public class HttpServerFactoryLoaderTest {
   }
 
   @Test
-  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIs12() {
-    Options config = wireMockConfig().httpServerFactory(new CustomHttpServerFactory());
-    loader = new HttpServerFactoryLoader(config, extensions, serviceLoader, true);
-    serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
+  void usesTheFactoryFromTheOptionsEvenWhenExtensionsAndServicesArePresent() {
+    // expect
     serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory2()));
+    assertThat(
+        new HttpServerFactoryLoader(options, extensions, serviceLoader).load(),
+        instanceOf(CustomHttpServerFactory2.class));
+    serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
+    assertThat(
+        new HttpServerFactoryLoader(options, extensions, serviceLoader).load(),
+        instanceOf(CustomHttpServerFactory.class));
 
+    // when
+    Options config = wireMockConfig().httpServerFactory(new CustomHttpServerFactory());
+    HttpServerFactoryLoader loader = new HttpServerFactoryLoader(config, extensions, serviceLoader);
     HttpServerFactory result = loader.load();
 
-    assertThat(result, instanceOf(CustomHttpServerFactory.class));
-  }
-
-  @Test
-  void usesTheFactoryFromTheOptionsObjectWhenNoExtensionsPresentAndJettyVersionIsNot12() {
-    Options config = wireMockConfig().httpServerFactory(new CustomHttpServerFactory());
-    loader = new HttpServerFactoryLoader(config, extensions, serviceLoader, false);
-    serverFactoriesAsExtensions(List.of(new CustomHttpServerFactory()));
-    serverFactoriesFromServiceLoader(List.of(new CustomHttpServerFactory2()));
-
-    HttpServerFactory result = loader.load();
-
+    // then
     assertThat(result, instanceOf(CustomHttpServerFactory.class));
   }
 
   @Test
   void throwsDescriptiveExceptionWhenNoSuitableServerFactoryIsFound() {
-    loader = new HttpServerFactoryLoader(options, extensions, serviceLoader, false);
+    HttpServerFactoryLoader loader =
+        new HttpServerFactoryLoader(options, extensions, serviceLoader);
     serverFactoriesAsExtensions(Collections.emptyList());
     serverFactoriesFromServiceLoader(Collections.emptyList());
 
@@ -145,7 +123,7 @@ public class HttpServerFactoryLoaderTest {
     assertThat(
         exception.getMessage(),
         equalTo(
-            "Jetty 12 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See https://wiremock.org/docs/extending-wiremock/ for more information."));
+            "No suitable HttpServerFactory was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See https://wiremock.org/docs/extending-wiremock/ for more information."));
   }
 
   private void serverFactoriesAsExtensions(List<HttpServerFactory> extensionList) {

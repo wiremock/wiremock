@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class ExtensionFactoryTest {
     assertThat(content, jsonPartEquals("stubCorsEnabled", true));
     assertThat(
         content,
-        jsonPartEquals("extensionCount", 5)); // Includes the three service loaded extensions
+        jsonPartEquals("extensionCount", 6)); // Includes the three service loaded extensions
   }
 
   @Test

@@ -30,7 +30,7 @@ jobs:
 
       - name: Publish core package
         id: publish_package
-        run: ./gradlew :publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
+        run: ./gradlew :publishMavenJavaPublicationToGitHubPackagesRepository wiremock-common:publishMavenJavaPublicationToGitHubPackagesRepository wiremock-jetty:publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
