@@ -16,30 +16,13 @@
 package com.github.tomakehurst.wiremock.jetty12;
 
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.Socket;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.server.Response;
 
-/** Helper utility interface to inject Jetty 11/12/... specific response / request handling */
+/** Helper utility interface to inject Jetty specific response / request handling */
 public interface JettyHttpUtils {
-  boolean IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
-
-  static boolean isJetty() {
-    return IS_JETTY;
-  }
-
-  private static boolean isClassExist(String type) {
-    try {
-      ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
-      ClassLoader loader = contextCL == null ? JettyHttpUtils.class.getClassLoader() : contextCL;
-      Class.forName(type, false, loader);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
 
   /**
    * Unwraps Jetty's {@link Response} out of the {@link HttpServletResponse}
@@ -58,17 +41,6 @@ public interface JettyHttpUtils {
   Socket socket(Response response);
 
   /**
-   * Sets the {@link HttpServletResponse} status and reason (if supported), depending on Jetty
-   * version.
-   *
-   * @param status status
-   * @param reason reason
-   * @param httpServletResponse {@link HttpServletResponse} instance to set status and reason (if
-   *     supported)
-   */
-  void setStatusWithReason(int status, String reason, HttpServletResponse httpServletResponse);
-
-  /**
    * Extracts the raw network TLS socket of out Jetty's {@link Response}
    *
    * @param response {@link Response} instance
@@ -83,12 +55,4 @@ public interface JettyHttpUtils {
    * @return unwrapped {@link EndPoint} instance
    */
   EndPoint unwrapEndPoint(Response response);
-
-  /**
-   * Checks if the {@link HttpServletRequest} is a browser proxy request
-   *
-   * @param request {@link HttpServletRequest} instance
-   * @return {@code true} if is a request isbrowser proxy request, {@code false} otherwise
-   */
-  boolean isBrowserProxyRequest(HttpServletRequest request);
 }

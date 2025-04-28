@@ -318,7 +318,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
     mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
 
     final Jetty12HttpUtils utils = new Jetty12HttpUtils();
-    mockServiceContext.setAttribute(JettyHttpUtils.class.getName(), utils);
 
     mockServiceContext.setAttribute(
         JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory(utils));

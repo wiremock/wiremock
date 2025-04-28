@@ -15,12 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty12;
 
-import static com.github.tomakehurst.wiremock.jetty12.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
-import static com.github.tomakehurst.wiremock.jetty12.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
-
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
@@ -67,23 +62,8 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
   }
 
   @Override
-  public void setStatusWithReason(
-      int status, String reason, HttpServletResponse httpServletResponse) {
-    // Servlet 6 is not accepting the reason / message anymore, consequently Jetty 12
-    // completely eliminated the possibility to pass reason / message along with a status
-    // in case of HTTP 1.x communication.
-    httpServletResponse.setStatus(status);
-  }
-
-  @Override
   public EndPoint unwrapEndPoint(Response jettyResponse) {
     return getEndpoint(jettyResponse);
-  }
-
-  @Override
-  public boolean isBrowserProxyRequest(HttpServletRequest request) {
-    return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
-        || Boolean.TRUE.equals(request.getAttribute(IS_HTTP_PROXY_REQUEST_ATTRIBUTE));
   }
 
   private EndPoint getEndpoint(Response response) {
