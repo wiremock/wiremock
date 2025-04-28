@@ -32,10 +32,10 @@ public class JettyFaultInjector implements FaultInjector {
   private final HttpServletResponse response;
   private final Socket socket;
 
-  public JettyFaultInjector(HttpServletResponse response, JettyHttpUtils utils) {
+  public JettyFaultInjector(HttpServletResponse response) {
     this.response = response;
-    final Response jettyResponse = utils.unwrapResponse(response);
-    this.socket = utils.socket(jettyResponse);
+    final Response jettyResponse = Jetty12HttpUtils.unwrapResponse(response);
+    this.socket = Jetty12HttpUtils.socket(jettyResponse);
   }
 
   @Override

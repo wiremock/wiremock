@@ -44,7 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class JettyHttpServerTest {
+public class Jetty12HttpServerTest {
 
   static final DataTruncationSettings NO_TRUNCATION = new DataTruncationSettings(Limit.UNLIMITED);
 
@@ -92,8 +92,8 @@ public class JettyHttpServerTest {
                         .withStopTimeout(expectedStopTimeout)
                         .build()));
 
-    JettyHttpServer jettyHttpServer =
-        (JettyHttpServer)
+    Jetty12HttpServer jettyHttpServer =
+        (Jetty12HttpServer)
             serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
@@ -104,8 +104,8 @@ public class JettyHttpServerTest {
     long expectedStopTimeout = 1000L;
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
-    JettyHttpServer jettyHttpServer =
-        (JettyHttpServer)
+    Jetty12HttpServer jettyHttpServer =
+        (Jetty12HttpServer)
             serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
@@ -116,11 +116,11 @@ public class JettyHttpServerTest {
       throws NoSuchFieldException, IllegalAccessException {
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().httpDisabled(true);
 
-    JettyHttpServer jettyHttpServer =
-        (JettyHttpServer)
+    Jetty12HttpServer jettyHttpServer =
+        (Jetty12HttpServer)
             serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
-    Field httpConnectorField = JettyHttpServer.class.getDeclaredField("httpConnector");
+    Field httpConnectorField = Jetty12HttpServer.class.getDeclaredField("httpConnector");
     httpConnectorField.setAccessible(true);
     ServerConnector httpConnector = (ServerConnector) httpConnectorField.get(jettyHttpServer);
 
@@ -136,8 +136,8 @@ public class JettyHttpServerTest {
     int currentPort = serverConnector.getLocalPort();
 
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().port(currentPort);
-    JettyHttpServer jettyHttpServer =
-        (JettyHttpServer)
+    Jetty12HttpServer jettyHttpServer =
+        (Jetty12HttpServer)
             serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
