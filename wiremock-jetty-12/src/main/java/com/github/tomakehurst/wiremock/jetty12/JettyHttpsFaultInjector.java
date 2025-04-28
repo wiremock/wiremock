@@ -36,11 +36,11 @@ public class JettyHttpsFaultInjector implements FaultInjector {
   private final EndPoint endpoint;
   private final Socket socket;
 
-  public JettyHttpsFaultInjector(HttpServletResponse response, JettyHttpUtils utils) {
+  public JettyHttpsFaultInjector(HttpServletResponse response) {
     this.response = response;
-    final Response jettyResponse = utils.unwrapResponse(response);
-    this.endpoint = utils.unwrapEndPoint(jettyResponse);
-    this.socket = utils.tlsSocket(jettyResponse);
+    final Response jettyResponse = Jetty12HttpUtils.unwrapResponse(response);
+    this.endpoint = Jetty12HttpUtils.unwrapEndPoint(jettyResponse);
+    this.socket = Jetty12HttpUtils.tlsSocket(jettyResponse);
   }
 
   @Override

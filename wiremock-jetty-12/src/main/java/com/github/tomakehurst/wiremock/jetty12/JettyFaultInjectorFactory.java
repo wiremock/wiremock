@@ -21,19 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JettyFaultInjectorFactory implements FaultInjectorFactory {
-  private final JettyHttpUtils utils;
-
-  public JettyFaultInjectorFactory(JettyHttpUtils utils) {
-    this.utils = utils;
-  }
 
   @Override
   public FaultInjector buildFaultInjector(
       HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     if (httpServletRequest.getScheme().equals("https")) {
-      return new JettyHttpsFaultInjector(httpServletResponse, utils);
+      return new JettyHttpsFaultInjector(httpServletResponse);
     }
 
-    return new JettyFaultInjector(httpServletResponse, utils);
+    return new JettyFaultInjector(httpServletResponse);
   }
 }

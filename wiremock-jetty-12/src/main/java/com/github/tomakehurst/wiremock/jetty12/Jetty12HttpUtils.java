@@ -26,9 +26,11 @@ import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.AbstractMetaDataConnection;
 import org.eclipse.jetty.server.Response;
 
-public class Jetty12HttpUtils implements JettyHttpUtils {
-  @Override
-  public Response unwrapResponse(ServletResponse httpServletResponse) {
+public class Jetty12HttpUtils {
+
+  private Jetty12HttpUtils() {}
+
+  public static Response unwrapResponse(ServletResponse httpServletResponse) {
     if (httpServletResponse instanceof HttpServletResponseWrapper) {
       ServletResponse unwrapped = ((HttpServletResponseWrapper) httpServletResponse).getResponse();
       return unwrapResponse(unwrapped);
@@ -48,16 +50,14 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
     }
   }
 
-  @Override
-  public Socket socket(Response response) {
+  public static Socket socket(Response response) {
     final AbstractMetaDataConnection connectionMetaData =
         (AbstractMetaDataConnection) response.getRequest().getConnectionMetaData();
     SelectableChannelEndPoint ep = (SelectableChannelEndPoint) connectionMetaData.getEndPoint();
     return ((SocketChannel) ep.getChannel()).socket();
   }
 
-  @Override
-  public Socket tlsSocket(Response response) {
+  public static Socket tlsSocket(Response response) {
     final AbstractMetaDataConnection connectionMetaData =
         (AbstractMetaDataConnection) response.getRequest().getConnectionMetaData();
     final SslConnection.SslEndPoint sslEndpoint =
@@ -67,8 +67,7 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
     return ((SocketChannel) endpoint.getChannel()).socket();
   }
 
-  @Override
-  public EndPoint unwrapEndPoint(Response jettyResponse) {
+  public static EndPoint unwrapEndPoint(Response jettyResponse) {
     final AbstractMetaDataConnection connectionMetaData =
         (AbstractMetaDataConnection) jettyResponse.getRequest().getConnectionMetaData();
     return connectionMetaData.getEndPoint();
