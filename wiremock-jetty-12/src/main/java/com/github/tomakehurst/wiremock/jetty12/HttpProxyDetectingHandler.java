@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty12;
 
+import com.github.tomakehurst.wiremock.servlet.ServletUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -29,8 +30,6 @@ import org.eclipse.jetty.util.Callback;
  */
 public class HttpProxyDetectingHandler extends Handler.Abstract {
 
-  public static final String IS_HTTP_PROXY_REQUEST_ATTRIBUTE = "wiremock.isHttpProxyRequest";
-
   private final ServerConnector httpConnector;
 
   public HttpProxyDetectingHandler(ServerConnector httpConnector) {
@@ -43,7 +42,7 @@ public class HttpProxyDetectingHandler extends Handler.Abstract {
 
     if (httpPort != request.getHttpURI().getPort()
         && "http".equals(request.getHttpURI().getScheme())) {
-      request.setAttribute(IS_HTTP_PROXY_REQUEST_ATTRIBUTE, true);
+      request.setAttribute(ServletUtils.IS_PROXY_REQUEST_ATTRIBUTE, true);
     }
 
     return false;

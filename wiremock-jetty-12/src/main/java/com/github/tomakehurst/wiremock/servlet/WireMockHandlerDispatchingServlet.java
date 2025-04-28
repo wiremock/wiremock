@@ -34,7 +34,6 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty12.JettyHttpUtils;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.*;
@@ -66,7 +65,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
   private boolean shouldForwardToFilesContext;
   private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean browserProxyingEnabled;
-  private JettyHttpUtils utils;
 
   @Override
   public void init(ServletConfig config) {
@@ -110,8 +108,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     browserProxyingEnabled =
         Boolean.parseBoolean(
             getFirstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
-
-    utils = (JettyHttpUtils) context.getAttribute(JettyHttpUtils.class.getName());
   }
 
   private String getNormalizedMappedUnder(ServletConfig config) {
@@ -144,7 +140,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     Request request =
         new WireMockHttpServletRequestAdapter(
-            httpServletRequest, mappedUnder, browserProxyingEnabled, utils);
+            httpServletRequest, mappedUnder, browserProxyingEnabled);
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);
@@ -248,12 +244,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       return;
     }
 
-    if (response.getStatusMessage() == null) {
-      httpServletResponse.setStatus(response.getStatus());
-    } else {
-      utils.setStatusWithReason(
-          response.getStatus(), response.getStatusMessage(), httpServletResponse);
-    }
+    httpServletResponse.setStatus(response.getStatus());
 
     for (HttpHeader header : response.getHeaders().all()) {
       for (String value : header.values()) {

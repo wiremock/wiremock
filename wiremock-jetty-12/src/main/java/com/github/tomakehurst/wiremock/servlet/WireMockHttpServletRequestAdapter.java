@@ -26,7 +26,6 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
-import com.github.tomakehurst.wiremock.jetty12.JettyHttpUtils;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
@@ -50,18 +49,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
-  private final JettyHttpUtils utils;
   private Collection<Part> cachedMultiparts;
 
   public WireMockHttpServletRequestAdapter(
-      HttpServletRequest request,
-      String urlPrefixToRemove,
-      boolean browserProxyingEnabled,
-      JettyHttpUtils utils) {
+      HttpServletRequest request, String urlPrefixToRemove, boolean browserProxyingEnabled) {
     this.request = request;
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
-    this.utils = utils;
 
     cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
 
@@ -260,12 +254,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public boolean isBrowserProxyRequest() {
-    // Avoid the performance hit if browser proxying is disabled
-    if (!browserProxyingEnabled || !JettyHttpUtils.isJetty()) {
+    if (!browserProxyingEnabled) {
       return false;
     }
 
-    return utils.isBrowserProxyRequest(request);
+    return ServletUtils.isBrowserProxyRequest(request);
   }
 
   @Override
