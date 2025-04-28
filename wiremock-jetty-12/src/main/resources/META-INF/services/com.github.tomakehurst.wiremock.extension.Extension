@@ -1,1 +1,1 @@
-com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory
+com.github.tomakehurst.wiremock.jetty12.JettyHttpServerFactory

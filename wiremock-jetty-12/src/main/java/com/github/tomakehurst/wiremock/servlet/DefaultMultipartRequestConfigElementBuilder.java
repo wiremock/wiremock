@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigElementBuilder;
 import jakarta.servlet.MultipartConfigElement;
 
 public class DefaultMultipartRequestConfigElementBuilder

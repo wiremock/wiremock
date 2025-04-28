@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty12;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {

@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.jetty12;
 import static com.github.tomakehurst.wiremock.jetty12.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty12.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 
-import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

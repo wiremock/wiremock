@@ -26,7 +26,7 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
+import com.github.tomakehurst.wiremock.jetty12.JettyHttpUtils;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;

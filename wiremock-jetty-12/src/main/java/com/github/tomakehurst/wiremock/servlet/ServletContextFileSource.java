@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.servlet;
 
+import com.github.tomakehurst.wiremock.common.AbstractFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import jakarta.servlet.ServletContext;
 import java.io.File;
 

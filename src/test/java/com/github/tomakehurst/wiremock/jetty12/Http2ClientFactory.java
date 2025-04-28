@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty11;
+package com.github.tomakehurst.wiremock.jetty12;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import org.eclipse.jetty.client.HttpClient;

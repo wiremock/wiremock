@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty11;
+package com.github.tomakehurst.wiremock.jetty12;
 
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
