@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.jetty12.server;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
+import com.github.tomakehurst.wiremock.jetty12.JettySettings;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class CustomHttpServer extends Jetty12HttpServer {
