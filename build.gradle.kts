@@ -1,9 +1,6 @@
 import com.github.gundy.semver4j.model.Version
-import org.gradle.api.JavaVersion.VERSION_17
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
-import java.net.URI
 
 buildscript {
   repositories {
@@ -15,76 +12,47 @@ buildscript {
 }
 
 plugins {
-  id("java-library")
-  id("java-test-fixtures")
+  id("wiremock.common-conventions")
   id("scala")
-  id("signing")
-  id("maven-publish")
   alias(libs.plugins.nexus.publish)
   id("idea")
   id("eclipse")
   id("project-report")
-  alias(libs.plugins.spotless)
-  alias(libs.plugins.shadow)
-  alias(libs.plugins.sonarqube)
-  id("jacoco")
   alias(libs.plugins.jmh)
   alias(libs.plugins.task.tree)
 }
 
-group = "org.wiremock"
-
 val standaloneOnly: Configuration by configurations.creating
 
 dependencies {
-  api(libs.apache.http5.client)
-  api(libs.apache.http5.core)
-  api(libs.commons.fileupload)
-  api(libs.guava)
-  api(libs.handlebars)
+  api(project(":wiremock-common"))
+  api(project(":wiremock-jetty"))
+  testImplementation(libs.apache.http5.client)
+  testImplementation(libs.apache.http5.core)
+  testImplementation(libs.guava)
+  testImplementation(libs.handlebars)
 
-  api(platform(libs.jackson.bom))
-  api(libs.jackson.annotations)
-  api(libs.jackson.core)
-  api(libs.jackson.databind)
+  testImplementation(platform(libs.jackson.bom))
+  testImplementation(libs.jackson.annotations)
 
-  api(libs.jakarta.servlet.api)
+  testImplementation(libs.jakarta.servlet.api)
 
-  api(platform(libs.jetty.bom))
-  api(platform(libs.jetty.ee10.bom))
-  api(libs.jetty.ee10.servlet)
-  api(libs.jetty.io)
-  api(libs.jetty.server)
-  api(libs.jetty.util)
-  api(libs.json.schema.validator)
-  api(libs.json.unit.core)
+  testImplementation(platform(libs.jetty.bom))
+  testImplementation(platform(libs.jetty.ee10.bom))
+  testImplementation(libs.jetty.ee10.servlet)
+  testImplementation(libs.jetty.io)
+  testImplementation(libs.jetty.server)
+  testImplementation(libs.jetty.util)
+  testImplementation(libs.json.schema.validator)
 
-  api(libs.xmlunit.core)
+  testImplementation(libs.xmlunit.core)
 
-  implementation(libs.handlebars.helpers) {
-    // Excluded in 75bd657e99321ee5c32667d17f56d74438583d6a / https://github.com/wiremock/wiremock/pull/2622
-    // Means calling NumberHelper.registerHelper or static NumberHelper.register would fail, but we never call them
-    exclude(group = "org.apache.commons", module = "commons-lang3")
-  }
-  implementation(libs.jackson.datatype.jsr310)
-  implementation(libs.jetty.alpn.server)
-  implementation(libs.jetty.ee10.servlets)
-  implementation(libs.jetty.http)
-  implementation(libs.jetty.http2.common)
-  implementation(libs.jetty.http2.server)
   implementation(libs.jopt.simple)
-  implementation(libs.json.path) {
+  testImplementation(libs.json.path) {
     // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
-  implementation(libs.slf4j.api)
-  // Can we stop using xmlunit-legacy? It is only used in
-  // com.github.tomakehurst.wiremock.common.xml.Xml.optimizeFactoriesLoading
-  implementation(libs.xmlunit.legacy) {
-    // Excluded because we do not want junit on the classpath, users should provide it themselves
-    exclude(group = "junit", module = "junit")
-  }
-  implementation(libs.xmlunit.placeholders)
+  testImplementation(libs.slf4j.api)
 
   // We do not want JUnit on the classpath, users should provide it themselves
   compileOnly(libs.junit4)
@@ -92,9 +60,9 @@ dependencies {
   compileOnly(libs.junit.jupiter.api)
   compileOnly(libs.junit.platform.commons)
 
-  runtimeOnly(libs.jetty.alpn.java.server)
-
   add("standaloneOnly", libs.slf4j.nop)
+
+  testFixturesApi(project(":wiremock-common"))
 
   testFixturesApi(libs.apache.http5.client)
   testFixturesApi(libs.apache.http5.core)
@@ -108,14 +76,17 @@ dependencies {
   testFixturesImplementation(platform(libs.junit.bom))
   testFixturesImplementation(libs.junit.jupiter.api)
   testFixturesImplementation(libs.mockito.core)
+  testFixturesImplementation(libs.xmlunit.core)
 
   testImplementation(libs.android.json)
   testImplementation(libs.archunit)
   testImplementation(libs.archunit.junit5.api)
   testImplementation(libs.assertj.core)
   testImplementation(libs.awaitility)
+  testImplementation(libs.jackson.databind)
   testImplementation(libs.jetty.client)
   testImplementation(libs.jetty.ee10.webapp)
+  testImplementation(libs.jetty.http)
   testImplementation(libs.jetty.http2.client)
   testImplementation(libs.jetty.http2.client.transport)
   testImplementation(libs.jmh.core)
@@ -189,145 +160,6 @@ dependencies {
   }
 }
 
-val runningOnCI = System.getenv("CI") == "true"
-
-val pomInfo: MavenPom.() -> Unit = {
-  name.set("WireMock")
-  url.set("https://wiremock.org")
-  scm {
-    connection.set("https://github.com/wiremock/wiremock.git")
-    developerConnection.set("https://github.com/wiremock/wiremock.git")
-    url.set("https://github.com/wiremock/wiremock")
-  }
-  licenses {
-    license {
-      name.set("The Apache Software License, Version 2.0")
-      url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-      distribution.set("repo")
-    }
-  }
-  developers {
-    developer {
-      id.set("tomakehurst")
-      name.set("Tom Akehurst")
-    }
-  }
-}
-
-allprojects {
-  apply(plugin = "com.diffplug.spotless")
-  spotless {
-    java {
-      target("src/**/*.java")
-      googleJavaFormat("1.17.0")
-      licenseHeaderFile("$rootDir/gradle/spotless.java.license.txt")
-      ratchetFrom("origin/master")
-      trimTrailingWhitespace()
-      endWithNewline()
-      targetExclude("**/Tmp*.java")
-    }
-    kotlinGradle {
-      target("**/*.gradle.kts")
-      indentWithSpaces(2)
-      trimTrailingWhitespace()
-      endWithNewline()
-    }
-    groovyGradle {
-      target("**/*.gradle")
-      greclipse()
-      indentWithSpaces(2)
-      trimTrailingWhitespace()
-      endWithNewline()
-    }
-    json {
-      target("src/**/*.json")
-      targetExclude(
-        "**/tmp*.json",
-        "src/test/resources/sample.json",
-        "src/main/resources/swagger/*.json",
-        "src/test/resources/filesource/subdir/deepfile.json",
-        "src/test/resources/schema-validation/*.json",
-        "src/test/resources/test-file-root/mappings/testjsonmapping.json",
-        "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
-      )
-      simple().indentWithSpaces(2)
-    }
-  }
-
-  tasks.withType<AbstractArchiveTask>().configureEach {
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-  }
-
-  repositories {
-    mavenCentral()
-  }
-
-  version = "4.0.0-beta.2"
-
-  tasks {
-
-    compileJava {
-      options.encoding = "UTF-8"
-      options.compilerArgs.addAll(
-        listOf(
-          "-XDenableSunApiLintControl",
-          "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-        )
-      )
-    }
-
-    compileTestJava {
-      options.encoding = "UTF-8"
-      options.compilerArgs.addAll(
-        listOf(
-          "-XDenableSunApiLintControl",
-          "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-        )
-      )
-    }
-
-    compileTestFixturesJava {
-      options.encoding = "UTF-8"
-    }
-
-    test {
-      // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-      systemProperty("user.timezone", "Australia/Sydney")
-
-      useJUnitPlatform()
-      exclude("ignored/**")
-
-      maxParallelForks = if (runningOnCI) 1 else 3
-
-      testLogging {
-        events("FAILED", "SKIPPED")
-        exceptionFormat = FULL
-      }
-
-      finalizedBy(jacocoTestReport)
-    }
-
-    jacocoTestReport {
-      reports {
-        xml.required = true
-      }
-    }
-
-    sonarqube {
-      properties {
-        property( "sonar.projectKey", "wiremock_wiremock")
-        property( "sonar.organization", "wiremock")
-        property( "sonar.host.url", "https://sonarcloud.io")
-      }
-    }
-
-    shadowJar {
-      dependsOn(jar)
-    }
-  }
-}
-
 tasks {
   check {
     dependsOn(buildHealth)
@@ -339,13 +171,6 @@ tasks.test {
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 }
 
-java {
-  sourceCompatibility = VERSION_17
-  targetCompatibility = VERSION_17
-  withSourcesJar()
-  withJavadocJar()
-}
-
 val testJar by tasks.registering(Jar::class) {
   archiveClassifier.set("tests")
   from(sourceSets.test.get().output)
@@ -355,9 +180,6 @@ tasks.jar {
   archiveBaseName.set("wiremock")
   manifest {
     attributes("Main-Class" to "wiremock.Run")
-    attributes("Add-Exports" to "java.base/sun.security.x509")
-    attributes("Implementation-Version" to project.version)
-    attributes("Implementation-Title" to "WireMock")
   }
 }
 
@@ -412,44 +234,7 @@ tasks.shadowJar {
   exclude("handlebars-*.js")
 }
 
-tasks.javadoc {
-  exclude("**/CertificateAuthority.java")
-  options.quiet()
-  (options as StandardJavadocDocletOptions)
-    .addBooleanOption("Xdoclint:none", true)
-}
-
-signing {
-  isRequired = !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
-  val signingKey = providers.environmentVariable("OSSRH_GPG_SECRET_KEY").orElse("").get()
-  val signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
-  if (signingKey.isNotEmpty() && signingPassphrase.isNotEmpty()) {
-    useInMemoryPgpKeys(signingKey, signingPassphrase)
-  }
-  sign(publishing.publications)
-}
-
 publishing {
-  repositories {
-    maven {
-      name = "GitHubPackages"
-      url = URI.create("https://maven.pkg.github.com/wiremock/wiremock")
-      credentials {
-        username = System.getenv("GITHUB_ACTOR")
-        password = System.getenv("GITHUB_TOKEN")
-      }
-    }
-  }
-
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
-
-  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
-    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-      skip()
-    }
-  }
-
   publications {
     create<MavenPublication>("mavenJava") {
       artifactId = tasks.jar.get().archiveBaseName.get()
@@ -457,8 +242,8 @@ publishing {
       artifact(testJar)
 
       pom {
-        description.set("A web service test double for all occasions")
-        pomInfo()
+        name = "WireMock"
+        description = "A web service test double for all occasions"
       }
     }
 
@@ -472,8 +257,8 @@ publishing {
 
       pom.packaging = "jar"
       pom {
-        description.set("A web service test double for all occasions - standalone edition")
-        pomInfo()
+        name = "WireMock"
+        description = "A web service test double for all occasions - standalone edition"
       }
     }
   }
@@ -539,11 +324,11 @@ tasks.register("localRelease") {
 fun updateFiles(currentVersion: String, nextVersion: String) {
 
   val filesWithVersion: Map<String, (String) -> String> = mapOf(
-    "build.gradle.kts"                                   to { "version = \"${it}\"" },
-    "ui/package.json"                                    to { "\"version\": \"${it}\"" },
-    "src/main/resources/version.properties"              to { "version=${it}" },
-    "src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
-    "src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" }
+    "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts" to { "version = \"${it}\"" },
+    "ui/package.json"                                                 to { "\"version\": \"${it}\"" },
+    "src/main/resources/version.properties"                           to { "version=${it}" },
+    "src/main/resources/swagger/wiremock-admin-api.json"              to { "\"version\": \"${it}\"" },
+    "src/main/resources/swagger/wiremock-admin-api.yaml"              to { "version: $it" },
   )
 
   filesWithVersion.forEach { (fileName, lineWithVersionTemplates) ->
@@ -662,6 +447,14 @@ dependencyAnalysis {
       }
       onDuplicateClassWarnings {
         severity("fail")
+      }
+    }
+    project(project.path) {
+      onAny {
+        exclude(
+          ":wiremock-jetty",
+          ":wiremock-common",
+        )
       }
     }
   }

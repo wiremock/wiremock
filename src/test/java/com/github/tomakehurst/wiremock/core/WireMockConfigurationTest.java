@@ -21,46 +21,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class WireMockConfigurationTest {
-
-  @Test
-  public void testJettyStopTimeout() {
-    Long expectedStopTimeout = 500L;
-    WireMockConfiguration wireMockConfiguration =
-        WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
-    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
-
-    assertThat(jettyStopTimeout.isPresent(), is(true));
-    assertThat(jettyStopTimeout.get(), is(expectedStopTimeout));
-  }
-
-  @Test
-  public void testJettyStopTimeoutNotSet() {
-    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
-    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
-    assertThat(jettyStopTimeout.isPresent(), is(false));
-  }
-
-  @Test
-  public void testJettyIdleTimeout() {
-    Long expectedIdleTimeout = 500L;
-    WireMockConfiguration wireMockConfiguration =
-        WireMockConfiguration.wireMockConfig().jettyIdleTimeout(expectedIdleTimeout);
-    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
-
-    assertThat(jettyIdleTimeout.isPresent(), is(true));
-    assertThat(jettyIdleTimeout.get(), is(expectedIdleTimeout));
-  }
-
-  @Test
-  public void testJettyIdleTimeoutNotSet() {
-    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
-    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
-    assertThat(jettyIdleTimeout.isPresent(), is(false));
-  }
 
   @Test
   public void testProxyPassThroughSetAsFalse() {
