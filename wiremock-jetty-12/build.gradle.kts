@@ -61,7 +61,7 @@ dependencies {
 }
 
 tasks.jar {
-    archiveBaseName.set("wiremock-jetty")
+    archiveBaseName.set("wiremock-jetty-12")
 }
 
 publishing {
