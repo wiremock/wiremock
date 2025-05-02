@@ -29,7 +29,7 @@ java {
 
 tasks.jar {
   manifest {
-    attributes("Add-Exports" to "java.base/sun.security.x509")
+    attributes("Add-Exports" to "java.base/sun.security.x509 java.base/sun.security.util")
     attributes("Implementation-Version" to project.version)
     attributes("Implementation-Title" to "WireMock")
   }
@@ -44,7 +44,8 @@ tasks {
     options.compilerArgs.addAll(
       listOf(
         "-XDenableSunApiLintControl",
-        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
+        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
+        "--add-exports=java.base/sun.security.util=ALL-UNNAMED"
       )
     )
   }
@@ -54,7 +55,8 @@ tasks {
     options.compilerArgs.addAll(
       listOf(
         "-XDenableSunApiLintControl",
-        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
+        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
+        "--add-exports=java.base/sun.security.util=ALL-UNNAMED"
       )
     )
   }

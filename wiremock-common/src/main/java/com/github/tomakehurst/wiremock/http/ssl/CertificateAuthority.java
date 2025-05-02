@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -26,7 +25,9 @@ import java.security.cert.X509Certificate;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Vector;
 import javax.net.ssl.SNIHostName;
+import sun.security.util.ObjectIdentifier;
 import sun.security.x509.*;
 
 @SuppressWarnings("sunapi")
@@ -56,7 +57,7 @@ public class CertificateAuthority {
               ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(10),
               pair.getPublic(),
-              certificateAuthorityExtensions(pair.getPublic()));
+              certificateAuthorityExtensions(new KeyIdentifier(pair.getPublic())));
 
       X509CertImpl certificate = selfSign(info, pair.getPrivate(), sigAlg, subjectName);
 
@@ -90,30 +91,28 @@ public class CertificateAuthority {
     return certificate;
   }
 
-  private static CertificateExtensions certificateAuthorityExtensions(PublicKey publicKey) {
-    try {
-      KeyIdentifier keyId = new KeyIdentifier(publicKey);
-      byte[] keyIdBytes = keyId.getIdentifier();
-      CertificateExtensions extensions = new CertificateExtensions();
-      extensions.set(
-          AuthorityKeyIdentifierExtension.NAME,
-          new AuthorityKeyIdentifierExtension(keyId, null, null));
+  private static CertificateExtensions certificateAuthorityExtensions(KeyIdentifier keyId)
+      throws IOException {
+    CertificateExtensions extensions = new CertificateExtensions();
 
-      extensions.set(
-          BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
+    extensions.set(
+        AuthorityKeyIdentifierExtension.NAME,
+        new AuthorityKeyIdentifierExtension(keyId, null, null));
+    extensions.set(
+        BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
+    extensions.set(KeyUsageExtension.NAME, certificateAuthorityKeyUsageExtension());
+    extensions.set(
+        SubjectKeyIdentifierExtension.NAME,
+        new SubjectKeyIdentifierExtension(keyId.getIdentifier()));
 
-      KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
-      keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
-      keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
-      extensions.set(KeyUsageExtension.NAME, keyUsage);
+    return extensions;
+  }
 
-      extensions.set(
-          SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
-
-      return extensions;
-    } catch (IOException e) {
-      return throwUnchecked(e, null);
-    }
+  private static KeyUsageExtension certificateAuthorityKeyUsageExtension() throws IOException {
+    KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
+    keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
+    keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
+    return keyUsage;
   }
 
   public X509Certificate[] certificateChain() {
@@ -136,7 +135,7 @@ public class CertificateAuthority {
               ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(1),
               pair.getPublic(),
-              subjectAlternativeName(hostName));
+              certificateExtensions(hostName));
 
       X509CertImpl certificate = sign(info);
 
@@ -204,28 +203,36 @@ public class CertificateAuthority {
     return info;
   }
 
-  private static CertificateExtensions subjectAlternativeName(SNIHostName hostName) {
-    GeneralName name = new GeneralName(dnsName(hostName));
-    GeneralNames names = new GeneralNames();
-    names.add(name);
-    try {
-      CertificateExtensions extensions = new CertificateExtensions();
-      extensions.set(
-          SubjectAlternativeNameExtension.NAME, new SubjectAlternativeNameExtension(names));
-      return extensions;
-    } catch (IOException e) {
-      // it's an in memory op, should be impossible...
-      return throwUnchecked(e, null);
-    }
+  private static CertificateExtensions certificateExtensions(SNIHostName hostName)
+      throws IOException {
+    CertificateExtensions extensions = new CertificateExtensions();
+
+    extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension(hostName));
+    extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(false, -1));
+    extensions.set(KeyUsageExtension.NAME, certificateKeyUsageExtension());
+    extensions.set(ExtendedKeyUsageExtension.NAME, extendedKeyUsageExtension());
+
+    return extensions;
   }
 
-  private static DNSName dnsName(SNIHostName name) {
-    try {
-      return new DNSName(name.getAsciiName());
-    } catch (IOException e) {
-      // DNSName throws IOException for a parse error (which isn't an IO problem...)
-      // An SNIHostName should be guaranteed not to have a parse issue
-      return throwUnchecked(e, null);
-    }
+  private static KeyUsageExtension certificateKeyUsageExtension() throws IOException {
+    boolean[] keyUsage = new boolean[9];
+    keyUsage[0] = true; // digitalSignature
+    keyUsage[2] = true; // keyEncipherment
+    return new KeyUsageExtension(keyUsage);
+  }
+
+  private static ExtendedKeyUsageExtension extendedKeyUsageExtension() throws IOException {
+    Vector<ObjectIdentifier> extendedUsages = new Vector<>();
+    extendedUsages.add(ObjectIdentifier.of("1.3.6.1.5.5.7.3.1")); // TLS Web Server Authentication
+    return new ExtendedKeyUsageExtension(extendedUsages);
+  }
+
+  private static SubjectAlternativeNameExtension subjectAlternativeNameExtension(
+      SNIHostName hostName) throws IOException {
+    GeneralName name = new GeneralName(new DNSName(hostName.getAsciiName()));
+    GeneralNames names = new GeneralNames();
+    names.add(name);
+    return new SubjectAlternativeNameExtension(names);
   }
 }
