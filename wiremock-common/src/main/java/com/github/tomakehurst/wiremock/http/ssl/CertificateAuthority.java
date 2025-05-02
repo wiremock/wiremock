@@ -48,16 +48,17 @@ public class CertificateAuthority {
     try {
       KeyPair pair = generateKeyPair("RSA");
       String sigAlg = "SHA256WithRSA";
+      X500Name subjectName = new X500Name("CN=" + "WireMock Local Self Signed Root Certificate");
       X509CertInfo info =
           makeX509CertInfo(
               sigAlg,
-              "WireMock Local Self Signed Root Certificate",
+              subjectName,
               ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(10),
               pair.getPublic(),
               certificateAuthorityExtensions(pair.getPublic()));
 
-      X509CertImpl certificate = selfSign(info, pair.getPrivate(), sigAlg);
+      X509CertImpl certificate = selfSign(info, pair.getPrivate(), sigAlg, subjectName);
 
       return new CertificateAuthority(new X509Certificate[] {certificate}, pair.getPrivate());
     } catch (NoSuchAlgorithmException
@@ -75,12 +76,15 @@ public class CertificateAuthority {
     }
   }
 
-  private static X509CertImpl selfSign(X509CertInfo info, PrivateKey privateKey, String sigAlg)
+  private static X509CertImpl selfSign(
+      X509CertInfo info, PrivateKey privateKey, String sigAlg, X500Name subjectName)
       throws CertificateException,
           NoSuchAlgorithmException,
           InvalidKeyException,
           NoSuchProviderException,
-          SignatureException {
+          SignatureException,
+          IOException {
+    info.set(X509CertInfo.ISSUER, subjectName);
     X509CertImpl certificate = new X509CertImpl(info);
     certificate.sign(privateKey, sigAlg);
     return certificate;
@@ -128,7 +132,7 @@ public class CertificateAuthority {
       X509CertInfo info =
           makeX509CertInfo(
               sigAlg,
-              hostName.getAsciiName(),
+              new X500Name("CN=" + hostName.getAsciiName()),
               ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(1),
               pair.getPublic(),
@@ -176,7 +180,7 @@ public class CertificateAuthority {
 
   private static X509CertInfo makeX509CertInfo(
       String sigAlg,
-      String subjectName,
+      X500Name subjectName,
       ZonedDateTime start,
       Period validity,
       PublicKey publicKey,
@@ -184,7 +188,6 @@ public class CertificateAuthority {
       throws IOException, CertificateException, NoSuchAlgorithmException {
     ZonedDateTime end = start.plus(validity);
 
-    X500Name myname = new X500Name("CN=" + subjectName);
     X509CertInfo info = new X509CertInfo();
     // Add all mandatory attributes
     info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
@@ -192,12 +195,11 @@ public class CertificateAuthority {
         X509CertInfo.SERIAL_NUMBER,
         new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
     info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(sigAlg)));
-    info.set(X509CertInfo.SUBJECT, myname);
+    info.set(X509CertInfo.SUBJECT, subjectName);
     info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
     info.set(
         X509CertInfo.VALIDITY,
         new CertificateValidity(Date.from(start.toInstant()), Date.from(end.toInstant())));
-    info.set(X509CertInfo.ISSUER, myname);
     info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
     return info;
   }
