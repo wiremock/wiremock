@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package com.github.tomakehurst.wiremock.testsupport;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.ParameterUtils;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-/**
- * Base class for stub mapping transformer extensions. This allows transforming stub mappings
- * recorded via the snapshot and recording API endpoints.
- */
-public abstract class StubMappingTransformer implements Extension {
-  public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-    throw new UnsupportedOperationException();
-  }
-
+public class StubMappingTransformerWithServeEvent extends StubMappingTransformer {
+  @Override
   public StubMapping transform(
       StubMapping stubMapping, FileSource files, Parameters parameters, ServeEvent serveEvent) {
-    return transform(stubMapping, files, parameters);
+    return WireMock.get(
+            urlEqualTo(
+                ParameterUtils.getFirstNonNull(
+                        stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath())
+                    + "?transformed="
+                    + serveEvent.getRequest().queryParameter("some-query").firstValue()))
+        .build();
   }
 
-  public boolean applyGlobally() {
-    return true;
+  @Override
+  public String getName() {
+    return "stub-transformer-with-serve-event";
   }
 }

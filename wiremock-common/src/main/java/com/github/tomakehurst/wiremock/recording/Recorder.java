@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -129,10 +130,10 @@ public class Recorder {
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
       SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
-    final List<StubMapping> stubMappings =
+    final List<Pair<ServeEvent, StubMapping>> stubMappings =
         serveEventsResult.stream()
             .filter(serveEventFilters)
-            .map(stubMappingGenerator)
+            .map((serveEvent) -> new Pair<>(serveEvent, stubMappingGenerator.apply(serveEvent)))
             .collect(Collectors.toList());
 
     return stubMappingPostProcessor.process(stubMappings);
