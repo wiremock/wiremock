@@ -28,6 +28,9 @@ public abstract class StubMappingTransformer implements Extension {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param serveEvent The original recorded serve event used to generate the stub mapping.
+   */
   public StubMapping transform(
       StubMapping stubMapping, FileSource files, Parameters parameters, ServeEvent serveEvent) {
     return transform(stubMapping, files, parameters);
