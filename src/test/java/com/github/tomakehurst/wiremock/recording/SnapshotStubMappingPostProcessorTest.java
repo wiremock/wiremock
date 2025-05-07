@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -22,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -36,11 +39,17 @@ public class SnapshotStubMappingPostProcessorTest {
       List.of(
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 
+  private final List<Pair<ServeEvent, StubMapping>> testServeEventsToStubMappings =
+      List.of(
+          new Pair<>(ServeEvent.of(mockRequest()), testStubMappings.get(0)),
+          new Pair<>(ServeEvent.of(mockRequest()), testStubMappings.get(1)),
+          new Pair<>(ServeEvent.of(mockRequest()), testStubMappings.get(2)));
+
   @Test
   public void processWithRecordRepeatsAsScenariosFalseShouldFilterRepeatedRequests() {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, noopTransformerRunner(), null, null)
-            .process(testStubMappings);
+            .process(testServeEventsToStubMappings);
 
     assertThat(actual, hasSize(2));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo"));
@@ -52,9 +61,9 @@ public class SnapshotStubMappingPostProcessorTest {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
-          public StubMapping apply(StubMapping stubMapping) {
+          public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
-            String url = stubMapping.getRequest().getUrl();
+            String url = serveEventToStubMapping.b.getRequest().getUrl();
             return new StubMapping(
                 newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
           }
@@ -62,7 +71,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, transformerRunner, null, null)
-            .process(testStubMappings);
+            .process(testServeEventsToStubMappings);
 
     assertThat(actual, hasSize(2));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
@@ -75,9 +84,9 @@ public class SnapshotStubMappingPostProcessorTest {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
-          public StubMapping apply(StubMapping stubMapping) {
+          public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
-            String url = stubMapping.getRequest().getUrl();
+            String url = serveEventToStubMapping.b.getRequest().getUrl();
             return new StubMapping(
                 newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
           }
@@ -85,7 +94,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(true, transformerRunner, null, null)
-            .process(testStubMappings);
+            .process(testServeEventsToStubMappings);
 
     assertThat(actual, hasSize(3));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
@@ -121,7 +130,7 @@ public class SnapshotStubMappingPostProcessorTest {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(
                 false, noopTransformerRunner(), bodyMatcher, bodyExtractor)
-            .process(testStubMappings);
+            .process(testServeEventsToStubMappings);
 
     assertThat(actual, hasSize(2));
     // Should've only modified second stub mapping
@@ -132,8 +141,8 @@ public class SnapshotStubMappingPostProcessorTest {
   private static SnapshotStubMappingTransformerRunner noopTransformerRunner() {
     return new SnapshotStubMappingTransformerRunner(null) {
       @Override
-      public StubMapping apply(StubMapping stubMapping) {
-        return stubMapping;
+      public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+        return serveEventToStubMapping.b;
       }
     };
   }

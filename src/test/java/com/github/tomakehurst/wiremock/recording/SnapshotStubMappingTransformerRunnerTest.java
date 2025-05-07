@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Pair;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingTransformerRunnerTest {
   private final StubMapping stubMapping = WireMock.get("/").build();
+  private final ServeEvent serveEvent =
+      ServeEvent.of(mockRequest().url("/whatever?some-query=my-value"));
 
   @Test
   public void applyWithNoTransformers() {
-    StubMapping result = new SnapshotStubMappingTransformerRunner(List.of()).apply(stubMapping);
+    StubMapping result =
+        new SnapshotStubMappingTransformerRunner(List.of())
+            .apply(new Pair<>(serveEvent, stubMapping));
 
     assertEquals(stubMapping, result);
   }
@@ -39,7 +47,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
     // Should not apply the transformer as it isn't registered
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(List.of(new NonGlobalStubMappingTransformer()))
-            .apply(stubMapping);
+            .apply(new Pair<>(serveEvent, stubMapping));
 
     assertEquals(stubMapping, result);
   }
@@ -52,7 +60,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
                 List.of("nonglobal-transformer"),
                 null,
                 null)
-            .apply(stubMapping);
+            .apply(new Pair<>(serveEvent, stubMapping));
 
     assertEquals("/?transformed=nonglobal", result.getRequest().getUrl());
   }
@@ -61,8 +69,18 @@ public class SnapshotStubMappingTransformerRunnerTest {
   public void applyWithGlobalTransformer() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(List.of(new GlobalStubMappingTransformer()))
-            .apply(stubMapping);
+            .apply(new Pair<>(serveEvent, stubMapping));
 
     assertEquals("/?transformed=global", result.getRequest().getUrl());
+  }
+
+  @Test
+  public void providesServeEventToTransformer() {
+    StubMapping result =
+        new SnapshotStubMappingTransformerRunner(
+                List.of(new StubMappingTransformerWithServeEvent()))
+            .apply(new Pair<>(serveEvent, stubMapping));
+
+    assertEquals("/?transformed=my-value", result.getRequest().getUrl());
   }
 }

@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.function.Function;
@@ -27,13 +29,9 @@ import java.util.function.Function;
 /**
  * Applies all registered StubMappingTransformer extensions against a stub mapping when applicable,
  * passing them any supplied Parameters.
- *
- * @deprecated This class will become non-public in the next major version. If you rely on it,
- *     please contact the maintainers.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-@Deprecated(forRemoval = true)
-public class SnapshotStubMappingTransformerRunner implements Function<StubMapping, StubMapping> {
+public class SnapshotStubMappingTransformerRunner
+    implements Function<Pair<ServeEvent, StubMapping>, StubMapping> {
   private final FileSource filesRoot;
   private final Parameters parameters;
   private final Iterable<StubMappingTransformer> registeredTransformers;
@@ -56,12 +54,14 @@ public class SnapshotStubMappingTransformerRunner implements Function<StubMappin
   }
 
   @Override
-  public StubMapping apply(StubMapping stubMapping) {
+  public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+    StubMapping stubMapping = serveEventToStubMapping.b;
     for (StubMappingTransformer transformer : registeredTransformers) {
       if (transformer.applyGlobally()
           || (requestedTransformers != null
               && requestedTransformers.contains(transformer.getName()))) {
-        stubMapping = transformer.transform(stubMapping, filesRoot, parameters);
+        stubMapping =
+            transformer.transform(stubMapping, filesRoot, parameters, serveEventToStubMapping.a);
       }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.UUID;
@@ -461,6 +462,55 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         proxyingTestClient.snapshot(NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST),
         equalToJson(NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER));
+  }
+
+  private static final String TRANSFORMED_STUB_MAPPING_REQUEST_WITH_SERVE_EVENT =
+      "{                                    \n"
+          + "    \"outputFormat\": \"full\",      \n"
+          + "    \"persist\": \"false\",          \n"
+          + "    \"transformers\": [              \n"
+          + "       \"stub-transformer-with-serve-event\"     \n"
+          + "    ]                                \n"
+          + "}                                      ";
+
+  private static final String TRANSFORMED_STUB_MAPPING_RESPONSE_WITH_SERVE_EVENT =
+      "{                                                           \n"
+          + "    \"mappings\": [                                         \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/foo?transformed=first-value\", \n"
+          + "                \"method\" : \"GET\"                        \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        },                                                   \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/?transformed=value-2\",        \n"
+          + "                \"method\" : \"GET\"                        \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                  \n"
+          + "    ]                                                       \n"
+          + "}                                                             ";
+
+  @Test
+  public void returnsTransformedStubMappingWithTransformerWithServeEvent() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithServeEvent.class));
+
+    proxyingTestClient.get("/?some-query=value-2");
+    proxyingTestClient.get("/foo?some-query=first-value");
+
+    assertThat(
+        proxyingTestClient.snapshot(TRANSFORMED_STUB_MAPPING_REQUEST_WITH_SERVE_EVENT),
+        equalToJson(
+            TRANSFORMED_STUB_MAPPING_RESPONSE_WITH_SERVE_EVENT, JSONCompareMode.STRICT_ORDER));
   }
 
   private static final String RECORD_WITH_CAPTURE_HEADERS_SNAPSHOT_REQUEST_TEMPLATE =

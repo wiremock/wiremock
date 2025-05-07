@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -134,11 +135,11 @@ public class Recorder {
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
-      @SuppressWarnings("removal") SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
-    final List<StubMapping> stubMappings =
+      SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
+    final List<Pair<ServeEvent, StubMapping>> stubMappings =
         serveEventsResult.stream()
             .filter(serveEventFilters)
-            .map(stubMappingGenerator)
+            .map((serveEvent) -> new Pair<>(serveEvent, stubMappingGenerator.apply(serveEvent)))
             .collect(Collectors.toList());
 
     //noinspection removal
