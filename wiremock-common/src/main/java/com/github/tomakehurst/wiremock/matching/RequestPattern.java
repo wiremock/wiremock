@@ -554,10 +554,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && Objects.equals(scheme, that.scheme)
         && Objects.equals(host, that.host)
         && Objects.equals(port, that.port)
+        && Objects.equals(clientIp, that.clientIp)
         && Objects.equals(url, that.url)
         && Objects.equals(method, that.method)
         && Objects.equals(headers, that.headers)
+        && Objects.equals(pathParams, that.pathParams)
         && Objects.equals(queryParams, that.queryParams)
+        && Objects.equals(formParams, that.formParams)
         && Objects.equals(cookies, that.cookies)
         && Objects.equals(basicAuthCredentials, that.basicAuthCredentials)
         && Objects.equals(bodyPatterns, that.bodyPatterns)
@@ -572,10 +575,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         scheme,
         host,
         port,
+        clientIp,
         url,
         method,
         headers,
+        pathParams,
         queryParams,
+        formParams,
         cookies,
         basicAuthCredentials,
         bodyPatterns,
