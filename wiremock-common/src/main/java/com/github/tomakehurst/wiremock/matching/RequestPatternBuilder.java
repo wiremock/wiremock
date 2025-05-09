@@ -266,6 +266,21 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder clearQueryParams() {
+    queryParams.clear();
+    return this;
+  }
+
+  public RequestPatternBuilder clearFormParams() {
+    formParams.clear();
+    return this;
+  }
+
+  public RequestPatternBuilder clearBodyPatterns() {
+    bodyPatterns.clear();
+    return this;
+  }
+
   public RequestPattern build() {
     if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
       throw new InvalidInputException(
