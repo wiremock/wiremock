@@ -57,9 +57,10 @@ public class SnapshotStubMappingTransformerRunner
   public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
     StubMapping stubMapping = serveEventToStubMapping.b;
     for (StubMappingTransformer transformer : registeredTransformers) {
-      if (transformer.applyGlobally()
-          || (requestedTransformers != null
-              && requestedTransformers.contains(transformer.getName()))) {
+      if (stubMapping != null
+          && (transformer.applyGlobally()
+              || (requestedTransformers != null
+                  && requestedTransformers.contains(transformer.getName())))) {
         stubMapping =
             transformer.transform(stubMapping, filesRoot, parameters, serveEventToStubMapping.a);
       }
