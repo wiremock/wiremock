@@ -23,7 +23,7 @@ jobs:
 
       - name: Publish core package
         id: publish_package
-        run: ./gradlew :publish :closeAndReleaseStagingRepositories --stacktrace
+        run: ./gradlew publish closeAndReleaseStagingRepositories --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
