@@ -23,6 +23,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
@@ -53,7 +54,7 @@ public class SnapshotStubMappingPostProcessor {
   public List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
     // 1. Run any applicable StubMappingTransformers against the stub mappings.
     List<StubMapping> transformedStubMappings =
-        serveEventsToStubMappings.stream().map(transformerRunner).toList();
+        serveEventsToStubMappings.stream().map(transformerRunner).filter(Objects::nonNull).toList();
 
     // 2. Detect duplicate requests and either discard them or turn them into scenarios.
     Multiset<RequestPattern> requestCounts = HashMultiset.create();
