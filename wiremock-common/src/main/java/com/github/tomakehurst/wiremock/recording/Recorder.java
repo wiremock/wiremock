@@ -125,13 +125,7 @@ public class Recorder {
     return recordSpec.getOutputFormat().format(stubMappings);
   }
 
-  /**
-   * @deprecated This method will become non-public in the next major version. If you rely on it,
-   *     please contact the maintainers.
-   */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated(forRemoval = true)
-  public List<StubMapping> serveEventsToStubMappings(
+  private List<StubMapping> serveEventsToStubMappings(
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
@@ -142,17 +136,10 @@ public class Recorder {
             .map((serveEvent) -> new Pair<>(serveEvent, stubMappingGenerator.apply(serveEvent)))
             .collect(Collectors.toList());
 
-    //noinspection removal
     return stubMappingPostProcessor.process(stubMappings);
   }
 
-  /**
-   * @deprecated This method will become non-public in the next major version. If you rely on it,
-   *     please contact the maintainers.
-   */
-  @SuppressWarnings({"DeprecatedIsStillUsed", "removal"})
-  @Deprecated(forRemoval = true)
-  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
+  private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
             extensions.ofType(StubMappingTransformer.class).values(),

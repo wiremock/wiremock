@@ -33,24 +33,16 @@ import java.util.Objects;
  *   <li>Detect duplicate requests and either discard them or turn them into scenarios.
  *   <li>Extract response bodies to a separate file, if applicable.
  * </ol>
- *
- * @deprecated This class will become non-public in the next major version. If you rely on it,
- *     please contact the maintainers.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-@Deprecated(forRemoval = true)
-public class SnapshotStubMappingPostProcessor {
+class SnapshotStubMappingPostProcessor {
   private final boolean shouldRecordRepeatsAsScenarios;
-
-  @SuppressWarnings("removal")
   private final SnapshotStubMappingTransformerRunner transformerRunner;
-
   private final ResponseDefinitionBodyMatcher bodyExtractMatcher;
   private final SnapshotStubMappingBodyExtractor bodyExtractor;
 
-  public SnapshotStubMappingPostProcessor(
+  SnapshotStubMappingPostProcessor(
       boolean shouldRecordRepeatsAsScenarios,
-      @SuppressWarnings("removal") SnapshotStubMappingTransformerRunner transformerRunner,
+      SnapshotStubMappingTransformerRunner transformerRunner,
       ResponseDefinitionBodyMatcher bodyExtractMatcher,
       SnapshotStubMappingBodyExtractor bodyExtractor) {
     this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
@@ -59,7 +51,7 @@ public class SnapshotStubMappingPostProcessor {
     this.bodyExtractor = bodyExtractor;
   }
 
-  public List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
+  List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
     // 1. Run any applicable StubMappingTransformers against the stub mappings.
     List<StubMapping> transformedStubMappings =
         serveEventsToStubMappings.stream().map(transformerRunner).filter(Objects::nonNull).toList();

@@ -30,19 +30,18 @@ import java.util.function.Function;
  * Applies all registered StubMappingTransformer extensions against a stub mapping when applicable,
  * passing them any supplied Parameters.
  */
-public class SnapshotStubMappingTransformerRunner
+class SnapshotStubMappingTransformerRunner
     implements Function<Pair<ServeEvent, StubMapping>, StubMapping> {
   private final FileSource filesRoot;
   private final Parameters parameters;
   private final Iterable<StubMappingTransformer> registeredTransformers;
   private final List<String> requestedTransformers;
 
-  public SnapshotStubMappingTransformerRunner(
-      Iterable<StubMappingTransformer> registeredTransformers) {
+  SnapshotStubMappingTransformerRunner(Iterable<StubMappingTransformer> registeredTransformers) {
     this(registeredTransformers, null, null, null);
   }
 
-  public SnapshotStubMappingTransformerRunner(
+  SnapshotStubMappingTransformerRunner(
       Iterable<StubMappingTransformer> registeredTransformers,
       List<String> requestedTransformers,
       Parameters parameters,
