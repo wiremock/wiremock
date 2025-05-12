@@ -49,7 +49,8 @@ public class SnapshotStubMappingPostProcessorTest {
   public void processWithRecordRepeatsAsScenariosFalseShouldFilterRepeatedRequests() {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, noopTransformerRunner(), null, null)
-            .process(testServeEventsToStubMappings);
+            .process(testServeEventsToStubMappings)
+            .b;
 
     assertThat(actual, hasSize(2));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo"));
@@ -61,17 +62,20 @@ public class SnapshotStubMappingPostProcessorTest {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
-          public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+          public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.getRequest().getUrl();
-            return new StubMapping(
-                newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
+            return new StubGenerationResult.Success(
+                new StubMapping(
+                    newRequestPattern().withUrl(url + "/transformed").build(),
+                    ResponseDefinition.ok()));
           }
         };
 
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, transformerRunner, null, null)
-            .process(testServeEventsToStubMappings);
+            .process(testServeEventsToStubMappings)
+            .b;
 
     assertThat(actual, hasSize(2));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
@@ -84,17 +88,20 @@ public class SnapshotStubMappingPostProcessorTest {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
-          public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+          public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.getRequest().getUrl();
-            return new StubMapping(
-                newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
+            return new StubGenerationResult.Success(
+                new StubMapping(
+                    newRequestPattern().withUrl(url + "/transformed").build(),
+                    ResponseDefinition.ok()));
           }
         };
 
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(true, transformerRunner, null, null)
-            .process(testServeEventsToStubMappings);
+            .process(testServeEventsToStubMappings)
+            .b;
 
     assertThat(actual, hasSize(3));
     assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
@@ -130,7 +137,8 @@ public class SnapshotStubMappingPostProcessorTest {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(
                 false, noopTransformerRunner(), bodyMatcher, bodyExtractor)
-            .process(testServeEventsToStubMappings);
+            .process(testServeEventsToStubMappings)
+            .b;
 
     assertThat(actual, hasSize(2));
     // Should've only modified second stub mapping
@@ -141,8 +149,8 @@ public class SnapshotStubMappingPostProcessorTest {
   private static SnapshotStubMappingTransformerRunner noopTransformerRunner() {
     return new SnapshotStubMappingTransformerRunner(null) {
       @Override
-      public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
-        return serveEventToStubMapping.b;
+      public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+        return new StubGenerationResult.Success(serveEventToStubMapping.b);
       }
     };
   }

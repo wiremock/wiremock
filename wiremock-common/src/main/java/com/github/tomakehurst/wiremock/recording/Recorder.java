@@ -107,7 +107,7 @@ public class Recorder {
   }
 
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
-    final List<StubMapping> stubMappings =
+    final Pair<List<RecordError>, List<StubMapping>> results =
         serveEventsToStubMappings(
             serveEvents,
             recordSpec.getFilters(),
@@ -115,17 +115,17 @@ public class Recorder {
                 recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
             getStubMappingPostProcessor(recordSpec));
 
-    for (StubMapping stubMapping : stubMappings) {
+    for (StubMapping stubMapping : results.b) {
       if (recordSpec.shouldPersist()) {
         stubMapping.setPersistent(true);
       }
       admin.addStubMapping(stubMapping);
     }
 
-    return recordSpec.getOutputFormat().format(stubMappings);
+    return recordSpec.getOutputFormat().format(results.b, results.a);
   }
 
-  private List<StubMapping> serveEventsToStubMappings(
+  private Pair<List<RecordError>, List<StubMapping>> serveEventsToStubMappings(
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,

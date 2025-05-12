@@ -16,33 +16,32 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.ParameterUtils;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.recording.StubGenerationResult;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class StubMappingTransformerWithServeEvent extends StubMappingTransformer {
+public class StubMappingTransformerWithFailure extends StubMappingTransformer {
   @Override
   public StubGenerationResult transform(
       StubMapping stubMapping, FileSource files, Parameters parameters, ServeEvent serveEvent) {
-    return new StubGenerationResult.Success(
-        WireMock.get(
-                urlEqualTo(
-                    ParameterUtils.getFirstNonNull(
-                            stubMapping.getRequest().getUrl(),
-                            stubMapping.getRequest().getUrlPath())
-                        + "?transformed="
-                        + serveEvent.getRequest().queryParameter("some-query").firstValue()))
-            .build());
+    if (serveEvent.getRequest().getMethod().equals(POST)) {
+      return new StubGenerationResult.Failure(
+          "POST " + serveEvent.getRequest().getUrl() + " not allowed");
+    } else {
+      return new StubGenerationResult.Success(
+          WireMock.get(urlEqualTo(stubMapping.getRequest().getUrl() + "?transformed=success"))
+              .build());
+    }
   }
 
   @Override
   public String getName() {
-    return "stub-transformer-with-serve-event";
+    return "stub-transformer-with-failure";
   }
 }

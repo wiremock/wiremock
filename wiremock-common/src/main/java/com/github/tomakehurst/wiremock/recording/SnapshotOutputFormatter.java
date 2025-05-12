@@ -20,21 +20,24 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 /** Wraps a list of generated StubMappings into a SnapshotRecordResult object */
-public enum SnapshotOutputFormatter {
+enum SnapshotOutputFormatter {
   FULL {
     @Override
-    public SnapshotRecordResult format(List<StubMapping> stubMappings) {
-      return SnapshotRecordResult.full(stubMappings);
+    public SnapshotRecordResult format(
+        List<StubMapping> stubMappings, List<? extends RecordError> errors) {
+      return SnapshotRecordResult.full(stubMappings, errors);
     }
   },
   IDS {
     @Override
-    public SnapshotRecordResult format(List<StubMapping> stubMappings) {
-      return SnapshotRecordResult.idsFromMappings(stubMappings);
+    public SnapshotRecordResult format(
+        List<StubMapping> stubMappings, List<? extends RecordError> errors) {
+      return SnapshotRecordResult.idsFromMappings(stubMappings, errors);
     }
   };
 
-  public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
+  public abstract SnapshotRecordResult format(
+      List<StubMapping> stubMappings, List<? extends RecordError> errors);
 
   @JsonCreator
   public static SnapshotOutputFormatter fromString(String value) {
