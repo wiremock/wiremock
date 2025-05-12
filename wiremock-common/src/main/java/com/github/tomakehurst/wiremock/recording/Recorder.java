@@ -125,7 +125,7 @@ public class Recorder {
     return recordSpec.getOutputFormat().format(stubMappings);
   }
 
-  public List<StubMapping> serveEventsToStubMappings(
+  private List<StubMapping> serveEventsToStubMappings(
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
@@ -139,7 +139,7 @@ public class Recorder {
     return stubMappingPostProcessor.process(stubMappings);
   }
 
-  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
+  private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
             extensions.ofType(StubMappingTransformer.class).values(),
