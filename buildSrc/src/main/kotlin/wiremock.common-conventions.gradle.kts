@@ -39,24 +39,12 @@ val runningOnCI = System.getenv("CI") == "true"
 
 tasks {
 
-  compileJava {
+  withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    options.compilerArgs.addAll(
-      listOf(
-        "-XDenableSunApiLintControl",
-        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-      )
-    )
-  }
-
-  compileTestJava {
-    options.encoding = "UTF-8"
-    options.compilerArgs.addAll(
-      listOf(
-        "-XDenableSunApiLintControl",
-        "--add-exports=java.base/sun.security.x509=ALL-UNNAMED"
-      )
-    )
+    options.compilerArgs.addAll(listOf(
+      "-XDenableSunApiLintControl",
+      "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
+    ))
   }
 
   compileTestFixturesJava {

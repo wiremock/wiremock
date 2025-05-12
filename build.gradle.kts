@@ -388,13 +388,6 @@ tasks.register("set-snapshot-version") {
   }
 }
 
-tasks.withType<JavaCompile>().configureEach {
-  options.compilerArgs.addAll(listOf(
-    "--add-exports",
-    "java.base/sun.security.x509=ALL-UNNAMED"
-  ))
-}
-
 eclipse.classpath.file {
   whenMerged {
     (this as Classpath).entries
