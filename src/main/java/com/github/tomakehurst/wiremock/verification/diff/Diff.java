@@ -329,7 +329,7 @@ public class Diff {
             "HTTP method",
             requestPattern.getMethod(),
             request.getMethod(),
-            requestPattern.getMethod().getName());
+            requestPattern.getMethod().getExpected());
     diffLineList.addAll(toDiffDescriptionLines(methodSection));
   }
 
