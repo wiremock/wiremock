@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,20 +124,33 @@ public class Recorder {
     return recordSpec.getOutputFormat().format(stubMappings);
   }
 
+  /**
+   * @deprecated This method will become non-public in the next major version. If you rely on it,
+   *     please contact the maintainers.
+   */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public List<StubMapping> serveEventsToStubMappings(
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
-      SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
+      @SuppressWarnings("removal") SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
     final List<StubMapping> stubMappings =
         serveEventsResult.stream()
             .filter(serveEventFilters)
             .map(stubMappingGenerator)
             .collect(Collectors.toList());
 
+    //noinspection removal
     return stubMappingPostProcessor.process(stubMappings);
   }
 
+  /**
+   * @deprecated This method will become non-public in the next major version. If you rely on it,
+   *     please contact the maintainers.
+   */
+  @SuppressWarnings({"DeprecatedIsStillUsed", "removal"})
+  @Deprecated(forRemoval = true)
   public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
