@@ -23,7 +23,6 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
@@ -51,10 +50,22 @@ class SnapshotStubMappingPostProcessor {
     this.bodyExtractor = bodyExtractor;
   }
 
-  List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
+  Pair<List<RecordError>, List<StubMapping>> process(
+      List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
     // 1. Run any applicable StubMappingTransformers against the stub mappings.
-    List<StubMapping> transformedStubMappings =
-        serveEventsToStubMappings.stream().map(transformerRunner).filter(Objects::nonNull).toList();
+    List<StubMapping> transformedStubMappings = new ArrayList<>();
+    List<RecordError> errors = new ArrayList<>();
+    for (Pair<ServeEvent, StubMapping> serveEventToStubMapping : serveEventsToStubMappings) {
+      StubGenerationResult result = transformerRunner.apply(serveEventToStubMapping);
+      if (result instanceof StubGenerationResult.Success success) {
+        transformedStubMappings.add(success.stubMapping());
+      } else if (result instanceof StubGenerationResult.Failure failure) {
+        errors.add(
+            new RecordError.StubGenerationFailure(failure.reason(), serveEventToStubMapping.a));
+      } else {
+        throw new IllegalStateException("Unexpected result: " + result);
+      }
+    }
 
     // 2. Detect duplicate requests and either discard them or turn them into scenarios.
     Multiset<RequestPattern> requestCounts = HashMultiset.create();
@@ -78,7 +89,7 @@ class SnapshotStubMappingPostProcessor {
     // 3. Extract response bodies to a separate file, if applicable.
     extractStubMappingBodies(processedStubMappings);
 
-    return processedStubMappings;
+    return new Pair<>(errors, processedStubMappings);
   }
 
   private void extractStubMappingBodies(List<StubMapping> stubMappings) {

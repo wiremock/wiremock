@@ -46,6 +46,7 @@ dependencies {
   testImplementation(libs.json.schema.validator)
 
   testImplementation(libs.xmlunit.core)
+  testImplementation(libs.json.unit.core)
 
   implementation(libs.jopt.simple)
   testImplementation(libs.json.path) {
