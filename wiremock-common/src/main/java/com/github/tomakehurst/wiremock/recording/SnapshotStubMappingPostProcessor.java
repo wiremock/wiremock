@@ -34,13 +34,13 @@ import java.util.Objects;
  *   <li>Extract response bodies to a separate file, if applicable.
  * </ol>
  */
-public class SnapshotStubMappingPostProcessor {
+class SnapshotStubMappingPostProcessor {
   private final boolean shouldRecordRepeatsAsScenarios;
   private final SnapshotStubMappingTransformerRunner transformerRunner;
   private final ResponseDefinitionBodyMatcher bodyExtractMatcher;
   private final SnapshotStubMappingBodyExtractor bodyExtractor;
 
-  public SnapshotStubMappingPostProcessor(
+  SnapshotStubMappingPostProcessor(
       boolean shouldRecordRepeatsAsScenarios,
       SnapshotStubMappingTransformerRunner transformerRunner,
       ResponseDefinitionBodyMatcher bodyExtractMatcher,
@@ -51,7 +51,7 @@ public class SnapshotStubMappingPostProcessor {
     this.bodyExtractor = bodyExtractor;
   }
 
-  public List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
+  List<StubMapping> process(List<Pair<ServeEvent, StubMapping>> serveEventsToStubMappings) {
     // 1. Run any applicable StubMappingTransformers against the stub mappings.
     List<StubMapping> transformedStubMappings =
         serveEventsToStubMappings.stream().map(transformerRunner).filter(Objects::nonNull).toList();
