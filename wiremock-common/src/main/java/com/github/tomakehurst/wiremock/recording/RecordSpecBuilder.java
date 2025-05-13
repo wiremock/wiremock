@@ -30,7 +30,7 @@ public class RecordSpecBuilder {
   private String targetBaseUrl;
   private RequestPatternBuilder filterRequestPatternBuilder;
   private List<UUID> filterIds;
-  private Map<String, CaptureHeadersSpec> headers = new LinkedHashMap<>();
+  private final Map<String, CaptureHeadersSpec> headers = new LinkedHashMap<>();
   private RequestBodyPatternFactory requestBodyPatternFactory;
   private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
   private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
@@ -110,6 +110,7 @@ public class RecordSpecBuilder {
     return this;
   }
 
+  @SuppressWarnings("unused")
   public RecordSpecBuilder matchRequestBodyWithEqualToJson() {
     return matchRequestBodyWithEqualToJson(null, null);
   }
@@ -126,6 +127,7 @@ public class RecordSpecBuilder {
     return this;
   }
 
+  @SuppressWarnings("unused")
   public RecordSpecBuilder matchRequestBodyWithEqualTo() {
     return matchRequestBodyWithEqualTo(null);
   }
