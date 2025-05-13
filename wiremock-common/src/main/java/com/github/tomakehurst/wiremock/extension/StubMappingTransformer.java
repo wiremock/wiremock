@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.recording.StubGenerationResult;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -31,9 +32,9 @@ public abstract class StubMappingTransformer implements Extension {
   /**
    * @param serveEvent The original recorded serve event used to generate the stub mapping.
    */
-  public StubMapping transform(
+  public StubGenerationResult transform(
       StubMapping stubMapping, FileSource files, Parameters parameters, ServeEvent serveEvent) {
-    return transform(stubMapping, files, parameters);
+    return new StubGenerationResult.Success(transform(stubMapping, files, parameters));
   }
 
   public boolean applyGlobally() {

@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,10 +32,13 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithFailure;
 import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.UUID;
+import net.javacrumbs.jsonunit.core.Option;
+import net.javacrumbs.jsonunit.core.internal.Options;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -612,5 +616,119 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         proxyingTestClient.postWithBody("/__admin/recordings/stop", "", "text/plain", "utf-8");
 
     assertThat(response.content(), equalToJson(NOT_RECORDING_ERROR));
+  }
+
+  @Test
+  public void returnsTransformedStubMappingWithTransformerWithFailures() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithFailure.class));
+
+    proxyingTestClient.postJson("/", "{}");
+    proxyingTestClient.get("/foo");
+    proxyingTestClient.postJson("/foo", "{}");
+
+    assertThat(
+        proxyingTestClient.snapshot(
+            """
+            {
+              "outputFormat": "full",
+              "persist": "false",
+              "transformers": [
+                "stub-transformer-with-failure"
+              ]
+            }
+        """),
+        equalToJson(
+            """
+                {
+                  "mappings": [
+                    {
+                      "request" : {
+                        "url" : "/foo?transformed=success",
+                        "method" : "GET"
+                      },
+                      "response" : {
+                        "status" : 200
+                      }
+                    }
+                  ],
+                  "errors": [
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST /foo not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/foo"
+                        }
+                      }
+                    },
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST / not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """,
+            JSONCompareMode.STRICT_ORDER));
+  }
+
+  @Test
+  public void returnsTransformedStubMappingIdsWithTransformerWithFailures() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithFailure.class));
+
+    proxyingTestClient.postJson("/", "{}");
+    proxyingTestClient.get("/foo");
+    proxyingTestClient.postJson("/foo", "{}");
+
+    assertThat(
+        proxyingTestClient.snapshot(
+            """
+            {
+              "outputFormat": "ids",
+              "persist": "false",
+              "transformers": [
+                "stub-transformer-with-failure"
+              ]
+            }
+        """),
+        jsonEquals(
+                """
+                {
+                  "ids": [
+                    "${json-unit.any-string}"
+                  ],
+                  "errors": [
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST /foo not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/foo"
+                        }
+                      }
+                    },
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST / not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """)
+            .withOptions(new Options(Option.IGNORING_EXTRA_FIELDS)));
   }
 }

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Pair;
@@ -35,26 +36,26 @@ public class SnapshotStubMappingTransformerRunnerTest {
 
   @Test
   public void applyWithNoTransformers() {
-    StubMapping result =
+    StubGenerationResult result =
         new SnapshotStubMappingTransformerRunner(List.of())
             .apply(new Pair<>(serveEvent, stubMapping));
 
-    assertEquals(stubMapping, result);
+    assertEquals(new StubGenerationResult.Success(stubMapping), result);
   }
 
   @Test
   public void applyWithUnregisteredNonGlobalTransformer() {
     // Should not apply the transformer as it isn't registered
-    StubMapping result =
+    StubGenerationResult result =
         new SnapshotStubMappingTransformerRunner(List.of(new NonGlobalStubMappingTransformer()))
             .apply(new Pair<>(serveEvent, stubMapping));
 
-    assertEquals(stubMapping, result);
+    assertEquals(new StubGenerationResult.Success(stubMapping), result);
   }
 
   @Test
   public void applyWithRegisteredNonGlobalTransformer() {
-    StubMapping result =
+    StubGenerationResult result =
         new SnapshotStubMappingTransformerRunner(
                 List.of(new NonGlobalStubMappingTransformer()),
                 List.of("nonglobal-transformer"),
@@ -62,25 +63,31 @@ public class SnapshotStubMappingTransformerRunnerTest {
                 null)
             .apply(new Pair<>(serveEvent, stubMapping));
 
-    assertEquals("/?transformed=nonglobal", result.getRequest().getUrl());
+    assertInstanceOf(StubGenerationResult.Success.class, result);
+    StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
+    assertEquals("/?transformed=nonglobal", stubMapping.getRequest().getUrl());
   }
 
   @Test
   public void applyWithGlobalTransformer() {
-    StubMapping result =
+    StubGenerationResult result =
         new SnapshotStubMappingTransformerRunner(List.of(new GlobalStubMappingTransformer()))
             .apply(new Pair<>(serveEvent, stubMapping));
 
-    assertEquals("/?transformed=global", result.getRequest().getUrl());
+    assertInstanceOf(StubGenerationResult.Success.class, result);
+    StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
+    assertEquals("/?transformed=global", stubMapping.getRequest().getUrl());
   }
 
   @Test
   public void providesServeEventToTransformer() {
-    StubMapping result =
+    StubGenerationResult result =
         new SnapshotStubMappingTransformerRunner(
                 List.of(new StubMappingTransformerWithServeEvent()))
             .apply(new Pair<>(serveEvent, stubMapping));
 
-    assertEquals("/?transformed=my-value", result.getRequest().getUrl());
+    assertInstanceOf(StubGenerationResult.Success.class, result);
+    StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
+    assertEquals("/?transformed=my-value", stubMapping.getRequest().getUrl());
   }
 }
