@@ -142,6 +142,14 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
+  public BasicMappingBuilder withFormParams(Map<String, MultiValuePattern> formParams) {
+    for (Map.Entry<String, MultiValuePattern> formParam : formParams.entrySet()) {
+      requestPatternBuilder.withFormParam(formParam.getKey(), formParam.getValue());
+    }
+    return this;
+  }
+
+  @Override
   public BasicMappingBuilder withPathParam(String key, StringValuePattern pathParamPattern) {
     requestPatternBuilder.withPathParam(key, pathParamPattern);
     return this;

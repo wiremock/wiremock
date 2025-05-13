@@ -34,7 +34,7 @@ public abstract class XmlNode {
   protected static final ThreadLocal<XPath> XPATH_CACHE =
       ThreadLocal.withInitial(
           () -> {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            final XPathFactory xPathfactory = XPathFactory.newDefaultInstance();
             return xPathfactory.newXPath();
           });
 
@@ -52,7 +52,7 @@ public abstract class XmlNode {
                           .getDeclaredConstructor()
                           .newInstance();
             } catch (Exception e) {
-              transformerFactory = TransformerFactory.newInstance();
+              transformerFactory = TransformerFactory.newDefaultInstance();
             }
             transformerFactory.setAttribute("indent-number", 2);
 
