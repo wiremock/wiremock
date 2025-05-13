@@ -28,18 +28,18 @@ import java.util.function.Function;
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
  * LoggedResponseDefinitionTransformer
  */
-public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
+class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
   private final RequestPatternTransformer requestTransformer;
   private final LoggedResponseDefinitionTransformer responseTransformer;
 
-  public SnapshotStubMappingGenerator(
+  SnapshotStubMappingGenerator(
       RequestPatternTransformer requestTransformer,
       LoggedResponseDefinitionTransformer responseTransformer) {
     this.requestTransformer = requestTransformer;
     this.responseTransformer = responseTransformer;
   }
 
-  public SnapshotStubMappingGenerator(
+  SnapshotStubMappingGenerator(
       Map<String, CaptureHeadersSpec> captureHeaders,
       RequestBodyPatternFactory requestBodyPatternFactory) {
     this(

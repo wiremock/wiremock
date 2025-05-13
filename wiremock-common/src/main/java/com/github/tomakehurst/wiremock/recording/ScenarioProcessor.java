@@ -25,9 +25,9 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ScenarioProcessor {
+class ScenarioProcessor {
 
-  public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
+  void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
     Map<RequestPattern, List<StubMapping>> stubsGroupedByRequest =
         stubMappings.stream()
             .collect(

@@ -30,8 +30,7 @@ import java.util.stream.Collectors;
  * Transforms a LoggedResponse into a ResponseDefinition, which will be used to construct a
  * StubMapping
  */
-public class LoggedResponseDefinitionTransformer
-    implements Function<LoggedResponse, ResponseDefinition> {
+class LoggedResponseDefinitionTransformer implements Function<LoggedResponse, ResponseDefinition> {
 
   private static final List<CaseInsensitiveKey> EXCLUDED_HEADERS =
       List.of(
