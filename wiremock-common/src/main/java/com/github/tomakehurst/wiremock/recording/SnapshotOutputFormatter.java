@@ -23,20 +23,20 @@ import java.util.List;
 enum SnapshotOutputFormatter {
   FULL {
     @Override
-    public SnapshotRecordResult format(
+    SnapshotRecordResult format(
         List<StubMapping> stubMappings, List<? extends RecordError> errors) {
       return SnapshotRecordResult.full(stubMappings, errors);
     }
   },
   IDS {
     @Override
-    public SnapshotRecordResult format(
+    SnapshotRecordResult format(
         List<StubMapping> stubMappings, List<? extends RecordError> errors) {
       return SnapshotRecordResult.idsFromMappings(stubMappings, errors);
     }
   };
 
-  public abstract SnapshotRecordResult format(
+  abstract SnapshotRecordResult format(
       List<StubMapping> stubMappings, List<? extends RecordError> errors);
 
   @JsonCreator
