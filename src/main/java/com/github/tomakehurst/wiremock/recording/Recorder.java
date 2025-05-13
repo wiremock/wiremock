@@ -121,6 +121,7 @@ public class Recorder {
       admin.addStubMapping(stubMapping);
     }
 
+    //noinspection removal
     return recordSpec.getOutputFormat().format(stubMappings);
   }
 
