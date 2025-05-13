@@ -105,6 +105,7 @@ public class Recorder {
     return input -> input.getId().equals(id);
   }
 
+  @SuppressWarnings("removal")
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
     final List<StubMapping> stubMappings =
         serveEventsToStubMappings(
@@ -121,7 +122,6 @@ public class Recorder {
       admin.addStubMapping(stubMapping);
     }
 
-    //noinspection removal
     return recordSpec.getOutputFormat().format(stubMappings);
   }
 
@@ -134,7 +134,7 @@ public class Recorder {
   public List<StubMapping> serveEventsToStubMappings(
       List<ServeEvent> serveEventsResult,
       ProxiedServeEventFilters serveEventFilters,
-      SnapshotStubMappingGenerator stubMappingGenerator,
+      @SuppressWarnings("removal") SnapshotStubMappingGenerator stubMappingGenerator,
       @SuppressWarnings("removal") SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
     final List<StubMapping> stubMappings =
         serveEventsResult.stream()
