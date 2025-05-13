@@ -30,11 +30,11 @@ import java.util.function.Function;
  * Creates a RequestPatternBuilder from a Request's URL, method, body (if present), and optionally
  * headers from a whitelist.
  */
-public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
+class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
   private final Map<String, CaptureHeadersSpec> headers;
   private final RequestBodyPatternFactory bodyPatternFactory;
 
-  public RequestPatternTransformer(
+  RequestPatternTransformer(
       Map<String, CaptureHeadersSpec> headers, RequestBodyPatternFactory bodyPatternFactory) {
     this.headers = headers;
     this.bodyPatternFactory = bodyPatternFactory;
