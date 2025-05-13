@@ -25,10 +25,10 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class SnapshotStubMappingBodyExtractor {
+class SnapshotStubMappingBodyExtractor {
   private final BlobStore filesBlobStore;
 
-  public SnapshotStubMappingBodyExtractor(BlobStore filesBlobStore) {
+  SnapshotStubMappingBodyExtractor(BlobStore filesBlobStore) {
     this.filesBlobStore = filesBlobStore;
   }
 
@@ -38,7 +38,7 @@ public class SnapshotStubMappingBodyExtractor {
    *
    * @param stubMapping Stub mapping to extract
    */
-  public void extractInPlace(StubMapping stubMapping) {
+  void extractInPlace(StubMapping stubMapping) {
     byte[] body = stubMapping.getResponse().getByteBody();
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
     String extension =

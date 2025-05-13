@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 /** Wraps a list of generated StubMappings into a SnapshotRecordResult object */
-enum SnapshotOutputFormatter {
+public enum SnapshotOutputFormatter {
   FULL {
     @Override
     SnapshotRecordResult format(
