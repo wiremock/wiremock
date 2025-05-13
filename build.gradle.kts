@@ -46,6 +46,7 @@ dependencies {
   testImplementation(libs.json.schema.validator)
 
   testImplementation(libs.xmlunit.core)
+  testImplementation(libs.json.unit.core)
 
   implementation(libs.jopt.simple)
   testImplementation(libs.json.path) {
@@ -386,13 +387,6 @@ tasks.register("set-snapshot-version") {
 
     updateFiles(currentVersion.toString(), nextVersion)
   }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-  options.compilerArgs.addAll(listOf(
-    "--add-exports",
-    "java.base/sun.security.x509=ALL-UNNAMED"
-  ))
 }
 
 eclipse.classpath.file {

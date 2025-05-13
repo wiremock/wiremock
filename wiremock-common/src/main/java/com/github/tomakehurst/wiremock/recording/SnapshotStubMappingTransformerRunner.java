@@ -31,7 +31,7 @@ import java.util.function.Function;
  * passing them any supplied Parameters.
  */
 class SnapshotStubMappingTransformerRunner
-    implements Function<Pair<ServeEvent, StubMapping>, StubMapping> {
+    implements Function<Pair<ServeEvent, StubMapping>, StubGenerationResult> {
   private final FileSource filesRoot;
   private final Parameters parameters;
   private final Iterable<StubMappingTransformer> registeredTransformers;
@@ -53,18 +53,24 @@ class SnapshotStubMappingTransformerRunner
   }
 
   @Override
-  public StubMapping apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
+  public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
     StubMapping stubMapping = serveEventToStubMapping.b;
     for (StubMappingTransformer transformer : registeredTransformers) {
-      if (stubMapping != null
-          && (transformer.applyGlobally()
-              || (requestedTransformers != null
-                  && requestedTransformers.contains(transformer.getName())))) {
-        stubMapping =
+      if (transformer.applyGlobally()
+          || (requestedTransformers != null
+              && requestedTransformers.contains(transformer.getName()))) {
+          StubGenerationResult result =
             transformer.transform(stubMapping, filesRoot, parameters, serveEventToStubMapping.a);
+        if (result instanceof StubGenerationResult.Success success) {
+          stubMapping = success.stubMapping();
+        } else if (result instanceof StubGenerationResult.Failure failure) {
+          return failure;
+        } else {
+          throw new IllegalStateException("Unexpected result: " + result);
+        }
       }
     }
 
-    return stubMapping;
+    return new StubGenerationResult.Success(stubMapping);
   }
 }
