@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.concurrent.LinkedBlockingDeque;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("removal")
 public class SnapshotStubMappingGeneratorTest {
   @Test
   public void apply() {

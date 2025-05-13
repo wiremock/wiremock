@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
  * Transforms a LoggedResponse into a ResponseDefinition, which will be used to construct a
  * StubMapping
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated(forRemoval = true)
 public class LoggedResponseDefinitionTransformer
     implements Function<LoggedResponse, ResponseDefinition> {
 
