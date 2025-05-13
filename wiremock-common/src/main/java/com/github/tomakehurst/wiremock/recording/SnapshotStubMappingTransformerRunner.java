@@ -59,7 +59,7 @@ class SnapshotStubMappingTransformerRunner
       if (transformer.applyGlobally()
           || (requestedTransformers != null
               && requestedTransformers.contains(transformer.getName()))) {
-          StubGenerationResult result =
+        StubGenerationResult result =
             transformer.transform(stubMapping, filesRoot, parameters, serveEventToStubMapping.a);
         if (result instanceof StubGenerationResult.Success success) {
           stubMapping = success.stubMapping();
