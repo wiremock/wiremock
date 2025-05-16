@@ -40,7 +40,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty12.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
