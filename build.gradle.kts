@@ -325,11 +325,11 @@ tasks.register("localRelease") {
 fun updateFiles(currentVersion: String, nextVersion: String) {
 
   val filesWithVersion: Map<String, (String) -> String> = mapOf(
-    "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts" to { "version = \"${it}\"" },
-    "ui/package.json"                                                 to { "\"version\": \"${it}\"" },
-    "src/main/resources/version.properties"                           to { "version=${it}" },
-    "src/main/resources/swagger/wiremock-admin-api.json"              to { "\"version\": \"${it}\"" },
-    "src/main/resources/swagger/wiremock-admin-api.yaml"              to { "version: $it" },
+    "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts"    to { "version = \"${it}\"" },
+    "ui/package.json"                                                    to { "\"version\": \"${it}\"" },
+    "wiremock-common/src/main/resources/version.properties"              to { "version=${it}" },
+    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
+    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" },
   )
 
   filesWithVersion.forEach { (fileName, lineWithVersionTemplates) ->
