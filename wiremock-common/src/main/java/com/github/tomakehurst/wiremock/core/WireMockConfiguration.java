@@ -49,6 +49,7 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -184,6 +185,13 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicPort() {
+    /*
+     * By default, a wiremock instance (including the mock host) binds to address 0.0.0.0. When binding to a random
+     * port, that port is only unique for bind address 0.0.0.0; another application may be listening on the same TCP/IP
+     * port for a more specific bind address (like localhost). If so, and you request that port as localhost, you will
+     * talk to the other application, and your test will fail.
+     */
+    this.bindAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.portNumber = DYNAMIC_PORT;
     return this;
   }
@@ -209,6 +217,13 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicHttpsPort() {
+    /*
+     * By default, a wiremock instance (including the mock host) binds to address 0.0.0.0. When binding to a random
+     * port, that port is only unique for bind address 0.0.0.0; another application may be listening on the same TCP/IP
+     * port for a more specific bind address (like localhost). If so, and you request that port as localhost, you will
+     * talk to the other application, and your test will fail.
+     */
+    this.bindAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.httpsPort = DYNAMIC_PORT;
     return this;
   }
