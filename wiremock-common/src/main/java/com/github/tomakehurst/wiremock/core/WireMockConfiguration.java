@@ -185,13 +185,7 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicPort() {
-    /*
-     * By default, a wiremock instance (including the mock host) binds to address 0.0.0.0. When binding to a random
-     * port, that port is only unique for bind address 0.0.0.0; another application may be listening on the same TCP/IP
-     * port for a more specific bind address (like localhost). If so, and you request that port as localhost, you will
-     * talk to the other application, and your test will fail.
-     */
-    this.bindAddress = InetAddress.getLoopbackAddress().getHostAddress();
+    maybeSetBindAddress();
     this.portNumber = DYNAMIC_PORT;
     return this;
   }
@@ -217,15 +211,21 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicHttpsPort() {
+    maybeSetBindAddress();
+    this.httpsPort = DYNAMIC_PORT;
+    return this;
+  }
+
+  private void maybeSetBindAddress() {
     /*
      * By default, a wiremock instance (including the mock host) binds to address 0.0.0.0. When binding to a random
      * port, that port is only unique for bind address 0.0.0.0; another application may be listening on the same TCP/IP
      * port for a more specific bind address (like localhost). If so, and you request that port as localhost, you will
      * talk to the other application, and your test will fail.
      */
-    this.bindAddress = InetAddress.getLoopbackAddress().getHostAddress();
-    this.httpsPort = DYNAMIC_PORT;
-    return this;
+    if (DEFAULT_BIND_ADDRESS.equals(this.bindAddress)) {
+      this.bindAddress = InetAddress.getLoopbackAddress().getHostAddress();
+    }
   }
 
   public WireMockConfiguration containerThreads(Integer containerThreads) {
