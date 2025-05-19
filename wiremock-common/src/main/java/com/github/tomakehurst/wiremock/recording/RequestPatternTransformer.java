@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -57,7 +58,10 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
     queryParameters.forEach(
         (name, parameters) ->
             builder.withQueryParam(
-                name, havingExactly(parameters.values().toArray(new String[0]))));
+                name,
+                parameters.isSingleValued()
+                    ? MultiValuePattern.of(equalTo(parameters.firstValue()))
+                    : havingExactly(parameters.values().toArray(new String[0]))));
 
     if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
