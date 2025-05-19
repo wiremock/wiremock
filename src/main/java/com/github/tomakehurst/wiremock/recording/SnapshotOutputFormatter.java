@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,26 @@ import java.util.List;
 /** Wraps a list of generated StubMappings into a SnapshotRecordResult object */
 public enum SnapshotOutputFormatter {
   FULL {
+    @SuppressWarnings("removal")
     @Override
     public SnapshotRecordResult format(List<StubMapping> stubMappings) {
       return SnapshotRecordResult.full(stubMappings);
     }
   },
   IDS {
+    @SuppressWarnings("removal")
     @Override
     public SnapshotRecordResult format(List<StubMapping> stubMappings) {
       return SnapshotRecordResult.idsFromMappings(stubMappings);
     }
   };
 
+  /**
+   * @deprecated This method will become non-public in the next major version. If you rely on it,
+   *     please contact the maintainers.
+   */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
 
   @JsonCreator
