@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -437,7 +438,9 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         returnedMappings.get(0).getRequest().getQueryParameters();
     assertThat(queryParameters.size(), is(2));
     assertThat(queryParameters.get("q1"), is(havingExactly("my-value", "my-other-value")));
-    assertThat(queryParameters.get("second-q"), is(havingExactly("another-value")));
+    assertThat(
+        queryParameters.get("second-q"),
+        is(new SingleMatchMultiValuePattern(equalTo("another-value"))));
 
     assertThat(
         client
