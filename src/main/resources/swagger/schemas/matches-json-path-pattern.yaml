@@ -5,6 +5,7 @@ properties:
     oneOf:
       - type: string
         example: "$.name"
+        x-intellij-language-injection: JSONPath
       - type: object
         allOf:
           - properties:

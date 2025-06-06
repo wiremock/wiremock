@@ -3,5 +3,6 @@ type: object
 properties:
   doesNotMatch:
     type: string
+    x-intellij-language-injection: RegExp
 required:
   - doesNotMatch

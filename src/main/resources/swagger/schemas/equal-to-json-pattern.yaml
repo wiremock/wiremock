@@ -8,6 +8,7 @@ properties:
         example:
           message: hello
       - type: string
+        x-intellij-language-injection: JSON
         description: A JSON-encoded JSON string to match.
         example: |-
           { "message": "hello" }
