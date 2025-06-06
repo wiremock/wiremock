@@ -1,0 +1,150 @@
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "com.fasterxml.jackson.core:jackson-core:2.18.3"
+    classpath "com.fasterxml.jackson.core:jackson-databind:2.18.3"
+    classpath "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3"
+  }
+}
+
+def buildStubMappingSchema = tasks.register("buildStubMappingSchema") {
+  group = "build"
+  outputs.dir(temporaryDir)
+
+  doLast {
+    def schemasDir = new File(temporaryDir, "schemas")
+    schemasDir.mkdir()
+    new File(schemasDir, "wiremock-stub-mapping.json").write(doBuildStubMappingSchema())
+  }
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDir(buildStubMappingSchema.map { it.temporaryDir })
+    }
+  }
+}
+
+/**
+ * Builds a single-file JSON schema by merging the files in {@code src/main/resources/com/intellij/wiremock/schemas}.
+ *
+ * <pre>
+ * {
+ *   "title": "WireMock stub mapping",
+ *   "type": "object",
+ *   "$schema": "http://json-schema.org/draft-04/schema#",
+ *   "definitions" : {
+ *     "absent-pattern" : {
+ *       "title" : "Absent matcher",
+ *       "type" : "object",
+ *       "properties" : {
+ *         "absent" : {
+ *           "type" : "boolean"
+ *         }
+ *       },
+ *       "required" : [ "absent" ]
+ *     },
+ *     ...
+ *   },
+ *   "oneOf" : [ {
+ *     "$ref" : "#/definitions/stub-mapping"
+ *   }, {
+ *     "$ref" : "#/definitions/stub-mappings"
+ *   } ]
+ * }
+ * </pre>
+ */
+private String doBuildStubMappingSchema() {
+  def jsonMapper = new ObjectMapper()
+  def document = jsonMapper.createObjectNode()
+  document.put("title", "WireMock stub mapping")
+  document.put("type", "object")
+  document.put("\$schema", "http://json-schema.org/draft-04/schema#")
+
+  def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
+
+  def schemas = new ArrayList<Tuple>()
+  file('src/main/resources/swagger/schemas').listFiles().each { file ->
+    {
+      def name = removeYamlSuffix(file.name)
+      def schema = readSchema(yamlMapper, file)
+
+      //For non-'date-time-elements', adds a single name-schema pair,
+      // while for date-time-elements file adds a separate name-schema for each schema in that yaml file
+      if (name != "date-time-elements") {
+        schemas.add(Tuple.tuple(name, schema))
+      } else {
+        ((ObjectNode) schema).properties().each {
+          schemas.add(Tuple.tuple(it.getKey(), it.getValue()))
+        }
+      }
+    }
+  }
+
+  //The content of each referenced schema file is extracted and added under a common property called 'definitions'.
+  def definitions = document.putObject("definitions")
+  schemas.each { keyAndNode -> definitions.putIfAbsent(keyAndNode[0], keyAndNode[1]) }
+
+  def oneOf = document.putArray("oneOf")
+  oneOf.addObject().put("\$ref", "#/definitions/stub-mapping")
+  oneOf.addObject().put("\$ref", "#/definitions/stub-mappings")
+
+  return jsonMapper
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(document)
+}
+
+private JsonNode readSchema(ObjectMapper objectMapper, File file) {
+  def node = objectMapper.readTree(file)
+  replaceFileRefs(node)
+  return node
+}
+
+/**
+ * Replaces refs as follows:
+ * <ul>
+ *   <li>{@code "$ref": "content-pattern.yaml"} -> {@code "$ref": "#/definitions/content-pattern"}</li>
+ *   <li>{@code "$ref": "date-time-elements.yaml#/format"} -> {@code "$ref": "#/definitions/format"}</li>
+ * </ul>
+ */
+private def replaceFileRefs(JsonNode node) {
+  if (node instanceof ObjectNode) {
+    def nodeAsObject = (ObjectNode) node
+    final def ref = nodeAsObject["\$ref"]?.asText()
+    if (ref != null) {
+      if (ref.endsWith(".yaml")) {
+        nodeAsObject.put("\$ref", "#/definitions/${removeYamlSuffix(ref)}")
+      }
+      //date-time-elements.yaml is handled explicitly because it contains multiple standalone schemas
+      else if (ref.startsWith("date-time-elements.yaml#/")) {
+        nodeAsObject.put("\$ref", "#/definitions/${removePrefix(ref, "date-time-elements.yaml#/")}")
+      }
+    } else {
+      for (child in nodeAsObject) {
+        replaceFileRefs(child)
+      }
+    }
+  } else if (node instanceof ArrayNode) {
+    def nodeAsArray = (ArrayNode) node
+    for (item in nodeAsArray) {
+      replaceFileRefs(item)
+    }
+  }
+}
+
+private static String removeYamlSuffix(String fileName) {
+  return fileName.substring(0, fileName.length() - ".yaml".length())
+}
+
+private static String removePrefix(String input, String prefix) {
+  return input.substring(prefix.length())
+}
