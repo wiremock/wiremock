@@ -3,6 +3,7 @@ type: object
 properties:
   matchesJsonSchema:
     type: string
+    x-intellij-language-injection: JSON
     description: A valid JSON schema as a string
     example: |-
       {
