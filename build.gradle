@@ -97,7 +97,7 @@ dependencies {
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
 
-  api 'commons-fileupload:commons-fileupload:1.5'
+  api 'commons-fileupload:commons-fileupload:1.6.0'
 
   api 'com.networknt:json-schema-validator:1.5.7'
 
