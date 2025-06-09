@@ -262,7 +262,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
 
     Resource assetsResource =
-        ResourceFactory.of(adminContext).newResource(getResource(JettyHttpServer.class, "assets"));
+        ResourceFactory.of(adminContext).newClassLoaderResource("assets");
     if (Resources.isReadable(assetsResource)) {
       adminContext.setBaseResource(assetsResource);
     }
