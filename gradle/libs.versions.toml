@@ -1,5 +1,5 @@
 [versions]
-jetty = "12.0.16"
+jetty = "12.0.20"
 jackson = "2.18.3"
 xmlUnit = "2.10.0"
 jsonUnit = "2.40.1"
