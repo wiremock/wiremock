@@ -29,7 +29,6 @@ import org.eclipse.jetty.ee10.servlet.ServletApiResponse;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.SelectableChannelEndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
-import org.eclipse.jetty.server.AbstractMetaDataConnection;
 import org.eclipse.jetty.server.Response;
 
 public class Jetty12HttpUtils implements JettyHttpUtils {
@@ -56,18 +55,13 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
 
   @Override
   public Socket socket(Response response) {
-    final AbstractMetaDataConnection connectionMetaData =
-        (AbstractMetaDataConnection) response.getRequest().getConnectionMetaData();
-    SelectableChannelEndPoint ep = (SelectableChannelEndPoint) connectionMetaData.getEndPoint();
+    SelectableChannelEndPoint ep = (SelectableChannelEndPoint) getEndpoint(response);
     return ((SocketChannel) ep.getChannel()).socket();
   }
 
   @Override
   public Socket tlsSocket(Response response) {
-    final AbstractMetaDataConnection connectionMetaData =
-        (AbstractMetaDataConnection) response.getRequest().getConnectionMetaData();
-    final SslConnection.SslEndPoint sslEndpoint =
-        (SslConnection.SslEndPoint) connectionMetaData.getEndPoint();
+    final SslConnection.SslEndPoint sslEndpoint = (SslConnection.SslEndPoint) getEndpoint(response);
     final SelectableChannelEndPoint endpoint =
         (SelectableChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
     return ((SocketChannel) endpoint.getChannel()).socket();
@@ -84,14 +78,16 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
 
   @Override
   public EndPoint unwrapEndPoint(Response jettyResponse) {
-    final AbstractMetaDataConnection connectionMetaData =
-        (AbstractMetaDataConnection) jettyResponse.getRequest().getConnectionMetaData();
-    return connectionMetaData.getEndPoint();
+    return getEndpoint(jettyResponse);
   }
 
   @Override
   public boolean isBrowserProxyRequest(HttpServletRequest request) {
     return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
         || Boolean.TRUE.equals(request.getAttribute(IS_HTTP_PROXY_REQUEST_ATTRIBUTE));
+  }
+
+  private EndPoint getEndpoint(Response response) {
+    return response.getRequest().getConnectionMetaData().getConnection().getEndPoint();
   }
 }
