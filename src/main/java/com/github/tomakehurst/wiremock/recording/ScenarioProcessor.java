@@ -25,8 +25,12 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated(forRemoval = true)
 public class ScenarioProcessor {
 
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
     Map<RequestPattern, List<StubMapping>> stubsGroupedByRequest =
         stubMappings.stream()
