@@ -454,6 +454,19 @@ public class WireMock {
     defaultInstance.get().resetScenarioState(name);
   }
 
+  public static void verifyZeroInteractions() {
+    int allInteractions = defaultInstance.get().getServeEvents().size();
+    if (allInteractions != 0) {
+      throw new VerificationException(String.format("Expected 0 requests but received %d", allInteractions));
+    }
+  }
+
+  public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
+    FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
+    result.assertRequestJournalEnabled();
+    return result.getRequests();
+  }
+
   public void resetScenarioState(String name) {
     admin.resetScenario(name);
   }

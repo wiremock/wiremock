@@ -891,12 +891,27 @@ public class VerificationAcceptanceTest {
 
       List<ServeEvent> serveEvents = getAllServeEvents();
       assertThat(serveEvents.size(), is(2));
-
       ServeEvent event1 = findServeEventWithUrl(serveEvents, "/one");
       assertThat(event1.getRequest().header("My-Header").firstValue(), is("one"));
 
       ServeEvent event2 = findServeEventWithUrl(serveEvents, "/two");
       assertThat(event2, notNullValue());
+    }      
+    
+    @Test
+    public void verifiesZeroInteractions() {
+      verifyZeroInteractions();
+    }
+
+    @Test
+    public void throwsVerificationExceptionWhenZeroInteractionsExpectedButReceivedRequest() {
+      testClient.get("/xyz");
+      try {
+        verifyZeroInteractions();
+        fail();
+      } catch (VerificationException e) {
+        assertThat(e.getMessage(), is("Expected 0 requests but received 1"));
+      }
     }
 
     @Test
