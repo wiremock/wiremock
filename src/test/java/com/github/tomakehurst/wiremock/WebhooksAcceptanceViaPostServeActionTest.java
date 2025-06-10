@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -86,6 +87,7 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
           .options(
               options()
                   .dynamicPort()
+                  .withRootDirectoryChild("test-file-root")
                   .notifier(notifier)
                   .limitProxyTargets(
                       NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
@@ -215,6 +217,93 @@ public class WebhooksAcceptanceViaPostServeActionTest extends WebhooksAcceptance
   }
 
   @Test
+  public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaDSL() throws Exception {
+    rule.stubFor(
+        post(urlPathEqualTo("/templating"))
+            .willReturn(ok())
+            .withPostServeAction(
+                "webhook",
+                webhook()
+                    .withBodyFile("myBodyFileName.json")
+                    .withMethod("{{jsonPath originalRequest.body '$.method'}}")
+                    .withUrl(
+                        targetServer.baseUrl()
+                            + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
+                    .withHeader("X-Single", "{{math 1 '+' 2}}")
+                    .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
+                    .withExtraParameter("one", "param-one-value")));
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    client.postJson(
+        "/templating",
+        "{\n"
+            + "  \"callbackPath\": \"/callback/123\",\n"
+            + "  \"method\": \"POST\",\n"
+            + "  \"name\": \"Tom\"\n"
+            + "}");
+
+    waitForRequestToTargetServer();
+
+    LoggedRequest request =
+        targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+    assertThat(request.header("X-Single").firstValue(), is("3"));
+    assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+    assertThat(request.getBodyAsString(), is("{\"CONTENTS_OF_MYFILE\": \"Tom\"}\n"));
+  }
+
+  @Test
+  public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaJSON() throws Exception {
+    client.postJson(
+        "/__admin/mappings",
+        "{\n"
+            + "  \"id\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
+            + "  \"request\" : {\n"
+            + "    \"urlPath\" : \"/templating\",\n"
+            + "    \"method\" : \"POST\"\n"
+            + "  },\n"
+            + "  \"response\" : {\n"
+            + "    \"status\" : 200\n"
+            + "  },\n"
+            + "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
+            + "  \"postServeActions\" : [{\n"
+            + "    \"name\" : \"webhook\",\n"
+            + "    \"parameters\" : {\n"
+            + "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n"
+            + "      \"url\" : \""
+            + targetServer.baseUrl()
+            + "{{{jsonPath originalRequest.body '$.callbackPath'}}}\",\n"
+            + "      \"headers\" : {\n"
+            + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
+            + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
+            + "      },\n"
+            + "      \"bodyFileName\" : \"myBodyFileName.json\",\n"
+            + "      \"one\" : \"param-one-value\"\n"
+            + "    }\n"
+            + "  }]\n"
+            + "}\n");
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    client.postJson(
+        "/templating",
+        "{\n"
+            + "  \"callbackPath\": \"/callback/123\",\n"
+            + "  \"method\": \"POST\",\n"
+            + "  \"name\": \"Tom\"\n"
+            + "}");
+
+    waitForRequestToTargetServer();
+
+    LoggedRequest request =
+        targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+    assertThat(request.header("X-Single").firstValue(), is("3"));
+    assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+    assertThat(request.getBodyAsString(), is("{\"CONTENTS_OF_MYFILE\": \"Tom\"}\n"));
+  }
+
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaDSL() throws Exception {
     rule.stubFor(
         post(urlPathEqualTo("/templating"))

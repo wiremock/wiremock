@@ -1,0 +1,1 @@
+{"CONTENTS_OF_MYFILE": "{{jsonPath originalRequest.body '$.name'}}"}
