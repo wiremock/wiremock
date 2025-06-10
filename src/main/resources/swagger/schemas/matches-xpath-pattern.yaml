@@ -5,6 +5,7 @@ properties:
     oneOf:
       - type: string
         example: "//Order/Amount"
+        x-intellij-language-injection: XPath
       - type: object
         allOf:
           - properties:
