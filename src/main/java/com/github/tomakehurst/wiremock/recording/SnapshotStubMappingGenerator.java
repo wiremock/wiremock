@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,14 @@ import java.util.function.Function;
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
  * LoggedResponseDefinitionTransformer
  */
+@SuppressWarnings({"DeprecatedIsStillUsed", "removal"})
+@Deprecated(forRemoval = true)
 public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
   private final RequestPatternTransformer requestTransformer;
   private final LoggedResponseDefinitionTransformer responseTransformer;
 
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public SnapshotStubMappingGenerator(
       RequestPatternTransformer requestTransformer,
       LoggedResponseDefinitionTransformer responseTransformer) {
@@ -39,6 +43,8 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
     this.responseTransformer = responseTransformer;
   }
 
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public SnapshotStubMappingGenerator(
       Map<String, CaptureHeadersSpec> captureHeaders,
       RequestBodyPatternFactory requestBodyPatternFactory) {

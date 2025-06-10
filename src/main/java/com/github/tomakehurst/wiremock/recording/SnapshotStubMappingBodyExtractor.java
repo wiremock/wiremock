@@ -25,9 +25,13 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated(forRemoval = true)
 public class SnapshotStubMappingBodyExtractor {
   private final BlobStore filesBlobStore;
 
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public SnapshotStubMappingBodyExtractor(BlobStore filesBlobStore) {
     this.filesBlobStore = filesBlobStore;
   }
@@ -38,6 +42,8 @@ public class SnapshotStubMappingBodyExtractor {
    *
    * @param stubMapping Stub mapping to extract
    */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated(forRemoval = true)
   public void extractInPlace(StubMapping stubMapping) {
     byte[] body = stubMapping.getResponse().getByteBody();
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
