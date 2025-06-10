@@ -15,15 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.eclipse.jetty.http.HttpVersion.HTTP_2;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -72,5 +79,86 @@ public class Http2AcceptanceTest {
     try (CloseableHttpResponse response = client.execute(get)) {
       assertThat(response.getCode(), is(200));
     }
+  }
+
+  @Test
+  void connectionResetByPeerFault() {
+    HttpClient client = Http2ClientFactory.create();
+
+    wm.stubFor(
+        get(urlEqualTo("/connection/reset"))
+            .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
+
+    getAndAssertUnderlyingExceptionInstanceClass(
+        client,
+        wm.getRuntimeInfo().getHttpsBaseUrl() + "/connection/reset",
+        ClosedChannelException.class);
+  }
+
+  @Test
+  void emptyResponseFault() {
+    HttpClient client = Http2ClientFactory.create();
+
+    wm.stubFor(
+        get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
+
+    getAndAssertUnderlyingExceptionInstanceClass(
+        client,
+        wm.getRuntimeInfo().getHttpsBaseUrl() + "/empty/response",
+        ClosedChannelException.class);
+  }
+
+  @Test
+  void malformedResponseChunkFault() {
+    HttpClient client = Http2ClientFactory.create();
+
+    wm.stubFor(
+        get(urlEqualTo("/malformed/response"))
+            .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+
+    IOException e =
+        getAndAssertUnderlyingExceptionInstanceClass(
+            client,
+            wm.getRuntimeInfo().getHttpsBaseUrl() + "/malformed/response",
+            IOException.class);
+    assertThat(e.getMessage(), is("frame_size_error/invalid_frame_length"));
+  }
+
+  @Test
+  void randomDataOnSocketFault() {
+    HttpClient client = Http2ClientFactory.create();
+
+    wm.stubFor(
+        get(urlEqualTo("/random/data"))
+            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
+
+    IOException e =
+        getAndAssertUnderlyingExceptionInstanceClass(
+            client, wm.getRuntimeInfo().getHttpsBaseUrl() + "/random/data", IOException.class);
+    assertThat(e.getMessage(), is("frame_size_error/invalid_frame_length"));
+  }
+
+  private <T> T getAndAssertUnderlyingExceptionInstanceClass(
+      HttpClient httpClient, String url, Class<T> expectedClass) {
+    try {
+      contentFor(httpClient, url);
+    } catch (Exception e) {
+      Throwable cause = e.getCause();
+      if (cause != null) {
+        assertThat(e.getCause(), instanceOf(expectedClass));
+        //noinspection unchecked
+        return (T) e.getCause();
+      } else {
+        assertThat(e, instanceOf(expectedClass));
+        //noinspection unchecked
+        return (T) e;
+      }
+    }
+
+    return fail("No exception was thrown");
+  }
+
+  private void contentFor(HttpClient httpClient, String url) throws Exception {
+    httpClient.GET(url).getContentAsString();
   }
 }
