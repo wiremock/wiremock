@@ -28,15 +28,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
-import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import java.io.EOFException;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.nio.channels.ClosedChannelException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -88,52 +82,35 @@ public class Http2AcceptanceTest {
   }
 
   @Test
-  void connectionResetByPeerFault() throws Exception {
-    java.net.http.HttpClient client =
-        java.net.http.HttpClient.newBuilder()
-            .version(java.net.http.HttpClient.Version.HTTP_2)
-            .sslContext(
-                SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build())
-            .build();
+  void connectionResetByPeerFault() {
+    HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(
         get(urlEqualTo("/connection/reset"))
             .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-    IOException e =
-        getAndAssertUnderlyingExceptionInstanceClass(
-            client,
-            wm.getRuntimeInfo().getHttpsBaseUrl() + "/connection/reset",
-            SocketException.class);
-    assertThat(e.getMessage(), is("Connection reset"));
+    getAndAssertUnderlyingExceptionInstanceClass(
+        client,
+        wm.getRuntimeInfo().getHttpsBaseUrl() + "/connection/reset",
+        ClosedChannelException.class);
   }
 
   @Test
-  void emptyResponseFault() throws Exception {
-    java.net.http.HttpClient client =
-        java.net.http.HttpClient.newBuilder()
-            .version(java.net.http.HttpClient.Version.HTTP_2)
-            .sslContext(
-                SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build())
-            .build();
+  void emptyResponseFault() {
+    HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(
         get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
-    IOException e =
-        getAndAssertUnderlyingExceptionInstanceClass(
-            client, wm.getRuntimeInfo().getHttpsBaseUrl() + "/empty/response", EOFException.class);
-    assertThat(e.getMessage(), is("EOF reached while reading"));
+    getAndAssertUnderlyingExceptionInstanceClass(
+        client,
+        wm.getRuntimeInfo().getHttpsBaseUrl() + "/empty/response",
+        ClosedChannelException.class);
   }
 
   @Test
-  void malformedResponseChunkFault() throws Exception {
-    java.net.http.HttpClient client =
-        java.net.http.HttpClient.newBuilder()
-            .version(java.net.http.HttpClient.Version.HTTP_2)
-            .sslContext(
-                SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build())
-            .build();
+  void malformedResponseChunkFault() {
+    HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(
         get(urlEqualTo("/malformed/response"))
@@ -144,19 +121,12 @@ public class Http2AcceptanceTest {
             client,
             wm.getRuntimeInfo().getHttpsBaseUrl() + "/malformed/response",
             IOException.class);
-    assertThat(
-        e.getMessage(),
-        is("protocol error: Frame type(100) length(7107435) exceeds MAX_FRAME_SIZE(16384)"));
+    assertThat(e.getMessage(), is("frame_size_error/invalid_frame_length"));
   }
 
   @Test
-  void randomDataOnSocketFault() throws Exception {
-    java.net.http.HttpClient client =
-        java.net.http.HttpClient.newBuilder()
-            .version(java.net.http.HttpClient.Version.HTTP_2)
-            .sslContext(
-                SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build())
-            .build();
+  void randomDataOnSocketFault() {
+    HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(
         get(urlEqualTo("/random/data"))
@@ -165,13 +135,11 @@ public class Http2AcceptanceTest {
     IOException e =
         getAndAssertUnderlyingExceptionInstanceClass(
             client, wm.getRuntimeInfo().getHttpsBaseUrl() + "/random/data", IOException.class);
-    assertThat(
-        e.getMessage(),
-        is("protocol error: Frame type(100) length(7107435) exceeds MAX_FRAME_SIZE(16384)"));
+    assertThat(e.getMessage(), is("frame_size_error/invalid_frame_length"));
   }
 
   private <T> T getAndAssertUnderlyingExceptionInstanceClass(
-      java.net.http.HttpClient httpClient, String url, Class<T> expectedClass) {
+      HttpClient httpClient, String url, Class<T> expectedClass) {
     try {
       contentFor(httpClient, url);
     } catch (Exception e) {
@@ -190,10 +158,7 @@ public class Http2AcceptanceTest {
     return fail("No exception was thrown");
   }
 
-  private void contentFor(java.net.http.HttpClient httpClient, String url) throws Exception {
-    var request = HttpRequest.newBuilder(URI.create(url)).GET().build();
-    assertThat(
-        httpClient.send(request, HttpResponse.BodyHandlers.discarding()).version(),
-        is(java.net.http.HttpClient.Version.HTTP_2));
+  private void contentFor(HttpClient httpClient, String url) throws Exception {
+    httpClient.GET(url).getContentAsString();
   }
 }
