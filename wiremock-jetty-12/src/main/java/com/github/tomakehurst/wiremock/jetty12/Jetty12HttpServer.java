@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.jetty12;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.jetty12.SslContexts.buildManInTheMiddleSslContextFactory;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
@@ -331,8 +330,7 @@ public class Jetty12HttpServer implements HttpServer {
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
 
-    Resource assetsResource =
-        ResourceFactory.of(adminContext).newClassLoaderResource("assets");
+    Resource assetsResource = ResourceFactory.of(adminContext).newClassLoaderResource("assets");
     if (Resources.isReadable(assetsResource)) {
       adminContext.setBaseResource(assetsResource);
     }
