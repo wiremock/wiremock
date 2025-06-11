@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.schema;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -60,21 +59,25 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     // Load the actual schema
     String actualSchema = loadResourceAsString(SCHEMA_PATH);
     assertNotNull(actualSchema, "Schema file not found: " + SCHEMA_PATH);
+    JsonNode actualSchemaJson = Json.node(actualSchema);
 
     // Load the expected schema
     String expectedSchema = loadResourceAsString(EXPECTED_SCHEMA_PATH);
     assertNotNull(expectedSchema, "Expected schema file not found: " + EXPECTED_SCHEMA_PATH);
+    JsonNode expectedSchemaJson = Json.node(expectedSchema);
 
     // Compare the schemas
-    if (!actualSchema.equals(expectedSchema)) {
-      // If they're different, update the expected schema file
+    try {
+      assertEquals(expectedSchemaJson, actualSchemaJson);
+    } catch (AssertionError e) {
       Path expectedSchemaPath = Paths.get("src/test/resources", EXPECTED_SCHEMA_PATH);
       Files.write(expectedSchemaPath, actualSchema.getBytes(UTF_8));
-
-      // Fail the test to indicate that the expected schema was updated
-      fail(
-          "The expected schema file has been updated with the current schema. "
-              + "Run the test again to verify that it passes.");
+      System.err.println(
+          "The regression test failing may just mean that your intended changes need to be committed."
+              + System.lineSeparator()
+              + EXPECTED_SCHEMA_PATH
+              + " has been updated - compare it with the previous version, and if you are happy with the changes commit them.");
+      throw e;
     }
   }
 
