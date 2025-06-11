@@ -28,6 +28,8 @@ plugins {
   id 'com.dorongold.task-tree' version '4.0.1'
 }
 
+apply from: "buildSchema.gradle"
+
 group = 'org.wiremock'
 
 project.ext {
