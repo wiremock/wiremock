@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
+import com.github.tomakehurst.wiremock.jetty12.JettySettings;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
