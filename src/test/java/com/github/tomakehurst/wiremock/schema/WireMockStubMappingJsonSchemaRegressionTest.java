@@ -1,0 +1,73 @@
+package com.github.tomakehurst.wiremock.schema;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.networknt.schema.*;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class WireMockStubMappingJsonSchemaRegressionTest {
+
+    private static final String SCHEMA_PATH = "schemas/wiremock-stub-mapping.json";
+    private static final String EXPECTED_SCHEMA_PATH = "schema-validation/expected-wiremock-stub-mapping-schema.json";
+
+    @Test
+    void schemaIsAJsonSchema() {
+        JsonNode schemaJson = Json.node(loadResourceAsString(SCHEMA_PATH));
+        assertNotNull(schemaJson, "Schema file not found: " + SCHEMA_PATH);
+
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().build();
+        SpecVersion.VersionFlag version = SpecVersion.VersionFlag.fromId(schemaJson.get("$schema").textValue()).orElseThrow();
+
+        final JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(version);
+
+        JsonNode metaSchemaJson = Json.node(loadResourceAsString(URI.create(version.getId()).getPath().substring(1)));
+        final JsonSchema metaSchema = schemaFactory.getSchema(metaSchemaJson, schemaValidatorsConfig);
+
+        assertThat(metaSchema.validate(schemaJson)).isEmpty();
+    }
+
+    @Test
+    void schemaIsExpectedSchema() throws IOException {
+        // Load the actual schema
+        String actualSchema = loadResourceAsString(SCHEMA_PATH);
+        assertNotNull(actualSchema, "Schema file not found: " + SCHEMA_PATH);
+
+        // Load the expected schema
+        String expectedSchema = loadResourceAsString(EXPECTED_SCHEMA_PATH);
+        assertNotNull(expectedSchema, "Expected schema file not found: " + EXPECTED_SCHEMA_PATH);
+
+        // Compare the schemas
+        if (!actualSchema.equals(expectedSchema)) {
+            // If they're different, update the expected schema file
+            Path expectedSchemaPath = Paths.get("src/test/resources", EXPECTED_SCHEMA_PATH);
+            Files.write(expectedSchemaPath, actualSchema.getBytes(UTF_8));
+
+            // Fail the test to indicate that the expected schema was updated
+            fail("The expected schema file has been updated with the current schema. " +
+                "Run the test again to verify that it passes.");
+        }
+    }
+
+    private String loadResourceAsString(String resourcePath) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                return null;
+            }
+            return new String(is.readAllBytes(), UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load resource: " + resourcePath, e);
+        }
+    }
+}
