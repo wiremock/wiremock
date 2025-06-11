@@ -18,6 +18,7 @@ buildscript {
 def buildStubMappingSchema = tasks.register("buildStubMappingSchema") {
   group = "build"
   outputs.dir(temporaryDir)
+  inputs.dir('src/main/resources/swagger/schemas')
 
   doLast {
     def schemasDir = new File(temporaryDir, "schemas")
@@ -74,7 +75,7 @@ private String doBuildStubMappingSchema() {
 
   def schemas = new ArrayList<Tuple>()
   file('src/main/resources/swagger/schemas').listFiles().toList().sort { it.name }.each { file ->
-    def name = removeYamlSuffix(file.name)
+    def name = file.name - ".yaml"
     def schema = readSchema(yamlMapper, file)
 
     //For non-'date-time-elements', adds a single name-schema pair,
@@ -120,7 +121,7 @@ private def replaceFileRefs(JsonNode node) {
     final def ref = nodeAsObject["\$ref"]?.asText()
     if (ref != null) {
       if (ref.endsWith(".yaml")) {
-        nodeAsObject.put("\$ref", "#/definitions/${removeYamlSuffix(ref)}")
+        nodeAsObject.put("\$ref", "#/definitions/${(ref - ".yaml")}")
       }
       //date-time-elements.yaml is handled explicitly because it contains multiple standalone schemas
       else if (ref.startsWith("date-time-elements.yaml#/")) {
@@ -137,10 +138,6 @@ private def replaceFileRefs(JsonNode node) {
       replaceFileRefs(item)
     }
   }
-}
-
-private static String removeYamlSuffix(String fileName) {
-  return fileName.substring(0, fileName.length() - ".yaml".length())
 }
 
 private static String removePrefix(String input, String prefix) {
