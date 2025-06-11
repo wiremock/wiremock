@@ -16,12 +16,18 @@
 package com.github.tomakehurst.wiremock.schema;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.networknt.schema.*;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.SpecVersion;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -51,7 +57,7 @@ class WireMockStubMappingJsonSchemaRegressionTest {
         Json.node(loadResourceAsString(URI.create(version.getId()).getPath().substring(1)));
     final JsonSchema metaSchema = schemaFactory.getSchema(metaSchemaJson, schemaValidatorsConfig);
 
-    assertThat(metaSchema.validate(schemaJson)).isEmpty();
+    assertThat(metaSchema.validate(schemaJson), is(empty()));
   }
 
   @Test
@@ -59,16 +65,14 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     // Load the actual schema
     String actualSchema = loadResourceAsString(SCHEMA_PATH);
     assertNotNull(actualSchema, "Schema file not found: " + SCHEMA_PATH);
-    JsonNode actualSchemaJson = Json.node(actualSchema);
 
     // Load the expected schema
     String expectedSchema = loadResourceAsString(EXPECTED_SCHEMA_PATH);
     assertNotNull(expectedSchema, "Expected schema file not found: " + EXPECTED_SCHEMA_PATH);
-    JsonNode expectedSchemaJson = Json.node(expectedSchema);
 
     // Compare the schemas
     try {
-      assertEquals(expectedSchemaJson, actualSchemaJson);
+      assertThat(actualSchema, jsonEquals(expectedSchema));
     } catch (AssertionError e) {
       Path expectedSchemaPath = Paths.get("src/test/resources", EXPECTED_SCHEMA_PATH);
       Files.write(expectedSchemaPath, actualSchema.getBytes(UTF_8));

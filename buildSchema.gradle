@@ -73,7 +73,7 @@ private String doBuildStubMappingSchema() {
   def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
 
   def schemas = new ArrayList<Tuple>()
-  file('src/main/resources/swagger/schemas').listFiles().each { file ->
+  file('src/main/resources/swagger/schemas').listFiles().toList().sort { it.name }.each { file ->
     def name = removeYamlSuffix(file.name)
     def schema = readSchema(yamlMapper, file)
 
