@@ -135,6 +135,11 @@ public class RequestIdDecorator implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return request.getRawBody();
+  }
+
+  @Override
   public String getBodyAsString() {
     return request.getBodyAsString();
   }

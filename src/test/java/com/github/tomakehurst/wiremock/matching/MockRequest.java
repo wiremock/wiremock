@@ -253,6 +253,11 @@ public class MockRequest implements Request {
   }
 
   @Override
+  public byte[] getRawBody() {
+    return body;
+  }
+
+  @Override
   public String getBodyAsString() {
     return body != null ? new String(body) : null;
   }

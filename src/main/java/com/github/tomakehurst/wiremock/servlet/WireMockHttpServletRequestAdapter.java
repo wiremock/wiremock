@@ -45,6 +45,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   private final HttpServletRequest request;
   private byte[] cachedBody;
+  private byte[] cachedRawBody;
   private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
 
   private final Map<String, FormParameter> cachedFormParameters;
@@ -131,19 +132,28 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public byte[] getBody() {
     if (cachedBody == null) {
-      try {
-        byte[] body = request.getInputStream().readAllBytes();
+        byte[] body = getRawBody();
         boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
         cachedBody = isGzipped ? Gzip.unGzip(body) : body;
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
     }
 
     return cachedBody;
   }
 
-  private Charset encodingFromContentTypeHeaderOrUtf8() {
+    @Override
+    public byte[] getRawBody() {
+        if (cachedRawBody == null) {
+            try {
+                cachedRawBody = request.getInputStream().readAllBytes();
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+
+        return cachedRawBody;
+    }
+
+    private Charset encodingFromContentTypeHeaderOrUtf8() {
     ContentTypeHeader contentTypeHeader = contentTypeHeader();
     if (contentTypeHeader != null) {
       return contentTypeHeader.charset();

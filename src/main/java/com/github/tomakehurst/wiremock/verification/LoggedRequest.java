@@ -52,6 +52,7 @@ public class LoggedRequest implements Request {
   private final Map<String, QueryParameter> queryParams;
   private final Map<String, FormParameter> formParameters;
   private final byte[] body;
+  private byte[] rawBody;
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
   private final Collection<Part> multiparts;
@@ -76,6 +77,7 @@ public class LoggedRequest implements Request {
         request.isBrowserProxyRequest(),
         new Date(),
         request.getBody(),
+        request.getRawBody(),
         request.getParts(),
         request.getProtocol(),
         request.formParameters());
@@ -110,6 +112,7 @@ public class LoggedRequest implements Request {
         isBrowserProxyRequest,
         loggedDate,
         decodeBase64(bodyAsBase64),
+        decodeBase64(bodyAsBase64),
         multiparts,
         protocol,
         new HashMap<>());
@@ -130,6 +133,7 @@ public class LoggedRequest implements Request {
       boolean isBrowserProxyRequest,
       Date loggedDate,
       byte[] body,
+      byte[] rawBody,
       Collection<Part> multiparts,
       String protocol,
       Map<String, FormParameter> formParameters) {
@@ -137,7 +141,8 @@ public class LoggedRequest implements Request {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
-    if (absoluteUrl == null) {
+      this.rawBody = rawBody;
+      if (absoluteUrl == null) {
       this.scheme = scheme;
       this.host = host;
       this.port = port != null ? port : -1;
@@ -256,6 +261,11 @@ public class LoggedRequest implements Request {
   @Override
   public byte[] getBody() {
     return body;
+  }
+
+  @Override
+  public byte[] getRawBody() {
+    return rawBody;
   }
 
   @Override
