@@ -33,27 +33,7 @@ properties:
     type: string
     example: "127.0.0.1"
   headers:
-    description: HTTP headers received with the request
-    type: object
-    additionalProperties:
-      type: object
-      properties:
-        key:
-          type: string
-        values:
-          type: array
-          items:
-            type: string
-    example:
-      Connection: 
-        key: "Connection"
-        values: ["keep-alive"]
-      Host: 
-        key: "Host"
-        values: ["localhost:56738"]
-      User-Agent: 
-        key: "User-Agent"
-        values: ["Apache-HttpClient/4.5.1 (Java/1.7.0_51)"]
+    $ref: "headers.yaml"
   cookies:
     description: Cookies received with the request
     type: object
@@ -122,17 +102,7 @@ properties:
           type: string
           description: The filename of the multipart part, if provided
         headers:
-          type: object
-          description: Headers associated with this part
-          additionalProperties:
-            type: object
-            properties:
-              key:
-                type: string
-              values:
-                type: array
-                items:
-                  type: string
+          $ref: "headers.yaml"
         body:
           type: string
           description: The body content of this part
