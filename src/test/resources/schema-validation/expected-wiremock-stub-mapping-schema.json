@@ -875,6 +875,10 @@
           "type" : "string",
           "description" : "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
         },
+        "urlPathTemplate" : {
+          "type" : "string",
+          "description" : "The path template to match against. Must conform to the OpenAPI compatible subset of the RFC 6570 URI Template specification.\nOnly one of url, urlPattern, urlPath or urlPathPattern may be specified.\n"
+        },
         "pathParameters" : {
           "type" : "object",
           "description" : "Path parameter patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form. Can only\nbe used when the urlPathPattern URL match type is in use and all keys must be present as variables\nin the path template.",
@@ -902,6 +906,10 @@
           "additionalProperties" : {
             "$ref" : "#/definitions/content-pattern"
           }
+        },
+        "clientIp" : {
+          "type" : "string",
+          "description" : "The client IP address to match against"
         },
         "basicAuthCredentials" : {
           "type" : "object",
