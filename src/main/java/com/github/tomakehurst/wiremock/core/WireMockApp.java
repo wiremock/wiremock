@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -226,7 +227,7 @@ public class WireMockApp implements StubServer, Admin {
             browserProxySettings.trustAllProxyTargets()
                 ? Collections.emptyList()
                 : browserProxySettings.trustedProxyTargets(),
-            false);
+            options.proxyVia() == ProxySettings.NO_PROXY);
 
     return new StubRequestHandler(
         this,
