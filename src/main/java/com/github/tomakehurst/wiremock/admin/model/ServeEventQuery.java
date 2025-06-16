@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -96,7 +97,8 @@ public class ServeEventQuery {
         stubMappingId != null
             ? serveEvent ->
                 serveEvent.getWasMatched()
-                    && serveEvent.getStubMapping().getId().equals(stubMappingId)
+                    && Objects.nonNull(serveEvent.getStubMapping().getId())
+                        && serveEvent.getStubMapping().getId().equals(stubMappingId)
             : serveEvent -> true;
 
     return events.stream().filter(matchPredicate).filter(stubPredicate).collect(toList());
