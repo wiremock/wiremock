@@ -30,8 +30,12 @@ properties:
     type: string
     description: The new state for the scenario to be updated to after this stub is served.
   postServeActions:
-    type: object
-    description: A map of the names of post serve action extensions to trigger and their parameters.
+    type: array
+    description: |
+      DEPRECATED: Use `serveEventListeners` instead.
+      A map of the names of post serve action extensions to trigger and their parameters.
+    items: 
+      type: object
   serveEventListeners:
     type: array
     description: The list of serve event listeners
