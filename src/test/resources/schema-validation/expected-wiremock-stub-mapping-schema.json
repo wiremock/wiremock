@@ -350,6 +350,38 @@
       },
       "required" : [ "hasExactly" ]
     },
+    "headers" : {
+      "type" : "object",
+      "description" : "HTTP headers",
+      "additionalProperties" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "values" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "example" : {
+        "Connection" : {
+          "key" : "Connection",
+          "values" : [ "keep-alive" ]
+        },
+        "Host" : {
+          "key" : "Host",
+          "values" : [ "localhost:56738" ]
+        },
+        "User-Agent" : {
+          "key" : "User-Agent",
+          "values" : [ "Apache-HttpClient/4.5.1 (Java/1.7.0_51)" ]
+        }
+      }
+    },
     "health" : {
       "type" : "object",
       "properties" : {
@@ -397,6 +429,11 @@
     "logged-request" : {
       "type" : "object",
       "properties" : {
+        "id" : {
+          "description" : "The unique identifier for this request",
+          "type" : "string",
+          "format" : "uuid"
+        },
         "method" : {
           "description" : "The HTTP request method",
           "type" : "string",
@@ -412,24 +449,139 @@
           "type" : "string",
           "example" : "http://localhost:56738/received-request/2"
         },
+        "scheme" : {
+          "description" : "The URL scheme (http/https)",
+          "type" : "string",
+          "example" : "http"
+        },
+        "host" : {
+          "description" : "The host part of the URL",
+          "type" : "string",
+          "example" : "localhost"
+        },
+        "port" : {
+          "description" : "The port number",
+          "type" : "integer",
+          "example" : 56738
+        },
+        "clientIp" : {
+          "description" : "The client IP address",
+          "type" : "string",
+          "example" : "127.0.0.1"
+        },
         "headers" : {
-          "description" : "Header patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
-          "type" : "object",
-          "example" : {
-            "Connection" : "keep-alive",
-            "Host" : "localhost:56738",
-            "User-Agent" : "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
-          }
+          "$ref" : "#/definitions/headers"
         },
         "cookies" : {
-          "description" : "Cookie patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
+          "description" : "Cookies received with the request",
           "type" : "object",
+          "additionalProperties" : {
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string"
+              },
+              "value" : {
+                "type" : "string"
+              }
+            }
+          },
           "example" : { }
         },
         "body" : {
           "description" : "Body string to match against",
           "type" : "string",
           "example" : "Hello world"
+        },
+        "bodyAsBase64" : {
+          "description" : "Base64 encoded body content",
+          "type" : "string"
+        },
+        "browserProxyRequest" : {
+          "description" : "Whether this request was made via a browser proxy",
+          "type" : "boolean",
+          "example" : false
+        },
+        "loggedDate" : {
+          "description" : "The timestamp when the request was logged (epoch millis)",
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1471442557047
+        },
+        "loggedDateString" : {
+          "description" : "The formatted date string when the request was logged",
+          "type" : "string",
+          "example" : "2016-08-17T14:02:37Z"
+        },
+        "queryParams" : {
+          "description" : "Query parameters parsed from the URL",
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object",
+            "properties" : {
+              "key" : {
+                "type" : "string"
+              },
+              "values" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "formParams" : {
+          "description" : "Form parameters parsed from the request body",
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object",
+            "properties" : {
+              "key" : {
+                "type" : "string"
+              },
+              "values" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "multiparts" : {
+          "description" : "Multipart form data parts",
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string",
+                "description" : "The name of the multipart part"
+              },
+              "fileName" : {
+                "type" : "string",
+                "description" : "The filename of the multipart part, if provided"
+              },
+              "headers" : {
+                "$ref" : "#/definitions/headers"
+              },
+              "body" : {
+                "type" : "string",
+                "description" : "The body content of this part"
+              },
+              "bodyAsBase64" : {
+                "type" : "string",
+                "description" : "Base64 encoded body content of this part"
+              }
+            },
+            "required" : [ "name" ]
+          }
+        },
+        "protocol" : {
+          "description" : "The HTTP protocol version",
+          "type" : "string",
+          "example" : "HTTP/1.1"
         }
       }
     },
@@ -723,6 +875,10 @@
           "type" : "string",
           "description" : "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
         },
+        "urlPathTemplate" : {
+          "type" : "string",
+          "description" : "The path template to match against. Must conform to the OpenAPI compatible subset of the RFC 6570 URI Template specification.\nOnly one of url, urlPattern, urlPath or urlPathPattern may be specified.\n"
+        },
         "pathParameters" : {
           "type" : "object",
           "description" : "Path parameter patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form. Can only\nbe used when the urlPathPattern URL match type is in use and all keys must be present as variables\nin the path template.",
@@ -750,6 +906,10 @@
           "additionalProperties" : {
             "$ref" : "#/definitions/content-pattern"
           }
+        },
+        "clientIp" : {
+          "type" : "string",
+          "description" : "The client IP address to match against"
         },
         "basicAuthCredentials" : {
           "type" : "object",
@@ -1005,8 +1165,11 @@
           "description" : "The new state for the scenario to be updated to after this stub is served."
         },
         "postServeActions" : {
-          "type" : "object",
-          "description" : "A map of the names of post serve action extensions to trigger and their parameters."
+          "type" : "array",
+          "description" : "DEPRECATED: Use `serveEventListeners` instead.\nA map of the names of post serve action extensions to trigger and their parameters.\n",
+          "items" : {
+            "type" : "object"
+          }
         },
         "serveEventListeners" : {
           "type" : "array",
