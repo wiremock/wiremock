@@ -33,24 +33,28 @@ import java.util.function.Function;
 public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
   private final RequestPatternTransformer requestTransformer;
   private final LoggedResponseDefinitionTransformer responseTransformer;
+  private final Boolean captureHost;
 
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated(forRemoval = true)
   public SnapshotStubMappingGenerator(
       RequestPatternTransformer requestTransformer,
-      LoggedResponseDefinitionTransformer responseTransformer) {
+      LoggedResponseDefinitionTransformer responseTransformer,
+      Boolean captureHost) {
     this.requestTransformer = requestTransformer;
     this.responseTransformer = responseTransformer;
+    this.captureHost = captureHost;
   }
 
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated(forRemoval = true)
   public SnapshotStubMappingGenerator(
       Map<String, CaptureHeadersSpec> captureHeaders,
-      RequestBodyPatternFactory requestBodyPatternFactory) {
+      RequestBodyPatternFactory requestBodyPatternFactory,
+      Boolean captureHost) {
     this(
-        new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
-        new LoggedResponseDefinitionTransformer());
+        new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory, captureHost),
+        new LoggedResponseDefinitionTransformer(), captureHost);
   }
 
   @Override
@@ -61,7 +65,12 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
 
     URI uri = URI.create(event.getRequest().getUrl());
     FilenameMaker filenameMaker = new FilenameMaker();
-    stubMapping.setName(filenameMaker.sanitizeUrl(uri.getPath()));
+    String url = "";
+    if (captureHost) {
+      url += uri.getHost() + "/";
+    }
+    url += uri.getPath();
+    stubMapping.setName(filenameMaker.sanitizeUrl(url));
 
     return stubMapping;
   }
