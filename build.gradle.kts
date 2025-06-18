@@ -1,4 +1,6 @@
+
 import com.github.gundy.semver4j.model.Version
+import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
 
@@ -14,7 +16,7 @@ buildscript {
 plugins {
   id("wiremock.common-conventions")
   id("scala")
-  alias(libs.plugins.nexus.publish)
+  alias(libs.plugins.vanniktech.maven.publish)
   id("idea")
   id("eclipse")
   id("project-report")
@@ -264,18 +266,8 @@ publishing {
     }
   }
 
-  nexusPublishing {
-    // See https://github.com/wiremock/community/blob/main/infra/maven-central.md
-    repositories {
-      sonatype {
-        val envUsername = providers.environmentVariable("OSSRH_USERNAME").orElse("").get()
-        val envPassword = providers.environmentVariable("OSSRH_TOKEN").orElse("").get()
-        if (envUsername.isNotEmpty() && envPassword.isNotEmpty()) {
-          username.set(envUsername)
-          password.set(envPassword)
-        }
-      }
-    }
+  mavenPublishing {
+    publishToMavenCentral(SonatypeHost.DEFAULT, automaticRelease = true)
   }
 }
 
