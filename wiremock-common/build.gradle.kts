@@ -2,6 +2,8 @@ plugins {
     id("wiremock.common-conventions")
 }
 
+apply(from = "buildSchema.gradle")
+
 dependencies {
     api(libs.apache.http5.client)
     api(libs.apache.http5.core)

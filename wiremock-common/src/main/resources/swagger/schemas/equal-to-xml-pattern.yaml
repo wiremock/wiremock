@@ -3,6 +3,7 @@ type: object
 properties:
   equalToXml:
     type: string
+    x-intellij-language-injection: XML
     example: |-
       <amount>123</amount>
   enablePlaceholders:

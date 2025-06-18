@@ -40,6 +40,11 @@ properties:
   urlPattern:
     type: string
     description: The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPathTemplate:
+    type: string
+    description: |
+      The path template to match against. Must conform to the OpenAPI compatible subset of the RFC 6570 URI Template specification.
+      Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
 
   pathParameters:
     type: object
@@ -68,6 +73,10 @@ properties:
     additionalProperties:
       $ref: "content-pattern.yaml"
 
+  clientIp:
+    type: string
+    description: The client IP address to match against
+
   basicAuthCredentials:
     type: object
     description: Pre-emptive basic auth credentials to match against
@@ -85,6 +94,7 @@ properties:
     description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
     additionalProperties:
       $ref: "content-pattern.yaml"
+
   bodyPatterns:
     type: array
     description: 'Request body patterns to match against in the { "<predicate>": "<value>" } form'

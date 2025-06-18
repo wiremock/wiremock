@@ -1,16 +1,16 @@
 [versions]
 jetty = "12.0.20"
-jackson = "2.18.3"
-xmlUnit = "2.10.0"
+jackson = "2.19.0"
+xmlUnit = "2.10.2"
 jsonUnit = "2.40.1"
-junitJupiter = "5.12.2"
+junitJupiter = "5.13.1"
 handlebars = "4.3.1"
 slf4j = "1.7.36"
 hamcrest = "3.0"
-mockito = "5.17.0"
+mockito = "5.18.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
-archunit = "1.4.0"
+archunit = "1.4.1"
 
 [libraries]
 # Jetty dependencies
@@ -45,7 +45,7 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 guava = { module = "com.google.guava:guava", version = "33.4.8-jre" }
 
 # HTTP Client
-apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.3" }
+apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.5" }
 apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.4" }
 
 # XML Unit
@@ -85,10 +85,10 @@ handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebar
 handlebars-helpers = { module = "com.github.jknack:handlebars-helpers", version.ref = "handlebars" }
 
 # File upload
-commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.5" }
+commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.6.0" }
 
 # JSON Schema
-json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.6" }
+json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.7" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }

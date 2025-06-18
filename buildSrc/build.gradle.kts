@@ -12,7 +12,7 @@ repositories {
 dependencies {
   implementation("com.diffplug.gradle.spotless:com.diffplug.gradle.spotless.gradle.plugin:6.25.0")
   implementation("com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:8.1.1")
-  implementation("org.sonarqube:org.sonarqube.gradle.plugin:6.1.0.5360")
+  implementation("org.sonarqube:org.sonarqube.gradle.plugin:6.2.0.5505")
 }
 
 java {
