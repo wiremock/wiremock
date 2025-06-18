@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.jetty12;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.jetty11.Jetty11Utils.createHttpConfig;
 import static com.github.tomakehurst.wiremock.jetty11.SslContexts.buildManInTheMiddleSslContextFactory;
@@ -261,8 +260,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
 
-    Resource assetsResource =
-        ResourceFactory.of(adminContext).newClassLoaderResource("assets");
+    Resource assetsResource = ResourceFactory.of(adminContext).newClassLoaderResource("assets");
     if (Resources.isReadable(assetsResource)) {
       adminContext.setBaseResource(assetsResource);
     }
@@ -310,10 +308,13 @@ public class Jetty12HttpServer extends JettyHttpServer {
     ServletContextHandler mockServiceContext = new ServletContextHandler();
     mockServiceContext.setServer(jettyServer);
     mockServiceContext.setContextPath("/");
-    Resource fileSourceResource =
-        ResourceFactory.of(mockServiceContext).newResource(fileSource.getPath());
-    if (Resources.isReadable(fileSourceResource)) {
-      mockServiceContext.setBaseResource(fileSourceResource);
+    String fileSourcePath = fileSource.getPath();
+    if (!fileSourcePath.isEmpty()) {
+      Resource fileSourceResource =
+          ResourceFactory.of(mockServiceContext).newResource(fileSourcePath);
+      if (Resources.isReadable(fileSourceResource)) {
+        mockServiceContext.setBaseResource(fileSourceResource);
+      }
     }
 
     decorateMockServiceContextBeforeConfig(mockServiceContext);
