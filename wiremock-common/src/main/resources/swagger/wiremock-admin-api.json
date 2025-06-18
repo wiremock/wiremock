@@ -1769,7 +1769,8 @@
         "type": "object",
         "properties": {
           "matches": {
-            "type": "string"
+            "type": "string",
+            "x-intellij-language-injection": "RegExp"
           }
         },
         "required": [
@@ -1781,7 +1782,8 @@
         "type": "object",
         "properties": {
           "doesNotMatch": {
-            "type": "string"
+            "type": "string",
+            "x-intellij-language-injection": "RegExp"
           }
         },
         "required": [
@@ -1855,7 +1857,7 @@
         ]
       },
       "not-pattern": {
-        "title": "NOT modifier",
+        "title": "Logical NOT modifier",
         "type": "object",
         "properties": {
           "not": {
@@ -1957,8 +1959,21 @@
         "type": "object",
         "properties": {
           "equalToJson": {
-            "type": "string",
-            "example": "{ \"message\": \"hello\" }\n"
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "The JSON object to match.",
+                "example": {
+                  "message": "hello"
+                }
+              },
+              {
+                "type": "string",
+                "x-intellij-language-injection": "JSON",
+                "description": "A JSON-encoded JSON string to match.",
+                "example": "{ \"message\": \"hello\" }"
+              }
+            ]
           },
           "ignoreExtraElements": {
             "type": "boolean"
@@ -1979,7 +1994,8 @@
             "oneOf": [
               {
                 "type": "string",
-                "example": "$.name"
+                "example": "$.name",
+                "x-intellij-language-injection": "JSONPath"
               },
               {
                 "type": "object",
@@ -2013,6 +2029,7 @@
         "properties": {
           "equalToXml": {
             "type": "string",
+            "x-intellij-language-injection": "XML",
             "example": "<amount>123</amount>"
           },
           "enablePlaceholders": {
@@ -2020,7 +2037,7 @@
           },
           "placeholderOpeningDelimiterRegex": {
             "type": "string",
-            "example": "["
+            "example": "\\["
           },
           "placeholderClosingDelimiterRegex": {
             "type": "string",
@@ -2047,7 +2064,8 @@
             "oneOf": [
               {
                 "type": "string",
-                "example": "//Order/Amount"
+                "example": "//Order/Amount",
+                "x-intellij-language-injection": "XPath"
               },
               {
                 "type": "object",
@@ -2086,37 +2104,21 @@
         "type": "object",
         "properties": {
           "matchesJsonSchema": {
-            "oneOf": [
-              {
-                "type": "string",
-                "example": "//Order/Amount"
-              },
-              {
-                "type": "object",
-                "allOf": [
-                  {
-                    "properties": {
-                      "expression": {
-                        "type": "string",
-                        "example": "//Order/Amount"
-                      }
-                    }
-                  },
-                  {
-                    "$ref": "#/components/schemas/content-pattern"
-                  }
-                ],
-                "required": [
-                  "expression"
-                ]
-              }
-            ]
+            "type": "string",
+            "x-intellij-language-injection": "JSON",
+            "description": "A valid JSON schema as a string",
+            "example": "{\n  \"type\": \"object\",\n  \"required\": [\n    \"name\"\n  ],\n  \"properties\": {\n    \"name\": {\n      \"type\": \"string\"\n    },\n    \"tag\": {\n      \"type\": \"string\"\n    }\n  }\n}"
           },
-          "xPathNamespaces": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
+          "schemaVersion": {
+            "description": "The JSON schema version to interpret the schema against",
+            "example": "V202012",
+            "enum": [
+              "V4",
+              "V6",
+              "V7",
+              "V201909",
+              "V202012"
+            ]
           }
         },
         "required": [
@@ -2197,7 +2199,7 @@
       },
       "request-pattern": {
         "type": "object",
-        "example": "{\n  \"urlPath\" : \"/charges\",\n  \"method\" : \"POST\",\n  \"headers\" : {\n    \"Content-Type\" : {\n      \"equalTo\" : \"application/json\"\n    }\n  }\n",
+        "example": "{\n  \"urlPath\" : \"/charges\",\n  \"method\" : \"POST\",\n  \"headers\" : {\n    \"Content-Type\" : {\n      \"equalTo\" : \"application/json\"\n    }\n  }\n}",
         "properties": {
           "scheme": {
             "type": "string",
@@ -2216,10 +2218,6 @@
             "minimum": 1,
             "maximum": 65535,
             "description": "The HTTP port number of the request URL"
-          },
-          "clientIp": {
-            "type": "string",
-            "description": "The IP of the client making the request"
           },
           "method": {
             "type": "string",
@@ -2242,9 +2240,13 @@
             "type": "string",
             "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
           },
+          "urlPathTemplate": {
+            "type": "string",
+            "description": "The path template to match against. Must conform to the OpenAPI compatible subset of the RFC 6570 URI Template specification.\nOnly one of url, urlPattern, urlPath or urlPathPattern may be specified.\n"
+          },
           "pathParameters": {
             "type": "object",
-            "description": "Path parameter patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form. Can only\nbe used when the urlPathPattern URL match type is in use and all keys must be present as variables\nin the path template.\n",
+            "description": "Path parameter patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form. Can only\nbe used when the urlPathPattern URL match type is in use and all keys must be present as variables\nin the path template.",
             "additionalProperties": {
               "$ref": "#/components/schemas/content-pattern"
             }
@@ -2269,6 +2271,10 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/content-pattern"
             }
+          },
+          "clientIp": {
+            "type": "string",
+            "description": "The client IP address to match against"
           },
           "basicAuthCredentials": {
             "type": "object",
@@ -2295,7 +2301,7 @@
           },
           "bodyPatterns": {
             "type": "array",
-            "description": "Request body patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
+            "description": "Request body patterns to match against in the { \"<predicate>\": \"<value>\" } form",
             "items": {
               "$ref": "#/components/schemas/content-pattern"
             }
@@ -2343,7 +2349,7 @@
                 },
                 "bodyPatterns": {
                   "type": "array",
-                  "description": "Body patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
+                  "description": "Body patterns to match against in the { \"<predicate>\": \"<value>\" } form",
                   "items": {
                     "$ref": "#/components/schemas/content-pattern"
                   }
@@ -2366,6 +2372,9 @@
                 "type": "integer"
               },
               "sigma": {
+                "type": "number"
+              },
+              "maxValue": {
                 "type": "number"
               },
               "type": {
@@ -2584,8 +2593,11 @@
             "description": "The new state for the scenario to be updated to after this stub is served."
           },
           "postServeActions": {
-            "type": "object",
-            "description": "A map of the names of post serve action extensions to trigger and their parameters."
+            "type": "array",
+            "description": "DEPRECATED: Use `serveEventListeners` instead.\nA map of the names of post serve action extensions to trigger and their parameters.\n",
+            "items": {
+              "type": "object"
+            }
           },
           "serveEventListeners": {
             "type": "array",
@@ -2671,9 +2683,52 @@
           }
         }
       },
+      "headers": {
+        "type": "object",
+        "description": "HTTP headers",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "example": {
+          "Connection": {
+            "key": "Connection",
+            "values": [
+              "keep-alive"
+            ]
+          },
+          "Host": {
+            "key": "Host",
+            "values": [
+              "localhost:56738"
+            ]
+          },
+          "User-Agent": {
+            "key": "User-Agent",
+            "values": [
+              "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
+            ]
+          }
+        }
+      },
       "logged-request": {
         "type": "object",
         "properties": {
+          "id": {
+            "description": "The unique identifier for this request",
+            "type": "string",
+            "format": "uuid"
+          },
           "method": {
             "description": "The HTTP request method",
             "type": "string",
@@ -2689,24 +2744,141 @@
             "type": "string",
             "example": "http://localhost:56738/received-request/2"
           },
+          "scheme": {
+            "description": "The URL scheme (http/https)",
+            "type": "string",
+            "example": "http"
+          },
+          "host": {
+            "description": "The host part of the URL",
+            "type": "string",
+            "example": "localhost"
+          },
+          "port": {
+            "description": "The port number",
+            "type": "integer",
+            "example": 56738
+          },
+          "clientIp": {
+            "description": "The client IP address",
+            "type": "string",
+            "example": "127.0.0.1"
+          },
           "headers": {
-            "description": "Header patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
-            "type": "object",
-            "example": {
-              "Connection": "keep-alive",
-              "Host": "localhost:56738",
-              "User-Agent": "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
-            }
+            "$ref": "#/components/schemas/headers"
           },
           "cookies": {
-            "description": "Cookie patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
+            "description": "Cookies received with the request",
             "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
             "example": {}
           },
           "body": {
             "description": "Body string to match against",
             "type": "string",
             "example": "Hello world"
+          },
+          "bodyAsBase64": {
+            "description": "Base64 encoded body content",
+            "type": "string"
+          },
+          "browserProxyRequest": {
+            "description": "Whether this request was made via a browser proxy",
+            "type": "boolean",
+            "example": false
+          },
+          "loggedDate": {
+            "description": "The timestamp when the request was logged (epoch millis)",
+            "type": "integer",
+            "format": "int64",
+            "example": 1471442557047
+          },
+          "loggedDateString": {
+            "description": "The formatted date string when the request was logged",
+            "type": "string",
+            "example": "2016-08-17T14:02:37Z"
+          },
+          "queryParams": {
+            "description": "Query parameters parsed from the URL",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "formParams": {
+            "description": "Form parameters parsed from the request body",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "multiparts": {
+            "description": "Multipart form data parts",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The name of the multipart part"
+                },
+                "fileName": {
+                  "type": "string",
+                  "description": "The filename of the multipart part, if provided"
+                },
+                "headers": {
+                  "$ref": "#/components/schemas/headers"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "The body content of this part"
+                },
+                "bodyAsBase64": {
+                  "type": "string",
+                  "description": "Base64 encoded body content of this part"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "protocol": {
+            "description": "The HTTP protocol version",
+            "type": "string",
+            "example": "HTTP/1.1"
           }
         }
       },
