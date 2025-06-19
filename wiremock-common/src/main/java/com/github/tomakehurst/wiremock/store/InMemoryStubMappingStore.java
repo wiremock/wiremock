@@ -33,8 +33,8 @@ public class InMemoryStubMappingStore implements StubMappingStore {
   }
 
   @Override
-  public void remove(StubMapping stubMapping) {
-    mappings.remove(stubMapping);
+  public void remove(UUID stubMappingId) {
+    mappings.remove(stubMappingId);
   }
 
   @Override

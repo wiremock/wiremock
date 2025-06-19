@@ -317,16 +317,31 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
-    stubMappings
-        .get(stubMapping.getId())
-        .ifPresent(
-            stubToDelete -> {
-              if (stubToDelete.shouldBePersisted()) {
-                mappingsSaver.remove(stubToDelete);
-              }
-            });
+    StubMapping matchedStub = findStubMatching(stubMapping);
+    if (matchedStub == null) return;
 
-    stubMappings.removeMapping(stubMapping);
+    stubMappings.removeMapping(matchedStub);
+
+    if (matchedStub.shouldBePersisted()) {
+      mappingsSaver.remove(matchedStub.getId());
+    }
+  }
+
+  /**
+   * Attempts to retrieve a stub mapping that matches the provided stub. For a stub to "match", it
+   * must either share the same ID or the same request pattern. Matching the stub ID is prioritized
+   * over matching the request pattern. In other words, stubs are only checked for matching request
+   * patterns if no stubs are found that match the provided stub's ID.
+   */
+  private StubMapping findStubMatching(StubMapping stubMapping) {
+    return stubMappings
+        .get(stubMapping.getId())
+        .orElseGet(
+            () ->
+                stubMappings.getAll().stream()
+                    .filter(stub -> stub.getRequest().equals(stubMapping.getRequest()))
+                    .findFirst()
+                    .orElse(null));
   }
 
   @Override
