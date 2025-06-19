@@ -254,6 +254,8 @@ publishing {
       artifactId = "${tasks.jar.get().archiveBaseName.get()}-standalone"
       project.shadow.component(this)
 
+      artifact(tasks.named("sourcesJar"))
+      artifact(tasks.named("javadocJar"))
       artifact(testJar)
 
       pom.packaging = "jar"
