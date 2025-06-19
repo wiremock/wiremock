@@ -112,7 +112,7 @@ assertj-core = { module = "org.assertj:assertj-core", version = "3.27.3" }
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
-jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.0.0" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
