@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.NotWritableException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
@@ -32,9 +36,11 @@ import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import org.hamcrest.Matchers;
@@ -199,5 +205,41 @@ class JsonFileMappingsSourceTest {
     source.remove(firstStub.getId());
 
     assertThat(stubMappingFile.exists(), is(false));
+  }
+
+  @Test
+  void canSetAllStubFilesInSource() throws IOException {
+    StubMapping existingStub1 = get("/thing/1").withName("thing1").willReturn(ok()).build();
+    File existingStub1File = new File(tempDir, "thing1-" + existingStub1.getId() + ".json");
+    Files.writeString(existingStub1File.toPath(), Json.writePrivate(existingStub1));
+
+    StubMapping existingStub2 = get("/thing/1").withName("thing1").willReturn(noContent()).build();
+    File existingStub2File = new File(tempDir, "thing1-" + existingStub2.getId() + ".json");
+    Files.writeString(existingStub2File.toPath(), Json.writePrivate(existingStub2));
+
+    File existingStub3File = File.createTempFile("single3", ".json", tempDir);
+    Files.writeString(existingStub3File.toPath(), "{}");
+
+    assertThat(
+        Arrays.stream(Objects.requireNonNull(tempDir.listFiles())).toList(),
+        containsInAnyOrder(existingStub1File, existingStub2File, existingStub3File));
+
+    load();
+
+    StubMapping newStub1 =
+        post("/create")
+            .withName("thing1")
+            .withId(existingStub2.getId())
+            .willReturn(created())
+            .build();
+    StubMapping newStub2 = get("/thing/2").withName("thing2").willReturn(created()).build();
+    source.setAll(List.of(newStub1, newStub2));
+
+    File newStub2File = new File(tempDir, "thing2-" + newStub2.getId() + ".json");
+    assertThat(
+        Arrays.stream(Objects.requireNonNull(tempDir.listFiles())).toList(),
+        containsInAnyOrder(existingStub2File, newStub2File));
+    assertThat(Files.readString(existingStub2File.toPath()), is(Json.writePrivate(newStub1)));
+    assertThat(Files.readString(newStub2File.toPath()), is(Json.writePrivate(newStub2)));
   }
 }
