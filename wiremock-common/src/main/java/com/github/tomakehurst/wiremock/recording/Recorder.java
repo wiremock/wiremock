@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.UUID;
@@ -119,8 +120,8 @@ public class Recorder {
       if (recordSpec.shouldPersist()) {
         stubMapping.setPersistent(true);
       }
-      admin.addStubMapping(stubMapping);
     }
+    admin.importStubs(new StubImport(results.b, StubImport.Options.DEFAULTS));
 
     return recordSpec.getOutputFormat().format(results.b, results.a);
   }
