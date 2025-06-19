@@ -187,7 +187,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       listener.beforeStubRemoved(mapping);
     }
 
-    store.remove(mapping);
+    store.remove(mapping.getId());
     scenarios.onStubMappingRemoved(mapping);
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {

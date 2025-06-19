@@ -72,15 +72,15 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   @Override
-  public void remove(StubMapping stubMapping) {
-    StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
+  public void remove(UUID stubMappingId) {
+    StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMappingId);
     if (fileMetadata.multi) {
       throw new NotWritableException(
           "Stubs loaded from multi-mapping files are read-only, and therefore cannot be removed");
     }
 
     mappingsFileSource.deleteFile(fileMetadata.path);
-    fileNameMap.remove(stubMapping.getId());
+    fileNameMap.remove(stubMappingId);
   }
 
   @Override

@@ -49,7 +49,7 @@ public interface StubMappingStore {
 
   void replace(StubMapping existing, StubMapping updated);
 
-  void remove(StubMapping stubMapping);
+  void remove(UUID stubMapping);
 
   void clear();
 }
