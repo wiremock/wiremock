@@ -1,3 +1,5 @@
+
+import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.net.URI
@@ -11,6 +13,7 @@ plugins {
   id("com.diffplug.spotless")
   id("com.github.johnrengelman.shadow")
   id("org.sonarqube")
+  id("com.vanniktech.maven.publish.base")
 }
 
 group = "org.wiremock"
@@ -202,4 +205,8 @@ publishing {
       }
     }
   }
+}
+
+mavenPublishing {
+  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 }
