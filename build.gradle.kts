@@ -1,6 +1,5 @@
 
 import com.github.gundy.semver4j.model.Version
-import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
 
@@ -16,7 +15,6 @@ buildscript {
 plugins {
   id("wiremock.common-conventions")
   id("scala")
-  alias(libs.plugins.vanniktech.maven.publish.base)
   id("idea")
   id("eclipse")
   id("project-report")
@@ -265,10 +263,6 @@ publishing {
       }
     }
   }
-}
-
-mavenPublishing {
-  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 }
 
 val checkReleasePreconditions by tasks.registering  {
