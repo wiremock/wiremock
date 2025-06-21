@@ -26,4 +26,10 @@ public interface MappingsSaver {
   void remove(StubMapping stubMapping);
 
   void removeAll();
+
+  /** Saves the provided stubs and removes all others. */
+  default void setAll(List<StubMapping> stubMappings) {
+    removeAll();
+    save(stubMappings);
+  }
 }

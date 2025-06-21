@@ -305,26 +305,44 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void addStubMapping(StubMapping stubMapping) {
+    addStubMapping(stubMapping, true);
+  }
+
+  /**
+   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
+   *     to the caller.
+   */
+  private void addStubMapping(StubMapping stubMapping, boolean persistNow) {
     if (stubMapping.getId() == null) {
       stubMapping.setId(UUID.randomUUID());
     }
 
     stubMappings.addMapping(stubMapping);
-    if (stubMapping.shouldBePersisted()) {
+    if (persistNow && stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
   }
 
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
-    stubMappings
-        .get(stubMapping.getId())
-        .ifPresent(
-            stubToDelete -> {
-              if (stubToDelete.shouldBePersisted()) {
-                mappingsSaver.remove(stubToDelete);
-              }
-            });
+    removeStubMapping(stubMapping, true);
+  }
+
+  /**
+   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
+   *     to the caller.
+   */
+  private void removeStubMapping(StubMapping stubMapping, boolean persistNow) {
+    if (persistNow) {
+      stubMappings
+          .get(stubMapping.getId())
+          .ifPresent(
+              stubToDelete -> {
+                if (stubToDelete.shouldBePersisted()) {
+                  mappingsSaver.remove(stubToDelete);
+                }
+              });
+    }
 
     stubMappings.removeMapping(stubMapping);
   }
@@ -336,8 +354,16 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
+    editStubMapping(stubMapping, true);
+  }
+
+  /**
+   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
+   *     to the caller.
+   */
+  private void editStubMapping(StubMapping stubMapping, boolean persistNow) {
     stubMappings.editMapping(stubMapping);
-    if (stubMapping.shouldBePersisted()) {
+    if (persistNow && stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
   }
@@ -619,14 +645,17 @@ public class WireMockApp implements StubServer, Admin {
     StubImport.Options importOptions =
         getFirstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
 
+    List<StubMapping> mappingsToSave = new ArrayList<>();
     for (int i = mappings.size() - 1; i >= 0; i--) {
       StubMapping mapping = mappings.get(i);
       if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
         if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-          editStubMapping(mapping);
+          editStubMapping(mapping, false);
+          if (mapping.shouldBePersisted()) mappingsToSave.add(mapping);
         }
       } else {
-        addStubMapping(mapping);
+        addStubMapping(mapping, false);
+        if (mapping.shouldBePersisted()) mappingsToSave.add(mapping);
       }
     }
 
@@ -634,9 +663,12 @@ public class WireMockApp implements StubServer, Admin {
       List<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toList());
       for (StubMapping mapping : listAllStubMappings().getMappings()) {
         if (!ids.contains(mapping.getId())) {
-          removeStubMapping(mapping);
+          removeStubMapping(mapping, false);
         }
       }
+      mappingsSaver.setAll(mappingsToSave);
+    } else {
+      if (!mappingsToSave.isEmpty()) mappingsSaver.save(mappingsToSave);
     }
   }
 
