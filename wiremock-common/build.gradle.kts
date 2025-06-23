@@ -64,6 +64,10 @@ dependencies {
             replacedBy("org.hamcrest:hamcrest")
         }
     }
+
+    constraints {
+        implementation(libs.json.smart)
+    }
 }
 
 tasks.jar {
