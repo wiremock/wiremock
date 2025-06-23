@@ -60,6 +60,7 @@ json-unit = { module = "net.javacrumbs.json-unit:json-unit", version.ref = "json
 
 # JSON Path
 json-path = { module = "com.jayway.jsonpath:json-path", version = "2.9.0" }
+json-smart = { module = "net.minidev:json-smart", version = "2.5.2" }
 
 # SLF4J
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
