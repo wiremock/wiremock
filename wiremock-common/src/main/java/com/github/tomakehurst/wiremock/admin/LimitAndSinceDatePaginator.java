@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import static com.github.tomakehurst.wiremock.admin.Conversions.*;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toDate;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toInt;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toPredicate;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
