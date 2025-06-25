@@ -51,28 +51,28 @@ public class Conversions {
         return false;
       }
       final String requestUrl = event.getRequest().getUrl();
-      return filterQueryParam(requestUrl).test(include)
-          && !filterQueryParam(requestUrl).test(exclude);
+      return filterQueryParam(requestUrl, true).test(include)
+          && !filterQueryParam(requestUrl, false).test(exclude);
     };
   }
 
-  private static Predicate<QueryParameter> filterQueryParam(String actual) {
+  static Predicate<QueryParameter> filterQueryParam(String actual, boolean defaultValue) {
     return queryParam -> {
       if (!queryParam.isPresent()) {
-        return true;
+        return defaultValue;
       }
       return filterPredicates(actual).test(queryParam.getValues());
     };
   }
 
-  private static Predicate<List<String>> filterPredicates(String actual) {
+  static Predicate<List<String>> filterPredicates(String actual) {
     return list -> {
       if (list == null || list.isEmpty()) {
         return true;
       }
       for (String item : list) {
-        if (item.contains("|")) {
-          for (String part : item.split(Pattern.quote("|"))) {
+        if (item.contains(",")) {
+          for (String part : item.split(Pattern.quote(","))) {
             if (actual.contains(part)) {
               return true;
             }
