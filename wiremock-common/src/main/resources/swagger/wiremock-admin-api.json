@@ -503,6 +503,24 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Exclude requests matching parameter. Multiple instances allowed.",
+            "in": "query",
+            "name": "exclude",
+            "example": "health_check",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only include requests matching parameter. Multiple instances allowed.",
+            "in": "query",
+            "name": "include",
+            "example": "expected_endpoint",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

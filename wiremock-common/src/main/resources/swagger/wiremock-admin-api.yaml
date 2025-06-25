@@ -256,6 +256,18 @@ paths:
           example: 2016-10-05T12:33:01Z
           schema:
             type: string
+        - description: Exclude requests matching parameter. Multiple instances allowed.
+          in: query
+          name: exclude
+          example: health_check
+          schema:
+            type: string
+        - description: Only include requests matching parameter. Multiple instances allowed.
+          in: query
+          name: include
+          example: expected_endpoint
+          schema:
+            type: string
       responses:
         '200':
           content:
