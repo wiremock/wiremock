@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import static com.github.tomakehurst.wiremock.admin.Conversions.*;
+import static com.github.tomakehurst.wiremock.admin.Conversions.filterPredicates;
+import static com.github.tomakehurst.wiremock.admin.Conversions.filterQueryParam;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toPredicate;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
