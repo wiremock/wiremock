@@ -256,13 +256,13 @@ paths:
           example: 2016-10-05T12:33:01Z
           schema:
             type: string
-        - description: Exclude requests matching parameter. Multiple instances allowed.
+        - description: Exclude requests matching parameter. Multiple instances AND (include=foo&include=bar). Separate values with comma for OR (include=foo,bar).
           in: query
           name: exclude
           example: health_check
           schema:
             type: string
-        - description: Only include requests matching parameter. Multiple instances allowed.
+        - description: Only include matching requests. Multiple instances AND (include=foo&include=bar). Separate values with comma for OR (include=foo,bar).
           in: query
           name: include
           example: expected_endpoint

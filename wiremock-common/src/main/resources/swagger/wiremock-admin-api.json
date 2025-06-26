@@ -505,7 +505,7 @@
             }
           },
           {
-            "description": "Exclude requests matching parameter. Multiple instances allowed.",
+            "description": "Exclude requests matching parameter. Multiple instances AND (include=foo&include=bar). Separate values with comma for OR (include=foo,bar).",
             "in": "query",
             "name": "exclude",
             "example": "health_check",
@@ -514,7 +514,7 @@
             }
           },
           {
-            "description": "Only include requests matching parameter. Multiple instances allowed.",
+            "description": "Only include requests matching parameter. Multiple instances AND (include=foo&include=bar). Separate values with comma for OR (include=foo,bar).",
             "in": "query",
             "name": "include",
             "example": "expected_endpoint",
