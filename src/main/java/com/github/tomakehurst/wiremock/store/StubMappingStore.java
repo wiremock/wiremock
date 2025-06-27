@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.store;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -49,7 +52,12 @@ public interface StubMappingStore {
 
   void replace(StubMapping existing, StubMapping updated);
 
+  @Deprecated(forRemoval = true)
   void remove(StubMapping stubMapping);
+
+  default void remove(UUID stubMappingId) {
+    remove(any(anyUrl()).withId(stubMappingId).build());
+  }
 
   void clear();
 }
