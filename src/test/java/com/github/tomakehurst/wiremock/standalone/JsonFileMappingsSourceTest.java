@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ class JsonFileMappingsSourceTest {
     StubMapping firstStub = stubMappings.getAll().get(0);
 
     try {
-      source.remove(firstStub);
+      source.remove(firstStub.getId());
       fail("Expected an exception to be thrown");
     } catch (Exception e) {
       assertThat(e, Matchers.instanceOf(NotWritableException.class));
@@ -196,7 +196,7 @@ class JsonFileMappingsSourceTest {
     configureWithSingleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
-    source.remove(firstStub);
+    source.remove(firstStub.getId());
 
     assertThat(stubMappingFile.exists(), is(false));
   }
