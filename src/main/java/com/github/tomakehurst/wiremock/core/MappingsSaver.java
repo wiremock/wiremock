@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
+import java.util.UUID;
 
 public interface MappingsSaver {
   void save(List<StubMapping> stubMappings);
 
   void save(StubMapping stubMapping);
 
+  @Deprecated(forRemoval = true)
   void remove(StubMapping stubMapping);
+
+  default void remove(UUID stubMappingId) {
+    remove(any(anyUrl()).withId(stubMappingId).build());
+  }
 
   void removeAll();
 }
