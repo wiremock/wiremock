@@ -40,4 +40,9 @@ public class NotImplementedMappingsSaver implements MappingsSaver {
   public void removeAll() {
     throw new UnsupportedOperationException("Remove all mappings is not supported");
   }
+
+  @Override
+  public void setAll(List<StubMapping> stubMappings) {
+    throw new UnsupportedOperationException("Set all mappings is not supported");
+  }
 }
