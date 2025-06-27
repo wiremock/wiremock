@@ -70,7 +70,7 @@ public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
 
   @Override
   public boolean test(ServeEvent serveEvent) {
-    if (!serveEvent.getResponseDefinition().isProxyResponse() && !allowNonProxied) {
+    if (!allowNonProxied && !serveEvent.getResponseDefinition().isProxyResponse()) {
       return false;
     }
 
