@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
+import java.util.UUID;
 
 public class NotImplementedMappingsSaver implements MappingsSaver {
   @Override
@@ -31,7 +32,7 @@ public class NotImplementedMappingsSaver implements MappingsSaver {
   }
 
   @Override
-  public void remove(StubMapping stubMapping) {
+  public void remove(UUID stubMappingId) {
     throw new UnsupportedOperationException("Remove mapping is not supported");
   }
 

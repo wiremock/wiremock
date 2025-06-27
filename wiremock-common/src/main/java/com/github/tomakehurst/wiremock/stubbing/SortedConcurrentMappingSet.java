@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
@@ -56,20 +57,8 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
     mappingSet.add(mapping);
   }
 
-  public boolean remove(final StubMapping mappingToRemove) {
-    boolean removedByUuid =
-        mappingSet.removeIf(
-            mapping ->
-                mappingToRemove.getUuid() != null
-                    && mapping.getUuid() != null
-                    && mappingToRemove.getUuid().equals(mapping.getUuid()));
-
-    boolean removedByRequestPattern =
-        !removedByUuid
-            && mappingSet.removeIf(
-                mapping -> mappingToRemove.getRequest().equals(mapping.getRequest()));
-
-    return removedByUuid || removedByRequestPattern;
+  public boolean remove(final UUID mappingId) {
+    return mappingSet.removeIf(mapping -> mappingId != null && mappingId.equals(mapping.getUuid()));
   }
 
   public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
