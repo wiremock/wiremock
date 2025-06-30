@@ -331,16 +331,18 @@ public class WireMockApp implements StubServer, Admin {
   /**
    * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
    *     to the caller.
+   * @return The removed stub, or null if no stub was removed.
    */
-  private void removeStubMapping(StubMapping stubMapping, boolean persistNow) {
+  private StubMapping removeStubMapping(StubMapping stubMapping, boolean persistNow) {
     StubMapping matchedStub = findStubMatching(stubMapping);
-    if (matchedStub == null) return;
+    if (matchedStub == null) return null;
 
     stubMappings.removeMapping(matchedStub);
 
     if (persistNow && matchedStub.shouldBePersisted()) {
       mappingsSaver.remove(matchedStub.getId());
     }
+    return matchedStub;
   }
 
   /**
@@ -646,10 +648,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void removeStubsByMetadata(StringValuePattern pattern) {
-    List<StubMapping> foundMappings = stubMappings.findByMetadata(pattern);
-    for (StubMapping mapping : foundMappings) {
-      removeStubMapping(mapping);
-    }
+    removeStubMappings(stubMappings.findByMetadata(pattern));
   }
 
   @Override
@@ -683,6 +682,16 @@ public class WireMockApp implements StubServer, Admin {
     } else {
       if (!mappingsToSave.isEmpty()) mappingsSaver.save(mappingsToSave);
     }
+  }
+
+  @Override
+  public void removeStubMappings(List<StubMapping> stubMappings) {
+    List<UUID> mappingsToDelete = new ArrayList<>();
+    for (StubMapping mapping : stubMappings) {
+      var removed = removeStubMapping(mapping, false);
+      if (removed != null && removed.shouldBePersisted()) mappingsToDelete.add(removed.getId());
+    }
+    if (!mappingsToDelete.isEmpty()) mappingsSaver.remove(mappingsToDelete);
   }
 
   public Set<String> getLoadedExtensionNames() {

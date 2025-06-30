@@ -549,6 +549,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public void removeStubMappings(List<StubMapping> stubMappings) {
+    wireMockApp.removeStubMappings(stubMappings);
+  }
+
+  @Override
   public GetGlobalSettingsResult getGlobalSettings() {
     return wireMockApp.getGlobalSettings();
   }

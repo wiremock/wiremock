@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,10 @@ public class AcceptanceTestBase {
     setupServer(wireMockConfig().withRootDirectory(filePath("empty")));
   }
 
-  public static void setupServerWithTempFileRoot() {
-    setupServer(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
+  public static File setupServerWithTempFileRoot() {
+    File tempFileRoot = setupTempFileRoot();
+    setupServer(wireMockConfig().withRootDirectory(tempFileRoot.getAbsolutePath()));
+    return tempFileRoot;
   }
 
   public static File setupTempFileRoot() {

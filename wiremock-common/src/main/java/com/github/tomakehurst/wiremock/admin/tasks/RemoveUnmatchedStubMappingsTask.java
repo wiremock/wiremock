@@ -25,7 +25,7 @@ public class RemoveUnmatchedStubMappingsTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    admin.findUnmatchedStubs().getMappings().forEach(admin::removeStubMapping);
+    admin.removeStubMappings(admin.findUnmatchedStubs().getMappings());
     return ResponseDefinition.okEmptyJson();
   }
 }

@@ -1438,6 +1438,43 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(testClient.get("/two").statusCode(), is(404));
   }
 
+  @Test
+  void removeStubMappingsByIdAndRequestMatch() {
+    StubMapping stub1 = wm.stubFor(get("/one"));
+    wm.stubFor(get("/two"));
+    wm.stubFor(get("/three"));
+
+    assertThat(testClient.get("/one").statusCode(), is(200));
+    assertThat(testClient.get("/two").statusCode(), is(200));
+    assertThat(testClient.get("/three").statusCode(), is(200));
+
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/mappings/remove",
+            """
+            {
+              "mappings": [
+                {
+                  "id": "%s"
+                },
+                {
+                  "request": {
+                    "method": "GET",
+                    "url": "/three"
+                  }
+                }
+              ]
+            }
+            """
+                .formatted(stub1.getId()));
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is(""));
+
+    assertThat(testClient.get("/one").statusCode(), is(404));
+    assertThat(testClient.get("/two").statusCode(), is(200));
+    assertThat(testClient.get("/three").statusCode(), is(404));
+  }
+
   public static class TestExtendedSettingsData {
     public String name;
   }

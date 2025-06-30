@@ -1105,6 +1105,14 @@ public class WireMock {
     defaultInstance.get().importStubMappings(stubImport);
   }
 
+  public void removeStubMappings(List<StubMapping> stubs) {
+    admin.removeStubMappings(stubs);
+  }
+
+  public static void removeStubs(List<StubMapping> stubs) {
+    defaultInstance.get().removeStubMappings(stubs);
+  }
+
   public GlobalSettings getGlobalSettings() {
     return admin.getGlobalSettings().getSettings();
   }

@@ -31,7 +31,7 @@ public class StubMappingCollection extends StubMapping {
   }
 
   @JsonIgnore
-  public List<? extends StubMapping> getMappingOrMappings() {
+  public List<StubMapping> getMappingOrMappings() {
     return isMulti() ? getMappings() : Collections.singletonList(this);
   }
 

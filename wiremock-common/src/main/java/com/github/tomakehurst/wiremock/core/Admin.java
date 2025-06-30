@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.util.List;
 import java.util.UUID;
 
 public interface Admin {
@@ -113,6 +114,8 @@ public interface Admin {
   void removeStubsByMetadata(StringValuePattern pattern);
 
   void importStubs(StubImport stubImport);
+
+  void removeStubMappings(List<StubMapping> stubMappings);
 
   GetGlobalSettingsResult getGlobalSettings();
 }
