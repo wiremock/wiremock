@@ -37,7 +37,8 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
             trustedHosts,
             useSystemProperties,
             options.getProxyTargetRules(),
-            options.getDisableConnectionReuse());
+            options.getDisableConnectionReuse(),
+            null);
 
     return new ApacheBackedHttpClient(apacheClient, options.shouldPreserveUserAgentProxyHeader());
   }
