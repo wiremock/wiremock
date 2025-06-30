@@ -174,7 +174,7 @@ class ConversionsTest {
   }
 
   @SuppressWarnings("SameParameterValue")
-  static ServeEvent getTestServeEvent(String url) {
+  public static ServeEvent getTestServeEvent(String url) {
     UUID id = UUID.randomUUID();
     LoggedRequest request = getTestRequest(url);
     StubMapping stubMapping = null;
