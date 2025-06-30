@@ -66,6 +66,6 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
   @Override
   public int getTotal() {
-    return source.size();
+    return source.stream().filter(serveEventPredicate).toList().size();
   }
 }
