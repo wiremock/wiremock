@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,12 +50,10 @@ import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.util.VersionInfo;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -377,7 +375,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void usesHttpClientUserAgentProxyHeaderWhenPreserveUserAgentProxyHeaderNotSpecified() {
+  public void usesWireMockUserAgentProxyHeaderWhenPreserveUserAgentProxyHeaderNotSpecified() {
     init(wireMockConfig());
 
     target.register(
@@ -391,12 +389,9 @@ public class ProxyAcceptanceTest {
     proxy.verifyThat(
         getRequestedFor(urlEqualTo("/preserve-user-agent-header"))
             .withHeader("User-Agent", equalTo("my-user-agent")));
-    String softwareInfo =
-        VersionInfo.getSoftwareInfo(
-            "Apache-HttpClient", "org.apache.hc.client5", HttpClientBuilder.class);
     target.verifyThat(
         getRequestedFor(urlEqualTo("/preserve-user-agent-header"))
-            .withHeader("User-Agent", equalTo(softwareInfo)));
+            .withHeader("User-Agent", matching("WireMock .*")));
   }
 
   @Test
@@ -466,9 +461,7 @@ public class ProxyAcceptanceTest {
     testClient.get("/duplicate/connection-header");
     LoggedRequest lastRequest =
         getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
-    assertThat(
-        lastRequest.getHeaders().getHeader("Connection").values(),
-        hasItem("keep-alive"));
+    assertThat(lastRequest.getHeaders().getHeader("Connection").values(), hasItem("keep-alive"));
   }
 
   @Test

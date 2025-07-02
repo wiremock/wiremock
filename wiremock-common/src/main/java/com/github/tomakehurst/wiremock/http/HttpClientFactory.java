@@ -26,6 +26,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.http.ssl.*;
 import java.net.URI;
 import java.security.*;
@@ -66,7 +67,8 @@ public class HttpClientFactory {
       final List<String> trustedHosts,
       boolean useSystemProperties,
       NetworkAddressRules networkAddressRules,
-      boolean disableConnectionReuse) {
+      boolean disableConnectionReuse,
+      String userAgent) {
 
     NetworkAddressRulesAdheringDnsResolver dnsResolver =
         new NetworkAddressRulesAdheringDnsResolver(networkAddressRules);
@@ -83,6 +85,10 @@ public class HttpClientFactory {
                     .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
                     .setProtocolUpgradeEnabled(false)
                     .build());
+
+    String effectiveUserAgent =
+        userAgent != null ? userAgent : "WireMock " + Version.getCurrentVersion();
+    builder.setUserAgent(effectiveUserAgent);
 
     if (disableConnectionReuse) {
       builder
@@ -182,7 +188,30 @@ public class HttpClientFactory {
         Collections.emptyList(),
         useSystemProperties,
         networkAddressRules,
-        disableConnectionReuse);
+        disableConnectionReuse,
+        null);
+  }
+
+  public static CloseableHttpClient createClient(
+      int maxConnections,
+      int timeoutMilliseconds,
+      ProxySettings proxySettings,
+      KeyStoreSettings trustStoreSettings,
+      boolean useSystemProperties,
+      NetworkAddressRules networkAddressRules,
+      boolean disableConnectionReuse,
+      String userAgent) {
+    return createClient(
+        maxConnections,
+        timeoutMilliseconds,
+        proxySettings,
+        trustStoreSettings,
+        true,
+        Collections.emptyList(),
+        useSystemProperties,
+        networkAddressRules,
+        disableConnectionReuse,
+        userAgent);
   }
 
   private static SSLContext buildSSLContextWithTrustStore(
