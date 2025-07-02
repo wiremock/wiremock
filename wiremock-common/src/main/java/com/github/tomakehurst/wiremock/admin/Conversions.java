@@ -18,9 +18,13 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class Conversions {
 
@@ -38,5 +42,48 @@ public class Conversions {
           Errors.validation(
               parameter.key(), parameter.firstValue() + " is not a valid ISO8601 date"));
     }
+  }
+
+  public static Predicate<ServeEvent> toPredicate(QueryParameter exclude, QueryParameter include) {
+
+    return event -> {
+      if (event.getRequest() == null || event.getRequest().getUrl() == null) {
+        return false;
+      }
+      final String requestUrl = event.getRequest().getUrl();
+      return filterQueryParam(requestUrl, true).test(include)
+          && !filterQueryParam(requestUrl, false).test(exclude);
+    };
+  }
+
+  static Predicate<QueryParameter> filterQueryParam(String actual, boolean defaultValue) {
+    return queryParam -> {
+      if (!queryParam.isPresent()) {
+        return defaultValue;
+      }
+      return filterPredicates(actual).test(queryParam.getValues());
+    };
+  }
+
+  static Predicate<List<String>> filterPredicates(String actual) {
+    return list -> {
+      if (list == null || list.isEmpty()) {
+        return true;
+      }
+      for (String item : list) {
+        if (item.contains(",")) {
+          for (String part : item.split(Pattern.quote(","))) {
+            if (actual.contains(part)) {
+              return true;
+            }
+          }
+        } else {
+          if (actual.contains(item)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
   }
 }
