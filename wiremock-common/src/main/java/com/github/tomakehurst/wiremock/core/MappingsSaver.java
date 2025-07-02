@@ -26,6 +26,10 @@ public interface MappingsSaver {
 
   void remove(UUID stubMappingId);
 
+  default void remove(List<UUID> stubMappingIds) {
+    stubMappingIds.forEach(this::remove);
+  }
+
   void removeAll();
 
   /** Saves the provided stubs and removes all others. */

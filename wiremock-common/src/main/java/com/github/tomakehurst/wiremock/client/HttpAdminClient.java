@@ -49,6 +49,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -455,6 +456,14 @@ public class HttpAdminClient implements Admin {
   public void importStubs(StubImport stubImport) {
     executeRequest(
         adminRoutes.requestSpecForTask(ImportStubMappingsTask.class), stubImport, Void.class);
+  }
+
+  @Override
+  public void removeStubMappings(List<StubMapping> stubMappings) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMatchingStubMappingTask.class),
+        Map.of("mappings", stubMappings),
+        Void.class);
   }
 
   @Override

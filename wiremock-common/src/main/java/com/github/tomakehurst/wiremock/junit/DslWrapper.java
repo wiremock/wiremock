@@ -252,6 +252,11 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void removeStubMappings(List<StubMapping> stubMappings) {
+    admin.removeStubMappings(stubMappings);
+  }
+
+  @Override
   public GetGlobalSettingsResult getGlobalSettings() {
     return admin.getGlobalSettings();
   }
