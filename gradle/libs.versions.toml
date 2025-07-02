@@ -90,7 +90,7 @@ handlebars-helpers = { module = "com.github.jknack:handlebars-helpers", version.
 commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.6.0" }
 
 # JSON Schema
-json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.7" }
+json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.8" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
