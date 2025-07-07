@@ -1,24 +1,11 @@
 {
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "type" : "object",
-  "properties" : {
-    "mappings" : {
-      "type" : "array",
-      "items" : {
-        "$ref" : "#/definitions/stub-mapping"
-      }
-    },
-    "meta" : {
-      "type" : "object",
-      "properties" : {
-        "total" : {
-          "type" : "integer",
-          "example" : 4
-        }
-      },
-      "required" : [ "total" ]
-    }
-  },
+  "oneOf" : [ {
+    "$ref" : "#/definitions/stub-mapping"
+  }, {
+    "$ref" : "#/definitions/stub-mappings"
+  } ],
   "additionalProperties" : false,
   "definitions" : {
     "equal-to-pattern" : {
@@ -792,6 +779,29 @@
         "metadata" : {
           "type" : "object",
           "description" : "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
+        }
+      },
+      "additionalProperties" : false
+    },
+    "stub-mappings" : {
+      "$schema" : "http://json-schema.org/draft-07/schema#",
+      "type" : "object",
+      "properties" : {
+        "mappings" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/stub-mapping"
+          }
+        },
+        "meta" : {
+          "type" : "object",
+          "properties" : {
+            "total" : {
+              "type" : "integer",
+              "example" : 4
+            }
+          },
+          "required" : [ "total" ]
         }
       },
       "additionalProperties" : false
