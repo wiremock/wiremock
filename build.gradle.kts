@@ -445,3 +445,21 @@ dependencyAnalysis {
     }
   }
 }
+
+tasks.register<ConsolidateJsonSchemaTask>("consolidateStubMappingsSchema") {
+  inputFile.set(file("wiremock-common/src/main/resources/swagger/schemas/stub-mappings.yaml"))
+  outputFile.set(file("json-schemas/stub-mappings.json"))
+}
+
+tasks.register<ConsolidateJsonSchemaTask>("consolidateStubMappingSchema") {
+  inputFile.set(file("wiremock-common/src/main/resources/swagger/schemas/stub-mapping.yaml"))
+  outputFile.set(file("json-schemas/stub-mapping.json"))
+}
+
+tasks.register("consolidateAllSchemas") {
+    group = "build"
+    description = "Runs all schema consolidation tasks"
+    dependsOn("consolidateStubMappingsSchema", "consolidateStubMappingSchema")
+}
+
+
