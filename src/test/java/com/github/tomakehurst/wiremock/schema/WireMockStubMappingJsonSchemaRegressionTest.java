@@ -33,14 +33,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 class WireMockStubMappingJsonSchemaRegressionTest {
 
   private static final String SCHEMA_PATH = "schemas/wiremock-stub-mapping.json";
-  private static final String EXPECTED_SCHEMA_PATH =
-      "schema-validation/expected-wiremock-stub-mapping-schema.json";
+  private static final Path EXPECTED_SCHEMA_PATH =
+      Path.of("schemas/wiremock-stub-mapping-or-mappings.json");
 
   @Test
   void schemaIsAJsonSchema() {
@@ -67,15 +66,14 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     assertNotNull(actualSchema, "Schema file not found: " + SCHEMA_PATH);
 
     // Load the expected schema
-    String expectedSchema = loadResourceAsString(EXPECTED_SCHEMA_PATH);
+    String expectedSchema = loadFileAsString(EXPECTED_SCHEMA_PATH);
     assertNotNull(expectedSchema, "Expected schema file not found: " + EXPECTED_SCHEMA_PATH);
 
     // Compare the schemas
     try {
       assertThat(actualSchema, jsonEquals(expectedSchema));
     } catch (AssertionError e) {
-      Path expectedSchemaPath = Paths.get("src/test/resources", EXPECTED_SCHEMA_PATH);
-      Files.write(expectedSchemaPath, actualSchema.getBytes(UTF_8));
+      Files.writeString(EXPECTED_SCHEMA_PATH, actualSchema);
       System.err.println(
           "The regression test failing may just mean that your intended changes need to be committed."
               + System.lineSeparator()
@@ -93,6 +91,14 @@ class WireMockStubMappingJsonSchemaRegressionTest {
       return new String(is.readAllBytes(), UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Failed to load resource: " + resourcePath, e);
+    }
+  }
+
+  private String loadFileAsString(Path filePath) {
+    try {
+      return Files.readString(filePath);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load file: " + filePath, e);
     }
   }
 }
