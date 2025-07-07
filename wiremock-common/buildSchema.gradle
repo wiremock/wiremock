@@ -69,7 +69,9 @@ private String doBuildStubMappingSchema() {
   def document = jsonMapper.createObjectNode()
   document.put("title", "WireMock stub mapping")
   document.put("type", "object")
-  document.put("\$schema", "http://json-schema.org/draft-04/schema#")
+
+  // Only draft-07 is supported by schema-store.org so we bump up to this despite strictly being on 04 within our OpenAPI version
+  document.put("\$schema", "http://json-schema.org/draft-07/schema#")
 
   def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
 
