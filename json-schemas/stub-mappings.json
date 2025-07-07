@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.org/draft/2020-12/schema",
+  "$schema" : "http://json-schema.org/draft-07/schema#",
   "type" : "object",
   "properties" : {
     "mappings" : {
@@ -403,7 +403,7 @@
       } ]
     },
     "request-pattern" : {
-      "$schema" : "https://json-schema.org/draft/2020-12/schema",
+      "$schema" : "http://json-schema.org/draft-07/schema#",
       "type" : "object",
       "example" : "{\n  \"urlPath\" : \"/charges\",\n  \"method\" : \"POST\",\n  \"headers\" : {\n    \"Content-Type\" : {\n      \"equalTo\" : \"application/json\"\n    }\n  }\n}",
       "properties" : {
@@ -613,7 +613,7 @@
       } ]
     },
     "response-definition" : {
-      "$schema" : "https://json-schema.org/draft/2020-12/schema",
+      "$schema" : "http://json-schema.org/draft-07/schema#",
       "allOf" : [ {
         "type" : "object",
         "properties" : {
@@ -718,7 +718,7 @@
       } ]
     },
     "stub-mapping" : {
-      "$schema" : "https://json-schema.org/draft/2020-12/schema",
+      "$schema" : "http://json-schema.org/draft-07/schema#",
       "type" : "object",
       "properties" : {
         "id" : {
