@@ -505,7 +505,7 @@
             }
           },
           {
-            "description": "Exclude requests matching parameter. Multiple instances AND (include=foo&include=bar). Separate values with comma for OR (include=foo,bar).",
+            "description": "Exclude requests matching parameter. Multiple instances AND (exclude=foo&exclude=bar). Separate values with comma for OR (exclude=foo,bar).",
             "in": "query",
             "name": "exclude",
             "example": "health_check",
