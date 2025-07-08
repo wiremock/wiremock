@@ -1,7 +1,7 @@
 [versions]
 jetty = "12.0.20"
 jackson = "2.19.0"
-xmlUnit = "2.10.2"
+xmlUnit = "2.10.3"
 jsonUnit = "2.40.1"
 junitJupiter = "5.13.3"
 handlebars = "4.3.1"
