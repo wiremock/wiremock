@@ -119,7 +119,7 @@ jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version 
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven-publish" }
 vanniktech-maven-publish-base = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktech-maven-publish" }
-spotless = { id = "com.diffplug.spotless", version = "6.25.0" }
+spotless = { id = "com.diffplug.spotless", version = "7.1.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 sonarqube = { id = "org.sonarqube", version = "6.1.0.5360" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
