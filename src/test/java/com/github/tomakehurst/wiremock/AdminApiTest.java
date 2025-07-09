@@ -231,7 +231,6 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void getFilteredLoggedRequests() {
-    dsl.stubFor(get(urlPathEqualTo("/received-request")).willReturn(aResponse()));
 
     for (int i = 1; i <= 10; i++) {
       final String id = "foo_" + i;
