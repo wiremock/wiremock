@@ -1,4 +1,4 @@
-# WireMock - flexible and open source API mocking
+# WireMock - flexible, open source API mocking
 
 <p align="center">
     <a href="https://wiremock.org" target="_blank">
@@ -6,13 +6,27 @@
     </a>
 </p>
 
-[![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
-[![Docs](https://img.shields.io/static/v1?label=Documentation&message=public&color=green)](https://wiremock.org/docs/)
-[![a](https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
-[![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](./CONTRIBUTING.md)
-[![Maven Central](https://img.shields.io/maven-central/v/org.wiremock/wiremock.svg)](https://search.maven.org/artifact/org.wiremock/wiremock)
+<p align="center">
+    <a href="https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml">
+        <img src="https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg" alt="Build Status"/>
+    </a>
+    <a href="https://wiremock.org/docs/">
+        <img src="https://img.shields.io/static/v1?label=Documentation&message=public&color=green" alt="Docs"/>
+    </a>
+    <a href="https://slack.wiremock.org/">
+        <img src="https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack" alt="Join us on Slack"/>
+    </a>
+    <a href="./CONTRIBUTING.md">
+        <img src="https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange" alt="Contributing Guide"/>
+    </a>
+    <a href="https://search.maven.org/artifact/org.wiremock/wiremock">
+        <img src="https://img.shields.io/maven-central/v/org.wiremock/wiremock.svg" alt="Maven Central"/>
+    </a>
+</p>
 
-WireMock is a popular open-source tool for API mock testing with over 5 million downloads per month.
+WireMock is the popular open source tool for API mocking, with over 6 million downloads per month,
+and powers [WireMock Cloud](https://www.wiremock.io/comparison?utm_source=github.com&utm_campaign=wiremock-README.md).
+
 It can help you to create stable test and development environments,
 isolate yourself from flaky 3rd parties and simulate APIs that don’t exist yet.
 
