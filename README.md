@@ -24,6 +24,15 @@
     </a>
 </p>
 
+<div style="display: flex; justify-content: center; margin: 30px 0;">
+    <div style="background-color: #e6f3ff; padding: 15px; border-radius: 8px; border: 1px solid #b3d9ff; text-align: center; width: 80%; max-width: 800px;">
+        <img src="https://wiremock.org/images/wiremock-cloud/wiremock_cloud_logo.png" alt="WireMock Cloud Logo" style="height: 1.2em; vertical-align: middle; margin-right: 8px;">
+        <span style="font-size: 16px; color: #333;">
+            WireMock open source is supported by <a href="https://www.wiremock.io/cloud-overview?utm_source=github.com&utm_campaign=wiremock-README.md-banner" style="color: #0066cc; text-decoration: none; font-weight: bold;">WireMock Cloud</a>. Please consider trying it out if your team needs advanced capabilities such as OpenAPI, dynamic state, data sources and more.
+        </span>
+    </div>
+</div>
+
 WireMock is the popular open source tool for API mocking, with over 6 million downloads per month,
 and powers [WireMock Cloud](https://www.wiremock.io/comparison?utm_source=github.com&utm_campaign=wiremock-README.md).
 
