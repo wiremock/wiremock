@@ -47,6 +47,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final StringValuePattern host;
   private final Integer port;
   private final StringValuePattern clientIp;
+  private final String rawUrl;
   private final UrlPattern url;
   private final RequestMethod method;
   private final Map<String, MultiValuePattern> headers;
@@ -68,6 +69,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final StringValuePattern host,
       final Integer port,
       final StringValuePattern clientIp,
+      final String rawUrl,
       final UrlPattern url,
       final RequestMethod method,
       final Map<String, MultiValuePattern> headers,
@@ -84,6 +86,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.host = host;
     this.port = port;
     this.clientIp = clientIp;
+    this.rawUrl = rawUrl;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
@@ -149,6 +152,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("scheme") String scheme,
       @JsonProperty("host") StringValuePattern host,
       @JsonProperty("port") Integer port,
+      @JsonProperty("rawUrl") String rawUrl,
       @JsonProperty("url") String url,
       @JsonProperty("clientIp") StringValuePattern clientIp,
       @JsonProperty("urlPattern") String urlPattern,
@@ -171,6 +175,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         clientIp,
+        rawUrl,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
         method,
         headers,
@@ -187,6 +192,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public static final RequestPattern ANYTHING =
       new RequestPattern(
+          null,
           null,
           null,
           null,
@@ -210,6 +216,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         null,
+        null,
         UrlPattern.ANY,
         RequestMethod.ANY,
         null,
@@ -226,6 +233,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
     this(
+        null,
         null,
         null,
         null,
@@ -444,6 +452,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return clientIp;
   }
 
+  public String getRawUrl() {
+    return rawUrl;
+  }
+
   public String getUrl() {
     return urlPatternOrNull(UrlPattern.class, false);
   }
@@ -555,6 +567,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && Objects.equals(host, that.host)
         && Objects.equals(port, that.port)
         && Objects.equals(clientIp, that.clientIp)
+        && Objects.equals(rawUrl, that.rawUrl)
         && Objects.equals(url, that.url)
         && Objects.equals(method, that.method)
         && Objects.equals(headers, that.headers)
@@ -576,6 +589,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         clientIp,
+        rawUrl,
         url,
         method,
         headers,

@@ -36,7 +36,7 @@ public class RequestPatternTransformerTest {
             .header("X-Foo", "bar");
 
     RequestPatternBuilder expected =
-        new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
+        new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo")).withRawUrl("/foo");
 
     assertEquals(
         expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
@@ -54,6 +54,7 @@ public class RequestPatternTransformerTest {
 
     RequestPatternBuilder expected =
         new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withRawUrl("/")
             .withHeader("X-CaseSensitive", equalTo("foo"))
             .withHeader("X-CaseInsensitive", equalToIgnoreCase("Baz"));
 

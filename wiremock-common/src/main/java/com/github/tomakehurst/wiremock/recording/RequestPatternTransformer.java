@@ -63,6 +63,9 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
                     ? MultiValuePattern.of(equalTo(parameters.firstValue()))
                     : havingExactly(parameters.values().toArray(new String[0]))));
 
+    // Preserve the original raw URL for use by custom MappingsSource implementations:
+    builder.withRawUrl(request.getUrl());
+
     if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
         String headerName = header.getKey();
