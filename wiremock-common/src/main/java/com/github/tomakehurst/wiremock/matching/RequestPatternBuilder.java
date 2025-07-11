@@ -34,6 +34,7 @@ public class RequestPatternBuilder {
   private StringValuePattern hostPattern;
   private Integer port;
   private StringValuePattern clientIpPattern;
+  private String rawUrl;
   private UrlPattern url = UrlPattern.ANY;
   private RequestMethod method = RequestMethod.ANY;
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
@@ -99,6 +100,7 @@ public class RequestPatternBuilder {
     builder.hostPattern = requestPattern.getHost();
     builder.port = requestPattern.getPort();
     builder.clientIpPattern = requestPattern.getClientIp();
+    builder.rawUrl = requestPattern.getRawUrl();
     builder.url = requestPattern.getUrlMatcher();
     builder.method = requestPattern.getMethod();
     if (requestPattern.getHeaders() != null) {
@@ -151,6 +153,11 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder withClientIp(StringValuePattern clientIpPattern) {
     this.clientIpPattern = clientIpPattern;
+    return this;
+  }
+
+  public RequestPatternBuilder withRawUrl(String rawUrl) {
+    this.rawUrl = rawUrl;
     return this;
   }
 
@@ -293,6 +300,7 @@ public class RequestPatternBuilder {
         hostPattern,
         port,
         clientIpPattern,
+        rawUrl,
         url,
         method,
         headers.isEmpty() ? null : headers,
