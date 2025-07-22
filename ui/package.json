@@ -6,7 +6,7 @@
     "node": ">= 0.10.0"
   },
   "devDependencies": {
-    "@redocly/cli": "^1.34.3",
+    "@redocly/cli": "^1.34.5",
     "swagger-ui-dist": "^5.17.14"
   },
   "overrides": {
