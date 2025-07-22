@@ -1,6 +1,6 @@
 [versions]
 jetty = "12.0.20"
-jackson = "2.19.1"
+jackson = "2.19.2"
 xmlUnit = "2.10.3"
 jsonUnit = "2.40.1"
 junitJupiter = "5.13.4"
