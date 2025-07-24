@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -235,5 +234,4 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
       }
     };
   }
-
 }
