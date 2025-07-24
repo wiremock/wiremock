@@ -25,12 +25,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class LoggedRequestTest {
     Map<String, Cookie> cookies =
         Map.of("first_cookie", new Cookie("yum"), "monster_cookie", new Cookie("COOKIIIEESS"));
 
-    Date loggedDate = Dates.parse(DATE);
+    Date loggedDate = Date.from(Instant.parse(DATE));
 
     LoggedRequest loggedRequest =
         new LoggedRequest(

@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -34,7 +33,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import java.text.ParseException;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import org.apache.hc.core5.http.ContentType;
@@ -63,7 +63,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     assertThat(firstRequest.getUrl(), is("/return/this"));
     assertThat(firstRequest.getMethod(), is(RequestMethod.GET));
     assertThat(firstRequest.getLoggedDate(), isToday());
-    assertThat(parse(firstRequest.getLoggedDateString()), isToday());
+    assertThat(Date.from(Instant.parse(firstRequest.getLoggedDateString())), isToday());
   }
 
   @Test
@@ -236,7 +236,4 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     };
   }
 
-  private static Date parse(String dateString) throws ParseException {
-    return Dates.parse(dateString);
-  }
 }
