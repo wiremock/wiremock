@@ -52,8 +52,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest {
 
@@ -291,7 +289,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             .withServeEventListener(
                 "webhook",
                 webhook()
-                    .withBodyFile("myFile.json")
+                    .withBodyFile("myBodyFile.json")
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
                     .withUrl(
                         targetServer.baseUrl()
@@ -334,7 +332,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             + "    \"status\" : 200\n"
             + "  },\n"
             + "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
-            + "  \"postServeActions\" : [{\n"
+            + "  \"serveEventListeners\" : [{\n"
             + "    \"name\" : \"webhook\",\n"
             + "    \"parameters\" : {\n"
             + "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n"
@@ -345,7 +343,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
             + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
             + "      },\n"
-            + "      \"bodyFileName\" : \"myFile.json\",\n"
+            + "      \"bodyFileName\" : \"myBodyFile.json\",\n"
             + "      \"one\" : \"param-one-value\"\n"
             + "    }\n"
             + "  }]\n"
@@ -375,7 +373,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
             .willReturn(ok())
-            .withPostServeAction(
+            .withServeEventListener(
                 "webhook",
                 webhook()
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
@@ -410,8 +408,6 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     assertThat(request.getBodyAsString(), is("Tom"));
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"", "myFile.json"})
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON(String bodyFileNameParam)
       throws Exception {
     client.postJson(

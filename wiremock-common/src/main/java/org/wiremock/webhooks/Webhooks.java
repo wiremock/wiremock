@@ -17,18 +17,20 @@ package org.wiremock.webhooks;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.WebHookResponseModel;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -49,7 +51,6 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final DataTruncationSettings dataTruncationSettings;
   private final FileSource files;
   private Parameters parameters;
-
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -154,6 +155,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
             ? webhookDefinition.getExtraParameters()
             : Collections.<String, Object>emptyMap());
     model.put("originalRequest", model.get("request"));
+    model.put("originalResponse", createResponseModel(serveEvent.getResponseDefinition()));
     model.remove("request");
 
     WebhookDefinition renderedWebhookDefinition =
@@ -177,21 +179,22 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
             templateEngine.getUncachedTemplate(webhookDefinition.getBodyFileName());
         String compiledFilePath = filePathTemplate.apply(model);
 
-        boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
+        boolean disableBodyFileTemplating =
+            parameters.getBoolean("disableBodyFileTemplating", false);
         if (disableBodyFileTemplating) {
           webhookDefinition.withBodyFile(compiledFilePath);
         } else {
           TextFile file = files.getTextFileNamed(compiledFilePath);
           HandlebarsOptimizedTemplate bodyTemplate =
               templateEngine.getTemplate(
-                  //HttpTemplateCacheKey.forFileBody(responseDefinition, compiledFilePath),
-                  compiledFilePath,
-                  file.readContentsAsString());
+                  // HttpTemplateCacheKey.forFileBody(responseDefinition, compiledFilePath),
+                  compiledFilePath, file.readContentsAsString());
           webhookDefinition.withBody(bodyTemplate.apply(model));
         }
       } catch (Exception ex) {
         StringWriter writer = new StringWriter();
-        writer.append(webhookDefinition.getBodyFileName()
+        writer.append(
+            webhookDefinition.getBodyFileName()
                 + " not found in fileSource path: "
                 + files.getPath());
         ex.printStackTrace(new PrintWriter(writer));
@@ -206,6 +209,23 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
 
   private String renderTemplate(Object context, String value) {
     return templateEngine.getUncachedTemplate(value).apply(context);
+  }
+
+  public static WebHookResponseModel createResponseModel(ResponseDefinition response) {
+    return new WebHookResponseModel(
+        response.getStatus(),
+        response.getStatusMessage(),
+        response.getHeaders() == null
+            ? Collections.emptyMap()
+            : response.getHeaders().all().stream()
+                .collect(
+                    toMap(HttpHeader::key, header -> new ListOrSingle<String>(header.getValues()))),
+        Body.fromOneOf(
+                response.getByteBody(),
+                response.getBody(),
+                response.getJsonBody(),
+                response.getBase64Body())
+            .asString());
   }
 
   private static Request buildRequest(WebhookDefinition definition) {
