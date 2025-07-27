@@ -219,7 +219,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
             ? Collections.emptyMap()
             : response.getHeaders().all().stream()
                 .collect(
-                    toMap(HttpHeader::key, header -> new ListOrSingle<String>(header.getValues()))),
+                    toMap(HttpHeader::key, header -> ListOrSingle.of(header.getValues()))),
         Body.fromOneOf(
                 response.getByteBody(),
                 response.getBody(),
