@@ -67,6 +67,16 @@ dependencies {
 
     constraints {
         implementation(libs.json.smart)
+        constraints {
+            implementation("org.apache.commons:commons-lang3:3.18.0") {
+                because(
+                    """
+                    ✗ Uncontrolled Recursion [https://www.cve.org/CVERecord?id=CVE-2025-48924] in org.apache.commons:commons-lang3@3.12.0
+                    This issue was fixed in versions: 3.18.0
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }
 
