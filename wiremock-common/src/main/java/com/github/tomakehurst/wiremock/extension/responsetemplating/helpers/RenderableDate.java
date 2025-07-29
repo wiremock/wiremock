@@ -17,8 +17,12 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
+
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -63,11 +67,9 @@ public class RenderableDate extends Date {
   }
 
   private String formatCustom() {
-    SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-    if (timezone != null) {
-      TimeZone zone = TimeZone.getTimeZone(timezone);
-      dateFormat.setTimeZone(zone);
-    }
-    return dateFormat.format(this);
+    ZonedDateTime zonedDateTime = toInstant().atZone(timezone != null ? timezone : ZoneId.systemDefault());
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+    return formatter.format(zonedDateTime);
   }
 }
