@@ -329,6 +329,18 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void returnsCorrectlyParsedGlobalTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--timeout", "45000");
+    assertThat(options.timeout(), is(45_000L));
+  }
+
+  @Test
+  public void returnsDefaultGlobalTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+    assertThat(options.timeout(), is(300_000L));
+  }
+
+  @Test
   public void returnsCorrectlyParsedJettyAcceptorThreads() {
     CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
     assertThat(
