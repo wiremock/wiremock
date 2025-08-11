@@ -91,7 +91,16 @@ public class Extensions implements WireMockServices {
 
     if (options.isExtensionScanningEnabled()) {
       loadedExtensions.putAll(
-          loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
+          loadExtensionsAsServices()
+              .collect(
+                  toMap(
+                      Extension::getName,
+                      Function.identity(),
+                      (e1, e2) -> {
+                        throw new IllegalStateException(
+                            "Duplicate extension name: " + e1.getName());
+                      },
+                      LinkedHashMap::new)));
     }
 
     final Stream<ExtensionFactory> declaredFactories =
@@ -108,7 +117,14 @@ public class Extensions implements WireMockServices {
         allFactories
             .map(factory -> factory.create(Extensions.this))
             .flatMap(List::stream)
-            .collect(toMap(Extension::getName, Function.identity())));
+            .collect(
+                toMap(
+                    Extension::getName,
+                    Function.identity(),
+                    (e1, e2) -> {
+                      throw new IllegalStateException("Duplicate extension name: " + e1.getName());
+                    },
+                    LinkedHashMap::new)));
 
     configureTemplating();
     configureHttpClient();
@@ -131,7 +147,14 @@ public class Extensions implements WireMockServices {
             .map(TemplateHelperProviderExtension::provideTemplateHelpers)
             .map(Map::entrySet)
             .flatMap(Set::stream)
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(
+                toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (k1, k2) -> {
+                      throw new IllegalStateException("Duplicate key");
+                    },
+                    LinkedHashMap::new));
 
     final List<TemplateModelDataProviderExtension> templateModelProviders =
         new ArrayList<>(ofType(TemplateModelDataProviderExtension.class).values());
@@ -166,7 +189,7 @@ public class Extensions implements WireMockServices {
 
   private void configureWebhooks() {
     final List<WebhookTransformer> webhookTransformers =
-        ofType(WebhookTransformer.class).values().stream().collect(Collectors.toUnmodifiableList());
+        ofType(WebhookTransformer.class).values().stream().toList();
 
     final Webhooks webhooks =
         new Webhooks(
