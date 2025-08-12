@@ -49,14 +49,16 @@ public class Xml {
   public static void optimizeFactoriesLoading() {
     try {
       String transformerFactoryImpl = TransformerFactory.newDefaultInstance().getClass().getName();
-      String xPathFactoryImpl = XPathFactory.newDefaultInstance().getClass().getName();
 
-      System.setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
+      if (System.getProperty(TransformerFactory.class.getName()) == null) {
+        System.setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
+      }
+      XMLUnit.setTransformerFactory(System.getProperty(TransformerFactory.class.getName()));
+
+      String xPathFactoryImpl = XPathFactory.newDefaultInstance().getClass().getName();
       System.setProperty(
           XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
           xPathFactoryImpl);
-
-      XMLUnit.setTransformerFactory(transformerFactoryImpl);
       XMLUnit.setXPathFactory(xPathFactoryImpl);
     } catch (Exception ignored) {
       // Since this is just an optimisation, if an exception is thrown we do nothing and carry on
