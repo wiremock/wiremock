@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import java.time.ZoneId;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,15 @@ public class RenderableDateTest {
 
   @Test
   void writesToJsonInStringFormat() {
-    RenderableDate renderableDate = new RenderableDate(new Date(1729266504000L), null, null);
+    RenderableDate renderableDate = new RenderableDate(new Date(1729266504010L), null, null);
     assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24Z\""));
+  }
+
+  @Test
+  void handlesCorrectlyFormatsExcessivePrecision() {
+    RenderableDate renderableDate =
+        new RenderableDate(
+            new Date(1729266504010L), "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", ZoneId.of("UTC"));
+    assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24.010000Z\""));
   }
 }
