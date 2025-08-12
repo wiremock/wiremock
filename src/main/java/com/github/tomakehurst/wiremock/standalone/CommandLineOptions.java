@@ -160,7 +160,7 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
     optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
     optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
-    optionParser.accepts(TIMEOUT, "The default global timeout.");
+    optionParser.accepts(TIMEOUT, "The default global timeout in milliseconds.").withRequiredArg();
     optionParser.accepts(
         DISABLE_OPTIMIZE_XML_FACTORIES_LOADING,
         "Whether to disable optimize XML factories loading or not.");
@@ -916,7 +916,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public long timeout() {
-    return optionSet.has(TIMEOUT)
+    return optionSet.hasArgument(TIMEOUT)
         ? Long.parseLong((String) optionSet.valueOf(TIMEOUT))
         : DEFAULT_TIMEOUT;
   }
