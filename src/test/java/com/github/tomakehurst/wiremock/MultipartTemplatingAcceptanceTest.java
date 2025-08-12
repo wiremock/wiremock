@@ -53,9 +53,10 @@ public class MultipartTemplatingAcceptanceTest {
         post("/templated")
             .willReturn(
                 ok(
-                    "multipart:{{request.multipart}}\n"
-                        + "text:binary={{request.parts.text.binary}}:{{request.parts.text.headers.content-type}}:{{request.parts.text.body}}\n"
-                        + "file:binary={{request.parts.file.binary}}:{{request.parts.file.headers.content-type}}:{{request.parts.file.bodyAsBase64}}")));
+                    """
+                                multipart:{{request.multipart}}
+                                text:binary={{request.parts.text.binary}}:{{request.parts.text.headers.content-type}}:{{request.parts.text.body}}
+                                file:binary={{request.parts.file.binary}}:{{request.parts.file.headers.content-type}}:{{request.parts.file.bodyAsBase64}}""")));
 
     WireMockResponse response =
         client.post(
@@ -69,9 +70,10 @@ public class MultipartTemplatingAcceptanceTest {
     assertThat(
         response.content(),
         is(
-            "multipart:true\n"
-                + "text:binary=false:text/plain; charset=UTF-8:hello\n"
-                + "file:binary=true:application/octet-stream:QUJDRA=="));
+            """
+                        multipart:true
+                        text:binary=false:text/plain; charset=UTF-8:hello
+                        file:binary=true:application/octet-stream:QUJDRA=="""));
   }
 
   @Test
@@ -80,9 +82,10 @@ public class MultipartTemplatingAcceptanceTest {
         post("/templated")
             .willReturn(
                 ok(
-                    "multipart:{{request.multipart}}\n"
-                        + "text:content-type={{request.parts.text.headers.CoNtEnT-TyPe}}\n"
-                        + "file:content-type={{request.parts.file.headers.cOnTeNt-tYpE}}")));
+                    """
+                                multipart:{{request.multipart}}
+                                text:content-type={{request.parts.text.headers.CoNtEnT-TyPe}}
+                                file:content-type={{request.parts.file.headers.cOnTeNt-tYpE}}""")));
 
     WireMockResponse response =
         client.post(
@@ -96,9 +99,10 @@ public class MultipartTemplatingAcceptanceTest {
     assertThat(
         response.content(),
         is(
-            "multipart:true\n"
-                + "text:content-type=text/plain; charset=UTF-8\n"
-                + "file:content-type=application/octet-stream"));
+            """
+                        multipart:true
+                        text:content-type=text/plain; charset=UTF-8
+                        file:content-type=application/octet-stream"""));
   }
 
   @Test
@@ -139,8 +143,10 @@ public class MultipartTemplatingAcceptanceTest {
         post("/templated")
             .willReturn(
                 ok(
-                    "multipart:{{request.multipart}}\n"
-                        + "{{#each request.parts as |part|}}{{part.name}}:{{part.headers.content-type}}:{{part.body}}/\n{{/each}}")));
+                    """
+                                multipart:{{request.multipart}}
+                                {{#each request.parts as |part|}}{{part.name}}:{{part.headers.content-type}}:{{part.body}}/
+                                {{/each}}""")));
     WireMockResponse response =
         client.post(
             "/templated",
@@ -153,9 +159,11 @@ public class MultipartTemplatingAcceptanceTest {
     assertThat(
         response.content(),
         is(
-            "multipart:true\n"
-                + "file:application/octet-stream:ABCD/\n"
-                + "text:text/plain; charset=UTF-8:hello/\n"));
+            """
+                        multipart:true
+                        text:text/plain; charset=UTF-8:hello/
+                        file:application/octet-stream:ABCD/
+                        """));
   }
 
   @Test
@@ -164,8 +172,10 @@ public class MultipartTemplatingAcceptanceTest {
         post("/templated")
             .willReturn(
                 ok(
-                    "multipart:{{request.multipart}}\n"
-                        + "{{#each request.parts as |part|}}{{part}}\n{{/each}}")));
+                    """
+                                multipart:{{request.multipart}}
+                                {{#each request.parts as |part|}}{{part}}
+                                {{/each}}""")));
     WireMockResponse response =
         client.post(
             "/templated",
@@ -178,22 +188,25 @@ public class MultipartTemplatingAcceptanceTest {
     assertThat(
         response.content(),
         is(
-            "multipart:true\n"
-                + "[name='file', headers={content-disposition=form-data; name=\"file\"; filename=\"abcd.bin\", content-type=application/octet-stream}, body=ABCD]\n"
-                + "[name='text', headers={content-disposition=form-data; name=\"text\", content-type=text/plain; charset=UTF-8}, body=hello]\n"));
+            """
+                        multipart:true
+                        [name='text', headers={content-disposition=form-data; name="text", content-type=text/plain; charset=UTF-8}, body=hello]
+                        [name='file', headers={content-disposition=form-data; name="file"; filename="abcd.bin", content-type=application/octet-stream}, body=ABCD]
+                        """));
   }
 
   @Test
-  void acceptsAMultipartRelatedRFC2387Request() throws Exception {
+  void acceptsAMultipartRelatedRFC2387Request() {
     final String boundary = "boundary_example";
 
     final String expectBody =
-        "{\n"
-            + "  \"error\": {\n"
-            + "    \"code\": 404,\n"
-            + "    \"message\": \"parent not found.\"\n"
-            + "  }\n"
-            + "}";
+        """
+                    {
+                      "error": {
+                        "code": 404,
+                        "message": "parent not found."
+                      }
+                    }""";
 
     wm.stubFor(
         post(urlPathMatching("/templated"))

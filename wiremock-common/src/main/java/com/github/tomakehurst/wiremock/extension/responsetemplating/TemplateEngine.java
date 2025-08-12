@@ -139,7 +139,14 @@ public class TemplateEngine {
         templateModelDataProviders.stream()
             .map(provider -> provider.provideTemplateModelData(serveEvent).entrySet())
             .flatMap(Set::stream)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (e1, e2) -> {
+                      throw new IllegalStateException("Duplicate model key");
+                    },
+                    LinkedHashMap::new));
 
     final Map<String, Object> model = new HashMap<>();
     model.put("parameters", parameters);
@@ -180,7 +187,7 @@ public class TemplateEngine {
       boolean isMultipartRelated = contentType != null && contentType.contains("multipart/related");
 
       if (isMultipartRelated) {
-        Map<String, RequestPartTemplateModel> result = new HashMap<>();
+        Map<String, RequestPartTemplateModel> result = new LinkedHashMap<>();
         int partIndex = 0;
         for (Request.Part part : request.getParts()) {
           String key = part.getName() != null ? part.getName() : "part-" + partIndex++;
@@ -191,7 +198,12 @@ public class TemplateEngine {
                   part.getHeaders().all().stream()
                       .collect(
                           Collectors.toMap(
-                              HttpHeader::key, header -> ListOrSingle.of(header.values()))),
+                              HttpHeader::key,
+                              header -> ListOrSingle.of(header.values()),
+                              (e1, e2) -> {
+                                throw new IllegalStateException("Duplicate header name");
+                              },
+                              LinkedHashMap::new)),
                   part.getBody()));
         }
 
@@ -208,8 +220,16 @@ public class TemplateEngine {
                                 .collect(
                                     Collectors.toMap(
                                         HttpHeader::key,
-                                        header -> ListOrSingle.of(header.values()))),
-                            part.getBody())));
+                                        header -> ListOrSingle.of(header.values()),
+                                        (e1, e2) -> {
+                                          throw new IllegalStateException("Duplicate header name");
+                                        },
+                                        LinkedHashMap::new)),
+                            part.getBody()),
+                    (e1, e2) -> {
+                      throw new IllegalStateException("Duplicate request part name");
+                    },
+                    LinkedHashMap::new));
       }
     }
 

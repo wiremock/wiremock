@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -62,7 +63,9 @@ public class RequestLine {
     Map<String, ListOrSingle<String>> adaptedQuery =
         rawQuery.entrySet().stream()
             .map(entry -> Map.entry(entry.getKey(), ListOrSingle.of(entry.getValue().values())))
-            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+            .collect(
+                Collectors.toMap(
+                    Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
     return new RequestLine(
         request.getMethod(),
