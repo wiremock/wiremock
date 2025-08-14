@@ -17,11 +17,16 @@ package com.github.tomakehurst.wiremock.http;
 
 import static java.util.Arrays.asList;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@JsonDeserialize(using = RequestMethodJsonDeserializer.class)
+@JsonSerialize(using = RequestMethodJsonSerializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   public static final RequestMethod GET = new RequestMethod("GET");
@@ -41,9 +46,12 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     this.name = name;
   }
 
-  @JsonCreator
   public static RequestMethod fromString(String value) {
     return new RequestMethod(value);
+  }
+
+  public static Set<RequestMethod> fromSet(Set<String> values) {
+    return values.stream().map(RequestMethod::fromString).collect(Collectors.toSet());
   }
 
   @JsonValue
@@ -51,14 +59,8 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return name;
   }
 
-  public boolean isOneOf(RequestMethod... methods) {
-    return asList(methods).contains(this);
-  }
-
   public MatchResult match(RequestMethod method) {
-    boolean getOrHeadMatch =
-        this.equals(GET_OR_HEAD) && (method.equals(GET) || method.equals(HEAD));
-    return MatchResult.of(this.equals(ANY) || this.equals(method) || getOrHeadMatch);
+    return MatchResult.of(this.equals(ANY) || this.equals(method));
   }
 
   @Override
@@ -95,8 +97,6 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public static RequestMethod[] values() {
-    return new RequestMethod[] {
-      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD
-    };
+    return new RequestMethod[] {GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY};
   }
 }
