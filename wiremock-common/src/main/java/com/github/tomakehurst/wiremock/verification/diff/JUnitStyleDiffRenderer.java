@@ -35,7 +35,7 @@ public class JUnitStyleDiffRenderer {
 
   public static String junitStyleDiffMessage(Object expected, Object actual) {
     return String.format(
-        " expected:<\n%s> but was:<\n%s>",
+        " expected:<%n%s> but was:<%n%s>",
         Strings.normaliseLineBreaks(expected.toString()),
         Strings.normaliseLineBreaks(actual.toString()));
   }
