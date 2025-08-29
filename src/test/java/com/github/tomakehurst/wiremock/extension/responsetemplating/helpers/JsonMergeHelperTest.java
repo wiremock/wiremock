@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.*;
@@ -72,7 +72,7 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
     String responseTemplate =
         "{{ jsonMerge '{\"id\":456,\"name\":\"bob\"}' '{\"roles\":[\"admin\",\"user\"],\"dob\":\"2024-06-18\"}' }}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),

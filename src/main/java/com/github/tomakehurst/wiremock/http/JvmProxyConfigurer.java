@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** The type Jvm proxy configurer. */
 public class JvmProxyConfigurer {
 
   private static final String HTTP_PROXY_HOST = "http.proxyHost";
@@ -39,12 +40,22 @@ public class JvmProxyConfigurer {
 
   private static final Map<String, String> previousSettings = new HashMap<>();
 
+  /**
+   * Configure for.
+   *
+   * @param wireMockServer the wire mock server
+   */
   public static void configureFor(WireMockServer wireMockServer) {
     stashPreviousSettings();
 
     configureFor(wireMockServer.port());
   }
 
+  /**
+   * Configure for.
+   *
+   * @param port the port
+   */
   public static void configureFor(int port) {
     System.setProperty(HTTP_PROXY_HOST, "localhost");
     System.setProperty(HTTP_PROXY_PORT, String.valueOf(port));
@@ -53,6 +64,7 @@ public class JvmProxyConfigurer {
     System.setProperty(HTTP_NON_PROXY_HOSTS, "localhost|127.*|[::1]");
   }
 
+  /** Restore previous. */
   public static void restorePrevious() {
     ALL_PROXY_SETTINGS.forEach(
         key -> {

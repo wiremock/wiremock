@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,24 +32,24 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id1 = UUID.randomUUID();
 
-    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aResponse().withBody("Stub-1-Body")));
+    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aresponse().withBody("Stub-1-Body")));
 
     assertThat(testClient.get("/stub-1").content(), is("Stub-1-Body"));
 
     UUID id2 = UUID.randomUUID();
-    stubFor(get(urlEqualTo("/stub-2")).withId(id2).willReturn(aResponse().withBody("Stub-2-Body")));
+    stubFor(get(urlEqualTo("/stub-2")).withId(id2).willReturn(aresponse().withBody("Stub-2-Body")));
 
     assertThat(testClient.get("/stub-2").content(), is("Stub-2-Body"));
 
     assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(2));
 
     removeStub(
-        get(urlEqualTo("/stub-2")).withId(id2).willReturn(aResponse().withBody("Stub-2-Body")));
+        get(urlEqualTo("/stub-2")).withId(id2).willReturn(aresponse().withBody("Stub-2-Body")));
 
     assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(1));
 
     removeStub(
-        get(urlEqualTo("/stub-1")).withId(id1).willReturn(aResponse().withBody("Stub-1-Body")));
+        get(urlEqualTo("/stub-1")).withId(id1).willReturn(aresponse().withBody("Stub-1-Body")));
 
     assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(0));
   }
@@ -60,13 +60,13 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     UUID id1 = UUID.randomUUID();
 
     stubFor(
-        get(urlEqualTo("/stub-11")).withId(id1).willReturn(aResponse().withBody("Stub-11-Body")));
+        get(urlEqualTo("/stub-11")).withId(id1).willReturn(aresponse().withBody("Stub-11-Body")));
 
     assertThat(testClient.get("/stub-11").content(), is("Stub-11-Body"));
 
     UUID id2 = UUID.randomUUID();
     stubFor(
-        get(urlEqualTo("/stub-22")).withId(id2).willReturn(aResponse().withBody("Stub-22-Body")));
+        get(urlEqualTo("/stub-22")).withId(id2).willReturn(aresponse().withBody("Stub-22-Body")));
 
     assertThat(testClient.get("/stub-22").content(), is("Stub-22-Body"));
 
@@ -74,13 +74,13 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id3 = UUID.randomUUID();
     removeStub(
-        get(urlEqualTo("/stub-22")).withId(id3).willReturn(aResponse().withBody("Stub-22-Body")));
+        get(urlEqualTo("/stub-22")).withId(id3).willReturn(aresponse().withBody("Stub-22-Body")));
 
     assertThat(getMatchingStubCount("/stub-11", "/stub-22"), is(1));
 
     UUID id4 = UUID.randomUUID();
     removeStub(
-        get(urlEqualTo("/stub-11")).withId(id4).willReturn(aResponse().withBody("Stub-11-Body")));
+        get(urlEqualTo("/stub-11")).withId(id4).willReturn(aresponse().withBody("Stub-11-Body")));
 
     assertThat(getMatchingStubCount("/stub-11", "/stub-22"), is(0));
   }
@@ -91,23 +91,23 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     UUID id1 = UUID.randomUUID();
 
     stubFor(
-        get(urlEqualTo("/stub-111")).withId(id1).willReturn(aResponse().withBody("Stub-111-Body")));
+        get(urlEqualTo("/stub-111")).withId(id1).willReturn(aresponse().withBody("Stub-111-Body")));
 
     assertThat(testClient.get("/stub-111").content(), is("Stub-111-Body"));
 
     UUID id2 = UUID.randomUUID();
     stubFor(
-        get(urlEqualTo("/stub-222")).withId(id2).willReturn(aResponse().withBody("Stub-222-Body")));
+        get(urlEqualTo("/stub-222")).withId(id2).willReturn(aresponse().withBody("Stub-222-Body")));
 
     assertThat(testClient.get("/stub-222").content(), is("Stub-222-Body"));
 
     assertThat(getMatchingStubCount("/stub-111", "/stub-222"), is(2));
 
-    removeStub(get(urlEqualTo("/stub-222")).willReturn(aResponse().withBody("Stub-222-Body")));
+    removeStub(get(urlEqualTo("/stub-222")).willReturn(aresponse().withBody("Stub-222-Body")));
 
     assertThat(getMatchingStubCount("/stub-111", "/stub-222"), is(1));
 
-    removeStub(get(urlEqualTo("/stub-111")).willReturn(aResponse().withBody("Stub-111-Body")));
+    removeStub(get(urlEqualTo("/stub-111")).willReturn(aresponse().withBody("Stub-111-Body")));
 
     assertThat(getMatchingStubCount("/stub-111", "/stub-222"), is(0));
   }
@@ -117,12 +117,12 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id1 = UUID.randomUUID();
 
-    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aResponse().withBody("Stb-1-Body")));
+    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aresponse().withBody("Stb-1-Body")));
 
     assertThat(testClient.get("/stb-1").content(), is("Stb-1-Body"));
 
     UUID id2 = UUID.randomUUID();
-    stubFor(get(urlEqualTo("/stb-2")).withId(id2).willReturn(aResponse().withBody("Stb-2-Body")));
+    stubFor(get(urlEqualTo("/stb-2")).withId(id2).willReturn(aresponse().withBody("Stb-2-Body")));
 
     assertThat(testClient.get("/stb-2").content(), is("Stb-2-Body"));
 
@@ -130,7 +130,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id3 = UUID.randomUUID();
     removeStub(
-        get(urlEqualTo("/stb-3")).withId(id3).willReturn(aResponse().withBody("Stb-3-Body")));
+        get(urlEqualTo("/stb-3")).withId(id3).willReturn(aresponse().withBody("Stb-3-Body")));
 
     assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
   }
@@ -140,7 +140,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id1 = UUID.randomUUID();
 
-    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aResponse().withBody("Stub-1-Body")));
+    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aresponse().withBody("Stub-1-Body")));
 
     assertThat(testClient.get("/stub-1").content(), is("Stub-1-Body"));
 
@@ -156,7 +156,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
     UUID id1 = UUID.randomUUID();
 
-    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aResponse().withBody("Stb-1-Body")));
+    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aresponse().withBody("Stb-1-Body")));
 
     assertThat(testClient.get("/stb-1").content(), is("Stb-1-Body"));
 

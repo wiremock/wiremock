@@ -22,11 +22,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
+/**
+ * A data class representing a username and password for HTTP Basic Authentication.
+ *
+ * <p>This class provides helpers to generate the correct {@code Authorization} header value or a
+ * pattern for matching it in a stub.
+ */
 public class BasicCredentials {
 
   public final String username;
   public final String password;
 
+  /**
+   * Constructs a new BasicCredentials instance.
+   *
+   * @param username The username.
+   * @param password The password.
+   */
   @JsonCreator
   public BasicCredentials(
       @JsonProperty("username") String username, @JsonProperty("password") String password) {
@@ -34,15 +46,35 @@ public class BasicCredentials {
     this.password = password;
   }
 
+  /**
+   * Checks if both username and password are present (non-null).
+   *
+   * @return true if both fields are non-null, false otherwise.
+   */
   public boolean present() {
     return username != null && password != null;
   }
 
+  /**
+   * Creates a {@link MultiValuePattern} for matching an HTTP {@code Authorization} header.
+   *
+   * <p>The created pattern will perform a case-insensitive match for the "Basic " prefix followed
+   * by an exact match of the Base64-encoded credentials.
+   *
+   * @return A pattern for matching the {@code Authorization} header.
+   */
   public MultiValuePattern asAuthorizationMultiValuePattern() {
     return MultiValuePattern.of(
         new EqualToPatternWithCaseInsensitivePrefix("Basic ", encodedUsernameAndPassword()));
   }
 
+  /**
+   * Generates the full value for an HTTP {@code Authorization} header.
+   *
+   * <p>The format is "Basic " followed by the Base64-encoded "username:password".
+   *
+   * @return The complete {@code Authorization} header value string.
+   */
   public String asAuthorizationHeaderValue() {
     return "Basic " + encodedUsernameAndPassword();
   }

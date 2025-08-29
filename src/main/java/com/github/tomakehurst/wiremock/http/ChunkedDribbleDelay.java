@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,18 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Chunked dribble delay. */
 public class ChunkedDribbleDelay {
 
   private final Integer numberOfChunks;
   private final Integer totalDuration;
 
+  /**
+   * Instantiates a new Chunked dribble delay.
+   *
+   * @param numberOfChunks the number of chunks
+   * @param totalDuration the total duration
+   */
   @JsonCreator
   public ChunkedDribbleDelay(
       @JsonProperty("numberOfChunks") Integer numberOfChunks,
@@ -31,10 +38,20 @@ public class ChunkedDribbleDelay {
     this.totalDuration = totalDuration;
   }
 
+  /**
+   * Gets number of chunks.
+   *
+   * @return the number of chunks
+   */
   public Integer getNumberOfChunks() {
     return numberOfChunks;
   }
 
+  /**
+   * Gets total duration.
+   *
+   * @return the total duration
+   */
   public Integer getTotalDuration() {
     return totalDuration;
   }

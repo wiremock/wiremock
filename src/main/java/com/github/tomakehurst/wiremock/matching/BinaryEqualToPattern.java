@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,23 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 
+/** The type Binary equal to pattern. */
 public class BinaryEqualToPattern extends ContentPattern<byte[]> {
 
+  /**
+   * Instantiates a new Binary equal to pattern.
+   *
+   * @param expected the expected
+   */
   public BinaryEqualToPattern(byte[] expected) {
     super(expected);
   }
 
+  /**
+   * Instantiates a new Binary equal to pattern.
+   *
+   * @param expected the expected
+   */
   @JsonCreator
   public BinaryEqualToPattern(@JsonProperty("binaryEqualTo") String expected) {
     this(Base64.getDecoder().decode(expected));
@@ -50,6 +61,11 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
     return Base64.getEncoder().encodeToString(expectedValue);
   }
 
+  /**
+   * Gets binary equal to.
+   *
+   * @return the binary equal to
+   */
   public String getBinaryEqualTo() {
     return getExpected();
   }

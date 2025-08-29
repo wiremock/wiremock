@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,33 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
+/** The interface Stub mapping store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface StubMappingStore {
 
+  /**
+   * Gets all.
+   *
+   * @return the all
+   */
   Stream<StubMapping> getAll();
 
+  /**
+   * Get optional.
+   *
+   * @param id the id
+   * @return the optional
+   */
   Optional<StubMapping> get(UUID id);
 
+  /**
+   * Find all matching request stream.
+   *
+   * @param request the request
+   * @param customMatchers the custom matchers
+   * @param subEventConsumer the sub event consumer
+   * @return the stream
+   */
   default Stream<StubMapping> findAllMatchingRequest(
       Request request,
       Map<String, RequestMatcherExtension> customMatchers,
@@ -45,11 +65,28 @@ public interface StubMappingStore {
         .map(stubAndMatchResult -> stubAndMatchResult.a);
   }
 
+  /**
+   * Add.
+   *
+   * @param stub the stub
+   */
   void add(StubMapping stub);
 
+  /**
+   * Replace.
+   *
+   * @param existing the existing
+   * @param updated the updated
+   */
   void replace(StubMapping existing, StubMapping updated);
 
+  /**
+   * Remove.
+   *
+   * @param stubMapping the stub mapping
+   */
   void remove(StubMapping stubMapping);
 
+  /** Clear. */
   void clear();
 }

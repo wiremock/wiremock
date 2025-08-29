@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class WireMockClientWithProxyAcceptanceTest {
         ((InetSocketAddress) proxyServer.address()).getHostString(),
         ((InetSocketAddress) proxyServer.address()).getPort());
 
-    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
+    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aresponse().withStatus(304)));
 
     assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
   }
@@ -79,7 +79,7 @@ public class WireMockClientWithProxyAcceptanceTest {
     wireMock.register(
         get(urlEqualTo("/my/new/resource"))
             .willReturn(
-                aResponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
+                aresponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
 
     assertThat(
         testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));

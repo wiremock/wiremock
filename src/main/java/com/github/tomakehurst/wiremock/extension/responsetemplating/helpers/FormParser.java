@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,28 @@ import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** The type Form parser. */
 public class FormParser {
 
+  /**
+   * Parse map.
+   *
+   * @param formText the form text
+   * @param urlDecode the url decode
+   * @return the map
+   */
   public static Map<String, ListOrSingle<String>> parse(String formText, boolean urlDecode) {
     return parse(formText, urlDecode, "utf-8");
   }
 
+  /**
+   * Parse map.
+   *
+   * @param formText the form text
+   * @param urlDecode the url decode
+   * @param encoding the encoding
+   * @return the map
+   */
   public static Map<String, ListOrSingle<String>> parse(
       String formText, boolean urlDecode, String encoding) {
     Map<String, ListOrSingle<String>> map = new LinkedHashMap<>();

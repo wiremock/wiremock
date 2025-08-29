@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,18 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 
+/** The type Filter processor. */
 public class FilterProcessor {
 
   private final List<? extends RequestFilter> v1RequestFilters;
   private final List<? extends RequestFilterV2> v2RequestFilters;
 
+  /**
+   * Instantiates a new Filter processor.
+   *
+   * @param v1RequestFilters the v 1 request filters
+   * @param v2RequestFilters the v 2 request filters
+   */
   public FilterProcessor(
       List<? extends RequestFilter> v1RequestFilters,
       List<? extends RequestFilterV2> v2RequestFilters) {
@@ -31,6 +38,13 @@ public class FilterProcessor {
     this.v2RequestFilters = v2RequestFilters;
   }
 
+  /**
+   * Process filters request filter action.
+   *
+   * @param request the request
+   * @param serveEvent the serve event
+   * @return the request filter action
+   */
   public RequestFilterAction processFilters(Request request, ServeEvent serveEvent) {
     RequestFilterAction requestFilterAction =
         processV1Filters(request, v1RequestFilters, RequestFilterAction.continueWith(request));
@@ -81,6 +95,11 @@ public class FilterProcessor {
     return action;
   }
 
+  /**
+   * Has any filters boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasAnyFilters() {
     return !v1RequestFilters.isEmpty() || !v2RequestFilters.isEmpty();
   }

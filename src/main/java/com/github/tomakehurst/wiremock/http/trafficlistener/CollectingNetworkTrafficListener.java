@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+/** The type Collecting network traffic listener. */
 public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficListener {
 
   private final StringBuilder requestBuilder = new StringBuilder();
@@ -56,10 +57,20 @@ public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficL
   @Override
   public void closed(Socket socket) {}
 
+  /**
+   * Gets all requests.
+   *
+   * @return the all requests
+   */
   public String getAllRequests() {
     return requestBuilder.toString();
   }
 
+  /**
+   * Gets all responses.
+   *
+   * @return the all responses
+   */
   public String getAllResponses() {
     return responseBuilder.toString();
   }

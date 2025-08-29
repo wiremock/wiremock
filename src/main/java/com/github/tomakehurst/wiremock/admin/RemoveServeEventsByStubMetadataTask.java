@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,17 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
 
+/**
+ * An admin task to remove serve events whose originating stub has matching metadata.
+ *
+ * <p>This task handles the API request to find and remove logged requests. The filtering is based
+ * on a {@link StringValuePattern} provided in the request body, which is matched against the
+ * metadata of the stub mapping that served each request.
+ *
+ * @see StringValuePattern
+ * @see ServeEvent
+ * @see FindServeEventsResult
+ */
 public class RemoveServeEventsByStubMetadataTask implements AdminTask {
 
   @Override

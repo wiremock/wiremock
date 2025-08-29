@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.*;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_COMPLETE;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.BEFORE_MATCH;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.BEFORE_RESPONSE_SENT;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -34,6 +39,7 @@ import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRendere
 import java.util.List;
 import java.util.Map;
 
+/** The type Stub request handler. */
 public class StubRequestHandler extends AbstractRequestHandler {
 
   private final StubServer stubServer;
@@ -45,6 +51,21 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   private final NotMatchedRenderer notMatchedRenderer;
 
+  /**
+   * Instantiates a new Stub request handler.
+   *
+   * @param stubServer the stub server
+   * @param responseRenderer the response renderer
+   * @param admin the admin
+   * @param postServeActions the post serve actions
+   * @param serveEventListeners the serve event listeners
+   * @param requestJournal the request journal
+   * @param requestFilters the request filters
+   * @param v2RequestFilters the v 2 request filters
+   * @param loggingDisabled the logging disabled
+   * @param dataTruncationSettings the data truncation settings
+   * @param notMatchedRenderer the not matched renderer
+   */
   public StubRequestHandler(
       StubServer stubServer,
       ResponseRenderer responseRenderer,

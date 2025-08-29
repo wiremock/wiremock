@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class GzipAcceptanceTest {
     @Test
     public void servesGzippedResponseForGet() {
       wireMockServer.stubFor(
-          get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
+          get(urlEqualTo("/gzip-response")).willReturn(aresponse().withBody("body text")));
 
       WireMockResponse response =
           testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
@@ -84,7 +84,7 @@ public class GzipAcceptanceTest {
       wireMockServer.stubFor(
           any(urlEqualTo("/gzip-request"))
               .withRequestBody(equalTo("request body"))
-              .willReturn(aResponse().withBody("response body")));
+              .willReturn(aresponse().withBody("response body")));
 
       HttpEntity compressedBody =
           new GzipCompressingEntity(new StringEntity("request body", ContentType.TEXT_PLAIN));

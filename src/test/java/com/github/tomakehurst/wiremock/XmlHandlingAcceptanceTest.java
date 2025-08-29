@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class XmlHandlingAcceptanceTest {
             + "<things><shiftydata>123</shiftydata></things>";
 
     wm.stubFor(
-        post("/xpath-match").withRequestBody(matchingXPath("//shiftydata")).willReturn(ok()));
+        post("/xpath-match").withRequestBody(matchingXpath("//shiftydata")).willReturn(ok()));
 
     assertThat(client.postXml("/xpath-match", xml).statusCode(), is(200));
 
@@ -153,7 +153,7 @@ public class XmlHandlingAcceptanceTest {
 
     wm.stubFor(
         post("/bad-xpath-match")
-            .withRequestBody(matchingXPath("/badly-formed-things"))
+            .withRequestBody(matchingXpath("/badly-formed-things"))
             .willReturn(ok()));
 
     assertThat(client.postXml("/bad-xpath-match", xml).statusCode(), is(200));

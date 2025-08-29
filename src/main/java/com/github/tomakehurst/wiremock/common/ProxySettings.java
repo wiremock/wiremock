@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,13 @@ import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/** The type Proxy settings. */
 public class ProxySettings {
 
+  /** The constant NO_PROXY. */
   public static final ProxySettings NO_PROXY = new ProxySettings(null, 0);
+
+  /** The constant DEFAULT_PORT. */
   public static final int DEFAULT_PORT = 80;
 
   private final String host;
@@ -32,11 +36,23 @@ public class ProxySettings {
   private String username;
   private String password;
 
+  /**
+   * Instantiates a new Proxy settings.
+   *
+   * @param host the host
+   * @param port the port
+   */
   public ProxySettings(String host, int port) {
     this.host = host;
     this.port = port;
   }
 
+  /**
+   * From string proxy settings.
+   *
+   * @param config the config
+   * @return the proxy settings
+   */
   public static ProxySettings fromString(String config) {
     try {
       URL proxyUrl;
@@ -68,26 +84,56 @@ public class ProxySettings {
     }
   }
 
+  /**
+   * Host string.
+   *
+   * @return the string
+   */
   public String host() {
     return host;
   }
 
+  /**
+   * Port int.
+   *
+   * @return the int
+   */
   public int port() {
     return port;
   }
 
+  /**
+   * Gets username.
+   *
+   * @return the username
+   */
   public String getUsername() {
     return username;
   }
 
+  /**
+   * Sets username.
+   *
+   * @param username the username
+   */
   public void setUsername(String username) {
     this.username = username;
   }
 
+  /**
+   * Gets password.
+   *
+   * @return the password
+   */
   public String getPassword() {
     return password;
   }
 
+  /**
+   * Sets password.
+   *
+   * @param password the password
+   */
   public void setPassword(String password) {
     this.password = password;
   }

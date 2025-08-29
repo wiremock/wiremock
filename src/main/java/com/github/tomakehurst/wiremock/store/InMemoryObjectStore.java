@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/** The type In memory object store. */
 public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<String, Object> {
 
   private final ConcurrentHashMap<String, Object> cache;
@@ -35,6 +36,11 @@ public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<Strin
   private final int maxItems;
   private final List<Consumer<? super StoreEvent<String, Object>>> listeners = new ArrayList<>();
 
+  /**
+   * Instantiates a new In memory object store.
+   *
+   * @param maxItems the max items
+   */
   public InMemoryObjectStore(int maxItems) {
     this.cache = new ConcurrentHashMap<>();
     this.maxItems = maxItems;

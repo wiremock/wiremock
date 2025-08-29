@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,12 @@ import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+/** The type Filename maker. */
 public class FilenameMaker {
+  /** The constant DEFAULT_FILENAME_TEMPLATE. */
   public static final String DEFAULT_FILENAME_TEMPLATE =
       "{{#if name}}{{{name}}}{{else}}{{{method}}}-{{{url}}}{{/if}}-{{{id}}}";
+
   private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^\\w-.]");
   private static final String DEFAULT_EXTENSION = ".json";
   private static final String POINT = ".";
@@ -36,16 +39,28 @@ public class FilenameMaker {
   private final TemplateEngine templateEngine;
   private final String filenameTemplate;
 
+  /** Instantiates a new Filename maker. */
   public FilenameMaker() {
     this(null);
   }
 
+  /**
+   * Instantiates a new Filename maker.
+   *
+   * @param filenameTemplate the filename template
+   */
   public FilenameMaker(String filenameTemplate) {
     this.templateEngine = defaultTemplateEngine();
     this.filenameTemplate =
         filenameTemplate != null ? filenameTemplate : DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
   }
 
+  /**
+   * Instantiates a new Filename maker.
+   *
+   * @param filenameTemplate the filename template
+   * @param extension the extension
+   */
   public FilenameMaker(String filenameTemplate, String extension) {
     this.templateEngine = defaultTemplateEngine();
     if (filenameTemplate.equals("default")) {
@@ -55,6 +70,12 @@ public class FilenameMaker {
     }
   }
 
+  /**
+   * Filename for string.
+   *
+   * @param stubMapping the stub mapping
+   * @return the string
+   */
   public String filenameFor(StubMapping stubMapping) {
     HandlebarsOptimizedTemplate template = templateEngine.getUncachedTemplate(filenameTemplate);
 
@@ -63,6 +84,12 @@ public class FilenameMaker {
     return sanitise(parsedFilename);
   }
 
+  /**
+   * Sanitize url string.
+   *
+   * @param url the url
+   * @return the string
+   */
   public String sanitizeUrl(String url) {
     String startingPath = url.replace("/", "_");
     String pathWithoutWhitespace = WHITESPACE.matcher(startingPath).replaceAll("-");

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,17 @@ import static java.util.regex.Pattern.DOTALL;
 
 import java.util.regex.Pattern;
 
+/** The type Abstract regex pattern. */
 public abstract class AbstractRegexPattern extends StringValuePattern {
 
+  /** The Pattern. */
   protected final Pattern pattern;
 
+  /**
+   * Instantiates a new Abstract regex pattern.
+   *
+   * @param regex the regex
+   */
   protected AbstractRegexPattern(String regex) {
     super(regex);
     pattern = Pattern.compile(regex, DOTALL);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,30 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.X509ExtendedKeyManager;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+/** The type Certificate generating ssl context factory. */
 class CertificateGeneratingSslContextFactory extends SslContextFactory.Server {
 
   private final X509KeyStore x509KeyStore;
   private final Notifier notifier;
 
+  /**
+   * Instantiates a new Certificate generating ssl context factory.
+   *
+   * @param x509KeyStore the x 509 key store
+   * @param notifier the notifier
+   */
   CertificateGeneratingSslContextFactory(X509KeyStore x509KeyStore, Notifier notifier) {
     this.x509KeyStore = requireNonNull(x509KeyStore);
     this.notifier = requireNonNull(notifier);
   }
 
+  /**
+   * Get key managers key manager [ ].
+   *
+   * @param keyStore the key store
+   * @return the key manager [ ]
+   * @throws Exception the exception
+   */
   @Override
   protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
     KeyManager[] managers = super.getKeyManagers(keyStore);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,7 +204,7 @@ public class ServeEventListenerExtensionTest {
         wm.stubFor(
             get(urlPathEqualTo("/count-me"))
                 .withServeEventListener("count-request", counterNameParameter().withName("things"))
-                .willReturn(aResponse()));
+                .willReturn(aresponse()));
 
     client.get("/count-me");
     client.get("/count-me");
@@ -261,7 +261,7 @@ public class ServeEventListenerExtensionTest {
                 AFTER_MATCH, "request-phase-reporter", Parameters.one("phase", "after-match"))
             .withServeEventListener(
                 AFTER_COMPLETE, "request-phase-reporter", Parameters.one("phase", "after-complete"))
-            .willReturn(aResponse()));
+            .willReturn(aresponse()));
 
     client.get("/report");
 
@@ -298,7 +298,7 @@ public class ServeEventListenerExtensionTest {
                   }
                 }));
 
-    wm.stubFor(get(urlPathEqualTo("/report")).willReturn(aResponse()));
+    wm.stubFor(get(urlPathEqualTo("/report")).willReturn(aresponse()));
 
     client.get("/report");
 
@@ -314,7 +314,7 @@ public class ServeEventListenerExtensionTest {
     wm.stubFor(
         get(urlPathEqualTo("/as-normal"))
             .withServeEventListener("does-not-exist", counterNameParameter().withName("things"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(client.get("/as-normal").statusCode(), is(200));
   }
@@ -345,7 +345,7 @@ public class ServeEventListenerExtensionTest {
                   }
                 }));
 
-    wm.stubFor(get(urlPathEqualTo("/response-status")).willReturn(aResponse().withStatus(418)));
+    wm.stubFor(get(urlPathEqualTo("/response-status")).willReturn(aresponse().withStatus(418)));
 
     client.get("/response-status");
 

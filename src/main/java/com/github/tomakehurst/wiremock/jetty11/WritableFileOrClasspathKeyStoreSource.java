@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.EnumSet;
 
+/** The type Writable file or classpath key store source. */
 public class WritableFileOrClasspathKeyStoreSource extends ReadOnlyFileOrClasspathKeyStoreSource {
 
+  /**
+   * Instantiates a new Writable file or classpath key store source.
+   *
+   * @param path the path
+   * @param keyStoreType the key store type
+   * @param keyStorePassword the key store password
+   */
   public WritableFileOrClasspathKeyStoreSource(
       String path, String keyStoreType, char[] keyStorePassword) {
     super(path, keyStoreType, keyStorePassword);

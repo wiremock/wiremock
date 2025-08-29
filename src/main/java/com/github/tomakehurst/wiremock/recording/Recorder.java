@@ -32,6 +32,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/** The type Recorder. */
 public class Recorder {
 
   private final Admin admin;
@@ -40,6 +41,14 @@ public class Recorder {
 
   private final RecorderStateStore stateStore;
 
+  /**
+   * Instantiates a new Recorder.
+   *
+   * @param admin the admin
+   * @param extensions the extensions
+   * @param filesBlobStore the files blob store
+   * @param stateStore the state store
+   */
   public Recorder(
       Admin admin, Extensions extensions, BlobStore filesBlobStore, RecorderStateStore stateStore) {
     this.admin = admin;
@@ -48,6 +57,11 @@ public class Recorder {
     this.stateStore = stateStore;
   }
 
+  /**
+   * Start recording.
+   *
+   * @param spec the spec
+   */
   public synchronized void startRecording(RecordSpec spec) {
     RecorderState state = stateStore.get();
     if (state.getStatus() == RecordingStatus.Recording) {
@@ -68,6 +82,11 @@ public class Recorder {
     notifier().info("Started recording with record spec:\n" + Json.write(spec));
   }
 
+  /**
+   * Stop recording snapshot record result.
+   *
+   * @return the snapshot record result
+   */
   public synchronized SnapshotRecordResult stopRecording() {
     RecorderState state = stateStore.get();
     if (state.getStatus() != RecordingStatus.Recording) {
@@ -105,6 +124,13 @@ public class Recorder {
     return input -> input.getId().equals(id);
   }
 
+  /**
+   * Take snapshot snapshot record result.
+   *
+   * @param serveEvents the serve events
+   * @param recordSpec the record spec
+   * @return the snapshot record result
+   */
   @SuppressWarnings("removal")
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
     final List<StubMapping> stubMappings =
@@ -126,6 +152,13 @@ public class Recorder {
   }
 
   /**
+   * Serve events to stub mappings list.
+   *
+   * @param serveEventsResult the serve events result
+   * @param serveEventFilters the serve event filters
+   * @param stubMappingGenerator the stub mapping generator
+   * @param stubMappingPostProcessor the stub mapping post processor
+   * @return the list
    * @deprecated This method will become non-public in the next major version. If you rely on it,
    *     please contact the maintainers.
    */
@@ -147,6 +180,10 @@ public class Recorder {
   }
 
   /**
+   * Gets stub mapping post processor.
+   *
+   * @param recordSpec the record spec
+   * @return the stub mapping post processor
    * @deprecated This method will become non-public in the next major version. If you rely on it,
    *     please contact the maintainers.
    */
@@ -167,6 +204,11 @@ public class Recorder {
         new SnapshotStubMappingBodyExtractor(filesBlobStore));
   }
 
+  /**
+   * Gets status.
+   *
+   * @return the status
+   */
   public RecordingStatus getStatus() {
     return stateStore.get().getStatus();
   }

@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/** The type Wire mock server. */
 public class WireMockServer implements Container, Stubbing, Admin {
 
   private final WireMockApp wireMockApp;
@@ -57,10 +58,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
   private final HttpServer httpServer;
   private final Notifier notifier;
 
+  /** The Options. */
   protected final Options options;
 
+  /** The Client. */
   protected final WireMock client;
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param options the options
+   */
   public WireMockServer(Options options) {
     this.options = options;
     this.notifier = options.notifier();
@@ -89,6 +97,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
         .load();
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param port the port
+   * @param httpsPort the https port
+   * @param fileSource the file source
+   * @param enableBrowserProxying the enable browser proxying
+   * @param proxySettings the proxy settings
+   * @param notifier the notifier
+   */
   public WireMockServer(
       int port,
       Integer httpsPort,
@@ -106,6 +124,14 @@ public class WireMockServer implements Container, Stubbing, Admin {
             .notifier(notifier));
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param port the port
+   * @param fileSource the file source
+   * @param enableBrowserProxying the enable browser proxying
+   * @param proxySettings the proxy settings
+   */
   public WireMockServer(
       int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
     this(
@@ -116,6 +142,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
             .proxyVia(proxySettings));
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param port the port
+   * @param fileSource the file source
+   * @param enableBrowserProxying the enable browser proxying
+   */
   public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
     this(
         wireMockConfig()
@@ -124,30 +157,63 @@ public class WireMockServer implements Container, Stubbing, Admin {
             .enableBrowserProxying(enableBrowserProxying));
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param port the port
+   */
   public WireMockServer(int port) {
     this(wireMockConfig().port(port));
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param port the port
+   * @param httpsPort the https port
+   */
   public WireMockServer(int port, Integer httpsPort) {
     this(wireMockConfig().port(port).httpsPort(httpsPort));
   }
 
+  /** Instantiates a new Wire mock server. */
   public WireMockServer() {
     this(wireMockConfig());
   }
 
+  /**
+   * Instantiates a new Wire mock server.
+   *
+   * @param filenameTemplate the filename template
+   */
   public WireMockServer(String filenameTemplate) {
     this(wireMockConfig().filenameTemplate(filenameTemplate));
   }
 
+  /**
+   * Load mappings using.
+   *
+   * @param mappingsLoader the mappings loader
+   */
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     wireMockApp.loadMappingsUsing(mappingsLoader);
   }
 
+  /**
+   * Add mock service request listener.
+   *
+   * @param listener the listener
+   */
   public void addMockServiceRequestListener(RequestListener listener) {
     stubRequestHandler.addRequestListener(listener);
   }
 
+  /**
+   * Enable record mappings.
+   *
+   * @param mappingsFileSource the mappings file source
+   * @param filesFileSource the files file source
+   */
   public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
     addMockServiceRequestListener(
         new StubMappingJsonRecorder(
@@ -158,10 +224,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
     notifier.info("Recording mappings to " + mappingsFileSource.getPath());
   }
 
+  /** Stop. */
   public void stop() {
     httpServer.stop();
   }
 
+  /** Start. */
   public void start() {
     // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
     Json.getObjectMapper();
@@ -197,10 +265,20 @@ public class WireMockServer implements Container, Stubbing, Admin {
     shutdownThread.start();
   }
 
+  /**
+   * Is http enabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean isHttpEnabled() {
     return !options.getHttpDisabled();
   }
 
+  /**
+   * Is https enabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean isHttpsEnabled() {
     return options.httpsSettings().enabled();
   }
@@ -212,6 +290,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return httpServer.port();
   }
 
+  /**
+   * Https port int.
+   *
+   * @return the int
+   */
   public int httpsPort() {
     checkState(
         isRunning() && options.httpsSettings().enabled(),
@@ -219,6 +302,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return httpServer.httpsPort();
   }
 
+  /**
+   * Url string.
+   *
+   * @param path the path
+   * @return the string
+   */
   public String url(String path) {
     if (!path.startsWith("/")) {
       path = "/" + path;
@@ -227,6 +316,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return String.format("%s%s", baseUrl(), path);
   }
 
+  /**
+   * Base url string.
+   *
+   * @return the string
+   */
   public String baseUrl() {
     boolean https = options.httpsSettings().enabled();
     String protocol = https ? "https" : "http";
@@ -235,6 +329,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return String.format("%s://localhost:%d", protocol, port);
   }
 
+  /**
+   * Is running boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRunning() {
     return httpServer.isRunning();
   }
@@ -556,6 +655,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return wireMockApp.getGlobalSettings();
   }
 
+  /** Check for unmatched requests. */
   public void checkForUnmatchedRequests() {
     List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
     if (!unmatchedRequests.isEmpty()) {
@@ -568,6 +668,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
   }
 
+  /**
+   * Gets loaded extension names.
+   *
+   * @return the loaded extension names
+   */
   public Set<String> getLoadedExtensionNames() {
     return wireMockApp.getLoadedExtensionNames();
   }

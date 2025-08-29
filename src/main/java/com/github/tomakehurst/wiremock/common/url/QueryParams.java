@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,41 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Query params. */
 public class QueryParams extends LinkedHashMap<String, List<String>> {
 
+  /** The constant EMPTY. */
   public static final QueryParams EMPTY = new QueryParams();
 
+  /**
+   * Single query params.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the query params
+   */
   public static QueryParams single(String key, String... values) {
     return new QueryParams().add(key, values);
   }
 
+  /**
+   * Add query params.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the query params
+   */
   public QueryParams add(String key, String... values) {
     return add(key, Arrays.asList(values));
   }
 
+  /**
+   * Add query params.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the query params
+   */
   public QueryParams add(String key, List<String> values) {
     put(key, values);
     return this;

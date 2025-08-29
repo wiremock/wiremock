@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
@@ -112,7 +112,7 @@ public class HandlebarsRandomValuesHelperTest {
     ServeEvent serveEvent =
         newPostMatchServeEvent(
             mockRequest().url("/random-value"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#assign 'paymentId'}}{{randomValue length=20 type='ALPHANUMERIC' uppercase=true}}{{/assign}}\n"
                         + "{{paymentId}}\n"

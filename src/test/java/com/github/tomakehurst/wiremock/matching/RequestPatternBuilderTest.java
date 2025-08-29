@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
+import static com.github.tomakehurst.wiremock.client.WireMock.amultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -102,7 +102,7 @@ class RequestPatternBuilderTest {
 
   @Test
   void likeRequestPatternWithMultipartMatcher() {
-    MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
+    MultipartValuePattern multipartValuePattern = amultipart().withBody(equalToJson("[]")).build();
 
     RequestPattern requestPattern = RequestPattern.everything();
     RequestPattern newRequestPattern =
@@ -119,7 +119,7 @@ class RequestPatternBuilderTest {
 
   @Test
   void likeRequestPatternWithoutMultipartMatcher() {
-    MultipartValuePattern multipartPattern = aMultipart().withBody(equalToJson("[]")).build();
+    MultipartValuePattern multipartPattern = amultipart().withBody(equalToJson("[]")).build();
 
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly

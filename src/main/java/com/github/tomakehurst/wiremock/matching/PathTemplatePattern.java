@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 
+/** The type Path template pattern. */
 public class PathTemplatePattern extends StringValuePattern {
 
   private final PathTemplate pathTemplate;
 
+  /**
+   * Instantiates a new Path template pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public PathTemplatePattern(@JsonProperty("matchesPathTemplate") String expectedValue) {
     super(expectedValue);
     this.pathTemplate = new PathTemplate(expectedValue);
   }
 
+  /**
+   * Gets matches path template.
+   *
+   * @return the matches path template
+   */
   public String getMatchesPathTemplate() {
     return expectedValue;
   }
 
+  /**
+   * Gets path template.
+   *
+   * @return the path template
+   */
   @JsonIgnore
   public PathTemplate getPathTemplate() {
     return pathTemplate;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import java.util.function.Function;
 
+/** The type Case insensitive key. */
 public class CaseInsensitiveKey {
 
   private final String key;
@@ -24,10 +25,21 @@ public class CaseInsensitiveKey {
   /** Cache the hash code for the key */
   private int hash; // Default to 0
 
+  /**
+   * Instantiates a new Case insensitive key.
+   *
+   * @param key the key
+   */
   public CaseInsensitiveKey(String key) {
     this.key = key;
   }
 
+  /**
+   * From case insensitive key.
+   *
+   * @param key the key
+   * @return the case insensitive key
+   */
   public static CaseInsensitiveKey from(String key) {
     return new CaseInsensitiveKey(key);
   }
@@ -62,10 +74,16 @@ public class CaseInsensitiveKey {
     return key;
   }
 
+  /**
+   * Value string.
+   *
+   * @return the string
+   */
   public String value() {
     return key;
   }
 
+  /** The constant TO_CASE_INSENSITIVE_KEYS. */
   public static final Function<String, CaseInsensitiveKey> TO_CASE_INSENSITIVE_KEYS =
       CaseInsensitiveKey::from;
 }

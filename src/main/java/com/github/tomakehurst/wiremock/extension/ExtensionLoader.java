@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,18 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/** The type Extension loader. */
 public class ExtensionLoader {
 
   private ExtensionLoader() {}
 
+  /**
+   * Load extension map.
+   *
+   * @param <T> the type parameter
+   * @param classNames the class names
+   * @return the map
+   */
   @SuppressWarnings("unchecked")
   public static <T> Map<String, T> loadExtension(String... classNames) {
     return (Map<String, T>)
@@ -38,16 +46,34 @@ public class ExtensionLoader {
                 .collect(Collectors.toList()));
   }
 
+  /**
+   * Load map.
+   *
+   * @param classNames the class names
+   * @return the map
+   */
   public static Map<String, Extension> load(String... classNames) {
     return loadExtension(classNames);
   }
 
+  /**
+   * As map map.
+   *
+   * @param extensions the extensions
+   * @return the map
+   */
   public static Map<String, Extension> asMap(List<Extension> extensions) {
     return extensions.stream()
         .map(extension -> Map.entry(extension.getName(), extension))
         .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
+  /**
+   * Load map.
+   *
+   * @param classes the classes
+   * @return the map
+   */
   @SafeVarargs
   public static Map<String, Extension> load(Class<? extends Extension>... classes) {
     return asMap(Arrays.stream(classes).map(toExtensions()).collect(Collectors.toList()));
@@ -74,6 +100,13 @@ public class ExtensionLoader {
     };
   }
 
+  /**
+   * Value assignable from predicate.
+   *
+   * @param <T> the type parameter
+   * @param extensionType the extension type
+   * @return the predicate
+   */
   public static <T extends Extension> Predicate<Map.Entry<String, Extension>> valueAssignableFrom(
       final Class<T> extensionType) {
     return input -> extensionType.isAssignableFrom(input.getValue().getClass());

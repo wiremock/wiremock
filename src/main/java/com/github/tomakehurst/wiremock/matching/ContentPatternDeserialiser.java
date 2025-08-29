@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.*;
 
+/** The type Content pattern deserialiser. */
 public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
+  /**
+   * Deserialize content pattern.
+   *
+   * @param parser the parser
+   * @param context the context
+   * @return the content pattern
+   * @throws IOException the io exception
+   * @throws JsonProcessingException the json processing exception
+   */
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
       throws IOException, JsonProcessingException {

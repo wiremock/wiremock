@@ -42,6 +42,8 @@ public final class LogNormal implements DelayDistribution {
   private final Double maxValue;
 
   /**
+   * Instantiates a new Log normal.
+   *
    * @param median 50th percentile of the distribution in millis
    * @param sigma standard deviation of the underlying normal distribution, a larger value produces
    *     a longer tail
@@ -66,6 +68,8 @@ public final class LogNormal implements DelayDistribution {
   }
 
   /**
+   * Instantiates a new Log normal.
+   *
    * @param median 50th percentile of the distribution in millis
    * @param sigma standard deviation of the distribution, a larger value produces a longer tail
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
@@ -56,7 +56,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
+            aresponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
   }
@@ -67,7 +67,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
+            aresponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
         responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
@@ -94,7 +94,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "        }\n"
                         + "    ]\n"
                         + "}"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
@@ -116,7 +116,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "        \"three\": 3\n"
                         + "    }\n"
                         + "}"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
@@ -138,7 +138,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "        \"three\": true\n"
                         + "    }\n"
                         + "}"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
                         + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
@@ -297,7 +297,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
     final ResponseDefinition responseDefinition =
         transform(
-            transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
+            transformer, mockRequest(), aresponse().withBody("{{jsonPath mapData '$.things'}}"));
 
     assertThat(responseDefinition.getBody(), is("abc"));
   }

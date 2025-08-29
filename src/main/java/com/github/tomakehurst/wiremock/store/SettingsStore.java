@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,21 @@ package com.github.tomakehurst.wiremock.store;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import org.wiremock.annotations.Beta;
 
+/** The interface Settings store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface SettingsStore {
 
+  /**
+   * Get global settings.
+   *
+   * @return the global settings
+   */
   GlobalSettings get();
 
+  /**
+   * Set.
+   *
+   * @param newSettings the new settings
+   */
   void set(GlobalSettings newSettings);
 }

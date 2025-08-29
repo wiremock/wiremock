@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import java.util.List;
 
+/** The type Abstract array helper. */
 public abstract class AbstractArrayHelper extends HandlebarsHelper<List<?>> {
 
+  /**
+   * Parse position integer.
+   *
+   * @param options the options
+   * @return the integer
+   */
   protected Integer parsePosition(Options options) {
     final Object positionSpec = options.hash("position", "end");
     Integer position;

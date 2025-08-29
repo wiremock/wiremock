@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,21 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import java.io.IOException;
 
+/**
+ * The type Path pattern json serializer.
+ *
+ * @param <T> the type parameter
+ */
 public abstract class PathPatternJsonSerializer<T extends PathPattern> extends JsonSerializer<T> {
 
+  /**
+   * Serialize.
+   *
+   * @param value the value
+   * @param gen the gen
+   * @param serializers the serializers
+   * @throws IOException the io exception
+   */
   @Override
   public void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
       throws IOException {
@@ -32,6 +45,14 @@ public abstract class PathPatternJsonSerializer<T extends PathPattern> extends J
     gen.writeEndObject();
   }
 
+  /**
+   * Serialize path pattern.
+   *
+   * @param value the value
+   * @param gen the gen
+   * @param serializers the serializers
+   * @throws IOException the io exception
+   */
   protected void serializePathPattern(T value, JsonGenerator gen, SerializerProvider serializers)
       throws IOException {
     if (value.isSimple()) {
@@ -49,6 +70,14 @@ public abstract class PathPatternJsonSerializer<T extends PathPattern> extends J
     serializeAdditionalFields(value, gen, serializers);
   }
 
+  /**
+   * Serialize additional fields.
+   *
+   * @param value the value
+   * @param gen the gen
+   * @param serializers the serializers
+   * @throws IOException the io exception
+   */
   protected abstract void serializeAdditionalFields(
       T value, JsonGenerator gen, SerializerProvider serializers) throws IOException;
 }

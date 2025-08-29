@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
+/** The type Form parameter. */
 public class FormParameter extends MultiValue {
 
+  /**
+   * Instantiates a new Form parameter.
+   *
+   * @param key the key
+   * @param values the values
+   */
   public FormParameter(
       @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
     super(key, values);
   }
 
+  /**
+   * Absent form parameter.
+   *
+   * @param key the key
+   * @return the form parameter
+   */
   public static FormParameter absent(String key) {
     return new FormParameter(key, Collections.emptyList());
   }

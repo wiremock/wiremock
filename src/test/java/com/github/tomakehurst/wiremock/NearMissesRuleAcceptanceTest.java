@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,8 +78,8 @@ public class NearMissesRuleAcceptanceTest {
 
     @Test
     void logsUnmatchedRequestsAtErrorWithNearMisses() {
-      wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
-      wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
+      wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aresponse().withStatus(200)));
+      wm.stubFor(get(urlEqualTo("/miss")).willReturn(aresponse().withStatus(200)));
 
       client.post("/a-near-mis", new StringEntity(""));
 
@@ -184,7 +184,7 @@ public class NearMissesRuleAcceptanceTest {
 
     @Test
     void successfullyCalculatesNearMissesWhenACustomMatcherIsRegistered() {
-      wmeWithCustomMatcher.stubFor(requestMatching("always-match").willReturn(aResponse()));
+      wmeWithCustomMatcher.stubFor(requestMatching("always-match").willReturn(aresponse()));
 
       client.get("/");
 

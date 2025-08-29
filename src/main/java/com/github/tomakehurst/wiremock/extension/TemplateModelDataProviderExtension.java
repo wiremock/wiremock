@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,13 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Map;
 
+/** The interface Template model data provider extension. */
 public interface TemplateModelDataProviderExtension extends Extension {
+  /**
+   * Provide template model data map.
+   *
+   * @param serveEvent the serve event
+   * @return the map
+   */
   Map<String, Object> provideTemplateModelData(ServeEvent serveEvent);
 }

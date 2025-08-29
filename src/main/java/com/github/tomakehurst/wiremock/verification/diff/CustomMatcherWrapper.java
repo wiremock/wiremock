@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,16 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
+/** The type Custom matcher wrapper. */
 public class CustomMatcherWrapper implements NamedValueMatcher<Request> {
 
   private final ValueMatcher<Request> matcher;
 
+  /**
+   * Instantiates a new Custom matcher wrapper.
+   *
+   * @param matcher the matcher
+   */
   public CustomMatcherWrapper(ValueMatcher<Request> matcher) {
     this.matcher = matcher;
   }

@@ -20,11 +20,18 @@ import static com.github.tomakehurst.wiremock.common.Strings.normalisedLevenshte
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
+/** The type Equal to pattern with case insensitive prefix. */
 public class EqualToPatternWithCaseInsensitivePrefix extends StringValuePattern {
 
   private final String prefix;
   private final String testValue;
 
+  /**
+   * Instantiates a new Equal to pattern with case insensitive prefix.
+   *
+   * @param prefix the prefix
+   * @param testValue the test value
+   */
   public EqualToPatternWithCaseInsensitivePrefix(
       @JsonProperty("prefix") String prefix, @JsonProperty("equalTo") String testValue) {
     super(prefix + testValue);

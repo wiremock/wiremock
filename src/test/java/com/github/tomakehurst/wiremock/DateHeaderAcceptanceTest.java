@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/stubbed/dateheader"))
             .willReturn(
-                aResponse().withStatus(200).withHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT")));
+                aresponse().withStatus(200).withHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT")));
 
     WireMockResponse response = testClient.get("/stubbed/dateheader");
 
@@ -42,7 +42,7 @@ public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void returnsNoDateHeaderIfNotStubbed() {
 
-    stubFor(get(urlEqualTo("/nodateheader")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlEqualTo("/nodateheader")).willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response = testClient.get("/nodateheader");
 

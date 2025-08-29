@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Weighted aggregate match result. */
 public class WeightedAggregateMatchResult extends MatchResult {
 
   private final List<WeightedMatchResult> matchResults;
 
   private final Lazy<Pair<Boolean, List<SubEvent>>> resultAndEvents;
 
+  /**
+   * Instantiates a new Weighted aggregate match result.
+   *
+   * @param matchResults the match results
+   */
   public WeightedAggregateMatchResult(List<WeightedMatchResult> matchResults) {
     this.matchResults = matchResults;
     resultAndEvents =

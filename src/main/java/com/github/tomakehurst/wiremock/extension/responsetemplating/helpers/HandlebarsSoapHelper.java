@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 /**
  * This class uses HandlebarsXmlHelper as a base an just set a prefix which reduce the written
- * handlebars helper to the relevant part
+ * handlebars helper to the relevant part.
  */
-public class HandlebarsSoapHelper extends HandlebarsXPathHelper {
+public class HandlebarsSoapHelper extends Handlebarsxpathhelper {
 
   @Override
-  protected String getXPathPrefix() {
+  protected String getXpathprefix() {
     return "/Envelope/Body/";
   }
 }

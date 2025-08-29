@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,23 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Negative contains pattern. */
 public class NegativeContainsPattern extends StringValuePattern {
 
+  /**
+   * Instantiates a new Negative contains pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public NegativeContainsPattern(@JsonProperty("doesNotContain") String expectedValue) {
     super(expectedValue);
   }
 
+  /**
+   * Gets does not contain.
+   *
+   * @return the does not contain
+   */
   public String getDoesNotContain() {
     return expectedValue;
   }

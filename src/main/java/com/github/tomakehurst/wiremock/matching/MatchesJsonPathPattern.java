@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,21 +34,38 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+/** The type Matches json path pattern. */
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
 
   private final JsonPath jsonPath;
 
+  /**
+   * Instantiates a new Matches json path pattern.
+   *
+   * @param expectedJsonPath the expected json path
+   * @param valuePattern the value pattern
+   */
   public MatchesJsonPathPattern(
       @JsonProperty("matchesJsonPath") String expectedJsonPath, StringValuePattern valuePattern) {
     super(expectedJsonPath, valuePattern);
     jsonPath = JsonPath.compile(expectedJsonPath);
   }
 
+  /**
+   * Instantiates a new Matches json path pattern.
+   *
+   * @param value the value
+   */
   public MatchesJsonPathPattern(String value) {
     this(value, null);
   }
 
+  /**
+   * Gets matches json path.
+   *
+   * @return the matches json path
+   */
   public String getMatchesJsonPath() {
     return expectedValue;
   }

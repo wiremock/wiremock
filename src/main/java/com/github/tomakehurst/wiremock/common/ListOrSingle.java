@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * The type List or single.
+ *
+ * @param <T> the type parameter
+ */
 @JsonSerialize(using = ListOrSingleSerialiser.class)
 @JsonDeserialize(using = ListOrStringDeserialiser.class)
 public class ListOrSingle<T> extends ArrayList<T> {
 
+  /**
+   * Instantiates a new List or single.
+   *
+   * @param c the c
+   */
   public ListOrSingle(Collection<? extends T> c) {
     super(c);
   }
 
+  /**
+   * Instantiates a new List or single.
+   *
+   * @param items the items
+   */
   public ListOrSingle(T... items) {
     this(asList(items));
   }
@@ -40,18 +55,42 @@ public class ListOrSingle<T> extends ArrayList<T> {
     return size() > 0 ? get(0).toString() : "";
   }
 
+  /**
+   * Of list or single.
+   *
+   * @param <T> the type parameter
+   * @param items the items
+   * @return the list or single
+   */
   public static <T> ListOrSingle<T> of(T... items) {
     return new ListOrSingle<>(items);
   }
 
+  /**
+   * Of list or single.
+   *
+   * @param <T> the type parameter
+   * @param items the items
+   * @return the list or single
+   */
   public static <T> ListOrSingle<T> of(List<T> items) {
     return new ListOrSingle<>(items);
   }
 
+  /**
+   * Gets first.
+   *
+   * @return the first
+   */
   public T getFirst() {
     return get(0);
   }
 
+  /**
+   * Gets last.
+   *
+   * @return the last
+   */
   public T getLast() {
     return get(size() - 1);
   }
@@ -65,6 +104,11 @@ public class ListOrSingle<T> extends ArrayList<T> {
     return super.get(index);
   }
 
+  /**
+   * Is single boolean.
+   *
+   * @return the boolean
+   */
   public boolean isSingle() {
     return size() == 1;
   }

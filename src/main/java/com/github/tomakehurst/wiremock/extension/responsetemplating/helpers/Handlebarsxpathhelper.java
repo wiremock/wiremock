@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,27 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.RequestCache;
-import com.github.tomakehurst.wiremock.common.xml.*;
+import com.github.tomakehurst.wiremock.common.xml.XPathException;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
+import com.github.tomakehurst.wiremock.common.xml.XmlDocument;
+import com.github.tomakehurst.wiremock.common.xml.XmlException;
+import com.github.tomakehurst.wiremock.common.xml.XmlNode;
 import java.io.IOException;
 
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for
  * response templating.
  */
-public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
+public class Handlebarsxpathhelper extends HandlebarsHelper<String> {
 
+  /**
+   * Apply object.
+   *
+   * @param inputXml the input xml
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(final String inputXml, final Options options) throws IOException {
     if (inputXml == null) {
@@ -48,7 +60,7 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
     try {
       ListOrSingle<XmlNode> xmlNodes =
-          getXmlNodes(getXPathPrefix() + xPathInput, xmlDocument, options);
+          getXmlNodes(getXpathprefix() + xPathInput, xmlDocument, options);
 
       if (xmlNodes == null || xmlNodes.isEmpty()) {
         return "";
@@ -61,13 +73,13 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
   }
 
   private ListOrSingle<XmlNode> getXmlNodes(
-      String xPathExpression, XmlDocument doc, Options options) {
+      String xpathexpression, XmlDocument doc, Options options) {
     RequestCache requestCache = getRequestCache(options);
-    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xpathexpression, doc);
     ListOrSingle<XmlNode> nodes = requestCache.get(cacheKey);
 
     if (nodes == null) {
-      nodes = doc.findNodes(xPathExpression);
+      nodes = doc.findNodes(xpathexpression);
       requestCache.put(cacheKey, nodes);
     }
 
@@ -92,7 +104,7 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
    *
    * @return a prefix which will be applied before the specified xpath.
    */
-  protected String getXPathPrefix() {
+  protected String getXpathprefix() {
     return "";
   }
 }

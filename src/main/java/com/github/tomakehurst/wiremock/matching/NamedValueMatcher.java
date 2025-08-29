@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,26 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * The interface Named value matcher.
+ *
+ * @param <T> the type parameter
+ */
 public interface NamedValueMatcher<T> extends ValueMatcher<T> {
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   @JsonIgnore
   String getName();
 
+  /**
+   * Gets expected.
+   *
+   * @return the expected
+   */
   @JsonIgnore
   String getExpected();
 }

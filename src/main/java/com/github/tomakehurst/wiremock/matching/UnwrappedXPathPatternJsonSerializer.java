@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
+/** The type Unwrapped x path pattern json serializer. */
 public class UnwrappedXPathPatternJsonSerializer extends XPathPatternJsonSerializer {
 
   @Override
@@ -28,6 +29,11 @@ public class UnwrappedXPathPatternJsonSerializer extends XPathPatternJsonSeriali
     this.serializePathPattern(value, gen, serializers);
   }
 
+  /**
+   * Is unwrapping serializer boolean.
+   *
+   * @return the boolean
+   */
   @Override
   public boolean isUnwrappingSerializer() {
     return true;

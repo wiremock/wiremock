@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class ProxyResponseRendererTest {
   @Test
   public void acceptsAnyCertificateForStandardProxying() {
 
-    origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
+    origin.stubFor(get("/proxied").willReturn(aresponse().withBody("Result")));
 
     ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
 
@@ -103,7 +103,7 @@ public class ProxyResponseRendererTest {
   @Test
   public void rejectsSelfSignedCertificateForForwardProxyingByDefault() {
 
-    origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
+    origin.stubFor(get("/proxied").willReturn(aresponse().withBody("Result")));
 
     final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
@@ -124,7 +124,7 @@ public class ProxyResponseRendererTest {
   public void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
-    origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
+    origin.stubFor(get("/proxied").willReturn(aresponse().withBody("Result")));
 
     ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
     Response response = trustAllProxyResponseRenderer.render(serveEvent);
@@ -218,7 +218,7 @@ public class ProxyResponseRendererTest {
   @Test
   void addsEmptyEntityIfEmptyBodyForwardProxyPOST() throws IOException {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
-    origin.stubFor(post("/proxied/empty-post").willReturn(aResponse().withBody("Result")));
+    origin.stubFor(post("/proxied/empty-post").willReturn(aresponse().withBody("Result")));
 
     ServeEvent serveEvent =
         serveEvent(
@@ -244,7 +244,7 @@ public class ProxyResponseRendererTest {
   @Test
   void addsEmptyEntityIfEmptyBodyForwardProxyGET() throws IOException {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
-    origin.stubFor(get("/proxied/empty-get").willReturn(aResponse().withBody("Result")));
+    origin.stubFor(get("/proxied/empty-get").willReturn(aresponse().withBody("Result")));
 
     ServeEvent serveEvent =
         serveEvent(
@@ -291,7 +291,7 @@ public class ProxyResponseRendererTest {
             null,
             RequestMethod.GET,
             new HttpHeaders(),
-            aResponse()
+            aresponse()
                 .proxiedFrom(origin.baseUrl())
                 .withAdditionalRequestHeader("header", "value")
                 .build());
@@ -312,7 +312,7 @@ public class ProxyResponseRendererTest {
             null,
             RequestMethod.GET,
             new HttpHeaders(new HttpHeader("header", "value")),
-            aResponse().proxiedFrom(origin.baseUrl()).withRemoveRequestHeader("Header").build());
+            aresponse().proxiedFrom(origin.baseUrl()).withRemoveRequestHeader("Header").build());
 
     proxyResponseRenderer.render(serveEvent);
     Mockito.verify(reverseProxyApacheClient)
@@ -421,7 +421,7 @@ public class ProxyResponseRendererTest {
             null,
             RequestMethod.GET,
             new HttpHeaders(new HttpHeader("header", "value")),
-            aResponse()
+            aresponse()
                 .proxiedFrom(origin.baseUrl())
                 .withProxyUrlPrefixToRemove("/prefix")
                 .build());
@@ -469,7 +469,7 @@ public class ProxyResponseRendererTest {
         body,
         method,
         headers,
-        aResponse().proxiedFrom(origin.baseUrl()).build());
+        aresponse().proxiedFrom(origin.baseUrl()).build());
   }
 
   private ServeEvent serveEvent(

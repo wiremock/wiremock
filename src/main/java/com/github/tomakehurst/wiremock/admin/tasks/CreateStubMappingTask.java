@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,14 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+/**
+ * An admin task for creating a new stub mapping.
+ *
+ * <p>This task handles the API request to add a new {@link StubMapping} to the server. It reads the
+ * stub mapping definition from the request body.
+ *
+ * @see StubMapping
+ */
 public class CreateStubMappingTask implements AdminTask {
 
   @Override

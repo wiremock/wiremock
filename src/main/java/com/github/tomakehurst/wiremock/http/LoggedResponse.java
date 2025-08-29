@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
 
+/** The type Logged response. */
 public class LoggedResponse {
 
   private final int status;
@@ -32,6 +33,15 @@ public class LoggedResponse {
   private final byte[] body;
   private final Fault fault;
 
+  /**
+   * Instantiates a new Logged response.
+   *
+   * @param status the status
+   * @param headers the headers
+   * @param bodyAsBase64 the body as base 64
+   * @param fault the fault
+   * @param ignoredBodyOnlyUsedForBinding the ignored body only used for binding
+   */
   public LoggedResponse(
       @JsonProperty("status") int status,
       @JsonProperty("headers") HttpHeaders headers,
@@ -48,6 +58,13 @@ public class LoggedResponse {
     this.fault = fault;
   }
 
+  /**
+   * From logged response.
+   *
+   * @param response the response
+   * @param responseBodySizeLimit the response body size limit
+   * @return the logged response
+   */
   public static LoggedResponse from(Response response, Limit responseBodySizeLimit) {
     return new LoggedResponse(
         response.getStatus(),
@@ -58,17 +75,27 @@ public class LoggedResponse {
         response.getFault());
   }
 
+  /**
+   * Gets status.
+   *
+   * @return the status
+   */
   public int getStatus() {
     return status;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public HttpHeaders getHeaders() {
     return headers;
   }
 
   /**
    * Retrieve body as a String encoded in the charset in the "Content-Type" header, or, if that's
-   * not present, the default character set (UTF-8)
+   * not present, the default character set (UTF-8).
    *
    * @return Encoded string
    */
@@ -81,6 +108,11 @@ public class LoggedResponse {
     return Strings.stringFromBytes(body, getCharset());
   }
 
+  /**
+   * Gets mime type.
+   *
+   * @return the mime type
+   */
   @JsonIgnore
   public String getMimeType() {
     return headers == null || headers.getContentTypeHeader() == null
@@ -88,21 +120,41 @@ public class LoggedResponse {
         : headers.getContentTypeHeader().mimeTypePart();
   }
 
+  /**
+   * Gets charset.
+   *
+   * @return the charset
+   */
   @JsonIgnore
   public Charset getCharset() {
     return headers == null ? UTF_8 : headers.getContentTypeHeader().charset();
   }
 
+  /**
+   * Get body byte [ ].
+   *
+   * @return the byte [ ]
+   */
   @JsonIgnore
   public byte[] getBody() {
     return body;
   }
 
+  /**
+   * Gets body as base 64.
+   *
+   * @return the body as base 64
+   */
   @JsonProperty("bodyAsBase64")
   public String getBodyAsBase64() {
     return Encoding.encodeBase64(body);
   }
 
+  /**
+   * Gets fault.
+   *
+   * @return the fault
+   */
   public Fault getFault() {
     return fault;
   }

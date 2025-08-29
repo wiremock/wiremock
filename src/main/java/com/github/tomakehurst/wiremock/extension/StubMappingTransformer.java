@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,22 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
  * recorded via the snapshot and recording API endpoints.
  */
 public abstract class StubMappingTransformer implements Extension {
+  /**
+   * Transform stub mapping.
+   *
+   * @param stubMapping the stub mapping
+   * @param files the files
+   * @param parameters the parameters
+   * @return the stub mapping
+   */
   public abstract StubMapping transform(
       StubMapping stubMapping, FileSource files, Parameters parameters);
 
+  /**
+   * Apply globally boolean.
+   *
+   * @return the boolean
+   */
   public boolean applyGlobally() {
     return true;
   }

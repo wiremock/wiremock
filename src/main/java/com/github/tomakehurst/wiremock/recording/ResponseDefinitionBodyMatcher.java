@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,27 +22,47 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Objects;
 
+/** The type Response definition body matcher. */
 // Matches the size of the body of a ResponseDefinition, for use by the Snapshot API when
 // determining if the body
 // should be extracted to a file.
 @JsonDeserialize(using = ResponseDefinitionBodyMatcherDeserializer.class)
 public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefinition> {
 
+  /** The constant DEFAULT_MAX_TEXT_SIZE. */
   public static final long DEFAULT_MAX_TEXT_SIZE = 10240;
+
+  /** The constant DEFAULT_MAX_BINARY_SIZE. */
   public static final long DEFAULT_MAX_BINARY_SIZE = 0;
 
   private final long textSizeThreshold;
   private final long binarySizeThreshold;
 
+  /**
+   * Instantiates a new Response definition body matcher.
+   *
+   * @param textSizeThreshold the text size threshold
+   * @param binarySizeThreshold the binary size threshold
+   */
   public ResponseDefinitionBodyMatcher(long textSizeThreshold, long binarySizeThreshold) {
     this.textSizeThreshold = textSizeThreshold;
     this.binarySizeThreshold = binarySizeThreshold;
   }
 
+  /**
+   * Gets text size threshold.
+   *
+   * @return the text size threshold
+   */
   public String getTextSizeThreshold() {
     return String.valueOf(textSizeThreshold);
   }
 
+  /**
+   * Gets binary size threshold.
+   *
+   * @return the binary size threshold
+   */
   public String getBinarySizeThreshold() {
     return String.valueOf(binarySizeThreshold);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,16 @@ import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to retrieve the current application version.
+ *
+ * <p>This task handles the API request for the server's version. The response format depends on the
+ * request's {@code Accept} header. It returns plain text if {@code text/plain} is accepted,
+ * otherwise it returns a JSON object.
+ *
+ * @see VersionResult
+ * @see Version
+ */
 public class GetVersionTask implements AdminTask {
 
   @Override

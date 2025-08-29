@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -38,7 +38,7 @@ public class JsonRemoveHelperTest extends HandlebarsHelperTestBase {
   void helperIsAccessibleFromResponseBody() {
     String responseTemplate = "{{ jsonRemove '{\"id\":456,\"name\":\"bob\"}' '$.name' }}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("{\"id\":456}"));
   }

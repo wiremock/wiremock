@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+/**
+ * An admin task for editing a stub mapping, kept for backward compatibility.
+ *
+ * <p>This task is deprecated and supports an older API endpoint for editing stubs. The preferred
+ * modern approach is {@link EditStubMappingTask}.
+ *
+ * @see EditStubMappingTask
+ * @see StubMapping
+ */
 public class OldEditStubMappingTask implements AdminTask {
 
   @Override

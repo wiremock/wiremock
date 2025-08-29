@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,7 +56,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse().withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>"));
+            aresponse().withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
@@ -70,7 +70,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>"));
+            aresponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test></test>"));
   }

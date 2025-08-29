@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,17 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 
+/** The type Val helper. */
 public class ValHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param value the value
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Object value, Options options) throws IOException {
     final Object defaultValue = options.hash("or", options.hash("default"));

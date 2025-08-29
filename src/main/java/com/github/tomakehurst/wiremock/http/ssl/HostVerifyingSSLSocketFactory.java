@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,16 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+/** The type Host verifying ssl socket factory. */
 public class HostVerifyingSSLSocketFactory extends SSLSocketFactory {
 
   private final SSLSocketFactory delegate;
 
+  /**
+   * Instantiates a new Host verifying ssl socket factory.
+   *
+   * @param delegate the delegate
+   */
   public HostVerifyingSSLSocketFactory(SSLSocketFactory delegate) {
     this.delegate = delegate;
   }
@@ -66,6 +72,12 @@ public class HostVerifyingSSLSocketFactory extends SSLSocketFactory {
     return verifyHosts(delegate.createSocket(address, port, localAddress, localPort));
   }
 
+  /**
+   * Verify hosts socket.
+   *
+   * @param socket the socket
+   * @return the socket
+   */
   public static Socket verifyHosts(Socket socket) {
     if (socket instanceof SSLSocket) {
       SSLSocket sslSocket = (SSLSocket) socket;

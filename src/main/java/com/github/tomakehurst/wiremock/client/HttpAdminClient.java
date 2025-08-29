@@ -23,10 +23,59 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
-import com.github.tomakehurst.wiremock.admin.*;
-import com.github.tomakehurst.wiremock.admin.model.*;
-import com.github.tomakehurst.wiremock.admin.tasks.*;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.FindStubMappingsByMetadataTask;
+import com.github.tomakehurst.wiremock.admin.GetAllScenariosTask;
+import com.github.tomakehurst.wiremock.admin.GetGlobalSettingsTask;
+import com.github.tomakehurst.wiremock.admin.GetRecordingStatusTask;
+import com.github.tomakehurst.wiremock.admin.ImportStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventsByRequestPatternTask;
+import com.github.tomakehurst.wiremock.admin.RemoveServeEventsByStubMetadataTask;
+import com.github.tomakehurst.wiremock.admin.RemoveStubMappingsByMetadataTask;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.SetScenarioStateTask;
+import com.github.tomakehurst.wiremock.admin.StartRecordingTask;
+import com.github.tomakehurst.wiremock.admin.StopRecordingTask;
+import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ScenarioState;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.tasks.CreateStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.EditStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForRequestPatternTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForRequestTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindNearMissesForUnmatchedTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.FindUnmatchedRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetAllRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetAllStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetRequestCountTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetServedStubTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GetUnmatchedStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.GlobalSettingsUpdateTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RemoveMatchingStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RemoveStubMappingByIdTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetRequestsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetScenariosTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetStubMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ResetToDefaultMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
+import com.github.tomakehurst.wiremock.admin.tasks.ShutdownServerTask;
+import com.github.tomakehurst.wiremock.admin.tasks.SnapshotTask;
+import com.github.tomakehurst.wiremock.common.AdminException;
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -46,7 +95,11 @@ import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +113,15 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
+/**
+ * An HTTP client for WireMock's admin API.
+ *
+ * <p>This class is a client-side implementation of the {@link Admin} interface, allowing for remote
+ * administration of a WireMock server by sending requests to its admin API endpoints.
+ *
+ * @see Admin
+ * @see WireMock
+ */
 public class HttpAdminClient implements Admin {
 
   private static final String ADMIN_URL_PREFIX = "%s://%s%s%s/__admin";
@@ -76,46 +138,62 @@ public class HttpAdminClient implements Admin {
 
   private final CloseableHttpClient httpClient;
 
+  /**
+   * Constructs a new HttpAdminClient with a scheme, host, and port.
+   *
+   * @param scheme The protocol (e.g., "http").
+   * @param host The server host.
+   * @param port The server port.
+   */
   public HttpAdminClient(String scheme, String host, int port) {
     this(scheme, host, port, "");
   }
 
+  /**
+   * Constructs a new HttpAdminClient with a scheme and host, assuming no specific port.
+   *
+   * @param scheme The protocol (e.g., "http").
+   * @param host The server host.
+   */
   public HttpAdminClient(String scheme, String host) {
     this(scheme, host, NO_PORT_DEFINED, "");
   }
 
+  /**
+   * Constructs a new HttpAdminClient with a host, port, and URL path prefix, defaulting to HTTP.
+   *
+   * @param host The server host.
+   * @param port The server port.
+   * @param urlPathPrefix A path prefix for all admin URLs.
+   */
   public HttpAdminClient(String host, int port, String urlPathPrefix) {
     this("http", host, port, urlPathPrefix);
   }
 
+  /**
+   * Constructs a new HttpAdminClient with scheme, host, port, and URL path prefix.
+   *
+   * @param scheme The protocol (e.g., "http").
+   * @param host The server host.
+   * @param port The server port.
+   * @param urlPathPrefix A path prefix for all admin URLs.
+   */
   public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
     this(scheme, host, port, urlPathPrefix, null, null, 0, noClientAuthenticator());
   }
 
-  public HttpAdminClient(
-      String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
-    this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
-  }
-
-  public HttpAdminClient(
-      String scheme,
-      String host,
-      int port,
-      String urlPathPrefix,
-      String hostHeader,
-      String proxyHost,
-      int proxyPort) {
-    this(
-        scheme,
-        host,
-        port,
-        urlPathPrefix,
-        hostHeader,
-        proxyHost,
-        proxyPort,
-        noClientAuthenticator());
-  }
-
+  /**
+   * Constructs a new HttpAdminClient with proxy and authentication settings.
+   *
+   * @param scheme The protocol.
+   * @param host The server host.
+   * @param port The server port.
+   * @param urlPathPrefix A path prefix for all admin URLs.
+   * @param hostHeader A custom value for the Host header.
+   * @param proxyHost The host of the proxy server.
+   * @param proxyPort The port of the proxy server.
+   * @param authenticator The client authenticator for adding credentials to requests.
+   */
   public HttpAdminClient(
       String scheme,
       String host,
@@ -135,6 +213,17 @@ public class HttpAdminClient implements Admin {
         HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
   }
 
+  /**
+   * Constructs a new HttpAdminClient with all configuration options.
+   *
+   * @param scheme The protocol to use (e.g., "http", "https").
+   * @param host The host of the WireMock server.
+   * @param port The port of the WireMock server.
+   * @param urlPathPrefix A path prefix to be prepended to all admin URLs.
+   * @param hostHeader The value to use for the Host header.
+   * @param authenticator The client authenticator for adding credentials to requests.
+   * @param httpClient The underlying Apache HttpClient to be used.
+   */
   public HttpAdminClient(
       String scheme,
       String host,
@@ -154,6 +243,14 @@ public class HttpAdminClient implements Admin {
     adminRoutes = AdminRoutes.forClient();
   }
 
+  /**
+   * Constructs a new HttpAdminClient with a host and port.
+   *
+   * <p>This defaults to the HTTP scheme and no URL path prefix.
+   *
+   * @param host The server host.
+   * @param port The server port.
+   */
   public HttpAdminClient(String host, int port) {
     this(host, port, "");
   }
@@ -167,7 +264,8 @@ public class HttpAdminClient implements Admin {
     if (stubMapping.getRequest().hasInlineCustomMatcher()) {
       throw new AdminException(
           "Custom matchers can't be used when administering a remote WireMock server. "
-              + "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
+              + "Use WireMockRule.stubFor() or WireMockServer.stubFor() "
+              + "to administer the local instance.");
     }
 
     executeRequest(
@@ -463,6 +561,11 @@ public class HttpAdminClient implements Admin {
         adminRoutes.requestSpecForTask(GetGlobalSettingsTask.class), GetGlobalSettingsResult.class);
   }
 
+  /**
+   * Gets the port of the remote server.
+   *
+   * @return The port number.
+   */
   public int port() {
     return port;
   }
@@ -481,13 +584,22 @@ public class HttpAdminClient implements Admin {
     return safelyExecuteRequest(url, post);
   }
 
-  private String putJsonAssertOkAndReturnBody(String url, String json) {
+  private void putJsonAssertOkAndReturnBody(String url, String json) {
     HttpPut put = new HttpPut(url);
     put.addHeader(CONTENT_TYPE, "application/json");
     put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
-    return safelyExecuteRequest(url, put);
+    safelyExecuteRequest(url, put);
   }
 
+  /**
+   * A helper method to execute an HTTP GET request.
+   *
+   * <p>This method asserts that the response status is successful (2xx) and returns the response
+   * body as a string.
+   *
+   * @param url The URL to send the GET request to.
+   * @return The response body as a string.
+   */
   protected String getJsonAssertOkAndReturnBody(String url) {
     HttpGet get = new HttpGet(url);
     return safelyExecuteRequest(url, get);
@@ -501,11 +613,11 @@ public class HttpAdminClient implements Admin {
     return executeRequest(requestSpec, PathParams.empty(), requestBody, responseType);
   }
 
-  private <B, R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
+  private <R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
     return executeRequest(requestSpec, PathParams.empty(), null, responseType);
   }
 
-  private <B, R> R executeRequest(
+  private <R> R executeRequest(
       RequestSpec requestSpec, PathParams pathParams, Class<R> responseType) {
     return executeRequest(requestSpec, pathParams, null, responseType);
   }
@@ -590,16 +702,14 @@ public class HttpAdminClient implements Admin {
       Errors.Error jsonError = e.getErrors().first();
       String jsonErrorDetail = jsonError.getDetail();
       String extendedDetail =
-          new StringBuilder()
-              .append("Error parsing response body '")
-              .append(responseBody)
-              .append("' with status code ")
-              .append(responseStatusCode)
-              .append(" for ")
-              .append(url)
-              .append(". Error: ")
-              .append(jsonErrorDetail)
-              .toString();
+          "Error parsing response body '"
+              + responseBody
+              + "' with status code "
+              + responseStatusCode
+              + " for "
+              + url
+              + ". Error: "
+              + jsonErrorDetail;
       errors =
           Errors.single(
               jsonError.getCode(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
+/** The type Certificate generation unsupported exception. */
 public class CertificateGenerationUnsupportedException extends Exception {
+  /**
+   * Instantiates a new Certificate generation unsupported exception.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
   public CertificateGenerationUnsupportedException(String message, Throwable cause) {
     super(message, cause);
   }

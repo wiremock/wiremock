@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,17 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+/** The type Not matched servlet. */
 public class NotMatchedServlet extends HttpServlet {
 
+  /**
+   * Service.
+   *
+   * @param req the req
+   * @param resp the resp
+   * @throws ServletException the servlet exception
+   * @throws IOException the io exception
+   */
   @Override
   protected void service(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {

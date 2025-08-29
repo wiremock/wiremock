@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public class JettySettingsTest {
 
   @Test
   public void testBuilderWithValues() {
-    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    JettySettings.Builder builder = JettySettings.Builder.ajettysettings();
     builder
         .withAcceptors(number)
         .withAcceptQueueSize(number)
@@ -49,7 +49,7 @@ public class JettySettingsTest {
   @Test
   public void testBuilderWithNoValues() {
 
-    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    JettySettings.Builder builder = JettySettings.Builder.ajettysettings();
     JettySettings jettySettings = builder.build();
 
     assertFalse(jettySettings.getAcceptors().isPresent());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,13 +73,13 @@ public class NearMissExampleTest {
 
   @Test
   public void showSingleUnmatchedRequest() {
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
     client.get("/near-misssss");
   }
 
   @Test
   public void showManyUnmatchedRequests() {
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
     client.get("/near-misssss");
     client.get("/hat");
     client.get("/whatevs");

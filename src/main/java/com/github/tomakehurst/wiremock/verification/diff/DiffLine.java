@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,33 @@ import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import java.util.List;
 
+/**
+ * The type Diff line.
+ *
+ * @param <V> the type parameter
+ */
 class DiffLine<V> {
 
+  /** The Request attribute. */
   protected final String requestAttribute;
+
+  /** The Pattern. */
   protected final NamedValueMatcher<V> pattern;
+
+  /** The Value. */
   protected final V value;
+
+  /** The Printed pattern value. */
   protected final String printedPatternValue;
 
+  /**
+   * Instantiates a new Diff line.
+   *
+   * @param requestAttribute the request attribute
+   * @param pattern the pattern
+   * @param value the value
+   * @param printedPatternValue the printed pattern value
+   */
   public DiffLine(
       String requestAttribute, NamedValueMatcher<V> pattern, V value, String printedPatternValue) {
     this.requestAttribute = requestAttribute;
@@ -38,26 +58,56 @@ class DiffLine<V> {
     this.printedPatternValue = printedPatternValue;
   }
 
+  /**
+   * Gets request attribute.
+   *
+   * @return the request attribute
+   */
   public String getRequestAttribute() {
     return requestAttribute;
   }
 
+  /**
+   * Gets actual.
+   *
+   * @return the actual
+   */
   public Object getActual() {
     return value;
   }
 
+  /**
+   * Gets printed pattern value.
+   *
+   * @return the printed pattern value
+   */
   public String getPrintedPatternValue() {
     return printedPatternValue;
   }
 
+  /**
+   * Is for non match boolean.
+   *
+   * @return the boolean
+   */
   public boolean isForNonMatch() {
     return !isExactMatch();
   }
 
+  /**
+   * Is exact match boolean.
+   *
+   * @return the boolean
+   */
   protected boolean isExactMatch() {
     return pattern.match(value).isExactMatch();
   }
 
+  /**
+   * Gets message.
+   *
+   * @return the message
+   */
   public String getMessage() {
     String message;
     if (value == null || isEmpty(value.toString())) {
@@ -97,6 +147,11 @@ class DiffLine<V> {
     return pattern instanceof UrlPattern && ((UrlPattern) pattern).isRegex();
   }
 
+  /**
+   * Gets diff descriptions.
+   *
+   * @return the diff descriptions
+   */
   public List<DiffDescription> getDiffDescriptions() {
     List<DiffDescription> diffDescriptions = getMatchResult().getDiffDescriptions();
     if (diffDescriptions.isEmpty()) {
@@ -107,6 +162,11 @@ class DiffLine<V> {
     return diffDescriptions;
   }
 
+  /**
+   * Gets match result.
+   *
+   * @return the match result
+   */
   public MatchResult getMatchResult() {
     return pattern.match(value);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,25 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/** The type Scenario. */
 public class Scenario {
 
+  /** The constant STARTED. */
   public static final String STARTED = "Started";
 
   private final String id;
   private final String state;
   private final Set<StubMapping> stubMappings;
 
+  /**
+   * Instantiates a new Scenario.
+   *
+   * @param id the id
+   * @param ignored the ignored
+   * @param currentState the current state
+   * @param ignored2 the ignored 2
+   * @param stubMappings the stub mappings
+   */
   @JsonCreator
   public Scenario(
       @JsonProperty("id") String id,
@@ -50,23 +61,49 @@ public class Scenario {
     this(id, null, state, null, stubMappings);
   }
 
+  /**
+   * In started state scenario.
+   *
+   * @param name the name
+   * @return the scenario
+   */
   public static Scenario inStartedState(String name) {
     return new Scenario(name, STARTED, Collections.emptySet());
   }
 
+  /**
+   * Gets id.
+   *
+   * @return the id
+   */
   public String getId() {
     return id;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   // For JSON backwards compatibility
   public String getName() {
     return id;
   }
 
+  /**
+   * Gets state.
+   *
+   * @return the state
+   */
   public String getState() {
     return state;
   }
 
+  /**
+   * Gets possible states.
+   *
+   * @return the possible states
+   */
   public Set<String> getPossibleStates() {
     List<String> requiredStates =
         stubMappings.stream()
@@ -79,10 +116,21 @@ public class Scenario {
     return requiredStates.stream().filter(Objects::nonNull).collect(Collectors.toSet());
   }
 
+  /**
+   * Gets mappings.
+   *
+   * @return the mappings
+   */
   public Set<StubMapping> getMappings() {
     return stubMappings;
   }
 
+  /**
+   * Sets state.
+   *
+   * @param newState the new state
+   * @return the state
+   */
   Scenario setState(String newState) {
     if (!getPossibleStates().contains(newState)) {
       throw new InvalidInputException(
@@ -92,10 +140,21 @@ public class Scenario {
     return new Scenario(id, newState, stubMappings);
   }
 
+  /**
+   * Reset scenario.
+   *
+   * @return the scenario
+   */
   Scenario reset() {
     return new Scenario(id, STARTED, stubMappings);
   }
 
+  /**
+   * With stub mapping scenario.
+   *
+   * @param stubMapping the stub mapping
+   * @return the scenario
+   */
   Scenario withStubMapping(StubMapping stubMapping) {
     Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
     newMappings.add(stubMapping);
@@ -103,6 +162,12 @@ public class Scenario {
     return new Scenario(id, state, newMappings);
   }
 
+  /**
+   * Without stub mapping scenario.
+   *
+   * @param stubMapping the stub mapping
+   * @return the scenario
+   */
   Scenario withoutStubMapping(StubMapping stubMapping) {
     Set<StubMapping> newMappings =
         stubMappings.stream()
@@ -131,6 +196,12 @@ public class Scenario {
     return Objects.hash(getId(), getState(), getMappings());
   }
 
+  /**
+   * With name predicate.
+   *
+   * @param name the name
+   * @return the predicate
+   */
   public static Predicate<Scenario> withName(final String name) {
     return input -> input.getId().equals(name);
   }

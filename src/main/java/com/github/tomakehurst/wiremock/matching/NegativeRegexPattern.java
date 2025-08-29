@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,23 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Negative regex pattern. */
 public class NegativeRegexPattern extends AbstractRegexPattern {
 
+  /**
+   * Instantiates a new Negative regex pattern.
+   *
+   * @param regex the regex
+   */
   public NegativeRegexPattern(@JsonProperty("doesNotMatch") String regex) {
     super(regex);
   }
 
+  /**
+   * Gets does not match.
+   *
+   * @return the does not match
+   */
   public String getDoesNotMatch() {
     return expectedValue;
   }

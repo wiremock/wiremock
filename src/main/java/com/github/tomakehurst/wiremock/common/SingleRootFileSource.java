@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,23 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.io.File;
 
+/** The type Single root file source. */
 public class SingleRootFileSource extends AbstractFileSource {
 
+  /**
+   * Instantiates a new Single root file source.
+   *
+   * @param rootDirectory the root directory
+   */
   public SingleRootFileSource(File rootDirectory) {
     super(rootDirectory);
   }
 
+  /**
+   * Instantiates a new Single root file source.
+   *
+   * @param rootPath the root path
+   */
   public SingleRootFileSource(String rootPath) {
     super(new File(rootPath));
   }

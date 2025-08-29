@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,13 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.UUID;
 
+/**
+ * An abstract base class for admin tasks that operate on a single {@link StubMapping} identified by
+ * its ID.
+ *
+ * <p>This class handles the common logic of extracting the UUID from the URL path, fetching the
+ * stub mapping, and handling the "not found" case before delegating to the concrete implementation.
+ */
 public abstract class AbstractSingleStubTask implements AdminTask {
 
   @Override
@@ -43,6 +50,14 @@ public abstract class AbstractSingleStubTask implements AdminTask {
         : ResponseDefinition.notFound();
   }
 
+  /**
+   * Processes the specified stub mapping.
+   *
+   * @param admin The core WireMock admin instance.
+   * @param serveEvent The request event that triggered this task.
+   * @param stubMapping The {@link StubMapping} to be processed.
+   * @return The response definition to be sent to the client.
+   */
   protected abstract ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping);
 }

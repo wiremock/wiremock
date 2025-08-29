@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -111,7 +111,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
   @Test
   public void canProxyHttpsInBrowserProxyMode() throws Exception {
-    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aresponse().withBody("Got it")));
 
     assertThat(
         testClient.getViaProxy(target.url("/whatever"), proxy.getPort()).content(), is("Got it"));
@@ -119,7 +119,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
   @Test
   public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
-    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aresponse().withBody("Got it")));
 
     WireMockResponse response =
         testClient.getViaProxy(target.url("/whatever"), proxy.getHttpsPort(), "https");
@@ -129,11 +129,11 @@ public class HttpsBrowserProxyAcceptanceTest {
   @Test
   public void canStubHttpsInBrowserProxyMode() throws Exception {
     target.stubFor(
-        get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Should Not Be Returned")));
-    proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Stubbed Value")));
+        get(urlEqualTo("/stubbed")).willReturn(aresponse().withBody("Should Not Be Returned")));
+    proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aresponse().withBody("Stubbed Value")));
     target.stubFor(
         get(urlEqualTo("/not_stubbed"))
-            .willReturn(aResponse().withBody("Should be served from target")));
+            .willReturn(aresponse().withBody("Should be served from target")));
 
     assertThat(
         testClient.getViaProxy(target.url("/stubbed"), proxy.getPort()).content(),
@@ -152,7 +152,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
     // and
     target.stubFor(
-        get(urlEqualTo("/record_me")).willReturn(aResponse().withBody("Target response")));
+        get(urlEqualTo("/record_me")).willReturn(aresponse().withBody("Target response")));
 
     // then
     assertThat(
@@ -175,7 +175,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     try {
       scepticalProxy.start();
 
-      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aresponse().withBody("Got it")));
 
       WireMockResponse response =
           testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
@@ -200,7 +200,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     try {
       scepticalProxy.start();
 
-      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aresponse().withBody("Got it")));
 
       WireMockResponse response =
           testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
@@ -225,7 +225,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     try {
       scepticalProxy.start();
 
-      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+      target.stubFor(get(urlEqualTo("/whatever")).willReturn(aresponse().withBody("Got it")));
 
       WireMockResponse response =
           testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());

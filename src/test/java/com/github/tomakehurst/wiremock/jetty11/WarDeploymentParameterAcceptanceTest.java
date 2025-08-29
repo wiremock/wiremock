@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class WarDeploymentParameterAcceptanceTest {
     init(sampleWarRootDir() + "/src/main/webappCustomMapping", "/mapping");
     givenThat(
         get(urlEqualTo("/war/stub"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("War stub OK")));
 
     assertThat(testClient.get("/wiremock/mapping/war/stub").content(), is("War stub OK"));
   }

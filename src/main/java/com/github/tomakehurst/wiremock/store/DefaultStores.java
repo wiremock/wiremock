@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.wiremock.annotations.Beta;
 
+/** The type Default stores. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class DefaultStores implements Stores {
 
@@ -37,6 +38,11 @@ public class DefaultStores implements Stores {
 
   private final Map<String, ObjectStore> objectStores;
 
+  /**
+   * Instantiates a new Default stores.
+   *
+   * @param fileRoot the file root
+   */
   public DefaultStores(FileSource fileRoot) {
     this.fileRoot = fileRoot;
 

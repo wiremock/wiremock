@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,15 @@ import static java.util.Objects.requireNonNull;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.Urls;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+/** The type Immutable request. */
 public class ImmutableRequest implements Request {
 
   private final String absoluteUrl;
@@ -40,10 +47,27 @@ public class ImmutableRequest implements Request {
   private final Map<String, Part> parts;
   private final boolean browserProxyRequest;
 
+  /**
+   * Create builder.
+   *
+   * @return the builder
+   */
   public static Builder create() {
     return new Builder();
   }
 
+  /**
+   * Instantiates a new Immutable request.
+   *
+   * @param absoluteUrl the absolute url
+   * @param method the method
+   * @param protocol the protocol
+   * @param clientIp the client ip
+   * @param headers the headers
+   * @param body the body
+   * @param multipart the multipart
+   * @param browserProxyRequest the browser proxy request
+   */
   protected ImmutableRequest(
       String absoluteUrl,
       RequestMethod method,
@@ -202,6 +226,7 @@ public class ImmutableRequest implements Request {
     return protocol;
   }
 
+  /** The type Builder. */
   public static class Builder {
     private String absouteUrl;
     private RequestMethod requestMethod;
@@ -212,56 +237,79 @@ public class ImmutableRequest implements Request {
     private boolean multipart;
     private boolean browserProxyRequest;
 
+    /**
+     * With absolute url builder.
+     *
+     * @param absouteUrl the absoute url
+     * @return the builder
+     */
     public Builder withAbsoluteUrl(String absouteUrl) {
       this.absouteUrl = absouteUrl;
       return this;
     }
 
+    /**
+     * With method builder.
+     *
+     * @param requestMethod the request method
+     * @return the builder
+     */
     public Builder withMethod(RequestMethod requestMethod) {
       this.requestMethod = requestMethod;
       return this;
     }
 
-    public Builder withProtocol(String protocol) {
-      this.protocol = protocol;
-      return this;
-    }
-
-    public Builder withClientIp(String clientIp) {
-      this.clientIp = clientIp;
-      return this;
-    }
-
+    /**
+     * With headers builder.
+     *
+     * @param headers the headers
+     * @return the builder
+     */
     public Builder withHeaders(HttpHeaders headers) {
       this.headers = new ArrayList<>(headers.all());
       return this;
     }
 
+    /**
+     * With header builder.
+     *
+     * @param key the key
+     * @param value the value
+     * @return the builder
+     */
     public Builder withHeader(String key, String value) {
       this.headers.add(new HttpHeader(key, Collections.singletonList(value)));
       return this;
     }
 
+    /**
+     * With header builder.
+     *
+     * @param key the key
+     * @param values the values
+     * @return the builder
+     */
     public Builder withHeader(String key, Collection<String> values) {
       this.headers.add(new HttpHeader(key, values));
       return this;
     }
 
+    /**
+     * With body builder.
+     *
+     * @param body the body
+     * @return the builder
+     */
     public Builder withBody(byte[] body) {
       this.body = body;
       return this;
     }
 
-    public Builder withMultipart(boolean multipart) {
-      this.multipart = multipart;
-      return this;
-    }
-
-    public Builder withBrowserProxyRequest(boolean browserProxyRequest) {
-      this.browserProxyRequest = browserProxyRequest;
-      return this;
-    }
-
+    /**
+     * Build immutable request.
+     *
+     * @return the immutable request
+     */
     public ImmutableRequest build() {
       return new ImmutableRequest(
           absouteUrl,

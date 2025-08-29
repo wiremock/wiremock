@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,20 @@ package com.github.tomakehurst.wiremock.common;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+/**
+ * The type Lazy.
+ *
+ * @param <T> the type parameter
+ */
 public class Lazy<T> {
 
+  /**
+   * Lazy lazy.
+   *
+   * @param <T> the type parameter
+   * @param supplier the supplier
+   * @return the lazy
+   */
   public static <T> Lazy<T> lazy(Supplier<T> supplier) {
     return new Lazy<>(supplier);
   }
@@ -31,6 +43,11 @@ public class Lazy<T> {
     this.supplier = supplier;
   }
 
+  /**
+   * Get t.
+   *
+   * @return the t
+   */
   public T get() {
     return ref.updateAndGet(existing -> existing == null ? supplier.get() : existing);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URLEncoder;
 
+/** The type Encoding. */
 public class Encoding {
 
   private Encoding() {}
@@ -37,18 +38,43 @@ public class Encoding {
     return encoder;
   }
 
+  /**
+   * Decode base 64 byte [ ].
+   *
+   * @param base64 the base 64
+   * @return the byte [ ]
+   */
   public static byte[] decodeBase64(String base64) {
     return base64 != null ? getInstance().decode(base64) : null;
   }
 
+  /**
+   * Encode base 64 string.
+   *
+   * @param content the content
+   * @return the string
+   */
   public static String encodeBase64(byte[] content) {
     return encodeBase64(content, true);
   }
 
+  /**
+   * Encode base 64 string.
+   *
+   * @param content the content
+   * @param padding the padding
+   * @return the string
+   */
   public static String encodeBase64(byte[] content, boolean padding) {
     return content != null ? getInstance().encode(content, padding) : null;
   }
 
+  /**
+   * Url encode string.
+   *
+   * @param encodedUrl the encoded url
+   * @return the string
+   */
   public static String urlEncode(String encodedUrl) {
     return URLEncoder.encode(encodedUrl, UTF_8);
   }

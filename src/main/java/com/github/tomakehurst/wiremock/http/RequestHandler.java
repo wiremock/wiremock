@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,18 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Request handler. */
 public interface RequestHandler {
 
+  /** The constant HANDLER_CLASS_KEY. */
   String HANDLER_CLASS_KEY = "RequestHandlerClass";
 
+  /**
+   * Handle.
+   *
+   * @param request the request
+   * @param httpResponder the http responder
+   * @param originalServeEvent the original serve event
+   */
   void handle(Request request, HttpResponder httpResponder, ServeEvent originalServeEvent);
 }

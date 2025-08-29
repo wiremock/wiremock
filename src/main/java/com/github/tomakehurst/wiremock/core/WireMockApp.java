@@ -19,38 +19,91 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
-import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
+import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
+import com.github.tomakehurst.wiremock.extension.MappingsLoaderExtension;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.recording.*;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.Recorder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.stubbing.InMemoryScenarios;
+import com.github.tomakehurst.wiremock.stubbing.Scenarios;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
+import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
+import com.github.tomakehurst.wiremock.verification.StoreBackedRequestJournal;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+/** The type Wire mock app. */
 public class WireMockApp implements StubServer, Admin {
 
+  /** The constant FILES_ROOT. */
   public static final String FILES_ROOT = "__files";
+
+  /** The constant ADMIN_CONTEXT_ROOT. */
   public static final String ADMIN_CONTEXT_ROOT = "/__admin";
+
+  /** The constant MAPPINGS_ROOT. */
   public static final String MAPPINGS_ROOT = "mappings";
+
   private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;
@@ -72,6 +125,12 @@ public class WireMockApp implements StubServer, Admin {
 
   private Extensions extensions;
 
+  /**
+   * Instantiates a new Wire mock app.
+   *
+   * @param options the options
+   * @param container the container
+   */
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading()
         && Boolean.FALSE.equals(FACTORIES_LOADING_OPTIMIZED.get())) {
@@ -143,6 +202,21 @@ public class WireMockApp implements StubServer, Admin {
     loadDefaultMappings();
   }
 
+  /**
+   * Instantiates a new Wire mock app.
+   *
+   * @param browserProxyingEnabled the browser proxying enabled
+   * @param defaultMappingsLoader the default mappings loader
+   * @param mappingsLoaderExtensions the mappings loader extensions
+   * @param mappingsSaver the mappings saver
+   * @param requestJournalDisabled the request journal disabled
+   * @param maxRequestJournalEntries the max request journal entries
+   * @param transformers the transformers
+   * @param v2transformers the v 2 transformers
+   * @param requestMatchers the request matchers
+   * @param rootFileSource the root file source
+   * @param container the container
+   */
   public WireMockApp(
       boolean browserProxyingEnabled,
       MappingsLoader defaultMappingsLoader,
@@ -191,6 +265,11 @@ public class WireMockApp implements StubServer, Admin {
     loadDefaultMappings();
   }
 
+  /**
+   * Build admin request handler admin request handler.
+   *
+   * @return the admin request handler
+   */
   public AdminRequestHandler buildAdminRequestHandler() {
     AdminRoutes adminRoutes =
         AdminRoutes.forServer(extensions.ofType(AdminApiExtension.class).values(), stores);
@@ -205,6 +284,11 @@ public class WireMockApp implements StubServer, Admin {
         options.getDataTruncationSettings());
   }
 
+  /**
+   * Build stub request handler stub request handler.
+   *
+   * @return the stub request handler
+   */
   public StubRequestHandler buildStubRequestHandler() {
     Map<String, PostServeAction> postServeActions = extensions.ofType(PostServeAction.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
@@ -284,6 +368,11 @@ public class WireMockApp implements StubServer, Admin {
       mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
   }
 
+  /**
+   * Load mappings using.
+   *
+   * @param mappingsLoader the mappings loader
+   */
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     mappingsLoader.loadMappingsInto(stubMappings);
   }
@@ -520,6 +609,11 @@ public class WireMockApp implements StubServer, Admin {
     }
   }
 
+  /**
+   * Port int.
+   *
+   * @return the int
+   */
   public int port() {
     return container.port();
   }
@@ -529,6 +623,11 @@ public class WireMockApp implements StubServer, Admin {
     return options;
   }
 
+  /**
+   * Gets extensions.
+   *
+   * @return the extensions
+   */
   public Extensions getExtensions() {
     return extensions;
   }
@@ -640,6 +739,11 @@ public class WireMockApp implements StubServer, Admin {
     }
   }
 
+  /**
+   * Gets loaded extension names.
+   *
+   * @return the loaded extension names
+   */
   public Set<String> getLoadedExtensionNames() {
     return extensions.getAllExtensionNames();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm.stubFor(
         get(urlEqualTo("/local-transform"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withBody("Should not see this")
                     .withTransformers("local")));
@@ -166,7 +166,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm.stubFor(
         get(urlEqualTo("/transform-with-params"))
             .willReturn(
-                aResponse().withStatus(200).withTransformerParameter("newBody", "Use this body")));
+                aresponse().withStatus(200).withTransformerParameter("newBody", "Use this body")));
 
     assertThat(client.get("/transform-with-params").content(), is("Use this body"));
   }
@@ -207,7 +207,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm.stubFor(
         get(urlEqualTo(url))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("MyHeader", "Initial")
                     .withStatus(300)
                     .withBody("Should not see this")));

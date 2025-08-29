@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -33,12 +32,19 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/** The type Json file mappings source. */
 public class JsonFileMappingsSource implements MappingsSource {
 
   private final FileSource mappingsFileSource;
   private final Map<UUID, StubMappingFileMetadata> fileNameMap;
   private final FilenameMaker filenameMaker;
 
+  /**
+   * Instantiates a new Json file mappings source.
+   *
+   * @param mappingsFileSource the mappings file source
+   * @param filenameMaker the filename maker
+   */
   public JsonFileMappingsSource(FileSource mappingsFileSource, FilenameMaker filenameMaker) {
     this.mappingsFileSource = mappingsFileSource;
     this.filenameMaker = Objects.requireNonNullElseGet(filenameMaker, FilenameMaker::new);
@@ -131,9 +137,18 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   private static class StubMappingFileMetadata {
+    /** The Path. */
     final String path;
+
+    /** The Multi. */
     final boolean multi;
 
+    /**
+     * Instantiates a new Stub mapping file metadata.
+     *
+     * @param path the path
+     * @param multi the multi
+     */
     public StubMappingFileMetadata(String path, boolean multi) {
       this.path = path;
       this.multi = multi;

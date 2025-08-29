@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("//planet[@name='Earth']");
+    StringValuePattern pattern = WireMock.matchingXpath("//planet[@name='Earth']");
 
     MatchResult match = pattern.match(mySolarSystemXML);
     assertTrue(match.isExactMatch(), "Expected XPath match");
@@ -55,7 +55,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
+    StringValuePattern pattern = WireMock.matchingXpath("//star[@name='alpha centauri']");
 
     MatchResult match = pattern.match(mySolarSystemXML);
     assertFalse(match.isExactMatch(), "Expected XPath non-match");
@@ -69,7 +69,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("//\\\\&&&&&");
+    StringValuePattern pattern = WireMock.matchingXpath("//\\\\&&&&&");
 
     MatchResult match = pattern.match(mySolarSystemXML);
     assertFalse(match.isExactMatch(), "Expected XPath non-match");
@@ -83,7 +83,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
+    StringValuePattern pattern = WireMock.matchingXpath("//star[@name='alpha centauri']");
 
     MatchResult match = pattern.match(mySolarSystemXML);
     assertFalse(match.isExactMatch(), "Expected XPath non-match");
@@ -96,7 +96,7 @@ public class MatchesXPathPatternTest {
         "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath(
+        WireMock.matchingXpath(
             "//sub:subThing[.='The stuff']",
             Map.of("sub", "http://subthings", "t", "http://things"));
 
@@ -109,7 +109,7 @@ public class MatchesXPathPatternTest {
     String xml =
         "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("/thing/subThing[.='The stuff']");
+    StringValuePattern pattern = WireMock.matchingXpath("/thing/subThing[.='The stuff']");
 
     MatchResult match = pattern.match(xml);
     assertTrue(match.isExactMatch());
@@ -119,7 +119,7 @@ public class MatchesXPathPatternTest {
   public void matchesAgainstValuePatternWhenSingleElementReturnedFromXPath() {
     String xml = "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>";
 
-    StringValuePattern pattern = WireMock.matchingXPath("//inner/text()", matching("[a-z]*"));
+    StringValuePattern pattern = WireMock.matchingXpath("//inner/text()", matching("[a-z]*"));
 
     assertThat(pattern.match(xml).isExactMatch(), is(true));
   }
@@ -135,7 +135,7 @@ public class MatchesXPathPatternTest {
             + "</outer>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath("//inner/text()", WireMock.equalTo("stuff"));
+        WireMock.matchingXpath("//inner/text()", WireMock.equalTo("stuff"));
 
     assertThat(pattern.match(xml).isExactMatch(), is(true));
   }
@@ -151,7 +151,7 @@ public class MatchesXPathPatternTest {
             + "</outer>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath("//inner/text()", WireMock.equalTo("stuff"));
+        WireMock.matchingXpath("//inner/text()", WireMock.equalTo("stuff"));
 
     assertThat(pattern.match(xml).getDistance(), closeTo(0.16, 0.01));
   }
@@ -161,7 +161,7 @@ public class MatchesXPathPatternTest {
     String xml = "<outer inner=\"stuff\"/>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath("/outer/@inner", equalToIgnoreCase("Stuff"));
+        WireMock.matchingXpath("/outer/@inner", equalToIgnoreCase("Stuff"));
 
     assertThat(pattern.match(xml).isExactMatch(), is(true));
   }
@@ -171,7 +171,7 @@ public class MatchesXPathPatternTest {
     String xml = "<outer inner=\"stuff\"/>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath("/outer/@nothing", equalToIgnoreCase("Stuff"));
+        WireMock.matchingXpath("/outer/@nothing", equalToIgnoreCase("Stuff"));
 
     assertThat(pattern.match(xml).isExactMatch(), is(false));
     assertThat(pattern.match(xml).getDistance(), is(1.0));
@@ -182,7 +182,7 @@ public class MatchesXPathPatternTest {
     String xml = "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>";
 
     StringValuePattern pattern =
-        WireMock.matchingXPath("/outer/inner", equalToXml("<inner>stuff</inner>"));
+        WireMock.matchingXpath("/outer/inner", equalToXml("<inner>stuff</inner>"));
 
     assertThat(pattern.match(xml).isExactMatch(), is(true));
   }
@@ -203,7 +203,7 @@ public class MatchesXPathPatternTest {
             + "</soapenv:Envelope>";
 
     StringValuePattern pattern =
-        WireMock.matchesXPathWithSubMatcher(
+        WireMock.matchesXpathwithsubmatcher(
             "//*[local-name() = 'EffectiveDate']/@Val",
             equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy"));
 
@@ -283,7 +283,7 @@ public class MatchesXPathPatternTest {
   @Test
   public void serialisesCorrectlyWithValuePattern() {
     assertThat(
-        Json.write(WireMock.matchingXPath("/thing", containing("123"))),
+        Json.write(WireMock.matchingXpath("/thing", containing("123"))),
         equalToJson(
             "{                                      \n"
                 + "    \"matchesXPath\": {                 \n"
@@ -295,7 +295,7 @@ public class MatchesXPathPatternTest {
 
   @Test
   public void noMatchOnNullValue() {
-    assertThat(WireMock.matchingXPath("//*").match(null).isExactMatch(), is(false));
+    assertThat(WireMock.matchingXpath("//*").match(null).isExactMatch(), is(false));
   }
 
   @Test

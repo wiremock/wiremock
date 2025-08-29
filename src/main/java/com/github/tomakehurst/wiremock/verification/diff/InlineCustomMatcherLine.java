@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
+/** The type Inline custom matcher line. */
 public class InlineCustomMatcherLine extends DiffLine<Request> {
 
+  /**
+   * Instantiates a new Inline custom matcher line.
+   *
+   * @param customMatcher the custom matcher
+   * @param request the request
+   */
   public InlineCustomMatcherLine(ValueMatcher<Request> customMatcher, Request request) {
     super(
         "custom matcher",

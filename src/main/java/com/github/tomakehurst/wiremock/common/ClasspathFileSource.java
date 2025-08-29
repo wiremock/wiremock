@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getLoader;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceUri;
 import static java.util.Arrays.asList;
 
 import java.io.File;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/** The type Classpath file source. */
 public class ClasspathFileSource implements FileSource {
 
   private final String path;
@@ -39,14 +40,31 @@ public class ClasspathFileSource implements FileSource {
   private ZipFile zipFile;
   private File rootDirectory;
 
+  /**
+   * Instantiates a new Classpath file source.
+   *
+   * @param path the path
+   */
   public ClasspathFileSource(String path) {
     this((ClassLoader) null, path);
   }
 
+  /**
+   * Instantiates a new Classpath file source.
+   *
+   * @param classpath the classpath
+   * @param path the path
+   */
   public ClasspathFileSource(Class<?> classpath, String path) {
     this(classpath.getClassLoader(), path);
   }
 
+  /**
+   * Instantiates a new Classpath file source.
+   *
+   * @param classLoader the class loader
+   * @param path the path
+   */
   public ClasspathFileSource(ClassLoader classLoader, String path) {
     this.path = path;
     this.classLoader = classLoader;
@@ -155,7 +173,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private URI getUriFor(ZipEntry jarEntry) {
-    return getResourceURI(ClasspathFileSource.class, jarEntry.getName());
+    return getResourceUri(ClasspathFileSource.class, jarEntry.getName());
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {

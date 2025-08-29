@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,22 +22,40 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
 
+/** The type Renderable date. */
 public class RenderableDate extends Date {
   private static final long DIVIDE_MILLISECONDS_TO_SECONDS = 1000L;
 
   private final String format;
   private final ZoneId timezone;
 
+  /**
+   * Instantiates a new Renderable date.
+   *
+   * @param date the date
+   * @param format the format
+   * @param timezone the timezone
+   */
   public RenderableDate(Date date, String format, ZoneId timezone) {
     super(date.getTime());
     this.format = format;
     this.timezone = timezone;
   }
 
+  /**
+   * Gets format.
+   *
+   * @return the format
+   */
   public String getFormat() {
     return format;
   }
 
+  /**
+   * Gets timezone.
+   *
+   * @return the timezone
+   */
   public ZoneId getTimezone() {
     return timezone;
   }

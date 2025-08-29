@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,24 @@ import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
+/** The type Json exception. */
 public class JsonException extends InvalidInputException {
 
+  /**
+   * Instantiates a new Json exception.
+   *
+   * @param errors the errors
+   */
   protected JsonException(Errors errors) {
     super(errors);
   }
 
+  /**
+   * From jackson json exception.
+   *
+   * @param processingException the processing exception
+   * @return the json exception
+   */
   public static JsonException fromJackson(JsonProcessingException processingException) {
     Throwable rootCause = getRootCause(processingException);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,33 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+/** The type Https proxy detecting handler. */
 public class HttpsProxyDetectingHandler extends AbstractHandler {
 
+  /** The constant IS_HTTPS_PROXY_REQUEST_ATTRIBUTE. */
   public static final String IS_HTTPS_PROXY_REQUEST_ATTRIBUTE = "wiremock.isHttpsProxyRequest";
 
   private final ServerConnector mitmProxyConnector;
 
+  /**
+   * Instantiates a new Https proxy detecting handler.
+   *
+   * @param mitmProxyConnector the mitm proxy connector
+   */
   public HttpsProxyDetectingHandler(ServerConnector mitmProxyConnector) {
     this.mitmProxyConnector = mitmProxyConnector;
   }
 
+  /**
+   * Handle.
+   *
+   * @param target the target
+   * @param baseRequest the base request
+   * @param request the request
+   * @param response the response
+   * @throws IOException the io exception
+   * @throws ServletException the servlet exception
+   */
   @Override
   public void handle(
       String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)

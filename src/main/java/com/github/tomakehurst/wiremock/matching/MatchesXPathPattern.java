@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,48 @@ import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/** The type Matches x path pattern. */
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
 public class MatchesXPathPattern extends PathPattern {
 
   private final Map<String, String> xpathNamespaces;
 
+  /**
+   * Instantiates a new Matches x path pattern.
+   *
+   * @param xpath the xpath
+   */
   public MatchesXPathPattern(String xpath) {
     this(xpath, null, null);
   }
 
+  /**
+   * Instantiates a new Matches x path pattern.
+   *
+   * @param xpath the xpath
+   * @param valuePattern the value pattern
+   */
   public MatchesXPathPattern(String xpath, StringValuePattern valuePattern) {
     this(xpath, null, valuePattern);
   }
 
+  /**
+   * Instantiates a new Matches x path pattern.
+   *
+   * @param xpath the xpath
+   * @param namespaces the namespaces
+   */
   public MatchesXPathPattern(String xpath, Map<String, String> namespaces) {
     this(xpath, namespaces, null);
   }
 
+  /**
+   * Instantiates a new Matches x path pattern.
+   *
+   * @param xpath the xpath
+   * @param namespaces the namespaces
+   * @param valuePattern the value pattern
+   */
   public MatchesXPathPattern(
       @JsonProperty("matchesXPath") String xpath,
       @JsonProperty("namespaces") Map<String, String> namespaces,
@@ -52,6 +77,13 @@ public class MatchesXPathPattern extends PathPattern {
     xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
   }
 
+  /**
+   * With x path namespace matches x path pattern.
+   *
+   * @param name the name
+   * @param namespaceUri the namespace uri
+   * @return the matches x path pattern
+   */
   public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
     Map<String, String> namespaceMap =
         new HashMap<>(getFirstNonNull(xpathNamespaces, new HashMap<>()));
@@ -59,10 +91,20 @@ public class MatchesXPathPattern extends PathPattern {
     return new MatchesXPathPattern(expectedValue, Collections.unmodifiableMap(namespaceMap));
   }
 
+  /**
+   * Gets matches x path.
+   *
+   * @return the matches x path
+   */
   public String getMatchesXPath() {
     return expectedValue;
   }
 
+  /**
+   * Gets x path namespaces.
+   *
+   * @return the x path namespaces
+   */
   @JsonGetter("xPathNamespaces")
   public Map<String, String> getXPathNamespaces() {
     return xpathNamespaces;
@@ -128,9 +170,18 @@ public class MatchesXPathPattern extends PathPattern {
   }
 
   private static class XmlNodeFindResult {
+    /** The Nodes. */
     final ListOrSingle<XmlNode> nodes;
+
+    /** The Sub events. */
     final List<SubEvent> subEvents;
 
+    /**
+     * Instantiates a new Xml node find result.
+     *
+     * @param nodes the nodes
+     * @param subEvents the sub events
+     */
     public XmlNodeFindResult(ListOrSingle<XmlNode> nodes, SubEvent... subEvents) {
       this.nodes = nodes;
       this.subEvents = List.of(subEvents);

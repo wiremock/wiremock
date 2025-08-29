@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Local notifier. */
 public class LocalNotifier {
 
   private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
 
+  /**
+   * Notifier notifier.
+   *
+   * @return the notifier
+   */
   public static Notifier notifier() {
     Notifier notifier = notifierHolder.get();
     if (notifier == null) {
@@ -28,6 +34,11 @@ public class LocalNotifier {
     return notifier;
   }
 
+  /**
+   * Set.
+   *
+   * @param notifier the notifier
+   */
   public static void set(Notifier notifier) {
     notifierHolder.set(notifier);
   }

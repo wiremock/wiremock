@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,31 @@ import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
-import com.github.tomakehurst.wiremock.extension.*;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/** The type Response template transformer. */
 public class ResponseTemplateTransformer
     implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
 
+  /** The constant NAME. */
   public static final String NAME = "response-template";
 
   private final boolean global;
@@ -42,6 +55,14 @@ public class ResponseTemplateTransformer
 
   private final List<TemplateModelDataProviderExtension> templateModelDataProviders;
 
+  /**
+   * Instantiates a new Response template transformer.
+   *
+   * @param templateEngine the template engine
+   * @param global the global
+   * @param files the files
+   * @param templateModelDataProviders the template model data providers
+   */
   public ResponseTemplateTransformer(
       TemplateEngine templateEngine,
       boolean global,
@@ -184,7 +205,14 @@ public class ResponseTemplateTransformer
     return rawMessage.replaceAll("inline@[a-z0-9]+:", "").replaceAll("\n.*", "");
   }
 
-  /** Override this to add extra elements to the template model */
+  /**
+   * Override this to add extra elements to the template model @param request the request
+   *
+   * @param responseDefinition the response definition
+   * @param files the files
+   * @param parameters the parameters
+   * @return the map
+   */
   protected Map<String, Object> addExtraModelElements(
       Request request,
       ResponseDefinition responseDefinition,
@@ -220,10 +248,20 @@ public class ResponseTemplateTransformer
     templateEngine.invalidateCache();
   }
 
+  /**
+   * Gets cache size.
+   *
+   * @return the cache size
+   */
   public long getCacheSize() {
     return templateEngine.getCacheSize();
   }
 
+  /**
+   * Gets max cache entries.
+   *
+   * @return the max cache entries
+   */
   public Long getMaxCacheEntries() {
     return templateEngine.getMaxCacheEntries();
   }

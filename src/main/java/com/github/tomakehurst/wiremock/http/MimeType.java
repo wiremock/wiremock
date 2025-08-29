@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+/** The enum Mime type. */
 public enum MimeType {
+  /** Json mime type. */
   JSON("application/json"),
+  /** Xml mime type. */
   XML("text/xml"),
+  /** Plain mime type. */
   PLAIN("text/plain");
 
   private String mimeString;

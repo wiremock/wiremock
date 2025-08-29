@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+/** The type Request line. */
 public class RequestLine {
   private final RequestMethod method;
   private final String scheme;
@@ -56,6 +57,12 @@ public class RequestLine {
     this.pathParams = pathParams;
   }
 
+  /**
+   * From request request line.
+   *
+   * @param request the request
+   * @return the request line
+   */
   public static RequestLine fromRequest(final Request request) {
     URI url = URI.create(request.getUrl());
     Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
@@ -75,44 +82,94 @@ public class RequestLine {
         request.getPathParameters());
   }
 
+  /**
+   * Gets method.
+   *
+   * @return the method
+   */
   public RequestMethod getMethod() {
     return method;
   }
 
+  /**
+   * Gets path segments.
+   *
+   * @return the path segments
+   */
   public Object getPathSegments() {
-    return pathParams.isEmpty() ? new UrlPath(url) : new TemplatedUrlPath(url, pathParams);
+    return pathParams.isEmpty() ? new UrlPath(url) : new Templatedurlpath(url, pathParams);
   }
 
+  /**
+   * Gets path.
+   *
+   * @return the path
+   */
   public String getPath() {
     return getPathSegments().toString();
   }
 
+  /**
+   * Gets url.
+   *
+   * @return the url
+   */
   public String getUrl() {
     return url;
   }
 
+  /**
+   * Gets query.
+   *
+   * @return the query
+   */
   public Map<String, ListOrSingle<String>> getQuery() {
     return query;
   }
 
+  /**
+   * Gets scheme.
+   *
+   * @return the scheme
+   */
   public String getScheme() {
     return scheme;
   }
 
+  /**
+   * Gets host.
+   *
+   * @return the host
+   */
   public String getHost() {
     return host;
   }
 
+  /**
+   * Gets port.
+   *
+   * @return the port
+   */
   public int getPort() {
     return port;
   }
 
+  /**
+   * Gets base url.
+   *
+   * @return the base url
+   */
   public String getBaseUrl() {
     String portPart = isStandardPort(scheme, port) ? "" : ":" + port;
 
     return scheme + "://" + host + portPart;
   }
 
+  /**
+   * Gets client ip.
+   *
+   * @return the client ip
+   */
   public String getClientIp() {
     return this.clientIp;
   }

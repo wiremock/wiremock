@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -34,7 +34,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     String responseTemplate =
         "{{#formatXml}}\n<foo><bar\n    >wh</bar></foo\n    >\n{{/formatXml}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
@@ -45,7 +45,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     String responseTemplate =
         "{{#formatXml}}\n<foo><bar\n    >wh</bar></foo\n    >\n{{/formatXml}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
@@ -61,7 +61,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "{{/assign}}\n"
             + "{{~formatXml someXml format='pretty'~}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
@@ -77,7 +77,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "{{/assign}}\n"
             + "{{~formatXml someXml format='pretty'~}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
@@ -92,7 +92,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + ">\n"
             + "{{/formatXml}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
@@ -107,7 +107,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + ">\n"
             + "{{/formatXml}}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
@@ -121,7 +121,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "    >\n"
             + "{{/formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -132,7 +132,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
   void formatXmlHelperGivesGoodErrorOnNoInput() {
     String responseTemplate = "{{formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -144,7 +144,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
   void formatXmlHelperGivesGoodErrorOnInvalidXml() {
     String responseTemplate = "{{#formatXml}}<foo>Not well formed!</bar>{{/formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("[ERROR: Input is not valid XML]"));
   }
@@ -158,7 +158,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "    >\n"
             + "{{/formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo><bar>wh</bar></foo>"));
   }
@@ -172,7 +172,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "</foo>\n"
             + "{{/formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("<foo><bar>wh</bar></foo>"));
   }
@@ -186,7 +186,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
             + "</foo>\n"
             + "{{/formatXml}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),

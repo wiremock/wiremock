@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,17 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** The type Response definition body matcher deserializer. */
 public class ResponseDefinitionBodyMatcherDeserializer
     extends JsonDeserializer<ResponseDefinitionBodyMatcher> {
+  /**
+   * Deserialize response definition body matcher.
+   *
+   * @param parser the parser
+   * @param context the context
+   * @return the response definition body matcher
+   * @throws IOException the io exception
+   */
   @Override
   public ResponseDefinitionBodyMatcher deserialize(
       JsonParser parser, DeserializationContext context) throws IOException {
@@ -34,6 +43,12 @@ public class ResponseDefinitionBodyMatcherDeserializer
         parseJsonNode(rootNode.get("binarySizeThreshold")));
   }
 
+  /**
+   * Parse json node long.
+   *
+   * @param node the node
+   * @return the long
+   */
   public static long parseJsonNode(JsonNode node) {
     if (node == null || node.isNull()) {
       return Long.MAX_VALUE;
@@ -44,6 +59,12 @@ public class ResponseDefinitionBodyMatcherDeserializer
     }
   }
 
+  /**
+   * Parse filesize long.
+   *
+   * @param in the in
+   * @return the long
+   */
   // Converts a human-readable file size string (e.g. "10,100 KB") to bytes
   // Partially based off https://stackoverflow.com/a/12090818
   public static long parseFilesize(String in) {

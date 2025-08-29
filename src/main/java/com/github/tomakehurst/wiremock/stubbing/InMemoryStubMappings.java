@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@ import com.github.tomakehurst.wiremock.store.InMemoryStubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import java.util.Collections;
 
+/** The type In memory stub mappings. */
 public class InMemoryStubMappings extends StoreBackedStubMappings {
 
+  /** Instantiates a new In memory stub mappings. */
   public InMemoryStubMappings() {
     super(
         new InMemoryStubMappingStore(),

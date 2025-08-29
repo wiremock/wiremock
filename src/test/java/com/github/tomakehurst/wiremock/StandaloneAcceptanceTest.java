@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class StandaloneAcceptanceTest {
     startRunner();
     givenThat(
         get(urlEqualTo("/standalone/test/resource"))
-            .willReturn(aResponse().withStatus(200).withBody("Content")));
+            .willReturn(aresponse().withStatus(200).withBody("Content")));
     assertThat(testClient.get("/standalone/test/resource").content(), is("Content"));
   }
 
@@ -288,7 +288,7 @@ public class StandaloneAcceptanceTest {
   void proxiesToHostSpecifiedOnCommandLine() {
     WireMock otherServerClient = startOtherServerAndClient();
     otherServerClient.register(
-        get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
+        get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aresponse().withStatus(HTTP_OK)));
     startRunner("--proxy-all", "http://localhost:" + otherServer.port());
 
     WireMockResponse response = testClient.get("/proxy/ok?working=yes");
@@ -303,7 +303,7 @@ public class StandaloneAcceptanceTest {
     WireMock otherServerClient = startOtherServerAndClient();
     otherServerClient.register(
         get(urlEqualTo("/body/file"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
     startRunner("--proxy-all", "http://localhost:" + otherServer.port());
 
@@ -316,10 +316,10 @@ public class StandaloneAcceptanceTest {
     startRunner("--record-mappings");
     givenThat(
         get(urlEqualTo("/please/record-this"))
-            .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+            .willReturn(aresponse().proxiedFrom("http://localhost:" + otherServer.port())));
     otherServerClient.register(
         get(urlEqualTo("/please/record-this"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
     testClient.get("/please/record-this");
 
@@ -335,10 +335,10 @@ public class StandaloneAcceptanceTest {
     startRunner("--record-mappings", "--match-headers", "Accept");
     givenThat(
         get(urlEqualTo("/please/record-headers"))
-            .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+            .willReturn(aresponse().proxiedFrom("http://localhost:" + otherServer.port())));
     otherServerClient.register(
         get(urlEqualTo("/please/record-headers"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
     testClient.get("/please/record-headers", withHeader("accept", "application/json"));
 
@@ -353,10 +353,10 @@ public class StandaloneAcceptanceTest {
     startRunner("--record-mappings");
     givenThat(
         get(urlEqualTo("/record-zip"))
-            .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+            .willReturn(aresponse().proxiedFrom("http://localhost:" + otherServer.port())));
     otherServerClient.register(
         get(urlEqualTo("/record-zip"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("gzipped body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("gzipped body")));
 
     testClient.get("/record-zip", withHeader("Accept-Encoding", "gzip,deflate"));
 
@@ -392,7 +392,7 @@ public class StandaloneAcceptanceTest {
     givenThat(
         get(urlEqualTo("/some/big/header"))
             .withHeader("ExpectedHeader", equalTo(veryLongHeader))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get("/some/big/header", withHeader("ExpectedHeader", veryLongHeader));
@@ -406,7 +406,7 @@ public class StandaloneAcceptanceTest {
     startRunner("--enable-browser-proxying");
     otherServerClient.register(
         get(urlEqualTo("/from/browser/proxy"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
     assertThat(
         testClient
@@ -428,10 +428,10 @@ public class StandaloneAcceptanceTest {
     startRunner("--record-mappings");
     givenThat(
         get(urlEqualTo("/try-to/record-this"))
-            .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+            .willReturn(aresponse().proxiedFrom("http://localhost:" + otherServer.port())));
     otherServerClient.register(
         get(urlEqualTo("/try-to/record-this"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
     testClient.get("/try-to/record-this");
     testClient.get("/try-to/record-this");

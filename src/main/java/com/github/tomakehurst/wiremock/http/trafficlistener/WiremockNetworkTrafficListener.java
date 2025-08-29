@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,35 @@ package com.github.tomakehurst.wiremock.http.trafficlistener;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+/** The interface Wiremock network traffic listener. */
 public interface WiremockNetworkTrafficListener {
+  /**
+   * Opened.
+   *
+   * @param socket the socket
+   */
   void opened(Socket socket);
 
+  /**
+   * Incoming.
+   *
+   * @param socket the socket
+   * @param bytes the bytes
+   */
   void incoming(Socket socket, ByteBuffer bytes);
 
+  /**
+   * Outgoing.
+   *
+   * @param socket the socket
+   * @param bytes the bytes
+   */
   void outgoing(Socket socket, ByteBuffer bytes);
 
+  /**
+   * Closed.
+   *
+   * @param socket the socket
+   */
   void closed(Socket socket);
 }

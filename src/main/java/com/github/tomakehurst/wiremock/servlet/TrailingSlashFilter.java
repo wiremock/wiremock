@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,27 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.net.*;
 
+/** The type Trailing slash filter. */
 public class TrailingSlashFilter implements Filter {
 
+  /**
+   * Init.
+   *
+   * @param filterConfig the filter config
+   * @throws ServletException the servlet exception
+   */
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {}
 
+  /**
+   * Do filter.
+   *
+   * @param request the request
+   * @param response the response
+   * @param chain the chain
+   * @throws IOException the io exception
+   * @throws ServletException the servlet exception
+   */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -48,6 +64,13 @@ public class TrailingSlashFilter implements Filter {
     private final String path;
     private final HttpServletRequest request;
 
+    /**
+     * Instantiates a new Status and redirect exposing http servlet response.
+     *
+     * @param response the response
+     * @param path the path
+     * @param request the request
+     */
     public StatusAndRedirectExposingHttpServletResponse(
         HttpServletResponse response, String path, HttpServletRequest request) {
       super(response);
@@ -55,6 +78,12 @@ public class TrailingSlashFilter implements Filter {
       this.request = request;
     }
 
+    /**
+     * Send redirect.
+     *
+     * @param location the location
+     * @throws IOException the io exception
+     */
     @Override
     public void sendRedirect(String location) throws IOException {
       if (location.contains(path)) {
@@ -93,6 +122,7 @@ public class TrailingSlashFilter implements Filter {
     }
   }
 
+  /** Destroy. */
   @Override
   public void destroy() {}
 }

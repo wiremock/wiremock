@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,19 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+/** The type Json array add helper. */
 class JsonArrayAddHelper extends HandlebarsHelper<Object> {
 
   private final ParseContext parseContext = JsonPath.using(HelperUtils.jsonPathConfig);
 
+  /**
+   * Apply string.
+   *
+   * @param inputJson the input json
+   * @param options the options
+   * @return the string
+   * @throws IOException the io exception
+   */
   @Override
   public String apply(Object inputJson, Options options) throws IOException {
     if (!(inputJson instanceof String)) {
@@ -45,16 +54,17 @@ class JsonArrayAddHelper extends HandlebarsHelper<Object> {
     }
 
     Object jsonPathString = options.hash.get("jsonPath");
-    if (jsonPathString != null && !(jsonPathString instanceof String))
+    if (jsonPathString != null && !(jsonPathString instanceof String)) {
       return handleError("jsonPath option must be a string");
-
+    }
     Object currentList;
     if (jsonPathString == null) {
       currentList = root.json();
     } else {
       try {
-        if (((String) jsonPathString).isEmpty())
+        if (((String) jsonPathString).isEmpty()) {
           throw new InvalidPathException("JSONPath expression is empty");
+        }
         currentList = root.read((String) jsonPathString);
       } catch (PathNotFoundException e) {
         currentList = null;
@@ -110,8 +120,12 @@ class JsonArrayAddHelper extends HandlebarsHelper<Object> {
 
     Object maxItems = options.hash.get("maxItems");
     if (maxItems != null) {
-      if (!(maxItems instanceof Integer)) return handleError("maxItems option must be an integer");
-      if ((int) maxItems < 0) return handleError("maxItems option integer must be positive");
+      if (!(maxItems instanceof Integer)) {
+        return handleError("maxItems option must be an integer");
+      }
+      if ((int) maxItems < 0) {
+        return handleError("maxItems option integer must be positive");
+      }
       if (((List<?>) currentList).size() - (int) maxItems > 0) {
         ((List<?>) currentList).subList(0, ((List<?>) currentList).size() - (int) maxItems).clear();
       }

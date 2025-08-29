@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
 
+/** The type Json. */
 public final class Json {
 
+  /** The type Private view. */
   public static class PrivateView {}
 
+  /** The type Public view. */
   public static class PublicView {}
 
   private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
@@ -59,6 +62,15 @@ public final class Json {
 
   private Json() {}
 
+  /**
+   * Read t.
+   *
+   * @param <T> the type parameter
+   * @param stream the stream
+   * @param clazz the clazz
+   * @return the t
+   * @throws IOException the io exception
+   */
   public static <T> T read(byte[] stream, Class<T> clazz) throws IOException {
     try {
       ObjectMapper mapper = getObjectMapper();
@@ -68,6 +80,14 @@ public final class Json {
     }
   }
 
+  /**
+   * Read t.
+   *
+   * @param <T> the type parameter
+   * @param json the json
+   * @param clazz the clazz
+   * @return the t
+   */
   public static <T> T read(String json, Class<T> clazz) {
     try {
       ObjectMapper mapper = getObjectMapper();
@@ -77,6 +97,14 @@ public final class Json {
     }
   }
 
+  /**
+   * Read t.
+   *
+   * @param <T> the type parameter
+   * @param json the json
+   * @param typeRef the type ref
+   * @return the t
+   */
   public static <T> T read(String json, TypeReference<T> typeRef) {
     try {
       ObjectMapper mapper = getObjectMapper();
@@ -86,14 +114,36 @@ public final class Json {
     }
   }
 
+  /**
+   * Write string.
+   *
+   * @param <T> the type parameter
+   * @param object the object
+   * @return the string
+   */
   public static <T> String write(T object) {
     return write(object, PublicView.class);
   }
 
+  /**
+   * Write private string.
+   *
+   * @param <T> the type parameter
+   * @param object the object
+   * @return the string
+   */
   public static <T> String writePrivate(T object) {
     return write(object, PrivateView.class);
   }
 
+  /**
+   * Write string.
+   *
+   * @param <T> the type parameter
+   * @param object the object
+   * @param view the view
+   * @return the string
+   */
   public static <T> String write(T object, Class<?> view) {
     try {
       ObjectMapper mapper = getObjectMapper();
@@ -107,10 +157,21 @@ public final class Json {
     }
   }
 
+  /**
+   * Gets object mapper.
+   *
+   * @return the object mapper
+   */
   public static ObjectMapper getObjectMapper() {
     return objectMapperHolder.get();
   }
 
+  /**
+   * To byte array byte [ ].
+   *
+   * @param object the object
+   * @return the byte [ ]
+   */
   public static byte[] toByteArray(Object object) {
     try {
       ObjectMapper mapper = getObjectMapper();
@@ -120,14 +181,33 @@ public final class Json {
     }
   }
 
+  /**
+   * Node json node.
+   *
+   * @param json the json
+   * @return the json node
+   */
   public static JsonNode node(String json) {
     return read(json, JsonNode.class);
   }
 
+  /**
+   * Max deep size int.
+   *
+   * @param one the one
+   * @param two the two
+   * @return the int
+   */
   public static int maxDeepSize(JsonNode one, JsonNode two) {
     return Math.max(deepSize(one), deepSize(two));
   }
 
+  /**
+   * Deep size int.
+   *
+   * @param node the node
+   * @return the int
+   */
   public static int deepSize(JsonNode node) {
     if (node == null) {
       return 0;
@@ -146,6 +226,12 @@ public final class Json {
     return acc;
   }
 
+  /**
+   * Pretty print string.
+   *
+   * @param json the json
+   * @return the string
+   */
   public static String prettyPrint(String json) {
     ObjectMapper mapper = getObjectMapper();
     try {
@@ -157,16 +243,37 @@ public final class Json {
     }
   }
 
+  /**
+   * Map to object t.
+   *
+   * @param <T> the type parameter
+   * @param map the map
+   * @param targetClass the target class
+   * @return the t
+   */
   public static <T> T mapToObject(Map<String, Object> map, Class<T> targetClass) {
     ObjectMapper mapper = getObjectMapper();
     return mapper.convertValue(map, targetClass);
   }
 
+  /**
+   * Object to map map.
+   *
+   * @param <T> the type parameter
+   * @param theObject the the object
+   * @return the map
+   */
   public static <T> Map<String, Object> objectToMap(T theObject) {
     ObjectMapper mapper = getObjectMapper();
     return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
   }
 
+  /**
+   * Schema property count int.
+   *
+   * @param schema the schema
+   * @return the int
+   */
   public static int schemaPropertyCount(JsonNode schema) {
     int count = 0;
     final JsonNode propertiesNode = schema.get("properties");

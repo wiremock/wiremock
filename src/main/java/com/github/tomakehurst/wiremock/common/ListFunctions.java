@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/** The type List functions. */
 public final class ListFunctions {
 
+  /**
+   * Split by type pair.
+   *
+   * @param <A> the type parameter
+   * @param <B> the type parameter
+   * @param items the items
+   * @param subType the sub type
+   * @return the pair
+   */
   public static <A, B extends A> Pair<List<A>, List<B>> splitByType(A[] items, Class<B> subType) {
     List<A> as = new ArrayList<>();
     List<B> bs = new ArrayList<>();
@@ -35,6 +45,13 @@ public final class ListFunctions {
     return new Pair<>(as, bs);
   }
 
+  /**
+   * Concatenate list.
+   *
+   * @param <T> the type parameter
+   * @param lists the lists
+   * @return the list
+   */
   @SafeVarargs
   public static <T> List<T> concatenate(List<T>... lists) {
     return Stream.of(lists).flatMap(List::stream).collect(Collectors.toList());

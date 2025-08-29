@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,15 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
+/**
+ * An admin task to find the nearest-miss requests for a given logged request.
+ *
+ * <p>This task handles the API request that takes a {@link LoggedRequest} and returns a list of the
+ * most similar registered stub mappings that were not a perfect match.
+ *
+ * @see FindNearMissesResult
+ * @see LoggedRequest
+ */
 public class FindNearMissesForRequestTask implements AdminTask {
 
   @Override

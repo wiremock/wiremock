@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/** The type Request cache. */
 public class RequestCache {
 
   private static RequestCache OFF =
@@ -43,6 +44,11 @@ public class RequestCache {
 
   private static final ThreadLocal<RequestCache> current = new ThreadLocal<>();
 
+  /**
+   * Gets current.
+   *
+   * @return the current
+   */
   public static RequestCache getCurrent() {
     RequestCache requestCache = current.get();
     if (requestCache == null) {
@@ -53,34 +59,65 @@ public class RequestCache {
     return requestCache;
   }
 
+  /** On request end. */
   public static void onRequestEnd() {
     current.remove();
   }
 
+  /** Disable. */
   public static void disable() {
     current.set(OFF);
   }
 
   private final Map<Key, Object> cache = new HashMap<>();
 
+  /**
+   * Put.
+   *
+   * @param key the key
+   * @param value the value
+   */
   public void put(Key key, Object value) {
     cache.put(key, value);
   }
 
+  /**
+   * Get t.
+   *
+   * @param <T> the type parameter
+   * @param key the key
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T> T get(Key key) {
     return (T) cache.get(key);
   }
 
+  /**
+   * Get t.
+   *
+   * @param <T> the type parameter
+   * @param key the key
+   * @param supplier the supplier
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T> T get(Key key, Supplier<T> supplier) {
     return (T) cache.computeIfAbsent(key, k -> supplier.get());
   }
 
+  /** The type Key. */
   public static class Key {
     private final Class<?> forClass;
     private final List<?> elements;
 
+    /**
+     * Key for key.
+     *
+     * @param forClass the for class
+     * @param elements the elements
+     * @return the key
+     */
     public static Key keyFor(Class<?> forClass, Object... elements) {
       return new Key(forClass, asList(elements));
     }
@@ -101,8 +138,12 @@ public class RequestCache {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       Key key = (Key) o;
       return forClass.equals(key.forClass) && elements.equals(key.elements);
     }

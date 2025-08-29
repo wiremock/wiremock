@@ -37,8 +37,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/** The type Xml. */
 public class Xml {
 
+  /** The constant DEFAULT_DOCUMENT_BUILDER_FACTORY. */
   public static final DocumentBuilderFactory DEFAULT_DOCUMENT_BUILDER_FACTORY =
       newDocumentBuilderFactory();
 
@@ -46,23 +48,30 @@ public class Xml {
     // Hide constructor
   }
 
+  /** Optimize factories loading. */
   public static void optimizeFactoriesLoading() {
     try {
       String transformerFactoryImpl = TransformerFactory.newDefaultInstance().getClass().getName();
-      String xPathFactoryImpl = XPathFactory.newDefaultInstance().getClass().getName();
+      String xpathfactoryimpl = XPathFactory.newDefaultInstance().getClass().getName();
 
       System.setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
       System.setProperty(
           XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
-          xPathFactoryImpl);
+          xpathfactoryimpl);
 
       XMLUnit.setTransformerFactory(transformerFactoryImpl);
-      XMLUnit.setXPathFactory(xPathFactoryImpl);
+      XMLUnit.setXPathFactory(xpathfactoryimpl);
     } catch (Exception ignored) {
       // Since this is just an optimisation, if an exception is thrown we do nothing and carry on
     }
   }
 
+  /**
+   * Pretty print string.
+   *
+   * @param xml the xml
+   * @return the string
+   */
   public static String prettyPrint(String xml) {
     try {
       return prettyPrint(read(xml));
@@ -71,6 +80,12 @@ public class Xml {
     }
   }
 
+  /**
+   * Pretty print string.
+   *
+   * @param doc the doc
+   * @return the string
+   */
   public static String prettyPrint(Document doc) {
     try {
       TransformerFactory transformerFactory = createTransformerFactory();
@@ -105,10 +120,23 @@ public class Xml {
     return transformerFactory;
   }
 
+  /**
+   * Read document.
+   *
+   * @param xml the xml
+   * @return the document
+   */
   public static Document read(String xml) {
     return read(xml, DEFAULT_DOCUMENT_BUILDER_FACTORY);
   }
 
+  /**
+   * Read document.
+   *
+   * @param xml the xml
+   * @param dbf the dbf
+   * @return the document
+   */
   public static Document read(String xml, DocumentBuilderFactory dbf) {
     try {
       DocumentBuilder db = dbf.newDocumentBuilder();
@@ -121,10 +149,23 @@ public class Xml {
     }
   }
 
+  /**
+   * Parse xml document.
+   *
+   * @param xml the xml
+   * @return the xml document
+   */
   public static XmlDocument parse(String xml) {
     return parse(xml, getDocumentBuilder());
   }
 
+  /**
+   * Parse xml document.
+   *
+   * @param xml the xml
+   * @param db the db
+   * @return the xml document
+   */
   public static XmlDocument parse(String xml, DocumentBuilder db) {
     try {
       InputSource source = new InputSource(new StringReader(xml));
@@ -142,6 +183,11 @@ public class Xml {
     }
   }
 
+  /**
+   * New document builder factory document builder factory.
+   *
+   * @return the document builder factory
+   */
   public static DocumentBuilderFactory newDocumentBuilderFactory() {
     try {
       DocumentBuilderFactory dbf =

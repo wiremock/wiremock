@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,25 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Fixed delay distribution. */
 public class FixedDelayDistribution implements DelayDistribution {
 
   private final long milliseconds;
 
+  /**
+   * Instantiates a new Fixed delay distribution.
+   *
+   * @param milliseconds the milliseconds
+   */
   public FixedDelayDistribution(@JsonProperty("milliseconds") long milliseconds) {
     this.milliseconds = milliseconds;
   }
 
+  /**
+   * Gets milliseconds.
+   *
+   * @return the milliseconds
+   */
   public long getMilliseconds() {
     return milliseconds;
   }

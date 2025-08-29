@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Invalid input exception. */
 public class InvalidInputException extends ClientError {
 
+  /**
+   * Instantiates a new Invalid input exception.
+   *
+   * @param errors the errors
+   */
   public InvalidInputException(Errors errors) {
     super(errors);
   }
 
+  /**
+   * Instantiates a new Invalid input exception.
+   *
+   * @param cause the cause
+   * @param errors the errors
+   */
   protected InvalidInputException(Throwable cause, Errors errors) {
     super(cause, errors);
   }

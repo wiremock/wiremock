@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/** The type System key authoriser. */
 public class SystemKeyAuthoriser {
 
   private final Set<Pattern> regexes = new HashSet<>();
 
+  /**
+   * Instantiates a new System key authoriser.
+   *
+   * @param patterns the patterns
+   */
   public SystemKeyAuthoriser(Set<String> patterns) {
     if (patterns == null || patterns.isEmpty()) {
       patterns = Set.of("wiremock.*");
@@ -35,6 +41,12 @@ public class SystemKeyAuthoriser {
     }
   }
 
+  /**
+   * Is permitted boolean.
+   *
+   * @param key the key
+   * @return the boolean
+   */
   public boolean isPermitted(String key) {
     for (Pattern regex : regexes) {
       if (regex.matcher(key).matches()) {

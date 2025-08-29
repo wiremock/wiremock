@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,26 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/** The type Abstract file source. */
 public abstract class AbstractFileSource implements FileSource {
 
+  /** The Root directory. */
   protected final File rootDirectory;
 
+  /**
+   * Instantiates a new Abstract file source.
+   *
+   * @param rootDirectory the root directory
+   */
   protected AbstractFileSource(File rootDirectory) {
     this.rootDirectory = rootDirectory;
   }
 
+  /**
+   * Read only boolean.
+   *
+   * @return the boolean
+   */
   protected abstract boolean readOnly();
 
   @Override
@@ -162,7 +174,8 @@ public abstract class AbstractFileSource implements FileSource {
         throw new NotAuthorisedException(
             "Access to file "
                 + path
-                + " is not permitted. An absolute path from the filesystem root might be specified. "
+                + " is not permitted. An absolute path from the filesystem "
+                + "root might be specified. "
                 + "Your file must be in "
                 + rootDirectory.getAbsolutePath());
       }
@@ -188,6 +201,12 @@ public abstract class AbstractFileSource implements FileSource {
     }
   }
 
+  /**
+   * By file extension predicate.
+   *
+   * @param extension the extension
+   * @return the predicate
+   */
   public static Predicate<BinaryFile> byFileExtension(final String extension) {
     return input -> input.name().endsWith("." + extension);
   }

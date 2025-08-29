@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,15 @@ import com.github.tomakehurst.wiremock.common.Lazy;
 import java.io.IOException;
 import java.util.Properties;
 
+/** The type Version. */
 public class Version {
   private static final Lazy<String> version = lazy(Version::load);
 
+  /**
+   * Gets current version.
+   *
+   * @return the current version
+   */
   public static String getCurrentVersion() {
     return version.get();
   }

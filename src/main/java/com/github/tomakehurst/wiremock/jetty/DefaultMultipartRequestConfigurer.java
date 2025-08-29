@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.HttpServletRequest;
 
+/** The type Default multipart request configurer. */
 public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
 
   @Override

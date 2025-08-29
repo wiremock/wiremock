@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to remove stub mappings by matching their metadata against a pattern.
+ *
+ * <p>This task handles the API request to find and remove stub mappings based on a {@link
+ * StringValuePattern} provided in the request body.
+ *
+ * @see StringValuePattern
+ * @see com.github.tomakehurst.wiremock.stubbing.StubMapping
+ */
 public class RemoveStubMappingsByMetadataTask implements AdminTask {
 
   @Override

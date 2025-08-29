@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,15 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/** The type J unit style diff renderer. */
 public class JUnitStyleDiffRenderer {
 
+  /**
+   * Render string.
+   *
+   * @param diff the diff
+   * @return the string
+   */
   public String render(Diff diff) {
     List<DiffLine<?>> lines = diff.getLines();
 
@@ -33,6 +40,13 @@ public class JUnitStyleDiffRenderer {
     return lines.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
   }
 
+  /**
+   * Junit style diff message string.
+   *
+   * @param expected the expected
+   * @param actual the actual
+   * @return the string
+   */
   public static String junitStyleDiffMessage(Object expected, Object actual) {
     return String.format(
         " expected:<\n%s> but was:<\n%s>",

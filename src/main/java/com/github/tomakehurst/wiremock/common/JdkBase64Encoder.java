@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.util.Base64;
 
+/** The type Jdk base 64 encoder. */
 public class JdkBase64Encoder implements Base64Encoder {
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,36 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Multi value pattern. */
 @JsonDeserialize(using = MultiValuePatternDeserializer.class)
 public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
+  /**
+   * Of multi value pattern.
+   *
+   * @param valuePattern the value pattern
+   * @return the multi value pattern
+   */
   public static MultiValuePattern of(StringValuePattern valuePattern) {
     return new SingleMatchMultiValuePattern(valuePattern);
   }
 
+  /**
+   * Absent multi value pattern.
+   *
+   * @return the multi value pattern
+   */
   public static MultiValuePattern absent() {
     return new SingleMatchMultiValuePattern(WireMock.absent());
   }
 
+  /**
+   * Gets best match.
+   *
+   * @param valuePattern the value pattern
+   * @param values the values
+   * @return the best match
+   */
   protected static MatchResult getBestMatch(
       final StringValuePattern valuePattern, List<String> values) {
     List<MatchResult> allResults =

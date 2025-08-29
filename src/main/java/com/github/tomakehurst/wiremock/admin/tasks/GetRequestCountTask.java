@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
+/**
+ * An admin task to count logged requests that match a request pattern.
+ *
+ * <p>This task handles the API request to verify the number of times a request matching a {@link
+ * RequestPattern} has been received.
+ *
+ * @see RequestPattern
+ * @see com.github.tomakehurst.wiremock.verification.VerificationResult
+ */
 public class GetRequestCountTask implements AdminTask {
 
   @Override

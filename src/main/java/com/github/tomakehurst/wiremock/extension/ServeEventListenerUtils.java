@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,15 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 import java.util.Map;
 
+/** The type Serve event listener utils. */
 public class ServeEventListenerUtils {
+  /**
+   * Trigger listeners.
+   *
+   * @param serveEventListeners the serve event listeners
+   * @param requestPhase the request phase
+   * @param serveEvent the serve event
+   */
   public static void triggerListeners(
       Map<String, ServeEventListener> serveEventListeners,
       ServeEventListener.RequestPhase requestPhase,

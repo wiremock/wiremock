@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,17 @@ import com.github.tomakehurst.wiremock.common.Exceptions;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+/** The type Key store source factory. */
 public class KeyStoreSourceFactory {
 
+  /**
+   * Gets appropriate for jre version.
+   *
+   * @param path the path
+   * @param keyStoreType the key store type
+   * @param keyStorePassword the key store password
+   * @return the appropriate for jre version
+   */
   @SuppressWarnings("unchecked")
   public static KeyStoreSource getAppropriateForJreVersion(
       String path, String keyStoreType, char[] keyStorePassword) {

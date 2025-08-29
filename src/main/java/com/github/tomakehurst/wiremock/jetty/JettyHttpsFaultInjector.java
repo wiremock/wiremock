@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;
 
+/** The type Jetty https fault injector. */
 public class JettyHttpsFaultInjector implements FaultInjector {
 
   private static final byte[] GARBAGE = "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(UTF_8);
@@ -36,6 +37,12 @@ public class JettyHttpsFaultInjector implements FaultInjector {
   private final EndPoint endpoint;
   private final Socket socket;
 
+  /**
+   * Instantiates a new Jetty https fault injector.
+   *
+   * @param response the response
+   * @param utils the utils
+   */
   public JettyHttpsFaultInjector(HttpServletResponse response, JettyHttpUtils utils) {
     this.response = response;
     final Response jettyResponse = utils.unwrapResponse(response);

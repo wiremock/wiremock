@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingXpath;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class AdvancedPathPatternSerializationTest {
   @Test
   void matchesXpathWithOnlyAValueSerializesCorrectly() {
     String expectedJson = "{\"matchesXPath\" : \"//AccountId\"}";
-    StringValuePattern pattern = matchingXPath("//AccountId");
+    StringValuePattern pattern = WireMock.matchingXpath("//AccountId");
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
@@ -45,7 +46,7 @@ public class AdvancedPathPatternSerializationTest {
             + "            \"equalTo\" : \"123\"\n"
             + "        }\n"
             + "}";
-    StringValuePattern pattern = matchingXPath("//AccountId", equalTo("123"));
+    StringValuePattern pattern = matchingXpath("//AccountId", equalTo("123"));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
@@ -60,7 +61,7 @@ public class AdvancedPathPatternSerializationTest {
             + "            }\n"
             + "}";
     StringValuePattern pattern =
-        matchingXPath(
+        WireMock.matchingXpath(
             "//AccountId",
             Map.of("one", "https://example.com/one", "two", "https://example.com/two"));
 
@@ -81,7 +82,7 @@ public class AdvancedPathPatternSerializationTest {
             + "}";
     StringValuePattern pattern =
         matchingJsonPath(
-            "$.LinkageDetails.AccountId", matchingXPath("//AccountId", equalTo("123")));
+            "$.LinkageDetails.AccountId", matchingXpath("//AccountId", equalTo("123")));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
@@ -101,7 +102,7 @@ public class AdvancedPathPatternSerializationTest {
     StringValuePattern pattern =
         matchingJsonPath(
             "$.LinkageDetails.AccountId",
-            matchingXPath(
+            WireMock.matchingXpath(
                 "//AccountId",
                 Map.of("one", "https://example.com/one", "two", "https://example.com/two")));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
@@ -137,7 +138,7 @@ public class AdvancedPathPatternSerializationTest {
             + "    }\n"
             + "}";
     StringValuePattern pattern =
-        matchingXPath("//AccountId", matchingJsonPath("$.LinkageDetails.AccountId"));
+        matchingXpath("//AccountId", matchingJsonPath("$.LinkageDetails.AccountId"));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
 
@@ -154,7 +155,7 @@ public class AdvancedPathPatternSerializationTest {
             + "    }\n"
             + "}";
     StringValuePattern pattern =
-        matchingXPath(
+        matchingXpath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }
@@ -172,7 +173,7 @@ public class AdvancedPathPatternSerializationTest {
             + "    }\n"
             + "}";
     StringValuePattern pattern =
-        matchingXPath(
+        matchingXpath(
             "//AccountId", matchingJsonPath("$.LinkageDetails.AccountId", equalTo("123")));
     assertThat(Json.write(pattern), jsonEquals(expectedJson));
   }

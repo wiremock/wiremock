@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,19 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 
+/** The type Named custom matcher line. */
 public class NamedCustomMatcherLine extends DiffLine<Request> {
 
   private final RequestMatcherExtension customMatcher;
   private final Parameters parameters;
 
+  /**
+   * Instantiates a new Named custom matcher line.
+   *
+   * @param customMatcher the custom matcher
+   * @param parameters the parameters
+   * @param request the request
+   */
   public NamedCustomMatcherLine(
       RequestMatcherExtension customMatcher, Parameters parameters, Request request) {
     super(

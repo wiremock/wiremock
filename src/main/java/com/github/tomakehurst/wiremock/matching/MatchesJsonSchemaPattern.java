@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationMessage;
 import java.util.Set;
 
+/** The type Matches json schema pattern. */
 public class MatchesJsonSchemaPattern extends StringValuePattern {
 
   private final JsonSchema schema;
@@ -37,10 +38,21 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
   private final int schemaPropertyCount;
   private final Errors invalidSchemaErrors;
 
+  /**
+   * Instantiates a new Matches json schema pattern.
+   *
+   * @param schemaJson the schema json
+   */
   public MatchesJsonSchemaPattern(String schemaJson) {
     this(schemaJson, WireMock.JsonSchemaVersion.V202012);
   }
 
+  /**
+   * Instantiates a new Matches json schema pattern.
+   *
+   * @param schemaJson the schema json
+   * @param schemaVersion the schema version
+   */
   public MatchesJsonSchemaPattern(
       @JsonProperty("matchesJsonSchema") String schemaJson,
       @JsonProperty("schemaVersion") WireMock.JsonSchemaVersion schemaVersion) {
@@ -72,15 +84,31 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     this.invalidSchemaErrors = invalidSchemaErrors;
   }
 
+  /**
+   * Instantiates a new Matches json schema pattern.
+   *
+   * @param schemaJsonNode the schema json node
+   * @param schemaVersion the schema version
+   */
   public MatchesJsonSchemaPattern(
       JsonNode schemaJsonNode, WireMock.JsonSchemaVersion schemaVersion) {
     this(Json.write(schemaJsonNode), schemaVersion);
   }
 
+  /**
+   * Gets matches json schema.
+   *
+   * @return the matches json schema
+   */
   public String getMatchesJsonSchema() {
     return expectedValue;
   }
 
+  /**
+   * Gets schema version.
+   *
+   * @return the schema version
+   */
   public WireMock.JsonSchemaVersion getSchemaVersion() {
     return schemaVersion;
   }

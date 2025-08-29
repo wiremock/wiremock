@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.SSLEngine;
 
+/** The type Trust specific hosts strategy. */
 public class TrustSpecificHostsStrategy implements TrustStrategy {
 
   private final List<String> trustedHosts;
 
+  /**
+   * Instantiates a new Trust specific hosts strategy.
+   *
+   * @param trustedHosts the trusted hosts
+   */
   public TrustSpecificHostsStrategy(List<String> trustedHosts) {
     this.trustedHosts = new ArrayList<>(trustedHosts);
   }

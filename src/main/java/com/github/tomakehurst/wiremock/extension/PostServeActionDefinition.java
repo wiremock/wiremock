@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,38 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Post serve action definition. */
 public class PostServeActionDefinition {
 
   private final String name;
   private final Parameters parameters;
 
+  /**
+   * Instantiates a new Post serve action definition.
+   *
+   * @param name the name
+   * @param parameters the parameters
+   */
   public PostServeActionDefinition(
       @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
     this.name = name;
     this.parameters = parameters;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets parameters.
+   *
+   * @return the parameters
+   */
   public Parameters getParameters() {
     return parameters;
   }

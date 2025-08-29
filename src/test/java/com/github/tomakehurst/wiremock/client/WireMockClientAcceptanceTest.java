@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,14 +50,14 @@ class WireMockClientAcceptanceTest {
   @Test
   void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
     WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-    wireMock.register(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
+    wireMock.register(get(urlEqualTo("/my/new/resource")).willReturn(aresponse().withStatus(304)));
 
     assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
   }
 
   @Test
   void buildsMappingFromStaticSyntax() {
-    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
+    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aresponse().withStatus(304)));
 
     assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
   }
@@ -68,7 +68,7 @@ class WireMockClientAcceptanceTest {
     wireMock.register(
         get(urlEqualTo("/my/new/resource"))
             .willReturn(
-                aResponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
+                aresponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
 
     assertThat(
         testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));

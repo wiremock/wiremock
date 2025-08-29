@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import java.util.Map;
 
+/** The type Plain text diff renderer. */
 public class PlainTextDiffRenderer {
 
   private final String SEPARATOR = lineSeparator();
@@ -31,16 +32,33 @@ public class PlainTextDiffRenderer {
   private final int consoleWidth;
   private final Map<String, RequestMatcherExtension> customMatcherExtensions;
 
+  /**
+   * Instantiates a new Plain text diff renderer.
+   *
+   * @param customMatcherExtensions the custom matcher extensions
+   */
   public PlainTextDiffRenderer(Map<String, RequestMatcherExtension> customMatcherExtensions) {
     this(customMatcherExtensions, 119);
   }
 
+  /**
+   * Instantiates a new Plain text diff renderer.
+   *
+   * @param customMatcherExtensions the custom matcher extensions
+   * @param consoleWidth the console width
+   */
   public PlainTextDiffRenderer(
       Map<String, RequestMatcherExtension> customMatcherExtensions, int consoleWidth) {
     this.customMatcherExtensions = customMatcherExtensions;
     this.consoleWidth = consoleWidth;
   }
 
+  /**
+   * Render string.
+   *
+   * @param diff the diff
+   * @return the string
+   */
   public String render(Diff diff) {
     StringBuilder sb = new StringBuilder();
     header(sb);

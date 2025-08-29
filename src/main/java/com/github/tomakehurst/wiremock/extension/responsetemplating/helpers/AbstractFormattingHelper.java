@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,31 @@ import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
 import java.util.Arrays;
 
+/** The type Abstract formatting helper. */
 public abstract class AbstractFormattingHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   abstract String getName();
 
+  /**
+   * Gets data format.
+   *
+   * @return the data format
+   */
   abstract String getDataFormat();
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Object context, Options options) throws IOException {
     // get the trimmed contents and make sure it isn't empty
@@ -75,10 +94,20 @@ public abstract class AbstractFormattingHelper extends HandlebarsHelper<Object> 
     return apply(bodyText, format);
   }
 
+  /**
+   * Apply string.
+   *
+   * @param bodyText the body text
+   * @param format the format
+   * @return the string
+   */
   protected abstract String apply(String bodyText, Format format);
 
+  /** The enum Format. */
   public enum Format {
+    /** Pretty format. */
     pretty,
+    /** Compact format. */
     compact,
   }
 }

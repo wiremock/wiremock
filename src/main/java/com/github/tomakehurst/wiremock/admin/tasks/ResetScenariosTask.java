@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,14 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to reset all scenarios to their initial state.
+ *
+ * <p>This task handles the API request to reset the state of all scenarios, which is useful for
+ * ensuring a clean state between tests.
+ *
+ * @see com.github.tomakehurst.wiremock.stubbing.Scenario
+ */
 public class ResetScenariosTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {

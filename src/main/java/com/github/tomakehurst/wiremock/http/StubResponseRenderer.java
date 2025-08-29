@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/** The type Stub response renderer. */
 public class StubResponseRenderer implements ResponseRenderer {
 
   private final BlobStore filesBlobStore;
@@ -40,6 +41,15 @@ public class StubResponseRenderer implements ResponseRenderer {
   private final List<ResponseTransformer> responseTransformers;
   private final List<ResponseTransformerV2> v2ResponseTransformers;
 
+  /**
+   * Instantiates a new Stub response renderer.
+   *
+   * @param filesBlobStore the files blob store
+   * @param settingsStore the settings store
+   * @param proxyResponseRenderer the proxy response renderer
+   * @param responseTransformers the response transformers
+   * @param v2ResponseTransformers the v 2 response transformers
+   */
   public StubResponseRenderer(
       BlobStore filesBlobStore,
       SettingsStore settingsStore,

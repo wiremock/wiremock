@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.concurrent.Callable;
 
+/** The type Exceptions. */
 public class Exceptions {
 
   /**
@@ -32,11 +31,13 @@ public class Exceptions {
    *         try {
    *             somethingThatThrowsException();
    *         } catch (Exception e) {
-   *             return throwUnchecked(e, String.class); // does not actually return, throws the exception
+   *             return throwUnchecked(e, String.class);
+   *             // does not actually return, throws the exception
    *         }
    *     }
    * </pre>
    *
+   * @param <T> the type parameter
    * @param ex The exception that will be thrown, unwrapped and unchecked
    * @param returnType trick to persuade the compiler that a method returns appropriately
    * @return Never returns, always throws the passed in exception
@@ -48,6 +49,8 @@ public class Exceptions {
   }
 
   /**
+   * Throw unchecked.
+   *
    * @param ex The exception that will be thrown, unwrapped and unchecked
    */
   public static void throwUnchecked(final Throwable ex) {
@@ -59,6 +62,14 @@ public class Exceptions {
     throw (T) toThrow;
   }
 
+  /**
+   * Uncheck t.
+   *
+   * @param <T> the type parameter
+   * @param work the work
+   * @param returnType the return type
+   * @return the t
+   */
   public static <T> T uncheck(Callable<T> work, Class<T> returnType) {
     try {
       return work.call();
@@ -67,6 +78,11 @@ public class Exceptions {
     }
   }
 
+  /**
+   * Uncheck.
+   *
+   * @param work the work
+   */
   public static void uncheck(RunnableWithException work) {
     try {
       work.run();
@@ -75,13 +91,13 @@ public class Exceptions {
     }
   }
 
-  public static String renderStackTrace(Throwable t) {
-    StringWriter sw = new StringWriter();
-    t.printStackTrace(new PrintWriter(sw));
-    return sw.toString();
-  }
-
+  /** The interface Runnable with exception. */
   public interface RunnableWithException {
+    /**
+     * Run.
+     *
+     * @throws Exception the exception
+     */
     void run() throws Exception;
   }
 }

@@ -41,12 +41,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/** The type War configuration. */
 public class WarConfiguration implements Options {
 
   private static final String FILE_SOURCE_ROOT_KEY = "WireMockFileSourceRoot";
 
   private final ServletContext servletContext;
 
+  /**
+   * Instantiates a new War configuration.
+   *
+   * @param servletContext the servlet context
+   */
   public WarConfiguration(ServletContext servletContext) {
     this.servletContext = servletContext;
   }

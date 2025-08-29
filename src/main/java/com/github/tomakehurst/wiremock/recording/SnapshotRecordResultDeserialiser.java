@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,23 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+/** The type Snapshot record result deserialiser. */
 public class SnapshotRecordResultDeserialiser extends StdDeserializer<SnapshotRecordResult> {
 
+  /** Instantiates a new Snapshot record result deserialiser. */
   protected SnapshotRecordResultDeserialiser() {
     super(SnapshotRecordResult.class);
   }
 
+  /**
+   * Deserialize snapshot record result.
+   *
+   * @param parser the parser
+   * @param deserializationContext the deserialization context
+   * @return the snapshot record result
+   * @throws IOException the io exception
+   * @throws JsonProcessingException the json processing exception
+   */
   @Override
   @SuppressWarnings("unchecked")
   public SnapshotRecordResult deserialize(

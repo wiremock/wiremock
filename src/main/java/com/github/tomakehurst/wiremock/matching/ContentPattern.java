@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Objects;
 
+/**
+ * The type Content pattern.
+ *
+ * @param <T> the type parameter
+ */
 @JsonDeserialize(using = ContentPatternDeserialiser.class)
 public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
 
+  /** The Expected value. */
   protected final T expectedValue;
 
+  /**
+   * Instantiates a new Content pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public ContentPattern(T expectedValue) {
     if (!isNullValuePermitted()) {
       checkNotNull(expectedValue, "'" + getName() + "' expected value cannot be null");
@@ -33,11 +44,21 @@ public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
     this.expectedValue = expectedValue;
   }
 
+  /**
+   * Gets value.
+   *
+   * @return the value
+   */
   @JsonIgnore
   public T getValue() {
     return expectedValue;
   }
 
+  /**
+   * Is null value permitted boolean.
+   *
+   * @return the boolean
+   */
   protected boolean isNullValuePermitted() {
     return false;
   }

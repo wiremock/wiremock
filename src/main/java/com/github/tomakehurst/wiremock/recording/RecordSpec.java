@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.List;
 import java.util.Map;
 
-/** Encapsulates options for generating and outputting StubMappings */
+/** Encapsulates options for generating and outputting StubMappings. */
 public class RecordSpec {
 
   // Target URL when using the recording API. Not applicable to snapshotting
@@ -56,6 +56,20 @@ public class RecordSpec {
   // Parameters for stub mapping transformers
   private final Parameters transformerParameters;
 
+  /**
+   * Instantiates a new Record spec.
+   *
+   * @param targetBaseUrl the target base url
+   * @param filters the filters
+   * @param captureHeaders the capture headers
+   * @param requestBodyPatternFactory the request body pattern factory
+   * @param extractBodyCriteria the extract body criteria
+   * @param outputFormat the output format
+   * @param persist the persist
+   * @param repeatsAsScenarios the repeats as scenarios
+   * @param transformers the transformers
+   * @param transformerParameters the transformer parameters
+   */
   @JsonCreator
   public RecordSpec(
       @JsonProperty("targetBaseUrl") String targetBaseUrl,
@@ -87,54 +101,116 @@ public class RecordSpec {
     this(null, null, null, null, null, null, null, null, null, null);
   }
 
+  /** The constant DEFAULTS. */
   public static final RecordSpec DEFAULTS = new RecordSpec();
 
+  /**
+   * For base url record spec.
+   *
+   * @param targetBaseUrl the target base url
+   * @return the record spec
+   */
   public static RecordSpec forBaseUrl(String targetBaseUrl) {
     return new RecordSpec(targetBaseUrl, null, null, null, null, null, null, true, null, null);
   }
 
+  /**
+   * Gets target base url.
+   *
+   * @return the target base url
+   */
   public String getTargetBaseUrl() {
     return targetBaseUrl;
   }
 
+  /**
+   * Gets filters.
+   *
+   * @return the filters
+   */
   public ProxiedServeEventFilters getFilters() {
     return filters;
   }
 
+  /**
+   * Gets capture headers.
+   *
+   * @return the capture headers
+   */
   public Map<String, CaptureHeadersSpec> getCaptureHeaders() {
     return captureHeaders;
   }
 
+  /**
+   * Gets output format.
+   *
+   * @return the output format
+   */
   public SnapshotOutputFormatter getOutputFormat() {
     return outputFormat;
   }
 
+  /**
+   * Should persist boolean.
+   *
+   * @return the boolean
+   */
   @JsonProperty("persist")
   public boolean shouldPersist() {
     return persist;
   }
 
+  /**
+   * Should record repeats as scenarios boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean shouldRecordRepeatsAsScenarios() {
     return repeatsAsScenarios == null ? true : repeatsAsScenarios;
   }
 
+  /**
+   * Gets repeats as scenarios.
+   *
+   * @return the repeats as scenarios
+   */
   public Boolean getRepeatsAsScenarios() {
     return repeatsAsScenarios;
   }
 
+  /**
+   * Gets transformers.
+   *
+   * @return the transformers
+   */
   public List<String> getTransformers() {
     return transformers;
   }
 
+  /**
+   * Gets transformer parameters.
+   *
+   * @return the transformer parameters
+   */
   public Parameters getTransformerParameters() {
     return transformerParameters;
   }
 
+  /**
+   * Gets extract body criteria.
+   *
+   * @return the extract body criteria
+   */
   public ResponseDefinitionBodyMatcher getExtractBodyCriteria() {
     return extractBodyCriteria;
   }
 
+  /**
+   * Gets request body pattern factory.
+   *
+   * @return the request body pattern factory
+   */
   public RequestBodyPatternFactory getRequestBodyPatternFactory() {
     return requestBodyPatternFactory;
   }

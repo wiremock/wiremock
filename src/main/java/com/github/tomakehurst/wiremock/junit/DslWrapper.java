@@ -35,9 +35,13 @@ import com.github.tomakehurst.wiremock.verification.*;
 import java.util.List;
 import java.util.UUID;
 
+/** The type Dsl wrapper. */
 public class DslWrapper implements Admin, Stubbing {
 
+  /** The Admin. */
   protected Admin admin;
+
+  /** The Stubbing. */
   protected Stubbing stubbing;
 
   @Override

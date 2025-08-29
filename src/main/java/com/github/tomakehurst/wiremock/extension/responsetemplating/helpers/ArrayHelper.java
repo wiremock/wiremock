@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The type Array helper. */
 public class ArrayHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Object context, Options options) throws IOException {
     if (context == null || context == options.context.model()) {

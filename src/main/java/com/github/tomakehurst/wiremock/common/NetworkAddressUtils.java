@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,17 @@ package com.github.tomakehurst.wiremock.common;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/** The type Network address utils. */
 public class NetworkAddressUtils {
 
   private NetworkAddressUtils() {}
 
+  /**
+   * Is valid inet 4 address boolean.
+   *
+   * @param ip the ip
+   * @return the boolean
+   */
   public static boolean isValidInet4Address(String ip) {
     try {
       return InetAddress.getByName(ip).getHostAddress().equals(ip);
@@ -30,6 +37,12 @@ public class NetworkAddressUtils {
     }
   }
 
+  /**
+   * Ip to long long.
+   *
+   * @param ipAddress the ip address
+   * @return the long
+   */
   public static long ipToLong(InetAddress ipAddress) {
     long resultIP = 0;
     byte[] ipAddressOctets = ipAddress.getAddress();

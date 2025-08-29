@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,30 @@ package com.github.tomakehurst.wiremock.extension;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Set;
 
+/** The type Serve event listener definition. */
 public class ServeEventListenerDefinition {
 
   private final String name;
   private final Set<ServeEventListener.RequestPhase> requestPhases;
   private final Parameters parameters;
 
+  /**
+   * Instantiates a new Serve event listener definition.
+   *
+   * @param name the name
+   * @param parameters the parameters
+   */
   public ServeEventListenerDefinition(String name, Parameters parameters) {
     this(name, null, parameters);
   }
 
+  /**
+   * Instantiates a new Serve event listener definition.
+   *
+   * @param name the name
+   * @param requestPhases the request phases
+   * @param parameters the parameters
+   */
   public ServeEventListenerDefinition(
       @JsonProperty("name") String name,
       @JsonProperty("requestPhases") Set<ServeEventListener.RequestPhase> requestPhases,
@@ -37,18 +51,30 @@ public class ServeEventListenerDefinition {
     this.parameters = parameters;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  public Set<ServeEventListener.RequestPhase> getRequestPhases() {
-    return requestPhases;
-  }
-
+  /**
+   * Gets parameters.
+   *
+   * @return the parameters
+   */
   public Parameters getParameters() {
     return parameters;
   }
 
+  /**
+   * Should fire for boolean.
+   *
+   * @param requestPhase the request phase
+   * @return the boolean
+   */
   public boolean shouldFireFor(ServeEventListener.RequestPhase requestPhase) {
     return requestPhases == null || requestPhases.contains(requestPhase);
   }

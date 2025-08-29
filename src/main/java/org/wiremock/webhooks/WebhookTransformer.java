@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,16 @@ package org.wiremock.webhooks;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Webhook transformer. */
 public interface WebhookTransformer extends Extension {
 
+  /**
+   * Transform webhook definition.
+   *
+   * @param serveEvent the serve event
+   * @param webhookDefinition the webhook definition
+   * @return the webhook definition
+   */
   WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition);
 
   // Defaulting this for backwards compatibility

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+/**
+ * An admin task to retrieve a single stub mapping by its ID.
+ *
+ * <p>This task extends {@link AbstractSingleStubTask} to handle the API request for fetching a
+ * specific {@link StubMapping} from the server.
+ *
+ * @see StubMapping
+ * @see AbstractSingleStubTask
+ */
 public class GetStubMappingTask extends AbstractSingleStubTask {
 
   @Override

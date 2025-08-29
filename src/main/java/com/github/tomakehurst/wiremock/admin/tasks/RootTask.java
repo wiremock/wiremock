@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,4 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+/**
+ * An admin task that lists all registered stub mappings.
+ *
+ * <p>This task serves as the default handler for the admin root URL (e.g., {@code /__admin/}). It
+ * inherits its behavior directly from {@link GetAllStubMappingsTask}, providing a paginated list of
+ * all stubs.
+ *
+ * @see GetAllStubMappingsTask
+ */
 public class RootTask extends GetAllStubMappingsTask {}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,26 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
+/** The type File source blob store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class FileSourceBlobStore implements BlobStore, PathBased {
 
   private final FileSource fileSource;
 
+  /**
+   * Instantiates a new File source blob store.
+   *
+   * @param root the root
+   */
   FileSourceBlobStore(String root) {
     this.fileSource = new SingleRootFileSource(root);
   }
 
+  /**
+   * Instantiates a new File source blob store.
+   *
+   * @param fileSource the file source
+   */
   public FileSourceBlobStore(FileSource fileSource) {
     this.fileSource = fileSource;
   }
@@ -98,6 +109,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
   }
 
+  /**
+   * Gets file source.
+   *
+   * @return the file source
+   */
   public FileSource getFileSource() {
     return fileSource;
   }

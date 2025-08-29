@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,15 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 
+/**
+ * An admin task to find and return all logged requests matching a request pattern.
+ *
+ * <p>This task handles the API request to search the request journal for all {@link ServeEvent}s
+ * that match a {@link RequestPattern} provided in the request body.
+ *
+ * @see FindRequestsResult
+ * @see RequestPattern
+ */
 public class FindRequestsTask implements AdminTask {
 
   @Override

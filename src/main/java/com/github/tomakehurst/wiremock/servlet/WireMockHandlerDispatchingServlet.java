@@ -47,11 +47,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
+/** The type Wire mock handler dispatching servlet. */
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
+  /** The constant SHOULD_FORWARD_TO_FILES_CONTEXT. */
   public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
+
+  /** The constant ASYNCHRONOUS_RESPONSE_EXECUTOR. */
   public static final String ASYNCHRONOUS_RESPONSE_EXECUTOR =
       WireMockHandlerDispatchingServlet.class.getSimpleName() + ".asynchronousResponseExecutor";
+
+  /** The constant MAPPED_UNDER_KEY. */
   public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
   private static final long serialVersionUID = -6602042274260495538L;
@@ -69,6 +75,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
   private boolean browserProxyingEnabled;
   private JettyHttpUtils utils;
 
+  /**
+   * Init.
+   *
+   * @param config the config
+   */
   @Override
   public void init(ServletConfig config) {
     ServletContext context = config.getServletContext();
@@ -134,6 +145,14 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     return Boolean.parseBoolean(flagValue);
   }
 
+  /**
+   * Service.
+   *
+   * @param httpServletRequest the http servlet request
+   * @param httpServletResponse the http servlet response
+   * @throws ServletException the servlet exception
+   * @throws IOException the io exception
+   */
   @Override
   protected void service(
       HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -170,6 +189,12 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     private final HttpServletRequest httpServletRequest;
     private final HttpServletResponse httpServletResponse;
 
+    /**
+     * Instantiates a new Servlet http responder.
+     *
+     * @param httpServletRequest the http servlet request
+     * @param httpServletResponse the http servlet response
+     */
     public ServletHttpResponder(
         HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
       this.httpServletRequest = httpServletRequest;
@@ -244,6 +269,13 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     }
   }
 
+  /**
+   * Apply response.
+   *
+   * @param response the response
+   * @param httpServletRequest the http servlet request
+   * @param httpServletResponse the http servlet response
+   */
   public void applyResponse(
       Response response,
       HttpServletRequest httpServletRequest,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * A generic wrapper class for a single item result.
+ *
+ * <p>This class is typically used as a data transfer object (DTO) for admin API responses that
+ * return a single entity. Due to the {@code @JsonValue} annotation on the getter, an instance of
+ * this class will be serialized directly as the wrapped item, rather than as an object containing
+ * the item.
+ *
+ * @param <T> The type of the wrapped item.
+ */
 @JsonInclude(NON_NULL)
 public class SingleItemResult<T> {
 
   private final T item;
 
+  /**
+   * Constructs a new SingleItemResult.
+   *
+   * @param item The single item to be wrapped in the result.
+   */
   public SingleItemResult(T item) {
     this.item = item;
   }

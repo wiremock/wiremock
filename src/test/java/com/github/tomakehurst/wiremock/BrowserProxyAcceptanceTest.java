@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class BrowserProxyAcceptanceTest {
 
   @Test
   public void canProxyHttp() {
-    target.stubFor(get("/whatever").willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get("/whatever").willReturn(aresponse().withBody("Got it")));
 
     assertThat(
         testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
@@ -65,7 +65,7 @@ class BrowserProxyAcceptanceTest {
   @Test
   public void passesQueryParameters() {
     target.stubFor(
-        get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/search?q=things&limit=10")).willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient.getViaProxy(target.url("/search?q=things&limit=10"), proxy.port()).statusCode(),

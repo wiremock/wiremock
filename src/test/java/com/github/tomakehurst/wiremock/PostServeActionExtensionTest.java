@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class PostServeActionExtensionTest {
         wm.stubFor(
             get(urlPathEqualTo("/count-me"))
                 .withPostServeAction("count-request", counterNameParameter().withName("things"))
-                .willReturn(aResponse()));
+                .willReturn(aresponse()));
 
     client.get("/count-me");
     client.get("/count-me");
@@ -102,7 +102,7 @@ public class PostServeActionExtensionTest {
     wm.stubFor(
         get(urlPathEqualTo("/as-normal"))
             .withPostServeAction("does-not-exist", counterNameParameter().withName("things"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(client.get("/as-normal").statusCode(), is(200));
   }
@@ -128,7 +128,7 @@ public class PostServeActionExtensionTest {
                   }
                 }));
 
-    wm.stubFor(get(urlPathEqualTo("/response-status")).willReturn(aResponse().withStatus(418)));
+    wm.stubFor(get(urlPathEqualTo("/response-status")).willReturn(aresponse().withStatus(418)));
 
     client.get("/response-status");
 

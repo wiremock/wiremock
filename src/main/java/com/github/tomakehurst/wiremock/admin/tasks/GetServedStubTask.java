@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 
+/**
+ * An admin task to retrieve a single logged request (a "served stub") by its ID.
+ *
+ * <p>This task extends {@link AbstractSingleServeEventTask} to handle the API request for fetching
+ * a specific {@link ServeEvent} from the journal.
+ *
+ * @see ServeEvent
+ * @see AbstractSingleServeEventTask
+ */
 public class GetServedStubTask extends AbstractSingleServeEventTask {
 
   @Override

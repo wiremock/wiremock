@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ public class MultipartValuePatternTest {
   @Test
   public void serialisesCorrectlyWithMultipleHeaderAndBodyMatchers() {
     MultipartValuePattern pattern =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -205,7 +205,7 @@ public class MultipartValuePatternTest {
   @Test
   public void equalsShouldReturnTrueOnSameObject() {
     MultipartValuePattern pattern =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -219,7 +219,7 @@ public class MultipartValuePatternTest {
   @Test
   public void equalsShouldReturnTrueOnIdenticalButNotSameObjects() {
     MultipartValuePattern patternA =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -227,7 +227,7 @@ public class MultipartValuePatternTest {
             .build();
 
     MultipartValuePattern patternB =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -241,7 +241,7 @@ public class MultipartValuePatternTest {
   @Test
   public void equalsShouldReturnFalseOnDifferentObjects() {
     MultipartValuePattern patternA =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -249,7 +249,7 @@ public class MultipartValuePatternTest {
             .build();
 
     MultipartValuePattern patternB =
-        aMultipart()
+        amultipart()
             .withName("anotherTitle")
             .withHeader("X-Second-Header", matching(".*2"))
             .withBody(equalToJson("{ \"thing\": \"abc\" }"))
@@ -262,7 +262,7 @@ public class MultipartValuePatternTest {
   @Test
   public void objectsShouldBeEqualOnSameExpectedValue() {
     MultipartValuePattern patternA =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -270,7 +270,7 @@ public class MultipartValuePatternTest {
             .build();
 
     MultipartValuePattern patternB =
-        aMultipart()
+        amultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
@@ -278,7 +278,7 @@ public class MultipartValuePatternTest {
             .build();
 
     MultipartValuePattern patternC =
-        aMultipart()
+        amultipart()
             .withName("Description")
             .withHeader("X-First-Header", equalTo("Second"))
             .withBody(binaryEqualTo("SGVsbG9Xb3JsZA=="))

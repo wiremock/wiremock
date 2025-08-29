@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,15 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 
+/** The type Helper utils. */
 public class HelperUtils {
 
+  /**
+   * Coerce to int integer.
+   *
+   * @param value the value
+   * @return the integer
+   */
   public static Integer coerceToInt(Object value) {
     if (value == null) {
       return null;
@@ -38,6 +45,12 @@ public class HelperUtils {
     return null;
   }
 
+  /**
+   * Coerce to double double.
+   *
+   * @param value the value
+   * @return the double
+   */
   public static Double coerceToDouble(Object value) {
     if (value == null) {
       return null;
@@ -54,6 +67,7 @@ public class HelperUtils {
     return null;
   }
 
+  /** The Json path config. */
   static final Configuration jsonPathConfig =
       Configuration.defaultConfiguration()
           .addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL)

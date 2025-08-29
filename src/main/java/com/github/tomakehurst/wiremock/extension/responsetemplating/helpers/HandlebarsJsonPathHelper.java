@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import java.io.IOException;
 
+/** The type Handlebars json path helper. */
 public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
   private final Configuration config =
@@ -35,6 +36,14 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
   private final ParseContext parseContext = JsonPath.using(config);
 
+  /**
+   * Apply object.
+   *
+   * @param input the input
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(final Object input, final Options options) throws IOException {
     if (input == null || (input instanceof String && ((String) input).isEmpty())) {

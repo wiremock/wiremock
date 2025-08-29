@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
+/** The type Includes match multi value pattern. */
 @JsonDeserialize(as = IncludesMatchMultiValuePattern.class)
 public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
+  /** The constant JSON_KEY. */
   public static final String JSON_KEY = "includes";
+
+  /** The constant INCLUDING_OPERATOR. */
   public static final String INCLUDING_OPERATOR = " including ";
 
   @JsonProperty(JSON_KEY)
   private final List<StringValuePattern> stringValuePatterns;
 
+  /**
+   * Instantiates a new Includes match multi value pattern.
+   *
+   * @param stringValuePatterns the string value patterns
+   */
   @JsonCreator
   public IncludesMatchMultiValuePattern(
       @JsonProperty(JSON_KEY) final List<StringValuePattern> stringValuePatterns) {

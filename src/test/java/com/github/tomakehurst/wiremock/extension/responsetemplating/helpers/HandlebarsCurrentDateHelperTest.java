@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelperTestBase.transform;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
@@ -139,7 +139,7 @@ public class HandlebarsCurrentDateHelperTest {
         transform(
             transformer,
             mockRequest().url("/random-value"),
-            aResponse().withBody("{{now offset='6 days'}}"));
+            aresponse().withBody("{{now offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
@@ -151,7 +151,7 @@ public class HandlebarsCurrentDateHelperTest {
         transform(
             transformer,
             mockRequest().url("/random-value"),
-            aResponse().withBody("{{date offset='6 days'}}"));
+            aresponse().withBody("{{date offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
@@ -163,7 +163,7 @@ public class HandlebarsCurrentDateHelperTest {
         transform(
             transformer,
             mockRequest().url("/parsed-date"),
-            aResponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
+            aresponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, is("2018-05-04T10:11:12Z"));

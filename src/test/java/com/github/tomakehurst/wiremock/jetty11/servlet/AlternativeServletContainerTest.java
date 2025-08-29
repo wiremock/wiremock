@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,14 @@ public class AlternativeServletContainerTest {
 
   @Test
   public void supportsAlternativeHttpServerForBasicStub() {
-    stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withStatus(204)));
+    stubFor(get(urlEqualTo("/alt-server")).willReturn(aresponse().withStatus(204)));
 
     assertThat(client.get("/alt-server").statusCode(), is(204));
   }
 
   @Test
   public void supportsAlternativeHttpServerForFaultInjection() {
-    stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
+    stubFor(get(urlEqualTo("/alt-server")).willReturn(aresponse().withFault(Fault.EMPTY_RESPONSE)));
 
     WireMockResponse response = client.get("/alt-server");
 

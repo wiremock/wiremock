@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,16 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to generate stub mappings from the request journal based on a specification.
+ *
+ * <p>This task handles the API request to "snapshot" previously received requests and convert them
+ * into stub mappings. The snapshotting process can be configured by providing a {@link RecordSpec}
+ * in the request body.
+ *
+ * @see RecordSpec
+ * @see SnapshotRecordResult
+ */
 public class SnapshotTask implements AdminTask {
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Not permitted exception. */
 public class NotPermittedException extends ClientError {
 
+  /**
+   * Instantiates a new Not permitted exception.
+   *
+   * @param errors the errors
+   */
   public NotPermittedException(Errors errors) {
     super(errors);
   }

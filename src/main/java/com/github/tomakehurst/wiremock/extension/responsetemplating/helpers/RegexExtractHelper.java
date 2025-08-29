@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+/** The type Regex extract helper. */
 public class RegexExtractHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   */
   @Override
   public Object apply(Object context, Options options) {
     List<String> groups = new ArrayList<>();

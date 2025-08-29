@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Logical or. */
 public class LogicalOr extends AbstractLogicalMatcher {
 
+  /**
+   * Instantiates a new Logical or.
+   *
+   * @param operands the operands
+   */
   public LogicalOr(StringValuePattern... operands) {
     super(operands);
   }
 
+  /**
+   * Instantiates a new Logical or.
+   *
+   * @param operands the operands
+   */
   public LogicalOr(@JsonProperty("or") List<StringValuePattern> operands) {
     super(operands);
   }
@@ -34,6 +45,11 @@ public class LogicalOr extends AbstractLogicalMatcher {
     return "OR";
   }
 
+  /**
+   * Gets or.
+   *
+   * @return the or
+   */
   public List<StringValuePattern> getOr() {
     return operands;
   }

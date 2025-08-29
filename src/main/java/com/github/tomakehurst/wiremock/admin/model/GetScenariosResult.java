@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import java.util.List;
 
+/**
+ * A wrapper class for the result of a "get all scenarios" admin API call.
+ *
+ * <p>This serves as a data transfer object (DTO) to structure the JSON response containing a list
+ * of all {@link Scenario} states.
+ *
+ * @see com.github.tomakehurst.wiremock.stubbing.Scenario
+ */
 public class GetScenariosResult {
 
   private final List<Scenario> scenarios;
 
+  /**
+   * Constructs a new GetScenariosResult.
+   *
+   * @param scenarios The list of {@link Scenario} objects to be wrapped. The {@code @JsonProperty}
+   *     annotation maps this to the "scenarios" key in the JSON output.
+   */
   @JsonCreator
   public GetScenariosResult(@JsonProperty("scenarios") List<Scenario> scenarios) {
     this.scenarios = scenarios;

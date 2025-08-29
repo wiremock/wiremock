@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,23 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Contains pattern. */
 public class ContainsPattern extends StringValuePattern {
 
+  /**
+   * Instantiates a new Contains pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public ContainsPattern(@JsonProperty("contains") String expectedValue) {
     super(expectedValue);
   }
 
+  /**
+   * Gets contains.
+   *
+   * @return the contains
+   */
   public String getContains() {
     return expectedValue;
   }

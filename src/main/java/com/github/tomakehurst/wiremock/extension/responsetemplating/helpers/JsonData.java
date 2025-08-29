@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,25 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.common.Json;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * The type Json data.
+ *
+ * @param <T> the type parameter
+ */
 public abstract class JsonData<T> {
 
+  /**
+   * To json string string.
+   *
+   * @return the string
+   */
   protected abstract String toJsonString();
 
   @Override
@@ -27,6 +42,12 @@ public abstract class JsonData<T> {
     return toJsonString();
   }
 
+  /**
+   * Create object.
+   *
+   * @param data the data
+   * @return the object
+   */
   @SuppressWarnings("unchecked")
   static Object create(Object data) {
     if (data instanceof Map) {
@@ -40,12 +61,19 @@ public abstract class JsonData<T> {
     return data;
   }
 
+  /** The Data. */
   protected final T data;
 
+  /**
+   * Instantiates a new Json data.
+   *
+   * @param data the data
+   */
   public JsonData(T data) {
     this.data = data;
   }
 
+  /** The type Map json data. */
   public static class MapJsonData extends JsonData<Map<String, Object>>
       implements Map<String, Object> {
 
@@ -54,6 +82,11 @@ public abstract class JsonData<T> {
       return Json.write(data);
     }
 
+    /**
+     * Instantiates a new Map json data.
+     *
+     * @param data the data
+     */
     public MapJsonData(Map<String, Object> data) {
       super(data);
     }
@@ -119,8 +152,14 @@ public abstract class JsonData<T> {
     }
   }
 
+  /** The type List json data. */
   public static class ListJsonData extends JsonData<List<Object>> implements List<Object> {
 
+    /**
+     * Instantiates a new List json data.
+     *
+     * @param data the data
+     */
     public ListJsonData(List<Object> data) {
       super(data);
     }

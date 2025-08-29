@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,16 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import java.util.Map;
 
+/** The type Form data helper. */
 public class FormDataHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   */
   @Override
   public Object apply(Object context, Options options) {
     Map<String, ListOrSingle<String>> formData =

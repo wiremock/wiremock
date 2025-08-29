@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.security;
 
+/** The type Not authorised exception. */
 public class NotAuthorisedException extends RuntimeException {
 
+  /** Instantiates a new Not authorised exception. */
   public NotAuthorisedException() {}
 
+  /**
+   * Instantiates a new Not authorised exception.
+   *
+   * @param message the message
+   */
   public NotAuthorisedException(String message) {
     super(message);
   }
 
+  /**
+   * Instantiates a new Not authorised exception.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
   public NotAuthorisedException(String message, Throwable cause) {
     super(message, cause);
   }

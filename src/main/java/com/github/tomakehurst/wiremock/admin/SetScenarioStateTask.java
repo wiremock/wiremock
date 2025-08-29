@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,16 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to set or reset the state of a scenario.
+ *
+ * <p>This task handles the API request to update a scenario. If a request body is provided, it sets
+ * the scenario to the new state specified in the body. If the body is empty, it resets the scenario
+ * to its initial state.
+ *
+ * @see ScenarioState
+ * @see com.github.tomakehurst.wiremock.stubbing.Scenario
+ */
 public class SetScenarioStateTask implements AdminTask {
 
   @Override

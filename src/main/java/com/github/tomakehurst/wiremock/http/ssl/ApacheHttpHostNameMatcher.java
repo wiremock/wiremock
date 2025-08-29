@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLException;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 
+/** The type Apache http host name matcher. */
 public class ApacheHttpHostNameMatcher implements HostNameMatcher {
   @Override
   public Boolean matches(X509Certificate x509Certificate, SNIHostName sniHostName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,71 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/** The interface Stub mappings. */
 public interface StubMappings {
 
+  /**
+   * Serve for serve event.
+   *
+   * @param request the request
+   * @return the serve event
+   */
   ServeEvent serveFor(ServeEvent request);
 
+  /**
+   * Add mapping.
+   *
+   * @param mapping the mapping
+   */
   void addMapping(StubMapping mapping);
 
+  /**
+   * Remove mapping.
+   *
+   * @param mapping the mapping
+   */
   void removeMapping(StubMapping mapping);
 
+  /**
+   * Edit mapping.
+   *
+   * @param stubMapping the stub mapping
+   */
   void editMapping(StubMapping stubMapping);
 
+  /** Reset. */
   void reset();
 
+  /** Reset scenarios. */
   void resetScenarios();
 
+  /**
+   * Gets all.
+   *
+   * @return the all
+   */
   List<StubMapping> getAll();
 
+  /**
+   * Get optional.
+   *
+   * @param id the id
+   * @return the optional
+   */
   Optional<StubMapping> get(UUID id);
 
+  /**
+   * Gets all scenarios.
+   *
+   * @return the all scenarios
+   */
   List<Scenario> getAllScenarios();
 
+  /**
+   * Find by metadata list.
+   *
+   * @param pattern the pattern
+   * @return the list
+   */
   List<StubMapping> findByMetadata(StringValuePattern pattern);
 }

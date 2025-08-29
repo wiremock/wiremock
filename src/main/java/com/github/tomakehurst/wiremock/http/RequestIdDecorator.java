@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/** The type Request id decorator. */
 public class RequestIdDecorator implements Request {
 
   private final Request request;
   private final UUID id;
 
+  /**
+   * Instantiates a new Request id decorator.
+   *
+   * @param request the request
+   * @param id the id
+   */
   public RequestIdDecorator(Request request, UUID id) {
     this.request = request;
     this.id = id;

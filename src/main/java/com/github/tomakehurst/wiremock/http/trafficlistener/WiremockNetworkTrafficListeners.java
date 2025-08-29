@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,38 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.nio.charset.Charset;
 
+/** The type Wiremock network traffic listeners. */
 public final class WiremockNetworkTrafficListeners {
   private static final ConsoleNotifier CONSOLE_NOTIFIER = new ConsoleNotifier(true);
 
   private WiremockNetworkTrafficListeners() {}
 
+  /**
+   * Create notifying wiremock network traffic listener.
+   *
+   * @param notifier the notifier
+   * @param charset the charset
+   * @return the wiremock network traffic listener
+   */
   public static WiremockNetworkTrafficListener createNotifying(Notifier notifier, Charset charset) {
     return new NotifyingWiremockNetworkTrafficListener(notifier, charset);
   }
 
+  /**
+   * Create console notifying wiremock network traffic listener.
+   *
+   * @return the wiremock network traffic listener
+   */
   public static WiremockNetworkTrafficListener createConsoleNotifying() {
     return new NotifyingWiremockNetworkTrafficListener(CONSOLE_NOTIFIER, UTF_8);
   }
 
+  /**
+   * Create console notifying wiremock network traffic listener.
+   *
+   * @param charset the charset
+   * @return the wiremock network traffic listener
+   */
   public static WiremockNetworkTrafficListener createConsoleNotifying(Charset charset) {
     return new NotifyingWiremockNetworkTrafficListener(CONSOLE_NOTIFIER, charset);
   }

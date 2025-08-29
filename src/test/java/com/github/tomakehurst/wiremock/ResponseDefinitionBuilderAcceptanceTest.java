@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -52,7 +52,7 @@ public class ResponseDefinitionBuilderAcceptanceTest {
     wm.stubFor(
         get(urlEqualTo("/todo/items"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withBody(
                         "Here is some kind of response body"
@@ -65,7 +65,7 @@ public class ResponseDefinitionBuilderAcceptanceTest {
     wm.stubFor(
         get(urlEqualTo("/todo/items"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withGzipDisabled(true)
                     .withBody(

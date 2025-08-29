@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ class HttpsAcceptanceTest {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/https-test"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     assertThat(contentFor(url("/https-test")), is("HTTPS content"));
   }
@@ -103,7 +103,7 @@ class HttpsAcceptanceTest {
 
               stubFor(
                   get(urlEqualTo("/https-test"))
-                      .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+                      .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
               wireMockServer.port();
               assertThat(contentFor(url("/https-test")), is("HTTPS content"));
@@ -124,7 +124,7 @@ class HttpsAcceptanceTest {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/connection/reset"))
-            .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
+            .willReturn(aresponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
     try {
       httpClient.execute(new HttpGet(url("/connection/reset"))).getEntity();
@@ -140,7 +140,7 @@ class HttpsAcceptanceTest {
   void emptyResponseFault() {
     startServerWithDefaultKeystore();
     stubFor(
-        get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
+        get(urlEqualTo("/empty/response")).willReturn(aresponse().withFault(Fault.EMPTY_RESPONSE)));
 
     getAndAssertUnderlyingExceptionInstanceClass(
         url("/empty/response"), NoHttpResponseException.class);
@@ -151,7 +151,7 @@ class HttpsAcceptanceTest {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/malformed/response"))
-            .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+            .willReturn(aresponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 
     getAndAssertUnderlyingExceptionInstanceClass(
         url("/malformed/response"), MalformedChunkCodingException.class);
@@ -162,7 +162,7 @@ class HttpsAcceptanceTest {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/random/data"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
+            .willReturn(aresponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
     getAndAssertUnderlyingExceptionInstanceClass(
         url("/random/data"), NoHttpResponseException.class);
@@ -185,7 +185,7 @@ class HttpsAcceptanceTest {
     startServerWithKeystore(testKeystorePath);
     stubFor(
         get(urlEqualTo("/https-test"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     assertThat(contentFor(url("/https-test")), is("HTTPS content"));
   }
@@ -197,7 +197,7 @@ class HttpsAcceptanceTest {
     startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
     stubFor(
         get(urlEqualTo("/https-test"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     assertThat(contentFor(url("/https-test")), is("HTTPS content"));
   }
@@ -209,7 +209,7 @@ class HttpsAcceptanceTest {
     startServerWithKeystore(keystorePath, "password", "anotherpassword");
     stubFor(
         get(urlEqualTo("/alt-password-https"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
   }
@@ -231,7 +231,7 @@ class HttpsAcceptanceTest {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/https-test"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     try {
       contentFor(url("/https-test")); // this lacks the required client certificate
@@ -255,7 +255,7 @@ class HttpsAcceptanceTest {
     startServerEnforcingClientCert(KEY_STORE_PATH, testTrustStorePath, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/https-test"))
-            .willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            .willReturn(aresponse().withStatus(200).withBody("HTTPS content")));
 
     assertThat(
         secureContentFor(url("/https-test"), testClientCertPath, TRUST_STORE_PASSWORD),
@@ -266,7 +266,7 @@ class HttpsAcceptanceTest {
   void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
-        get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/client-cert-proxy")).willReturn(aresponse().withStatus(200)));
 
     proxy =
         new WireMockServer(
@@ -278,7 +278,7 @@ class HttpsAcceptanceTest {
     proxy.stubFor(
         get(urlEqualTo("/client-cert-proxy"))
             .willReturn(
-                aResponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
+                aresponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
 
     HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy");
     HttpResponse response = httpClient.execute(get);
@@ -290,14 +290,14 @@ class HttpsAcceptanceTest {
       throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
-        get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aresponse().withStatus(200)));
 
     proxy = new WireMockServer(wireMockConfig().port(Options.DYNAMIC_PORT));
     proxy.start();
     proxy.stubFor(
         get(urlEqualTo("/client-cert-proxy-fail"))
             .willReturn(
-                aResponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
+                aresponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
 
     HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
     HttpResponse response = httpClient.execute(get);

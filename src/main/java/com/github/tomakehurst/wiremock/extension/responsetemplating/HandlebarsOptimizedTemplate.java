@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+/** The type Handlebars optimized template. */
 public class HandlebarsOptimizedTemplate {
 
   private final Template template;
@@ -32,6 +33,12 @@ public class HandlebarsOptimizedTemplate {
   private String templateContent;
   private String endContent;
 
+  /**
+   * Instantiates a new Handlebars optimized template.
+   *
+   * @param handlebars the handlebars
+   * @param content the content
+   */
   public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
     startContent = content;
     templateContent = "";
@@ -60,6 +67,12 @@ public class HandlebarsOptimizedTemplate {
     }
   }
 
+  /**
+   * Apply string.
+   *
+   * @param contextData the context data
+   * @return the string
+   */
   public String apply(Object contextData) {
     final RequestCache requestCache = RequestCache.getCurrent();
     Context context = Context.newBuilder(contextData).combine("requestCache", requestCache).build();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,17 +40,45 @@ import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
 
+/** The type Abstract stub mappings. */
 public abstract class AbstractStubMappings implements StubMappings {
 
+  /** The Store. */
   protected final StubMappingStore store;
+
+  /** The Scenarios. */
   protected final Scenarios scenarios;
+
+  /** The Custom matchers. */
   protected final Map<String, RequestMatcherExtension> customMatchers;
+
+  /** The Transformers. */
   protected final Map<String, ResponseDefinitionTransformer> transformers;
+
+  /** The V 2 transformers. */
   protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
+
+  /** The Files file source. */
   protected final FileSource filesFileSource;
+
+  /** The Stub lifecycle listeners. */
   protected final List<StubLifecycleListener> stubLifecycleListeners;
+
+  /** The Serve event listeners. */
   protected final Map<String, ServeEventListener> serveEventListeners;
 
+  /**
+   * Instantiates a new Abstract stub mappings.
+   *
+   * @param store the store
+   * @param scenarios the scenarios
+   * @param customMatchers the custom matchers
+   * @param transformers the transformers
+   * @param v2transformers the v 2 transformers
+   * @param filesBlobStore the files blob store
+   * @param stubLifecycleListeners the stub lifecycle listeners
+   * @param serveEventListeners the serve event listeners
+   */
   public AbstractStubMappings(
       StubMappingStore store,
       Scenarios scenarios,

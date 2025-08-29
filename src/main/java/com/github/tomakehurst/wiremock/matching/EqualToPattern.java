@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,17 @@ import static com.github.tomakehurst.wiremock.common.Strings.normalisedLevenshte
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
+/** The type Equal to pattern. */
 public class EqualToPattern extends StringValuePattern {
 
   private final Boolean caseInsensitive;
 
+  /**
+   * Instantiates a new Equal to pattern.
+   *
+   * @param testValue the test value
+   * @param caseInsensitive the case insensitive
+   */
   public EqualToPattern(
       @JsonProperty("equalTo") String testValue,
       @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
@@ -31,14 +38,29 @@ public class EqualToPattern extends StringValuePattern {
     this.caseInsensitive = caseInsensitive;
   }
 
+  /**
+   * Instantiates a new Equal to pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public EqualToPattern(String expectedValue) {
     this(expectedValue, null);
   }
 
+  /**
+   * Gets equal to.
+   *
+   * @return the equal to
+   */
   public String getEqualTo() {
     return expectedValue;
   }
 
+  /**
+   * Gets case insensitive.
+   *
+   * @return the case insensitive
+   */
   public Boolean getCaseInsensitive() {
     return caseInsensitive;
   }

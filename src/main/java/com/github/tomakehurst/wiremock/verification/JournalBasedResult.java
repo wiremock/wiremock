@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,32 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Journal based result. */
 public class JournalBasedResult {
+  /** The Request journal disabled. */
   protected final boolean requestJournalDisabled;
 
+  /**
+   * Instantiates a new Journal based result.
+   *
+   * @param requestJournalDisabled the request journal disabled
+   */
   public JournalBasedResult(
       @JsonProperty("requestJournalDisabled") boolean requestJournalDisabled) {
     this.requestJournalDisabled = requestJournalDisabled;
   }
 
+  /**
+   * Request journal is disabled boolean.
+   *
+   * @return the boolean
+   */
   @JsonProperty("requestJournalDisabled")
   public boolean requestJournalIsDisabled() {
     return requestJournalDisabled;
   }
 
+  /** Assert request journal enabled. */
   public void assertRequestJournalEnabled() {
     if (requestJournalDisabled) {
       throw new RequestJournalDisabledException();

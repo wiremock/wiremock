@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,37 @@ import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Objects;
 
+/** The type Key store source. */
 public abstract class KeyStoreSource implements Source<KeyStore> {
 
+  /** The Key store type. */
   protected final String keyStoreType;
+
+  /** The Key store password. */
   protected final char[] keyStorePassword;
 
+  /**
+   * Instantiates a new Key store source.
+   *
+   * @param keyStoreType the key store type
+   * @param keyStorePassword the key store password
+   */
   protected KeyStoreSource(String keyStoreType, char[] keyStorePassword) {
     this.keyStoreType = keyStoreType;
     this.keyStorePassword = keyStorePassword;
   }
 
+  /**
+   * Loads a KeyStore from an input stream.
+   *
+   * <p>This method attempts to create and load a {@link KeyStore} of the specified type using the
+   * provided password. The input stream used to read the KeyStore is created by {@link
+   * #createInputStream()}. The stream is properly closed after loading, even if an exception
+   * occurs.
+   *
+   * @return the loaded {@link KeyStore} instance
+   * @throws RuntimeException if any error occurs while loading the KeyStore
+   */
   public KeyStore load() {
     InputStream instream = null;
     try {
@@ -54,20 +75,39 @@ public abstract class KeyStoreSource implements Source<KeyStore> {
     }
   }
 
+  /**
+   * Create input stream input stream.
+   *
+   * @return the input stream
+   */
   protected abstract InputStream createInputStream();
 
+  /**
+   * Gets key store type.
+   *
+   * @return the key store type
+   */
   public String getKeyStoreType() {
     return keyStoreType;
   }
 
+  /**
+   * Gets key store password.
+   *
+   * @return the key store password
+   */
   public String getKeyStorePassword() {
     return new String(keyStorePassword);
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     KeyStoreSource that = (KeyStoreSource) o;
     return keyStoreType.equals(that.keyStoreType)
         && Arrays.equals(keyStorePassword, that.keyStorePassword);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(404));
 
     // Add a mapping and save it
-    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aresponse().withBody("Response to /some/url")));
     saveAllMappings();
 
     // Reset, clearing in-memory mappings
@@ -135,7 +135,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(404));
 
     // Add a mapping and save it
-    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aresponse().withBody("Response to /some/url")));
     saveAllMappings();
 
     // Save a second time
@@ -152,7 +152,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(404));
 
     // Add a mapping and save it
-    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aresponse().withBody("Response to /some/url")));
     saveAllMappings();
 
     // Reset to default to reload the just saved mappings, then save a second time

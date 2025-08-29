@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,29 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.net.ssl.*;
+import javax.net.ssl.ExtendedSSLSession;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.X509ExtendedKeyManager;
 
+/** The type Certificate generating x 509 extended key manager. */
 public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509ExtendedKeyManager {
 
   private final DynamicKeyStore dynamicKeyStore;
   private final HostNameMatcher hostNameMatcher;
   private final OnceOnlyNotifier notifier;
 
+  /**
+   * Instantiates a new Certificate generating x 509 extended key manager.
+   *
+   * @param keyManager the key manager
+   * @param dynamicKeyStore the dynamic key store
+   * @param hostNameMatcher the host name matcher
+   * @param notifier the notifier
+   */
   public CertificateGeneratingX509ExtendedKeyManager(
       X509ExtendedKeyManager keyManager,
       DynamicKeyStore dynamicKeyStore,
@@ -232,6 +247,11 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
   private static class OnceOnly {
     private final AtomicBoolean used = new AtomicBoolean(false);
 
+    /**
+     * Unused boolean.
+     *
+     * @return the boolean
+     */
     boolean unused() {
       return used.compareAndSet(false, true);
     }

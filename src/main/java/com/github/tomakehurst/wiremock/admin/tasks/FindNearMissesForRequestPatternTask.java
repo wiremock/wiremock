@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,16 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 
+/**
+ * An admin task to find the nearest-miss requests for a given request pattern.
+ *
+ * <p>This is useful for debugging requests that were not matched by any stub. This task handles the
+ * API request that takes a {@link RequestPattern} and returns a list of the most similar logged
+ * requests.
+ *
+ * @see FindNearMissesResult
+ * @see RequestPattern
+ */
 public class FindNearMissesForRequestPatternTask implements AdminTask {
 
   @Override

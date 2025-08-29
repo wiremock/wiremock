@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,19 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 
+/** The enum Date time unit. */
 public enum DateTimeUnit {
+  /** Seconds date time unit. */
   SECONDS(Calendar.SECOND),
+  /** Minutes date time unit. */
   MINUTES(Calendar.MINUTE),
+  /** Hours date time unit. */
   HOURS(Calendar.HOUR),
+  /** Days date time unit. */
   DAYS(Calendar.DAY_OF_MONTH),
+  /** Months date time unit. */
   MONTHS(Calendar.MONTH),
+  /** Years date time unit. */
   YEARS(Calendar.YEAR);
 
   private final int calendarField;
@@ -33,10 +40,11 @@ public enum DateTimeUnit {
     this.calendarField = calendarField;
   }
 
-  public int getCalendarField() {
-    return calendarField;
-  }
-
+  /**
+   * To temporal unit temporal unit.
+   *
+   * @return the temporal unit
+   */
   public TemporalUnit toTemporalUnit() {
     return ChronoUnit.valueOf(name());
   }

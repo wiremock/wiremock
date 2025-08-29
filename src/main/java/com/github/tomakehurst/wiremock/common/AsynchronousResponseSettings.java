@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Asynchronous response settings. */
 public class AsynchronousResponseSettings {
 
   private final boolean enabled;
   private final int threads;
 
+  /**
+   * Instantiates a new Asynchronous response settings.
+   *
+   * @param enabled the enabled
+   * @param threads the threads
+   */
   public AsynchronousResponseSettings(boolean enabled, int threads) {
     this.enabled = enabled;
     this.threads = threads;
   }
 
+  /**
+   * Is enabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean isEnabled() {
     return enabled;
   }
 
+  /**
+   * Gets threads.
+   *
+   * @return the threads
+   */
   public int getThreads() {
     return threads;
   }

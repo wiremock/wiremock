@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,35 @@ import com.github.tomakehurst.wiremock.http.Request;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Basic authenticator. */
 public class BasicAuthenticator implements Authenticator {
 
   private final List<BasicCredentials> credentials;
 
+  /**
+   * Instantiates a new Basic authenticator.
+   *
+   * @param credentials the credentials
+   */
   public BasicAuthenticator(List<BasicCredentials> credentials) {
     this.credentials = credentials;
   }
 
+  /**
+   * Instantiates a new Basic authenticator.
+   *
+   * @param credentials the credentials
+   */
   public BasicAuthenticator(BasicCredentials... credentials) {
     this.credentials = asList(credentials);
   }
 
+  /**
+   * Instantiates a new Basic authenticator.
+   *
+   * @param username the username
+   * @param password the password
+   */
   public BasicAuthenticator(String username, String password) {
     this(new BasicCredentials(username, password));
   }

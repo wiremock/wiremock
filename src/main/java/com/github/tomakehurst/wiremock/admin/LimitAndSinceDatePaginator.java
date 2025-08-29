@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A paginator for {@link ServeEvent} lists that filters by a "since" date and limits the result
+ * size.
+ *
+ * <p>This implementation selects events that occurred after the specified date and then applies a
+ * limit to the result set.
+ */
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
   private final List<ServeEvent> source;
   private final Integer limit;
   private final Date since;
 
+  /**
+   * Constructs a new LimitAndSinceDatePaginator.
+   *
+   * @param source The source list of serve events to paginate.
+   * @param limit The maximum number of items to return (can be null for no limit). Must be
+   *     non-negative if provided.
+   * @param since The date to filter events from; only events after this date will be included (can
+   *     be null).
+   */
   public LimitAndSinceDatePaginator(List<ServeEvent> source, Integer limit, Date since) {
     checkParameter(limit == null || limit >= 0, "limit must be 0 or greater");
     this.source = source;
@@ -39,6 +55,13 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
     this.since = since;
   }
 
+  /**
+   * Creates a new paginator by extracting 'limit' and 'since' from request query parameters.
+   *
+   * @param source The source list to paginate.
+   * @param request The incoming HTTP request.
+   * @return A new {@code LimitAndSinceDatePaginator} instance.
+   */
   public static LimitAndSinceDatePaginator fromRequest(List<ServeEvent> source, Request request) {
     return new LimitAndSinceDatePaginator(
         source, toInt(request.queryParameter("limit")), toDate(request.queryParameter("since")));

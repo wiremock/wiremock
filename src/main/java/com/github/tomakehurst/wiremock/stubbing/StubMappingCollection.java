@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,46 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Collections;
 import java.util.List;
 
+/** The type Stub mapping collection. */
 @JsonIgnoreProperties({"$schema", "meta"})
 public class StubMappingCollection extends StubMapping {
 
   private List<StubMapping> mappings;
 
+  /**
+   * Is multi boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isMulti() {
     return mappings != null;
   }
 
+  /**
+   * Gets mapping or mappings.
+   *
+   * @return the mapping or mappings
+   */
   @JsonIgnore
   public List<? extends StubMapping> getMappingOrMappings() {
     return isMulti() ? getMappings() : Collections.singletonList(this);
   }
 
+  /**
+   * Gets mappings.
+   *
+   * @return the mappings
+   */
   public List<StubMapping> getMappings() {
     return mappings;
   }
 
+  /**
+   * Sets mappings.
+   *
+   * @param mappings the mappings
+   */
   public void setMappings(List<StubMapping> mappings) {
     this.mappings = mappings;
   }

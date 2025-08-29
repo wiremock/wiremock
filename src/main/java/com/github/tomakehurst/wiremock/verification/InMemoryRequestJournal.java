@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,15 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.InMemoryRequestJournalStore;
 import java.util.Map;
 
+/** The type In memory request journal. */
 public class InMemoryRequestJournal extends StoreBackedRequestJournal {
 
+  /**
+   * Instantiates a new In memory request journal.
+   *
+   * @param maxEntries the max entries
+   * @param customMatchers the custom matchers
+   */
   public InMemoryRequestJournal(
       Integer maxEntries, Map<String, RequestMatcherExtension> customMatchers) {
     super(maxEntries, customMatchers, new InMemoryRequestJournalStore());

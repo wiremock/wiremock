@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.net.Socket;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLEngine;
 
+/** The type Trust everything strategy. */
 public class TrustEverythingStrategy implements TrustStrategy {
   @Override
   public boolean isTrusted(X509Certificate[] chain, String authType) {

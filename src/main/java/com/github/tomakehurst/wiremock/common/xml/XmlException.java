@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,34 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+/** The type Xml exception. */
 public class XmlException extends InvalidInputException {
 
+  /**
+   * Instantiates a new Xml exception.
+   *
+   * @param errors the errors
+   */
   protected XmlException(Errors errors) {
     super(errors);
   }
 
+  /**
+   * Instantiates a new Xml exception.
+   *
+   * @param cause the cause
+   * @param errors the errors
+   */
   protected XmlException(Throwable cause, Errors errors) {
     super(cause, errors);
   }
 
+  /**
+   * From sax exception xml exception.
+   *
+   * @param e the e
+   * @return the xml exception
+   */
   public static XmlException fromSaxException(SAXException e) {
     if (e instanceof SAXParseException) {
       SAXParseException spe = (SAXParseException) e;

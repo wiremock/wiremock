@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/** The type Near miss calculator. */
 public class NearMissCalculator {
 
+  /** The constant NEAR_MISS_COUNT. */
   public static final int NEAR_MISS_COUNT = 3;
 
+  /** The constant NEAR_MISS_ASCENDING_COMPARATOR. */
   public static final Comparator<NearMiss> NEAR_MISS_ASCENDING_COMPARATOR = Comparable::compareTo;
 
   private final StubMappings stubMappings;
@@ -38,11 +41,26 @@ public class NearMissCalculator {
   private final Scenarios scenarios;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
+  /**
+   * Instantiates a new Near miss calculator.
+   *
+   * @param stubMappings the stub mappings
+   * @param requestJournal the request journal
+   * @param scenarios the scenarios
+   */
   public NearMissCalculator(
       StubMappings stubMappings, RequestJournal requestJournal, Scenarios scenarios) {
     this(stubMappings, requestJournal, scenarios, Map.of());
   }
 
+  /**
+   * Instantiates a new Near miss calculator.
+   *
+   * @param stubMappings the stub mappings
+   * @param requestJournal the request journal
+   * @param scenarios the scenarios
+   * @param customMatchers the custom matchers
+   */
   public NearMissCalculator(
       StubMappings stubMappings,
       RequestJournal requestJournal,
@@ -54,6 +72,12 @@ public class NearMissCalculator {
     this.customMatchers = customMatchers;
   }
 
+  /**
+   * Find nearest to list.
+   *
+   * @param request the request
+   * @return the list
+   */
   public List<NearMiss> findNearestTo(final LoggedRequest request) {
     List<StubMapping> allMappings = stubMappings.getAll();
 
@@ -80,6 +104,12 @@ public class NearMissCalculator {
     return scenario != null ? scenario.getState() : null;
   }
 
+  /**
+   * Find nearest to list.
+   *
+   * @param requestPattern the request pattern
+   * @return the list
+   */
   public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {
     List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
     return sortAndTruncate(

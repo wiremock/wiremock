@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,28 @@ import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.Promise;
 
+/** The type Man in the middle ssl connect handler. */
 public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
 
   private final ServerConnector mitmProxyConnector;
 
+  /**
+   * Instantiates a new Man in the middle ssl connect handler.
+   *
+   * @param mitmProxyConnector the mitm proxy connector
+   */
   public ManInTheMiddleSslConnectHandler(ServerConnector mitmProxyConnector) {
     this.mitmProxyConnector = mitmProxyConnector;
   }
 
+  /**
+   * Connect to server.
+   *
+   * @param request the request
+   * @param ignoredHost the ignored host
+   * @param ignoredPort the ignored port
+   * @param promise the promise
+   */
   @Override
   protected void connectToServer(
       HttpServletRequest request,

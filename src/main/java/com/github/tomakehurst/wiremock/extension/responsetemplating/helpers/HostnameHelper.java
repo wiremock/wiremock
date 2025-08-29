@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import com.github.jknack.handlebars.Options;
 import java.net.InetAddress;
 
+/** The type Hostname helper. */
 public class HostnameHelper extends HandlebarsHelper<Object> {
 
   private static String HOSTNAME;
@@ -36,6 +37,13 @@ public class HostnameHelper extends HandlebarsHelper<Object> {
     }
   }
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   */
   @Override
   public Object apply(Object context, Options options) {
     return HOSTNAME;

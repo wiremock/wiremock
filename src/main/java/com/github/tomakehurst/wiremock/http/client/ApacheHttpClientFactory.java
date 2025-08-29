@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import java.util.List;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
+/** The type Apache http client factory. */
 public class ApacheHttpClientFactory implements HttpClientFactory {
 
   @Override

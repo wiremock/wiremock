@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,29 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.Request;
 
+/**
+ * The type Abstract transformer.
+ *
+ * @param <T> the type parameter
+ */
 public abstract class AbstractTransformer<T> implements Extension {
 
+  /**
+   * Transform t.
+   *
+   * @param request the request
+   * @param response the response
+   * @param files the files
+   * @param parameters the parameters
+   * @return the t
+   */
   public abstract T transform(Request request, T response, FileSource files, Parameters parameters);
 
+  /**
+   * Apply globally boolean.
+   *
+   * @return the boolean
+   */
   public boolean applyGlobally() {
     return true;
   }

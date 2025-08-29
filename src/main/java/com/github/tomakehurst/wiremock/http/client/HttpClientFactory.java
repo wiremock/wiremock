@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import java.util.List;
 
+/** The interface Http client factory. */
 public interface HttpClientFactory extends Extension {
 
   @Override
@@ -26,6 +27,15 @@ public interface HttpClientFactory extends Extension {
     return "http-client-factory";
   }
 
+  /**
+   * Build http client http client.
+   *
+   * @param options the options
+   * @param trustAllCertificates the trust all certificates
+   * @param trustedHosts the trusted hosts
+   * @param useSystemProperties the use system properties
+   * @return the http client
+   */
   HttpClient buildHttpClient(
       Options options,
       boolean trustAllCertificates,

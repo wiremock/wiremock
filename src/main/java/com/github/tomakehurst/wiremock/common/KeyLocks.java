@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/** The type Key locks. */
 public class KeyLocks {
 
   private final ConcurrentHashMap<String, LockWrapper> locks = new ConcurrentHashMap<>();
 
+  /**
+   * With lock t.
+   *
+   * @param <T> the type parameter
+   * @param key the key
+   * @param action the action
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T> T withLock(String key, Callable<T> action) {
     try {

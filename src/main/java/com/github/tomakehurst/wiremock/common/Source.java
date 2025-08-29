@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/**
+ * The interface Source.
+ *
+ * @param <T> the type parameter
+ */
 public interface Source<T> {
+  /**
+   * Load t.
+   *
+   * @return the t
+   */
   T load();
 
+  /**
+   * Save.
+   *
+   * @param item the item
+   */
   void save(T item);
 
+  /**
+   * Exists boolean.
+   *
+   * @return the boolean
+   */
   boolean exists();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -63,7 +63,7 @@ public class DeadlockTest {
 
     wireMockServer.stubFor(
         get(urlEqualTo("/timeout"))
-            .willReturn(aResponse().withFixedDelay(2 * READ_TIMEOUT).withBody("body1")));
+            .willReturn(aresponse().withFixedDelay(2 * READ_TIMEOUT).withBody("body1")));
 
     downloadContentAndMeasure("/timeout", null);
 
@@ -76,7 +76,7 @@ public class DeadlockTest {
   public void test2GetContent() throws IOException {
     System.out.println("test content start");
 
-    wireMockServer.stubFor(get(urlEqualTo("/content")).willReturn(aResponse().withBody("body2")));
+    wireMockServer.stubFor(get(urlEqualTo("/content")).willReturn(aresponse().withBody("body2")));
     System.out.println("test content stub");
 
     downloadContentAndMeasure("/content", "body2");

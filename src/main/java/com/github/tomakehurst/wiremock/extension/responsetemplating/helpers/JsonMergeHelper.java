@@ -28,9 +28,9 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
 
   @Override
   public String apply(Object baseJsonString, Options options) throws IOException {
-    if (!(baseJsonString instanceof String))
+    if (!(baseJsonString instanceof String)) {
       return handleError("Base JSON parameter must be a string");
-
+    }
     JsonNode baseJson;
     try {
       baseJson = Json.read((String) baseJsonString, JsonNode.class);
@@ -47,9 +47,9 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
     } else {
       jsonToMergeString = options.params.length > 0 ? options.params[0] : null;
     }
-    if (!(jsonToMergeString instanceof String))
+    if (!(jsonToMergeString instanceof String)) {
       return handleError("JSON to merge must be a string");
-
+    }
     JsonNode jsonToMerge;
     try {
       jsonToMerge = Json.read((String) jsonToMergeString, JsonNode.class);

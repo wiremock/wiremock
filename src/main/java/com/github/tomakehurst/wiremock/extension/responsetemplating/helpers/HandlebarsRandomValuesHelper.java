@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,17 @@ import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.UUID;
 
+/** The type Handlebars random values helper. */
 public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Void context, Options options) throws IOException {
     int length = options.hash("length", 36);

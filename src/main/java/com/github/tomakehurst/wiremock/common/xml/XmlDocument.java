@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,37 +27,56 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xmlunit.util.Convert;
 
+/** The type Xml document. */
 public class XmlDocument extends XmlDomNode {
 
   private final Document document;
 
+  /**
+   * Instantiates a new Xml document.
+   *
+   * @param document the document
+   */
   public XmlDocument(Document document) {
     super(document);
     this.document = document;
   }
 
-  public ListOrSingle<XmlNode> findNodes(String xPathExpression) {
-    return findNodes(xPathExpression, null);
+  /**
+   * Find nodes list or single.
+   *
+   * @param xpathexpression the x path expression
+   * @return the list or single
+   */
+  public ListOrSingle<XmlNode> findNodes(String xpathexpression) {
+    return findNodes(xpathexpression, null);
   }
 
-  public ListOrSingle<XmlNode> findNodes(String xPathExpression, Map<String, String> namespaces) {
+  /**
+   * Find nodes list or single.
+   *
+   * @param xpathexpression the x path expression
+   * @param namespaces the namespaces
+   * @return the list or single
+   */
+  public ListOrSingle<XmlNode> findNodes(String xpathexpression, Map<String, String> namespaces) {
     try {
       final XPath xPath = XPATH_CACHE.get();
       xPath.reset();
 
-      XPathEvaluationResult<?> xPathEvaluationResult;
+      XPathEvaluationResult<?> xpathevaluationresult;
       if (namespaces != null) {
         Map<String, String> fullNamespaces = addStandardNamespaces(namespaces);
         NamespaceContext namespaceContext = Convert.toNamespaceContext(fullNamespaces);
         xPath.setNamespaceContext(namespaceContext);
-        xPathEvaluationResult =
+        xpathevaluationresult =
             xPath.evaluateExpression(
-                xPathExpression, Convert.toInputSource(new DOMSource(document)));
+                xpathexpression, Convert.toInputSource(new DOMSource(document)));
       } else {
-        xPathEvaluationResult = xPath.evaluateExpression(xPathExpression, document);
+        xpathevaluationresult = xPath.evaluateExpression(xpathexpression, document);
       }
 
-      return toListOrSingle(xPathEvaluationResult);
+      return toListOrSingle(xpathevaluationresult);
     } catch (XPathExpressionException e) {
       throw XPathException.fromXPathException(e);
     }

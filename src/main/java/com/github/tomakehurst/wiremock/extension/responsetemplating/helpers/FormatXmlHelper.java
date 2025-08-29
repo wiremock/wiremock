@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  * Handlebars helper to allow xml to be formatted :
  *
  * <p>```handlebars {{#formatXml format='pretty'}} // Badly formatted XML {{/formatXml}} ```
- * `format` can be `pretty` or `compact` and defaults to `pretty`
+ * `format` can be `pretty` or `compact` and defaults to `pretty`.
  */
 public class FormatXmlHelper extends AbstractFormattingHelper {
 
@@ -64,6 +64,7 @@ public class FormatXmlHelper extends AbstractFormattingHelper {
 
   private final TransformerFactory transformerFactory;
 
+  /** Instantiates a new Format xml helper. */
   public FormatXmlHelper() {
     TransformerFactory factory = TransformerFactory.newDefaultInstance();
     factory.setAttribute("indent-number", 2);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,20 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 
+/** The type Request part template model. */
 public class RequestPartTemplateModel {
 
   private final String name;
   private final Map<String, ListOrSingle<String>> headers;
   private final Body body;
 
+  /**
+   * Instantiates a new Request part template model.
+   *
+   * @param name the name
+   * @param headers the headers
+   * @param body the body
+   */
   public RequestPartTemplateModel(
       String name, Map<String, ListOrSingle<String>> headers, Body body) {
     this.name = name;
@@ -35,22 +43,47 @@ public class RequestPartTemplateModel {
     this.body = body;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public Map<String, ListOrSingle<String>> getHeaders() {
     return headers;
   }
 
+  /**
+   * Gets body.
+   *
+   * @return the body
+   */
   public String getBody() {
     return body.asString();
   }
 
+  /**
+   * Gets body as base 64.
+   *
+   * @return the body as base 64
+   */
   public String getBodyAsBase64() {
     return body.asBase64();
   }
 
+  /**
+   * Is binary boolean.
+   *
+   * @return the boolean
+   */
   public boolean isBinary() {
     return body.isBinary();
   }

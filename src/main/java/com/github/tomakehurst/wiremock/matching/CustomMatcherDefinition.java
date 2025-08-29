@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,38 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 
+/** The type Custom matcher definition. */
 public class CustomMatcherDefinition {
 
   private final String name;
   private final Parameters parameters;
 
+  /**
+   * Instantiates a new Custom matcher definition.
+   *
+   * @param name the name
+   * @param parameters the parameters
+   */
   public CustomMatcherDefinition(
       @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
     this.name = name;
     this.parameters = parameters;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets parameters.
+   *
+   * @return the parameters
+   */
   public Parameters getParameters() {
     return parameters;
   }

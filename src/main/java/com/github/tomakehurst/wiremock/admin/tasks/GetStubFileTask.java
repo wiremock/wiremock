@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,23 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Optional;
 
+/**
+ * An admin task to retrieve a file from the `__files` directory.
+ *
+ * <p>This task handles the API request to download a specific file from the file blob store by its
+ * path.
+ *
+ * @see Stores
+ */
 public class GetStubFileTask implements AdminTask {
 
   private final Stores stores;
 
+  /**
+   * Constructs a new GetStubFileTask.
+   *
+   * @param stores The stores instance for accessing the file system.
+   */
   public GetStubFileTask(Stores stores) {
     this.stores = stores;
   }

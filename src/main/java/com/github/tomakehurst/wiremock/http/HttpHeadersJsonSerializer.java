@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,17 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
+/** The type Http headers json serializer. */
 public class HttpHeadersJsonSerializer extends JsonSerializer<HttpHeaders> {
 
+  /**
+   * Serialize.
+   *
+   * @param headers the headers
+   * @param jgen the jgen
+   * @param provider the provider
+   * @throws IOException the io exception
+   */
   @Override
   public void serialize(HttpHeaders headers, JsonGenerator jgen, SerializerProvider provider)
       throws IOException {

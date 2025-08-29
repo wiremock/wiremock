@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,32 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.File;
 import java.net.URI;
 
+/** The type Text file. */
 public class TextFile extends BinaryFile {
 
+  /**
+   * Instantiates a new Text file.
+   *
+   * @param uri the uri
+   */
   public TextFile(URI uri) {
     super(uri);
   }
 
+  /**
+   * Read contents as string string.
+   *
+   * @return the string
+   */
   public String readContentsAsString() {
     return new String(super.readContents(), UTF_8);
   }
 
+  /**
+   * Gets path.
+   *
+   * @return the path
+   */
   public String getPath() {
     return new File(getUri().getSchemeSpecificPart()).getPath();
   }

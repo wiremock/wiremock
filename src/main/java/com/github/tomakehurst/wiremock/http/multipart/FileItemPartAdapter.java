@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http.multipart;
 
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.Request;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,10 +28,16 @@ import java.util.function.Function;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemHeaders;
 
+/** The type File item part adapter. */
 public class FileItemPartAdapter implements Request.Part {
 
   private final FileItem fileItem;
 
+  /**
+   * Instantiates a new File item part adapter.
+   *
+   * @param fileItem the file item
+   */
   public FileItemPartAdapter(FileItem fileItem) {
     this.fileItem = fileItem;
   }
@@ -68,5 +78,6 @@ public class FileItemPartAdapter implements Request.Part {
     return Body.ofBinaryOrText(fileItem.get(), new ContentTypeHeader(fileItem.getContentType()));
   }
 
+  /** The constant TO_PARTS. */
   public static final Function<FileItem, Request.Part> TO_PARTS = FileItemPartAdapter::new;
 }

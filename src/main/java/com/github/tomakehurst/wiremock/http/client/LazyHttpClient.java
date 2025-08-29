@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,16 @@ import com.github.tomakehurst.wiremock.http.Response;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+/** The type Lazy http client. */
 public class LazyHttpClient implements HttpClient {
 
   private final Lazy<HttpClient> httpClientLazy;
 
+  /**
+   * Instantiates a new Lazy http client.
+   *
+   * @param httpClientSupplier the http client supplier
+   */
   public LazyHttpClient(Supplier<HttpClient> httpClientSupplier) {
     this.httpClientLazy = Lazy.lazy(httpClientSupplier);
   }

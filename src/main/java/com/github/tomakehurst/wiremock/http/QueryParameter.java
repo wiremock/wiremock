@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,38 @@ import com.fasterxml.jackson.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
+/** The type Query parameter. */
 public class QueryParameter extends MultiValue {
 
+  /**
+   * Instantiates a new Query parameter.
+   *
+   * @param key the key
+   * @param values the values
+   */
   @JsonCreator
   public QueryParameter(
       @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
     super(key, values);
   }
 
+  /**
+   * Query param query parameter.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the query parameter
+   */
   public static QueryParameter queryParam(String key, String... values) {
     return new QueryParameter(key, asList(values));
   }
 
+  /**
+   * Absent query parameter.
+   *
+   * @param key the key
+   * @return the query parameter
+   */
   public static QueryParameter absent(String key) {
     return new QueryParameter(key, Collections.emptyList());
   }

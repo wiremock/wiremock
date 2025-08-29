@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class MultithreadConfigurationInheritanceTest {
   public void verifyConfigurationInherited() {
     // Make a call to the wiremock server. If this doesn't call to 8082 this will fail
     // with an exception
-    stubFor(any(urlEqualTo("/foo/bar")).willReturn(aResponse().withStatus(200)));
+    stubFor(any(urlEqualTo("/foo/bar")).willReturn(aresponse().withStatus(200)));
 
     client.get("/foo/bar");
 

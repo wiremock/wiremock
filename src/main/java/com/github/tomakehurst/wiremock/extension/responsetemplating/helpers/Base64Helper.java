@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,17 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
 
+/** The type Base 64 helper. */
 public class Base64Helper implements Helper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Object context, Options options) throws IOException {
     String value =

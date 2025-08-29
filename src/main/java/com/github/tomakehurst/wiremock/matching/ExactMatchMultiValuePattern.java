@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,24 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
 
+/** The type Exact match multi value pattern. */
 @JsonDeserialize(as = ExactMatchMultiValuePattern.class)
 public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
+  /** The constant JSON_KEY. */
   public static final String JSON_KEY = "hasExactly";
+
+  /** The constant HAS_EXACTLY_OPERATOR. */
   public static final String HAS_EXACTLY_OPERATOR = " exactly ";
 
   @JsonProperty(JSON_KEY)
   private List<StringValuePattern> stringValuePatterns;
 
+  /**
+   * Instantiates a new Exact match multi value pattern.
+   *
+   * @param valuePatterns the value patterns
+   */
   @JsonCreator
   public ExactMatchMultiValuePattern(
       @JsonProperty(JSON_KEY) final List<StringValuePattern> valuePatterns) {

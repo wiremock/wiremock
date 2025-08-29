@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.amultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
@@ -24,7 +24,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonSchema;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.not;
 import static com.github.tomakehurst.wiremock.client.WireMock.notContaining;
 import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
@@ -47,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -403,12 +403,12 @@ class RequestPatternTest {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
-                aMultipart()
+                amultipart()
                     .withName("part-1")
                     .withHeader("Content-Type", containing("text/plain"))
                     .withBody(equalTo("body part value")))
             .withAnyRequestBodyPart(
-                aMultipart()
+                amultipart()
                     .withName("part-2")
                     .withHeader("Content-Type", containing("application/octet-stream"))
                     .withBody(containing("other body")))
@@ -437,7 +437,7 @@ class RequestPatternTest {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
-                aMultipart().withName("part-2").withBody(containing("non existing part")))
+                amultipart().withName("part-2").withBody(containing("non existing part")))
             .build();
 
     MatchResult matchResult =
@@ -460,7 +460,7 @@ class RequestPatternTest {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
-                aMultipart()
+                amultipart()
                     .withName("part-1")
                     .withHeader("Content-Type", containing("application/json")))
             .build();
@@ -488,7 +488,7 @@ class RequestPatternTest {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withAllRequestBodyParts(
-                aMultipart()
+                amultipart()
                     .withHeader("Content-Type", containing("text/plain"))
                     .withBody(containing("body value")))
             .build();
@@ -667,7 +667,7 @@ class RequestPatternTest {
             .withRequestBody(equalToJson("{ \"thing\": 1 }"))
             .withRequestBody(matchingJsonPath("@.*"))
             .withRequestBody(equalToXml("<thing />"))
-            .withRequestBody(matchingXPath("//thing"))
+            .withRequestBody(WireMock.matchingXpath("//thing"))
             .withRequestBody(containing("thin"))
             .withRequestBody(notContaining("stuff"))
             .withRequestBody(not(containing("thing")))

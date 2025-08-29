@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,11 +30,11 @@ import org.junit.jupiter.api.Test;
 
 public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
-  private HandlebarsXPathHelper helper;
+  private Handlebarsxpathhelper helper;
 
   @BeforeEach
   public void init() {
-    helper = new HandlebarsXPathHelper();
+    helper = new Handlebarsxpathhelper();
   }
 
   @Test
@@ -43,7 +43,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
-            aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>"));
+            aresponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
@@ -54,7 +54,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
-            aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
+            aresponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
 
     assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
   }
@@ -160,7 +160,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <thing>Two</thing>\n"
                         + "    <thing>Three</thing>\n"
                         + "</stuff>"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}"));
 
@@ -180,7 +180,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <thing id=\"2\">Two</thing>\n"
                         + "    <thing id=\"3\">Three</thing>\n"
                         + "</stuff>"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}"));
 
@@ -200,7 +200,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <th:thing>Two</th:thing>\n"
                         + "    <th:thing>Three</th:thing>\n"
                         + "</stuff>"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}"));
 
@@ -220,7 +220,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <th:thing>Two</th:thing>\n"
                         + "    <th:thing>Three</th:thing>\n"
                         + "</stuff>"),
-            aResponse().withBody("{{{xPath request.body '/stuff'}}}"));
+            aresponse().withBody("{{{xPath request.body '/stuff'}}}"));
 
     assertThat(
         responseDefinition.getBody(),
@@ -245,7 +245,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <two>2</two>\n"
                         + "    <three>3</three>\n"
                         + "</stuff>"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}"));
 
@@ -258,7 +258,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().body("<one>\n" + "    <two>value</two>\n" + "</one>"),
-            aResponse().withBody("{{xPath request.body 'local-name(/*/*[1])'}}"));
+            aresponse().withBody("{{xPath request.body 'local-name(/*/*[1])'}}"));
 
     assertThat(responseDefinition.getBody(), is("two"));
   }
@@ -276,7 +276,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <three>value</three>\n"
                         + "    <four>value</four>\n"
                         + "</wrap>"),
-            aResponse().withBody("{{xPath request.body 'count(/wrap/*)'}}"));
+            aresponse().withBody("{{xPath request.body 'count(/wrap/*)'}}"));
 
     assertThat(responseDefinition.getBody(), is("4"));
   }

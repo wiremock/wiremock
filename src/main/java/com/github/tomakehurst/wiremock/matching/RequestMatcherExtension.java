@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 
+/** The type Request matcher extension. */
 public abstract class RequestMatcherExtension extends RequestMatcher implements Extension {
 
   @Override
@@ -29,6 +30,13 @@ public abstract class RequestMatcherExtension extends RequestMatcher implements 
     return match(request, Parameters.empty());
   }
 
+  /**
+   * Match match result.
+   *
+   * @param request the request
+   * @param parameters the parameters
+   * @return the match result
+   */
   public abstract MatchResult match(Request request, Parameters parameters);
 
   @Override
@@ -36,6 +44,7 @@ public abstract class RequestMatcherExtension extends RequestMatcher implements 
     return "inline";
   }
 
+  /** The constant ALWAYS. */
   public static final RequestMatcherExtension ALWAYS =
       new RequestMatcherExtension() {
         @Override
@@ -44,6 +53,7 @@ public abstract class RequestMatcherExtension extends RequestMatcher implements 
         }
       };
 
+  /** The constant NEVER. */
   public static final RequestMatcherExtension NEVER =
       new RequestMatcherExtension() {
         @Override

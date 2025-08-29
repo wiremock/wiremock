@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+/** The interface Fault injector. */
 public interface FaultInjector {
 
+  /** Connection reset by peer. */
   void connectionResetByPeer();
 
+  /** Empty response and close connection. */
   void emptyResponseAndCloseConnection();
 
+  /** Malformed response chunk. */
   void malformedResponseChunk();
 
+  /** Random data and close connection. */
   void randomDataAndCloseConnection();
 }

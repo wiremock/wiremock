@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.wiremock.annotations.Beta;
 
+/** The type Blob store file source. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class BlobStoreFileSource implements FileSource {
 
   private final BlobStore blobStore;
 
+  /**
+   * Instantiates a new Blob store file source.
+   *
+   * @param blobStore the blob store
+   */
   public BlobStoreFileSource(BlobStore blobStore) {
     this.blobStore = blobStore;
   }

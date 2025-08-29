@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,17 @@ import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
 import java.util.Objects;
 
+/** The type Single match multi value pattern. */
 @JsonDeserialize(as = SingleMatchMultiValuePattern.class)
 public class SingleMatchMultiValuePattern extends MultiValuePattern {
 
   private final StringValuePattern valuePattern;
 
+  /**
+   * Instantiates a new Single match multi value pattern.
+   *
+   * @param valuePattern the value pattern
+   */
   @JsonCreator
   public SingleMatchMultiValuePattern(StringValuePattern valuePattern) {
     this.valuePattern = valuePattern;
@@ -40,6 +46,11 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
     return getBestMatch(valuePattern, values);
   }
 
+  /**
+   * Gets value pattern.
+   *
+   * @return the value pattern
+   */
   @JsonValue
   public StringValuePattern getValuePattern() {
     return valuePattern;

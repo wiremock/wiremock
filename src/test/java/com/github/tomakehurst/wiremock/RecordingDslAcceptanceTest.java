@@ -280,7 +280,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     targetService.stubFor(
         get("/gzipped-response")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("Content-Encoding", "gzip")
                     .withHeader("Content-Type", "text/plain")
                     .withBody(gzippedBody)));
@@ -300,7 +300,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     targetService.stubFor(
         get("/gzipped-response")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("Content-Encoding", "gzip")
                     .withHeader("Content-Type", APPLICATION_OCTET_STREAM.getMimeType())
                     .withBody(gzippedBody)));
@@ -317,7 +317,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void defaultsToWritingBinaryResponseFilesOfAnySize() {
     targetService.stubFor(
-        get("/myimage.png").willReturn(aResponse().withBase64Body(IMAGE_CONTENT_BASE64)));
+        get("/myimage.png").willReturn(aresponse().withBase64Body(IMAGE_CONTENT_BASE64)));
 
     proxyingService.startRecording(recordSpec().forTarget(targetBaseUrl));
 
@@ -337,7 +337,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     targetService.stubFor(
         get("/large.txt")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader(CONTENT_TYPE, "text/plain")
                     .withBody(rightPad("", 10241, 'a'))));
 
@@ -359,7 +359,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     targetService.stubFor(
         get("/small.txt")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader(CONTENT_TYPE, "text/plain")
                     .withBody(rightPad("", 10239, 'a'))));
 
@@ -456,7 +456,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   void canDetermineFileExtensionWhenRequestContainsQueryParameters() {
     targetService.stubFor(
         get(urlPathEqualTo("/myimage.png"))
-            .willReturn(aResponse().withBase64Body(IMAGE_CONTENT_BASE64)));
+            .willReturn(aresponse().withBase64Body(IMAGE_CONTENT_BASE64)));
 
     proxyingService.startRecording(recordSpec().forTarget(targetBaseUrl));
 

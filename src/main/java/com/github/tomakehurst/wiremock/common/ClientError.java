@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,38 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 
+/** The type Client error. */
 public class ClientError extends RuntimeException {
 
   private final Errors errors;
 
+  /**
+   * Instantiates a new Client error.
+   *
+   * @param errors the errors
+   */
   public ClientError(Errors errors) {
     super(Json.write(errors));
     this.errors = errors;
   }
 
+  /**
+   * Instantiates a new Client error.
+   *
+   * @param cause the cause
+   * @param errors the errors
+   */
   protected ClientError(Throwable cause, Errors errors) {
     super(Json.write(errors), cause);
     this.errors = errors;
   }
 
+  /**
+   * From errors client error.
+   *
+   * @param errors the errors
+   * @return the client error
+   */
   public static ClientError fromErrors(Errors errors) {
     Integer errorCode = errors.first().getCode();
     switch (errorCode) {
@@ -45,6 +63,11 @@ public class ClientError extends RuntimeException {
     }
   }
 
+  /**
+   * Gets errors.
+   *
+   * @return the errors
+   */
   public Errors getErrors() {
     return errors;
   }

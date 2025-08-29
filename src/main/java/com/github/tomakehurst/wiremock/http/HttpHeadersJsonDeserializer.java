@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/** The type Http headers json deserializer. */
 public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
 
+  /**
+   * Deserialize http headers.
+   *
+   * @param parser the parser
+   * @param context the context
+   * @return the http headers
+   * @throws IOException the io exception
+   */
   @Override
   public HttpHeaders deserialize(JsonParser parser, DeserializationContext context)
       throws IOException {
@@ -53,6 +62,13 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
     }
   }
 
+  /**
+   * All iterable.
+   *
+   * @param <T> the type parameter
+   * @param underlyingIterator the underlying iterator
+   * @return the iterable
+   */
   public static <T> Iterable<T> all(final Iterator<T> underlyingIterator) {
     return () -> underlyingIterator;
   }

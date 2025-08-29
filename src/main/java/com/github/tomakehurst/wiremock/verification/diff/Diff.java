@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/** The type Diff. */
 public class Diff {
 
   private final String stubMappingName;
@@ -70,6 +71,12 @@ public class Diff {
   private final String scenarioState;
   private final String expectedScenarioState;
 
+  /**
+   * Instantiates a new Diff.
+   *
+   * @param expected the expected
+   * @param actual the actual
+   */
   public Diff(RequestPattern expected, Request actual) {
     this.requestPattern = expected;
     this.request = actual;
@@ -79,10 +86,23 @@ public class Diff {
     this.expectedScenarioState = null;
   }
 
+  /**
+   * Instantiates a new Diff.
+   *
+   * @param expected the expected
+   * @param actual the actual
+   */
   public Diff(StubMapping expected, Request actual) {
     this(expected, actual, null);
   }
 
+  /**
+   * Instantiates a new Diff.
+   *
+   * @param expected the expected
+   * @param actual the actual
+   * @param scenarioState the scenario state
+   */
   public Diff(StubMapping expected, Request actual, String scenarioState) {
     this.requestPattern = expected.getRequest();
     this.request = actual;
@@ -97,10 +117,21 @@ public class Diff {
     return new JUnitStyleDiffRenderer().render(this);
   }
 
+  /**
+   * Gets lines.
+   *
+   * @return the lines
+   */
   public List<DiffLine<?>> getLines() {
     return getLines(Collections.emptyMap());
   }
 
+  /**
+   * Gets lines.
+   *
+   * @param customMatcherExtensions the custom matcher extensions
+   * @return the lines
+   */
   public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
     List<DiffLine<?>> diffLineList = new LinkedList<>();
 
@@ -508,6 +539,11 @@ public class Diff {
     }
   }
 
+  /**
+   * Gets stub mapping name.
+   *
+   * @return the stub mapping name
+   */
   public String getStubMappingName() {
     return stubMappingName;
   }

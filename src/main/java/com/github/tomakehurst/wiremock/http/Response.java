@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,16 @@ import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.common.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+/** The type Response. */
 public class Response {
 
   private final int status;
@@ -38,6 +43,11 @@ public class Response {
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String protocol;
 
+  /**
+   * Not configured response.
+   *
+   * @return the response
+   */
   public static Response notConfigured() {
     return new Response(
         HTTP_NOT_FOUND,
@@ -52,6 +62,11 @@ public class Response {
         null);
   }
 
+  /**
+   * Response builder.
+   *
+   * @return the builder
+   */
   public static Builder response() {
     return new Builder();
   }
@@ -79,18 +94,39 @@ public class Response {
     this.protocol = protocol;
   }
 
+  /**
+   * Gets status.
+   *
+   * @return the status
+   */
   public int getStatus() {
     return status;
   }
 
+  /**
+   * Gets status message.
+   *
+   * @return the status message
+   */
   public String getStatusMessage() {
     return statusMessage;
   }
 
+  /**
+   * Get body byte [ ].
+   *
+   * @return the byte [ ]
+   */
   public byte[] getBody() {
     return getBody(UNLIMITED);
   }
 
+  /**
+   * Get body byte [ ].
+   *
+   * @param sizeLimit the size limit
+   * @return the byte [ ]
+   */
   public byte[] getBody(Limit sizeLimit) {
     return Exceptions.uncheck(() -> getBytesFromStream(bodyStreamSource, sizeLimit), byte[].class);
   }
@@ -108,43 +144,93 @@ public class Response {
     }
   }
 
+  /**
+   * Gets body as string.
+   *
+   * @return the body as string
+   */
   public String getBodyAsString() {
     return Strings.stringFromBytes(getBody(), headers.getContentTypeHeader().charset());
   }
 
+  /**
+   * Gets body stream.
+   *
+   * @return the body stream
+   */
   public InputStream getBodyStream() {
     return bodyStreamSource == null ? null : bodyStreamSource.getStream();
   }
 
+  /**
+   * Has inline body boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasInlineBody() {
     return StreamSources.ByteArrayInputStreamSource.class.isAssignableFrom(
         bodyStreamSource.getClass());
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public HttpHeaders getHeaders() {
     return headers;
   }
 
+  /**
+   * Gets fault.
+   *
+   * @return the fault
+   */
   public Fault getFault() {
     return fault;
   }
 
+  /**
+   * Gets initial delay.
+   *
+   * @return the initial delay
+   */
   public long getInitialDelay() {
     return initialDelay;
   }
 
+  /**
+   * Gets chunked dribble delay.
+   *
+   * @return the chunked dribble delay
+   */
   public ChunkedDribbleDelay getChunkedDribbleDelay() {
     return chunkedDribbleDelay;
   }
 
+  /**
+   * Should add chunked dribble delay boolean.
+   *
+   * @return the boolean
+   */
   public boolean shouldAddChunkedDribbleDelay() {
     return chunkedDribbleDelay != null;
   }
 
+  /**
+   * Was configured boolean.
+   *
+   * @return the boolean
+   */
   public boolean wasConfigured() {
     return configured;
   }
 
+  /**
+   * Is from proxy boolean.
+   *
+   * @return the boolean
+   */
   public boolean isFromProxy() {
     return fromProxy;
   }
@@ -154,6 +240,7 @@ public class Response {
     return protocol + " " + status + "\n" + headers;
   }
 
+  /** The type Builder. */
   public static class Builder {
     private int status = HTTP_OK;
     private String statusMessage;
@@ -168,6 +255,12 @@ public class Response {
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String protocol;
 
+    /**
+     * Like builder.
+     *
+     * @param response the response
+     * @return the builder
+     */
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
       responseBuilder.status = response.getStatus();
@@ -182,20 +275,43 @@ public class Response {
       return responseBuilder;
     }
 
+    /**
+     * But builder.
+     *
+     * @return the builder
+     */
     public Builder but() {
       return this;
     }
 
+    /**
+     * Status builder.
+     *
+     * @param status the status
+     * @return the builder
+     */
     public Builder status(int status) {
       this.status = status;
       return this;
     }
 
+    /**
+     * Status message builder.
+     *
+     * @param statusMessage the status message
+     * @return the builder
+     */
     public Builder statusMessage(String statusMessage) {
       this.statusMessage = statusMessage;
       return this;
     }
 
+    /**
+     * Body builder.
+     *
+     * @param body the body
+     * @return the builder
+     */
     public Builder body(byte[] body) {
       this.bodyBytes = body;
       this.bodyString = null;
@@ -203,6 +319,12 @@ public class Response {
       return this;
     }
 
+    /**
+     * Body builder.
+     *
+     * @param body the body
+     * @return the builder
+     */
     public Builder body(String body) {
       this.bodyBytes = null;
       this.bodyString = body;
@@ -210,6 +332,12 @@ public class Response {
       return this;
     }
 
+    /**
+     * Body builder.
+     *
+     * @param bodySource the body source
+     * @return the builder
+     */
     public Builder body(InputStreamSource bodySource) {
       this.bodyBytes = null;
       this.bodyString = null;
@@ -217,21 +345,48 @@ public class Response {
       return this;
     }
 
+    /**
+     * Headers builder.
+     *
+     * @param headers the headers
+     * @return the builder
+     */
     public Builder headers(HttpHeaders headers) {
       this.headers = headers == null ? noHeaders() : headers;
       return this;
     }
 
+    /**
+     * Configured builder.
+     *
+     * @param configured the configured
+     * @return the builder
+     */
     public Builder configured(boolean configured) {
       this.configured = configured;
       return this;
     }
 
+    /**
+     * Fault builder.
+     *
+     * @param fault the fault
+     * @return the builder
+     */
     public Builder fault(Fault fault) {
       this.fault = fault;
       return this;
     }
 
+    /**
+     * Configure delay builder.
+     *
+     * @param globalFixedDelay the global fixed delay
+     * @param globalDelayDistribution the global delay distribution
+     * @param fixedDelay the fixed delay
+     * @param delayDistribution the delay distribution
+     * @return the builder
+     */
     public Builder configureDelay(
         Integer globalFixedDelay,
         DelayDistribution globalDelayDistribution,
@@ -270,21 +425,44 @@ public class Response {
       }
     }
 
+    /**
+     * Increment initial delay builder.
+     *
+     * @param amountMillis the amount millis
+     * @return the builder
+     */
     public Builder incrementInitialDelay(long amountMillis) {
       this.initialDelay += amountMillis;
       return this;
     }
 
+    /**
+     * Chunked dribble delay builder.
+     *
+     * @param chunkedDribbleDelay the chunked dribble delay
+     * @return the builder
+     */
     public Builder chunkedDribbleDelay(ChunkedDribbleDelay chunkedDribbleDelay) {
       this.chunkedDribbleDelay = chunkedDribbleDelay;
       return this;
     }
 
+    /**
+     * From proxy builder.
+     *
+     * @param fromProxy the from proxy
+     * @return the builder
+     */
     public Builder fromProxy(boolean fromProxy) {
       this.fromProxy = fromProxy;
       return this;
     }
 
+    /**
+     * Build response.
+     *
+     * @return the response
+     */
     public Response build() {
       InputStreamSource bodyStream;
       if (bodyBytes != null) {
@@ -310,6 +488,12 @@ public class Response {
           protocol);
     }
 
+    /**
+     * Protocol builder.
+     *
+     * @param protocol the protocol
+     * @return the builder
+     */
     public Builder protocol(final String protocol) {
       this.protocol = protocol;
       return this;

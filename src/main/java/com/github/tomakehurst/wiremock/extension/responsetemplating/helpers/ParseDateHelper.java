@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,17 @@ import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/** The type Parse date helper. */
 public class ParseDateHelper extends HandlebarsHelper<String> {
 
+  /**
+   * Apply object.
+   *
+   * @param dateTimeString the date time string
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(String dateTimeString, Options options) throws IOException {
     String format = options.hash("format", null);

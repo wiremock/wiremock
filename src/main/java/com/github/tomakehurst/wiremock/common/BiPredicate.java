@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-/** */
+/**
+ * The interface Bi predicate.
+ *
+ * @param <T> the type parameter
+ * @param <U> the type parameter
+ */
 public interface BiPredicate<T, U> {
 
+  /**
+   * Test boolean.
+   *
+   * @param first the first
+   * @param second the second
+   * @return the boolean
+   */
   boolean test(T first, U second);
 }

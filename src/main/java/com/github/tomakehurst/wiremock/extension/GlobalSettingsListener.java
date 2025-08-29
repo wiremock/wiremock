@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,23 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 
+/** The interface Global settings listener. */
 public interface GlobalSettingsListener extends Extension {
 
+  /**
+   * Before global settings updated.
+   *
+   * @param oldSettings the old settings
+   * @param newSettings the new settings
+   */
   default void beforeGlobalSettingsUpdated(
       GlobalSettings oldSettings, GlobalSettings newSettings) {}
 
+  /**
+   * After global settings updated.
+   *
+   * @param oldSettings the old settings
+   * @param newSettings the new settings
+   */
   default void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {}
 }

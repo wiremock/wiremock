@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package ignored;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -44,7 +44,7 @@ public class ManyUnmatchedRequestsTest {
 
   @Test
   public void unmatched() {
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
 
     client.get("/a-near-mis");
     client.get("/near-misssss");

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/** The type Abstract date time pattern. */
 public abstract class AbstractDateTimePattern extends StringValuePattern {
 
   private final ZonedDateTime zonedDateTime;
@@ -37,10 +38,23 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
   private DateTimeTruncation truncateActual;
   private boolean applyTruncationLast = false;
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   */
   protected AbstractDateTimePattern(String dateTimeSpec) {
     this(dateTimeSpec, null, (DateTimeTruncation) null, null, false, null, null);
   }
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param offset the offset
+   * @param actualDateTimeFormat the actual date time format
+   * @param truncateExpected the truncate expected
+   * @param truncateActual the truncate actual
+   */
   protected AbstractDateTimePattern(
       DateTimeOffset offset,
       String actualDateTimeFormat,
@@ -57,6 +71,17 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     this.truncateActual = truncateActual;
   }
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   * @param actualDateFormat the actual date format
+   * @param truncateExpected the truncate expected
+   * @param truncateActual the truncate actual
+   * @param applyTruncationLast the apply truncation last
+   * @param expectedOffsetAmount the expected offset amount
+   * @param expectedOffsetUnit the expected offset unit
+   */
   // Call this from JSON creator constructor in subclasses
   protected AbstractDateTimePattern(
       String dateTimeSpec,
@@ -76,6 +101,17 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         expectedOffsetUnit);
   }
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   * @param actualDateFormat the actual date format
+   * @param truncateExpected the truncate expected
+   * @param truncateActual the truncate actual
+   * @param applyTruncationLast the apply truncation last
+   * @param expectedOffsetAmount the expected offset amount
+   * @param expectedOffsetUnit the expected offset unit
+   */
   protected AbstractDateTimePattern(
       String dateTimeSpec,
       String actualDateFormat,
@@ -108,10 +144,20 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     this.applyTruncationLast = applyTruncationLast;
   }
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param zonedDateTime the zoned date time
+   */
   public AbstractDateTimePattern(ZonedDateTime zonedDateTime) {
     this(zonedDateTime.toString(), zonedDateTime, null, null, null, null, null);
   }
 
+  /**
+   * Instantiates a new Abstract date time pattern.
+   *
+   * @param localDateTime the local date time
+   */
   public AbstractDateTimePattern(LocalDateTime localDateTime) {
     this(localDateTime.toString(), null, localDateTime, null, null, null, null);
   }
@@ -153,6 +199,13 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         || dateTimeSpec.replaceAll("(?i)now ", "").matches("^[\\-+]?[0-9]+ [a-zA-Z]+$");
   }
 
+  /**
+   * Actual format t.
+   *
+   * @param <T> the type parameter
+   * @param format the format
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T actualFormat(String format) {
     this.actualDateTimeFormat = format;
@@ -160,48 +213,104 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     return (T) this;
   }
 
+  /**
+   * Expected offset t.
+   *
+   * @param <T> the type parameter
+   * @param amount the amount
+   * @param unit the unit
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T expectedOffset(int amount, DateTimeUnit unit) {
     this.expectedOffset = new DateTimeOffset(amount, unit);
     return (T) this;
   }
 
+  /**
+   * Expected offset t.
+   *
+   * @param <T> the type parameter
+   * @param offset the offset
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T expectedOffset(DateTimeOffset offset) {
     this.expectedOffset = offset;
     return (T) this;
   }
 
+  /**
+   * Truncate expected t.
+   *
+   * @param <T> the type parameter
+   * @param truncation the truncation
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T truncateExpected(DateTimeTruncation truncation) {
     this.truncateExpected = truncation;
     return (T) this;
   }
 
+  /**
+   * Truncate actual t.
+   *
+   * @param <T> the type parameter
+   * @param truncation the truncation
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T truncateActual(DateTimeTruncation truncation) {
     this.truncateActual = truncation;
     return (T) this;
   }
 
+  /**
+   * Apply truncation last t.
+   *
+   * @param <T> the type parameter
+   * @param applyTruncationLast the apply truncation last
+   * @return the t
+   */
   @SuppressWarnings("unchecked")
   public <T extends AbstractDateTimePattern> T applyTruncationLast(boolean applyTruncationLast) {
     this.applyTruncationLast = applyTruncationLast;
     return (T) this;
   }
 
+  /**
+   * Gets actual format.
+   *
+   * @return the actual format
+   */
   public String getActualFormat() {
     return actualDateTimeFormat;
   }
 
+  /**
+   * Gets truncate expected.
+   *
+   * @return the truncate expected
+   */
   public String getTruncateExpected() {
     return stringOrNull(truncateExpected);
   }
 
+  /**
+   * Gets truncate actual.
+   *
+   * @return the truncate actual
+   */
   public String getTruncateActual() {
     return stringOrNull(truncateActual);
   }
 
+  /**
+   * Gets apply truncation last.
+   *
+   * @return the apply truncation last
+   */
   public Boolean getApplyTruncationLast() {
     return applyTruncationLast ? true : null;
   }
@@ -237,6 +346,15 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     }
   }
 
+  /**
+   * Gets match result.
+   *
+   * @param zonedExpected the zoned expected
+   * @param localExpected the local expected
+   * @param zonedActual the zoned actual
+   * @param localActual the local actual
+   * @return the match result
+   */
   protected abstract MatchResult getMatchResult(
       ZonedDateTime zonedExpected,
       LocalDateTime localExpected,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,47 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/** The type After date time pattern. */
 public class AfterDateTimePattern extends AbstractDateTimePattern {
 
+  /**
+   * Instantiates a new After date time pattern.
+   *
+   * @param zonedDateTime the zoned date time
+   */
   public AfterDateTimePattern(ZonedDateTime zonedDateTime) {
     super(zonedDateTime);
   }
 
+  /**
+   * Instantiates a new After date time pattern.
+   *
+   * @param localDateTime the local date time
+   */
   public AfterDateTimePattern(LocalDateTime localDateTime) {
     super(localDateTime);
   }
 
+  /**
+   * Instantiates a new After date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   */
   public AfterDateTimePattern(String dateTimeSpec) {
     super(dateTimeSpec);
   }
 
+  /**
+   * Instantiates a new After date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   * @param actualDateFormat the actual date format
+   * @param truncateExpected the truncate expected
+   * @param truncateActual the truncate actual
+   * @param applyTruncationLast the apply truncation last
+   * @param expectedOffsetAmount the expected offset amount
+   * @param expectedOffsetUnit the expected offset unit
+   */
   public AfterDateTimePattern(
       @JsonProperty("after") String dateTimeSpec,
       @JsonProperty("actualFormat") String actualDateFormat,
@@ -83,6 +110,11 @@ public class AfterDateTimePattern extends AbstractDateTimePattern {
     };
   }
 
+  /**
+   * Gets after.
+   *
+   * @return the after
+   */
   public String getAfter() {
     return getValue();
   }

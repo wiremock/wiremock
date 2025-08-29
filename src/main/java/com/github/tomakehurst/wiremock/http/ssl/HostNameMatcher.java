@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,15 @@ package com.github.tomakehurst.wiremock.http.ssl;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SNIHostName;
 
+/** The interface Host name matcher. */
 @FunctionalInterface
 public interface HostNameMatcher {
+  /**
+   * Matches boolean.
+   *
+   * @param x509Certificate the x 509 certificate
+   * @param sniHostName the sni host name
+   * @return the boolean
+   */
   Boolean matches(X509Certificate x509Certificate, SNIHostName sniHostName);
 }

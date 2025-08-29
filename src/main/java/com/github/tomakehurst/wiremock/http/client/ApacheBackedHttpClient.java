@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,18 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
 
+/** The type Apache backed http client. */
 public class ApacheBackedHttpClient implements HttpClient {
 
   private final CloseableHttpClient apacheHttpClient;
   private final boolean preserveUserAgentProxyHeader;
 
+  /**
+   * Instantiates a new Apache backed http client.
+   *
+   * @param apacheHttpClient the apache http client
+   * @param preserveUserAgentProxyHeader the preserve user agent proxy header
+   */
   public ApacheBackedHttpClient(
       CloseableHttpClient apacheHttpClient, boolean preserveUserAgentProxyHeader) {
     this.apacheHttpClient = apacheHttpClient;

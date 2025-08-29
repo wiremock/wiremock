@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The type Array remove helper. */
 public class ArrayRemoveHelper extends AbstractArrayHelper {
 
+  /**
+   * Apply object.
+   *
+   * @param list the list
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(List<?> list, Options options) throws IOException {
     Integer position;

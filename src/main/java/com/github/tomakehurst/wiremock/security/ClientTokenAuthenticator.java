@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,14 @@ package com.github.tomakehurst.wiremock.security;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 
+/** The type Client token authenticator. */
 public class ClientTokenAuthenticator extends SingleHeaderClientAuthenticator {
 
+  /**
+   * Instantiates a new Client token authenticator.
+   *
+   * @param token the token
+   */
   public ClientTokenAuthenticator(String token) {
     super(AUTHORIZATION, "Token " + token);
   }

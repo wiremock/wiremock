@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,45 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
+/**
+ * The interface Store.
+ *
+ * @param <K> the type parameter
+ * @param <V> the type parameter
+ */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface Store<K, V> {
 
+  /**
+   * Gets all keys.
+   *
+   * @return the all keys
+   */
   Stream<K> getAllKeys();
 
+  /**
+   * Get optional.
+   *
+   * @param key the key
+   * @return the optional
+   */
   Optional<V> get(K key);
 
+  /**
+   * Put.
+   *
+   * @param key the key
+   * @param content the content
+   */
   void put(K key, V content);
 
+  /**
+   * Remove.
+   *
+   * @param key the key
+   */
   void remove(K key);
 
+  /** Clear. */
   void clear();
 }

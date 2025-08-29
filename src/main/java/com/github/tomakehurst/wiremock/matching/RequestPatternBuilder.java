@@ -22,12 +22,14 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/** The type Request pattern builder. */
 public class RequestPatternBuilder {
 
   private String scheme;
@@ -50,39 +52,87 @@ public class RequestPatternBuilder {
 
   private CustomMatcherDefinition customMatcherDefinition;
 
+  /** Instantiates a new Request pattern builder. */
   public RequestPatternBuilder() {}
 
+  /**
+   * Instantiates a new Request pattern builder.
+   *
+   * @param customMatcher the custom matcher
+   */
   public RequestPatternBuilder(ValueMatcher<Request> customMatcher) {
     this.customMatcher = customMatcher;
   }
 
+  /**
+   * Instantiates a new Request pattern builder.
+   *
+   * @param method the method
+   * @param url the url
+   */
   public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
     this.method = method;
     this.url = url;
   }
 
+  /**
+   * Instantiates a new Request pattern builder.
+   *
+   * @param customRequestMatcherName the custom request matcher name
+   * @param parameters the parameters
+   */
   public RequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
     this.customMatcherDefinition =
         new CustomMatcherDefinition(customRequestMatcherName, parameters);
   }
 
+  /**
+   * New request pattern request pattern builder.
+   *
+   * @param method the method
+   * @param url the url
+   * @return the request pattern builder
+   */
   public static RequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {
     return new RequestPatternBuilder(method, url);
   }
 
+  /**
+   * New request pattern request pattern builder.
+   *
+   * @return the request pattern builder
+   */
   public static RequestPatternBuilder newRequestPattern() {
     return new RequestPatternBuilder();
   }
 
+  /**
+   * For custom matcher request pattern builder.
+   *
+   * @param requestMatcher the request matcher
+   * @return the request pattern builder
+   */
   public static RequestPatternBuilder forCustomMatcher(ValueMatcher<Request> requestMatcher) {
     return new RequestPatternBuilder(requestMatcher);
   }
 
+  /**
+   * For custom matcher request pattern builder.
+   *
+   * @param customRequestMatcherName the custom request matcher name
+   * @param parameters the parameters
+   * @return the request pattern builder
+   */
   public static RequestPatternBuilder forCustomMatcher(
       String customRequestMatcherName, Parameters parameters) {
     return new RequestPatternBuilder(customRequestMatcherName, parameters);
   }
 
+  /**
+   * All requests request pattern builder.
+   *
+   * @return the request pattern builder
+   */
   public static RequestPatternBuilder allRequests() {
     return new RequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
   }
@@ -130,105 +180,239 @@ public class RequestPatternBuilder {
     return builder;
   }
 
+  /**
+   * But request pattern builder.
+   *
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder but() {
     return this;
   }
 
+  /**
+   * With scheme request pattern builder.
+   *
+   * @param scheme the scheme
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withScheme(String scheme) {
     this.scheme = scheme;
     return this;
   }
 
+  /**
+   * With host request pattern builder.
+   *
+   * @param hostPattern the host pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withHost(StringValuePattern hostPattern) {
     this.hostPattern = hostPattern;
     return this;
   }
 
+  /**
+   * With port request pattern builder.
+   *
+   * @param port the port
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withPort(int port) {
     this.port = port;
     return this;
   }
 
+  /**
+   * With client ip request pattern builder.
+   *
+   * @param clientIpPattern the client ip pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withClientIp(StringValuePattern clientIpPattern) {
     this.clientIpPattern = clientIpPattern;
     return this;
   }
 
+  /**
+   * With url request pattern builder.
+   *
+   * @param url the url
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withUrl(String url) {
     this.url = WireMock.urlEqualTo(url);
     return this;
   }
 
+  /**
+   * With url request pattern builder.
+   *
+   * @param urlPattern the url pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withUrl(UrlPattern urlPattern) {
     this.url = urlPattern;
     return this;
   }
 
+  /**
+   * With header request pattern builder.
+   *
+   * @param key the key
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
     headers.put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
+  /**
+   * With header request pattern builder.
+   *
+   * @param key the key
+   * @param multiValuePattern the multi value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withHeader(String key, MultiValuePattern multiValuePattern) {
     headers.put(key, multiValuePattern);
     return this;
   }
 
+  /**
+   * Without header request pattern builder.
+   *
+   * @param key the key
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withoutHeader(String key) {
     headers.put(key, MultiValuePattern.absent());
     return this;
   }
 
+  /**
+   * With path param request pattern builder.
+   *
+   * @param key the key
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withPathParam(String key, StringValuePattern valuePattern) {
     pathParams.put(key, valuePattern);
     return this;
   }
 
+  /**
+   * With query param request pattern builder.
+   *
+   * @param key the key
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
     queryParams.put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
+  /**
+   * With query param request pattern builder.
+   *
+   * @param key the key
+   * @param multiValuePattern the multi value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withQueryParam(String key, MultiValuePattern multiValuePattern) {
     queryParams.put(key, multiValuePattern);
     return this;
   }
 
+  /**
+   * With form param request pattern builder.
+   *
+   * @param key the key
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withFormParam(String key, StringValuePattern valuePattern) {
     formParams.put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
+  /**
+   * With form param request pattern builder.
+   *
+   * @param key the key
+   * @param multiValuePattern the multi value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withFormParam(String key, MultiValuePattern multiValuePattern) {
     formParams.put(key, multiValuePattern);
     return this;
   }
 
+  /**
+   * Without form param request pattern builder.
+   *
+   * @param key the key
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withoutFormParam(String key) {
     formParams.put(key, MultiValuePattern.absent());
     return this;
   }
 
+  /**
+   * Without query param request pattern builder.
+   *
+   * @param key the key
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withoutQueryParam(String key) {
     queryParams.put(key, MultiValuePattern.absent());
     return this;
   }
 
+  /**
+   * With cookie request pattern builder.
+   *
+   * @param key the key
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
     cookies.put(key, valuePattern);
     return this;
   }
 
+  /**
+   * With basic auth request pattern builder.
+   *
+   * @param basicCredentials the basic credentials
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
     this.basicCredentials = basicCredentials;
     return this;
   }
 
+  /**
+   * With request body request pattern builder.
+   *
+   * @param valuePattern the value pattern
+   * @return the request pattern builder
+   */
+
   public RequestPatternBuilder withRequestBody(ContentPattern valuePattern) {
     this.bodyPatterns.add(valuePattern);
-    return this;
+    return null;
   }
 
+  /**
+   * With request body part request pattern builder.
+   *
+   * @param multiPattern the multi pattern
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withRequestBodyPart(MultipartValuePattern multiPattern) {
     if (multiPattern != null) {
       multiparts.add(multiPattern);
@@ -236,36 +420,78 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  /**
+   * With any request body part request pattern builder.
+   *
+   * @param multiPatternBuilder the multi pattern builder
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withAnyRequestBodyPart(
       MultipartValuePatternBuilder multiPatternBuilder) {
     return withRequestBodyPart(
         multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ANY).build());
   }
 
+  /**
+   * With all request body parts request pattern builder.
+   *
+   * @param multiPatternBuilder the multi pattern builder
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder withAllRequestBodyParts(
       MultipartValuePatternBuilder multiPatternBuilder) {
     return withRequestBodyPart(
         multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ALL).build());
   }
 
+  /**
+   * And matching request pattern builder.
+   *
+   * @param customMatcher the custom matcher
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder andMatching(ValueMatcher<Request> customMatcher) {
     this.customMatcher = customMatcher;
     return this;
   }
 
+  /**
+   * And matching request pattern builder.
+   *
+   * @param customRequestMatcherName the custom request matcher name
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder andMatching(String customRequestMatcherName) {
     return andMatching(customRequestMatcherName, Parameters.empty());
   }
 
+  /**
+   * And matching request pattern builder.
+   *
+   * @param customRequestMatcherName the custom request matcher name
+   * @param parameters the parameters
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
     return andMatching(new CustomMatcherDefinition(customRequestMatcherName, parameters));
   }
 
+  /**
+   * And matching request pattern builder.
+   *
+   * @param matcherDefinition the matcher definition
+   * @return the request pattern builder
+   */
   public RequestPatternBuilder andMatching(CustomMatcherDefinition matcherDefinition) {
     this.customMatcherDefinition = matcherDefinition;
     return this;
   }
 
+  /**
+   * Build request pattern.
+   *
+   * @return the request pattern
+   */
   public RequestPattern build() {
     if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
       throw new InvalidInputException(

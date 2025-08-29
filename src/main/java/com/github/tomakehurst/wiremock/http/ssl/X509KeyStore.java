@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,18 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
-import java.security.*;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
-/** Wrapper class to make it easy to retrieve X509 PrivateKey and certificate chains */
+/** Wrapper class to make it easy to retrieve X509 PrivateKey and certificate chains. */
 public class X509KeyStore {
 
   private final KeyStore keyStore;
@@ -33,6 +38,8 @@ public class X509KeyStore {
   private final List<String> aliases;
 
   /**
+   * Instantiates a new X 509 key store.
+   *
    * @param keyStore {@link KeyStore} to delegate to
    * @param password used to manage all keys stored in this key store
    * @throws KeyStoreException if the keystore has not been loaded
@@ -43,6 +50,12 @@ public class X509KeyStore {
     this.aliases = Collections.list(keyStore.aliases());
   }
 
+  /**
+   * Gets private key.
+   *
+   * @param alias the alias
+   * @return the private key
+   */
   PrivateKey getPrivateKey(String alias) {
     try {
       Key key = keyStore.getKey(alias, password);
@@ -59,6 +72,12 @@ public class X509KeyStore {
     }
   }
 
+  /**
+   * Get certificate chain x 509 certificate [ ].
+   *
+   * @param alias the alias
+   * @return the x 509 certificate [ ]
+   */
   X509Certificate[] getCertificateChain(String alias) {
     try {
       Certificate[] fromKeyStore = keyStore.getCertificateChain(alias);
@@ -81,6 +100,8 @@ public class X509KeyStore {
   }
 
   /**
+   * Gets certificate authority.
+   *
    * @return the first key &amp; chain that represent a certificate authority or null if none found
    */
   public CertificateAuthority getCertificateAuthority() {
@@ -99,6 +120,13 @@ public class X509KeyStore {
     return keyUsage != null && keyUsage.length > 5 && keyUsage[5];
   }
 
+  /**
+   * Sets key entry.
+   *
+   * @param alias the alias
+   * @param newCertChainAndKey the new cert chain and key
+   * @throws KeyStoreException the key store exception
+   */
   void setKeyEntry(String alias, CertChainAndKey newCertChainAndKey) throws KeyStoreException {
     keyStore.setKeyEntry(
         alias, newCertChainAndKey.key, password, newCertChainAndKey.certificateChain);

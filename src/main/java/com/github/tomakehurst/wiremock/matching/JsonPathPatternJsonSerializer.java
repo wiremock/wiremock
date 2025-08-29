@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,16 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import java.io.IOException;
 
+/** The type Json path pattern json serializer. */
 public class JsonPathPatternJsonSerializer
     extends PathPatternJsonSerializer<MatchesJsonPathPattern> {
 
+  /**
+   * Unwrapping serializer json serializer.
+   *
+   * @param unwrapper the unwrapper
+   * @return the json serializer
+   */
   @Override
   public JsonSerializer<MatchesJsonPathPattern> unwrappingSerializer(NameTransformer unwrapper) {
     return new UnwrappedJsonPathPatternJsonSerializer();

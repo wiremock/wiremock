@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,16 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.util.Objects;
 
+/** The type Http template cache key. */
 public class HttpTemplateCacheKey {
 
+  /** The enum Response element. */
   public enum ResponseElement {
+    /** Body response element. */
     BODY,
+    /** Proxy url response element. */
     PROXY_URL,
+    /** Header response element. */
     HEADER
   }
 
@@ -31,21 +36,48 @@ public class HttpTemplateCacheKey {
   private final String name;
   private final Integer index;
 
+  /**
+   * For inline body http template cache key.
+   *
+   * @param responseDefinition the response definition
+   * @return the http template cache key
+   */
   public static HttpTemplateCacheKey forInlineBody(ResponseDefinition responseDefinition) {
     return new HttpTemplateCacheKey(responseDefinition, ResponseElement.BODY, "[inlineBody]", null);
   }
 
+  /**
+   * For file body http template cache key.
+   *
+   * @param responseDefinition the response definition
+   * @param filename the filename
+   * @return the http template cache key
+   */
   public static HttpTemplateCacheKey forFileBody(
       ResponseDefinition responseDefinition, String filename) {
     return new HttpTemplateCacheKey(responseDefinition, ResponseElement.BODY, filename, null);
   }
 
+  /**
+   * For header http template cache key.
+   *
+   * @param responseDefinition the response definition
+   * @param headerName the header name
+   * @param valueIndex the value index
+   * @return the http template cache key
+   */
   public static HttpTemplateCacheKey forHeader(
       ResponseDefinition responseDefinition, String headerName, int valueIndex) {
     return new HttpTemplateCacheKey(
         responseDefinition, ResponseElement.HEADER, headerName, valueIndex);
   }
 
+  /**
+   * For proxy url http template cache key.
+   *
+   * @param responseDefinition the response definition
+   * @return the http template cache key
+   */
   public static HttpTemplateCacheKey forProxyUrl(ResponseDefinition responseDefinition) {
     return new HttpTemplateCacheKey(
         responseDefinition, ResponseElement.PROXY_URL, "[proxyUrl]", null);
@@ -61,8 +93,12 @@ public class HttpTemplateCacheKey {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     HttpTemplateCacheKey that = (HttpTemplateCacheKey) o;
     return responseDefinition.equals(that.responseDefinition)
         && element == that.element

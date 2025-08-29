@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,13 +114,13 @@ public class ContentPatternsJsonValidityTest {
 
   @Test
   void simpleMatchesXPathValidates() {
-    assertThat(validate(matchingXPath("//Order/Quantity")), empty());
+    assertThat(validate(matchingXpath("//Order/Quantity")), empty());
     assertThat(validate("{ \"matchesXPath\": 5 }"), Matchers.not(empty()));
   }
 
   @Test
   void matchesXPathWithSubMatcherValidates() {
-    assertThat(validate(matchingXPath("//Order/Quantity", equalTo("123"))), empty());
+    assertThat(validate(matchingXpath("//Order/Quantity", equalTo("123"))), empty());
     assertThat(
         validate(
             "{\n"
@@ -136,7 +136,7 @@ public class ContentPatternsJsonValidityTest {
   void matchesXPathWithNamespacesValidates() {
     assertThat(
         validate(
-            matchingXPath(
+            matchingXpath(
                 "//Order/Quantity",
                 Map.of("one", "https://example.com/one", "two", "https://example.com/two"))),
         empty());
@@ -284,7 +284,7 @@ public class ContentPatternsJsonValidityTest {
   void tmp() {
     System.out.println(
         Json.write(
-            matchingXPath(
+            matchingXpath(
                 "//Order/Quantity",
                 Map.of("one", "https://example.com/one", "two", "https://example.com/two"))));
   }

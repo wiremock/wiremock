@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,29 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Request filter v 2. */
 public interface RequestFilterV2 extends Extension {
 
+  /**
+   * Filter request filter action.
+   *
+   * @param request the request
+   * @param serveEvent the serve event
+   * @return the request filter action
+   */
   RequestFilterAction filter(Request request, ServeEvent serveEvent);
 
+  /**
+   * Apply to admin boolean.
+   *
+   * @return the boolean
+   */
   boolean applyToAdmin();
 
+  /**
+   * Apply to stubs boolean.
+   *
+   * @return the boolean
+   */
   boolean applyToStubs();
 }

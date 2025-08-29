@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,26 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Remote mappings loader. */
 public class RemoteMappingsLoader {
 
   private final FileSource mappingsFileSource;
   private final FileSource filesFileSource;
   private final WireMock wireMock;
 
+  /**
+   * Instantiates a new Remote mappings loader.
+   *
+   * @param fileSource the file source
+   * @param wireMock the wire mock
+   */
   public RemoteMappingsLoader(FileSource fileSource, WireMock wireMock) {
     this.mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
     this.filesFileSource = fileSource.child(FILES_ROOT);
     this.wireMock = wireMock;
   }
 
+  /** Load. */
   public void load() {
     List<TextFile> mappingFiles =
         mappingsFileSource.listFilesRecursively().stream()

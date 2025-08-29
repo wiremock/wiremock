@@ -19,8 +19,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
-/** Wraps a list of generated StubMappings into a SnapshotRecordResult object */
+/** Wraps a list of generated StubMappings into a SnapshotRecordResult object. */
 public enum SnapshotOutputFormatter {
+  /** The Full. */
   FULL {
     @SuppressWarnings("removal")
     @Override
@@ -28,6 +29,7 @@ public enum SnapshotOutputFormatter {
       return SnapshotRecordResult.full(stubMappings);
     }
   },
+  /** The Ids. */
   IDS {
     @SuppressWarnings("removal")
     @Override
@@ -37,6 +39,10 @@ public enum SnapshotOutputFormatter {
   };
 
   /**
+   * Format snapshot record result.
+   *
+   * @param stubMappings the stub mappings
+   * @return the snapshot record result
    * @deprecated This method will become non-public in the next major version. If you rely on it,
    *     please contact the maintainers.
    */
@@ -44,6 +50,12 @@ public enum SnapshotOutputFormatter {
   @Deprecated(forRemoval = true)
   public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
 
+  /**
+   * From string snapshot output formatter.
+   *
+   * @param value the value
+   * @return the snapshot output formatter
+   */
   @JsonCreator
   public static SnapshotOutputFormatter fromString(String value) {
     if (value == null || value.equalsIgnoreCase("full")) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,9 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart")
-            .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
+            .withMultipartRequestBody(amultipart().withName("text").withBody(containing("hello")))
             .withMultipartRequestBody(
-                aMultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
+                amultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
             .willReturn(ok()));
 
     ClassicHttpRequest request =
@@ -71,7 +71,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   public void handlesAbsenceOfPartsInAMultipartRequest() throws Exception {
     stubFor(
         post("/empty-multipart")
-            .withMultipartRequestBody(aMultipart().withName("bits").withBody(matching(".*")))
+            .withMultipartRequestBody(amultipart().withName("bits").withBody(matching(".*")))
             .willReturn(ok()));
 
     ClassicHttpRequest request =
@@ -94,9 +94,9 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   public void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-mixed")
-            .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
+            .withMultipartRequestBody(amultipart().withName("text").withBody(containing("hello")))
             .withMultipartRequestBody(
-                aMultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
+                amultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
             .willReturn(ok()));
 
     ClassicHttpRequest request =
@@ -121,9 +121,9 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   public void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-related")
-            .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
+            .withMultipartRequestBody(amultipart().withName("text").withBody(containing("hello")))
             .withMultipartRequestBody(
-                aMultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
+                amultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
             .willReturn(ok()));
 
     ClassicHttpRequest request =
@@ -147,7 +147,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(
-                aMultipart().withHeader("Content-Disposition", containing("wiremocktest")))
+                amultipart().withHeader("Content-Disposition", containing("wiremocktest")))
             .willReturn(ok()));
 
     stubFor(post("/json").withRequestBody(equalToJson("{ \"stuff\": 123 }")).willReturn(ok()));
@@ -165,7 +165,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(
-                aMultipart().withHeader("Content-Disposition", containing("vlarge")))
+                amultipart().withHeader("Content-Disposition", containing("vlarge")))
             .willReturn(ok()));
 
     WireMockResponse response =
@@ -179,8 +179,8 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   void acceptsAMultipartRequestWithCamelcasedContentTypeInformation() throws Exception {
     stubFor(
         post("/multipart-camelcased-content-type")
-            .withMultipartRequestBody(aMultipart().withName("field1").withBody(containing("hello")))
-            .withMultipartRequestBody(aMultipart().withName("field2").withBody(containing("world")))
+            .withMultipartRequestBody(amultipart().withName("field1").withBody(containing("hello")))
+            .withMultipartRequestBody(amultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
 
     final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
@@ -232,8 +232,8 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
       throws Exception {
     stubFor(
         post("/multipart-camelcased-content-type")
-            .withMultipartRequestBody(aMultipart().withName("field1").withBody(containing("hello")))
-            .withMultipartRequestBody(aMultipart().withName("field2").withBody(containing("world")))
+            .withMultipartRequestBody(amultipart().withName("field1").withBody(containing("hello")))
+            .withMultipartRequestBody(amultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
 
     final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
@@ -267,13 +267,13 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/multipart-related")
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader(
                         "content-type",
                         equalTo("application/xop+xml; type=\"application/soap+xml\""))
                     .withBody(equalTo(soapBody)))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader("content-type", equalTo("text/plain"))
                     .withHeader("content-id", equalTo("<ref-to-attachment@some.domain.org>"))
                     .withBody(equalTo("some text/plain content")))

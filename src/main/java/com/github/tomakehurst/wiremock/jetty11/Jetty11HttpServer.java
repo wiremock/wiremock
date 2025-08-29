@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,10 +65,18 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+/** The type Jetty 11 http server. */
 public class Jetty11HttpServer extends JettyHttpServer {
 
   private ServerConnector mitmProxyConnector;
 
+  /**
+   * Instantiates a new Jetty 11 http server.
+   *
+   * @param options the options
+   * @param adminRequestHandler the admin request handler
+   * @param stubRequestHandler the stub request handler
+   */
   public Jetty11HttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
@@ -312,8 +320,18 @@ public class Jetty11HttpServer extends JettyHttpServer {
     return mockServiceContext;
   }
 
+  /**
+   * Decorate mock service context before config.
+   *
+   * @param mockServiceContext the mock service context
+   */
   protected void decorateMockServiceContextBeforeConfig(ServletContextHandler mockServiceContext) {}
 
+  /**
+   * Decorate mock service context after config.
+   *
+   * @param mockServiceContext the mock service context
+   */
   protected void decorateMockServiceContextAfterConfig(ServletContextHandler mockServiceContext) {}
 
   private ServletContextHandler addAdminContext(
@@ -365,9 +383,19 @@ public class Jetty11HttpServer extends JettyHttpServer {
     return adminContext;
   }
 
+  /**
+   * Decorate admin service context before config.
+   *
+   * @param adminServiceContext the admin service context
+   */
   protected void decorateAdminServiceContextBeforeConfig(
       ServletContextHandler adminServiceContext) {}
 
+  /**
+   * Decorate admin service context after config.
+   *
+   * @param adminServiceContext the admin service context
+   */
   protected void decorateAdminServiceContextAfterConfig(
       ServletContextHandler adminServiceContext) {}
 

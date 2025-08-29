@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,18 @@ package com.github.tomakehurst.wiremock.common;
 import jakarta.servlet.ServletContext;
 import java.io.File;
 
+/** The type Servlet context file source. */
 public class ServletContextFileSource extends AbstractFileSource {
 
   private final String rootPath;
   private final ServletContext servletContext;
 
+  /**
+   * Instantiates a new Servlet context file source.
+   *
+   * @param servletContext the servlet context
+   * @param rootPath the root path
+   */
   public ServletContextFileSource(ServletContext servletContext, String rootPath) {
     super(getRootFile(servletContext, rootPath));
     this.rootPath = rootPath;

@@ -38,7 +38,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/basic/auth/preemptive"))
             .withBasicAuth("the-username", "thepassword")
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.getWithPreemptiveCredentials(
@@ -52,7 +52,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/basic/auth/preemptive"))
             .withBasicAuth("the-username", "thepassword")
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.getWithPreemptiveCredentials(
@@ -66,7 +66,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/basic/auth/case-insensitive"))
             .withBasicAuth("tom", "secret")
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient

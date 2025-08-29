@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,38 @@ package com.github.tomakehurst.wiremock.store;
 import java.util.Objects;
 import org.wiremock.annotations.Beta;
 
+/**
+ * The type Store event.
+ *
+ * @param <K> the type parameter
+ * @param <V> the type parameter
+ */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class StoreEvent<K, V> {
 
+  /**
+   * Set store event.
+   *
+   * @param <K> the type parameter
+   * @param <V> the type parameter
+   * @param key the key
+   * @param previousValue the previous value
+   * @param newValue the new value
+   * @return the store event
+   */
   public static <K, V> StoreEvent<K, V> set(K key, V previousValue, V newValue) {
     return new StoreEvent<>(key, previousValue, newValue);
   }
 
+  /**
+   * Remove store event.
+   *
+   * @param <K> the type parameter
+   * @param <V> the type parameter
+   * @param key the key
+   * @param previousValue the previous value
+   * @return the store event
+   */
   public static <K, V> StoreEvent<K, V> remove(K key, V previousValue) {
     return new StoreEvent<>(key, previousValue, null);
   }
@@ -33,20 +58,42 @@ public class StoreEvent<K, V> {
   private final V oldValue;
   private final V newValue;
 
+  /**
+   * Instantiates a new Store event.
+   *
+   * @param key the key
+   * @param oldValue the old value
+   * @param newValue the new value
+   */
   public StoreEvent(K key, V oldValue, V newValue) {
     this.key = key;
     this.oldValue = oldValue;
     this.newValue = newValue;
   }
 
+  /**
+   * Gets key.
+   *
+   * @return the key
+   */
   public K getKey() {
     return key;
   }
 
+  /**
+   * Gets old value.
+   *
+   * @return the old value
+   */
   public V getOldValue() {
     return oldValue;
   }
 
+  /**
+   * Gets new value.
+   *
+   * @return the new value
+   */
   public V getNewValue() {
     return newValue;
   }

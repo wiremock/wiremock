@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,33 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Admin exception. */
 public class AdminException extends RuntimeException {
 
+  /**
+   * Instantiates a new Admin exception.
+   *
+   * @param message the message
+   */
   public AdminException(String message) {
     super(message);
   }
 
+  /**
+   * Instantiates a new Admin exception.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
   public AdminException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Instantiates a new Admin exception.
+   *
+   * @param cause the cause
+   */
   public AdminException(Throwable cause) {
     super(cause);
   }

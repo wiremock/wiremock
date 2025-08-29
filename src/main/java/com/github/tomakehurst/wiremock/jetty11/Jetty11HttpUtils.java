@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
+/** The type Jetty 11 http utils. */
 public class Jetty11HttpUtils implements JettyHttpUtils {
   @Override
   public Response unwrapResponse(HttpServletResponse httpServletResponse) {

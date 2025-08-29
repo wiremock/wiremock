@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,24 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A data transfer object (DTO) for setting the state of a scenario.
+ *
+ * <p>This is used as the request body for the admin API endpoint that updates a scenario to a new
+ * state.
+ *
+ * @see com.github.tomakehurst.wiremock.stubbing.Scenario
+ */
 public class ScenarioState {
 
   private final String state;
 
+  /**
+   * Constructs a new ScenarioState.
+   *
+   * @param state The name of the new state for the scenario. The {@code @JsonProperty} annotation
+   *     maps this from the "state" field in a JSON object.
+   */
   public ScenarioState(@JsonProperty("state") String state) {
     this.state = state;
   }

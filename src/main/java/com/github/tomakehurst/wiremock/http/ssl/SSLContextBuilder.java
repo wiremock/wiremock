@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,20 +41,43 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedTrustManager;
 
+/** The type Ssl context builder. */
 public class SSLContextBuilder {
 
   private final Set<KeyManager> keyManagers = new LinkedHashSet<>();
   private final Set<TrustManager> trustManagers = new LinkedHashSet<>();
 
+  /**
+   * Create ssl context builder.
+   *
+   * @return the ssl context builder
+   */
   public static SSLContextBuilder create() {
     return new SSLContextBuilder();
   }
 
+  /**
+   * Load trust material ssl context builder.
+   *
+   * @param truststore the truststore
+   * @return the ssl context builder
+   * @throws KeyStoreException the key store exception
+   * @throws NoSuchAlgorithmException the no such algorithm exception
+   */
   public SSLContextBuilder loadTrustMaterial(final KeyStore truststore)
       throws KeyStoreException, NoSuchAlgorithmException {
     return loadTrustMaterial(truststore, null);
   }
 
+  /**
+   * Load trust material ssl context builder.
+   *
+   * @param truststore the truststore
+   * @param trustStrategy the trust strategy
+   * @return the ssl context builder
+   * @throws NoSuchAlgorithmException the no such algorithm exception
+   * @throws KeyStoreException the key store exception
+   */
   public SSLContextBuilder loadTrustMaterial(
       final KeyStore truststore, final TrustStrategy trustStrategy)
       throws NoSuchAlgorithmException, KeyStoreException {
@@ -77,6 +100,12 @@ public class SSLContextBuilder {
     return this;
   }
 
+  /**
+   * Load trust material ssl context builder.
+   *
+   * @param trustStrategy the trust strategy
+   * @return the ssl context builder
+   */
   public SSLContextBuilder loadTrustMaterial(final TrustStrategy trustStrategy) {
 
     TrustManager[] tms = loadDefaultTrustManagers();
@@ -118,6 +147,16 @@ public class SSLContextBuilder {
     }
   }
 
+  /**
+   * Load key material ssl context builder.
+   *
+   * @param keystore the keystore
+   * @param keyPassword the key password
+   * @return the ssl context builder
+   * @throws NoSuchAlgorithmException the no such algorithm exception
+   * @throws KeyStoreException the key store exception
+   * @throws UnrecoverableKeyException the unrecoverable key exception
+   */
   public SSLContextBuilder loadKeyMaterial(final KeyStore keystore, final char[] keyPassword)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
     final KeyManagerFactory kmfactory =
@@ -130,6 +169,14 @@ public class SSLContextBuilder {
     return this;
   }
 
+  /**
+   * Init ssl context.
+   *
+   * @param sslContext the ssl context
+   * @param keyManagers the key managers
+   * @param trustManagers the trust managers
+   * @throws KeyManagementException the key management exception
+   */
   protected void initSSLContext(
       final SSLContext sslContext,
       final Collection<KeyManager> keyManagers,
@@ -141,17 +188,31 @@ public class SSLContextBuilder {
         null);
   }
 
+  /**
+   * Build ssl context.
+   *
+   * @return the ssl context
+   * @throws NoSuchAlgorithmException the no such algorithm exception
+   * @throws KeyManagementException the key management exception
+   */
   public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
     final SSLContext sslContext = SSLContext.getInstance("TLS");
     initSSLContext(sslContext, keyManagers, trustManagers);
     return sslContext;
   }
 
+  /** The type Trust manager delegate. */
   static class TrustManagerDelegate extends X509ExtendedTrustManager {
 
     private final X509ExtendedTrustManager trustManager;
     private final TrustStrategy trustStrategy;
 
+    /**
+     * Instantiates a new Trust manager delegate.
+     *
+     * @param trustManager the trust manager
+     * @param trustStrategy the trust strategy
+     */
     TrustManagerDelegate(
         final X509ExtendedTrustManager trustManager, final TrustStrategy trustStrategy) {
       this.trustManager = trustManager;

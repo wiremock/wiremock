@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,19 @@ import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import java.util.List;
 import java.util.Map;
 
+/** The type Plain text stub not matched renderer. */
 public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
 
+  /** The constant CONSOLE_WIDTH_HEADER_KEY. */
   public static final String CONSOLE_WIDTH_HEADER_KEY = "X-WireMock-Console-Width";
 
   private final Extensions extensions;
 
+  /**
+   * Instantiates a new Plain text stub not matched renderer.
+   *
+   * @param extensions the extensions
+   */
   public PlainTextStubNotMatchedRenderer(Extensions extensions) {
     this.extensions = extensions;
   }

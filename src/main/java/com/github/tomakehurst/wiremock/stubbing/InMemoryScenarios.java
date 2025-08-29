@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,19 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.store.InMemoryScenariosStore;
 import com.github.tomakehurst.wiremock.store.ScenariosStore;
 
+/** The type In memory scenarios. */
 public class InMemoryScenarios extends AbstractScenarios {
 
+  /**
+   * Instantiates a new In memory scenarios.
+   *
+   * @param store the store
+   */
   public InMemoryScenarios(ScenariosStore store) {
     super(store);
   }
 
+  /** Instantiates a new In memory scenarios. */
   public InMemoryScenarios() {
     this(new InMemoryScenariosStore());
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
+/** The type Dates. */
 public class Dates {
 
+  /**
+   * Parse date.
+   *
+   * @param dateString the date string
+   * @return the date
+   */
   public static Date parse(String dateString) {
     try {
       return Date.from(ZonedDateTime.parse(dateString).toInstant());
@@ -33,6 +40,12 @@ public class Dates {
     }
   }
 
+  /**
+   * Format string.
+   *
+   * @param date the date
+   * @return the string
+   */
   public static String format(Date date) {
     return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date.toInstant().atZone(ZoneId.of("Z")));
   }

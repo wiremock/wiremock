@@ -21,6 +21,13 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to remove all stub mappings that have not been matched.
+ *
+ * <p>This task handles the API request to find and remove all {@link
+ * com.github.tomakehurst.wiremock.stubbing.StubMapping}s that have not matched any incoming
+ * request, which can be useful for cleanup.
+ */
 public class RemoveUnmatchedStubMappingsTask implements AdminTask {
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,14 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to start a new request recording session.
+ *
+ * <p>This task handles the API request to begin recording requests and generating stub mappings. It
+ * expects a {@link RecordSpec} in the request body, which defines the recording parameters.
+ *
+ * @see RecordSpec
+ */
 public class StartRecordingTask implements AdminTask {
 
   @Override

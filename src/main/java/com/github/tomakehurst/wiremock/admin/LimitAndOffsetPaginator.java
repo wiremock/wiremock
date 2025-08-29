@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,28 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.List;
 
+/**
+ * An implementation of the {@link Paginator} interface that slices a list based on limit and offset
+ * parameters.
+ *
+ * <p>If limit and offset are null, the entire source list is returned.
+ *
+ * @param <T> The type of the items in the list.
+ */
 public class LimitAndOffsetPaginator<T> implements Paginator<T> {
 
   private final List<T> source;
   private final Integer limit;
   private final Integer offset;
 
+  /**
+   * Constructs a new LimitAndOffsetPaginator.
+   *
+   * @param source The source list to paginate.
+   * @param limit The maximum number of items per page (can be null). Must be non-negative if
+   *     provided.
+   * @param offset The starting index of the page (can be null). Must be non-negative if provided.
+   */
   public LimitAndOffsetPaginator(List<T> source, Integer limit, Integer offset) {
     this.source = source;
     checkParameter(limit == null || limit >= 0, "limit must be 0 or greater");
@@ -35,6 +51,14 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
     this.offset = offset;
   }
 
+  /**
+   * Creates a new paginator by extracting 'limit' and 'offset' from request query parameters.
+   *
+   * @param source The source list to paginate.
+   * @param request The incoming HTTP request.
+   * @param <T> The type of the items in the list.
+   * @return A new {@code LimitAndOffsetPaginator} instance.
+   */
   public static <T> LimitAndOffsetPaginator<T> fromRequest(List<T> source, Request request) {
     return new LimitAndOffsetPaginator<>(
         source,
@@ -55,6 +79,13 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
     return source.size();
   }
 
+  /**
+   * Creates a paginator that performs no pagination, returning the entire list.
+   *
+   * @param source The source list.
+   * @param <T> The type of the items in the list.
+   * @return A new {@code LimitAndOffsetPaginator} that will return the full source list.
+   */
   public static <T> LimitAndOffsetPaginator<T> none(List<T> source) {
     return new LimitAndOffsetPaginator<>(source, null, null);
   }

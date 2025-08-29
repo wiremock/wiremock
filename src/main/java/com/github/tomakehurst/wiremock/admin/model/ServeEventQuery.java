@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,19 +28,38 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+/**
+ * A query object for filtering collections of {@link ServeEvent}s.
+ *
+ * <p>Encapsulates filter criteria for serve events, such as whether to include only unmatched
+ * requests or requests served by a specific stub mapping.
+ *
+ * @see ServeEvent
+ * @see StubMapping
+ */
 public class ServeEventQuery {
 
   public static final ServeEventQuery ALL = new ServeEventQuery(false, null);
   public static final ServeEventQuery ALL_UNMATCHED = new ServeEventQuery(true, null);
 
+  /**
+   * Creates a query for events that were served by a specific stub mapping.
+   *
+   * @param stubMapping The stub mapping to filter by.
+   * @return A new {@code ServeEventQuery} instance.
+   */
   public static ServeEventQuery forStubMapping(StubMapping stubMapping) {
     return new ServeEventQuery(false, stubMapping.getId());
   }
 
-  public static ServeEventQuery forStubMapping(UUID stubMappingId) {
-    return new ServeEventQuery(false, stubMappingId);
-  }
-
+  /**
+   * Creates a query by parsing query parameters from an HTTP request.
+   *
+   * <p>It looks for "unmatched" and "matchingStub" query parameters.
+   *
+   * @param request The incoming HTTP request.
+   * @return A new {@code ServeEventQuery} instance based on the request parameters.
+   */
   public static ServeEventQuery fromRequest(Request request) {
     final QueryParameter unmatchedParameter = request.queryParameter("unmatched");
     boolean unmatched = unmatchedParameter.isPresent() && unmatchedParameter.containsValue("true");
@@ -69,6 +88,12 @@ public class ServeEventQuery {
   private final boolean onlyUnmatched;
   private final UUID stubMappingId;
 
+  /**
+   * Constructs a new ServeEventQuery.
+   *
+   * @param onlyUnmatched if true, only unmatched requests will be included.
+   * @param stubMappingId if not null, only requests served by this stub ID will be included.
+   */
   public ServeEventQuery(
       @JsonProperty("onlyUnmatched") boolean onlyUnmatched,
       @JsonProperty("stubMappingId") UUID stubMappingId) {
@@ -84,6 +109,12 @@ public class ServeEventQuery {
     return stubMappingId;
   }
 
+  /**
+   * Applies the query's filter criteria to a list of serve events.
+   *
+   * @param events The list of {@link ServeEvent}s to filter.
+   * @return A new list containing only the events that match the query criteria.
+   */
   public List<ServeEvent> filter(List<ServeEvent> events) {
     if (!onlyUnmatched && stubMappingId == null) {
       return events;

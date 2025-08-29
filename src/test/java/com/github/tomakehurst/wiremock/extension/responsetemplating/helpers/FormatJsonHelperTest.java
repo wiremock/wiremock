@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -39,7 +39,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonDefaultsToPrettyFormatWhenNoFormatSpecified() {
     String responseTemplate = "{{#formatJson}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(prettyJson));
   }
@@ -49,7 +49,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonDefaultsToPrettyFormatWhenNoFormatSpecifiedWindows() {
     String responseTemplate = "{{#formatJson}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
   }
@@ -59,7 +59,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonPrettyFormatReturnsJsonPrettyPrinted() {
     String responseTemplate = "{{#formatJson format='pretty'}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(prettyJson));
   }
@@ -69,7 +69,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonPrettyFormatReturnsJsonPrettyPrintedWindows() {
     String responseTemplate = "{{#formatJson format='pretty'}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
   }
@@ -78,7 +78,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonCompactFormatReturnsJsonInCompactFormat() {
     String responseTemplate = "{{#formatJson format='compact'}} " + prettyJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(compactJson));
   }
@@ -90,7 +90,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
             + prettyJson
             + " {{/assign}}{{formatJson someJson format='compact'}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(compactJson));
   }
@@ -99,7 +99,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void anInvalidFormatFieldResultsInAnError() {
     String responseTemplate = "{{#formatJson format='foo'}} " + compactJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -110,7 +110,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void formatJsonReturnsAnErrorWhenJsonIsInvalid() {
     String responseTemplate = "{{#formatJson format=\"compact\"}} {\"foo\":true,} {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -121,7 +121,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void emptyJsonPassedIntoTheFormatJsonHelper() {
     String responseTemplate = "{{#formatJson}}{{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -133,7 +133,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void noContentPassedIntoTheFormatJsonHelper() {
     String responseTemplate = "{{formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -145,7 +145,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void nullVariablePassedToTheFormatJsonHelper() {
     String responseTemplate = "{{formatJson nullVariable}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -157,7 +157,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void whitespacePassedIntoTheFormatJsonHelper() {
     String responseTemplate = "{{#formatJson}}                  {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -169,7 +169,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
   void invalidFormatType() {
     String responseTemplate = "{{#formatJson format=1}} " + prettyJson + " {{/formatJson}}";
     final ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),

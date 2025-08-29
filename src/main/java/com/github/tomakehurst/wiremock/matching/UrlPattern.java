@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,38 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import java.util.Objects;
 
+/** The type Url pattern. */
 public class UrlPattern implements NamedValueMatcher<String> {
 
+  /** The constant ANY. */
   public static final UrlPattern ANY = new UrlPattern(new AnythingPattern(), false);
 
+  /** The Pattern. */
   protected final StringValuePattern pattern;
+
   private final boolean regex;
 
+  /**
+   * Instantiates a new Url pattern.
+   *
+   * @param pattern the pattern
+   * @param regex the regex
+   */
   public UrlPattern(StringValuePattern pattern, boolean regex) {
     this.pattern = pattern;
     this.regex = regex;
   }
 
+  /**
+   * From one of url pattern.
+   *
+   * @param url the url
+   * @param urlPattern the url pattern
+   * @param urlPath the url path
+   * @param urlPathPattern the url path pattern
+   * @param urlPathTemplate the url path template
+   * @return the url pattern
+   */
   public static UrlPattern fromOneOf(
       String url,
       String urlPattern,
@@ -63,15 +83,30 @@ public class UrlPattern implements NamedValueMatcher<String> {
     return pattern.getName();
   }
 
+  /**
+   * Is regex boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRegex() {
     return regex;
   }
 
+  /**
+   * Gets pattern.
+   *
+   * @return the pattern
+   */
   @JsonValue
   public StringValuePattern getPattern() {
     return pattern;
   }
 
+  /**
+   * Gets path template.
+   *
+   * @return the path template
+   */
   public PathTemplate getPathTemplate() {
     return null;
   }
@@ -99,6 +134,11 @@ public class UrlPattern implements NamedValueMatcher<String> {
     return Objects.hash(pattern, regex);
   }
 
+  /**
+   * Is specified boolean.
+   *
+   * @return the boolean
+   */
   public boolean isSpecified() {
     return pattern.getClass() != AnythingPattern.class;
   }

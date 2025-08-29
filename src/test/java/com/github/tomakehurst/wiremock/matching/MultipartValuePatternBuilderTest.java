@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public class MultipartValuePatternBuilderTest {
 
   @Test
   public void testBuilderDefaultType() {
-    MultipartValuePattern pattern = aMultipart("name").build();
+    MultipartValuePattern pattern = amultipart("name").build();
     assertTrue(pattern.isMatchAny());
     assertFalse(pattern.isMatchAll());
   }
@@ -35,7 +35,7 @@ public class MultipartValuePatternBuilderTest {
   @Test
   public void testBuilderAnyType() {
     MultipartValuePattern pattern =
-        aMultipart("name").matchingType(MultipartValuePattern.MatchingType.ANY).build();
+        amultipart("name").matchingType(MultipartValuePattern.MatchingType.ANY).build();
 
     assertTrue(pattern.isMatchAny());
     assertFalse(pattern.isMatchAll());
@@ -44,7 +44,7 @@ public class MultipartValuePatternBuilderTest {
   @Test
   public void testBuilderAllType() {
     MultipartValuePattern pattern =
-        aMultipart("name").matchingType(MultipartValuePattern.MatchingType.ALL).build();
+        amultipart("name").matchingType(MultipartValuePattern.MatchingType.ALL).build();
 
     assertTrue(pattern.isMatchAll());
     assertFalse(pattern.isMatchAny());
@@ -53,7 +53,7 @@ public class MultipartValuePatternBuilderTest {
   @Test
   public void testBuilderWithNameHeadersAndBody() {
     MultipartValuePattern pattern =
-        aMultipart("name")
+        amultipart("name")
             .withHeader("X-Header", containing("something"))
             .withHeader("X-Other", absent())
             .withBody(equalToXml("<xml />"))
@@ -65,14 +65,14 @@ public class MultipartValuePatternBuilderTest {
 
   @Test
   public void testBuilderWithNameNoHeadersAndNoBody() {
-    MultipartValuePattern pattern = aMultipart().build();
+    MultipartValuePattern pattern = amultipart().build();
     assertNull(pattern);
   }
 
   @Test
   public void testBuilderWithoutNameWithHeadersAndBody() {
     MultipartValuePattern pattern =
-        aMultipart()
+        amultipart()
             .withHeader("X-Header", containing("something"))
             .withHeader("X-Other", absent())
             .withBody(equalToXml("<xml />"))

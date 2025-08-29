@@ -37,6 +37,7 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
 import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
+/** The type Equal to xml pattern. */
 public class EqualToXmlPattern extends StringValuePattern {
 
   private static final Set<ComparisonType> COUNTED_COMPARISONS =
@@ -67,10 +68,22 @@ public class EqualToXmlPattern extends StringValuePattern {
   private final Set<ComparisonType> countedComparisons;
   private final Document expectedXmlDoc;
 
+  /**
+   * Instantiates a new Equal to xml pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
     this(expectedValue, null, null, null, null, null, null);
   }
 
+  /**
+   * Instantiates a new Equal to xml pattern.
+   *
+   * @param expectedValue the expected value
+   * @param enablePlaceholders the enable placeholders
+   * @param ignoreOrderOfSameNode the ignore order of same node
+   */
   public EqualToXmlPattern(
       @JsonProperty("equalToXml") String expectedValue,
       @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
@@ -78,6 +91,17 @@ public class EqualToXmlPattern extends StringValuePattern {
     this(expectedValue, enablePlaceholders, null, null, null, ignoreOrderOfSameNode, null);
   }
 
+  /**
+   * Instantiates a new Equal to xml pattern.
+   *
+   * @param expectedValue the expected value
+   * @param enablePlaceholders the enable placeholders
+   * @param placeholderOpeningDelimiterRegex the placeholder opening delimiter regex
+   * @param placeholderClosingDelimiterRegex the placeholder closing delimiter regex
+   * @param exemptedComparisons the exempted comparisons
+   * @param ignoreOrderOfSameNode the ignore order of same node
+   * @param namespaceAwareness the namespace awareness
+   */
   @JsonCreator
   public EqualToXmlPattern(
       @JsonProperty("equalToXml") String expectedValue,
@@ -120,6 +144,11 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
   }
 
+  /**
+   * Gets equal to xml.
+   *
+   * @return the equal to xml
+   */
   public String getEqualToXml() {
     return expectedValue;
   }
@@ -135,26 +164,56 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
   }
 
+  /**
+   * Is enable placeholders boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isEnablePlaceholders() {
     return enablePlaceholders;
   }
 
+  /**
+   * Is ignore order of same node boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isIgnoreOrderOfSameNode() {
     return ignoreOrderOfSameNode;
   }
 
+  /**
+   * Gets placeholder opening delimiter regex.
+   *
+   * @return the placeholder opening delimiter regex
+   */
   public String getPlaceholderOpeningDelimiterRegex() {
     return placeholderOpeningDelimiterRegex;
   }
 
+  /**
+   * Gets placeholder closing delimiter regex.
+   *
+   * @return the placeholder closing delimiter regex
+   */
   public String getPlaceholderClosingDelimiterRegex() {
     return placeholderClosingDelimiterRegex;
   }
 
+  /**
+   * Gets exempted comparisons.
+   *
+   * @return the exempted comparisons
+   */
   public Set<ComparisonType> getExemptedComparisons() {
     return exemptedComparisons;
   }
 
+  /**
+   * Gets namespace awareness.
+   *
+   * @return the namespace awareness
+   */
   public NamespaceAwareness getNamespaceAwareness() {
     return namespaceAwareness;
   }
@@ -279,6 +338,11 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     private final Set<ComparisonType> finalCountedComparisons;
 
+    /**
+     * Instantiates a new Ignore uncounted difference evaluator.
+     *
+     * @param exemptedComparisons the exempted comparisons
+     */
     public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
       finalCountedComparisons =
           exemptedComparisons != null
@@ -288,6 +352,13 @@ public class EqualToXmlPattern extends StringValuePattern {
               : COUNTED_COMPARISONS;
     }
 
+    /**
+     * Evaluate comparison result.
+     *
+     * @param comparison the comparison
+     * @param outcome the outcome
+     * @return the comparison result
+     */
     @Override
     public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
       if (finalCountedComparisons.contains(comparison.getType())
@@ -299,6 +370,12 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
   }
 
+  /**
+   * Exempting comparisons equal to xml pattern.
+   *
+   * @param comparisons the comparisons
+   * @return the equal to xml pattern
+   */
   public EqualToXmlPattern exemptingComparisons(ComparisonType... comparisons) {
     return new EqualToXmlPattern(
         expectedValue,
@@ -310,6 +387,12 @@ public class EqualToXmlPattern extends StringValuePattern {
         namespaceAwareness);
   }
 
+  /**
+   * With namespace awareness equal to xml pattern.
+   *
+   * @param namespaceAwareness the namespace awareness
+   * @return the equal to xml pattern
+   */
   public EqualToXmlPattern withNamespaceAwareness(NamespaceAwareness namespaceAwareness) {
     return new EqualToXmlPattern(
         expectedValue,
@@ -324,10 +407,22 @@ public class EqualToXmlPattern extends StringValuePattern {
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
     private static Boolean secondaryOrderByTextContent;
 
+    /**
+     * Instantiates a new Order invariant node matcher.
+     *
+     * @param secondaryOrderByTextContent the secondary order by text content
+     */
     public OrderInvariantNodeMatcher(Boolean secondaryOrderByTextContent) {
       OrderInvariantNodeMatcher.secondaryOrderByTextContent = secondaryOrderByTextContent;
     }
 
+    /**
+     * Match iterable.
+     *
+     * @param controlNodes the control nodes
+     * @param testNodes the test nodes
+     * @return the iterable
+     */
     @Override
     public Iterable<Map.Entry<Node, Node>> match(
         Iterable<Node> controlNodes, Iterable<Node> testNodes) {
@@ -356,8 +451,8 @@ public class EqualToXmlPattern extends StringValuePattern {
    * <p>{@link NamespaceAwareness#LEGACY} represents the old way that namespaces were treated. This
    * had a lot of unpredictability and some behaviours were more of a side effect of other
    * implementation details, rather than intentional. A key detail is that the original {@link
-   * DocumentBuilderFactory} was not namespace aware, but the XSLT transform performed by {@link
-   * DiffBuilder#ignoreComments()} seems to return a document that is semi-namespace aware, so some
+   * DocumentBuilderFactory}* was not namespace aware, but the XSLT transform performed by {@link
+   * DiffBuilder#ignoreComments()}* seems to return a document that is semi-namespace aware, so some
    * namespace aware functionality was available. Now {@link DiffBuilder#ignoreComments()} has been
    * replaced by setting the {@link DocumentBuilderFactory} to ignore comment on read (much more
    * performant and predictable), so is only used to produce the legacy namespace aware behaviour.
@@ -402,9 +497,9 @@ public class EqualToXmlPattern extends StringValuePattern {
    *             XSLT transform performed by {@link DiffBuilder#ignoreComments()}.
    *         <li>The difference between default xmlns attributes and xmlns <i>prefixed</i>
    *             attributes is that the XSLT transform performed by {@link
-   *             DiffBuilder#ignoreComments()} assigns the namespace URI of default xmlns attributes
-   *             to the attributed element, which is why matching will fail (unless NAMESPACE_URI
-   *             comparison type is explicitly excluded).
+   *             DiffBuilder#ignoreComments()}* assigns the namespace URI of default xmlns
+   *             attributes to the attributed element, which is why matching will fail (unless
+   *             NAMESPACE_URI comparison type is explicitly excluded).
    *       </ul>
    * </ul>
    *
@@ -437,8 +532,11 @@ public class EqualToXmlPattern extends StringValuePattern {
    * </ul>
    */
   public enum NamespaceAwareness {
+    /** Strict namespace awareness. */
     STRICT,
+    /** Legacy namespace awareness. */
     LEGACY,
+    /** None namespace awareness. */
     NONE,
   }
 }

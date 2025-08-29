@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ public class ProxyAcceptanceTest {
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "text/plain")
                     .withBody("Proxied content")));
@@ -121,7 +121,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         any(urlEqualTo("/proxied/resource?param=value"))
             .atPriority(10)
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response = testClient.get("/proxied/resource?param=value");
 
@@ -138,7 +138,7 @@ public class ProxyAcceptanceTest {
         any(urlEqualTo("/additional/headers"))
             .atPriority(10)
             .willReturn(
-                aResponse()
+                aresponse()
                     .proxiedFrom(targetServiceBaseUrl)
                     .withAdditionalRequestHeader("a", "b")
                     .withAdditionalRequestHeader("c", "d")));
@@ -159,13 +159,13 @@ public class ProxyAcceptanceTest {
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
             .withHeader("a", equalTo("b"))
-            .willReturn(aResponse().withStatus(200).withBody("Proxied content")));
+            .willReturn(aresponse().withStatus(200).withBody("Proxied content")));
 
     proxy.register(
         any(urlEqualTo("/proxied/resource?param=value"))
             .atPriority(10)
             .willReturn(
-                aResponse()
+                aresponse()
                     .proxiedFrom(targetServiceBaseUrl)
                     .withAdditionalRequestHeader("a", "b")));
 
@@ -179,12 +179,12 @@ public class ProxyAcceptanceTest {
   public void successfullyPostsResponseToOtherServiceViaProxy() {
     initWithDefaultConfig();
 
-    target.register(post(urlEqualTo("/proxied/resource")).willReturn(aResponse().withStatus(204)));
+    target.register(post(urlEqualTo("/proxied/resource")).willReturn(aresponse().withStatus(204)));
 
     proxy.register(
         any(urlEqualTo("/proxied/resource"))
             .atPriority(10)
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response =
         testClient.postWithBody("/proxied/resource", "Post content", "text/plain", "utf-8");
@@ -201,12 +201,12 @@ public class ProxyAcceptanceTest {
 
     target.register(
         get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     proxy.register(
         any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
             .atPriority(10)
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response = testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26");
 
@@ -246,7 +246,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         post(urlEqualTo("/binary"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .proxiedFrom("http://localhost:" + server.getAddress().getPort())
                     .withBody(bytes)));
 
@@ -260,9 +260,9 @@ public class ProxyAcceptanceTest {
   public void sendsContentLengthHeaderInRequestWhenPostingIfPresentInOriginalRequest() {
     initWithDefaultConfig();
 
-    target.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
+    target.register(post(urlEqualTo("/with/length")).willReturn(aresponse().withStatus(201)));
     proxy.register(
-        post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        post(urlEqualTo("/with/length")).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.postWithBody("/with/length", "TEST", "application/x-www-form-urlencoded", "utf-8");
 
@@ -277,7 +277,7 @@ public class ProxyAcceptanceTest {
 
     String path = "/response/length";
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     CloseableHttpClient httpClient = HttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
@@ -294,7 +294,7 @@ public class ProxyAcceptanceTest {
 
     String path = "/response/length";
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     CloseableHttpClient httpClient = HttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
@@ -308,9 +308,9 @@ public class ProxyAcceptanceTest {
   public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
     initWithDefaultConfig();
 
-    target.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
+    target.register(post(urlEqualTo("/chunked")).willReturn(aresponse().withStatus(201)));
     proxy.register(
-        post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        post(urlEqualTo("/chunked")).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
 
@@ -324,10 +324,10 @@ public class ProxyAcceptanceTest {
     init(wireMockConfig().preserveHostHeader(true));
 
     target.register(
-        get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/preserve-host-header")).willReturn(aresponse().withStatus(200)));
     proxy.register(
         get(urlEqualTo("/preserve-host-header"))
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.get("/preserve-host-header", withHeader("Host", "my.host"));
 
@@ -343,9 +343,9 @@ public class ProxyAcceptanceTest {
   public void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() {
     init(wireMockConfig().preserveHostHeader(false));
 
-    target.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
+    target.register(get(urlEqualTo("/host-header")).willReturn(aresponse().withStatus(200)));
     proxy.register(
-        get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        get(urlEqualTo("/host-header")).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.get("/host-header", withHeader("Host", "my.host"));
 
@@ -361,10 +361,10 @@ public class ProxyAcceptanceTest {
     init(wireMockConfig().preserveUserAgentProxyHeader(true));
 
     target.register(
-        get(urlEqualTo("/preserve-user-agent-header")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/preserve-user-agent-header")).willReturn(aresponse().withStatus(200)));
     proxy.register(
         get(urlEqualTo("/preserve-user-agent-header"))
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.get("/preserve-user-agent-header", withHeader("User-Agent", "my-user-agent"));
 
@@ -381,10 +381,10 @@ public class ProxyAcceptanceTest {
     init(wireMockConfig());
 
     target.register(
-        get(urlEqualTo("/preserve-user-agent-header")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/preserve-user-agent-header")).willReturn(aresponse().withStatus(200)));
     proxy.register(
         get(urlEqualTo("/preserve-user-agent-header"))
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.get("/preserve-user-agent-header", withHeader("User-Agent", "my-user-agent"));
 
@@ -403,9 +403,9 @@ public class ProxyAcceptanceTest {
   public void proxiesPatchRequestsWithBody() {
     initWithDefaultConfig();
 
-    target.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
+    target.register(patch(urlEqualTo("/patch")).willReturn(aresponse().withStatus(200)));
     proxy.register(
-        patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        patch(urlEqualTo("/patch")).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.patchWithBody("/patch", "Patch body", "text/plain", "utf-8");
 
@@ -420,7 +420,7 @@ public class ProxyAcceptanceTest {
     target.register(
         get(urlEqualTo("/extra/headers"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "text/plain")
                     .withBody("Proxied content")));
@@ -428,7 +428,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         any(urlEqualTo("/extra/headers"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("X-Additional-Header", "Yep")
                     .proxiedFrom(targetServiceBaseUrl)));
 
@@ -444,10 +444,10 @@ public class ProxyAcceptanceTest {
 
     target.register(
         get(urlEqualTo("/duplicate/cookies"))
-            .willReturn(aResponse().withStatus(200).withHeader("Set-Cookie", "session=1234")));
+            .willReturn(aresponse().withStatus(200).withHeader("Set-Cookie", "session=1234")));
     proxy.register(
         get(urlEqualTo("/duplicate/cookies"))
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.get("/duplicate/cookies");
     testClient.get("/duplicate/cookies", withHeader("Cookie", "session=1234"));
@@ -466,9 +466,7 @@ public class ProxyAcceptanceTest {
     testClient.get("/duplicate/connection-header");
     LoggedRequest lastRequest =
         getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
-    assertThat(
-        lastRequest.getHeaders().getHeader("Connection").values(),
-        hasItem("keep-alive"));
+    assertThat(lastRequest.getHeaders().getHeader("Connection").values(), hasItem("keep-alive"));
   }
 
   @Test
@@ -522,8 +520,8 @@ public class ProxyAcceptanceTest {
   public void maintainsGZippedRequest() {
     initWithDefaultConfig();
 
-    target.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
-    proxy.register(post("/gzipped").willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    target.register(post("/gzipped").willReturn(aresponse().withStatus(201)));
+    proxy.register(post("/gzipped").willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     HttpEntity gzippedBody =
         new GzipCompressingEntity(new StringEntity("gzipped body", TEXT_PLAIN));
@@ -540,7 +538,7 @@ public class ProxyAcceptanceTest {
     initWithDefaultConfig();
 
     target.register(get("/example").willReturn(ok()));
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response =
         testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example");
@@ -555,7 +553,7 @@ public class ProxyAcceptanceTest {
     initWithDefaultConfig();
 
     target.register(get("/example/").willReturn(ok()));
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response =
         testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example/");
@@ -575,7 +573,7 @@ public class ProxyAcceptanceTest {
     initWithDefaultConfig();
 
     target.register(get("/").willReturn(ok()));
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse responseToRequestWithoutSlash =
         testClient.getViaProxy("http://localhost:" + proxyingService.port());
@@ -596,7 +594,7 @@ public class ProxyAcceptanceTest {
     target.register(get("/delayed").willReturn(ok()));
     proxy.register(
         any(anyUrl())
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl).withFixedDelay(300)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl).withFixedDelay(300)));
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     WireMockResponse response =
@@ -615,7 +613,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         any(anyUrl())
             .willReturn(
-                aResponse().proxiedFrom(targetServiceBaseUrl).withChunkedDribbleDelay(10, 300)));
+                aresponse().proxiedFrom(targetServiceBaseUrl).withChunkedDribbleDelay(10, 300)));
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     WireMockResponse response =
@@ -633,7 +631,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         get("/other/service/doc/123")
             .willReturn(
-                aResponse()
+                aresponse()
                     .proxiedFrom(targetServiceBaseUrl + "/approot")
                     .withProxyUrlPrefixToRemove("/other/service")));
 
@@ -651,7 +649,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         get("/other/service/doc/123")
             .willReturn(
-                aResponse()
+                aresponse()
                     .proxiedFrom(targetServiceBaseUrl + "/approot")
                     .withProxyUrlPrefixToRemove("/other/service")));
 
@@ -669,7 +667,7 @@ public class ProxyAcceptanceTest {
 
     target.register(any(anyUrl()).willReturn(ok()));
 
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.request(method, "/somewhere", "Proxied content");
 
@@ -742,7 +740,7 @@ public class ProxyAcceptanceTest {
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withFixedDelay(500)
                     .withStatus(200)
                     .withHeader("Content-Type", "text/plain")
@@ -751,7 +749,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         any(urlEqualTo("/proxied/resource?param=value"))
             .atPriority(10)
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response = testClient.get("/proxied/resource?param=value");
 
@@ -766,7 +764,7 @@ public class ProxyAcceptanceTest {
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withFixedDelay(1500)
                     .withStatus(200)
                     .withHeader("Content-Type", "text/plain")
@@ -775,7 +773,7 @@ public class ProxyAcceptanceTest {
     proxy.register(
         any(urlEqualTo("/proxied/resource?param=value"))
             .atPriority(10)
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+            .willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
 
     WireMockResponse response = testClient.get("/proxied/resource?param=value");
 
@@ -807,7 +805,7 @@ public class ProxyAcceptanceTest {
   }
 
   private void register200StubOnProxyAndTarget(String url) {
-    target.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
-    proxy.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    target.register(get(urlEqualTo(url)).willReturn(aresponse().withStatus(200)));
+    proxy.register(get(urlEqualTo(url)).willReturn(aresponse().proxiedFrom(targetServiceBaseUrl)));
   }
 }

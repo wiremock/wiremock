@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,14 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
+/** The interface Thread pool factory. */
 public interface ThreadPoolFactory {
 
+  /**
+   * Build thread pool thread pool.
+   *
+   * @param options the options
+   * @return the thread pool
+   */
   ThreadPool buildThreadPool(Options options);
 }

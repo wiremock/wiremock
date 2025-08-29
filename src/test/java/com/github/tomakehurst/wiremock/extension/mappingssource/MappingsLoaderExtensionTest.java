@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.mappingssource;
 
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceUri;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -66,6 +66,6 @@ public class MappingsLoaderExtensionTest {
   }
 
   public static String filePath(String path) {
-    return new File(getResourceURI(MappingsLoaderExtensionTest.class, path)).getAbsolutePath();
+    return new File(getResourceUri(MappingsLoaderExtensionTest.class, path)).getAbsolutePath();
   }
 }

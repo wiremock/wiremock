@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,28 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Serve event listener. */
 public interface ServeEventListener extends Extension {
 
+  /** The enum Request phase. */
   enum RequestPhase {
+    /** Before match request phase. */
     BEFORE_MATCH,
+    /** After match request phase. */
     AFTER_MATCH,
+    /** Before response sent request phase. */
     BEFORE_RESPONSE_SENT,
+    /** After complete request phase. */
     AFTER_COMPLETE
   }
 
+  /**
+   * On event.
+   *
+   * @param requestPhase the request phase
+   * @param serveEvent the serve event
+   * @param parameters the parameters
+   */
   default void onEvent(RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
     switch (requestPhase) {
       case BEFORE_MATCH:
@@ -43,14 +56,43 @@ public interface ServeEventListener extends Extension {
     }
   }
 
+  /**
+   * Before match.
+   *
+   * @param serveEvent the serve event
+   * @param parameters the parameters
+   */
   default void beforeMatch(ServeEvent serveEvent, Parameters parameters) {}
 
+  /**
+   * After match.
+   *
+   * @param serveEvent the serve event
+   * @param parameters the parameters
+   */
   default void afterMatch(ServeEvent serveEvent, Parameters parameters) {}
 
+  /**
+   * Before response sent.
+   *
+   * @param serveEvent the serve event
+   * @param parameters the parameters
+   */
   default void beforeResponseSent(ServeEvent serveEvent, Parameters parameters) {}
 
+  /**
+   * After complete.
+   *
+   * @param serveEvent the serve event
+   * @param parameters the parameters
+   */
   default void afterComplete(ServeEvent serveEvent, Parameters parameters) {}
 
+  /**
+   * Apply globally boolean.
+   *
+   * @return the boolean
+   */
   default boolean applyGlobally() {
     return true;
   }

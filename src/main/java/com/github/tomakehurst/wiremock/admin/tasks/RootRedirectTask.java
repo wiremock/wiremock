@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,12 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to redirect requests from the bare admin root to the slash-terminated version.
+ *
+ * <p>This ensures that relative links in the admin UI work correctly. For example, it redirects a
+ * request from {@code /__admin} to {@code /__admin/}.
+ */
 public class RootRedirectTask implements AdminTask {
 
   @Override

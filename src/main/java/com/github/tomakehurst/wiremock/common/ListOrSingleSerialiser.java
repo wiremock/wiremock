@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,18 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.io.IOException;
 import java.util.List;
 
+/** The type List or single serialiser. */
 public class ListOrSingleSerialiser extends JsonSerializer<ListOrSingle<Object>> {
 
+  /**
+   * Serialize.
+   *
+   * @param value the value
+   * @param gen the gen
+   * @param serializers the serializers
+   * @throws IOException the io exception
+   * @throws JsonProcessingException the json processing exception
+   */
   @Override
   public void serialize(
       ListOrSingle<Object> value, JsonGenerator gen, SerializerProvider serializers)

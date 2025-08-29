@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROO
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.InvalidParameterException;
+import com.github.tomakehurst.wiremock.common.NotPermittedException;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -32,6 +36,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.net.URI;
 import java.util.List;
 
+/** The type Admin request handler. */
 public class AdminRequestHandler extends AbstractRequestHandler {
 
   private final AdminRoutes adminRoutes;
@@ -39,6 +44,18 @@ public class AdminRequestHandler extends AbstractRequestHandler {
   private final Authenticator authenticator;
   private final boolean requireHttps;
 
+  /**
+   * Instantiates a new Admin request handler.
+   *
+   * @param adminRoutes the admin routes
+   * @param admin the admin
+   * @param responseRenderer the response renderer
+   * @param authenticator the authenticator
+   * @param requireHttps the require https
+   * @param requestFilters the request filters
+   * @param v2RequestFilters the v 2 request filters
+   * @param dataTruncationSettings the data truncation settings
+   */
   public AdminRequestHandler(
       AdminRoutes adminRoutes,
       Admin admin,

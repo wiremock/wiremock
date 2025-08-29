@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,14 @@ import org.eclipse.jetty.server.Response;
 
 /** Helper utility interface to inject Jetty 11/12/... specific response / request handling */
 public interface JettyHttpUtils {
+  /** The constant IS_JETTY. */
   static final boolean IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
 
+  /**
+   * Is jetty boolean.
+   *
+   * @return the boolean
+   */
   static boolean isJetty() {
     return IS_JETTY;
   }

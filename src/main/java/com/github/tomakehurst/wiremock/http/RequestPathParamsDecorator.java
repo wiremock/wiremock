@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,30 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/** The type Request path params decorator. */
 public class RequestPathParamsDecorator implements Request {
 
   private final Request request;
   private final PathTemplate pathTemplate;
 
+  /**
+   * Decorate request.
+   *
+   * @param request the request
+   * @param requestPattern the request pattern
+   * @return the request
+   */
   public static Request decorate(Request request, RequestPattern requestPattern) {
     final PathTemplate pathTemplate = requestPattern.getUrlMatcher().getPathTemplate();
     return pathTemplate != null ? new RequestPathParamsDecorator(request, pathTemplate) : request;
   }
 
+  /**
+   * Instantiates a new Request path params decorator.
+   *
+   * @param request the request
+   * @param pathTemplate the path template
+   */
   public RequestPathParamsDecorator(Request request, PathTemplate pathTemplate) {
     this.request = request;
     this.pathTemplate = pathTemplate;

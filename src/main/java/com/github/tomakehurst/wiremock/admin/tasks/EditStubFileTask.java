@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,23 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to create or update a file in the `__files` directory.
+ *
+ * <p>This task handles the API request to write a file to the file blob store. The file path is
+ * determined from the URL, and the file content is taken from the request body.
+ *
+ * @see Stores
+ */
 public class EditStubFileTask implements AdminTask {
 
   private final Stores stores;
 
+  /**
+   * Constructs a new EditStubFileTask.
+   *
+   * @param stores The stores instance for accessing the file system.
+   */
   public EditStubFileTask(Stores stores) {
     this.stores = stores;
   }

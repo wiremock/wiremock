@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,35 +22,80 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 
+/** The type Request method. */
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
+  /** The constant GET. */
   public static final RequestMethod GET = new RequestMethod("GET");
+
+  /** The constant POST. */
   public static final RequestMethod POST = new RequestMethod("POST");
+
+  /** The constant PUT. */
   public static final RequestMethod PUT = new RequestMethod("PUT");
+
+  /** The constant DELETE. */
   public static final RequestMethod DELETE = new RequestMethod("DELETE");
+
+  /** The constant PATCH. */
   public static final RequestMethod PATCH = new RequestMethod("PATCH");
+
+  /** The constant OPTIONS. */
   public static final RequestMethod OPTIONS = new RequestMethod("OPTIONS");
+
+  /** The constant HEAD. */
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
+
+  /** The constant TRACE. */
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
+
+  /** The constant ANY. */
   public static final RequestMethod ANY = new RequestMethod("ANY");
+
+  /** The constant GET_OR_HEAD. */
   public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
+
   private final String name;
 
+  /**
+   * Instantiates a new Request method.
+   *
+   * @param name the name
+   */
   public RequestMethod(String name) {
-    if (name == null) throw new NullPointerException("Method name cannot be null");
+    if (name == null) {
+      throw new NullPointerException("Method name cannot be null");
+    }
     this.name = name;
   }
 
+  /**
+   * From string request method.
+   *
+   * @param value the value
+   * @return the request method
+   */
   @JsonCreator
   public static RequestMethod fromString(String value) {
     return new RequestMethod(value);
   }
 
+  /**
+   * Value string.
+   *
+   * @return the string
+   */
   @JsonValue
   public String value() {
     return name;
   }
 
+  /**
+   * Is one of boolean.
+   *
+   * @param methods the methods
+   * @return the boolean
+   */
   public boolean isOneOf(RequestMethod... methods) {
     return asList(methods).contains(this);
   }
@@ -73,13 +118,22 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     RequestMethod that = (RequestMethod) o;
     return name.equals(that.name);
   }
 
+  /**
+   * Has entity boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasEntity() {
     return (asList(PUT, PATCH, POST).contains(this));
   }
@@ -94,6 +148,11 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return name;
   }
 
+  /**
+   * Values request method [ ].
+   *
+   * @return the request method [ ]
+   */
   public static RequestMethod[] values() {
     return new RequestMethod[] {
       GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD

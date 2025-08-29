@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,13 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task that retrieves the current status of the request recorder.
+ *
+ * <p>This task handles the API request to check whether the server is currently in recording mode.
+ *
+ * @see com.github.tomakehurst.wiremock.recording.RecordingStatus
+ */
 public class GetRecordingStatusTask implements AdminTask {
 
   @Override

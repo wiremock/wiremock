@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,13 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to remove all stub mappings.
+ *
+ * <p>This task handles the API request to delete all registered {@link
+ * com.github.tomakehurst.wiremock.stubbing.StubMapping}s, which is useful for ensuring a clean
+ * state between tests.
+ */
 public class ResetStubMappingsTask implements AdminTask {
 
   @Override

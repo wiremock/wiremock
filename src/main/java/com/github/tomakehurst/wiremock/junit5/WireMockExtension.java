@@ -51,6 +51,7 @@ public class WireMockExtension extends DslWrapper
   private boolean isNonStatic = false;
   private Boolean proxyMode;
 
+  /** Instantiates a new Wire mock extension. */
   WireMockExtension() {
     configureStaticDsl = true;
     failOnUnmatchedRequests = false;
@@ -209,6 +210,14 @@ public class WireMockExtension extends DslWrapper
     this.onAfterAll(wireMockRuntimeInfo);
   }
 
+  /**
+   * Supports parameter boolean.
+   *
+   * @param parameterContext the parameter context
+   * @param extensionContext the extension context
+   * @return the boolean
+   * @throws ParameterResolutionException the parameter resolution exception
+   */
   @Override
   public boolean supportsParameter(
       final ParameterContext parameterContext, final ExtensionContext extensionContext)
@@ -216,6 +225,14 @@ public class WireMockExtension extends DslWrapper
     return parameterIsWireMockRuntimeInfo(parameterContext);
   }
 
+  /**
+   * Resolve parameter object.
+   *
+   * @param parameterContext the parameter context
+   * @param extensionContext the extension context
+   * @return the object
+   * @throws ParameterResolutionException the parameter resolution exception
+   */
   @Override
   public Object resolveParameter(
       final ParameterContext parameterContext, final ExtensionContext extensionContext)
@@ -295,6 +312,12 @@ public class WireMockExtension extends DslWrapper
         && this.isDeclarative;
   }
 
+  /**
+   * Before all.
+   *
+   * @param context the context
+   * @throws Exception the exception
+   */
   @Override
   public final void beforeAll(ExtensionContext context) throws Exception {
     startServerIfRequired(context);
@@ -303,6 +326,12 @@ public class WireMockExtension extends DslWrapper
     onBeforeAll(context, runtimeInfo);
   }
 
+  /**
+   * Before each.
+   *
+   * @param context the context
+   * @throws Exception the exception
+   */
   @Override
   public final void beforeEach(ExtensionContext context) throws Exception {
     if (wireMockServer == null) {
@@ -323,6 +352,12 @@ public class WireMockExtension extends DslWrapper
     onBeforeEach(context, runtimeInfo);
   }
 
+  /**
+   * After all.
+   *
+   * @param context the context
+   * @throws Exception the exception
+   */
   @Override
   public final void afterAll(ExtensionContext context) throws Exception {
     stopServerIfRunning();
@@ -330,6 +365,12 @@ public class WireMockExtension extends DslWrapper
     onAfterAll(context, runtimeInfo);
   }
 
+  /**
+   * After each.
+   *
+   * @param context the context
+   * @throws Exception the exception
+   */
   @Override
   public final void afterEach(ExtensionContext context) throws Exception {
     if (failOnUnmatchedRequests) {
@@ -347,26 +388,53 @@ public class WireMockExtension extends DslWrapper
     onAfterEach(context, runtimeInfo);
   }
 
+  /**
+   * Gets runtime info.
+   *
+   * @return the runtime info
+   */
   public WireMockRuntimeInfo getRuntimeInfo() {
     return new WireMockRuntimeInfo(wireMockServer);
   }
 
+  /**
+   * Base url string.
+   *
+   * @return the string
+   */
   public String baseUrl() {
     return wireMockServer.baseUrl();
   }
 
+  /**
+   * Url string.
+   *
+   * @param path the path
+   * @return the string
+   */
   public String url(String path) {
     return wireMockServer.url(path);
   }
 
+  /**
+   * Gets https port.
+   *
+   * @return the https port
+   */
   public int getHttpsPort() {
     return wireMockServer.httpsPort();
   }
 
+  /**
+   * Gets port.
+   *
+   * @return the port
+   */
   public int getPort() {
     return wireMockServer.port();
   }
 
+  /** The type Builder. */
   public static class Builder {
 
     private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();
@@ -375,31 +443,66 @@ public class WireMockExtension extends DslWrapper
     private boolean resetOnEachTest = true;
     private boolean proxyMode = false;
 
+    /**
+     * Options builder.
+     *
+     * @param options the options
+     * @return the builder
+     */
     public Builder options(Options options) {
       this.options = options;
       return this;
     }
 
+    /**
+     * Configure static dsl builder.
+     *
+     * @param configureStaticDsl the configure static dsl
+     * @return the builder
+     */
     public Builder configureStaticDsl(boolean configureStaticDsl) {
       this.configureStaticDsl = configureStaticDsl;
       return this;
     }
 
+    /**
+     * Fail on unmatched requests builder.
+     *
+     * @param failOnUnmatched the fail on unmatched
+     * @return the builder
+     */
     public Builder failOnUnmatchedRequests(boolean failOnUnmatched) {
       this.failOnUnmatchedRequests = failOnUnmatched;
       return this;
     }
 
+    /**
+     * Proxy mode builder.
+     *
+     * @param proxyMode the proxy mode
+     * @return the builder
+     */
     public Builder proxyMode(boolean proxyMode) {
       this.proxyMode = proxyMode;
       return this;
     }
 
+    /**
+     * Reset on each test builder.
+     *
+     * @param resetOnEachTest the reset on each test
+     * @return the builder
+     */
     public Builder resetOnEachTest(boolean resetOnEachTest) {
       this.resetOnEachTest = resetOnEachTest;
       return this;
     }
 
+    /**
+     * Build wire mock extension.
+     *
+     * @return the wire mock extension
+     */
     public WireMockExtension build() {
       if (proxyMode
           && !options.browserProxySettings().enabled()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -32,7 +32,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   void convertArrayToJson() {
     String responseTemplate = "{{ toJson (array 1 2 3) }}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("[ 1, 2, 3 ]"));
   }
@@ -41,7 +41,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   void convertNullToJson() {
     String responseTemplate = "{{ toJson null }}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is(""));
   }
@@ -50,7 +50,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   void convertStringToJson() {
     String responseTemplate = "{{ toJson 'null' }}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("\"null\""));
   }
@@ -63,7 +63,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().header("Authorization", "whatever").header("Content-Type", "text/plain"),
-            aResponse().withBody(responseTemplate));
+            aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -78,7 +78,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().header("Authorization", "whatever").header("Content-Type", "text/plain"),
-            aResponse().withBody(responseTemplate));
+            aresponse().withBody(responseTemplate));
 
     assertThat(
         responseDefinition.getBody(),
@@ -89,7 +89,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   void convertBooleanToJson() {
     String responseTemplate = "{{ toJson true }}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("true"));
   }
@@ -98,7 +98,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
   void convertNumberToJson() {
     String responseTemplate = "{{ toJson 123 }}";
     ResponseDefinition responseDefinition =
-        transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
+        transform(transformer, mockRequest(), aresponse().withBody(responseTemplate));
 
     assertThat(responseDefinition.getBody(), is("123"));
   }

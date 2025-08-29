@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void getsAllServeEvents() {
     dsl.stubFor(
-        get(urlPathEqualTo("/two")).willReturn(aResponse().withStatus(200).withBody("Exactly 2")));
+        get(urlPathEqualTo("/two")).willReturn(aresponse().withStatus(200).withBody("Exactly 2")));
 
     testClient.get("/one");
     testClient.get("/two");
@@ -164,7 +164,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   public void getAllServeEventsPreservesBinaryBody() {
     dsl.stubFor(
         any(anyUrl())
-            .willReturn(aResponse().withBody(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)));
+            .willReturn(aresponse().withBody(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)));
 
     testClient.get("/");
 

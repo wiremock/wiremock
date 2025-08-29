@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,27 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.wiremock.annotations.Beta;
 
+/** The interface Object store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface ObjectStore extends Store<String, Object> {
 
+  /**
+   * Get optional.
+   *
+   * @param <T> the type parameter
+   * @param key the key
+   * @param type the type
+   * @return the optional
+   */
   <T> Optional<T> get(String key, Class<T> type);
 
+  /**
+   * Compute t.
+   *
+   * @param <T> the type parameter
+   * @param key the key
+   * @param valueFunction the value function
+   * @return the t
+   */
   <T> T compute(String key, Function<T, T> valueFunction);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,37 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import java.util.LinkedHashMap;
 
+/** The type Path params. */
 public class PathParams extends LinkedHashMap<String, String> {
 
+  /**
+   * Empty path params.
+   *
+   * @return the path params
+   */
   public static PathParams empty() {
     return new PathParams();
   }
 
+  /**
+   * Add path params.
+   *
+   * @param key the key
+   * @param value the value
+   * @return the path params
+   */
   public PathParams add(String key, String value) {
     put(key, value);
     return this;
   }
 
+  /**
+   * Single path params.
+   *
+   * @param key the key
+   * @param value the value
+   * @return the path params
+   */
   public static PathParams single(String key, Object value) {
     return new PathParams().add(key, value.toString());
   }

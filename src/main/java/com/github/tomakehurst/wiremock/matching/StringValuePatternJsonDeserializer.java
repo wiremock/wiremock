@@ -31,6 +31,7 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 import org.xmlunit.diff.ComparisonType;
 
+/** The type String value pattern json deserializer. */
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
 
   private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
@@ -55,6 +56,14 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           Map.entry("or", LogicalOr.class),
           Map.entry("matchesPathTemplate", PathTemplatePattern.class));
 
+  /**
+   * Deserialize string value pattern.
+   *
+   * @param parser the parser
+   * @param context the context
+   * @return the string value pattern
+   * @throws IOException the io exception
+   */
   @Override
   public StringValuePattern deserialize(JsonParser parser, DeserializationContext context)
       throws IOException {
@@ -62,6 +71,13 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     return buildStringValuePattern(rootNode);
   }
 
+  /**
+   * Build string value pattern string value pattern.
+   *
+   * @param rootNode the root node
+   * @return the string value pattern
+   * @throws JsonMappingException the json mapping exception
+   */
   public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
     Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
     if (patternClass.equals(AbsentPattern.class)) {

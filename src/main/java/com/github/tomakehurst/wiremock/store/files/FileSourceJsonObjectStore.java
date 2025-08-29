@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,27 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
+/** The type File source json object store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class FileSourceJsonObjectStore implements ObjectStore, PathBased {
 
   private final FileSource fileSource;
   private final KeyLocks keyLocks = new KeyLocks();
 
+  /**
+   * Instantiates a new File source json object store.
+   *
+   * @param root the root
+   */
   public FileSourceJsonObjectStore(String root) {
     this.fileSource = new SingleRootFileSource(root);
   }
 
+  /**
+   * Instantiates a new File source json object store.
+   *
+   * @param fileSource the file source
+   */
   public FileSourceJsonObjectStore(FileSource fileSource) {
     this.fileSource = fileSource;
   }
@@ -106,6 +117,11 @@ public class FileSourceJsonObjectStore implements ObjectStore, PathBased {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
   }
 
+  /**
+   * Gets file source.
+   *
+   * @return the file source
+   */
   public FileSource getFileSource() {
     return fileSource;
   }

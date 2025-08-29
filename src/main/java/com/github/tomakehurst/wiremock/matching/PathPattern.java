@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,37 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import java.util.Objects;
 
+/** The type Path pattern. */
 public abstract class PathPattern extends StringValuePattern {
 
+  /** The Value pattern. */
   protected final StringValuePattern valuePattern;
 
+  /**
+   * Instantiates a new Path pattern.
+   *
+   * @param expectedValue the expected value
+   * @param valuePattern the value pattern
+   */
   protected PathPattern(String expectedValue, StringValuePattern valuePattern) {
     super(expectedValue);
     this.valuePattern = valuePattern;
   }
 
+  /**
+   * Gets value pattern.
+   *
+   * @return the value pattern
+   */
   public StringValuePattern getValuePattern() {
     return valuePattern;
   }
 
+  /**
+   * Is simple boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isSimple() {
     return valuePattern == null;
@@ -46,10 +64,28 @@ public abstract class PathPattern extends StringValuePattern {
     return isAdvancedMatch(value);
   }
 
+  /**
+   * Is simple match match result.
+   *
+   * @param value the value
+   * @return the match result
+   */
   protected abstract MatchResult isSimpleMatch(String value);
 
+  /**
+   * Is advanced match match result.
+   *
+   * @param value the value
+   * @return the match result
+   */
   protected abstract MatchResult isAdvancedMatch(String value);
 
+  /**
+   * Gets expression result.
+   *
+   * @param value the value
+   * @return the expression result
+   */
   public abstract ListOrSingle<String> getExpressionResult(String value);
 
   @Override
@@ -67,11 +103,23 @@ public abstract class PathPattern extends StringValuePattern {
     return Objects.hash(super.hashCode(), valuePattern);
   }
 
+  /** The type Sub expression exception. */
   protected static class SubExpressionException extends RuntimeException {
+    /**
+     * Instantiates a new Sub expression exception.
+     *
+     * @param message the message
+     */
     public SubExpressionException(String message) {
       super(message);
     }
 
+    /**
+     * Instantiates a new Sub expression exception.
+     *
+     * @param message the message
+     * @param cause the cause
+     */
     public SubExpressionException(String message, Throwable cause) {
       super(message, cause);
     }

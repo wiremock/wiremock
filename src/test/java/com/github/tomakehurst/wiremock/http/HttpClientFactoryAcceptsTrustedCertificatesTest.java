@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.util.Arrays.asList;
@@ -57,7 +57,7 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest
 
     startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    server.stubFor(get("/whatever").willReturn(aresponse().withBody("Hello World")));
 
     CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 

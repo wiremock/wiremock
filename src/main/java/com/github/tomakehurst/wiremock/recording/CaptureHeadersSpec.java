@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,25 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Capture headers spec. */
 public class CaptureHeadersSpec {
 
   private final Boolean caseInsensitive;
 
+  /**
+   * Instantiates a new Capture headers spec.
+   *
+   * @param caseInsensitive the case insensitive
+   */
   public CaptureHeadersSpec(@JsonProperty("caseInsensitive") Boolean caseInsensitive) {
     this.caseInsensitive = caseInsensitive;
   }
 
+  /**
+   * Gets case insensitive.
+   *
+   * @return the case insensitive
+   */
   public Boolean getCaseInsensitive() {
     return caseInsensitive;
   }

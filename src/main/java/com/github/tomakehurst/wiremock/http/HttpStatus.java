@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+/** The type Http status. */
 public class HttpStatus {
 
-  public static boolean isSuccess(int code) {
-    return ((200 <= code) && (code <= 299));
-  }
-
-  public static boolean isRedirection(int code) {
-    return ((300 <= code) && (code <= 399));
-  }
-
+  /**
+   * Is client error boolean.
+   *
+   * @param code the code
+   * @return the boolean
+   */
   public static boolean isClientError(int code) {
     return ((400 <= code) && (code <= 499));
   }
 
+  /**
+   * Is server error boolean.
+   *
+   * @param code the code
+   * @return the boolean
+   */
   public static boolean isServerError(int code) {
     return ((500 <= code) && (code <= 599));
   }

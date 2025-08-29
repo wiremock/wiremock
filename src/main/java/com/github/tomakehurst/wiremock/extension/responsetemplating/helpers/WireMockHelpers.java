@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public enum WireMockHelpers implements Helper<Object> {
   xPath {
-    private final HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
+    private final Handlebarsxpathhelper helper = new Handlebarsxpathhelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {

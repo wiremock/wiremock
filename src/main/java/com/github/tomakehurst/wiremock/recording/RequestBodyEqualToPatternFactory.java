@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 
+/** The type Request body equal to pattern factory. */
 public class RequestBodyEqualToPatternFactory implements RequestBodyPatternFactory {
 
   private final Boolean caseInsensitive;
 
+  /**
+   * Instantiates a new Request body equal to pattern factory.
+   *
+   * @param caseInsensitive the case insensitive
+   */
   @JsonCreator
   public RequestBodyEqualToPatternFactory(
       @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
     this.caseInsensitive = caseInsensitive;
   }
 
+  /**
+   * Is case insensitive boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isCaseInsensitive() {
     return caseInsensitive;
   }

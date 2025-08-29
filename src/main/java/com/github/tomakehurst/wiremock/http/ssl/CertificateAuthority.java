@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,54 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import javax.net.ssl.SNIHostName;
-import sun.security.x509.*;
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.AuthorityKeyIdentifierExtension;
+import sun.security.x509.BasicConstraintsExtension;
+import sun.security.x509.CertificateAlgorithmId;
+import sun.security.x509.CertificateExtensions;
+import sun.security.x509.CertificateSerialNumber;
+import sun.security.x509.CertificateValidity;
+import sun.security.x509.CertificateVersion;
+import sun.security.x509.CertificateX509Key;
+import sun.security.x509.DNSName;
+import sun.security.x509.GeneralName;
+import sun.security.x509.GeneralNames;
+import sun.security.x509.KeyIdentifier;
+import sun.security.x509.KeyUsageExtension;
+import sun.security.x509.SubjectAlternativeNameExtension;
+import sun.security.x509.SubjectKeyIdentifierExtension;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509CertImpl;
+import sun.security.x509.X509CertInfo;
 
+/** The type Certificate authority. */
 @SuppressWarnings("sunapi")
 public class CertificateAuthority {
 
   private final X509Certificate[] certificateChain;
   private final PrivateKey key;
 
+  /**
+   * Instantiates a new Certificate authority.
+   *
+   * @param certificateChain the certificate chain
+   * @param key the key
+   */
   public CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
     this.certificateChain = requireNonNull(certificateChain);
     if (certificateChain.length == 0) {
@@ -43,6 +76,13 @@ public class CertificateAuthority {
     this.key = requireNonNull(key);
   }
 
+  /**
+   * Generate certificate authority certificate authority.
+   *
+   * @return the certificate authority
+   * @throws CertificateGenerationUnsupportedException the certificate generation unsupported
+   *     exception
+   */
   public static CertificateAuthority generateCertificateAuthority()
       throws CertificateGenerationUnsupportedException {
     try {
@@ -76,8 +116,11 @@ public class CertificateAuthority {
   }
 
   private static X509CertImpl selfSign(X509CertInfo info, PrivateKey privateKey, String sigAlg)
-      throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
-          NoSuchProviderException, SignatureException {
+      throws CertificateException,
+          NoSuchAlgorithmException,
+          InvalidKeyException,
+          NoSuchProviderException,
+          SignatureException {
     X509CertImpl certificate = new X509CertImpl(info);
     certificate.sign(privateKey, sigAlg);
     return certificate;
@@ -109,14 +152,33 @@ public class CertificateAuthority {
     }
   }
 
+  /**
+   * Certificate chain x 509 certificate [ ].
+   *
+   * @return the x 509 certificate [ ]
+   */
   public X509Certificate[] certificateChain() {
     return certificateChain;
   }
 
+  /**
+   * Key private key.
+   *
+   * @return the private key
+   */
   public PrivateKey key() {
     return key;
   }
 
+  /**
+   * Generate certificate cert chain and key.
+   *
+   * @param keyType the key type
+   * @param hostName the host name
+   * @return the cert chain and key
+   * @throws CertificateGenerationUnsupportedException the certificate generation unsupported
+   *     exception
+   */
   CertChainAndKey generateCertificate(String keyType, SNIHostName hostName)
       throws CertificateGenerationUnsupportedException {
     try {
@@ -151,8 +213,12 @@ public class CertificateAuthority {
   }
 
   private X509CertImpl sign(X509CertInfo info)
-      throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException,
-          NoSuchProviderException, SignatureException {
+      throws CertificateException,
+          IOException,
+          NoSuchAlgorithmException,
+          InvalidKeyException,
+          NoSuchProviderException,
+          SignatureException {
     X509Certificate issuerCertificate = certificateChain[0];
     info.set(X509CertInfo.ISSUER, issuerCertificate.getSubjectDN());
 

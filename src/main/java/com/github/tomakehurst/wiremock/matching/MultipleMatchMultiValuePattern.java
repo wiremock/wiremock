@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/** The type Multiple match multi value pattern. */
 public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
 
   private static final String AND = " AND ";
@@ -57,9 +58,19 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
     return MatchResult.aggregate(matchResults);
   }
 
+  /**
+   * Gets values.
+   *
+   * @return the values
+   */
   @JsonIgnore
   public abstract List<StringValuePattern> getValues();
 
+  /**
+   * Gets operator.
+   *
+   * @return the operator
+   */
   @JsonIgnore
   public String getOperator() {
     return "";

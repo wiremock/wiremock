@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,16 @@ package com.github.tomakehurst.wiremock.matching;
 import java.math.BigDecimal;
 import net.javacrumbs.jsonunit.core.NumberComparator;
 
+/** The type Normalised number comparator. */
 public class NormalisedNumberComparator implements NumberComparator {
+  /**
+   * Compare boolean.
+   *
+   * @param expectedValue the expected value
+   * @param actualValue the actual value
+   * @param tolerance the tolerance
+   * @return the boolean
+   */
   @Override
   public boolean compare(BigDecimal expectedValue, BigDecimal actualValue, BigDecimal tolerance) {
     var normalisedExpectedValue = expectedValue.stripTrailingZeros();

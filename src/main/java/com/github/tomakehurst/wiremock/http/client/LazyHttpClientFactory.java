@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,16 @@ import com.github.tomakehurst.wiremock.core.Options;
 import java.util.List;
 import java.util.function.Supplier;
 
+/** The type Lazy http client factory. */
 public class LazyHttpClientFactory implements HttpClientFactory {
 
   private final Lazy<HttpClientFactory> httpClientFactoryLazy;
 
+  /**
+   * Instantiates a new Lazy http client factory.
+   *
+   * @param httpClientFactorySupplier the http client factory supplier
+   */
   public LazyHttpClientFactory(Supplier<HttpClientFactory> httpClientFactorySupplier) {
     this.httpClientFactoryLazy = Lazy.lazy(httpClientFactorySupplier);
   }

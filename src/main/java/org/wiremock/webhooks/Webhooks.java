@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
+/** The type Webhooks. */
 @SuppressWarnings("deprecation") // maintaining PostServeAction for backwards compatibility
 public class Webhooks extends PostServeAction implements ServeEventListener {
 
@@ -44,6 +45,13 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final TemplateEngine templateEngine;
   private final DataTruncationSettings dataTruncationSettings;
 
+  /**
+   * Instantiates a new Webhooks.
+   *
+   * @param wireMockServices the wire mock services
+   * @param scheduler the scheduler
+   * @param transformers the transformers
+   */
   public Webhooks(
       WireMockServices wireMockServices,
       ScheduledExecutorService scheduler,
@@ -192,6 +200,11 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     return false;
   }
 
+  /**
+   * Webhook webhook definition.
+   *
+   * @return the webhook definition
+   */
   public static WebhookDefinition webhook() {
     return new WebhookDefinition();
   }

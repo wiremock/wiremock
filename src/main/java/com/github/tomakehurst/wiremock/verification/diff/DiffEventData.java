@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,23 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Diff event data. */
 public class DiffEventData {
 
+  /** The constant KEY. */
   public static final String KEY = "DIFF_REPORT";
 
   private final int status;
   private final String contentType;
   private final String report;
 
+  /**
+   * Instantiates a new Diff event data.
+   *
+   * @param status the status
+   * @param contentType the content type
+   * @param report the report
+   */
   public DiffEventData(
       @JsonProperty("status") int status,
       @JsonProperty("contentType") String contentType,
@@ -34,14 +43,29 @@ public class DiffEventData {
     this.report = report;
   }
 
+  /**
+   * Gets status.
+   *
+   * @return the status
+   */
   public int getStatus() {
     return status;
   }
 
+  /**
+   * Gets content type.
+   *
+   * @return the content type
+   */
   public String getContentType() {
     return contentType;
   }
 
+  /**
+   * Gets report.
+   *
+   * @return the report
+   */
   public String getReport() {
     return report;
   }

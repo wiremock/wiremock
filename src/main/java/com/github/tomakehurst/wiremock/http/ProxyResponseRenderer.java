@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
 
+/** The type Proxy response renderer. */
 public class ProxyResponseRenderer implements ResponseRenderer {
 
   private final HttpClient reverseProxyClient;
@@ -43,6 +44,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final boolean stubCorsEnabled;
   private final Set<String> supportedEncodings;
 
+  /**
+   * Instantiates a new Proxy response renderer.
+   *
+   * @param preserveHostHeader the preserve host header
+   * @param hostHeaderValue the host header value
+   * @param settingsStore the settings store
+   * @param stubCorsEnabled the stub cors enabled
+   * @param reverseProxyClient the reverse proxy client
+   * @param forwardProxyClient the forward proxy client
+   */
   @SuppressWarnings("unused")
   public ProxyResponseRenderer(
       boolean preserveHostHeader,
@@ -62,6 +73,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         forwardProxyClient);
   }
 
+  /**
+   * Instantiates a new Proxy response renderer.
+   *
+   * @param preserveHostHeader the preserve host header
+   * @param hostHeaderValue the host header value
+   * @param settingsStore the settings store
+   * @param stubCorsEnabled the stub cors enabled
+   * @param supportedEncodings the supported encodings
+   * @param reverseProxyClient the reverse proxy client
+   * @param forwardProxyClient the forward proxy client
+   */
   public ProxyResponseRenderer(
       boolean preserveHostHeader,
       String hostHeaderValue,
@@ -236,6 +258,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     requestBuilder.withHeader(key, values);
   }
 
+  /**
+   * Response header should be transferred boolean.
+   *
+   * @param key the key
+   * @return the boolean
+   */
   public boolean responseHeaderShouldBeTransferred(String key) {
     final String lowerCaseKey = key.toLowerCase();
     return !HttpClient.FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey)

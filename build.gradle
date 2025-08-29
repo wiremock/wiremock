@@ -15,6 +15,7 @@ plugins {
   id 'java-test-fixtures'
   id 'scala'
   id 'signing'
+  id 'checkstyle'
   id 'maven-publish'
   id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
   id 'idea'
@@ -539,4 +540,20 @@ wrapper {
 jmh {
   includes = ['.*benchmarks.*']
   threads = 50
+}
+
+checkstyle {
+  toolVersion = '10.26.1' // Use a mesma versão que no IntelliJ
+  config = resources.text.fromUri('https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/main/resources/google_checks.xml')
+  showViolations = true
+}
+
+tasks.named('checkstyleMain') {
+  reports {
+    xml.required = true
+    xml.outputLocation = file("build/reports/checkstyle/checkstyle-report.xml")
+
+    html.required = true
+    html.outputLocation = file("build/reports/checkstyle/checkstyle-report.html")
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,17 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to update the server's global settings.
+ *
+ * <p>This task handles the API request to replace the current {@link GlobalSettings} with a new set
+ * provided in the request body. It supports two JSON formats for the request body: a direct {@code
+ * GlobalSettings} object, or one nested inside a {@code GetGlobalSettingsResult} wrapper for
+ * backward compatibility.
+ *
+ * @see GlobalSettings
+ * @see GetGlobalSettingsResult
+ */
 public class GlobalSettingsUpdateTask implements AdminTask {
 
   @Override

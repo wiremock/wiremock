@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** The type Strings. */
 public class Strings {
 
   private Strings() {}
@@ -34,6 +35,13 @@ public class Strings {
     return ThreadLocalRandom.current();
   }
 
+  /**
+   * Gets levenshtein distance.
+   *
+   * @param s the s
+   * @param t the t
+   * @return the levenshtein distance
+   */
   public static int getLevenshteinDistance(CharSequence s, CharSequence t) {
     if (s == null || t == null) {
       throw new IllegalArgumentException("Strings must not be null");
@@ -89,22 +97,55 @@ public class Strings {
     return p[n];
   }
 
+  /**
+   * Random alphanumeric string.
+   *
+   * @param count the count
+   * @return the string
+   */
   public static String randomAlphanumeric(final int count) {
     return random(count, true, true);
   }
 
+  /**
+   * Random string.
+   *
+   * @param count the count
+   * @param letters the letters
+   * @param numbers the numbers
+   * @return the string
+   */
   public static String random(final int count, final boolean letters, final boolean numbers) {
     return random(count, 0, 0, letters, numbers);
   }
 
+  /**
+   * Random alphabetic string.
+   *
+   * @param count the count
+   * @return the string
+   */
   public static String randomAlphabetic(final int count) {
     return random(count, true, false);
   }
 
+  /**
+   * Random numeric string.
+   *
+   * @param count the count
+   * @return the string
+   */
   public static String randomNumeric(final int count) {
     return random(count, false, true);
   }
 
+  /**
+   * Random string.
+   *
+   * @param count the count
+   * @param chars the chars
+   * @return the string
+   */
   public static String random(final int count, final String chars) {
     if (chars == null) {
       return random(count, 0, 0, false, false, null, random());
@@ -112,6 +153,13 @@ public class Strings {
     return random(count, chars.toCharArray());
   }
 
+  /**
+   * Random string.
+   *
+   * @param count the count
+   * @param chars the chars
+   * @return the string
+   */
   public static String random(final int count, final char... chars) {
     if (chars == null) {
       return random(count, 0, 0, false, false, null, random());
@@ -119,10 +167,26 @@ public class Strings {
     return random(count, 0, chars.length, false, false, chars, random());
   }
 
+  /**
+   * Random ascii string.
+   *
+   * @param count the count
+   * @return the string
+   */
   public static String randomAscii(final int count) {
     return random(count, 32, 127, false, false);
   }
 
+  /**
+   * Random string.
+   *
+   * @param count the count
+   * @param start the start
+   * @param end the end
+   * @param letters the letters
+   * @param numbers the numbers
+   * @return the string
+   */
   public static String random(
       final int count,
       final int start,
@@ -132,6 +196,18 @@ public class Strings {
     return random(count, start, end, letters, numbers, null, random());
   }
 
+  /**
+   * Random string.
+   *
+   * @param count the count
+   * @param start the start
+   * @param end the end
+   * @param letters the letters
+   * @param numbers the numbers
+   * @param chars the chars
+   * @param random the random
+   * @return the string
+   */
   public static String random(
       int count,
       int start,
@@ -222,10 +298,25 @@ public class Strings {
     return builder.toString();
   }
 
+  /**
+   * Right pad string.
+   *
+   * @param str the str
+   * @param size the size
+   * @return the string
+   */
   public static String rightPad(final String str, final int size) {
     return rightPad(str, size, ' ');
   }
 
+  /**
+   * Right pad string.
+   *
+   * @param str the str
+   * @param size the size
+   * @param padChar the pad char
+   * @return the string
+   */
   public static String rightPad(final String str, final int size, final char padChar) {
     if (str == null) {
       return null;
@@ -240,6 +331,14 @@ public class Strings {
     return str.concat(repeat(padChar, pads));
   }
 
+  /**
+   * Right pad string.
+   *
+   * @param str the str
+   * @param size the size
+   * @param padStr the pad str
+   * @return the string
+   */
   public static String rightPad(final String str, final int size, String padStr) {
     if (str == null) {
       return null;
@@ -271,6 +370,13 @@ public class Strings {
     return str.concat(new String(padding));
   }
 
+  /**
+   * Repeat string.
+   *
+   * @param ch the ch
+   * @param repeat the repeat
+   * @return the string
+   */
   public static String repeat(final char ch, final int repeat) {
     if (repeat <= 0) {
       return "";
@@ -280,10 +386,23 @@ public class Strings {
     return new String(buf);
   }
 
+  /**
+   * String from bytes string.
+   *
+   * @param bytes the bytes
+   * @return the string
+   */
   public static String stringFromBytes(byte[] bytes) {
     return stringFromBytes(bytes, UTF_8);
   }
 
+  /**
+   * String from bytes string.
+   *
+   * @param bytes the bytes
+   * @param charset the charset
+   * @return the string
+   */
   public static String stringFromBytes(byte[] bytes, Charset charset) {
     if (bytes == null) {
       return null;
@@ -292,10 +411,23 @@ public class Strings {
     return new String(bytes, charset);
   }
 
+  /**
+   * Bytes from string byte [ ].
+   *
+   * @param str the str
+   * @return the byte [ ]
+   */
   public static byte[] bytesFromString(String str) {
     return bytesFromString(str, UTF_8);
   }
 
+  /**
+   * Bytes from string byte [ ].
+   *
+   * @param str the str
+   * @param charset the charset
+   * @return the byte [ ]
+   */
   public static byte[] bytesFromString(String str, Charset charset) {
     if (str == null) {
       return null;
@@ -304,6 +436,13 @@ public class Strings {
     return str.getBytes(charset);
   }
 
+  /**
+   * Wrap if longest line exceeds limit string.
+   *
+   * @param s the s
+   * @param maxLineLength the max line length
+   * @return the string
+   */
   public static String wrapIfLongestLineExceedsLimit(String s, int maxLineLength) {
     int longestLength = findLongestLineLength(s);
     if (longestLength > maxLineLength) {
@@ -314,6 +453,15 @@ public class Strings {
     return s;
   }
 
+  /**
+   * Wrap string.
+   *
+   * @param str the str
+   * @param wrapLength the wrap length
+   * @param newLineStr the new line str
+   * @param wrapLongWords the wrap long words
+   * @return the string
+   */
   public static String wrap(
       final String str,
       final int wrapLength,
@@ -322,6 +470,16 @@ public class Strings {
     return wrap(str, wrapLength, newLineStr, wrapLongWords, " ");
   }
 
+  /**
+   * Wrap string.
+   *
+   * @param str the str
+   * @param wrapLength the wrap length
+   * @param newLineStr the new line str
+   * @param wrapLongWords the wrap long words
+   * @param wrapOn the wrap on
+   * @return the string
+   */
   public static String wrap(
       final String str,
       int wrapLength,
@@ -407,6 +565,13 @@ public class Strings {
     return wrappedLine.toString();
   }
 
+  /**
+   * Substring after last string.
+   *
+   * @param str the str
+   * @param separator the separator
+   * @return the string
+   */
   public static String substringAfterLast(final String str, final int separator) {
     if (isEmpty(str)) {
       return str;
@@ -418,6 +583,13 @@ public class Strings {
     return str.substring(pos + 1);
   }
 
+  /**
+   * Substring after last string.
+   *
+   * @param str the str
+   * @param separator the separator
+   * @return the string
+   */
   public static String substringAfterLast(final String str, final String separator) {
     if (isEmpty(str)) {
       return str;
@@ -432,6 +604,13 @@ public class Strings {
     return str.substring(pos + separator.length());
   }
 
+  /**
+   * Count matches int.
+   *
+   * @param str the str
+   * @param ch the ch
+   * @return the int
+   */
   public static int countMatches(final CharSequence str, final char ch) {
     if (isEmpty(str)) {
       return 0;
@@ -446,6 +625,14 @@ public class Strings {
     return count;
   }
 
+  /**
+   * Ordinal index of int.
+   *
+   * @param str the str
+   * @param searchStr the search str
+   * @param ordinal the ordinal
+   * @return the int
+   */
   public static int ordinalIndexOf(
       final CharSequence str, final CharSequence searchStr, final int ordinal) {
     return ordinalIndexOf(str, searchStr, ordinal, false);
@@ -493,6 +680,13 @@ public class Strings {
     return longestLength;
   }
 
+  /**
+   * Normalised levenshtein distance double.
+   *
+   * @param one the one
+   * @param two the two
+   * @return the double
+   */
   public static double normalisedLevenshteinDistance(String one, String two) {
     if (one == null || two == null) {
       return 1.0;
@@ -503,46 +697,113 @@ public class Strings {
     return (actualDistance / maxDistance);
   }
 
+  /**
+   * Normalise line breaks string.
+   *
+   * @param s the s
+   * @return the string
+   */
   public static String normaliseLineBreaks(String s) {
     return s.replace("\r\n", "\n").replace("\n", lineSeparator());
   }
 
+  /**
+   * Is null or empty boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNullOrEmpty(String s) {
     return isNull(s) || s.isEmpty();
   }
 
+  /**
+   * Is not null or empty boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNotNullOrEmpty(String s) {
     return !isNullOrEmpty(s);
   }
 
+  /**
+   * Is blank boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isBlank(String s) {
     return isNull(s) || s.isBlank();
   }
 
+  /**
+   * Is not blank boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNotBlank(String s) {
     return !isBlank(s);
   }
 
+  /**
+   * Is null boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNull(String s) {
     return s == null;
   }
 
+  /**
+   * Is not null boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNotNull(String s) {
     return !isNull(s);
   }
 
+  /**
+   * Is empty boolean.
+   *
+   * @param charSequence the char sequence
+   * @return the boolean
+   */
   public static boolean isEmpty(CharSequence charSequence) {
     return charSequence == null || charSequence.length() == 0;
   }
 
+  /**
+   * Is empty boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isEmpty(String s) {
     return isNull(s) || s.isEmpty();
   }
 
+  /**
+   * Is not empty boolean.
+   *
+   * @param s the s
+   * @return the boolean
+   */
   public static boolean isNotEmpty(String s) {
     return !isEmpty(s);
   }
 
+  /**
+   * Remove start string.
+   *
+   * @param str the str
+   * @param remove the remove
+   * @return the string
+   */
   public static String removeStart(String str, String remove) {
     if (isEmpty(str) || isEmpty(remove)) {
       return str;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,17 @@ import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
 import java.util.Collection;
 
+/** The type Contains helper. */
 public class ContainsHelper extends HandlebarsHelper<Object> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Object context, Options options) throws IOException {
     if (options.params.length < 1) {

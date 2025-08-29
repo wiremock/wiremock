@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,24 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/** The type Urls. */
 public class Urls {
 
   private Urls() {}
 
+  /**
+   * Split query from url map.
+   *
+   * @param url the url
+   * @return the map
+   */
   public static Map<String, QueryParameter> splitQueryFromUrl(String url) {
     String queryPart =
         url.contains("?") && !url.endsWith("?") ? url.substring(url.indexOf('?') + 1) : null;
@@ -43,6 +54,12 @@ public class Urls {
     return splitQuery(queryPart);
   }
 
+  /**
+   * Split query map.
+   *
+   * @param uri the uri
+   * @return the map
+   */
   public static Map<String, QueryParameter> splitQuery(URI uri) {
     if (uri == null) {
       return Collections.emptyMap();
@@ -51,6 +68,12 @@ public class Urls {
     return splitQuery(uri.getRawQuery());
   }
 
+  /**
+   * Split query map.
+   *
+   * @param query the query
+   * @return the map
+   */
   public static Map<String, QueryParameter> splitQuery(String query) {
     if (query == null) {
       return Collections.emptyMap();
@@ -73,10 +96,22 @@ public class Urls {
         builder.build().asMap(), (key, values) -> new QueryParameter(key, new ArrayList<>(values)));
   }
 
+  /**
+   * Gets path.
+   *
+   * @param url the url
+   * @return the path
+   */
   public static String getPath(String url) {
     return url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
   }
 
+  /**
+   * Gets path and query.
+   *
+   * @param url the url
+   * @return the path and query
+   */
   public static String getPathAndQuery(String url) {
     return isAbsolute(url) ? url.substring(ordinalIndexOf(url, "/", 3)) : url;
   }
@@ -85,10 +120,22 @@ public class Urls {
     return url.matches("^https?:\\/\\/.*");
   }
 
+  /**
+   * Gets path segments.
+   *
+   * @param path the path
+   * @return the path segments
+   */
   public static List<String> getPathSegments(String path) {
     return List.of(path.split("/"));
   }
 
+  /**
+   * Url to path parts string.
+   *
+   * @param uri the uri
+   * @return the string
+   */
   public static String urlToPathParts(URI uri) {
     List<String> uriPathNodes =
         Arrays.stream(uri.getPath().split("/"))
@@ -100,13 +147,13 @@ public class Urls {
   }
 
   private static String decode(String encoded) {
-    if (!isISOOffsetDateTime(encoded)) {
+    if (!isisooffsetdatetime(encoded)) {
       return URLDecoder.decode(encoded, UTF_8);
     }
     return encoded;
   }
 
-  private static boolean isISOOffsetDateTime(String encoded) {
+  private static boolean isisooffsetdatetime(String encoded) {
     try {
       ISO_OFFSET_DATE_TIME.parse(encoded);
     } catch (DateTimeParseException e) {
@@ -115,7 +162,13 @@ public class Urls {
     return true;
   }
 
-  public static URL safelyCreateURL(String url) {
+  /**
+   * Safely create url url.
+   *
+   * @param url the url
+   * @return the url
+   */
+  public static URL safelyCreateurl(String url) {
     try {
       return new URL(clean(url));
     } catch (MalformedURLException e) {
@@ -129,6 +182,12 @@ public class Urls {
     return url.matches(".*:[0-9]+null$") ? url.substring(0, url.length() - 4) : url;
   }
 
+  /**
+   * Gets port.
+   *
+   * @param url the url
+   * @return the port
+   */
   public static int getPort(URL url) {
     if (url.getPort() == -1) {
       return url.getProtocol().equals("https") ? 443 : 80;

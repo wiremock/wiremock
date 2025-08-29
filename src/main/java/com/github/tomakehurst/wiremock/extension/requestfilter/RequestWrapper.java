@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,27 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static com.github.tomakehurst.wiremock.common.Strings.countMatches;
 import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 
-import com.github.tomakehurst.wiremock.http.*;
-import java.util.*;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+/** The type Request wrapper. */
 public class RequestWrapper implements Request {
 
   private final Request delegate;
@@ -39,6 +56,11 @@ public class RequestWrapper implements Request {
   private final FieldTransformer<Body> bodyTransformer;
   private final FieldTransformer<Part> multipartTransformer;
 
+  /**
+   * Instantiates a new Request wrapper.
+   *
+   * @param delegate the delegate
+   */
   public RequestWrapper(Request delegate) {
     this(
         delegate,
@@ -54,6 +76,21 @@ public class RequestWrapper implements Request {
         null);
   }
 
+  /**
+   * Instantiates a new Request wrapper.
+   *
+   * @param delegate the delegate
+   * @param method the method
+   * @param absoluteUrlTransformer the absolute url transformer
+   * @param addedHeaders the added headers
+   * @param removedHeaders the removed headers
+   * @param headerTransformers the header transformers
+   * @param additionalCookies the additional cookies
+   * @param cookiesToRemove the cookies to remove
+   * @param cookieTransformers the cookie transformers
+   * @param bodyTransformer the body transformer
+   * @param multipartTransformer the multipart transformer
+   */
   public RequestWrapper(
       Request delegate,
       RequestMethod method,
@@ -80,6 +117,11 @@ public class RequestWrapper implements Request {
     this.multipartTransformer = multipartTransformer;
   }
 
+  /**
+   * Create builder.
+   *
+   * @return the builder
+   */
   public static Builder create() {
     return new Builder();
   }
@@ -274,6 +316,7 @@ public class RequestWrapper implements Request {
     return delegate.getProtocol();
   }
 
+  /** The type Builder. */
   public static class Builder {
 
     private RequestMethod requestMethod;
@@ -291,31 +334,69 @@ public class RequestWrapper implements Request {
     private FieldTransformer<Body> bodyTransformer;
     private FieldTransformer<Part> mutlipartTransformer;
 
+    /**
+     * Add header builder.
+     *
+     * @param key the key
+     * @param values the values
+     * @return the builder
+     */
     public Builder addHeader(String key, String... values) {
       additionalHeaders.add(new HttpHeader(key, values));
       return this;
     }
 
+    /**
+     * Remove header builder.
+     *
+     * @param key the key
+     * @return the builder
+     */
     public Builder removeHeader(String key) {
       headersToRemove.add(key);
       return this;
     }
 
+    /**
+     * Transform header builder.
+     *
+     * @param key the key
+     * @param transformer the transformer
+     * @return the builder
+     */
     public Builder transformHeader(String key, FieldTransformer<List<String>> transformer) {
       headerTransformers.put(CaseInsensitiveKey.from(key), transformer);
       return this;
     }
 
+    /**
+     * Sets method.
+     *
+     * @param method the method
+     * @return the method
+     */
     public Builder setMethod(RequestMethod method) {
       requestMethod = method;
       return this;
     }
 
+    /**
+     * Transform absolute url builder.
+     *
+     * @param transformer the transformer
+     * @return the builder
+     */
     public Builder transformAbsoluteUrl(FieldTransformer<String> transformer) {
       absoluteUrlTransformer = transformer;
       return this;
     }
 
+    /**
+     * Wrap request.
+     *
+     * @param request the request
+     * @return the request
+     */
     public Request wrap(Request request) {
       return new RequestWrapper(
           request,
@@ -331,26 +412,58 @@ public class RequestWrapper implements Request {
           mutlipartTransformer);
     }
 
+    /**
+     * Transform body builder.
+     *
+     * @param transformer the transformer
+     * @return the builder
+     */
     public Builder transformBody(FieldTransformer<Body> transformer) {
       bodyTransformer = transformer;
       return this;
     }
 
+    /**
+     * Transform cookie builder.
+     *
+     * @param name the name
+     * @param transformer the transformer
+     * @return the builder
+     */
     public Builder transformCookie(String name, FieldTransformer<Cookie> transformer) {
       cookieTransformers.put(name, transformer);
       return this;
     }
 
+    /**
+     * Transform parts builder.
+     *
+     * @param transformer the transformer
+     * @return the builder
+     */
     public Builder transformParts(FieldTransformer<Part> transformer) {
       mutlipartTransformer = transformer;
       return this;
     }
 
+    /**
+     * Add cookie builder.
+     *
+     * @param name the name
+     * @param value the value
+     * @return the builder
+     */
     public Builder addCookie(String name, Cookie value) {
       additionalCookies.put(name, value);
       return this;
     }
 
+    /**
+     * Remove cookie builder.
+     *
+     * @param name the name
+     * @return the builder
+     */
     public Builder removeCookie(String name) {
       cookiesToRemove.add(name);
       return this;

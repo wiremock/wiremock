@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,25 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import javax.xml.xpath.XPathExpressionException;
 
+/** The type X path exception. */
 public class XPathException extends InvalidInputException {
 
+  /**
+   * Instantiates a new X path exception.
+   *
+   * @param cause the cause
+   * @param errors the errors
+   */
   protected XPathException(Throwable cause, Errors errors) {
     super(cause, errors);
   }
 
+  /**
+   * From x path exception x path exception.
+   *
+   * @param e the e
+   * @return the x path exception
+   */
   public static XPathException fromXPathException(XPathExpressionException e) {
     return new XPathException(e, Errors.single(51, e.getMessage()));
   }

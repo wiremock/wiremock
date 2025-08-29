@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,17 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 
+/** The type Handlebars current date helper. */
 public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Date context, Options options) throws IOException {
     String format = options.hash("format", null);

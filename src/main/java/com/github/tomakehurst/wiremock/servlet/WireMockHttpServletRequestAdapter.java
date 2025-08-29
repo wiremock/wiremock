@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 
+/** The type Wire mock http servlet request adapter. */
 public class WireMockHttpServletRequestAdapter implements Request {
 
+  /** The constant ORIGINAL_REQUEST_KEY. */
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
@@ -53,6 +55,15 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final JettyHttpUtils utils;
   private Collection<Part> cachedMultiparts;
 
+  /**
+   * Instantiates a new Wire mock http servlet request adapter.
+   *
+   * @param request the request
+   * @param multipartRequestConfigurer the multipart request configurer
+   * @param urlPrefixToRemove the url prefix to remove
+   * @param browserProxyingEnabled the browser proxying enabled
+   * @param utils the utils
+   */
   public WireMockHttpServletRequestAdapter(
       HttpServletRequest request,
       MultipartRequestConfigurer multipartRequestConfigurer,

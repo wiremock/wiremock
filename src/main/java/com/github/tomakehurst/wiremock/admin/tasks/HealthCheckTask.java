@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,14 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to provide a system health check.
+ *
+ * <p>This task handles the API request for the server's health status, returning key metrics like
+ * status, version, and uptime.
+ *
+ * @see HealthCheckResult
+ */
 public class HealthCheckTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
@@ -41,6 +49,7 @@ public class HealthCheckTask implements AdminTask {
         .build();
   }
 
+  /** Represents the possible health states of the server. */
   protected enum HealthCheckStatus {
     HEALTHY,
     UNHEALTHY

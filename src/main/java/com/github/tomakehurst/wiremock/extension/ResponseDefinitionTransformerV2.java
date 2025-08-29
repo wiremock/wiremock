@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,22 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Response definition transformer v 2. */
 public interface ResponseDefinitionTransformerV2 extends Extension {
 
+  /**
+   * Transform response definition.
+   *
+   * @param serveEvent the serve event
+   * @return the response definition
+   */
   ResponseDefinition transform(ServeEvent serveEvent);
 
+  /**
+   * Apply globally boolean.
+   *
+   * @return the boolean
+   */
   default boolean applyGlobally() {
     return true;
   }

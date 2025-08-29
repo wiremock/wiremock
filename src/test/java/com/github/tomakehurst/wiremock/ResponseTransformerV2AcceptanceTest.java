@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class ResponseTransformerV2AcceptanceTest {
     startWithExtensions(StubResponseTransformer.class);
 
     wm.stubFor(
-        get(urlEqualTo("/response-transform")).willReturn(aResponse().withBody("Original body")));
+        get(urlEqualTo("/response-transform")).willReturn(aresponse().withBody("Original body")));
 
     assertThat(client.get("/response-transform").content(), is("Modified body"));
   }
@@ -55,7 +55,7 @@ public class ResponseTransformerV2AcceptanceTest {
     wm.stubFor(
         get(urlEqualTo("/response-transform-with-params"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withTransformerParameter("name", "John")
                     .withTransformerParameter("number", 66)
                     .withTransformerParameter("flag", true)
@@ -68,7 +68,7 @@ public class ResponseTransformerV2AcceptanceTest {
   public void globalTransformAppliedWithLocalParameters() {
     startWithExtensions(GlobalResponseTransformer.class);
 
-    wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
+    wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aresponse()));
 
     assertThat(client.get("/global-response-transform").firstHeader("X-Extra"), is("extra val"));
   }

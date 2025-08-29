@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,17 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task for partially updating (patching) the extended global settings.
+ *
+ * <p>This task handles the API request to merge new extended settings into the existing global
+ * configuration. It reads an {@link ExtendedSettingsWrapper} from the request body, merges its
+ * parameters with the current ones, and updates the server's settings.
+ *
+ * @see GlobalSettings
+ * @see Parameters
+ * @see ExtendedSettingsWrapper
+ */
 public class PatchExtendedSettingsTask implements AdminTask {
 
   @Override

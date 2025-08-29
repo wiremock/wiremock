@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,21 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Stopwatch;
 
+/** The type Timing. */
 public class Timing {
 
+  /** The constant UNTIMED. */
   public static final Timing UNTIMED = create();
 
   private volatile Integer addedDelay;
   private volatile Integer processTime;
   private volatile Integer responseSendTime;
 
+  /**
+   * Create timing.
+   *
+   * @return the timing
+   */
   public static Timing create() {
     return new Timing(null, null, null, null, null);
   }
@@ -43,22 +50,24 @@ public class Timing {
     this.responseSendTime = responseSendTime;
   }
 
-  /** The delay added to the response via the stub or global configuration */
+  /**
+   * The delay added to the response via the stub or global configuration @return the added delay.
+   */
   public Integer getAddedDelay() {
     return addedDelay;
   }
 
-  /** The amount of time spent handling the stub request */
+  /** The amount of time spent handling the stub request @return the process time. */
   public Integer getProcessTime() {
     return processTime;
   }
 
-  /** The amount of time taken to send the response to the client */
+  /** The amount of time taken to send the response to the client @return the response send time. */
   public Integer getResponseSendTime() {
     return responseSendTime;
   }
 
-  /** The total request time from start to finish, minus added delay */
+  /** The total request time from start to finish, minus added delay @return the serve time. */
   public Integer getServeTime() {
     if (processTime == null || responseSendTime == null) {
       return null;
@@ -66,7 +75,7 @@ public class Timing {
     return processTime + responseSendTime;
   }
 
-  /** The total request time including added delay */
+  /** The total request time including added delay @return the total time. */
   public Integer getTotalTime() {
     Integer serveTime = getServeTime();
     if (serveTime == null || addedDelay == null) {
@@ -75,14 +84,29 @@ public class Timing {
     return serveTime + addedDelay;
   }
 
+  /**
+   * Sets added time.
+   *
+   * @param addedDelayMillis the added delay millis
+   */
   public void setAddedTime(int addedDelayMillis) {
     this.addedDelay = addedDelayMillis;
   }
 
+  /**
+   * Log process time.
+   *
+   * @param stopwatch the stopwatch
+   */
   public void logProcessTime(Stopwatch stopwatch) {
     processTime = (int) stopwatch.elapsed(MILLISECONDS);
   }
 
+  /**
+   * Log response send time.
+   *
+   * @param stopwatch the stopwatch
+   */
   public void logResponseSendTime(Stopwatch stopwatch) {
     responseSendTime = (int) stopwatch.elapsed(MILLISECONDS);
   }

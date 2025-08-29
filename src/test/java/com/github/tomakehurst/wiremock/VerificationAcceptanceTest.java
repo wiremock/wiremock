@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,7 +287,7 @@ public class VerificationAcceptanceTest {
           "/body/xml", "<thing><subThing>The stuff</subThing></thing>", "application/xml", "utf-8");
       verify(
           postRequestedFor(urlEqualTo("/body/xml"))
-              .withRequestBody(matchingXPath("//subThing[.='The stuff']")));
+              .withRequestBody(matchingXpath("//subThing[.='The stuff']")));
     }
 
     @Test
@@ -301,7 +301,7 @@ public class VerificationAcceptanceTest {
       verify(
           postRequestedFor(urlEqualTo("/namespaced/xml"))
               .withRequestBody(
-                  matchingXPath("//s:subThing[.='The stuff']")
+                  matchingXpath("//s:subThing[.='The stuff']")
                       .withXPathNamespace("t", "http://things")
                       .withXPathNamespace("s", "http://subthings")));
     }

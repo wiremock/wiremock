@@ -40,10 +40,16 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/** The type Template engine. */
 public class TemplateEngine {
 
   private final Handlebars handlebars;
@@ -52,10 +58,24 @@ public class TemplateEngine {
 
   private final List<TemplateModelDataProviderExtension> templateModelDataProviders;
 
+  /**
+   * Default template engine template engine.
+   *
+   * @return the template engine
+   */
   public static TemplateEngine defaultTemplateEngine() {
     return new TemplateEngine(emptyMap(), null, null, false, emptyList());
   }
 
+  /**
+   * Instantiates a new Template engine.
+   *
+   * @param helpers the helpers
+   * @param maxCacheEntries the max cache entries
+   * @param permittedSystemKeys the permitted system keys
+   * @param escapingDisabled the escaping disabled
+   * @param templateModelDataProviders the template model data providers
+   */
   public TemplateEngine(
       Map<String, Helper<?>> helpers,
       Long maxCacheEntries,
@@ -77,6 +97,7 @@ public class TemplateEngine {
     addHelpers(helpers, permittedSystemKeys);
   }
 
+  /** Instantiates a new Template engine. */
   protected TemplateEngine() {
     this.handlebars = null;
     this.maxCacheEntries = null;
@@ -114,6 +135,13 @@ public class TemplateEngine {
     }
   }
 
+  /**
+   * Gets template.
+   *
+   * @param key the key
+   * @param content the content
+   * @return the template
+   */
   public HandlebarsOptimizedTemplate getTemplate(final Object key, final String content) {
     if (maxCacheEntries != null && maxCacheEntries < 1) {
       return getUncachedTemplate(content);
@@ -126,10 +154,22 @@ public class TemplateEngine {
     }
   }
 
+  /**
+   * Gets uncached template.
+   *
+   * @param content the content
+   * @return the uncached template
+   */
   public HandlebarsOptimizedTemplate getUncachedTemplate(final String content) {
     return new HandlebarsOptimizedTemplate(handlebars, content);
   }
 
+  /**
+   * Build model for request map.
+   *
+   * @param serveEvent the serve event
+   * @return the map
+   */
   public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     final Parameters parameters =
@@ -148,6 +188,12 @@ public class TemplateEngine {
     return model;
   }
 
+  /**
+   * Build model for request map.
+   *
+   * @param request the request
+   * @return the map
+   */
   public Map<String, Object> buildModelForRequest(Request request) {
     final Map<String, Object> model = new HashMap<>();
     model.put("request", buildRequestModel(request));
@@ -216,14 +262,25 @@ public class TemplateEngine {
     return Collections.emptyMap();
   }
 
+  /**
+   * Gets cache size.
+   *
+   * @return the cache size
+   */
   public long getCacheSize() {
     return cache.size();
   }
 
+  /** Invalidate cache. */
   public void invalidateCache() {
     cache.invalidateAll();
   }
 
+  /**
+   * Gets max cache entries.
+   *
+   * @return the max cache entries
+   */
   public Long getMaxCacheEntries() {
     return maxCacheEntries;
   }

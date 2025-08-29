@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,24 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 
+/** The type Section delimiter. */
 public class SectionDelimiter extends DiffLine<String> {
 
+  /**
+   * Instantiates a new Section delimiter.
+   *
+   * @param title the title
+   */
   public SectionDelimiter(String title) {
     super(title, new EqualToPattern(title), title, title);
   }
 
+  /**
+   * Instantiates a new Section delimiter.
+   *
+   * @param left the left
+   * @param right the right
+   */
   public SectionDelimiter(String left, String right) {
     super(left, new EqualToPattern(left), right, left);
   }

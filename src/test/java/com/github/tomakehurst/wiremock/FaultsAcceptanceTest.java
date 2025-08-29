@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -35,7 +35,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
   public void connectionResetByPeerFault() {
     stubFor(
         get(urlEqualTo("/connection/reset"))
-            .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
+            .willReturn(aresponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
     RuntimeException runtimeException =
         assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
@@ -45,7 +45,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void emptyResponseFault() {
     stubFor(
-        get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
+        get(urlEqualTo("/empty/response")).willReturn(aresponse().withFault(Fault.EMPTY_RESPONSE)));
 
     getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
   }
@@ -54,7 +54,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
   public void malformedResponseChunkFault() {
     stubFor(
         get(urlEqualTo("/malformed/response"))
-            .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+            .willReturn(aresponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 
     getAndAssertUnderlyingExceptionInstanceClass(
         "/malformed/response", MalformedChunkCodingException.class);
@@ -64,7 +64,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
   public void randomDataOnSocketFault() {
     stubFor(
         get(urlEqualTo("/random/data"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
+            .willReturn(aresponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
     getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
   }

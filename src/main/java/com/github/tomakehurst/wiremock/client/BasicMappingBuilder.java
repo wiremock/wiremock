@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
@@ -28,7 +28,15 @@ import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +55,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
-  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
-  private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
+  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+  private final List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
@@ -305,7 +313,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         !requiredScenarioExist(),
         "Scenario name must be specified to require or set a new scenario state");
     RequestPattern requestPattern = requestPatternBuilder.build();
-    ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
+    ResponseDefinition response = getFirstNonNull(responseDefBuilder, aresponse()).build();
     StubMapping mapping = new StubMapping(requestPattern, response);
     mapping.setPriority(priority);
     mapping.setScenarioName(scenarioName);

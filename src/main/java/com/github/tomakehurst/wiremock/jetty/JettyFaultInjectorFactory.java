@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,15 @@ import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/** The type Jetty fault injector factory. */
 public class JettyFaultInjectorFactory implements FaultInjectorFactory {
   private final JettyHttpUtils utils;
 
+  /**
+   * Instantiates a new Jetty fault injector factory.
+   *
+   * @param utils the utils
+   */
   public JettyFaultInjectorFactory(JettyHttpUtils utils) {
     this.utils = utils;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,20 @@ import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * The type Xml primitive node.
+ *
+ * @param <T> the type parameter
+ */
 public class XmlPrimitiveNode<T> extends XmlNode {
 
   private final T value;
 
+  /**
+   * Instantiates a new Xml primitive node.
+   *
+   * @param value the value
+   */
   public XmlPrimitiveNode(T value) {
     this.value = value;
   }

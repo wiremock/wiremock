@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     targetService.stubFor(
         get("/one")
             .willReturn(
-                aResponse().withHeader("Content-Type", "text/plain").withBody("Number one")));
+                aresponse().withHeader("Content-Type", "text/plain").withBody("Number one")));
 
     client.get("/one");
     client.get("/two");
@@ -196,23 +196,23 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   public void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
-            .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));
+            .willReturn(aresponse().withHeader("Content-Type", "text/plain").withBody("123")));
     targetService.stubFor(
         get("/large/text")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("Content-Type", "text/plain")
                     .withBody("12345678901234567")));
     targetService.stubFor(
         get("/small/binary")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("Content-Type", "application/octet-stream")
                     .withBody(new byte[] {1, 2, 3})));
     targetService.stubFor(
         get("/large/binary")
             .willReturn(
-                aResponse()
+                aresponse()
                     .withHeader("Content-Type", "application/octet-stream")
                     .withBody(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9})));
 

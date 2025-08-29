@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
+/** The type Find near misses result. */
 public class FindNearMissesResult {
 
   private final List<NearMiss> nearMisses;
 
+  /**
+   * Instantiates a new Find near misses result.
+   *
+   * @param nearMisses the near misses
+   */
   @JsonCreator
   public FindNearMissesResult(@JsonProperty("nearMisses") List<NearMiss> nearMisses) {
     this.nearMisses = nearMisses;
   }
 
+  /**
+   * Gets near misses.
+   *
+   * @return the near misses
+   */
   public List<NearMiss> getNearMisses() {
     return nearMisses;
   }

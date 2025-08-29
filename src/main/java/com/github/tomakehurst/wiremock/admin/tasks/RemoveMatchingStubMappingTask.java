@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,14 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+/**
+ * An admin task to remove a stub mapping.
+ *
+ * <p>This task handles the API request to remove a {@link StubMapping} by providing its definition
+ * in the request body. The stub is typically identified for removal by its ID.
+ *
+ * @see StubMapping
+ */
 public class RemoveMatchingStubMappingTask implements AdminTask {
 
   @Override

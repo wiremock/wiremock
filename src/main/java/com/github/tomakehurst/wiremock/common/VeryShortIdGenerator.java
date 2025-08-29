@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,20 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.util.Random;
 
+/** The type Very short id generator. */
 public class VeryShortIdGenerator implements IdGenerator {
 
   private static final String CHARS =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+  /**
+   * Generates a random string consisting of 5 characters.
+   *
+   * <p>This method creates a {@link StringBuilder} and appends 5 randomly generated characters
+   * obtained from {@link #randomChar()}. The resulting string is returned.
+   *
+   * @return a 5-character random string
+   */
   public String generate() {
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < 5; i++) {

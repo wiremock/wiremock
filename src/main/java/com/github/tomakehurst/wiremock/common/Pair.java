@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,40 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
 
+/**
+ * The type Pair.
+ *
+ * @param <A> the type parameter
+ * @param <B> the type parameter
+ */
 public final class Pair<A, B> {
 
+  /** The A. */
   public final A a;
+
+  /** The B. */
   public final B b;
 
+  /**
+   * Instantiates a new Pair.
+   *
+   * @param a the a
+   * @param b the b
+   */
   public Pair(A a, B b) {
     this.a = requireNonNull(a);
     this.b = requireNonNull(b);
   }
 
+  /**
+   * Pair pair.
+   *
+   * @param <A> the type parameter
+   * @param <B> the type parameter
+   * @param a the a
+   * @param b the b
+   * @return the pair
+   */
   public static <A, B> Pair<A, B> pair(A a, B b) {
     return new Pair<>(a, b);
   }

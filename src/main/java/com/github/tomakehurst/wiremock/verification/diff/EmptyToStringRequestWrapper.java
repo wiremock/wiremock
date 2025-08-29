@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/** The type Empty to string request wrapper. */
 public class EmptyToStringRequestWrapper implements Request {
 
   private final Request target;
 
+  /**
+   * Instantiates a new Empty to string request wrapper.
+   *
+   * @param target the target
+   */
   public EmptyToStringRequestWrapper(Request target) {
     this.target = target;
   }

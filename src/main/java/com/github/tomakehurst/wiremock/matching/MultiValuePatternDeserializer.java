@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
+/** The type Multi value pattern deserializer. */
 public class MultiValuePatternDeserializer extends JsonDeserializer<MultiValuePattern> {
 
+  /**
+   * Deserialize multi value pattern.
+   *
+   * @param parser the parser
+   * @param ctxt the ctxt
+   * @return the multi value pattern
+   * @throws IOException the io exception
+   */
   @Override
   public MultiValuePattern deserialize(JsonParser parser, DeserializationContext ctxt)
       throws IOException {

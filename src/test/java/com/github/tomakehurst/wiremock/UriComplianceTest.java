@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -45,35 +45,35 @@ public class UriComplianceTest {
 
   @Test
   public void buildsMappingWithEmptySegment() {
-    givenThat(get(urlEqualTo("/my//resource")).willReturn(aResponse().withStatus(200)));
+    givenThat(get(urlEqualTo("/my//resource")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/my//resource").statusCode(), is(200));
   }
 
   @Test
   public void buildsMappingWithAmbiguousSegment() {
-    givenThat(get(urlPathEqualTo("/my/%2e/resource")).willReturn(aResponse().withStatus(200)));
+    givenThat(get(urlPathEqualTo("/my/%2e/resource")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/my/%2e/resource").statusCode(), is(200));
   }
 
   @Test
   public void buildsMappingWithAmbiguousPathSeparator() {
-    givenThat(get(urlPathEqualTo("/foo/b%2fr")).willReturn(aResponse().withStatus(200)));
+    givenThat(get(urlPathEqualTo("/foo/b%2fr")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/foo/b%2fr").statusCode(), is(200));
   }
 
   @Test
   public void buildsMappingWithAmbiguousPathParameter() {
-    givenThat(get(urlPathEqualTo("/foo/..;/bar")).willReturn(aResponse().withStatus(200)));
+    givenThat(get(urlPathEqualTo("/foo/..;/bar")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/foo/..;/bar").statusCode(), is(200));
   }
 
   @Test
   public void buildsMappingWithAmbiguousPathEncoding() {
-    givenThat(get(urlPathEqualTo("/%2557EB-INF")).willReturn(aResponse().withStatus(200)));
+    givenThat(get(urlPathEqualTo("/%2557EB-INF")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/%2557EB-INF").statusCode(), is(200));
   }

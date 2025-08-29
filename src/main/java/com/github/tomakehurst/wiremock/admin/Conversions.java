@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,34 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
+/**
+ * A utility class providing static methods to convert data types.
+ *
+ * <p>This class is used within the admin context to safely convert {@link QueryParameter} values
+ * into other common types like {@code Integer} and {@code Date}.
+ */
 public class Conversions {
 
+  /**
+   * Converts a query parameter to an {@link Integer}.
+   *
+   * @param parameter The query parameter to convert.
+   * @return The integer value of the parameter, or {@code null} if the parameter is not present.
+   */
   public static Integer toInt(QueryParameter parameter) {
     return parameter.isPresent() ? Integer.valueOf(parameter.firstValue()) : null;
   }
 
+  /**
+   * Converts a query parameter to a {@link Date}.
+   *
+   * <p>The parameter's value is expected to be a string in ISO 8601 date-time format.
+   *
+   * @param parameter The query parameter to convert.
+   * @return The parsed {@code Date}, or {@code null} if the parameter is not present.
+   * @throws InvalidInputException if the parameter's value is not a valid ISO 8601 date-time
+   *     string.
+   */
   public static Date toDate(QueryParameter parameter) {
     try {
       return parameter.isPresent()

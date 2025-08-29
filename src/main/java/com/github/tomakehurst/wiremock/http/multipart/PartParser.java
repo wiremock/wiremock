@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,15 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.UploadContext;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
+/** The type Part parser. */
 public class PartParser {
 
+  /**
+   * Parse from collection.
+   *
+   * @param request the request
+   * @return the collection
+   */
   @SuppressWarnings("unchecked")
   public static Collection<Request.Part> parseFrom(Request request) {
     FileItemFactory fileItemFactory =
@@ -63,38 +70,72 @@ public class PartParser {
     return header.isPresent() ? header.firstValue() : null;
   }
 
+  /** The type Byte array upload context. */
   public static class ByteArrayUploadContext implements UploadContext {
 
     private final byte[] content;
     private final String encoding;
     private final String contentType;
 
+    /**
+     * Instantiates a new Byte array upload context.
+     *
+     * @param content the content
+     * @param encoding the encoding
+     * @param contentType the content type
+     */
     public ByteArrayUploadContext(byte[] content, String encoding, String contentType) {
       this.content = content;
       this.encoding = encoding;
       this.contentType = contentType;
     }
 
+    /**
+     * Content length long.
+     *
+     * @return the long
+     */
     @Override
     public long contentLength() {
       return content.length;
     }
 
+    /**
+     * Gets character encoding.
+     *
+     * @return the character encoding
+     */
     @Override
     public String getCharacterEncoding() {
       return encoding;
     }
 
+    /**
+     * Gets content type.
+     *
+     * @return the content type
+     */
     @Override
     public String getContentType() {
       return contentType;
     }
 
+    /**
+     * Gets content length.
+     *
+     * @return the content length
+     */
     @Override
     public int getContentLength() {
       return content.length;
     }
 
+    /**
+     * Gets input stream.
+     *
+     * @return the input stream
+     * @throws IOException the io exception
+     */
     @Override
     public InputStream getInputStream() throws IOException {
       return new ByteArrayInputStream(content);

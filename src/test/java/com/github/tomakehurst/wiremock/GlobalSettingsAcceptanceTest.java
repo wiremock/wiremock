@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -36,7 +36,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   public void settingGlobalFixedResponseDelay() {
     WireMock.setGlobalFixedDelay(500);
     givenThat(
-        get(urlEqualTo("/globally/delayed/resource")).willReturn(aResponse().withStatus(200)));
+        get(urlEqualTo("/globally/delayed/resource")).willReturn(aresponse().withStatus(200)));
 
     long start = System.currentTimeMillis();
     testClient.get("/globally/delayed/resource");
@@ -50,7 +50,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
     WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
     givenThat(
         get(urlEqualTo("/globally/random/delayed/resource"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     long start = System.currentTimeMillis();
     testClient.get("/globally/random/delayed/resource");
@@ -65,7 +65,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
     WireMock.setGlobalFixedDelay(30);
     givenThat(
         get(urlEqualTo("/globally/random/delayed/resource"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     long start = System.currentTimeMillis();
     testClient.get("/globally/random/delayed/resource");

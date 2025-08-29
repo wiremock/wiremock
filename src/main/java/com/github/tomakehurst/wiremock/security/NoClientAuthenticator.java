@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,14 @@ import static java.util.Collections.emptyList;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import java.util.List;
 
+/** The type No client authenticator. */
 public class NoClientAuthenticator implements ClientAuthenticator {
 
+  /**
+   * No client authenticator no client authenticator.
+   *
+   * @return the no client authenticator
+   */
   public static NoClientAuthenticator noClientAuthenticator() {
     return new NoClientAuthenticator();
   }

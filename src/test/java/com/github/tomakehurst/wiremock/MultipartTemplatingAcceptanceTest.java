@@ -202,7 +202,7 @@ public class MultipartTemplatingAcceptanceTest {
             .withHeader("Content-Type", equalTo("multipart/related; boundary=" + boundary))
             .withHeader("Content-Length", equalTo("255"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(404)
                     .withHeader("Content-Type", "application/json; charset=UTF-8")
                     .withBody(expectBody)));

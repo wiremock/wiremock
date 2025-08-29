@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,53 +22,117 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/** The type Http header. */
 public class HttpHeader extends MultiValue {
 
+  /**
+   * Instantiates a new Http header.
+   *
+   * @param key the key
+   * @param values the values
+   */
   public HttpHeader(String key, String... values) {
     super(key, asList(values));
   }
 
+  /**
+   * Instantiates a new Http header.
+   *
+   * @param key the key
+   * @param values the values
+   */
   public HttpHeader(CaseInsensitiveKey key, Collection<String> values) {
     super(key.value(), List.copyOf(values));
   }
 
+  /**
+   * Instantiates a new Http header.
+   *
+   * @param key the key
+   * @param values the values
+   */
   public HttpHeader(String key, Collection<String> values) {
     super(key, List.copyOf(getFirstNonNull(values, Collections.emptyList())));
   }
 
+  /**
+   * Http header http header.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the http header
+   */
   public static HttpHeader httpHeader(CaseInsensitiveKey key, String... values) {
     return new HttpHeader(key.value(), values);
   }
 
+  /**
+   * Http header http header.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the http header
+   */
   public static HttpHeader httpHeader(String key, String... values) {
     return new HttpHeader(key, values);
   }
 
+  /**
+   * Absent http header.
+   *
+   * @param key the key
+   * @return the http header
+   */
   public static HttpHeader absent(String key) {
     return new HttpHeader(key);
   }
 
+  /**
+   * Empty http header.
+   *
+   * @param key the key
+   * @return the http header
+   */
   public static HttpHeader empty(String key) {
     return httpHeader(key, "");
   }
 
+  /**
+   * Case insensitive key case insensitive key.
+   *
+   * @return the case insensitive key
+   */
   public CaseInsensitiveKey caseInsensitiveKey() {
     return CaseInsensitiveKey.from(key);
   }
 
+  /**
+   * Key equals boolean.
+   *
+   * @param candidateKey the candidate key
+   * @return the boolean
+   */
   public boolean keyEquals(String candidateKey) {
     return CaseInsensitiveKey.from(candidateKey).equals(caseInsensitiveKey());
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     HttpHeader that = (HttpHeader) o;
 
-    if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) return false;
-    if (values != null ? !values.equals(that.values) : that.values != null) return false;
+    if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) {
+      return false;
+    }
+    if (values != null ? !values.equals(that.values) : that.values != null) {
+      return false;
+    }
 
     return true;
   }

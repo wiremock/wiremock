@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -355,7 +355,7 @@ class PlainTextDiffRendererTest {
   void showsXPathWithSubMatchMismatch() {
     Diff diff =
         new Diff(
-            post("/thing").withRequestBody(matchingXPath("//thing/text()", equalTo("two"))).build(),
+            post("/thing").withRequestBody(matchingXpath("//thing/text()", equalTo("two"))).build(),
             mockRequest()
                 .method(POST)
                 .url("/thing")
@@ -415,12 +415,12 @@ class PlainTextDiffRendererTest {
             post("/thing")
                 .withName("Multipart request body stub")
                 .withMultipartRequestBody(
-                    aMultipart()
+                    amultipart()
                         .withName("part_one")
                         .withHeader("X-My-Stuff", containing("stuff_parts"))
                         .withBody(matching("Some expected text.*")))
                 .withMultipartRequestBody(
-                    aMultipart()
+                    amultipart()
                         .withHeader("X-More", containing("stuff_parts"))
                         .withBody(equalTo("Correct body")))
                 .build(),
@@ -448,7 +448,7 @@ class PlainTextDiffRendererTest {
             post("/thing")
                 .withName("Multipart request body stub")
                 .withMultipartRequestBody(
-                    aMultipart()
+                    amultipart()
                         .withHeader("X-My-Stuff", containing("stuff_parts"))
                         .withBody(matching("Some expected text.*")))
                 .build(),

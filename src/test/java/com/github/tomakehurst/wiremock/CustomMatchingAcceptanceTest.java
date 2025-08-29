@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class CustomMatchingAcceptanceTest {
 
   @Test
   public void customRequestMatcherCanBeDefinedAsClass() {
-    wmRule.stubFor(requestMatching(new MyRequestMatcher()).willReturn(aResponse().withStatus(200)));
+    wmRule.stubFor(requestMatching(new MyRequestMatcher()).willReturn(aresponse().withStatus(200)));
     assertThat(client.get("/correct").statusCode(), is(200));
     assertThat(client.get("/wrong").statusCode(), is(404));
   }
@@ -80,7 +80,7 @@ public class CustomMatchingAcceptanceTest {
                     return "inline";
                   }
                 })
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(client.get("/correct").statusCode(), is(200));
     assertThat(client.get("/wrong").statusCode(), is(404));
@@ -90,7 +90,7 @@ public class CustomMatchingAcceptanceTest {
   public void customRequestMatcherCanBeSpecifiedAsNamedExtension() {
     wm.register(
         requestMatching("path-contains-param", Parameters.one("path", "findthis"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
     assertThat(client.get("/findthis/thing").statusCode(), is(200));
   }
 

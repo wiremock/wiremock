@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,24 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
+/** The interface Request journal store. */
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface RequestJournalStore extends Store<UUID, ServeEvent> {
 
+  /**
+   * Gets all.
+   *
+   * @return the all
+   */
   Stream<ServeEvent> getAll();
 
+  /**
+   * Add.
+   *
+   * @param event the event
+   */
   void add(ServeEvent event);
 
+  /** Remove last. */
   void removeLast();
 }

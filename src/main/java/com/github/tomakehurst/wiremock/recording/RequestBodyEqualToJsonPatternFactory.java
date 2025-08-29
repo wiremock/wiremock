@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 
+/** The type Request body equal to json pattern factory. */
 public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternFactory {
 
   private final Boolean ignoreArrayOrder;
   private final Boolean ignoreExtraElements;
 
+  /**
+   * Instantiates a new Request body equal to json pattern factory.
+   *
+   * @param ignoreArrayOrder the ignore array order
+   * @param ignoreExtraElements the ignore extra elements
+   */
   @JsonCreator
   public RequestBodyEqualToJsonPatternFactory(
       @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
@@ -33,10 +40,20 @@ public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternF
     this.ignoreExtraElements = ignoreExtraElements;
   }
 
+  /**
+   * Is ignore array order boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isIgnoreArrayOrder() {
     return ignoreArrayOrder;
   }
 
+  /**
+   * Is ignore extra elements boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isIgnoreExtraElements() {
     return ignoreExtraElements;
   }

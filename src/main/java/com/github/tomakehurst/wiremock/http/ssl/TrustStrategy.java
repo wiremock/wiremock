@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,35 @@ import java.net.Socket;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLEngine;
 
+/** The interface Trust strategy. */
 public interface TrustStrategy {
 
+  /**
+   * Is trusted boolean.
+   *
+   * @param chain the chain
+   * @param authType the auth type
+   * @return the boolean
+   */
   boolean isTrusted(X509Certificate[] chain, String authType);
 
+  /**
+   * Is trusted boolean.
+   *
+   * @param chain the chain
+   * @param authType the auth type
+   * @param socket the socket
+   * @return the boolean
+   */
   boolean isTrusted(X509Certificate[] chain, String authType, Socket socket);
 
+  /**
+   * Is trusted boolean.
+   *
+   * @param chain the chain
+   * @param authType the auth type
+   * @param engine the engine
+   * @return the boolean
+   */
   boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine);
 }

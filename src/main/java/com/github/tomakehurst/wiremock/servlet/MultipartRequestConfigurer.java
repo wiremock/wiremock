@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,16 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/** The interface Multipart request configurer. */
 public interface MultipartRequestConfigurer {
 
+  /** The constant KEY. */
   String KEY = MultipartRequestConfigurer.class.getSimpleName();
 
+  /**
+   * Configure.
+   *
+   * @param request the request
+   */
   void configure(HttpServletRequest request);
 }

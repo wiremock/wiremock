@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import java.util.List;
 
+/** The type Memoizing match result. */
 public class MemoizingMatchResult extends MatchResult {
 
   private final Supplier<Double> memoizedDistance =
@@ -42,6 +43,11 @@ public class MemoizingMatchResult extends MatchResult {
 
   private final MatchResult target;
 
+  /**
+   * Instantiates a new Memoizing match result.
+   *
+   * @param target the target
+   */
   public MemoizingMatchResult(MatchResult target) {
     this.target = target;
   }

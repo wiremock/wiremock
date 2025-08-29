@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,28 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Anything pattern. */
 public class AnythingPattern extends StringValuePattern {
 
+  /**
+   * Instantiates a new Anything pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public AnythingPattern(@JsonProperty("anything") String expectedValue) {
     super(expectedValue);
   }
 
+  /** Instantiates a new Anything pattern. */
   public AnythingPattern() {
     this("(always)");
   }
 
+  /**
+   * Gets anything.
+   *
+   * @return the anything
+   */
   public String getAnything() {
     return "anything";
   }

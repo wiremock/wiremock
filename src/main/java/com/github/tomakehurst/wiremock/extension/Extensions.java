@@ -32,7 +32,13 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClient;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,8 +46,10 @@ import java.util.stream.Stream;
 import org.wiremock.webhooks.WebhookTransformer;
 import org.wiremock.webhooks.Webhooks;
 
+/** The type Extensions. */
 public class Extensions implements WireMockServices {
 
+  /** The constant NONE. */
   public static final Extensions NONE =
       new Extensions(new ExtensionDeclarations(), null, null, null, null);
 
@@ -58,6 +66,15 @@ public class Extensions implements WireMockServices {
 
   private final Map<String, Extension> loadedExtensions;
 
+  /**
+   * Instantiates a new Extensions.
+   *
+   * @param extensionDeclarations the extension declarations
+   * @param admin the admin
+   * @param options the options
+   * @param stores the stores
+   * @param files the files
+   */
   public Extensions(
       ExtensionDeclarations extensionDeclarations,
       Admin admin,
@@ -73,6 +90,7 @@ public class Extensions implements WireMockServices {
     loadedExtensions = new LinkedHashMap<>();
   }
 
+  /** Load. */
   public void load() {
     Stream.concat(
             extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
@@ -217,10 +235,20 @@ public class Extensions implements WireMockServices {
         () -> httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true));
   }
 
+  /**
+   * Gets count.
+   *
+   * @return the count
+   */
   public int getCount() {
     return loadedExtensions.size();
   }
 
+  /**
+   * Gets all extension names.
+   *
+   * @return the all extension names
+   */
   public Set<String> getAllExtensionNames() {
     return loadedExtensions.keySet();
   }
@@ -234,6 +262,12 @@ public class Extensions implements WireMockServices {
     }
   }
 
+  /**
+   * Load extension.
+   *
+   * @param extensionClass the extension class
+   * @return the extension
+   */
   public static Extension load(Class<? extends Extension> extensionClass) {
     try {
       return extensionClass.getDeclaredConstructor().newInstance();
@@ -242,14 +276,23 @@ public class Extensions implements WireMockServices {
     }
   }
 
+  /** Start all. */
   public void startAll() {
     loadedExtensions.values().forEach(Extension::start);
   }
 
+  /** Stop all. */
   public void stopAll() {
     loadedExtensions.values().forEach(Extension::stop);
   }
 
+  /**
+   * Of type map.
+   *
+   * @param <T> the type parameter
+   * @param extensionType the extension type
+   * @return the map
+   */
   @SuppressWarnings("unchecked")
   public <T extends Extension> Map<String, T> ofType(Class<T> extensionType) {
     return (Map<String, T>)

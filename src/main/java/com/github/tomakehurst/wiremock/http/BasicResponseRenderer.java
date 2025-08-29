@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The type Basic response renderer. */
 public class BasicResponseRenderer implements ResponseRenderer {
 
   @Override

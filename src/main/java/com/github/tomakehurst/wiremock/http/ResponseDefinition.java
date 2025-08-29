@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,13 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
 import static com.github.tomakehurst.wiremock.common.Strings.removeStart;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,6 +42,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/** The type Response definition. */
 public class ResponseDefinition {
 
   private final int status;
@@ -58,6 +65,28 @@ public class ResponseDefinition {
   private Boolean wasConfigured = true;
   private Request originalRequest;
 
+  /**
+   * Instantiates a new Response definition.
+   *
+   * @param status the status
+   * @param statusMessage the status message
+   * @param body the body
+   * @param jsonBody the json body
+   * @param base64Body the base 64 body
+   * @param bodyFileName the body file name
+   * @param headers the headers
+   * @param additionalProxyRequestHeaders the additional proxy request headers
+   * @param removeProxyRequestHeaders the remove proxy request headers
+   * @param fixedDelayMilliseconds the fixed delay milliseconds
+   * @param delayDistribution the delay distribution
+   * @param chunkedDribbleDelay the chunked dribble delay
+   * @param proxyBaseUrl the proxy base url
+   * @param proxyUrlPrefixToRemove the proxy url prefix to remove
+   * @param fault the fault
+   * @param transformers the transformers
+   * @param transformerParameters the transformer parameters
+   * @param wasConfigured the was configured
+   */
   @JsonCreator
   public ResponseDefinition(
       @JsonProperty("status") int status,
@@ -97,6 +126,28 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
+  /**
+   * Instantiates a new Response definition.
+   *
+   * @param status the status
+   * @param statusMessage the status message
+   * @param body the body
+   * @param jsonBody the json body
+   * @param base64Body the base 64 body
+   * @param bodyFileName the body file name
+   * @param headers the headers
+   * @param additionalProxyRequestHeaders the additional proxy request headers
+   * @param removeProxyRequestHeaders the remove proxy request headers
+   * @param fixedDelayMilliseconds the fixed delay milliseconds
+   * @param delayDistribution the delay distribution
+   * @param chunkedDribbleDelay the chunked dribble delay
+   * @param proxyBaseUrl the proxy base url
+   * @param proxyUrlPrefixToRemove the proxy url prefix to remove
+   * @param fault the fault
+   * @param transformers the transformers
+   * @param transformerParameters the transformer parameters
+   * @param wasConfigured the was configured
+   */
   public ResponseDefinition(
       int status,
       String statusMessage,
@@ -135,6 +186,26 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
+  /**
+   * Instantiates a new Response definition.
+   *
+   * @param status the status
+   * @param statusMessage the status message
+   * @param body the body
+   * @param bodyFileName the body file name
+   * @param headers the headers
+   * @param additionalProxyRequestHeaders the additional proxy request headers
+   * @param removeProxyRequestHeaders the remove proxy request headers
+   * @param fixedDelayMilliseconds the fixed delay milliseconds
+   * @param delayDistribution the delay distribution
+   * @param chunkedDribbleDelay the chunked dribble delay
+   * @param proxyBaseUrl the proxy base url
+   * @param proxyUrlPrefixToRemove the proxy url prefix to remove
+   * @param fault the fault
+   * @param transformers the transformers
+   * @param transformerParameters the transformer parameters
+   * @param wasConfigured the was configured
+   */
   public ResponseDefinition(
       int status,
       String statusMessage,
@@ -172,6 +243,12 @@ public class ResponseDefinition {
     this.wasConfigured = wasConfigured == null ? true : wasConfigured;
   }
 
+  /**
+   * Instantiates a new Response definition.
+   *
+   * @param statusCode the status code
+   * @param bodyContent the body content
+   */
   public ResponseDefinition(final int statusCode, final String bodyContent) {
     this(
         statusCode,
@@ -192,6 +269,12 @@ public class ResponseDefinition {
         true);
   }
 
+  /**
+   * Instantiates a new Response definition.
+   *
+   * @param statusCode the status code
+   * @param bodyContent the body content
+   */
   public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
     this(
         statusCode,
@@ -212,6 +295,7 @@ public class ResponseDefinition {
         true);
   }
 
+  /** Instantiates a new Response definition. */
   public ResponseDefinition() {
     this(
         HTTP_OK,
@@ -232,30 +316,68 @@ public class ResponseDefinition {
         true);
   }
 
+  /**
+   * Not found response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition notFound() {
     return new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
   }
 
+  /**
+   * Ok response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition ok() {
     return new ResponseDefinition(HTTP_OK, (byte[]) null);
   }
 
+  /**
+   * Ok empty json response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition okEmptyJson() {
     return ResponseDefinitionBuilder.okForEmptyJson().build();
   }
 
+  /**
+   * Ok for json response definition.
+   *
+   * @param <T> the type parameter
+   * @param body the body
+   * @return the response definition
+   */
   public static <T> ResponseDefinition okForJson(T body) {
     return ResponseDefinitionBuilder.okForJson(body).build();
   }
 
+  /**
+   * Created response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition created() {
     return new ResponseDefinition(HTTP_CREATED, (byte[]) null);
   }
 
+  /**
+   * No content response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition noContent() {
     return new ResponseDefinition(HTTP_NO_CONTENT, (byte[]) null);
   }
 
+  /**
+   * Bad request response definition.
+   *
+   * @param errors the errors
+   * @return the response definition
+   */
   public static ResponseDefinition badRequest(Errors errors) {
     return ResponseDefinitionBuilder.responseDefinition()
         .withStatus(400)
@@ -264,6 +386,12 @@ public class ResponseDefinition {
         .build();
   }
 
+  /**
+   * Bad request entity response definition.
+   *
+   * @param errors the errors
+   * @return the response definition
+   */
   public static ResponseDefinition badRequestEntity(Errors errors) {
     return ResponseDefinitionBuilder.responseDefinition()
         .withStatus(422)
@@ -272,6 +400,12 @@ public class ResponseDefinition {
         .build();
   }
 
+  /**
+   * Redirect to response definition.
+   *
+   * @param path the path
+   * @return the response definition
+   */
   public static ResponseDefinition redirectTo(String path) {
     return new ResponseDefinitionBuilder()
         .withHeader(LOCATION, path)
@@ -279,34 +413,73 @@ public class ResponseDefinition {
         .build();
   }
 
+  /**
+   * Not configured response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition notConfigured() {
     final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
     response.wasConfigured = false;
     return response;
   }
 
+  /**
+   * Not authorised response definition.
+   *
+   * @return the response definition
+   */
   public static ResponseDefinition notAuthorised() {
     return new ResponseDefinition(HTTP_UNAUTHORIZED, (byte[]) null);
   }
 
+  /**
+   * Not permitted response definition.
+   *
+   * @param message the message
+   * @return the response definition
+   */
   public static ResponseDefinition notPermitted(String message) {
     return notPermitted(Errors.single(40, message));
   }
 
+  /**
+   * Not permitted response definition.
+   *
+   * @param errors the errors
+   * @return the response definition
+   */
   public static ResponseDefinition notPermitted(Errors errors) {
     return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_FORBIDDEN);
   }
 
+  /**
+   * Browser proxy response definition.
+   *
+   * @param originalRequest the original request
+   * @return the response definition
+   */
   public static ResponseDefinition browserProxy(Request originalRequest) {
     final ResponseDefinition response = new ResponseDefinition();
     response.browserProxyUrl = originalRequest.getAbsoluteUrl();
     return response;
   }
 
+  /**
+   * Copy of response definition.
+   *
+   * @param original the original
+   * @return the response definition
+   */
   public static ResponseDefinition copyOf(ResponseDefinition original) {
     return original.copy();
   }
 
+  /**
+   * Copy response definition.
+   *
+   * @return the response definition
+   */
   public ResponseDefinition copy() {
     ResponseDefinition newResponseDef =
         new ResponseDefinition(
@@ -329,83 +502,168 @@ public class ResponseDefinition {
     return newResponseDef;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public HttpHeaders getHeaders() {
     return headers;
   }
 
+  /**
+   * Gets additional proxy request headers.
+   *
+   * @return the additional proxy request headers
+   */
   public HttpHeaders getAdditionalProxyRequestHeaders() {
     return additionalProxyRequestHeaders;
   }
 
+  /**
+   * Gets remove proxy request headers.
+   *
+   * @return the remove proxy request headers
+   */
   public List<String> getRemoveProxyRequestHeaders() {
     return removeProxyRequestHeaders;
   }
 
+  /**
+   * Gets status.
+   *
+   * @return the status
+   */
   public int getStatus() {
     return status;
   }
 
+  /**
+   * Gets status message.
+   *
+   * @return the status message
+   */
   public String getStatusMessage() {
     return statusMessage;
   }
 
+  /**
+   * Gets body.
+   *
+   * @return the body
+   */
   public String getBody() {
     return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
   }
 
+  /**
+   * Gets text body.
+   *
+   * @return the text body
+   */
   @JsonIgnore
   public String getTextBody() {
     return !body.isBinary() ? body.asString() : null;
   }
 
+  /**
+   * Get byte body byte [ ].
+   *
+   * @return the byte [ ]
+   */
   @JsonIgnore
   public byte[] getByteBody() {
     return body.asBytes();
   }
 
-  @JsonIgnore
-  public byte[] getByteBodyIfBinary() {
-    return body.isBinary() ? body.asBytes() : null;
-  }
-
+  /**
+   * Gets base 64 body.
+   *
+   * @return the base 64 body
+   */
   public String getBase64Body() {
     return body.isBinary() ? body.asBase64() : null;
   }
 
+  /**
+   * Gets reponse body.
+   *
+   * @return the reponse body
+   */
   @JsonIgnore
   public Body getReponseBody() {
     return body;
   }
 
+  /**
+   * Gets json body.
+   *
+   * @return the json body
+   */
   public JsonNode getJsonBody() {
 
     return body.isJson() ? body.asJson() : null;
   }
 
+  /**
+   * Gets body file name.
+   *
+   * @return the body file name
+   */
   public String getBodyFileName() {
     return bodyFileName;
   }
 
+  /**
+   * Was configured boolean.
+   *
+   * @return the boolean
+   */
   public boolean wasConfigured() {
     return wasConfigured == null || wasConfigured;
   }
 
+  /**
+   * Is from configured stub boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isFromConfiguredStub() {
     return wasConfigured == null || wasConfigured ? null : false;
   }
 
+  /**
+   * Gets fixed delay milliseconds.
+   *
+   * @return the fixed delay milliseconds
+   */
   public Integer getFixedDelayMilliseconds() {
     return fixedDelayMilliseconds;
   }
 
+  /**
+   * Gets delay distribution.
+   *
+   * @return the delay distribution
+   */
   public DelayDistribution getDelayDistribution() {
     return delayDistribution;
   }
 
+  /**
+   * Gets chunked dribble delay.
+   *
+   * @return the chunked dribble delay
+   */
   public ChunkedDribbleDelay getChunkedDribbleDelay() {
     return chunkedDribbleDelay;
   }
 
+  /**
+   * Gets proxy url.
+   *
+   * @return the proxy url
+   */
   @JsonIgnore
   public String getProxyUrl() {
     if (browserProxyUrl != null) {
@@ -417,70 +675,140 @@ public class ResponseDefinition {
     return proxyBaseUrl + removeStart(originalRequestUrl, proxyUrlPrefixToRemove);
   }
 
+  /**
+   * Gets proxy base url.
+   *
+   * @return the proxy base url
+   */
   public String getProxyBaseUrl() {
     return proxyBaseUrl;
   }
 
+  /**
+   * Gets proxy url prefix to remove.
+   *
+   * @return the proxy url prefix to remove
+   */
   public String getProxyUrlPrefixToRemove() {
     return proxyUrlPrefixToRemove;
   }
 
+  /**
+   * Specifies body file boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean specifiesBodyFile() {
     return bodyFileName != null && body.isAbsent();
   }
 
+  /**
+   * Specifies body content boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean specifiesBodyContent() {
     return body.isPresent();
   }
 
+  /**
+   * Specifies text body content boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean specifiesTextBodyContent() {
     return body.isPresent() && !body.isBinary();
   }
 
+  /**
+   * Specifies binary body content boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean specifiesBinaryBodyContent() {
     return (body.isPresent() && body.isBinary());
   }
 
+  /**
+   * Is proxy response boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isProxyResponse() {
     return browserProxyUrl != null || proxyBaseUrl != null;
   }
 
+  /**
+   * Gets original request.
+   *
+   * @return the original request
+   */
   @JsonIgnore
   public Request getOriginalRequest() {
     return originalRequest;
   }
 
+  /**
+   * Sets original request.
+   *
+   * @param originalRequest the original request
+   */
   public void setOriginalRequest(final Request originalRequest) {
     this.originalRequest = originalRequest;
   }
 
+  /**
+   * Gets fault.
+   *
+   * @return the fault
+   */
   public Fault getFault() {
     return fault;
   }
 
+  /**
+   * Gets transformers.
+   *
+   * @return the transformers
+   */
   @JsonInclude(NON_EMPTY)
   public List<String> getTransformers() {
     return transformers;
   }
 
+  /**
+   * Gets transformer parameters.
+   *
+   * @return the transformer parameters
+   */
   @JsonInclude(NON_EMPTY)
   public Parameters getTransformerParameters() {
     return transformerParameters;
   }
 
+  /**
+   * Has transformer boolean.
+   *
+   * @param transformer the transformer
+   * @return the boolean
+   */
   public boolean hasTransformer(Extension transformer) {
     return transformers != null && transformers.contains(transformer.getName());
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ResponseDefinition that = (ResponseDefinition) o;
     return status == that.status
         && Objects.equals(statusMessage, that.statusMessage)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Wire mock http servlet multipart adapter. */
 public class WireMockHttpServletMultipartAdapter implements Request.Part {
 
   private final Part mPart;
   private final HttpHeaders headers;
 
+  /**
+   * Instantiates a new Wire mock http servlet multipart adapter.
+   *
+   * @param servletPart the servlet part
+   */
   public WireMockHttpServletMultipartAdapter(final Part servletPart) {
     mPart = servletPart;
     List<HttpHeader> httpHeaders =
@@ -43,6 +49,12 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
     headers = new HttpHeaders(httpHeaders);
   }
 
+  /**
+   * From wire mock http servlet multipart adapter.
+   *
+   * @param servletPart the servlet part
+   * @return the wire mock http servlet multipart adapter
+   */
   public static WireMockHttpServletMultipartAdapter from(Part servletPart) {
     return new WireMockHttpServletMultipartAdapter(servletPart);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import org.eclipse.jetty.util.Jetty;
 
+/** The type Http server factory loader. */
 public class HttpServerFactoryLoader {
 
   private final Options options;
@@ -34,6 +35,14 @@ public class HttpServerFactoryLoader {
   private final Supplier<List<HttpServerFactory>> serviceLoader;
   private final boolean isJetty11;
 
+  /**
+   * Instantiates a new Http server factory loader.
+   *
+   * @param options the options
+   * @param extensions the extensions
+   * @param serviceLoader the service loader
+   * @param isJetty11 the is jetty 11
+   */
   public HttpServerFactoryLoader(
       Options options,
       Extensions extensions,
@@ -45,6 +54,11 @@ public class HttpServerFactoryLoader {
     this.isJetty11 = isJetty11;
   }
 
+  /**
+   * Load http server factory.
+   *
+   * @return the http server factory
+   */
   public HttpServerFactory load() {
     final List<HttpServerFactory> extensionCandidates =
         extensions.ofType(HttpServerFactory.class).values().stream().collect(toUnmodifiableList());
@@ -60,6 +74,11 @@ public class HttpServerFactoryLoader {
     return options.httpServerFactory();
   }
 
+  /**
+   * System service loader supplier.
+   *
+   * @return the supplier
+   */
   public static Supplier<List<HttpServerFactory>> systemServiceLoader() {
     return () ->
         ServiceLoader.load(Extension.class).stream()
@@ -86,6 +105,11 @@ public class HttpServerFactoryLoader {
         "Jetty 11 is not present and no suitable HttpServerFactory extension was found. Please ensure that the classpath includes a WireMock extension that provides an HttpServerFactory implementation. See http://wiremock.org/docs/extending-wiremock/ for more information.");
   }
 
+  /**
+   * Is jetty 11 boolean.
+   *
+   * @return the boolean
+   */
   public static boolean isJetty11() {
     try {
       return Jetty.VERSION.startsWith("11");

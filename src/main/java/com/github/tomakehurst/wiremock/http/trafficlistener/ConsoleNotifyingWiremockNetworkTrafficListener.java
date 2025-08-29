@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,23 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+/** The type Console notifying wiremock network traffic listener. */
 public class ConsoleNotifyingWiremockNetworkTrafficListener
     implements WiremockNetworkTrafficListener {
 
   private final WiremockNetworkTrafficListener wiremockNetworkTrafficListener;
 
+  /**
+   * Instantiates a new Console notifying wiremock network traffic listener.
+   *
+   * @param charset the charset
+   */
   public ConsoleNotifyingWiremockNetworkTrafficListener(Charset charset) {
     this.wiremockNetworkTrafficListener =
         WiremockNetworkTrafficListeners.createConsoleNotifying(charset);
   }
 
+  /** Instantiates a new Console notifying wiremock network traffic listener. */
   public ConsoleNotifyingWiremockNetworkTrafficListener() {
     this.wiremockNetworkTrafficListener = WiremockNetworkTrafficListeners.createConsoleNotifying();
   }

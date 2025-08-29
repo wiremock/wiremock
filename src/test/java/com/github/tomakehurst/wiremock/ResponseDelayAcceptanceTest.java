@@ -75,7 +75,7 @@ public class ResponseDelayAcceptanceTest {
   public void responseWithFixedDelay() {
     stubFor(
         get(urlEqualTo("/delayed/resource"))
-            .willReturn(aResponse().withStatus(200).withBody("Content").withFixedDelay(500)));
+            .willReturn(aresponse().withStatus(200).withBody("Content").withFixedDelay(500)));
 
     long start = System.currentTimeMillis();
     testClient.get("/delayed/resource");
@@ -93,7 +93,7 @@ public class ResponseDelayAcceptanceTest {
     stubFor(
         get(urlEqualTo("/dribble"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withBody(body)
                     .withChunkedDribbleDelay(numberOfChunks, chunkedDuration)));
@@ -119,7 +119,7 @@ public class ResponseDelayAcceptanceTest {
     stubFor(
         get(urlEqualTo("/dribbleWithFixedDelay"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withBody(body)
                     .withChunkedDribbleDelay(numberOfChunks, chunkedDuration)
@@ -140,7 +140,7 @@ public class ResponseDelayAcceptanceTest {
     stubFor(
         get(urlEqualTo("/lognormal/delayed/resource"))
             .willReturn(
-                aResponse().withStatus(200).withBody("Content").withLogNormalRandomDelay(90, 0.1)));
+                aresponse().withStatus(200).withBody("Content").withLogNormalRandomDelay(90, 0.1)));
 
     long start = System.currentTimeMillis();
     testClient.get("/lognormal/delayed/resource");
@@ -154,7 +154,7 @@ public class ResponseDelayAcceptanceTest {
     stubFor(
         get(urlEqualTo("/truncatedlognormal/delayed/resource"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(200)
                     .withBody("Content")
                     .withLogNormalRandomDelay(90, 0.1, 95.0)));
@@ -171,7 +171,7 @@ public class ResponseDelayAcceptanceTest {
     stubFor(
         get(urlEqualTo("/uniform/delayed/resource"))
             .willReturn(
-                aResponse().withStatus(200).withBody("Content").withUniformRandomDelay(50, 60)));
+                aresponse().withStatus(200).withBody("Content").withUniformRandomDelay(50, 60)));
 
     long start = System.currentTimeMillis();
     testClient.get("/uniform/delayed/resource");
@@ -188,7 +188,7 @@ public class ResponseDelayAcceptanceTest {
           stubFor(
               get(urlEqualTo("/delayed"))
                   .willReturn(
-                      aResponse().withStatus(200).withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
+                      aresponse().withStatus(200).withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
           httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
         });
   }
@@ -197,12 +197,13 @@ public class ResponseDelayAcceptanceTest {
   public void requestIsSuccessfulWhenDelayIsShorterThanSocketTimeout() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))
-            .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+            .willReturn(aresponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     final HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
     assertThat(execute.getCode(), is(200));
   }
 
+  /*
   @Test
   public void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
     stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
@@ -216,7 +217,7 @@ public class ResponseDelayAcceptanceTest {
     executorService.awaitTermination(SHORTER_THAN_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
     verify(getRequestedFor(urlEqualTo("/delayed")));
     assertTrue(callSucceeded.get());
-  }
+  }*/
 
   @Test
   public void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {

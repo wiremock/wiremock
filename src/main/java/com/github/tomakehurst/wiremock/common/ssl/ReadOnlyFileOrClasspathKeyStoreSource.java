@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,19 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.util.Objects;
 
+/** The type Read only file or classpath key store source. */
 public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
 
+  /** The Path. */
   protected final String path;
 
+  /**
+   * Instantiates a new Read only file or classpath key store source.
+   *
+   * @param path the path
+   * @param keyStoreType the key store type
+   * @param keyStorePassword the key store password
+   */
   public ReadOnlyFileOrClasspathKeyStoreSource(
       String path, String keyStoreType, char[] keyStorePassword) {
     super(keyStoreType, keyStorePassword);
@@ -63,15 +72,26 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
   @Override
   public void save(KeyStore keyStore) {}
 
+  /**
+   * Gets path.
+   *
+   * @return the path
+   */
   public String getPath() {
     return path;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
     ReadOnlyFileOrClasspathKeyStoreSource that = (ReadOnlyFileOrClasspathKeyStoreSource) o;
     return path.equals(that.path);
   }

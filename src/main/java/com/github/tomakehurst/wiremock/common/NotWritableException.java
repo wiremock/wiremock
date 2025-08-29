@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+/** The type Not writable exception. */
 public class NotWritableException extends RuntimeException {
 
+  /**
+   * Instantiates a new Not writable exception.
+   *
+   * @param message the message
+   */
   public NotWritableException(String message) {
     super(message);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Absent pattern. */
 public class AbsentPattern extends StringValuePattern {
 
+  /** The constant ABSENT. */
   public static final AbsentPattern ABSENT = new AbsentPattern(null);
 
+  /**
+   * Instantiates a new Absent pattern.
+   *
+   * @param expectedValue the expected value
+   */
   public AbsentPattern(@JsonProperty("absent") String expectedValue) {
     super(expectedValue);
   }

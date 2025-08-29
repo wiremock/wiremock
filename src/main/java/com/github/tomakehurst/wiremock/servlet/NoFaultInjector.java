@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,16 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/** The type No fault injector. */
 public class NoFaultInjector implements FaultInjector {
 
   private final HttpServletResponse httpServletResponse;
 
+  /**
+   * Instantiates a new No fault injector.
+   *
+   * @param httpServletResponse the http servlet response
+   */
   public NoFaultInjector(HttpServletResponse httpServletResponse) {
     this.httpServletResponse = httpServletResponse;
   }

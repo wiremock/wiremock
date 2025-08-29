@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+/** The type Binary file. */
 public class BinaryFile implements InputStreamSource {
 
   private final URI uri;
 
+  /**
+   * Instantiates a new Binary file.
+   *
+   * @param uri the uri
+   */
   public BinaryFile(URI uri) {
     this.uri = uri;
   }
 
+  /**
+   * Read contents byte [ ].
+   *
+   * @return the byte [ ]
+   */
   public byte[] readContents() {
     try (InputStream stream = getStream()) {
       return stream.readAllBytes();
@@ -37,10 +48,20 @@ public class BinaryFile implements InputStreamSource {
     }
   }
 
+  /**
+   * Gets uri.
+   *
+   * @return the uri
+   */
   protected URI getUri() {
     return uri;
   }
 
+  /**
+   * Name string.
+   *
+   * @return the string
+   */
   public String name() {
     return uri.toString();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Set;
 
+/** The type Default network address rules. */
 public class DefaultNetworkAddressRules implements NetworkAddressRules {
 
   private final Set<NetworkAddressRange> allowed;
@@ -28,6 +29,12 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
   private final Set<NetworkAddressRange> denied;
   private final Set<NetworkAddressRange> deniedHostPatterns;
 
+  /**
+   * Instantiates a new Default network address rules.
+   *
+   * @param allowed the allowed
+   * @param denied the denied
+   */
   public DefaultNetworkAddressRules(
       Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
     this.allowed =

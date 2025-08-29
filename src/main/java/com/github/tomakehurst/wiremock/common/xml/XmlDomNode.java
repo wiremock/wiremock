@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,17 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.XMLReader;
 
+/** The type Xml dom node. */
 public class XmlDomNode extends XmlNode {
 
   private final Node domNode;
   private final Map<String, String> attributes;
 
+  /**
+   * Instantiates a new Xml dom node.
+   *
+   * @param domNode the dom node
+   */
   public XmlDomNode(Node domNode) {
     this.domNode = domNode;
     attributes =
@@ -59,10 +65,20 @@ public class XmlDomNode extends XmlNode {
     return attributes;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return domNode.getNodeName();
   }
 
+  /**
+   * Gets text.
+   *
+   * @return the text
+   */
   public String getText() {
     return domNode.getTextContent();
   }
@@ -114,9 +130,9 @@ public class XmlDomNode extends XmlNode {
     if (DOM2SAX_XMLREADER_CLASS != null) {
       try {
         Constructor<XMLReader> constructor = DOM2SAX_XMLREADER_CLASS.getConstructor(Node.class);
-        XMLReader dom2SAX = constructor.newInstance(node);
+        XMLReader dom2Sax = constructor.newInstance(node);
         SAXSource saxSource = new SAXSource();
-        saxSource.setXMLReader(dom2SAX);
+        saxSource.setXMLReader(dom2Sax);
         return saxSource;
       } catch (NoSuchMethodException
           | InstantiationException

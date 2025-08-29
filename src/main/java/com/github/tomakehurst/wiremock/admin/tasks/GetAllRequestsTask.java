@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,17 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to retrieve all logged requests, with support for filtering and pagination.
+ *
+ * <p>This task handles the API request to list {@link ServeEvent}s from the journal. It supports
+ * initial filtering (e.g., for unmatched requests) via {@link ServeEventQuery} and pagination via
+ * "limit" and "since" query parameters.
+ *
+ * @see GetServeEventsResult
+ * @see ServeEventQuery
+ * @see LimitAndSinceDatePaginator
+ */
 public class GetAllRequestsTask implements AdminTask {
 
   @Override

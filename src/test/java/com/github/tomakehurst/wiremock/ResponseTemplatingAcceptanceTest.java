@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withBody("{{request.path.[0]}}")
                       .withTransformers("response-template")));
 
@@ -70,7 +70,7 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get(urlPathTemplate("/{template_param}"))
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withBody("{ \"key\": \"{{{ request.path.template_param }}}\" }")
                       .withTransformers("response-template")));
 
@@ -83,7 +83,7 @@ public class ResponseTemplatingAcceptanceTest {
     public void doesNotApplyResponseTemplateWhenNotAddedToStubMapping() {
       wm.stubFor(
           get(urlPathEqualTo("/not-templated"))
-              .willReturn(aResponse().withBody("{{request.path.[0]}}")));
+              .willReturn(aresponse().withBody("{{request.path.[0]}}")));
 
       assertThat(client.get("/not-templated").content(), is("{{request.path.[0]}}"));
     }
@@ -114,7 +114,7 @@ public class ResponseTemplatingAcceptanceTest {
     public void appliesResponseTemplate() {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .willReturn(aResponse().withBody("{{request.path.[0]}}")));
+              .willReturn(aresponse().withBody("{{request.path.[0]}}")));
 
       assertThat(client.get("/templated").content(), is("templated"));
     }
@@ -123,7 +123,7 @@ public class ResponseTemplatingAcceptanceTest {
     public void appliesToResponseBodyFromFile() {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .willReturn(aResponse().withBodyFile("templated-example-1.txt")));
+              .willReturn(aresponse().withBodyFile("templated-example-1.txt")));
 
       assertThat(client.get("/templated").content(), is("templated"));
     }
@@ -145,7 +145,7 @@ public class ResponseTemplatingAcceptanceTest {
     public void supportsSelectionResponseBodyTemplateViaTemplate() {
       wm.stubFor(
           get(urlPathMatching("/templated/.*"))
-              .willReturn(aResponse().withBodyFile("templated-example-{{request.path.1}}.txt")));
+              .willReturn(aresponse().withBodyFile("templated-example-{{request.path.1}}.txt")));
 
       assertThat(client.get("/templated/2").content(), is("templated"));
       assertThat(client.get("/templated/3").content(), is("3"));
@@ -160,7 +160,7 @@ public class ResponseTemplatingAcceptanceTest {
           get(urlPathEqualTo(url))
               .withId(id)
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withHeader("X-Value", "{{request.path.1}}")
                       .withBody("{{request.path.1}}")));
 
@@ -172,7 +172,7 @@ public class ResponseTemplatingAcceptanceTest {
           get(urlPathEqualTo(url))
               .withId(id)
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withHeader("X-Value", "{{request.path.2}}")
                       .withBody("{{request.path.2}}")));
 
@@ -185,14 +185,14 @@ public class ResponseTemplatingAcceptanceTest {
     public void supportsDisablingTemplatingOfBodyFilesPerStub() {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .willReturn(aResponse().withBodyFile("templated-example-1.txt")));
+              .willReturn(aresponse().withBodyFile("templated-example-1.txt")));
 
       assertThat(client.get("/templated").content(), is("templated"));
 
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withBodyFile("templated-example-1.txt")
                       .withTransformerParameter("disableBodyFileTemplating", true)));
 
@@ -201,7 +201,7 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get(urlPathMatching("/templated/.*"))
               .willReturn(
-                  aResponse()
+                  aresponse()
                       .withBodyFile("templated-example-{{request.path.1}}.txt")
                       .withTransformerParameter("disableBodyFileTemplating", true)));
 
@@ -363,7 +363,7 @@ public class ResponseTemplatingAcceptanceTest {
     @Test
     public void appliesResponseTemplateWithHostname() throws Exception {
       wm.stubFor(
-          get(urlPathEqualTo("/templated")).willReturn(aResponse().withBody("{{hostname}}")));
+          get(urlPathEqualTo("/templated")).willReturn(aresponse().withBody("{{hostname}}")));
 
       String expectedHostname = InetAddress.getLocalHost().getHostName();
 
@@ -378,7 +378,7 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
               .willReturn(
-                  aResponse().withBody("{{systemValue type='PROPERTY' key='allowed.thing'}}")));
+                  aresponse().withBody("{{systemValue type='PROPERTY' key='allowed.thing'}}")));
 
       assertThat(client.get("/templated").content(), is("123"));
     }
@@ -391,7 +391,7 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
               .willReturn(
-                  aResponse().withBody("{{systemValue type='PROPERTY' key='forbidden.thing'}}")));
+                  aresponse().withBody("{{systemValue type='PROPERTY' key='forbidden.thing'}}")));
 
       assertThat(
           client.get("/templated").content(), is("[ERROR: Access to forbidden.thing is denied]"));
@@ -401,7 +401,7 @@ public class ResponseTemplatingAcceptanceTest {
     public void appliesResponseTemplateShouldNotEmptyWithExistingSystemValue() {
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .willReturn(aResponse().withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
+              .willReturn(aresponse().withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
 
       assertThat(client.get("/templated").content(), notNullValue());
     }

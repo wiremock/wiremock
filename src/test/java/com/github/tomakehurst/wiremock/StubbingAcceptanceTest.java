@@ -76,7 +76,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/a/registered/resource"))
             .willReturn(
-                aResponse()
+                aresponse()
                     .withStatus(401)
                     .withHeader("Content-Type", "text/plain")
                     .withBody("Not allowed!")));
@@ -92,7 +92,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void mappingWithUrlContainingQueryParameters() {
     stubFor(
         get(urlEqualTo("/search?name=John&postcode=N44LL"))
-            .willReturn(aResponse().withHeader("Location", "/nowhere").withStatus(302)));
+            .willReturn(aresponse().withHeader("Location", "/nowhere").withStatus(302)));
 
     WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
 
@@ -106,7 +106,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .withHeader("One", equalTo("abcd1234"))
             .withHeader("Two", matching("[a-z]{5}"))
             .withHeader("Three", notMatching("[A-Z]+"))
-            .willReturn(aResponse().withStatus(204)));
+            .willReturn(aresponse().withStatus(204)));
 
     WireMockResponse response =
         testClient.put(
@@ -125,7 +125,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .withHeader("ONE", equalTo("abcd1234"))
             .withHeader("two", matching("[a-z]{5}"))
             .withHeader("Three", notMatching("[A-Z]+"))
-            .willReturn(aResponse().withStatus(204)));
+            .willReturn(aresponse().withStatus(204)));
 
     WireMockResponse response =
         testClient.put(
@@ -143,7 +143,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         post(urlEqualTo("/some/url"))
             .withRequestBody(containing("BODY"))
             .withHeader("NoSuchHeader", equalTo("This better not be here"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient.postWithBody("/some/url", "BODY", "text/plain", "utf-8").statusCode(), is(404));
@@ -154,7 +154,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/some/extra/header"))
             .withHeader("ExpectedHeader", equalTo("expected-value"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -171,7 +171,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
             .withQueryParam("since", equalTo("2014-10-14"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient
@@ -189,7 +189,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParams(queryParameters)
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient
@@ -200,14 +200,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
-    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
 
   @Test
   void doesNotMatchOnUrlPathWhenPathShorter() {
-    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
@@ -218,7 +218,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         get(urlPathMatching("/path(.*)/match"))
             .withQueryParam("search", containing("WireMock"))
             .withQueryParam("since", equalTo("2014-10-14"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient
@@ -236,7 +236,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathMatching("/path(.*)/match"))
             .withQueryParams(queryParameters)
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient
@@ -247,14 +247,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotMatchOnUrlPathPatternWhenPathShorter() {
-    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathMatching("/matching-path")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
 
   @Test
   void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
-    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathMatching("/matching-path")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
@@ -264,7 +264,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/path-and-query/match?wrongParam=wrongVal").statusCode(), is(404));
   }
@@ -274,7 +274,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/path-and-query/match?search=presentwhoops").statusCode(), is(404));
   }
@@ -284,7 +284,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/path-and-query/match?anotherparam=present").statusCode(), is(200));
   }
@@ -294,7 +294,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/query/match"))
             .withQueryParam("search", notContaining("WireMock"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(
         testClient.get("/query/match?search=WireMock%20stubbing").statusCode(), is(HTTP_NOT_FOUND));
@@ -306,7 +306,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void responseBodyLoadedFromFile() {
     stubFor(
         get(urlEqualTo("/my/file"))
-            .willReturn(aResponse().withStatus(200).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(200).withBodyFile("plain-example.txt")));
 
     WireMockResponse response = testClient.get("/my/file");
 
@@ -319,7 +319,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         put(urlEqualTo("/match/this/body"))
             .withRequestBody(matching(".*Blah.*"))
             .withRequestBody(matching(".*@[0-9]{5}@.*"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body", "Blah...but not the rest", "text/plain");
@@ -338,7 +338,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(containing("Blah"))
             .withRequestBody(notMatching(".*[0-9]+.*"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
@@ -353,7 +353,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(notContaining("OtherBody"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body/too", "BlahOtherBody12345", "text/plain");
@@ -368,7 +368,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(equalTo("BlahBlahBlah"))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
@@ -417,7 +417,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void matchingOnRequestBodyWithAdvancedXPath() {
     stubFor(
         post("/xpath/advanced")
-            .withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
+            .withRequestBody(matchingXpath("//counter/text()", equalTo("123")))
             .willReturn(ok()));
 
     WireMockResponse response = testClient.postXml("/xpath/advanced", "<counter>6666</counter>");
@@ -430,11 +430,11 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void highPriorityMappingMatchedFirst() {
     stubFor(
-        get(urlMatching("/priority/.*")).atPriority(10).willReturn(aResponse().withStatus(500)));
+        get(urlMatching("/priority/.*")).atPriority(10).willReturn(aresponse().withStatus(500)));
     stubFor(
         get(urlEqualTo("/priority/resource"))
             .atPriority(2)
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/priority/resource").statusCode(), is(200));
   }
@@ -443,7 +443,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void matchingUrlsWithEscapeCharacters() {
     stubFor(
         get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
-            .willReturn(aResponse().withStatus(HTTP_OK)));
+            .willReturn(aresponse().withStatus(HTTP_OK)));
     assertThat(
         testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
   }
@@ -452,29 +452,29 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void matchingUrlPathsWithEscapeCharacters() {
     stubFor(
         get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
-            .willReturn(aResponse().withStatus(HTTP_OK)));
+            .willReturn(aresponse().withStatus(HTTP_OK)));
     assertThat(
         testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
   }
 
   @Test
   void default200ResponseWhenStatusCodeNotSpecified() {
-    stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
+    stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aresponse()));
     assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
   }
 
   @Test
   void returningBinaryBody() {
     byte[] bytes = new byte[] {65, 66, 67};
-    stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
+    stubFor(get(urlEqualTo("/binary/content")).willReturn(aresponse().withBody(bytes)));
 
     assertThat(testClient.get("/binary/content").binaryContent(), is(bytes));
   }
 
   @Test
   void listingAllStubMappings() {
-    stubFor(get(urlEqualTo("/stub/one")).willReturn(aResponse().withBody("One")));
-    stubFor(post(urlEqualTo("/stub/two")).willReturn(aResponse().withBody("Two").withStatus(201)));
+    stubFor(get(urlEqualTo("/stub/one")).willReturn(aresponse().withBody("One")));
+    stubFor(post(urlEqualTo("/stub/two")).willReturn(aresponse().withBody("Two").withStatus(201)));
 
     ListStubMappingsResult listingResult = listAllStubMappings();
     StubMapping mapping1 = listingResult.getMappings().get(0);
@@ -494,7 +494,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         patch(urlEqualTo("/a/registered/resource"))
             .withRequestBody(equalTo("some body"))
-            .willReturn(aResponse().withStatus(204)));
+            .willReturn(aresponse().withStatus(204)));
 
     WireMockResponse response =
         testClient.patchWithBody("/a/registered/resource", "some body", "text/plain");
@@ -504,7 +504,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void stubbingArbitraryMethod() {
-    stubFor(request("KILL", urlEqualTo("/some/url")).willReturn(aResponse().withStatus(204)));
+    stubFor(request("KILL", urlEqualTo("/some/url")).willReturn(aresponse().withStatus(204)));
 
     WireMockResponse response = testClient.request("KILL", "/some/url");
 
@@ -519,7 +519,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/status-message"))
             .willReturn(
-                aResponse().withStatus(500).withStatusMessage("The bees! They're in my eyes!")));
+                aresponse().withStatus(500).withStatusMessage("The bees! They're in my eyes!")));
 
     assertThat(
         testClient.get("/status-message").statusMessage(), is("The bees! They're in my eyes!"));
@@ -527,11 +527,11 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
-    stubFor(options(urlEqualTo("/no-body")).willReturn(aResponse().withStatus(200)));
+    stubFor(options(urlEqualTo("/no-body")).willReturn(aresponse().withStatus(200)));
     stubFor(
         post(urlEqualTo("/no-body"))
             .withRequestBody(equalToXml("<some-xml />"))
-            .willReturn(aResponse().withStatus(201)));
+            .willReturn(aresponse().withStatus(201)));
 
     WireMockResponse response = testClient.options("/no-body");
     assertThat(response.statusCode(), is(200));
@@ -566,7 +566,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/query"))
             .withQueryParam("param-one", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
     assertThat(response.statusCode(), is(200));
@@ -577,7 +577,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key-one", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.putWithBody(
@@ -593,7 +593,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key[one]", equalTo("firstValue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.putWithBody(
@@ -609,7 +609,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/form"))
             .withFormParam("key", equalTo("value"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.getWithBody(
@@ -628,7 +628,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         delete(urlPathEqualTo("/form"))
             .withFormParam("key", equalTo("value"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.deleteWithBody(
@@ -673,7 +673,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/empty-header"))
             .withHeader("X-My-Header", equalTo(""))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response = testClient.get("/empty-header", withHeader("X-My-Header", ""));
 
@@ -682,17 +682,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
-    StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aResponse()));
+    StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aresponse()));
     assertThat(stubMapping.getId(), notNullValue());
 
-    StubMapping localStubMapping = wm.stubFor(get(anyUrl()).willReturn(aResponse()));
+    StubMapping localStubMapping = wm.stubFor(get(anyUrl()).willReturn(aresponse()));
     assertThat(localStubMapping.getId(), notNullValue());
   }
 
   @Test
   void getsASingleStubMappingById() {
     UUID id = UUID.randomUUID();
-    stubFor(get(anyUrl()).withId(id).willReturn(aResponse().withBody("identified!")));
+    stubFor(get(anyUrl()).withId(id).willReturn(aresponse().withBody("identified!")));
 
     StubMapping fetchedMapping = getSingleStubMapping(id);
 
@@ -711,7 +711,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         any(urlPathEqualTo("/things"))
             .withName("Get all the things")
-            .willReturn(aResponse().withBody("Named stub")));
+            .willReturn(aresponse().withBody("Named stub")));
 
     assertThat(listAllStubMappings().getMappings(), hasItem(named("Get all the things")));
   }
@@ -720,9 +720,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   void matchingOnMultipartRequestBodyWithTwoRegexes() {
     stubFor(
         post(urlEqualTo("/match/this/part"))
-            .withMultipartRequestBody(aMultipart().withBody(matching(".*Blah.*")))
-            .withMultipartRequestBody(aMultipart().withBody(matching(".*@[0-9]{5}@.*")))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .withMultipartRequestBody(amultipart().withBody(matching(".*Blah.*")))
+            .withMultipartRequestBody(amultipart().withBody(matching(".*@[0-9]{5}@.*")))
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.postWithMultiparts(
@@ -747,11 +747,11 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withName("part-name")
                     .withBody(containing("Blah"))
                     .withBody(notMatching(".*[0-9]+.*")))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.postWithMultiparts(
@@ -769,10 +769,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader("Content-Type", notContaining("application/json"))
                     .withBody(notContaining("OtherStuff")))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.postWithMultiparts(
@@ -790,7 +790,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post(urlEqualTo("/match/this/part/filename"))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader("Content-Type", containing("application/octet-stream"))
                     .withFileName("plain-example.txt"))
             .willReturn(ok()));
@@ -825,7 +825,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post(urlEqualTo("/match/this/part/filename"))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader("Content-Type", containing("application/octet-stream"))
                     .withFileName("plain-example.txt"))
             .willReturn(ok()));
@@ -870,10 +870,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withHeader("Content-Type", containing("text/plain"))
                     .withBody(equalTo("BlahBlahBlah")))
-            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+            .willReturn(aresponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
 
     WireMockResponse response =
         testClient.postWithMultiparts(
@@ -893,7 +893,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/match/part/binary")
             .withMultipartRequestBody(
-                aMultipart().withBody(binaryEqualTo(requestBody)).withName("file"))
+                amultipart().withBody(binaryEqualTo(requestBody)).withName("file"))
             .willReturn(ok("Matched binary")));
 
     WireMockResponse response =
@@ -912,7 +912,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/jsonpath/advanced/part")
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withName("json")
                     .withHeader("Content-Type", containing("application/json"))
                     .withBody(matchingJsonPath("$.counter", equalTo("123"))))
@@ -936,10 +936,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         post("/xpath/advanced/part")
             .withMultipartRequestBody(
-                aMultipart()
+                amultipart()
                     .withName("xml")
                     .withHeader("Content-Type", containing("application/xml"))
-                    .withBody(matchingXPath("//counter/text()", equalTo("123"))))
+                    .withBody(matchingXpath("//counter/text()", equalTo("123"))))
             .willReturn(ok()));
 
     WireMockResponse response =
@@ -1301,7 +1301,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void removesASingleStubMapping() {
     final UUID id = UUID.randomUUID();
-    stubFor(get("/stub-to-remove").withId(id).willReturn(aResponse()));
+    stubFor(get("/stub-to-remove").withId(id).willReturn(aresponse()));
 
     assertThat(testClient.get("/stub-to-remove").statusCode(), is(200));
 
@@ -1313,7 +1313,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void removesASingleStubMappingById() {
     final UUID id = UUID.randomUUID();
-    stubFor(get("/stub-to-remove-by-id").withId(id).willReturn(aResponse()));
+    stubFor(get("/stub-to-remove-by-id").withId(id).willReturn(aresponse()));
 
     assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(200));
 

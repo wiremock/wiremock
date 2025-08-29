@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,18 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.List;
 
+/** The type Single header authenticator. */
 public class SingleHeaderAuthenticator implements Authenticator {
 
   private final String key;
   private final String value;
 
+  /**
+   * Instantiates a new Single header authenticator.
+   *
+   * @param key the key
+   * @param value the value
+   */
   public SingleHeaderAuthenticator(String key, String value) {
     this.key = key;
     this.value = value;

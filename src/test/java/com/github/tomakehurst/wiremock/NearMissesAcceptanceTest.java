@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,15 @@ class NearMissesAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
     stubFor(
         get(urlEqualTo("/otherpath"))
             .withHeader("My-Header", equalTo("otherheaderval"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
     stubFor(
         get(urlEqualTo("/yet/another/path"))
             .withHeader("X-Alt-Header", equalTo("matchonthis"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     testClient.get("/otherpath", withHeader("My-Header", "notmatched"));
 
@@ -62,7 +62,7 @@ class NearMissesAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     testClient.get("/unmatched/path");
 
@@ -77,15 +77,15 @@ class NearMissesAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
     stubFor(
         get(urlEqualTo("/otherpath"))
             .withHeader("My-Header", equalTo("otherheaderval"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
     stubFor(
         get(urlEqualTo("/yet/another/path"))
             .withHeader("X-Alt-Header", equalTo("matchonthis"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     List<NearMiss> nearMisses =
         WireMock.findNearMissesFor(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 
+/** The type Abstract date time match result. */
 public abstract class AbstractDateTimeMatchResult extends MatchResult {
 
   private static final long ONE_YEAR_IN_MILLIS = 365 * 24 * 60 * 60 * 1000L;
@@ -28,12 +29,26 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
   private final boolean isZoned;
   private final boolean isLocal;
 
+  /** The Local expected. */
   protected final LocalDateTime localExpected;
+
+  /** The Zoned expected. */
   protected final ZonedDateTime zonedExpected;
 
+  /** The Zoned actual. */
   protected final ZonedDateTime zonedActual;
+
+  /** The Local actual. */
   protected final LocalDateTime localActual;
 
+  /**
+   * Instantiates a new Abstract date time match result.
+   *
+   * @param zonedExpected the zoned expected
+   * @param localExpected the local expected
+   * @param zonedActual the zoned actual
+   * @param localActual the local actual
+   */
   public AbstractDateTimeMatchResult(
       ZonedDateTime zonedExpected,
       LocalDateTime localExpected,
@@ -63,12 +78,32 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
     return isMatch;
   }
 
+  /**
+   * Match zoned zoned boolean.
+   *
+   * @return the boolean
+   */
   protected abstract boolean matchZonedZoned();
 
+  /**
+   * Match local local boolean.
+   *
+   * @return the boolean
+   */
   protected abstract boolean matchLocalLocal();
 
+  /**
+   * Match local zoned boolean.
+   *
+   * @return the boolean
+   */
   protected abstract boolean matchLocalZoned();
 
+  /**
+   * Match zoned local boolean.
+   *
+   * @return the boolean
+   */
   protected abstract boolean matchZonedLocal();
 
   @Override

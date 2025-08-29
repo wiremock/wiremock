@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,22 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+/** The type Abstract request journal. */
 public abstract class AbstractRequestJournal implements RequestJournal {
 
+  /** The Store. */
   protected final RequestJournalStore store;
 
   private final Integer maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
+  /**
+   * Instantiates a new Abstract request journal.
+   *
+   * @param maxEntries the max entries
+   * @param customMatchers the custom matchers
+   * @param store the store
+   */
   public AbstractRequestJournal(
       Integer maxEntries,
       Map<String, RequestMatcherExtension> customMatchers,

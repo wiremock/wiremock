@@ -22,6 +22,15 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to find and return all stub mappings that have not been matched.
+ *
+ * <p>This task handles the API request to retrieve all {@link
+ * com.github.tomakehurst.wiremock.stubbing.StubMapping}s that have not matched any incoming
+ * request.
+ *
+ * @see ListStubMappingsResult
+ */
 public class GetUnmatchedStubMappingsTask implements AdminTask {
 
   @Override

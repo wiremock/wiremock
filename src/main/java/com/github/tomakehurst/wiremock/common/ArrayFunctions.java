@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,17 @@ import static java.util.Arrays.copyOf;
 
 import java.lang.reflect.Array;
 
+/** The type Array functions. */
 public final class ArrayFunctions {
 
+  /**
+   * Concat t [ ].
+   *
+   * @param <T> the type parameter
+   * @param first the first
+   * @param second the second
+   * @return the t [ ]
+   */
   public static <T> T[] concat(T[] first, T[] second) {
     if (first.length + second.length == 0) {
       return first;
@@ -30,6 +39,14 @@ public final class ArrayFunctions {
     return both;
   }
 
+  /**
+   * Prepend t [ ].
+   *
+   * @param <T> the type parameter
+   * @param t the t
+   * @param original the original
+   * @return the t [ ]
+   */
   public static <T> T[] prepend(T t, T[] original) {
     @SuppressWarnings("unchecked")
     T[] newArray =

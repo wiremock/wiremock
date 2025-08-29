@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+/** The type Command line options. */
 public class CommandLineOptions implements Options {
 
   private static final String HELP = "help";
@@ -102,7 +103,10 @@ public class CommandLineOptions implements Options {
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
   private static final String DISABLE_RESPONSE_TEMPLATING = "disable-response-templating";
+
+  /** The constant FILENAME_TEMPLATE. */
   public static final String FILENAME_TEMPLATE = "filename-template";
+
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
   private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
@@ -145,6 +149,11 @@ public class CommandLineOptions implements Options {
   private Integer actualHttpPort;
   private Integer actualHttpsPort;
 
+  /**
+   * Instantiates a new Command line options.
+   *
+   * @param args the args
+   */
   public CommandLineOptions(String... args) {
     OptionParser optionParser = new OptionParser();
     optionParser
@@ -496,10 +505,20 @@ public class CommandLineOptions implements Options {
     }
   }
 
+  /**
+   * Verbose logging enabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean verboseLoggingEnabled() {
     return optionSet.has(VERBOSE);
   }
 
+  /**
+   * Record mappings enabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean recordMappingsEnabled() {
     return optionSet.has(RECORD_MAPPINGS);
   }
@@ -572,10 +591,20 @@ public class CommandLineOptions implements Options {
     return optionSet.has(DISABLE_HTTP2_TLS);
   }
 
+  /**
+   * Sets actual http port.
+   *
+   * @param port the port
+   */
   public void setActualHttpPort(int port) {
     actualHttpPort = port;
   }
 
+  /**
+   * Sets actual https port.
+   *
+   * @param port the port
+   */
   public void setActualHttpsPort(int port) {
     actualHttpsPort = port;
   }
@@ -612,7 +641,7 @@ public class CommandLineOptions implements Options {
   @Override
   public JettySettings jettySettings() {
 
-    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    JettySettings.Builder builder = JettySettings.Builder.ajettysettings();
 
     if (optionSet.hasArgument(JETTY_ACCEPTOR_THREAD_COUNT)) {
       builder =
@@ -664,22 +693,47 @@ public class CommandLineOptions implements Options {
         : -1;
   }
 
+  /**
+   * Version boolean.
+   *
+   * @return the boolean
+   */
   public boolean version() {
     return optionSet.has(VERSION);
   }
 
+  /**
+   * Help boolean.
+   *
+   * @return the boolean
+   */
   public boolean help() {
     return optionSet.has(HELP);
   }
 
+  /**
+   * Help text string.
+   *
+   * @return the string
+   */
   public String helpText() {
     return helpText;
   }
 
+  /**
+   * Specifies proxy url boolean.
+   *
+   * @return the boolean
+   */
   public boolean specifiesProxyUrl() {
     return optionSet.has(PROXY_ALL);
   }
 
+  /**
+   * Proxy url string.
+   *
+   * @return the string
+   */
   public String proxyUrl() {
     return (String) optionSet.valueOf(PROXY_ALL);
   }
@@ -788,6 +842,11 @@ public class CommandLineOptions implements Options {
     return optionSet.has(DISABLE_REQUEST_JOURNAL);
   }
 
+  /**
+   * Banner disabled boolean.
+   *
+   * @return the boolean
+   */
   public boolean bannerDisabled() {
     return optionSet.has(DISABLE_BANNER);
   }

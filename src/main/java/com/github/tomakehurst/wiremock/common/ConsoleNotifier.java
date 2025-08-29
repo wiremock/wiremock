@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,27 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/** The type Console notifier. */
 public class ConsoleNotifier implements Notifier {
 
   private final boolean verbose;
   private final String prefix;
 
+  /**
+   * Instantiates a new Console notifier.
+   *
+   * @param verbose the verbose
+   */
   public ConsoleNotifier(boolean verbose) {
     this(null, verbose);
   }
 
+  /**
+   * Instantiates a new Console notifier.
+   *
+   * @param name the name
+   * @param verbose the verbose
+   */
   public ConsoleNotifier(String name, boolean verbose) {
     this.verbose = verbose;
     this.prefix = name != null ? "[" + name + "] " : "";

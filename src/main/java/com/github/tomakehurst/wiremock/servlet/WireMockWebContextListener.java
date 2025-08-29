@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,16 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
+/** The type Wire mock web context listener. */
 public class WireMockWebContextListener implements ServletContextListener {
 
   private static final String APP_CONTEXT_KEY = "WireMockApp";
 
+  /**
+   * Context initialized.
+   *
+   * @param sce the sce
+   */
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext context = sce.getServletContext();
@@ -48,6 +54,11 @@ public class WireMockWebContextListener implements ServletContextListener {
     context.setAttribute(Notifier.KEY, new Slf4jNotifier(verboseLoggingEnabled));
   }
 
+  /**
+   * Context destroyed.
+   *
+   * @param sce the sce
+   */
   @Override
   public void contextDestroyed(ServletContextEvent sce) {}
 }

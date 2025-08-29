@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+/** The enum Recording status. */
 public enum RecordingStatus {
+  /** Never started recording status. */
   NeverStarted,
+  /** Recording recording status. */
   Recording,
+  /** Stopped recording status. */
   Stopped
 }

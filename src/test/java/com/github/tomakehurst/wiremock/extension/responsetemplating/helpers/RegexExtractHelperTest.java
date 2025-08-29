@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +42,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/api/abc,def,ghi"),
-            aResponse()
+            aresponse()
                 .withBody("{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)'}}\"}"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"abc\"}"));
@@ -54,7 +54,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer,
             mockRequest().url("/api/abc,def,ghi"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)' 'parts'}}{{#each parts}}{{this}} {{/each}}\"}"));
 

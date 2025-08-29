@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to find stub mappings by matching their metadata.
+ *
+ * <p>This task handles requests to filter all registered stub mappings against a metadata pattern
+ * provided in the request body.
+ *
+ * @see StringValuePattern
+ * @see ListStubMappingsResult
+ */
 public class FindStubMappingsByMetadataTask implements AdminTask {
 
   @Override

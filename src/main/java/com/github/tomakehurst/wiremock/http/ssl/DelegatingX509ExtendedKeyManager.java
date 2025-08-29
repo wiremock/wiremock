@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,11 @@ public abstract class DelegatingX509ExtendedKeyManager extends X509ExtendedKeyMa
 
   private final X509ExtendedKeyManager delegate;
 
+  /**
+   * Instantiates a new Delegating x 509 extended key manager.
+   *
+   * @param keyManager the key manager
+   */
   protected DelegatingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager) {
     this.delegate = requireNonNull(keyManager);
   }

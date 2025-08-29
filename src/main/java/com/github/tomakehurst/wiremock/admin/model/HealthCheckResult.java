@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,33 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.core.Version;
-import java.lang.management.ManagementFactory;
 import java.time.Instant;
 
+/**
+ * A data transfer object (DTO) representing the result of a system health check.
+ *
+ * <p>This class encapsulates key health metrics such as status, message, version, and uptime,
+ * typically returned by a health check API endpoint.
+ */
 public class HealthCheckResult {
   private final String status;
   private final String message;
   private final String version;
-  private final long uptimeInSeconds;
   private final Instant timestamp;
 
+  /**
+   * Constructs a new HealthCheckResult.
+   *
+   * <p>The version, timestamp, and uptime are automatically populated upon creation.
+   *
+   * @param status The health status, e.g., "OK".
+   * @param message A descriptive message about the health status.
+   */
   public HealthCheckResult(String status, String message) {
     this.status = status;
     this.message = message;
     this.version = Version.getCurrentVersion();
     this.timestamp = Instant.now();
-    this.uptimeInSeconds = ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
   }
 
   public String getStatus() {
@@ -48,9 +59,5 @@ public class HealthCheckResult {
 
   public Instant getTimestamp() {
     return timestamp;
-  }
-
-  public long getUptimeInSeconds() {
-    return uptimeInSeconds;
   }
 }

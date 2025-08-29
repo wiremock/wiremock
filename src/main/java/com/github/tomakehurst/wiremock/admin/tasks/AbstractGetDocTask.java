@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,12 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * An abstract base class for admin tasks that serve documentation files from the classpath.
+ *
+ * <p>Subclasses must implement {@link #getMimeType()} and {@link #getFilePath()} to specify the
+ * content type and location of the documentation file to be served.
+ */
 public abstract class AbstractGetDocTask implements AdminTask {
 
   @Override
@@ -44,7 +50,17 @@ public abstract class AbstractGetDocTask implements AdminTask {
     }
   }
 
+  /**
+   * Gets the MIME type of the documentation file.
+   *
+   * @return The MIME type as a string (e.g., "text/html").
+   */
   protected abstract String getMimeType();
 
+  /**
+   * Gets the classpath path to the documentation file.
+   *
+   * @return The path to the resource file.
+   */
   protected abstract String getFilePath();
 }

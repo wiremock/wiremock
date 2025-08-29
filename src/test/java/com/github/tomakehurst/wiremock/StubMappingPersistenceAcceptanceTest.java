@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,9 @@ public class StubMappingPersistenceAcceptanceTest {
 
   @Test
   public void savesAllInMemoryStubMappings() {
-    wm.stubFor(get(urlEqualTo("/1")).willReturn(aResponse().withBody("one")));
-    wm.stubFor(get(urlEqualTo("/2")).willReturn(aResponse().withBody("two")));
-    wm.stubFor(get(urlEqualTo("/3")).willReturn(aResponse().withBody("three")));
+    wm.stubFor(get(urlEqualTo("/1")).willReturn(aresponse().withBody("one")));
+    wm.stubFor(get(urlEqualTo("/2")).willReturn(aresponse().withBody("two")));
+    wm.stubFor(get(urlEqualTo("/3")).willReturn(aresponse().withBody("three")));
 
     wireMockServer.saveMappings();
 
@@ -85,7 +85,7 @@ public class StubMappingPersistenceAcceptanceTest {
 
     writeMappingFile(
         "mapping-to-edit.json",
-        get(urlEqualTo("/edit")).withId(stubId).willReturn(aResponse().withBody("initial")));
+        get(urlEqualTo("/edit")).withId(stubId).willReturn(aresponse().withBody("initial")));
 
     wireMockServer.resetToDefaultMappings(); // Loads from the file system
 
@@ -93,7 +93,7 @@ public class StubMappingPersistenceAcceptanceTest {
     assertThat(wm.getStubMappings().get(0).getResponse().getBody(), is("initial"));
 
     wm.editStub(
-        get(urlEqualTo("/edit")).withId(stubId).willReturn(aResponse().withBody("modified")));
+        get(urlEqualTo("/edit")).withId(stubId).willReturn(aresponse().withBody("modified")));
 
     wireMockServer.saveMappings();
 
@@ -120,7 +120,7 @@ public class StubMappingPersistenceAcceptanceTest {
         get(urlEqualTo("/save-immediately"))
             .persistent()
             .withId(stubId)
-            .willReturn(aResponse().withBody("initial")));
+            .willReturn(aresponse().withBody("initial")));
 
     assertThat(mappingsDir, hasFileContaining("/save-immediately", "initial"));
 
@@ -128,7 +128,7 @@ public class StubMappingPersistenceAcceptanceTest {
         get(urlEqualTo("/save-immediately"))
             .persistent()
             .withId(stubId)
-            .willReturn(aResponse().withBody("modified")));
+            .willReturn(aresponse().withBody("modified")));
 
     assertMappingsDirContainsOneFile();
     assertThat(mappingsDir, hasFileContaining("/save-immediately", "modified"));
@@ -137,10 +137,10 @@ public class StubMappingPersistenceAcceptanceTest {
   @Test
   public void doesNotSaveSingleStubOnEditIfNotFlaggedPersistent() {
     UUID stubId = UUID.randomUUID();
-    stubFor(get(urlEqualTo("/no-save")).withId(stubId).willReturn(aResponse().withBody("initial")));
+    stubFor(get(urlEqualTo("/no-save")).withId(stubId).willReturn(aresponse().withBody("initial")));
 
     editStub(
-        get(urlEqualTo("/no-save")).withId(stubId).willReturn(aResponse().withBody("modified")));
+        get(urlEqualTo("/no-save")).withId(stubId).willReturn(aresponse().withBody("modified")));
 
     assertMappingsDirIsEmpty();
   }

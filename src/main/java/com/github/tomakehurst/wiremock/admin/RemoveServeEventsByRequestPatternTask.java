@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,16 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
 
+/**
+ * An admin task to remove serve events from the journal that match a request pattern.
+ *
+ * <p>This task handles the API request to find and remove logged requests based on a {@link
+ * RequestPattern} provided in the request body.
+ *
+ * @see RequestPattern
+ * @see ServeEvent
+ * @see FindServeEventsResult
+ */
 public class RemoveServeEventsByRequestPatternTask implements AdminTask {
 
   @Override

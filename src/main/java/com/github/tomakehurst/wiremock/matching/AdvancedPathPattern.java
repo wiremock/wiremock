@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,21 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+/** The type Advanced path pattern. */
 public class AdvancedPathPattern {
 
+  /** The Expression. */
   public final String expression;
 
+  /** The Submatcher. */
   @JsonUnwrapped public final ContentPattern<?> submatcher;
 
+  /**
+   * Instantiates a new Advanced path pattern.
+   *
+   * @param expression the expression
+   * @param submatcher the submatcher
+   */
   public AdvancedPathPattern(String expression, ContentPattern<?> submatcher) {
     this.expression = expression;
     this.submatcher = submatcher;

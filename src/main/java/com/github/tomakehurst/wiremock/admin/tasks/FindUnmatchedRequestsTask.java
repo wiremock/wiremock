@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 
+/**
+ * An admin task to find and return all requests that were not matched to a stub.
+ *
+ * <p>This task handles the API request to retrieve all {@link ServeEvent}s from the journal that
+ * did not match any registered stub mapping.
+ *
+ * @see FindRequestsResult
+ * @see ServeEvent
+ */
 public class FindUnmatchedRequestsTask implements AdminTask {
 
   @Override

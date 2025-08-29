@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,47 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/** The type Before date time pattern. */
 public class BeforeDateTimePattern extends AbstractDateTimePattern {
 
+  /**
+   * Instantiates a new Before date time pattern.
+   *
+   * @param zonedDateTime the zoned date time
+   */
   public BeforeDateTimePattern(ZonedDateTime zonedDateTime) {
     super(zonedDateTime);
   }
 
+  /**
+   * Instantiates a new Before date time pattern.
+   *
+   * @param localDateTime the local date time
+   */
   public BeforeDateTimePattern(LocalDateTime localDateTime) {
     super(localDateTime);
   }
 
+  /**
+   * Instantiates a new Before date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   */
   public BeforeDateTimePattern(String dateTimeSpec) {
     super(dateTimeSpec);
   }
 
+  /**
+   * Instantiates a new Before date time pattern.
+   *
+   * @param dateTimeSpec the date time spec
+   * @param actualDateFormat the actual date format
+   * @param truncateExpected the truncate expected
+   * @param truncateActual the truncate actual
+   * @param applyTruncationLast the apply truncation last
+   * @param expectedOffsetAmount the expected offset amount
+   * @param expectedOffsetUnit the expected offset unit
+   */
   public BeforeDateTimePattern(
       @JsonProperty("before") String dateTimeSpec,
       @JsonProperty("actualFormat") String actualDateFormat,
@@ -83,6 +110,11 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
     };
   }
 
+  /**
+   * Gets before.
+   *
+   * @return the before
+   */
   public String getBefore() {
     return getValue();
   }

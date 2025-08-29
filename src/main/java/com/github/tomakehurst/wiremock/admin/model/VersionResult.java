@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
+/**
+ * A data transfer object (DTO) representing the application version.
+ *
+ * <p>This class is used to structure the JSON response for admin API calls that request the
+ * server's version number.
+ */
 public class VersionResult {
   private final String version;
 
+  /**
+   * Constructs a new VersionResult.
+   *
+   * @param version The version string.
+   */
   public VersionResult(String version) {
     this.version = version;
   }

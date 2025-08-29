@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,40 @@ import java.util.stream.Stream;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 
+/** The type Network address rules adhering dns resolver. */
 public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
 
   private final DnsResolver delegate;
   private final NetworkAddressRules networkAddressRules;
 
+  /**
+   * Instantiates a new Network address rules adhering dns resolver.
+   *
+   * @param networkAddressRules the network address rules
+   */
   public NetworkAddressRulesAdheringDnsResolver(NetworkAddressRules networkAddressRules) {
     this(SystemDefaultDnsResolver.INSTANCE, networkAddressRules);
   }
 
+  /**
+   * Instantiates a new Network address rules adhering dns resolver.
+   *
+   * @param delegate the delegate
+   * @param networkAddressRules the network address rules
+   */
   public NetworkAddressRulesAdheringDnsResolver(
       DnsResolver delegate, NetworkAddressRules networkAddressRules) {
     this.delegate = delegate;
     this.networkAddressRules = networkAddressRules;
   }
 
+  /**
+   * Resolve inet address [ ].
+   *
+   * @param host the host
+   * @return the inet address [ ]
+   * @throws UnknownHostException the unknown host exception
+   */
   @Override
   public InetAddress[] resolve(String host) throws UnknownHostException {
     if (!networkAddressRules.isAllowed(host)) {
@@ -65,6 +84,13 @@ public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
     return resolvedIpv4;
   }
 
+  /**
+   * Resolve canonical hostname string.
+   *
+   * @param host the host
+   * @return the string
+   * @throws UnknownHostException the unknown host exception
+   */
   @Override
   public String resolveCanonicalHostname(String host) throws UnknownHostException {
     return delegate.resolveCanonicalHostname(host);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -50,7 +50,7 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
   public void singleUnmatchedRequestShouldThrowVerificationException() {
     expectedException.expect(VerificationException.class);
     expectedException.expectMessage(containsString("A request was unmatched by any stub mapping"));
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
     client.get("/near-misssss");
   }
 
@@ -59,7 +59,7 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
     expectedException.expect(VerificationException.class);
     expectedException.expectMessage(
         containsString("3 requests were unmatched by any stub mapping"));
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
     client.get("/near-misssss");
     client.get("/hat");
     client.get("/whatevs");
@@ -69,7 +69,7 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
   public void unmatchedRequestButMatchedStubShouldThrowVerificationException() {
     expectedException.expect(VerificationException.class);
     expectedException.expectMessage(containsString("A request was unmatched by any stub mapping"));
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
     client.get("/near-misssss");
     client.get("/hit");
   }
@@ -77,8 +77,8 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
   @Test
   public void matchedRequestButUnmatchedStubShouldNotThrowVerificationException() {
     expectedException = ExpectedException.none();
-    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
-    wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(404)));
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aresponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/miss")).willReturn(aresponse().withStatus(404)));
     client.get("/hit");
   }
 
@@ -96,6 +96,6 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
   @Test
   public void unmatchedStubWithoutRequestShouldNotThrowVerificationException() {
     expectedException = ExpectedException.none();
-    wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(404)));
+    wm.stubFor(get(urlEqualTo("/miss")).willReturn(aresponse().withStatus(404)));
   }
 }

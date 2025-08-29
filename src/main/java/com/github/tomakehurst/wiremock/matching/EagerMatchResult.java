@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,37 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.List;
 
+/** The type Eager match result. */
 public class EagerMatchResult extends MatchResult {
 
   private final double distance;
 
+  /**
+   * Instantiates a new Eager match result.
+   *
+   * @param distance the distance
+   */
   EagerMatchResult(double distance) {
     this(distance, List.of());
   }
 
+  /**
+   * Instantiates a new Eager match result.
+   *
+   * @param distance the distance
+   * @param subEvents the sub events
+   */
   EagerMatchResult(double distance, List<SubEvent> subEvents) {
     this(distance, subEvents, List.of());
   }
 
+  /**
+   * Instantiates a new Eager match result.
+   *
+   * @param distance the distance
+   * @param subEvents the sub events
+   * @param diffDescriptions the diff descriptions
+   */
   public EagerMatchResult(
       double distance, List<SubEvent> subEvents, List<DiffDescription> diffDescriptions) {
     super(subEvents, diffDescriptions);

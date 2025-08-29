@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,21 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/** The type Date time offset. */
 public class DateTimeOffset {
 
+  /** The constant NONE. */
   public static final DateTimeOffset NONE = new DateTimeOffset(0, SECONDS);
 
   private final DateTimeUnit amountUnit;
   private final int amount;
 
+  /**
+   * From string date time offset.
+   *
+   * @param offset the offset
+   * @return the date time offset
+   */
   public static DateTimeOffset fromString(String offset) {
     if (offset.equalsIgnoreCase("now")) {
       return NONE;
@@ -36,7 +44,8 @@ public class DateTimeOffset {
     String[] parts = offset.split(" ");
     if (parts.length < 2 || parts.length > 3) {
       throw new IllegalArgumentException(
-          "Offset can be of the short form <amount> <unit> e.g. 8 seconds or long form now +/-<amount> <unit> e.g. now +5 years");
+          "Offset can be of the short form <amount> <unit> e.g. "
+              + "8 seconds or long form now +/-<amount> <unit> e.g. now +5 years");
     }
 
     int amount;
@@ -53,19 +62,41 @@ public class DateTimeOffset {
     return new DateTimeOffset(amount, amountUnit);
   }
 
+  /**
+   * Instantiates a new Date time offset.
+   *
+   * @param amount the amount
+   * @param amountUnit the amount unit
+   */
   public DateTimeOffset(int amount, DateTimeUnit amountUnit) {
     this.amountUnit = amountUnit;
     this.amount = amount;
   }
 
+  /**
+   * Gets amount unit.
+   *
+   * @return the amount unit
+   */
   public DateTimeUnit getAmountUnit() {
     return amountUnit;
   }
 
+  /**
+   * Gets amount.
+   *
+   * @return the amount
+   */
   public int getAmount() {
     return amount;
   }
 
+  /**
+   * Shift date.
+   *
+   * @param date the date
+   * @return the date
+   */
   public Date shift(Date date) {
     if (this == NONE) {
       return date;
@@ -76,6 +107,12 @@ public class DateTimeOffset {
     return Date.from(output.toInstant());
   }
 
+  /**
+   * Shift zoned date time.
+   *
+   * @param dateTime the date time
+   * @return the zoned date time
+   */
   public ZonedDateTime shift(ZonedDateTime dateTime) {
     if (this == NONE) {
       return dateTime;

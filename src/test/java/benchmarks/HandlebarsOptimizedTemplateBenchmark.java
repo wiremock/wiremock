@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package benchmarks;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
@@ -60,7 +60,7 @@ public class HandlebarsOptimizedTemplateBenchmark {
 
   private String transform(String responseBodyTemplate, ResponseTemplateTransformer transformer) {
     final ResponseDefinitionBuilder responseDefinitionBuilder =
-        aResponse().withBody(responseBodyTemplate);
+        aresponse().withBody(responseBodyTemplate);
     final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     final MockRequest request = mockRequest();
     ServeEvent serveEvent = newPostMatchServeEvent(request, responseDefinitionBuilder, stub);

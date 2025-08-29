@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/** The type Multipart value pattern. */
 public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
+  /** The enum Matching type. */
   public enum MatchingType {
+    /** All matching type. */
     ALL,
+    /** Any matching type. */
     ANY
   }
 
@@ -39,6 +43,15 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   private final List<ContentPattern<?>> bodyPatterns;
   private final MatchingType matchingType;
 
+  /**
+   * Instantiates a new Multipart value pattern.
+   *
+   * @param name the name
+   * @param filename the filename
+   * @param type the type
+   * @param headers the headers
+   * @param body the body
+   */
   @JsonCreator
   public MultipartValuePattern(
       @JsonProperty("name") String name,
@@ -53,11 +66,21 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     this.bodyPatterns = body;
   }
 
+  /**
+   * Is match any boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isMatchAny() {
     return matchingType == MatchingType.ANY;
   }
 
+  /**
+   * Is match all boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isMatchAll() {
     return matchingType == MatchingType.ALL;
@@ -75,6 +98,12 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     return MatchResult.exactMatch();
   }
 
+  /**
+   * Match match result.
+   *
+   * @param request the request
+   * @return the match result
+   */
   public MatchResult match(final Request request) {
     return isMatchAll() ? matchAllMultiparts(request) : matchAnyMultipart(request);
   }
@@ -97,22 +126,47 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
         : MatchResult.noMatch();
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets file name.
+   *
+   * @return the file name
+   */
   public String getFileName() {
     return filename;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public Map<String, MultiValuePattern> getHeaders() {
     return headers;
   }
 
+  /**
+   * Gets matching type.
+   *
+   * @return the matching type
+   */
   public MatchingType getMatchingType() {
     return matchingType;
   }
 
+  /**
+   * Gets body patterns.
+   *
+   * @return the body patterns
+   */
   public List<ContentPattern<?>> getBodyPatterns() {
     return bodyPatterns;
   }

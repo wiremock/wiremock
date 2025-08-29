@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,22 +22,43 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Objects;
 
+/** The type String value pattern. */
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
+  /**
+   * Instantiates a new String value pattern.
+   *
+   * @param expectedValue the expected value
+   */
   protected StringValuePattern(String expectedValue) {
     super(expectedValue);
   }
 
+  /**
+   * Is present boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean isPresent() {
     return !nullSafeIsAbsent();
   }
 
+  /**
+   * Is absent boolean.
+   *
+   * @return the boolean
+   */
   public Boolean isAbsent() {
     return !nullSafeIsAbsent() ? null : true;
   }
 
+  /**
+   * Null safe is absent boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean nullSafeIsAbsent() {
     return false;
@@ -72,10 +93,22 @@ public abstract class StringValuePattern extends ContentPattern<String> {
     return getValue();
   }
 
+  /**
+   * And logical and.
+   *
+   * @param other the other
+   * @return the logical and
+   */
   public LogicalAnd and(StringValuePattern other) {
     return new LogicalAnd(this, other);
   }
 
+  /**
+   * Or logical or.
+   *
+   * @param other the other
+   * @return the logical or
+   */
   public LogicalOr or(StringValuePattern other) {
     return new LogicalOr(this, other);
   }

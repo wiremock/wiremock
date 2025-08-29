@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,30 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.TRACE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.http.ssl.*;
+import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
+import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
+import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
+import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
+import com.github.tomakehurst.wiremock.http.ssl.TrustSpecificHostsStrategy;
 import java.net.URI;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,11 +67,29 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
+/** The type Http client factory. */
 public class HttpClientFactory {
 
+  /** The constant DEFAULT_MAX_CONNECTIONS. */
   public static final int DEFAULT_MAX_CONNECTIONS = 50;
+
+  /** The constant DEFAULT_TIMEOUT. */
   public static final int DEFAULT_TIMEOUT = 30000;
 
+  /**
+   * Create client closeable http client.
+   *
+   * @param maxConnections the max connections
+   * @param timeoutMilliseconds the timeout milliseconds
+   * @param proxySettings the proxy settings
+   * @param trustStoreSettings the trust store settings
+   * @param trustAllCertificates the trust all certificates
+   * @param trustedHosts the trusted hosts
+   * @param useSystemProperties the use system properties
+   * @param networkAddressRules the network address rules
+   * @param disableConnectionReuse the disable connection reuse
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient(
       int maxConnections,
       int timeoutMilliseconds,
@@ -165,6 +198,18 @@ public class HttpClientFactory {
     }
   }
 
+  /**
+   * Create client closeable http client.
+   *
+   * @param maxConnections the max connections
+   * @param timeoutMilliseconds the timeout milliseconds
+   * @param proxySettings the proxy settings
+   * @param trustStoreSettings the trust store settings
+   * @param useSystemProperties the use system properties
+   * @param networkAddressRules the network address rules
+   * @param disableConnectionReuse the disable connection reuse
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient(
       int maxConnections,
       int timeoutMilliseconds,
@@ -231,6 +276,13 @@ public class HttpClientFactory {
     }
   }
 
+  /**
+   * Create client closeable http client.
+   *
+   * @param maxConnections the max connections
+   * @param timeoutMilliseconds the timeout milliseconds
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient(int maxConnections, int timeoutMilliseconds) {
     return createClient(
         maxConnections,
@@ -242,10 +294,22 @@ public class HttpClientFactory {
         false);
   }
 
+  /**
+   * Create client closeable http client.
+   *
+   * @param timeoutMilliseconds the timeout milliseconds
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient(int timeoutMilliseconds) {
     return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
   }
 
+  /**
+   * Create client closeable http client.
+   *
+   * @param proxySettings the proxy settings
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient(ProxySettings proxySettings) {
     return createClient(
         DEFAULT_MAX_CONNECTIONS,
@@ -257,10 +321,22 @@ public class HttpClientFactory {
         false);
   }
 
+  /**
+   * Create client closeable http client.
+   *
+   * @return the closeable http client
+   */
   public static CloseableHttpClient createClient() {
     return createClient(DEFAULT_TIMEOUT);
   }
 
+  /**
+   * Gets http request for.
+   *
+   * @param method the method
+   * @param url the url
+   * @return the http request for
+   */
   public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
     notifier().info("Proxying: " + method + " " + url);
 

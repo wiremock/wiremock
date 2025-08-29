@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 
+/** The type Jetty 11 utils. */
 public class Jetty11Utils {
 
   private Jetty11Utils() {}
@@ -28,6 +29,17 @@ public class Jetty11Utils {
   private static final int DEFAULT_ACCEPTORS = 3;
   private static final int DEFAULT_HEADER_SIZE = 32768;
 
+  /**
+   * Create server connector server connector.
+   *
+   * @param jettyServer the jetty server
+   * @param bindAddress the bind address
+   * @param jettySettings the jetty settings
+   * @param port the port
+   * @param listener the listener
+   * @param connectionFactories the connection factories
+   * @return the server connector
+   */
   public static ServerConnector createServerConnector(
       Server jettyServer,
       String bindAddress,
@@ -49,12 +61,24 @@ public class Jetty11Utils {
     return connector;
   }
 
+  /**
+   * Sets jetty settings.
+   *
+   * @param jettySettings the jetty settings
+   * @param connector the connector
+   */
   public static void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
     jettySettings.getAcceptQueueSize().ifPresent(connector::setAcceptQueueSize);
     jettySettings.getIdleTimeout().ifPresent(connector::setIdleTimeout);
     connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().orElse(200L));
   }
 
+  /**
+   * Create http config http configuration.
+   *
+   * @param jettySettings the jetty settings
+   * @return the http configuration
+   */
   public static HttpConfiguration createHttpConfig(JettySettings jettySettings) {
     HttpConfiguration httpConfig = new HttpConfiguration();
     httpConfig.setRequestHeaderSize(

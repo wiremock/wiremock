@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,15 @@ import java.security.cert.CertificateException;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+/** The type Ssl contexts. */
 public class SslContexts {
 
+  /**
+   * Build http 2 ssl context factory ssl context factory . server.
+   *
+   * @param httpsSettings the https settings
+   * @return the ssl context factory . server
+   */
   public static SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
     SslContextFactory.Server sslContextFactory =
         SslContexts.defaultSslContextFactory(httpsSettings.keyStore());
@@ -43,6 +50,12 @@ public class SslContexts {
     return sslContextFactory;
   }
 
+  /**
+   * Build http 1 1 ssl context factory ssl context factory . server.
+   *
+   * @param httpsSettings the https settings
+   * @return the ssl context factory . server
+   */
   public static SslContextFactory.Server buildHttp1_1SslContextFactory(
       HttpsSettings httpsSettings) {
     SslContextFactory.Server sslContextFactory =
@@ -52,6 +65,14 @@ public class SslContexts {
     return sslContextFactory;
   }
 
+  /**
+   * Build man in the middle ssl context factory ssl context factory . server.
+   *
+   * @param httpsSettings the https settings
+   * @param browserProxySettings the browser proxy settings
+   * @param notifier the notifier
+   * @return the ssl context factory . server
+   */
   public static SslContextFactory.Server buildManInTheMiddleSslContextFactory(
       HttpsSettings httpsSettings,
       BrowserProxySettings browserProxySettings,

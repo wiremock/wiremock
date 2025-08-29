@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 
-/** Factory for the StringValuePattern to use in a recorded stub mapping to match request bodies */
+/** Factory for the StringValuePattern to use in a recorded stub mapping to match request bodies. */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -33,5 +33,11 @@ import com.github.tomakehurst.wiremock.matching.ContentPattern;
   @JsonSubTypes.Type(value = RequestBodyEqualToXmlPatternFactory.class, name = "equalToXml")
 })
 public interface RequestBodyPatternFactory {
+  /**
+   * For request content pattern.
+   *
+   * @param request the request
+   * @return the content pattern
+   */
   ContentPattern<?> forRequest(Request request);
 }

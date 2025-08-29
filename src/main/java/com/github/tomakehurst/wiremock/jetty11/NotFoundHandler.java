@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,42 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 
+/** The type Not found handler. */
 public class NotFoundHandler extends ErrorHandler {
 
   private final ErrorHandler DEFAULT_HANDLER = new ErrorHandler();
 
   private final ContextHandler mockServiceHandler;
 
+  /**
+   * Instantiates a new Not found handler.
+   *
+   * @param mockServiceHandler the mock service handler
+   */
   public NotFoundHandler(ContextHandler mockServiceHandler) {
     this.mockServiceHandler = mockServiceHandler;
   }
 
+  /**
+   * Error page for method boolean.
+   *
+   * @param method the method
+   * @return the boolean
+   */
   @Override
   public boolean errorPageForMethod(String method) {
     return true;
   }
 
+  /**
+   * Handle.
+   *
+   * @param target the target
+   * @param baseRequest the base request
+   * @param request the request
+   * @param response the response
+   * @throws IOException the io exception
+   */
   @Override
   public void handle(
       String target,

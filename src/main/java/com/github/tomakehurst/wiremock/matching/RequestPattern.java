@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/** The type Request pattern. */
 public class RequestPattern implements NamedValueMatcher<Request> {
 
   private final String scheme;
@@ -63,6 +64,26 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final ValueMatcher<Request> matcher;
   private final boolean hasInlineCustomMatcher;
 
+  /**
+   * Instantiates a new Request pattern.
+   *
+   * @param scheme the scheme
+   * @param host the host
+   * @param port the port
+   * @param clientIp the client ip
+   * @param url the url
+   * @param method the method
+   * @param headers the headers
+   * @param pathParams the path params
+   * @param queryParams the query params
+   * @param formParams the form params
+   * @param cookies the cookies
+   * @param basicAuthCredentials the basic auth credentials
+   * @param bodyPatterns the body patterns
+   * @param customMatcherDefinition the custom matcher definition
+   * @param customMatcher the custom matcher
+   * @param multiPattern the multi pattern
+   */
   public RequestPattern(
       final String scheme,
       final StringValuePattern host,
@@ -144,6 +165,29 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         };
   }
 
+  /**
+   * Instantiates a new Request pattern.
+   *
+   * @param scheme the scheme
+   * @param host the host
+   * @param port the port
+   * @param url the url
+   * @param clientIp the client ip
+   * @param urlPattern the url pattern
+   * @param urlPath the url path
+   * @param urlPathPattern the url path pattern
+   * @param urlPathTemplate the url path template
+   * @param method the method
+   * @param headers the headers
+   * @param pathParams the path params
+   * @param queryParams the query params
+   * @param formParams the form params
+   * @param cookies the cookies
+   * @param basicAuthCredentials the basic auth credentials
+   * @param bodyPatterns the body patterns
+   * @param customMatcherDefinition the custom matcher definition
+   * @param multiPattern the multi pattern
+   */
   @JsonCreator
   public RequestPattern(
       @JsonProperty("scheme") String scheme,
@@ -185,6 +229,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         multiPattern);
   }
 
+  /** The constant ANYTHING. */
   public static final RequestPattern ANYTHING =
       new RequestPattern(
           null,
@@ -204,6 +249,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null);
 
+  /**
+   * Instantiates a new Request pattern.
+   *
+   * @param customMatcher the custom matcher
+   */
   public RequestPattern(ValueMatcher<Request> customMatcher) {
     this(
         null,
@@ -224,6 +274,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null);
   }
 
+  /**
+   * Instantiates a new Request pattern.
+   *
+   * @param customMatcherDefinition the custom matcher definition
+   */
   public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
     this(
         null,
@@ -249,10 +304,22 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return match(request, Collections.emptyMap());
   }
 
+  /**
+   * Everything request pattern.
+   *
+   * @return the request pattern
+   */
   public static RequestPattern everything() {
     return newRequestPattern(RequestMethod.ANY, anyUrl()).build();
   }
 
+  /**
+   * Match match result.
+   *
+   * @param request the request
+   * @param customMatchers the custom matchers
+   * @return the match result
+   */
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     request = RequestPathParamsDecorator.decorate(request, this);
     final MatchResult standardMatchResult = matcher.match(request);
@@ -327,6 +394,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return MatchResult.exactMatch();
   }
 
+  /**
+   * Combine basic auth and other headers map.
+   *
+   * @return the map
+   */
   public Map<String, MultiValuePattern> combineBasicAuthAndOtherHeaders() {
     if (basicAuthCredentials == null) {
       return headers;
@@ -424,46 +496,103 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return MatchResult.exactMatch();
   }
 
+  /**
+   * Is matched by boolean.
+   *
+   * @param request the request
+   * @param customMatchers the custom matchers
+   * @return the boolean
+   */
   public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     return match(request, customMatchers).isExactMatch();
   }
 
+  /**
+   * Gets scheme.
+   *
+   * @return the scheme
+   */
   public String getScheme() {
     return scheme;
   }
 
+  /**
+   * Gets host.
+   *
+   * @return the host
+   */
   public StringValuePattern getHost() {
     return host;
   }
 
+  /**
+   * Gets port.
+   *
+   * @return the port
+   */
   public Integer getPort() {
     return port;
   }
 
+  /**
+   * Gets client ip.
+   *
+   * @return the client ip
+   */
   public StringValuePattern getClientIp() {
     return clientIp;
   }
 
+  /**
+   * Gets url.
+   *
+   * @return the url
+   */
   public String getUrl() {
     return urlPatternOrNull(UrlPattern.class, false);
   }
 
+  /**
+   * Gets url pattern.
+   *
+   * @return the url pattern
+   */
   public String getUrlPattern() {
     return urlPatternOrNull(UrlPattern.class, true);
   }
 
+  /**
+   * Gets url path.
+   *
+   * @return the url path
+   */
   public String getUrlPath() {
     return urlPatternOrNull(UrlPathPattern.class, false);
   }
 
+  /**
+   * Gets url path pattern.
+   *
+   * @return the url path pattern
+   */
   public String getUrlPathPattern() {
     return urlPatternOrNull(UrlPathPattern.class, true);
   }
 
+  /**
+   * Gets url path template.
+   *
+   * @return the url path template
+   */
   public String getUrlPathTemplate() {
     return urlPatternOrNull(UrlPathTemplatePattern.class, false);
   }
 
+  /**
+   * Gets url matcher.
+   *
+   * @return the url matcher
+   */
   @JsonIgnore
   public UrlPattern getUrlMatcher() {
     return url;
@@ -478,46 +607,101 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         : null;
   }
 
+  /**
+   * Gets method.
+   *
+   * @return the method
+   */
   public RequestMethod getMethod() {
     return method;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public Map<String, MultiValuePattern> getHeaders() {
     return headers;
   }
 
+  /**
+   * Gets basic auth credentials.
+   *
+   * @return the basic auth credentials
+   */
   public BasicCredentials getBasicAuthCredentials() {
     return basicAuthCredentials;
   }
 
+  /**
+   * Gets path parameters.
+   *
+   * @return the path parameters
+   */
   public Map<String, StringValuePattern> getPathParameters() {
     return pathParams;
   }
 
+  /**
+   * Gets query parameters.
+   *
+   * @return the query parameters
+   */
   public Map<String, MultiValuePattern> getQueryParameters() {
     return queryParams;
   }
 
+  /**
+   * Gets form parameters.
+   *
+   * @return the form parameters
+   */
   public Map<String, MultiValuePattern> getFormParameters() {
     return formParams;
   }
 
+  /**
+   * Gets cookies.
+   *
+   * @return the cookies
+   */
   public Map<String, StringValuePattern> getCookies() {
     return cookies;
   }
 
+  /**
+   * Gets body patterns.
+   *
+   * @return the body patterns
+   */
   public List<ContentPattern<?>> getBodyPatterns() {
     return bodyPatterns;
   }
 
+  /**
+   * Gets custom matcher.
+   *
+   * @return the custom matcher
+   */
   public CustomMatcherDefinition getCustomMatcher() {
     return customMatcherDefinition;
   }
 
+  /**
+   * Gets multipart patterns.
+   *
+   * @return the multipart patterns
+   */
   public List<MultipartValuePattern> getMultipartPatterns() {
     return multipartPatterns;
   }
 
+  /**
+   * Gets matcher.
+   *
+   * @return the matcher
+   */
   @JsonIgnore
   public ValueMatcher<Request> getMatcher() {
     return matcher;
@@ -533,14 +717,29 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return toString();
   }
 
+  /**
+   * Has inline custom matcher boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasInlineCustomMatcher() {
     return hasInlineCustomMatcher;
   }
 
+  /**
+   * Has named custom matcher boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasNamedCustomMatcher() {
     return customMatcherDefinition != null;
   }
 
+  /**
+   * Has custom matcher boolean.
+   *
+   * @return the boolean
+   */
   public boolean hasCustomMatcher() {
     return hasInlineCustomMatcher() || hasNamedCustomMatcher();
   }
@@ -590,19 +789,45 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return Json.write(this);
   }
 
+  /**
+   * That match predicate.
+   *
+   * @param pattern the pattern
+   * @return the predicate
+   */
   public static Predicate<Request> thatMatch(final RequestPattern pattern) {
     return thatMatch(pattern, Collections.emptyMap());
   }
 
+  /**
+   * That match predicate.
+   *
+   * @param pattern the pattern
+   * @param customMatchers the custom matchers
+   * @return the predicate
+   */
   public static Predicate<Request> thatMatch(
       final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
     return request -> pattern.match(request, customMatchers).isExactMatch();
   }
 
+  /**
+   * With request matching predicate.
+   *
+   * @param pattern the pattern
+   * @return the predicate
+   */
   public static Predicate<ServeEvent> withRequestMatching(final RequestPattern pattern) {
     return serveEvent -> pattern.match(serveEvent.getRequest()).isExactMatch();
   }
 
+  /**
+   * With request matching predicate.
+   *
+   * @param pattern the pattern
+   * @param customMatchers the custom matchers
+   * @return the predicate
+   */
   public static Predicate<ServeEvent> withRequestMatching(
       final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
     return serveEvent -> pattern.match(serveEvent.getRequest(), customMatchers).isExactMatch();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,21 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.BiPredicate;
 
-/** */
+/**
+ * Defines a strategy for matching a request count during verification.
+ *
+ * <p>This interface extends {@link BiPredicate} to test an actual count against an expected count.
+ * It also provides a friendly name for use in verification failure messages.
+ */
 public interface CountMatchingMode extends BiPredicate<Integer, Integer> {
 
+  /**
+   * Gets a human-readable name for the matching mode.
+   *
+   * <p>This name is used in verification failure messages to improve readability, e.g., "at least",
+   * "exactly", "less than".
+   *
+   * @return The friendly name of the mode.
+   */
   String getFriendlyName();
 }

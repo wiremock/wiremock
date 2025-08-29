@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,31 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/** The type Content type setting filter. */
 public class ContentTypeSettingFilter implements Filter {
 
   private ServletContext context;
 
+  /**
+   * Init.
+   *
+   * @param filterConfig the filter config
+   * @throws ServletException the servlet exception
+   */
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     context = filterConfig.getServletContext();
   }
 
+  /**
+   * Do filter.
+   *
+   * @param request the request
+   * @param response the response
+   * @param chain the chain
+   * @throws IOException the io exception
+   * @throws ServletException the servlet exception
+   */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -45,6 +61,7 @@ public class ContentTypeSettingFilter implements Filter {
     chain.doFilter(request, response);
   }
 
+  /** Destroy. */
   @Override
   public void destroy() {}
 }

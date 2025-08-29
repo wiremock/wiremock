@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/** The type Webhook definition. */
 public class WebhookDefinition {
 
   private String method;
@@ -41,6 +42,12 @@ public class WebhookDefinition {
   private DelayDistribution delay;
   private Parameters parameters;
 
+  /**
+   * From webhook definition.
+   *
+   * @param parameters the parameters
+   * @return the webhook definition
+   */
   public static WebhookDefinition from(Parameters parameters) {
     return new WebhookDefinition(
         parameters.getString("method", "GET"),
@@ -84,6 +91,17 @@ public class WebhookDefinition {
     return delayParams.as(DelayDistribution.class);
   }
 
+  /**
+   * Instantiates a new Webhook definition.
+   *
+   * @param method the method
+   * @param url the url
+   * @param headers the headers
+   * @param body the body
+   * @param base64Body the base 64 body
+   * @param delay the delay
+   * @param parameters the parameters
+   */
   @JsonCreator
   public WebhookDefinition(
       String method,
@@ -107,77 +125,165 @@ public class WebhookDefinition {
     this.parameters = parameters;
   }
 
+  /** Instantiates a new Webhook definition. */
   public WebhookDefinition() {}
 
+  /**
+   * Gets method.
+   *
+   * @return the method
+   */
   public String getMethod() {
     return method;
   }
 
+  /**
+   * Gets request method.
+   *
+   * @return the request method
+   */
   @JsonIgnore
   public RequestMethod getRequestMethod() {
     return RequestMethod.fromString(method);
   }
 
+  /**
+   * Gets url.
+   *
+   * @return the url
+   */
   public String getUrl() {
     return url;
   }
 
+  /**
+   * Gets headers.
+   *
+   * @return the headers
+   */
   public HttpHeaders getHeaders() {
     return new HttpHeaders(headers);
   }
 
+  /**
+   * Gets base 64 body.
+   *
+   * @return the base 64 body
+   */
   public String getBase64Body() {
     return body.isBinary() ? body.asBase64() : null;
   }
 
+  /**
+   * Gets body.
+   *
+   * @return the body
+   */
   public String getBody() {
     return body.isBinary() ? null : body.asString();
   }
 
+  /**
+   * Gets delay.
+   *
+   * @return the delay
+   */
   public DelayDistribution getDelay() {
     return delay;
   }
 
+  /**
+   * Gets delay sample millis.
+   *
+   * @return the delay sample millis
+   */
   @JsonIgnore
   public long getDelaySampleMillis() {
     return delay != null ? delay.sampleMillis() : 0L;
   }
 
+  /**
+   * Gets extra parameters.
+   *
+   * @return the extra parameters
+   */
   @JsonIgnore
   public Parameters getExtraParameters() {
     return parameters;
   }
 
+  /**
+   * Get binary body byte [ ].
+   *
+   * @return the byte [ ]
+   */
   @JsonIgnore
   public byte[] getBinaryBody() {
     return body.asBytes();
   }
 
+  /**
+   * With method webhook definition.
+   *
+   * @param method the method
+   * @return the webhook definition
+   */
   public WebhookDefinition withMethod(String method) {
     this.method = method;
     return this;
   }
 
+  /**
+   * With method webhook definition.
+   *
+   * @param method the method
+   * @return the webhook definition
+   */
   public WebhookDefinition withMethod(RequestMethod method) {
     this.method = method.getName();
     return this;
   }
 
+  /**
+   * With url webhook definition.
+   *
+   * @param url the url
+   * @return the webhook definition
+   */
   public WebhookDefinition withUrl(URI url) {
     this.url = url.toString();
     return this;
   }
 
+  /**
+   * With url webhook definition.
+   *
+   * @param url the url
+   * @return the webhook definition
+   */
   public WebhookDefinition withUrl(String url) {
     this.url = url;
     return this;
   }
 
+  /**
+   * With headers webhook definition.
+   *
+   * @param headers the headers
+   * @return the webhook definition
+   */
   public WebhookDefinition withHeaders(List<HttpHeader> headers) {
     this.headers = headers;
     return this;
   }
 
+  /**
+   * With header webhook definition.
+   *
+   * @param key the key
+   * @param values the values
+   * @return the webhook definition
+   */
   public WebhookDefinition withHeader(String key, String... values) {
     if (headers == null) {
       headers = new ArrayList<>();
@@ -187,31 +293,67 @@ public class WebhookDefinition {
     return this;
   }
 
+  /**
+   * With body webhook definition.
+   *
+   * @param body the body
+   * @return the webhook definition
+   */
   public WebhookDefinition withBody(String body) {
     this.body = new Body(body);
     return this;
   }
 
+  /**
+   * With binary body webhook definition.
+   *
+   * @param body the body
+   * @return the webhook definition
+   */
   public WebhookDefinition withBinaryBody(byte[] body) {
     this.body = new Body(body);
     return this;
   }
 
+  /**
+   * With fixed delay webhook definition.
+   *
+   * @param delayMilliseconds the delay milliseconds
+   * @return the webhook definition
+   */
   public WebhookDefinition withFixedDelay(int delayMilliseconds) {
     this.delay = new FixedDelayDistribution(delayMilliseconds);
     return this;
   }
 
+  /**
+   * With delay webhook definition.
+   *
+   * @param delay the delay
+   * @return the webhook definition
+   */
   public WebhookDefinition withDelay(DelayDistribution delay) {
     this.delay = delay;
     return this;
   }
 
+  /**
+   * Gets other fields.
+   *
+   * @return the other fields
+   */
   @JsonAnyGetter
   public Map<String, Object> getOtherFields() {
     return parameters;
   }
 
+  /**
+   * With extra parameter webhook definition.
+   *
+   * @param key the key
+   * @param value the value
+   * @return the webhook definition
+   */
   @JsonAnySetter
   public WebhookDefinition withExtraParameter(String key, Object value) {
     if (parameters == null) {
@@ -222,6 +364,11 @@ public class WebhookDefinition {
     return this;
   }
 
+  /**
+   * Has body boolean.
+   *
+   * @return the boolean
+   */
   @JsonIgnore
   public boolean hasBody() {
     return body != null && body.isPresent();

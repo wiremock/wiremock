@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+/** The type Mapping file exception. */
 public class MappingFileException extends RuntimeException {
 
+  /**
+   * Instantiates a new Mapping file exception.
+   *
+   * @param filePath the file path
+   * @param error the error
+   */
   public MappingFileException(String filePath, String error) {
     super(String.format("Error loading file %s:\n%s", filePath, error));
   }

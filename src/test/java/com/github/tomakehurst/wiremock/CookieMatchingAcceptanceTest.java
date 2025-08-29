@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/good/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get("/good/cookie", withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx"));
@@ -48,7 +48,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/good/cookies"))
             .withCookie("my_cookie", containing("mycookievalue"))
             .withCookie("my_other_cookie", equalTo("exact-other-value"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -65,7 +65,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/missing/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -79,7 +79,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/bad/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get("/bad/cookie", withHeader(COOKIE, "my_cookie=youwontfindthis"));
@@ -92,7 +92,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/very-bad/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -106,7 +106,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/absent/cookie"))
             .withCookie("not_this_cookie", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -123,7 +123,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/absent/cookie"))
             .withCookie("my_cookie", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(
@@ -155,7 +155,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/duplicate/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
             .withCookie("my_other_cookie", equalTo("value-2"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aresponse().withStatus(200)));
 
     WireMockResponse response =
         testClient.get(

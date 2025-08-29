@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,17 @@ import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
+/** The type Random int helper. */
 public class RandomIntHelper extends HandlebarsHelper<Void> {
 
+  /**
+   * Apply object.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the object
+   * @throws IOException the io exception
+   */
   @Override
   public Object apply(Void context, Options options) throws IOException {
     int lowerBound = coerceToInt(options.hash("lower", Integer.MIN_VALUE));

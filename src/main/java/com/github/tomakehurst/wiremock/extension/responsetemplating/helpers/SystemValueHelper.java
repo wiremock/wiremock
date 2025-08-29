@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,27 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 
+/** The type System value helper. */
 public class SystemValueHelper extends HandlebarsHelper<Object> {
 
   private final SystemKeyAuthoriser systemKeyAuthoriser;
 
+  /**
+   * Instantiates a new System value helper.
+   *
+   * @param systemKeyAuthoriser the system key authoriser
+   */
   public SystemValueHelper(SystemKeyAuthoriser systemKeyAuthoriser) {
     this.systemKeyAuthoriser = systemKeyAuthoriser;
   }
 
+  /**
+   * Apply string.
+   *
+   * @param context the context
+   * @param options the options
+   * @return the string
+   */
   @Override
   public String apply(Object context, Options options) {
     String key = options.hash("key", "");

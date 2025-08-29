@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class ConcurrentProxyingTest {
   public void concurrent() throws Exception {
     client = new WireMockTestClient(wm.getPort());
 
-    wm.stubFor(any(anyUrl()).atPriority(10).willReturn(aResponse().proxiedFrom(target.baseUrl())));
+    wm.stubFor(any(anyUrl()).atPriority(10).willReturn(aresponse().proxiedFrom(target.baseUrl())));
 
     ExecutorService executor = Executors.newFixedThreadPool(20);
 

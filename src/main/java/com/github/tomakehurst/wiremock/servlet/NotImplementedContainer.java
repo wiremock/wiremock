@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.core.Container;
 
+/** The type Not implemented container. */
 public class NotImplementedContainer implements Container {
   @Override
   public int port() {

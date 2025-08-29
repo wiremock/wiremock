@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
+/** The type Parameter utils. */
 public class ParameterUtils {
 
   private ParameterUtils() {}
 
+  /**
+   * Gets first non null.
+   *
+   * @param <T> the type parameter
+   * @param first the first
+   * @param second the second
+   * @return the first non null
+   */
   public static <T> T getFirstNonNull(T first, T second) {
     if (first != null) {
       return first;
@@ -33,6 +42,15 @@ public class ParameterUtils {
     throw new NullPointerException("Both parameters are null");
   }
 
+  /**
+   * Gets first non null.
+   *
+   * @param <T> the type parameter
+   * @param first the first
+   * @param second the second
+   * @param etr the etr
+   * @return the first non null
+   */
   public static <T> T getFirstNonNull(T first, T second, String etr) {
     if (first != null) {
       return first;
@@ -43,18 +61,38 @@ public class ParameterUtils {
     throw new NullPointerException(etr);
   }
 
+  /**
+   * Check parameter.
+   *
+   * @param condition the condition
+   * @param errorMessage the error message
+   */
   public static void checkParameter(boolean condition, String errorMessage) {
     if (!condition) {
       throw new IllegalArgumentException(errorMessage);
     }
   }
 
+  /**
+   * Check state.
+   *
+   * @param expression the expression
+   * @param errorMessage the error message
+   */
   public static void checkState(boolean expression, String errorMessage) {
     if (!expression) {
       throw new IllegalStateException(errorMessage);
     }
   }
 
+  /**
+   * Check not null t.
+   *
+   * @param <T> the type parameter
+   * @param value the value
+   * @param errorMessage the error message
+   * @return the t
+   */
   public static <T> T checkNotNull(T value, String errorMessage) {
     if (value == null) {
       throw new NullPointerException(errorMessage);
@@ -62,6 +100,14 @@ public class ParameterUtils {
     return value;
   }
 
+  /**
+   * Index of int.
+   *
+   * @param <T> the type parameter
+   * @param iterable the iterable
+   * @param predicate the predicate
+   * @return the int
+   */
   public static <T> int indexOf(Iterable<T> iterable, Predicate<? super T> predicate) {
     checkNotNull(iterable, "iterable");
     checkNotNull(predicate, "predicate");
@@ -76,12 +122,27 @@ public class ParameterUtils {
     return -1;
   }
 
+  /**
+   * Gets first.
+   *
+   * @param <T> the type parameter
+   * @param iterable the iterable
+   * @param defaultValue the default value
+   * @return the first
+   */
   public static <T> T getFirst(Iterable<T> iterable, T defaultValue) {
     return iterable != null && iterable.iterator().hasNext()
         ? iterable.iterator().next()
         : defaultValue;
   }
 
+  /**
+   * Gets last.
+   *
+   * @param <T> the type parameter
+   * @param iterable the iterable
+   * @return the last
+   */
   public static <T> T getLast(Iterable<T> iterable) {
     if (iterable == null || !iterable.iterator().hasNext()) {
       throw new NoSuchElementException();

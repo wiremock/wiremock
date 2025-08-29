@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,16 @@ import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.store.ScenariosStore;
 import java.util.List;
 
+/** The type Abstract scenarios. */
 public abstract class AbstractScenarios implements Scenarios {
 
   private final ScenariosStore store;
 
+  /**
+   * Instantiates a new Abstract scenarios.
+   *
+   * @param store the store
+   */
   public AbstractScenarios(ScenariosStore store) {
     this.store = store;
   }

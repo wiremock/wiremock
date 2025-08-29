@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.Set;
 
+/** The type Wire mock server runner. */
 public class WireMockServerRunner {
 
   private static final String BANNER =
@@ -50,6 +51,11 @@ public class WireMockServerRunner {
 
   private WireMockServer wireMockServer;
 
+  /**
+   * Run.
+   *
+   * @param args the args
+   */
   public void run(String... args) {
     CommandLineOptions options = new CommandLineOptions(args);
     if (options.help()) {
@@ -123,12 +129,18 @@ public class WireMockServerRunner {
         });
   }
 
+  /** Stop. */
   public void stop() {
     if (wireMockServer != null) {
       wireMockServer.stop();
     }
   }
 
+  /**
+   * Is running boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRunning() {
     if (wireMockServer == null) {
       return false;
@@ -137,6 +149,11 @@ public class WireMockServerRunner {
     }
   }
 
+  /**
+   * Port int.
+   *
+   * @return the int
+   */
   public int port() {
     return wireMockServer.port();
   }

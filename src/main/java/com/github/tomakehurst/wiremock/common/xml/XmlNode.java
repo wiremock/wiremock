@@ -29,8 +29,10 @@ import javax.xml.xpath.XPathEvaluationResult;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 
+/** The type Xml node. */
 public abstract class XmlNode {
 
+  /** The constant XPATH_CACHE. */
   protected static final ThreadLocal<XPath> XPATH_CACHE =
       ThreadLocal.withInitial(
           () -> {
@@ -38,6 +40,7 @@ public abstract class XmlNode {
             return xPathfactory.newXPath();
           });
 
+  /** The constant TRANSFORMER_CACHE. */
   protected static final ThreadLocal<Transformer> TRANSFORMER_CACHE =
       ThreadLocal.withInitial(
           () -> {
@@ -66,8 +69,19 @@ public abstract class XmlNode {
             }
           });
 
+  /**
+   * Gets attributes.
+   *
+   * @return the attributes
+   */
   public abstract Map<String, String> getAttributes();
 
+  /**
+   * To list or single list or single.
+   *
+   * @param evaluationResult the evaluation result
+   * @return the list or single
+   */
   @SuppressWarnings("unchecked")
   protected static ListOrSingle<XmlNode> toListOrSingle(XPathEvaluationResult<?> evaluationResult) {
     ListOrSingle<XmlNode> xmlNodes = new ListOrSingle<>();

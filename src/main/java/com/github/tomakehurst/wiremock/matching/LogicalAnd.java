@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** The type Logical and. */
 public class LogicalAnd extends AbstractLogicalMatcher {
 
+  /**
+   * Instantiates a new Logical and.
+   *
+   * @param operands the operands
+   */
   public LogicalAnd(StringValuePattern... operands) {
     super(operands);
   }
 
+  /**
+   * Instantiates a new Logical and.
+   *
+   * @param operands the operands
+   */
   public LogicalAnd(@JsonProperty("and") List<StringValuePattern> operands) {
     super(operands);
   }
@@ -34,6 +45,11 @@ public class LogicalAnd extends AbstractLogicalMatcher {
     return "AND";
   }
 
+  /**
+   * Gets and.
+   *
+   * @return the and
+   */
   public List<StringValuePattern> getAnd() {
     return operands;
   }

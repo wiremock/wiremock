@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,20 +38,20 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   public void createMappingsInScenarioAndChangeResponseWithStateChange() {
     givenThat(
         get(urlEqualTo("/some/resource"))
-            .willReturn(aResponse().withBody("Initial"))
+            .willReturn(aresponse().withBody("Initial"))
             .inScenario("SomeResourceUpdate")
             .whenScenarioStateIs(STARTED));
 
     givenThat(
         put(urlEqualTo("/some/resource"))
-            .willReturn(aResponse().withStatus(HTTP_OK))
+            .willReturn(aresponse().withStatus(HTTP_OK))
             .inScenario("SomeResourceUpdate")
             .willSetStateTo("BodyModified")
             .whenScenarioStateIs(STARTED));
 
     givenThat(
         get(urlEqualTo("/some/resource"))
-            .willReturn(aResponse().withBody("Modified"))
+            .willReturn(aresponse().withBody("Modified"))
             .inScenario("SomeResourceUpdate")
             .whenScenarioStateIs("BodyModified"));
 
@@ -64,12 +64,12 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   public void mappingInScenarioIndependentOfCurrentState() {
     givenThat(
         get(urlEqualTo("/state/independent/resource"))
-            .willReturn(aResponse().withBody("Some content"))
+            .willReturn(aresponse().withBody("Some content"))
             .inScenario("StateIndependent"));
 
     givenThat(
         put(urlEqualTo("/state/modifying/resource"))
-            .willReturn(aResponse().withStatus(HTTP_OK))
+            .willReturn(aresponse().withStatus(HTTP_OK))
             .inScenario("StateIndependent")
             .willSetStateTo("BodyModified"));
 
@@ -88,13 +88,13 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   public void resetAllScenariosState() {
     givenThat(
         get(urlEqualTo("/stateful/resource"))
-            .willReturn(aResponse().withBody("Expected content"))
+            .willReturn(aresponse().withBody("Expected content"))
             .inScenario("ResetScenario")
             .whenScenarioStateIs(STARTED));
 
     givenThat(
         put(urlEqualTo("/stateful/resource"))
-            .willReturn(aResponse().withStatus(HTTP_OK))
+            .willReturn(aresponse().withStatus(HTTP_OK))
             .inScenario("ResetScenario")
             .willSetStateTo("Changed"));
 
@@ -108,7 +108,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   public void settingScenarioNameToNullCausesException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> get(urlEqualTo("/some/resource")).willReturn(aResponse()).inScenario(null));
+        () -> get(urlEqualTo("/some/resource")).willReturn(aresponse()).inScenario(null));
   }
 
   @Test
@@ -239,7 +239,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
     // of course, as it doesn't compile!
     get(urlEqualTo("/"))
         .inScenario("Scenario")
-        .willReturn(aResponse())
+        .willReturn(aresponse())
         .whenScenarioStateIs("Prior State")
         .atPriority(1)
         .willSetStateTo("Next State");

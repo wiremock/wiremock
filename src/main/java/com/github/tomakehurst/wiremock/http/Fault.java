@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 
+/** The enum Fault. */
 public enum Fault {
+  /** The Connection reset by peer. */
   CONNECTION_RESET_BY_PEER {
     @Override
     public void apply(FaultInjector faultInjector) {
@@ -25,6 +27,7 @@ public enum Fault {
     }
   },
 
+  /** The Empty response. */
   EMPTY_RESPONSE {
     @Override
     public void apply(FaultInjector faultInjector) {
@@ -32,6 +35,7 @@ public enum Fault {
     }
   },
 
+  /** The Malformed response chunk. */
   MALFORMED_RESPONSE_CHUNK {
     @Override
     public void apply(FaultInjector faultInjector) {
@@ -39,6 +43,7 @@ public enum Fault {
     }
   },
 
+  /** The Random data then close. */
   RANDOM_DATA_THEN_CLOSE {
     @Override
     public void apply(FaultInjector faultInjector) {
@@ -46,5 +51,10 @@ public enum Fault {
     }
   };
 
+  /**
+   * Apply.
+   *
+   * @param faultInjector the fault injector
+   */
   public abstract void apply(FaultInjector faultInjector);
 }

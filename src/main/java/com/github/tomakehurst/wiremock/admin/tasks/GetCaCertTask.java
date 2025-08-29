@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,14 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
+/**
+ * An admin task to retrieve the Certificate Authority (CA) certificate.
+ *
+ * <p>This task handles the API request to download the CA certificate used for HTTPS inspection
+ * (browser proxying). The certificate is returned in PEM format.
+ *
+ * @see BrowserProxySettings
+ */
 public class GetCaCertTask implements AdminTask {
 
   private static final Base64.Encoder BASE64_ENCODER =

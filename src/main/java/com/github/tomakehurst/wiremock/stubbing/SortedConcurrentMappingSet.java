@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
+/** The type Sorted concurrent mapping set. */
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
   private final AtomicLong insertionCount;
   private final ConcurrentSkipListSet<StubMapping> mappingSet;
 
+  /** Instantiates a new Sorted concurrent mapping set. */
   public SortedConcurrentMappingSet() {
     insertionCount = new AtomicLong();
     mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
@@ -47,15 +49,31 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
     return mappingSet.iterator();
   }
 
+  /**
+   * Stream stream.
+   *
+   * @return the stream
+   */
   public Stream<StubMapping> stream() {
     return mappingSet.stream();
   }
 
+  /**
+   * Add.
+   *
+   * @param mapping the mapping
+   */
   public void add(StubMapping mapping) {
     mapping.setInsertionIndex(insertionCount.getAndIncrement());
     mappingSet.add(mapping);
   }
 
+  /**
+   * Remove boolean.
+   *
+   * @param mappingToRemove the mapping to remove
+   * @return the boolean
+   */
   public boolean remove(final StubMapping mappingToRemove) {
     boolean removedByUuid =
         mappingSet.removeIf(
@@ -72,6 +90,13 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
     return removedByUuid || removedByRequestPattern;
   }
 
+  /**
+   * Replace boolean.
+   *
+   * @param existingStubMapping the existing stub mapping
+   * @param newStubMapping the new stub mapping
+   * @return the boolean
+   */
   public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
 
     if (mappingSet.remove(existingStubMapping)) {
@@ -81,6 +106,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
     return false;
   }
 
+  /** Clear. */
   public void clear() {
     mappingSet.clear();
   }

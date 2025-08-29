@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things?multi_param=one&multi_param=two&single-param=1234"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"));
 
@@ -73,7 +73,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things"),
-            aResponse().withBody("{{request.query.multi_param.[0]}}"));
+            aresponse().withBody("{{request.query.multi_param.[0]}}"));
 
     assertThat(transformedResponseDef.getBody(), is(""));
   }
@@ -86,7 +86,7 @@ public class ResponseTemplateTransformerTest {
                 .url("/things")
                 .header("X-Request-Id", "req-id-1234")
                 .header("123$%$^&__why_o_why", "foundit"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "Request ID: {{request.headers.X-Request-Id}}, Awkward named header: {{request.headers.[123$%$^&__why_o_why]}}"));
 
@@ -100,7 +100,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").header("Case-KEY-123", "foundit"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "Case key header: {{request.headers.case-key-123}}, With brackets: {{request.headers.[case-key-123]}}"));
 
@@ -117,7 +117,7 @@ public class ResponseTemplateTransformerTest {
                 .url("/things")
                 .cookie("session", "session-1234")
                 .cookie(")((**#$@#", "foundit"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "session: {{request.cookies.session}}, Awkward named cookie: {{request.cookies.[)((**#$@#]}}"));
 
@@ -131,7 +131,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").cookie("multi", "one", "two"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{{request.cookies.multi}}, {{request.cookies.multi.[0]}}, {{request.cookies.multi.[1]}}"));
 
@@ -142,7 +142,7 @@ public class ResponseTemplateTransformerTest {
   public void urlPath() {
     ResponseDefinition transformedResponseDef =
         transform(
-            mockRequest().url("/the/entire/path"), aResponse().withBody("Path: {{request.path}}"));
+            mockRequest().url("/the/entire/path"), aresponse().withBody("Path: {{request.path}}"));
 
     assertThat(transformedResponseDef.getBody(), is("Path: /the/entire/path"));
   }
@@ -152,7 +152,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/the/entire/path"),
-            aResponse().withBody("First: {{request.path.[0]}}, Last: {{request.path.[2]}}"));
+            aresponse().withBody("First: {{request.path.[0]}}, Last: {{request.path.[2]}}"));
 
     assertThat(transformedResponseDef.getBody(), is("First: the, Last: path"));
   }
@@ -160,7 +160,7 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void urlPathNodesForRootPath() {
     ResponseDefinition transformedResponseDef =
-        transform(mockRequest().url("/"), aResponse().withBody("{{request.path.[0]}}"));
+        transform(mockRequest().url("/"), aresponse().withBody("{{request.path.[0]}}"));
 
     assertThat(transformedResponseDef.getBody(), is(""));
   }
@@ -170,7 +170,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("URL: {{{request.url}}}"));
+            aresponse().withBody("URL: {{{request.url}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("URL: /the/entire/path?query1=one&query2=two"));
   }
@@ -180,7 +180,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/").clientIp("127.0.0.1"),
-            aResponse().withBody("IP: {{{request.clientIp}}}"));
+            aresponse().withBody("IP: {{{request.clientIp}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("IP: 127.0.0.1"));
   }
@@ -190,7 +190,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transformFromResponseFile(
             mockRequest().url("/the/entire/path?name=Ram"),
-            aResponse().withBodyFile("/greet-{{request.query.name}}.txt"));
+            aresponse().withBodyFile("/greet-{{request.query.name}}.txt"));
 
     assertThat(transformedResponseDef.getBody(), is("Hello Ram"));
   }
@@ -200,7 +200,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").body("All of the body content"),
-            aResponse().withBody("Body: {{{request.body}}}"));
+            aresponse().withBody("Body: {{{request.body}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("Body: All of the body content"));
   }
@@ -210,7 +210,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").header("X-Correlation-Id", "12345"),
-            aResponse().withHeader("X-Correlation-Id", "{{request.headers.X-Correlation-Id}}"));
+            aresponse().withHeader("X-Correlation-Id", "{{request.headers.X-Correlation-Id}}"));
 
     assertThat(
         transformedResponseDef.getHeaders().getHeader("X-Correlation-Id").firstValue(),
@@ -225,7 +225,7 @@ public class ResponseTemplateTransformerTest {
                 .url("/things")
                 .header("X-Correlation-Id-1", "12345")
                 .header("X-Correlation-Id-2", "56789"),
-            aResponse()
+            aresponse()
                 .withHeader(
                     "X-Correlation-Id",
                     "{{request.headers.X-Correlation-Id-1}}",
@@ -243,7 +243,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").body("some text"),
-            aResponse().withBody("{{{ capitalize request.body }}}"));
+            aresponse().withBody("{{{ capitalize request.body }}}"));
 
     assertThat(transformedResponseDef.getBody(), is("Some Text"));
   }
@@ -253,7 +253,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").header("X-Thing", "1"),
-            aResponse().withBody("{{#eq request.headers.X-Thing.[0] '1'}}ONE{{else}}MANY{{/eq}}"));
+            aresponse().withBody("{{#eq request.headers.X-Thing.[0] '1'}}ONE{{else}}MANY{{/eq}}"));
 
     assertThat(transformedResponseDef.getBody(), is("ONE"));
   }
@@ -267,7 +267,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").body("fiver"),
-            aResponse().withBody("{{{ string-length request.body }}}"));
+            aresponse().withBody("{{{ string-length request.body }}}"));
 
     assertThat(transformedResponseDef.getBody(), is("5"));
   }
@@ -278,7 +278,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").body("fiver"),
-            aResponse().withBody("{{{eq 5 5 yes='y' no='n'}}}"));
+            aresponse().withBody("{{{eq 5 5 yes='y' no='n'}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("y"));
   }
@@ -288,7 +288,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things").header("X-WM-Uri", "http://localhost:8000"),
-            aResponse()
+            aresponse()
                 .proxiedFrom("{{request.headers.X-WM-Uri}}")
                 .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}"));
 
@@ -307,7 +307,7 @@ public class ResponseTemplateTransformerTest {
     final ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
-            aResponse().withBody("{{jsonPath request.body '$.b'}}"),
+            aresponse().withBody("{{jsonPath request.body '$.b'}}"),
             Parameters.empty());
     assertThat(responseDefinition.getBody(), is(""));
   }
@@ -317,7 +317,7 @@ public class ResponseTemplateTransformerTest {
     final ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
-            aResponse().withBody("{{jsonPath request.body '$.b' default='foo'}}"),
+            aresponse().withBody("{{jsonPath request.body '$.b' default='foo'}}"),
             Parameters.empty());
     assertThat(responseDefinition.getBody(), is("foo"));
   }
@@ -327,7 +327,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse().withBody("{\"test\": \"{{parameters.variable}}\"}"),
+            aresponse().withBody("{\"test\": \"{{parameters.variable}}\"}"),
             Parameters.one("variable", "some.value"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
@@ -344,7 +344,7 @@ public class ResponseTemplateTransformerTest {
       ResponseDefinitionBuilder responseDefinitionBuilder,
       Parameters parameters) {
     StubMapping stubMapping =
-        get("/json").willReturn(aResponse().withTransformerParameters(parameters)).build();
+        get("/json").willReturn(aresponse().withTransformerParameters(parameters)).build();
     responseDefinitionBuilder.withTransformerParameters(parameters);
     ServeEvent serveEvent =
         newPostMatchServeEvent(
@@ -357,7 +357,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}"),
             Parameters.one("variable", "some.value"));
@@ -374,7 +374,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("scheme: {{{request.requestLine.scheme}}}"));
+            aresponse().withBody("scheme: {{{request.requestLine.scheme}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("scheme: https"));
   }
@@ -388,7 +388,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("host: {{{request.requestLine.host}}}"));
+            aresponse().withBody("host: {{{request.requestLine.host}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("host: my.domain.io"));
   }
@@ -402,7 +402,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("port: {{{request.requestLine.port}}}"));
+            aresponse().withBody("port: {{{request.requestLine.port}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("port: 8080"));
   }
@@ -416,7 +416,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("path: {{{request.path}}}"));
+            aresponse().withBody("path: {{{request.path}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("path: /the/entire/path"));
   }
@@ -430,7 +430,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("path: {{{request.url}}}"));
+            aresponse().withBody("path: {{{request.url}}}"));
 
     assertThat(
         transformedResponseDef.getBody(), is("path: /the/entire/path?query1=one&query2=two"));
@@ -445,7 +445,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("baseUrl: {{{request.baseUrl}}}"));
+            aresponse().withBody("baseUrl: {{{request.baseUrl}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("baseUrl: https://my.domain.io:8080"));
   }
@@ -459,7 +459,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(80)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("baseUrl: {{{request.baseUrl}}}"));
+            aresponse().withBody("baseUrl: {{{request.baseUrl}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("baseUrl: http://my.domain.io"));
   }
@@ -473,7 +473,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(443)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("baseUrl: {{{request.baseUrl}}}"));
+            aresponse().withBody("baseUrl: {{{request.baseUrl}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("baseUrl: https://my.domain.io"));
   }
@@ -487,7 +487,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("path segments: {{{request.pathSegments}}}"));
+            aresponse().withBody("path segments: {{{request.pathSegments}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("path segments: /the/entire/path"));
   }
@@ -501,7 +501,7 @@ public class ResponseTemplateTransformerTest {
                 .host("my.domain.io")
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
-            aResponse().withBody("path segments 0: {{{request.pathSegments.[0]}}}"));
+            aresponse().withBody("path segments 0: {{{request.pathSegments.[0]}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("path segments 0: the"));
   }
@@ -511,7 +511,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things?multi_param=one&multi_param=two&single-param=1234"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"));
 
@@ -523,7 +523,7 @@ public class ResponseTemplateTransformerTest {
     final UUID id = UUID.randomUUID();
 
     ResponseDefinition transformedResponseDef =
-        transform(mockRequest().url("/things").id(id), aResponse().withBody("{{request.id}}"));
+        transform(mockRequest().url("/things").id(id), aresponse().withBody("{{request.id}}"));
 
     String requestId = transformedResponseDef.getBody();
     assertThat(requestId, notNullValue());
@@ -846,7 +846,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest().url("/things?ids[]=111&ids[]=222&ids[]=333"),
-            aResponse()
+            aresponse()
                 .withBody(
                     "1: {{lookup request.query 'ids[].0'}}, 2: {{lookup request.query 'ids[].1'}}, 3: {{lookup request.query 'ids[].2'}}"));
 
@@ -1311,14 +1311,14 @@ public class ResponseTemplateTransformerTest {
 
   private String transform(String responseBodyTemplate) {
     final ResponseDefinitionBuilder responseDefinitionBuilder =
-        aResponse().withBody(responseBodyTemplate);
+        aresponse().withBody(responseBodyTemplate);
     final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     final MockRequest request = mockRequest();
     return transform(newPostMatchServeEvent(request, responseDefinitionBuilder, stub)).getBody();
   }
 
   private String transform(String responseBodyTemplate, String requestBody) {
-    return transform(mockRequest().body(requestBody), aResponse().withBody(responseBodyTemplate))
+    return transform(mockRequest().body(requestBody), aresponse().withBody(responseBodyTemplate))
         .getBody();
   }
 

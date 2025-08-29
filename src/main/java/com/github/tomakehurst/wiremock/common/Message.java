@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,26 @@ package com.github.tomakehurst.wiremock.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** The type Message. */
 public class Message {
 
   private final String message;
 
+  /**
+   * Instantiates a new Message.
+   *
+   * @param message the message
+   */
   @JsonCreator
   public Message(@JsonProperty("message") String message) {
     this.message = message;
   }
 
+  /**
+   * Gets message.
+   *
+   * @return the message
+   */
   public String getMessage() {
     return message;
   }

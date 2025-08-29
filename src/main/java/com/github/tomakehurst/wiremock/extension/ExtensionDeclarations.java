@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,15 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static java.util.Arrays.asList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.wiremock.webhooks.Webhooks;
 
+/** The type Extension declarations. */
 public class ExtensionDeclarations {
 
   private final List<String> classNames;
@@ -32,6 +37,7 @@ public class ExtensionDeclarations {
       "Passing webhooks in extensions is no longer required and"
           + " may lead to compatibility issues in future";
 
+  /** Instantiates a new Extension declarations. */
   public ExtensionDeclarations() {
     this.classNames = new ArrayList<>();
     this.classes = new ArrayList<>();
@@ -40,46 +46,96 @@ public class ExtensionDeclarations {
     this.factories = new ArrayList<>();
   }
 
+  /**
+   * Add.
+   *
+   * @param classNames the class names
+   */
   public void add(String... classNames) {
     List<String> processedClassNames =
         Arrays.stream(classNames).filter(this::removeWebhook).collect(Collectors.toList());
     this.classNames.addAll(processedClassNames);
   }
 
+  /**
+   * Add.
+   *
+   * @param extensionInstances the extension instances
+   */
   public void add(Extension... extensionInstances) {
     Arrays.stream(extensionInstances).forEach(e -> instances.put(e.getName(), e));
   }
 
+  /**
+   * Add.
+   *
+   * @param classes the classes
+   */
   public void add(Class<? extends Extension>... classes) {
     List<Class<? extends Extension>> processedClasses =
         Arrays.stream(classes).filter(c -> removeWebhook(c.getName())).collect(Collectors.toList());
     this.classes.addAll(processedClasses);
   }
 
+  /**
+   * Add.
+   *
+   * @param factories the factories
+   */
   public void add(ExtensionFactory... factories) {
     this.factories.addAll(asList(factories));
   }
 
+  /**
+   * Add factories.
+   *
+   * @param factoryClasses the factory classes
+   */
   public void addFactories(Class<? extends ExtensionFactory>... factoryClasses) {
     this.factoryClasses.addAll(asList(factoryClasses));
   }
 
+  /**
+   * Gets class names.
+   *
+   * @return the class names
+   */
   public List<String> getClassNames() {
     return classNames;
   }
 
+  /**
+   * Gets classes.
+   *
+   * @return the classes
+   */
   public List<Class<? extends Extension>> getClasses() {
     return classes;
   }
 
+  /**
+   * Gets instances.
+   *
+   * @return the instances
+   */
   public Map<String, Extension> getInstances() {
     return instances;
   }
 
+  /**
+   * Gets factories.
+   *
+   * @return the factories
+   */
   public List<ExtensionFactory> getFactories() {
     return factories;
   }
 
+  /**
+   * Gets factory classes.
+   *
+   * @return the factory classes
+   */
   public List<Class<? extends ExtensionFactory>> getFactoryClasses() {
     return factoryClasses;
   }

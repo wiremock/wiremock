@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,12 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
     return ERROR_PREFIX + message + ERROR_SUFFIX;
   }
 
+  /**
+   * Gets request cache.
+   *
+   * @param options the options
+   * @return the request cache
+   */
   protected static RequestCache getRequestCache(Options options) {
     return options.get("requestCache", new RequestCache());
   }

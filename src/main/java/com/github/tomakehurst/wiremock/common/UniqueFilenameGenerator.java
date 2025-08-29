@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,30 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.net.URI;
 
+/** The type Unique filename generator. */
 public class UniqueFilenameGenerator {
 
+  /**
+   * Generate string.
+   *
+   * @param url the url
+   * @param prefix the prefix
+   * @param id the id
+   * @return the string
+   */
   public static String generate(String url, String prefix, String id) {
     return generate(url, prefix, id, "json");
   }
 
+  /**
+   * Generate string.
+   *
+   * @param url the url
+   * @param prefix the prefix
+   * @param id the id
+   * @param extension the extension
+   * @return the string
+   */
   public static String generate(String url, String prefix, String id, String extension) {
     String pathPart = Urls.urlToPathParts(URI.create(url));
     pathPart = pathPart.isBlank() ? "(root)" : sanitise(pathPart);

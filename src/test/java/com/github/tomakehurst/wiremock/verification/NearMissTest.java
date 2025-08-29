@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.aresponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -75,7 +75,7 @@ public class NearMissTest {
         Json.write(
             new NearMiss(
                 LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
-                get(urlEqualTo("/missed-me")).willReturn(aResponse()).build(),
+                get(urlEqualTo("/missed-me")).willReturn(aresponse()).build(),
                 MatchResult.partialMatch(0.5),
                 null));
 
@@ -88,7 +88,7 @@ public class NearMissTest {
         Json.write(
             new NearMiss(
                 LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
-                get(urlEqualTo("/missed-me")).willReturn(aResponse()).build().getRequest(),
+                get(urlEqualTo("/missed-me")).willReturn(aresponse()).build().getRequest(),
                 MatchResult.partialMatch(0.5)));
 
     assertThat(json, equalToJson(REQUEST_PATTERN_EXAMPLE, LENIENT));

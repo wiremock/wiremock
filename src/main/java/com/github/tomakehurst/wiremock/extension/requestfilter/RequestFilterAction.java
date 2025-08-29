@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,25 @@ package com.github.tomakehurst.wiremock.extension.requestfilter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
+/** The type Request filter action. */
 public class RequestFilterAction {
 
+  /**
+   * Continue with request filter action.
+   *
+   * @param request the request
+   * @return the request filter action
+   */
   public static RequestFilterAction continueWith(Request request) {
     return new ContinueAction(request);
   }
 
+  /**
+   * Stop with request filter action.
+   *
+   * @param responseDefinition the response definition
+   * @return the request filter action
+   */
   public static RequestFilterAction stopWith(ResponseDefinition responseDefinition) {
     return new StopAction(responseDefinition);
   }

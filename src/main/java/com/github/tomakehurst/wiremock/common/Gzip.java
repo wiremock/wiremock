@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,17 @@ import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/** The type Gzip. */
 public class Gzip {
 
   private Gzip() {}
 
+  /**
+   * Un gzip byte [ ].
+   *
+   * @param gzippedContent the gzipped content
+   * @return the byte [ ]
+   */
   public static byte[] unGzip(byte[] gzippedContent) {
     if (gzippedContent.length == 0) {
       return new byte[0];
@@ -44,18 +51,43 @@ public class Gzip {
     }
   }
 
+  /**
+   * Un gzip to string string.
+   *
+   * @param gzippedContent the gzipped content
+   * @return the string
+   */
   public static String unGzipToString(byte[] gzippedContent) {
     return new String(unGzip(gzippedContent));
   }
 
+  /**
+   * Gzip byte [ ].
+   *
+   * @param plainContent the plain content
+   * @return the byte [ ]
+   */
   public static byte[] gzip(String plainContent) {
     return gzip(plainContent, UTF_8);
   }
 
+  /**
+   * Gzip byte [ ].
+   *
+   * @param plainContent the plain content
+   * @param charset the charset
+   * @return the byte [ ]
+   */
   public static byte[] gzip(String plainContent, Charset charset) {
     return gzip(bytesFromString(plainContent, charset));
   }
 
+  /**
+   * Gzip byte [ ].
+   *
+   * @param plainContent the plain content
+   * @return the byte [ ]
+   */
   public static byte[] gzip(byte[] plainContent) {
     try {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -68,6 +100,12 @@ public class Gzip {
     }
   }
 
+  /**
+   * Is gzipped boolean.
+   *
+   * @param content the content
+   * @return the boolean
+   */
   public static boolean isGzipped(byte[] content) {
     return content.length >= 2
         && content[0] == (byte) GZIPInputStream.GZIP_MAGIC

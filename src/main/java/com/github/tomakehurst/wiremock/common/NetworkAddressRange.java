@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Thomas Akehurst
+ * Copyright (C) 2022-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/** The type Network address range. */
 public abstract class NetworkAddressRange {
 
+  /** The constant ALL. */
   public static final NetworkAddressRange ALL = new All();
+
+  /** The constant ALL_RANGES. */
   public static final Set<NetworkAddressRange> ALL_RANGES = Set.of(ALL);
 
   private static final Pattern SINGLE_IP =
@@ -34,6 +38,12 @@ public abstract class NetworkAddressRange {
   private static final Pattern IP_RANGE =
       Pattern.compile(SINGLE_IP.pattern() + "-" + SINGLE_IP.pattern());
 
+  /**
+   * Of network address range.
+   *
+   * @param value the value
+   * @return the network address range
+   */
   public static NetworkAddressRange of(String value) {
 
     if (value == null || value.isEmpty()) {
@@ -51,6 +61,12 @@ public abstract class NetworkAddressRange {
     return new DomainNameWildcard(value);
   }
 
+  /**
+   * Is included boolean.
+   *
+   * @param testValue the test value
+   * @return the boolean
+   */
   public abstract boolean isIncluded(String testValue);
 
   private static class SingleIp extends NetworkAddressRange {
@@ -127,6 +143,7 @@ public abstract class NetworkAddressRange {
     }
   }
 
+  /** The type Domain name wildcard. */
   static class DomainNameWildcard extends NetworkAddressRange {
 
     private final Pattern namePattern;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,40 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+/** The type Http headers. */
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders {
 
   private final Multimap<CaseInsensitiveKey, String> headers;
 
+  /** Instantiates a new Http headers. */
   public HttpHeaders() {
     headers = ImmutableMultimap.of();
   }
 
+  /**
+   * Instantiates a new Http headers.
+   *
+   * @param headers the headers
+   */
   public HttpHeaders(HttpHeader... headers) {
     this(Arrays.asList(headers));
   }
 
+  /**
+   * Instantiates a new Http headers.
+   *
+   * @param headers the headers
+   */
   public HttpHeaders(Iterable<HttpHeader> headers) {
     ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
     for (HttpHeader header : getFirstNonNull(headers, Collections.<HttpHeader>emptyList())) {
@@ -48,14 +65,30 @@ public class HttpHeaders {
     this.headers = builder.build();
   }
 
+  /**
+   * Instantiates a new Http headers.
+   *
+   * @param headers the headers
+   */
   public HttpHeaders(HttpHeaders headers) {
     this(headers.all());
   }
 
+  /**
+   * No headers http headers.
+   *
+   * @return the http headers
+   */
   public static HttpHeaders noHeaders() {
     return new HttpHeaders();
   }
 
+  /**
+   * Gets header.
+   *
+   * @param key the key
+   * @return the header
+   */
   public HttpHeader getHeader(String key) {
     if (!headers.containsKey(caseInsensitive(key))) {
       return HttpHeader.absent(key);
@@ -65,6 +98,11 @@ public class HttpHeaders {
     return new HttpHeader(key, values);
   }
 
+  /**
+   * Gets content type header.
+   *
+   * @return the content type header
+   */
   public ContentTypeHeader getContentTypeHeader() {
     HttpHeader header = getHeader(ContentTypeHeader.KEY);
     if (header.isPresent()) {
@@ -74,6 +112,11 @@ public class HttpHeaders {
     return ContentTypeHeader.absent();
   }
 
+  /**
+   * All collection.
+   *
+   * @return the collection
+   */
   public Collection<HttpHeader> all() {
     List<HttpHeader> httpHeaderList = new ArrayList<>();
     for (CaseInsensitiveKey key : headers.keySet()) {
@@ -83,18 +126,40 @@ public class HttpHeaders {
     return httpHeaderList;
   }
 
+  /**
+   * Keys set.
+   *
+   * @return the set
+   */
   public Set<String> keys() {
     return headers.keySet().stream().map(CaseInsensitiveKey::toString).collect(Collectors.toSet());
   }
 
+  /**
+   * Copy of http headers.
+   *
+   * @param source the source
+   * @return the http headers
+   */
   public static HttpHeaders copyOf(HttpHeaders source) {
     return new HttpHeaders(source);
   }
 
+  /**
+   * Size int.
+   *
+   * @return the int
+   */
   public int size() {
     return headers.asMap().size();
   }
 
+  /**
+   * Plus http headers.
+   *
+   * @param additionalHeaders the additional headers
+   * @return the http headers
+   */
   public HttpHeaders plus(HttpHeader... additionalHeaders) {
     List<HttpHeader> httpHeaders = new ArrayList<>(all());
     httpHeaders.addAll(asList(additionalHeaders));
@@ -103,8 +168,12 @@ public class HttpHeaders {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     HttpHeaders that = (HttpHeaders) o;
 

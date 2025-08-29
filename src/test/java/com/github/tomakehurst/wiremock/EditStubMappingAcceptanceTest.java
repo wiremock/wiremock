@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
     UUID id = UUID.randomUUID();
 
     wireMockServer.stubFor(
-        get(urlEqualTo("/edit-this")).withId(id).willReturn(aResponse().withBody("Original")));
+        get(urlEqualTo("/edit-this")).withId(id).willReturn(aresponse().withBody("Original")));
 
     assertThat(testClient.get("/edit-this").content(), is("Original"));
 
     wireMockServer.editStub(
-        get(urlEqualTo("/edit-this")).withId(id).willReturn(aResponse().withBody("Modified")));
+        get(urlEqualTo("/edit-this")).withId(id).willReturn(aresponse().withBody("Modified")));
 
     assertThat(testClient.get("/edit-this").content(), is("Modified"));
 

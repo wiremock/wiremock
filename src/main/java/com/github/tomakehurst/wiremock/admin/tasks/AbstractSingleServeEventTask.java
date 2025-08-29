@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,13 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 
+/**
+ * An abstract base class for admin tasks that operate on a single {@link ServeEvent} identified by
+ * its ID.
+ *
+ * <p>This class handles the common logic of extracting and validating the UUID from the URL path
+ * before delegating to the concrete implementation.
+ */
 public abstract class AbstractSingleServeEventTask implements AdminTask {
 
   @Override
@@ -39,6 +46,14 @@ public abstract class AbstractSingleServeEventTask implements AdminTask {
     return processServeEvent(admin, adminServeEvent, id);
   }
 
+  /**
+   * Processes the specified serve event.
+   *
+   * @param admin The core WireMock admin instance.
+   * @param adminServeEvent The request event that triggered this task.
+   * @param id The UUID of the serve event to be processed.
+   * @return The response definition to be sent to the client.
+   */
   protected abstract ResponseDefinition processServeEvent(
       Admin admin, ServeEvent adminServeEvent, UUID id);
 }

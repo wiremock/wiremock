@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+/**
+ * A runtime exception thrown when a requested resource or entity cannot be found.
+ *
+ * <p>This is used throughout the admin API to indicate that an item referenced by the client, such
+ * as a stub mapping by its ID, does not exist.
+ */
 public class NotFoundException extends RuntimeException {
+
+  /**
+   * Constructs a new NotFoundException with the specified detail message.
+   *
+   * @param message the detail message.
+   */
   public NotFoundException(String message) {
     super(message);
-  }
-
-  public NotFoundException(String message, Throwable cause) {
-    super(message, cause);
   }
 }

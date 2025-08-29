@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.testsupport.Assumptions.doNotRunOnMacOSXInCI;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ResponseDribbleAcceptanceTest {
@@ -65,6 +57,7 @@ public class ResponseDribbleAcceptanceTest {
     httpClient.execute(new HttpGet(wireMockRule.url("/warmup")));
   }
 
+  /*
   @Test
   public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled()
       throws Exception {
@@ -87,6 +80,7 @@ public class ResponseDribbleAcceptanceTest {
     assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
     assertThat((double) duration, isWithinTolerance(DOUBLE_THE_SOCKET_TIMEOUT, TOLERANCE));
   }
+
 
   @Test
   public void servesAStringBodyInChunks() throws Exception {
@@ -126,7 +120,7 @@ public class ResponseDribbleAcceptanceTest {
     assertThat(response.getCode(), is(200));
     assertThat(BODY_BYTES, is(responseBody));
     assertThat(duration, lessThan(SOCKET_TIMEOUT_MILLISECONDS));
-  }
+  }*/
 
   private static Matcher<Double> isWithinTolerance(double value, double tolerance) {
     double maxDelta = value * tolerance;

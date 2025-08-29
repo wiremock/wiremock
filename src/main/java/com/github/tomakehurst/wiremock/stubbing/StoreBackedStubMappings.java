@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,21 @@ import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import java.util.List;
 import java.util.Map;
 
+/** The type Store backed stub mappings. */
 public class StoreBackedStubMappings extends AbstractStubMappings {
 
+  /**
+   * Instantiates a new Store backed stub mappings.
+   *
+   * @param store the store
+   * @param scenarios the scenarios
+   * @param customMatchers the custom matchers
+   * @param transformers the transformers
+   * @param v2transformers the v 2 transformers
+   * @param filesBlobStore the files blob store
+   * @param stubLifecycleListeners the stub lifecycle listeners
+   * @param serveEventListeners the serve event listeners
+   */
   public StoreBackedStubMappings(
       StubMappingStore store,
       Scenarios scenarios,

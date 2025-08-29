@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,14 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/** The interface Stub server. */
 public interface StubServer {
 
+  /**
+   * Serve stub for serve event.
+   *
+   * @param serveEvent the serve event
+   * @return the serve event
+   */
   ServeEvent serveStubFor(ServeEvent serveEvent);
 }

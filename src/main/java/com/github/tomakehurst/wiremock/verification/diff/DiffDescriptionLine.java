@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,23 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 
+/**
+ * The type Diff description line.
+ *
+ * @param <T> the type parameter
+ */
 public class DiffDescriptionLine<T> extends DiffLine<T> {
 
   private final DiffDescription diffDescription;
   private final Boolean isExactMatch;
 
+  /**
+   * Instantiates a new Diff description line.
+   *
+   * @param diffDescription the diff description
+   * @param requestAttribute the request attribute
+   * @param isExactMatch the is exact match
+   */
   public DiffDescriptionLine(
       DiffDescription diffDescription, String requestAttribute, Boolean isExactMatch) {
     super(requestAttribute, null, null, diffDescription.getExpected());

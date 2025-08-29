@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+/** The interface Http server. */
 public interface HttpServer {
+  /** Start. */
   void start();
 
+  /** Stop. */
   void stop();
 
+  /**
+   * Is running boolean.
+   *
+   * @return the boolean
+   */
   boolean isRunning();
 
+  /**
+   * Port int.
+   *
+   * @return the int
+   */
   int port();
 
+  /**
+   * Https port int.
+   *
+   * @return the int
+   */
   int httpsPort();
 }

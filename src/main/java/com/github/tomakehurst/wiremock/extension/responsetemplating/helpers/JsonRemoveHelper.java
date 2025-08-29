@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,9 @@ class JsonRemoveHelper extends HandlebarsHelper<Object> {
       return handleError("Input JSON string is not valid JSON ('" + inputJson + "')", e);
     }
     try {
-      if (((String) jsonPathString).isEmpty())
+      if (((String) jsonPathString).isEmpty()) {
         throw new InvalidPathException("JSONPath expression is empty");
+      }
       return jsonDocument.delete((String) jsonPathString).jsonString();
     } catch (PathNotFoundException e) {
       return (String) inputJson;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,14 +79,14 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void editMappingViaTheDsl() {
     StubMapping stubMapping =
-        stubFor(get(urlEqualTo("/edit/this")).willReturn(aResponse().withStatus(200)));
+        stubFor(get(urlEqualTo("/edit/this")).willReturn(aresponse().withStatus(200)));
 
     assertThat(testClient.get("/edit/this").statusCode(), is(200));
 
     editStub(
         get(urlEqualTo("/edit/this"))
             .withId(stubMapping.getId())
-            .willReturn(aResponse().withStatus(418)));
+            .willReturn(aresponse().withStatus(418)));
 
     assertThat(testClient.get("/edit/this").statusCode(), is(418));
   }

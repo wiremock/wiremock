@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,17 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
+/** The type Http client utils. */
 public class HttpClientUtils {
 
   private HttpClientUtils() {}
 
+  /**
+   * Gets entity as string and close stream.
+   *
+   * @param httpResponse the http response
+   * @return the entity as string and close stream
+   */
   public static String getEntityAsStringAndCloseStream(ClassicHttpResponse httpResponse) {
     HttpEntity entity = httpResponse.getEntity();
     if (entity != null) {
@@ -43,6 +50,12 @@ public class HttpClientUtils {
     return null;
   }
 
+  /**
+   * Get entity as byte array and close stream byte [ ].
+   *
+   * @param httpResponse the http response
+   * @return the byte [ ]
+   */
   public static byte[] getEntityAsByteArrayAndCloseStream(ClassicHttpResponse httpResponse) {
     HttpEntity entity = httpResponse.getEntity();
     try {
@@ -53,19 +66,6 @@ public class HttpClientUtils {
       return throwUnchecked(ioe, byte[].class);
     } finally {
       Exceptions.uncheck(httpResponse::close);
-    }
-
-    return null;
-  }
-
-  public static byte[] getEntityAsByteArray(ClassicHttpResponse httpResponse) {
-    HttpEntity entity = httpResponse.getEntity();
-    try {
-      if (entity != null) {
-        return EntityUtils.toByteArray(entity);
-      }
-    } catch (IOException ioe) {
-      return throwUnchecked(ioe, byte[].class);
     }
 
     return null;

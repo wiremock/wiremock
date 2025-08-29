@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,39 @@ import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.RequestCache;
-import com.github.tomakehurst.wiremock.extension.requestfilter.*;
+import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/** The type Abstract request handler. */
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
+  /** The Listeners. */
   protected List<RequestListener> listeners = new ArrayList<>();
+
+  /** The Response renderer. */
   protected final ResponseRenderer responseRenderer;
+
+  /** The Filter processor. */
   protected final FilterProcessor filterProcessor;
 
   private final DataTruncationSettings dataTruncationSettings;
 
+  /**
+   * Instantiates a new Abstract request handler.
+   *
+   * @param responseRenderer the response renderer
+   * @param requestFilters the request filters
+   * @param v2RequestFilters the v 2 request filters
+   * @param dataTruncationSettings the data truncation settings
+   */
   public AbstractRequestHandler(
       ResponseRenderer responseRenderer,
       List<RequestFilter> requestFilters,
@@ -49,8 +68,20 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     listeners.add(requestListener);
   }
 
+  /**
+   * Before response sent.
+   *
+   * @param serveEvent the serve event
+   * @param response the response
+   */
   protected void beforeResponseSent(ServeEvent serveEvent, Response response) {}
 
+  /**
+   * After response sent.
+   *
+   * @param serveEvent the serve event
+   * @param response the response
+   */
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
 
   @Override
@@ -107,6 +138,12 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     RequestCache.onRequestEnd();
   }
 
+  /**
+   * Format request string.
+   *
+   * @param request the request
+   * @return the string
+   */
   protected String formatRequest(Request request) {
     StringBuilder sb = new StringBuilder();
     sb.append(request.getClientIp())
@@ -129,9 +166,20 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     return sb.toString();
   }
 
+  /**
+   * Log requests boolean.
+   *
+   * @return the boolean
+   */
   protected boolean logRequests() {
     return false;
   }
 
+  /**
+   * Handle request serve event.
+   *
+   * @param request the request
+   * @return the serve event
+   */
   protected abstract ServeEvent handleRequest(ServeEvent request);
 }

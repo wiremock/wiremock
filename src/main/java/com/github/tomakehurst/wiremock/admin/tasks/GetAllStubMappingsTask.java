@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,16 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
+/**
+ * An admin task to list all registered stub mappings.
+ *
+ * <p>This task handles the API request to retrieve all {@link
+ * com.github.tomakehurst.wiremock.stubbing.StubMapping}s, with support for pagination via "limit"
+ * and "offset" query parameters.
+ *
+ * @see ListStubMappingsResult
+ * @see LimitAndOffsetPaginator
+ */
 public class GetAllStubMappingsTask implements AdminTask {
 
   @Override

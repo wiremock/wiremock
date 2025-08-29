@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceUri;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +36,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   public static void initWithTempDir() throws Exception {
     setupServerWithTempFileRoot();
     wmClient = WireMock.create().port(wireMockServer.port()).build();
-    rootDir = new File(getResourceURI(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
+    rootDir = new File(getResourceUri(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
   }
 
   @Test

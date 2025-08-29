@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateurl;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -31,10 +31,14 @@ import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 
+/** The type Logged request. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
@@ -60,6 +64,12 @@ public class LoggedRequest implements Request {
   private final Lazy<String> lazyBodyAsString;
   private final Lazy<String> lazyBodyAsBase64;
 
+  /**
+   * Create from logged request.
+   *
+   * @param request the request
+   * @return the logged request
+   */
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
         request.getId(),
@@ -81,6 +91,22 @@ public class LoggedRequest implements Request {
         request.formParameters());
   }
 
+  /**
+   * Instantiates a new Logged request.
+   *
+   * @param url the url
+   * @param absoluteUrl the absolute url
+   * @param method the method
+   * @param clientIp the client ip
+   * @param headers the headers
+   * @param cookies the cookies
+   * @param isBrowserProxyRequest the is browser proxy request
+   * @param loggedDate the logged date
+   * @param bodyAsBase64 the body as base 64
+   * @param ignoredBodyOnlyUsedForBinding the ignored body only used for binding
+   * @param multiparts the multiparts
+   * @param protocol the protocol
+   */
   @JsonCreator
   LoggedRequest(
       @JsonProperty("url") String url,
@@ -142,7 +168,7 @@ public class LoggedRequest implements Request {
       this.host = host;
       this.port = port != null ? port : -1;
     } else {
-      URL fullUrl = safelyCreateURL(absoluteUrl);
+      URL fullUrl = safelyCreateurl(absoluteUrl);
       this.scheme = fullUrl.getProtocol();
       this.host = fullUrl.getHost();
       this.port = Urls.getPort(fullUrl);
@@ -291,11 +317,21 @@ public class LoggedRequest implements Request {
     return formParameters;
   }
 
+  /**
+   * Gets form parameters.
+   *
+   * @return the form parameters
+   */
   @JsonProperty("formParams")
   public Map<String, FormParameter> getFormParameters() {
     return formParameters;
   }
 
+  /**
+   * Gets query params.
+   *
+   * @return the query params
+   */
   @JsonProperty("queryParams")
   public Map<String, QueryParameter> getQueryParams() {
     return queryParams;
@@ -321,11 +357,21 @@ public class LoggedRequest implements Request {
     return protocol;
   }
 
+  /**
+   * Gets logged date.
+   *
+   * @return the logged date
+   */
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   public Date getLoggedDate() {
     return loggedDate;
   }
 
+  /**
+   * Gets logged date string.
+   *
+   * @return the logged date string
+   */
   public String getLoggedDateString() {
     return loggedDate != null ? Dates.format(loggedDate) : null;
   }
@@ -356,5 +402,9 @@ public class LoggedRequest implements Request {
             .findFirst()
             .orElse(null)
         : null;
+  }
+
+  public RequestPatternBuilder withRequestBody(StringValuePattern two) {
+    return null;
   }
 }

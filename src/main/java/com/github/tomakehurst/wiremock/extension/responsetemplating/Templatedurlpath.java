@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,18 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class TemplatedUrlPath extends LinkedHashMap<String, String> implements Iterable<String> {
+/** The type Templated url path. */
+public class Templatedurlpath extends LinkedHashMap<String, String> implements Iterable<String> {
 
   private final String originalPath;
 
-  public TemplatedUrlPath(String url, PathParams pathParams) {
+  /**
+   * Instantiates a new Templated url path.
+   *
+   * @param url the url
+   * @param pathParams the path params
+   */
+  public Templatedurlpath(String url, PathParams pathParams) {
     this.originalPath = Urls.getPath(url);
     addAllPathSegments();
     putAll(pathParams);

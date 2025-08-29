@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2022 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,19 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/** The interface Fault injector factory. */
 public interface FaultInjectorFactory {
 
+  /** The constant INJECTOR_CLASS_KEY. */
   String INJECTOR_CLASS_KEY = "FaultHandlerFactoryClass";
 
+  /**
+   * Build fault injector fault injector.
+   *
+   * @param httpServletRequest the http servlet request
+   * @param httpServletResponse the http servlet response
+   * @return the fault injector
+   */
   FaultInjector buildFaultInjector(
       HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
 }
