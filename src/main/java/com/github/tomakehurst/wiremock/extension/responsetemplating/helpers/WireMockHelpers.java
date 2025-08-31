@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may not a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public enum WireMockHelpers implements Helper<Object> {
   xPath {
-    private final HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
+    private final transient HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -35,7 +35,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   soapXPath {
-    private final HandlebarsSoapHelper helper = new HandlebarsSoapHelper();
+    private final transient HandlebarsSoapHelper helper = new HandlebarsSoapHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -43,7 +43,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   jsonPath {
-    private final HandlebarsJsonPathHelper helper = new HandlebarsJsonPathHelper();
+    private final transient HandlebarsJsonPathHelper helper = new HandlebarsJsonPathHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -51,7 +51,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   randomValue {
-    private final HandlebarsRandomValuesHelper helper = new HandlebarsRandomValuesHelper();
+    private final transient HandlebarsRandomValuesHelper helper = new HandlebarsRandomValuesHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -59,7 +59,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   hostname {
-    private final HostnameHelper helper = new HostnameHelper();
+    private final transient HostnameHelper helper = new HostnameHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -67,7 +67,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   date {
-    private final HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+    private final transient HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -76,7 +76,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   now {
-    private final HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+    private final transient HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
     @Override
     public Object apply(final Object context, final Options options) throws IOException {
@@ -84,7 +84,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   parseDate {
-    private final ParseDateHelper helper = new ParseDateHelper();
+    private final transient ParseDateHelper helper = new ParseDateHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -92,7 +92,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
   truncateDate {
-    private final TruncateDateTimeHelper helper = new TruncateDateTimeHelper();
+    private final transient TruncateDateTimeHelper helper = new TruncateDateTimeHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -101,7 +101,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   trim {
-    private final StringTrimHelper helper = new StringTrimHelper();
+    private final transient StringTrimHelper helper = new StringTrimHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -110,7 +110,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   base64 {
-    private final Base64Helper helper = new Base64Helper();
+    private final transient Base64Helper helper = new Base64Helper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -119,7 +119,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   urlEncode {
-    private final UrlEncodingHelper helper = new UrlEncodingHelper();
+    private final transient UrlEncodingHelper helper = new UrlEncodingHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -128,7 +128,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   formData {
-    private final FormDataHelper helper = new FormDataHelper();
+    private final transient FormDataHelper helper = new FormDataHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -137,7 +137,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   regexExtract {
-    private final RegexExtractHelper helper = new RegexExtractHelper();
+    private final transient RegexExtractHelper helper = new RegexExtractHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -146,7 +146,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   size {
-    private final SizeHelper helper = new SizeHelper();
+    private final transient SizeHelper helper = new SizeHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -155,7 +155,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   pickRandom {
-    private final PickRandomHelper helper = new PickRandomHelper();
+    private final transient PickRandomHelper helper = new PickRandomHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -164,7 +164,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   randomInt {
-    private final RandomIntHelper helper = new RandomIntHelper();
+    private final transient RandomIntHelper helper = new RandomIntHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -173,7 +173,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   randomDecimal {
-    private final RandomDecimalHelper helper = new RandomDecimalHelper();
+    private final transient RandomDecimalHelper helper = new RandomDecimalHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -182,7 +182,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   range {
-    private final RangeHelper helper = new RangeHelper();
+    private final transient RangeHelper helper = new RangeHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -191,7 +191,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   array {
-    private final ArrayHelper helper = new ArrayHelper();
+    private final transient ArrayHelper helper = new ArrayHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -200,7 +200,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   arrayAdd {
-    private final ArrayAddHelper helper = new ArrayAddHelper();
+    private final transient ArrayAddHelper helper = new ArrayAddHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -209,7 +209,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   arrayRemove {
-    private final ArrayRemoveHelper helper = new ArrayRemoveHelper();
+    private final transient ArrayRemoveHelper helper = new ArrayRemoveHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -218,7 +218,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   parseJson {
-    private final ParseJsonHelper helper = new ParseJsonHelper();
+    private final transient ParseJsonHelper helper = new ParseJsonHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -227,7 +227,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   matches {
-    private final MatchesRegexHelper helper = new MatchesRegexHelper();
+    private final transient MatchesRegexHelper helper = new MatchesRegexHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -236,7 +236,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   contains {
-    private final ContainsHelper helper = new ContainsHelper();
+    private final transient ContainsHelper helper = new ContainsHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -245,7 +245,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   math {
-    private final MathsHelper helper = new MathsHelper();
+    private final transient MathsHelper helper = new MathsHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -254,7 +254,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   val {
-    private final ValHelper helper = new ValHelper();
+    private final transient ValHelper helper = new ValHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -263,7 +263,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   arrayJoin {
-    private final JoinHelper helper = new JoinHelper();
+    private final transient JoinHelper helper = new JoinHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -272,7 +272,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   formatJson {
-    private final FormatJsonHelper helper = new FormatJsonHelper();
+    private final transient FormatJsonHelper helper = new FormatJsonHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -281,7 +281,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   formatXml {
-    private final FormatXmlHelper helper = new FormatXmlHelper();
+    private final transient FormatXmlHelper helper = new FormatXmlHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -290,7 +290,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   toJson {
-    private final ToJsonHelper helper = new ToJsonHelper();
+    private final transient ToJsonHelper helper = new ToJsonHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -299,7 +299,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   jsonMerge {
-    private final JsonMergeHelper helper = new JsonMergeHelper();
+    private final transient JsonMergeHelper helper = new JsonMergeHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -308,7 +308,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   jsonRemove {
-    private final JsonRemoveHelper helper = new JsonRemoveHelper();
+    private final transient JsonRemoveHelper helper = new JsonRemoveHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
@@ -317,7 +317,7 @@ public enum WireMockHelpers implements Helper<Object> {
   },
 
   jsonArrayAdd {
-    private final JsonArrayAddHelper helper = new JsonArrayAddHelper();
+    private final transient JsonArrayAddHelper helper = new JsonArrayAddHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
