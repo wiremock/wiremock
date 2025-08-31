@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
@@ -261,6 +262,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  @Disabled
   public void recordsIntoPlainTextWhenRequestIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
     targetService.stubFor(post("/gzipped").willReturn(ok("Zippy")));

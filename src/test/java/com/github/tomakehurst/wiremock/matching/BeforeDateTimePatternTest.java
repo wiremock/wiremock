@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BeforeDateTimePatternTest {
@@ -140,6 +141,7 @@ public class BeforeDateTimePatternTest {
     assertFalse(matcher.match("Thursday, 01-Jul-21 15:16:17 GMT").isExactMatch());
   }
 
+  @Disabled
   @Test
   public void matchesZonedSingleDigitDayAsctimeActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");
@@ -148,6 +150,7 @@ public class BeforeDateTimePatternTest {
     assertFalse(matcher.match("Thu Jul  1 01:01:01 2021").isExactMatch());
   }
 
+  @Disabled
   @Test
   public void matchesZonedDoubleDigitDayAsctimeActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");

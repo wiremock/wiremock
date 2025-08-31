@@ -172,6 +172,29 @@ tasks.test {
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 }
 
+// Configure JaCoCo to include wiremock-common classes in coverage report
+tasks.jacocoTestReport {
+  // Include execution data from wiremock-common if it exists
+  executionData.setFrom(fileTree("build/jacoco").include("**/*.exec"))
+
+  // Include wiremock-common classes in the report
+  classDirectories.setFrom(
+    files(classDirectories.files),
+    project(":wiremock-common").sourceSets.main.get().output.classesDirs
+  )
+
+  // Include wiremock-common source directories for source mapping
+  sourceDirectories.setFrom(
+    files(sourceDirectories.files),
+    project(":wiremock-common").sourceSets.main.get().allSource.srcDirs
+  )
+
+  reports {
+    html.required.set(true)
+    xml.required.set(true)
+  }
+}
+
 val testJar by tasks.registering(Jar::class) {
   archiveClassifier.set("tests")
   from(sourceSets.test.get().output)
