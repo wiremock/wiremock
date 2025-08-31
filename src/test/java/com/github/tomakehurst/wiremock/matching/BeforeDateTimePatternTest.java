@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BeforeDateTimePatternTest {
@@ -154,6 +155,24 @@ public class BeforeDateTimePatternTest {
    * <p>assertTrue(matcher.match("Thu Jun 10 01:01:01 2021").isExactMatch());
    * assertFalse(matcher.match("Sat Jul 10 01:01:01 2021").isExactMatch()); }
    */
+  @Disabled
+  @Test
+  public void matchesZonedSingleDigitDayAsctimeActualDate() {
+    StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");
+
+    assertTrue(matcher.match("Tue Jun  1 01:01:01 2021").isExactMatch());
+    assertFalse(matcher.match("Thu Jul  1 01:01:01 2021").isExactMatch());
+  }
+
+  @Disabled
+  @Test
+  public void matchesZonedDoubleDigitDayAsctimeActualDate() {
+    StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");
+
+    assertTrue(matcher.match("Thu Jun 10 01:01:01 2021").isExactMatch());
+    assertFalse(matcher.match("Sat Jul 10 01:01:01 2021").isExactMatch());
+  }
+
   @Test
   public void matchesNonUTCZonedISO8601ActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
