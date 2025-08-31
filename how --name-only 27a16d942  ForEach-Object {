@@ -1,0 +1,19 @@
+[33mcommit 27a16d9423e3ad77adbc6affddde3791a948899d[m
+Author: laysaOlivveira <laysa.santos.oliveira@ccc.ufcg.edu.br>
+Date:   Sat Aug 30 22:13:42 2025 -0300
+
+    qodo-generated tests and stress tests
+
+index.html
+perf-test/build.gradle
+perf-test/gradle/wrapper/gradle-wrapper.properties
+perf-test/src/gatling/scala/wiremock/StubbingAndVerifyingSimulation.scala
+perf-test/src/main/java/wiremock/LoadTestConfiguration.java
+settings.gradle
+src/main/java/com/github/tomakehurst/wiremock/admin/LimitAndOffsetPaginator.java
+src/main/java/com/github/tomakehurst/wiremock/admin/LimitAndSinceDatePaginator.java
+src/test/java/com/github/tomakehurst/wiremock/ResponseDribbleAcceptanceTest.java
+src/test/java/com/github/tomakehurst/wiremock/admin/LimitAndSinceDatePaginatorTest.java
+src/test/java/com/github/tomakehurst/wiremock/client/WireMockClientAcceptanceTest.java
+src/test/java/com/github/tomakehurst/wiremock/http/UniformDistributionTest.java
+src/test/java/com/github/tomakehurst/wiremock/matching/BeforeDateTimePatternTest.java

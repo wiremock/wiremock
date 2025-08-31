@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.networknt.schema.SpecVersion;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -134,5 +138,62 @@ class WireMockClientAcceptanceTest {
 
     assertThat(responseGet.statusCode(), is(404));
     assertThat(responseHead.statusCode(), is(404));
+  }
+
+  @Test
+  void supportsConfiguringDefaultInstanceFromClient() {
+    WireMock client = WireMock.create().port(wireMockServer.port()).build();
+    WireMock.configureFor(client);
+
+    givenThat(get(urlEqualTo("/configured/by/client")).willReturn(ok()));
+
+    assertThat(testClient.get("/configured/by/client").statusCode(), is(200));
+  }
+
+  @Test
+  void stubsUsingUrlPathTemplate() {
+    WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
+    wireMock.register(get(urlPathTemplate("/v1/contacts/{contactId}")).willReturn(ok()));
+
+    assertThat(testClient.get("/v1/contacts/123").statusCode(), is(200));
+    assertThat(testClient.get("/v1/contacts").statusCode(), is(404));
+  }
+
+  @Test
+  void canRemoveServeEventById() {
+    assertThat(WireMock.getAllServeEvents().size(), is(0));
+
+    testClient.get("/will-be-removed");
+
+    List<ServeEvent> events = WireMock.getAllServeEvents();
+    assertThat(events.size(), is(1));
+
+    WireMock.removeServeEvent(events.get(0).getId());
+
+    assertThat(WireMock.getAllServeEvents().size(), is(0));
+  }
+
+  @Test
+  void canQueryOnlyUnmatchedServeEvents() {
+    givenThat(get(urlEqualTo("/hit")).willReturn(ok()));
+
+    testClient.get("/hit");
+    testClient.get("/missed");
+
+    List<ServeEvent> unmatched = WireMock.getAllServeEvents(ServeEventQuery.ALL_UNMATCHED);
+    assertThat(unmatched.size(), is(1));
+    assertThat(unmatched.get(0).getRequest().getUrl(), is("/missed"));
+  }
+
+  @Test
+  void jsonSchemaVersionEnumMappingsAreCorrect() {
+    assertThat(WireMock.JsonSchemaVersion.DEFAULT, is(WireMock.JsonSchemaVersion.V202012));
+    assertThat(WireMock.JsonSchemaVersion.V4.toVersionFlag(), is(SpecVersion.VersionFlag.V4));
+    assertThat(WireMock.JsonSchemaVersion.V6.toVersionFlag(), is(SpecVersion.VersionFlag.V6));
+    assertThat(WireMock.JsonSchemaVersion.V7.toVersionFlag(), is(SpecVersion.VersionFlag.V7));
+    assertThat(
+        WireMock.JsonSchemaVersion.V201909.toVersionFlag(), is(SpecVersion.VersionFlag.V201909));
+    assertThat(
+        WireMock.JsonSchemaVersion.V202012.toVersionFlag(), is(SpecVersion.VersionFlag.V202012));
   }
 }
