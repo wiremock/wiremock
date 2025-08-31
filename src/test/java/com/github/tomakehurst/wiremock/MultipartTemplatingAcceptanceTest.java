@@ -37,7 +37,7 @@ public class MultipartTemplatingAcceptanceTest {
   WireMockTestClient client;
 
   @RegisterExtension
-  public static WireMockExtension wm =
+  public static final WireMockExtension wm =
       WireMockExtension.newInstance()
           .options(options().dynamicPort().templatingEnabled(true).globalTemplating(true))
           .build();

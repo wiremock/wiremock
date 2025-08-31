@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.apache.hc.client5.http.entity.mime.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -96,7 +97,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
         post("/multipart-mixed")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
             .withMultipartRequestBody(
-                aMultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes())))
+                aMultipart().withName("file").withBody(binaryEqualTo("ABCD".getBytes(StandardCharsets.UTF_8))))
             .willReturn(ok()));
 
     ClassicHttpRequest request =
@@ -105,7 +106,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                 MultipartEntityBuilder.create()
                     .setMimeSubtype("mixed")
                     .addTextBody("text", "hello")
-                    .addBinaryBody("file", "ABCD".getBytes())
+                    .addBinaryBody("file", "ABCD".getBytes(StandardCharsets.UTF_8))
                     .build())
             .build();
 

@@ -41,14 +41,14 @@ import org.junit.jupiter.api.io.TempDir;
 
 public class StubLifecycleListenerAcceptanceTest {
 
-  TestStubLifecycleListener loggingListener = new TestStubLifecycleListener();
-  ExceptionThrowingStubLifecycleListener exceptionThrowingListener =
+  static TestStubLifecycleListener loggingListener = new TestStubLifecycleListener();
+  static ExceptionThrowingStubLifecycleListener exceptionThrowingListener =
       new ExceptionThrowingStubLifecycleListener();
 
   @TempDir public static File tempDir;
 
   @RegisterExtension
-  public WireMockExtension wm =
+  public static final WireMockExtension wm =
       WireMockExtension.newInstance()
           .options(
               options()

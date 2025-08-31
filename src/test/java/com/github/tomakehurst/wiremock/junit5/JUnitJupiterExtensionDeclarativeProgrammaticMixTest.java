@@ -21,14 +21,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
-  @WireMockTest
-  public static class TestSaneStaticDefaults {
+    @Nested
+    @WireMockTest
+  class TestSaneStaticDefaults {
     @RegisterExtension
-    public static WireMockExtension wms =
+    public static final WireMockExtension wms =
         WireMockExtension.newInstance().options(wireMockConfig().port(44345)).build();
 
     @Test
@@ -53,10 +55,11 @@ public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
     }
   }
 
-  @WireMockTest(httpPort = 44777)
-  public static class TestNoStaticOverride {
+    @Nested
+    @WireMockTest(httpPort = 44777)
+  class TestNoStaticOverride {
     @RegisterExtension
-    public static WireMockExtension wms =
+    public static final WireMockExtension wms =
         WireMockExtension.newInstance().options(wireMockConfig().port(44346)).build();
 
     @Test
@@ -69,10 +72,11 @@ public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
     }
   }
 
-  @WireMockTest
-  public static class TestSaneInstanceDefaults {
+    @Nested
+    @WireMockTest
+  class TestSaneInstanceDefaults {
     @RegisterExtension
-    public WireMockExtension wmi =
+    public static WireMockExtension wmi =
         WireMockExtension.newInstance().options(wireMockConfig().port(44349)).build();
 
     @Test
@@ -97,10 +101,11 @@ public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
     }
   }
 
-  @WireMockTest(httpPort = 44778)
-  public static class TestNoInstanceOverride {
+    @Nested
+    @WireMockTest(httpPort = 44778)
+  class TestNoInstanceOverride {
     @RegisterExtension
-    public WireMockExtension wmi =
+    public static WireMockExtension wmi =
         WireMockExtension.newInstance().options(wireMockConfig().port(44351)).build();
 
     @Test

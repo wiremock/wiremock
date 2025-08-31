@@ -27,6 +27,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.networknt.schema.*;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -61,7 +63,7 @@ public class ContentPatternsJsonValidityTest {
 
   @Test
   void binaryEqualToValidates() {
-    assertThat(validate(binaryEqualTo("abc".getBytes())), empty());
+    assertThat(validate(binaryEqualTo("abc".getBytes(StandardCharsets.UTF_8))), empty());
     assertThat(validate("{ \"binaryEqualTo\": \"not base 64\" }"), Matchers.not(empty()));
   }
 

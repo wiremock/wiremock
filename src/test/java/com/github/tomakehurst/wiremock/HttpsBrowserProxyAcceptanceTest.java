@@ -80,7 +80,7 @@ public class HttpsBrowserProxyAcceptanceTest {
       tempNonExistingPath("wiremock-keystores", "ca-keystore.jks");
 
   @RegisterExtension
-  public static WireMockExtension target =
+  public static final WireMockExtension target =
       WireMockExtension.newInstance()
           .options(
               options()
@@ -90,7 +90,7 @@ public class HttpsBrowserProxyAcceptanceTest {
           .build();
 
   @RegisterExtension
-  public static WireMockExtension proxy =
+  public static final WireMockExtension proxy =
       WireMockExtension.newInstance()
           .options(
               options()

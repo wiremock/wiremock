@@ -52,7 +52,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
       tempNonExistingPath("wiremock-keystores", "ca-keystore.jks");
 
   @RegisterExtension
-  public static WireMockExtension target =
+  public static final WireMockExtension target =
       WireMockExtension.newInstance()
           .options(
               options()
@@ -89,7 +89,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
     assertThat(EntityUtils.toString(response.getEntity()), is("Success"));
   }
 
-  private static String tempNonExistingPath(String prefix, String filename) {
+  private static final String tempNonExistingPath(String prefix, String filename) {
     try {
       Path tempDirectory = Files.createTempDirectory(prefix);
       return tempDirectory.resolve(filename).toFile().getAbsolutePath();

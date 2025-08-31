@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -117,7 +118,7 @@ public class JvmProxyConfigAcceptanceTest {
   private String getContentUsingDefaultJvmHttpClient(String url) throws Exception {
     final HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
     try (InputStream in = urlConnection.getInputStream()) {
-      return new String(in.readAllBytes());
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 }

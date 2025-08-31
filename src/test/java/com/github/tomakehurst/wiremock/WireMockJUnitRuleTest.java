@@ -88,7 +88,7 @@ public class WireMockJUnitRuleTest {
   public static class WireMockRuleAsJUnit411ClassRule {
 
     @ClassRule
-    public static WireMockClassRule classRule =
+    public static final WireMockClassRule classRule =
         new WireMockClassRule(wireMockConfig().dynamicPort());
 
     @Rule public WireMockClassRule instanceRule = classRule;
@@ -121,13 +121,13 @@ public class WireMockJUnitRuleTest {
   class WireMockJournalIsResetBetweenMultipleTestsWithWireMockRuleAsJUnit411ClassRule {
 
     @ClassRule
-    public static WireMockClassRule wireMockRule1 =
+    public static final WireMockClassRule wireMockRule1 =
         new WireMockClassRule(wireMockConfig().dynamicPort());
 
     @Rule public WireMockClassRule instancewireMockRule1 = wireMockRule1;
 
     @ClassRule
-    public static WireMockClassRule wireMockRule2 =
+    public static final WireMockClassRule wireMockRule2 =
         new WireMockClassRule(wireMockConfig().dynamicPort());
 
     @Rule public WireMockClassRule instancewireMockRule2 = wireMockRule2;
@@ -176,7 +176,7 @@ public class WireMockJUnitRuleTest {
         new WireMockRule(wireMockConfig().port(RULE_HTTP_PORT).httpsPort(RULE_HTTPS_PORT));
 
     @ClassRule
-    public static WireMockClassRule wireMockClassRule =
+    public static final WireMockClassRule wireMockClassRule =
         new WireMockClassRule(
             wireMockConfig().port(CLASSRULE_HTTP_PORT).httpsPort(CLASSRULE_HTTPS_PORT));
 
@@ -209,11 +209,11 @@ public class WireMockJUnitRuleTest {
     public static final int PORT4 = Network.findFreePort();
 
     @ClassRule
-    public static WireMockClassRule serviceOne =
+    public static final WireMockClassRule serviceOne =
         new WireMockClassRule(wireMockConfig().port(PORT1));
 
     @ClassRule
-    public static WireMockClassRule serviceTwo =
+    public static final WireMockClassRule serviceTwo =
         new WireMockClassRule(wireMockConfig().port(PORT2));
 
     @Rule public WireMockRule serviceThree = new WireMockRule(wireMockConfig().port(PORT3));

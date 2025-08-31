@@ -42,7 +42,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class Http2AcceptanceTest {
 
   @RegisterExtension
-  public static WireMockExtension wm =
+  public static final WireMockExtension wm =
       WireMockExtension.newInstance()
           .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
           .build();
