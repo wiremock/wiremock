@@ -32,15 +32,22 @@ import java.util.*;
 import org.xmlunit.diff.ComparisonType;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
+  private static final String EQUAL_TO = "equalTo";
+  private static final String EQUAL_TO_JSON = "equalToJson";
+  private static final String MATCHES_JASON_PATH = "matchesJsonPath";
+  private static final String MATCHES_JASON_SCHEMA = "matchesJsonSchema";
+  private static final String EQUAL_TO_XML = "equalToXml";
+  private static final String MATCHES_X_PATH = "matchesXPath";
+  private static final String EXPRESSION = "expression";
 
   private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
       Map.ofEntries(
-          Map.entry("equalTo", EqualToPattern.class),
-          Map.entry("equalToJson", EqualToJsonPattern.class),
-          Map.entry("matchesJsonPath", MatchesJsonPathPattern.class),
-          Map.entry("matchesJsonSchema", MatchesJsonSchemaPattern.class),
-          Map.entry("equalToXml", EqualToXmlPattern.class),
-          Map.entry("matchesXPath", MatchesXPathPattern.class),
+          Map.entry(EQUAL_TO, EqualToPattern.class),
+          Map.entry(EQUAL_TO_JSON, EqualToJsonPattern.class),
+          Map.entry(MATCHES_JASON_PATH, MatchesJsonPathPattern.class),
+          Map.entry(MATCHES_JASON_SCHEMA, MatchesJsonSchemaPattern.class),
+          Map.entry(EQUAL_TO_XML, EqualToXmlPattern.class),
+          Map.entry(MATCHES_X_PATH, MatchesXPathPattern.class),
           Map.entry("contains", ContainsPattern.class),
           Map.entry("not", NotPattern.class),
           Map.entry("doesNotContain", NegativeContainsPattern.class),
@@ -113,11 +120,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
-    if (!rootNode.has("equalTo")) {
+    if (!rootNode.has(EQUAL_TO)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
-    JsonNode equalToNode = rootNode.findValue("equalTo");
+    JsonNode equalToNode = rootNode.findValue(EQUAL_TO);
     if (!equalToNode.isTextual()) {
       throw new JsonMappingException("equalTo operand must be a non-null string");
     }
@@ -129,11 +136,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {
-    if (!rootNode.has("equalToJson")) {
+    if (!rootNode.has(EQUAL_TO_JSON)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
-    JsonNode operand = rootNode.findValue("equalToJson");
+    JsonNode operand = rootNode.findValue(EQUAL_TO_JSON);
 
     Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
     Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
@@ -148,11 +155,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private MatchesJsonSchemaPattern deserializeMatchesJsonSchema(JsonNode rootNode)
       throws JsonMappingException {
-    if (!rootNode.has("matchesJsonSchema")) {
+    if (!rootNode.has(MATCHES_JASON_SCHEMA)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
-    JsonNode operand = rootNode.findValue("matchesJsonSchema");
+    JsonNode operand = rootNode.findValue(MATCHES_JASON_SCHEMA);
 
     JsonSchemaVersion schemaVersion;
     try {
@@ -175,11 +182,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private EqualToXmlPattern deserializeEqualToXml(JsonNode rootNode) throws JsonMappingException {
-    if (!rootNode.has("equalToXml")) {
+    if (!rootNode.has(EQUAL_TO_XML)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
-    JsonNode operand = rootNode.findValue("equalToXml");
+    JsonNode operand = rootNode.findValue(EQUAL_TO_XML);
 
     Boolean enablePlaceholders = fromNullable(rootNode.findValue("enablePlaceholders"));
     String placeholderOpeningDelimiterRegex =
@@ -212,20 +219,20 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
       throws JsonMappingException {
-    if (!rootNode.has("matchesJsonPath")) {
+    if (!rootNode.has(MATCHES_JASON_PATH)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
-    JsonNode outerPatternNode = rootNode.findValue("matchesJsonPath");
+    JsonNode outerPatternNode = rootNode.findValue(MATCHES_JASON_PATH);
     if (outerPatternNode.isTextual()) {
       return new MatchesJsonPathPattern(outerPatternNode.textValue());
     }
 
-    if (!outerPatternNode.has("expression")) {
+    if (!outerPatternNode.has(EXPRESSION)) {
       throw new JsonMappingException("expression is required in the advanced matchesJsonPath form");
     }
 
-    String expression = outerPatternNode.findValue("expression").textValue();
+    String expression = outerPatternNode.findValue(EXPRESSION).textValue();
     StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
 
     return new MatchesJsonPathPattern(expression, valuePattern);
@@ -233,7 +240,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode)
       throws JsonMappingException {
-    if (!rootNode.has("matchesXPath")) {
+    if (!rootNode.has(MATCHES_X_PATH)) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
@@ -242,16 +249,16 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     Map<String, String> namespaces =
         namespacesNode != null ? toNamespaceMap(namespacesNode) : Collections.emptyMap();
 
-    JsonNode outerPatternNode = rootNode.findValue("matchesXPath");
+    JsonNode outerPatternNode = rootNode.findValue(MATCHES_X_PATH);
     if (outerPatternNode.isTextual()) {
       return new MatchesXPathPattern(outerPatternNode.textValue(), namespaces);
     }
 
-    if (!outerPatternNode.has("expression")) {
+    if (!outerPatternNode.has(EXPRESSION)) {
       throw new JsonMappingException("expression is required in the advanced matchesXPath form");
     }
 
-    String expression = outerPatternNode.findValue("expression").textValue();
+    String expression = outerPatternNode.findValue(EXPRESSION).textValue();
     StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
 
     return new MatchesXPathPattern(expression, namespaces, valuePattern);

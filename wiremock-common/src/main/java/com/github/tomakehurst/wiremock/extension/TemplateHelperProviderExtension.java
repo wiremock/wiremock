@@ -19,5 +19,5 @@ import com.github.jknack.handlebars.Helper;
 import java.util.Map;
 
 public interface TemplateHelperProviderExtension extends Extension {
-  Map<String, Helper<?>> provideTemplateHelpers();
+  <T> Map<String, Helper<T>> provideTemplateHelpers();
 }

@@ -64,6 +64,7 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 public class Jetty12HttpServer extends JettyHttpServer {
 
   private ServerConnector mitmProxyConnector;
+  private static final String FALSE = "false";
 
   public Jetty12HttpServer(
       Options options,
@@ -267,7 +268,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
     adminContext.setWelcomeFiles(new String[] {"index.html", "index.jsp"});
 
-    adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+    adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", FALSE);
 
     ServletHolder swaggerUiServletHolder =
         adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
@@ -320,7 +321,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     decorateMockServiceContextBeforeConfig(mockServiceContext);
 
     mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
-    mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+    mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", FALSE);
 
     mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
 
@@ -407,7 +408,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     filterHolder.setInitParameters(
         Map.of(
             "chainPreflight",
-            "false",
+            FALSE,
             "allowedOrigins",
             "*",
             "allowedHeaders",

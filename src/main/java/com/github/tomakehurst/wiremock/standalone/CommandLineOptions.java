@@ -129,6 +129,7 @@ public class CommandLineOptions implements Options {
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
   private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
   private static final String WEBHOOK_THREADPOOL_SIZE = "webhook-threadpool-size";
+  private static final String DEFAULT_PASSWORD = "password";
 
   private final OptionSet optionSet;
 
@@ -177,7 +178,7 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store")
         .withRequiredArg()
-        .defaultsTo("password");
+        .defaultsTo(DEFAULT_PASSWORD);
     optionParser
         .accepts(
             HTTPS_TRUSTSTORE,
@@ -192,13 +193,13 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.")
         .withRequiredArg()
-        .defaultsTo("password");
+        .defaultsTo(DEFAULT_PASSWORD);
     optionParser
         .accepts(
             HTTPS_KEY_MANAGER_PASSWORD,
             "Key manager password for use with the alternative keystore.")
         .withRequiredArg()
-        .defaultsTo("password");
+        .defaultsTo(DEFAULT_PASSWORD);
     optionParser
         .accepts(
             HTTPS_KEYSTORE,

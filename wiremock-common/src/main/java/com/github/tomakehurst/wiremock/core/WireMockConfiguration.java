@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
 
 public class WireMockConfiguration implements Options {
 
+  private static final String PASSWORD = "password";
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;
   private boolean disableOptimizeXmlFactoriesLoading = false;
   private int portNumber = DEFAULT_PORT;
@@ -70,11 +71,11 @@ public class WireMockConfiguration implements Options {
 
   private int httpsPort = -1;
   private String keyStorePath = getResource(WireMockConfiguration.class, "keystore").toString();
-  private String keyStorePassword = "password";
-  private String keyManagerPassword = "password";
+  private String keyStorePassword = PASSWORD;
+  private String keyManagerPassword = PASSWORD;
   private String keyStoreType = "JKS";
   private String trustStorePath;
-  private String trustStorePassword = "password";
+  private String trustStorePassword = PASSWORD;
   private String trustStoreType = "JKS";
   private boolean needClientAuth;
 

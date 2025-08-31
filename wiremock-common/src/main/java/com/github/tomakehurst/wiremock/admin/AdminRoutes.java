@@ -32,6 +32,14 @@ public class AdminRoutes {
   private final ImmutableBiMap<RequestSpec, AdminTask> routes;
   private final Iterable<AdminApiExtension> apiExtensions;
   private final Stores stores;
+  private static final String MAPPINGS = "/mappings";
+  private static final String FILES = "/files";
+  private static final String SCENARIOS = "/scenarios";
+  private static final String REQUESTS = "/requests";
+  private static final String RECORDINGS = "/recordings";
+  private static final String NEARMISSES = "/near-misses";
+  private static final String SETTINGS = "/settings";
+  private static final String DOCS = "/docs";
 
   public static AdminRoutes forClient() {
     return new AdminRoutes(Collections.emptyList(), null);
@@ -55,63 +63,63 @@ public class AdminRoutes {
     router.add(GET, "", new RootRedirectTask());
     router.add(POST, "/reset", new ResetTask());
 
-    router.add(GET, "/mappings", new GetAllStubMappingsTask());
-    router.add(POST, "/mappings", new CreateStubMappingTask());
-    router.add(DELETE, "/mappings", new ResetStubMappingsTask());
+    router.add(GET, MAPPINGS, new GetAllStubMappingsTask());
+    router.add(POST, MAPPINGS, new CreateStubMappingTask());
+    router.add(DELETE, MAPPINGS, new ResetStubMappingsTask());
 
     // Deprecated but kept so that 2.x client will still be compatible
-    router.add(POST, "/mappings/edit", new OldEditStubMappingTask());
+    router.add(POST, MAPPINGS + "/edit", new OldEditStubMappingTask());
 
-    router.add(POST, "/mappings/save", new SaveMappingsTask());
-    router.add(POST, "/mappings/reset", new ResetToDefaultMappingsTask());
-    router.add(GET, "/mappings/unmatched", new GetUnmatchedStubMappingsTask());
-    router.add(DELETE, "/mappings/unmatched", new RemoveUnmatchedStubMappingsTask());
-    router.add(GET, "/mappings/{id}", new GetStubMappingTask());
-    router.add(PUT, "/mappings/{id}", new EditStubMappingTask());
-    router.add(POST, "/mappings/remove", new RemoveMatchingStubMappingTask());
-    router.add(DELETE, "/mappings/{id}", new RemoveStubMappingByIdTask());
-    router.add(POST, "/mappings/find-by-metadata", new FindStubMappingsByMetadataTask());
-    router.add(POST, "/mappings/remove-by-metadata", new RemoveStubMappingsByMetadataTask());
-    router.add(POST, "/mappings/import", new ImportStubMappingsTask());
+    router.add(POST, MAPPINGS + "/save", new SaveMappingsTask());
+    router.add(POST, MAPPINGS + "/reset", new ResetToDefaultMappingsTask());
+    router.add(GET, MAPPINGS + "/unmatched", new GetUnmatchedStubMappingsTask());
+    router.add(DELETE, MAPPINGS + "/unmatched", new RemoveUnmatchedStubMappingsTask());
+    router.add(GET, MAPPINGS + "/{id}", new GetStubMappingTask());
+    router.add(PUT, MAPPINGS + "/{id}", new EditStubMappingTask());
+    router.add(POST, MAPPINGS + "/remove", new RemoveMatchingStubMappingTask());
+    router.add(DELETE, MAPPINGS + "/{id}", new RemoveStubMappingByIdTask());
+    router.add(POST, MAPPINGS + "/find-by-metadata", new FindStubMappingsByMetadataTask());
+    router.add(POST, MAPPINGS + "/remove-by-metadata", new RemoveStubMappingsByMetadataTask());
+    router.add(POST, MAPPINGS + "/import", new ImportStubMappingsTask());
 
-    router.add(GET, "/files", new GetAllStubFilesTask(stores));
-    router.add(PUT, "/files/**", new EditStubFileTask(stores));
-    router.add(DELETE, "/files/**", new DeleteStubFileTask(stores));
-    router.add(GET, "/files/**", new GetStubFileTask(stores));
+    router.add(GET, FILES, new GetAllStubFilesTask(stores));
+    router.add(PUT, FILES + "/**", new EditStubFileTask(stores));
+    router.add(DELETE, FILES + "/**", new DeleteStubFileTask(stores));
+    router.add(GET, FILES + "/**", new GetStubFileTask(stores));
 
-    router.add(GET, "/scenarios", new GetAllScenariosTask());
-    router.add(POST, "/scenarios/reset", new ResetScenariosTask());
-    router.add(PUT, "/scenarios/{name}/state", new SetScenarioStateTask());
+    router.add(GET, SCENARIOS, new GetAllScenariosTask());
+    router.add(POST, SCENARIOS + "/reset", new ResetScenariosTask());
+    router.add(PUT, SCENARIOS + "/{name}/state", new SetScenarioStateTask());
 
-    router.add(GET, "/requests", new GetAllRequestsTask());
-    router.add(DELETE, "/requests", new ResetRequestsTask());
-    router.add(POST, "/requests/count", new GetRequestCountTask());
-    router.add(POST, "/requests/find", new FindRequestsTask());
-    router.add(GET, "/requests/unmatched", new FindUnmatchedRequestsTask());
-    router.add(GET, "/requests/unmatched/near-misses", new FindNearMissesForUnmatchedTask());
-    router.add(GET, "/requests/{id}", new GetServedStubTask());
-    router.add(DELETE, "/requests/{id}", new RemoveServeEventTask());
-    router.add(POST, "/requests/remove", new RemoveServeEventsByRequestPatternTask());
-    router.add(POST, "/requests/remove-by-metadata", new RemoveServeEventsByStubMetadataTask());
+    router.add(GET, REQUESTS, new GetAllRequestsTask());
+    router.add(DELETE, REQUESTS, new ResetRequestsTask());
+    router.add(POST, REQUESTS + "/count", new GetRequestCountTask());
+    router.add(POST, REQUESTS + "/find", new FindRequestsTask());
+    router.add(GET, REQUESTS + "/unmatched", new FindUnmatchedRequestsTask());
+    router.add(GET, REQUESTS + "/unmatched/near-misses", new FindNearMissesForUnmatchedTask());
+    router.add(GET, REQUESTS + "/{id}", new GetServedStubTask());
+    router.add(DELETE, REQUESTS + "/{id}", new RemoveServeEventTask());
+    router.add(POST, REQUESTS + "/remove", new RemoveServeEventsByRequestPatternTask());
+    router.add(POST, REQUESTS + "/remove-by-metadata", new RemoveServeEventsByStubMetadataTask());
 
-    router.add(POST, "/recordings/snapshot", new SnapshotTask());
-    router.add(POST, "/recordings/start", new StartRecordingTask());
-    router.add(POST, "/recordings/stop", new StopRecordingTask());
-    router.add(GET, "/recordings/status", new GetRecordingStatusTask());
+    router.add(POST, RECORDINGS + "/snapshot", new SnapshotTask());
+    router.add(POST, RECORDINGS + "/start", new StartRecordingTask());
+    router.add(POST, RECORDINGS + "/stop", new StopRecordingTask());
+    router.add(GET, RECORDINGS + "/status", new GetRecordingStatusTask());
     router.add(GET, "/recorder", new GetRecordingsIndexTask());
 
-    router.add(POST, "/near-misses/request", new FindNearMissesForRequestTask());
-    router.add(POST, "/near-misses/request-pattern", new FindNearMissesForRequestPatternTask());
+    router.add(POST, NEARMISSES + "/request", new FindNearMissesForRequestTask());
+    router.add(POST, NEARMISSES + "/request-pattern", new FindNearMissesForRequestPatternTask());
 
-    router.add(GET, "/settings", new GetGlobalSettingsTask());
-    router.add(PUT, "/settings", new GlobalSettingsUpdateTask());
-    router.add(POST, "/settings", new GlobalSettingsUpdateTask());
-    router.add(PATCH, "/settings/extended", new PatchExtendedSettingsTask());
+    router.add(GET, SETTINGS, new GetGlobalSettingsTask());
+    router.add(PUT, SETTINGS, new GlobalSettingsUpdateTask());
+    router.add(POST, SETTINGS, new GlobalSettingsUpdateTask());
+    router.add(PATCH, SETTINGS + "/extended", new PatchExtendedSettingsTask());
 
     router.add(POST, "/shutdown", new ShutdownServerTask());
 
-    router.add(GET, "/docs/swagger", new GetSwaggerSpecTask());
-    router.add(GET, "/docs", new GetDocIndexTask());
+    router.add(GET, DOCS + "/swagger", new GetSwaggerSpecTask());
+    router.add(GET, DOCS, new GetDocIndexTask());
 
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
 

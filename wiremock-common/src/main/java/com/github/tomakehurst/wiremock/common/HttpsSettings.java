@@ -30,6 +30,7 @@ public class HttpsSettings {
   private final String trustStorePassword;
   private final String trustStoreType;
   private final boolean needClientAuth;
+  private static final String PASSWORD = "password";
 
   public HttpsSettings(
       int port,
@@ -132,11 +133,11 @@ public class HttpsSettings {
 
     private int port;
     private String keyStorePath = getResource(Builder.class, "keystore").toString();
-    private String keyStorePassword = "password";
-    private String keyManagerPassword = "password";
+    private String keyStorePassword = PASSWORD;
+    private String keyManagerPassword = PASSWORD;
     private String keyStoreType = "JKS";
     private String trustStorePath = null;
-    private String trustStorePassword = "password";
+    private String trustStorePassword = PASSWORD;
     private String trustStoreType = "JKS";
     private boolean needClientAuth = false;
 

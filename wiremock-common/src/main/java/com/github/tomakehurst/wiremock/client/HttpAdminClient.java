@@ -71,6 +71,7 @@ public class HttpAdminClient implements Admin {
   private final String urlPathPrefix;
   private final String hostHeader;
   private final ClientAuthenticator authenticator;
+  private static final String JSON_CONTENT_TYPE = "application/json";
 
   private final AdminRoutes adminRoutes;
 
@@ -476,14 +477,14 @@ public class HttpAdminClient implements Admin {
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
     HttpPost post = new HttpPost(url);
-    post.addHeader(CONTENT_TYPE, "application/json");
+    post.addHeader(CONTENT_TYPE, JSON_CONTENT_TYPE);
     post.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
     return safelyExecuteRequest(url, post);
   }
 
   private String putJsonAssertOkAndReturnBody(String url, String json) {
     HttpPut put = new HttpPut(url);
-    put.addHeader(CONTENT_TYPE, "application/json");
+    put.addHeader(CONTENT_TYPE, JSON_CONTENT_TYPE);
     put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
     return safelyExecuteRequest(url, put);
   }
@@ -528,7 +529,7 @@ public class HttpAdminClient implements Admin {
     if (requestSpec.method().hasEntity()) {
       requestBuilder.setEntity(
           jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
-      requestBuilder.addHeader(CONTENT_TYPE, "application/json");
+      requestBuilder.addHeader(CONTENT_TYPE, JSON_CONTENT_TYPE);
     }
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());

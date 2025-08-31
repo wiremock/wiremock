@@ -56,8 +56,8 @@ public class StubMetadataAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(four.getString("five"), is("55555"));
 
-    List<?> six = metadata.getList("six");
-    assertThat((Integer) six.get(0), is(1));
+    List<Integer> six = metadata.getList("six");
+    assertThat(six.get(0), is(1));
   }
 
   @Test

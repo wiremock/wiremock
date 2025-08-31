@@ -53,7 +53,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
     return returnIfValidOrDefaultIfNot(key, String.class, defaultValue);
   }
 
-  public List<?> getList(String key) {
+  public List<Integer> getList(String key) {
     return checkPresenceValidityAndCast(key, List.class);
   }
 
