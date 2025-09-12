@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -282,7 +282,93 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     verify(postRequestedFor(urlPathEqualTo("/callback2")));
   }
 
-  @Test
+  public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaDSL() throws Exception {
+    rule.stubFor(
+        post(urlPathEqualTo("/templating"))
+            .willReturn(ok())
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withBodyFile("myBodyFile.json")
+                    .withMethod("{{jsonPath originalRequest.body '$.method'}}")
+                    .withUrl(
+                        targetServer.baseUrl()
+                            + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
+                    .withHeader("X-Single", "{{math 1 '+' 2}}")
+                    .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
+                    .withBody("{{jsonPath originalRequest.body '$.name'}}")
+                    .withExtraParameter("one", "param-one-value")));
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    client.postJson(
+        "/templating",
+        "{\n"
+            + "  \"callbackPath\": \"/callback/123\",\n"
+            + "  \"method\": \"POST\",\n"
+            + "  \"name\": \"Tom\"\n"
+            + "}");
+
+    waitForRequestToTargetServer();
+
+    LoggedRequest request =
+        targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+    assertThat(request.header("X-Single").firstValue(), is("3"));
+    assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+    assertThat(request.getBodyAsString(), is("Tom"));
+  }
+
+  public void appliesTemplatingToUrlMethodHeadersAndBodyFileNameViaJSON() throws Exception {
+    client.postJson(
+        "/__admin/mappings",
+        "{\n"
+            + "  \"id\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
+            + "  \"request\" : {\n"
+            + "    \"urlPath\" : \"/templating\",\n"
+            + "    \"method\" : \"POST\"\n"
+            + "  },\n"
+            + "  \"response\" : {\n"
+            + "    \"status\" : 200\n"
+            + "  },\n"
+            + "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
+            + "  \"serveEventListeners\" : [{\n"
+            + "    \"name\" : \"webhook\",\n"
+            + "    \"parameters\" : {\n"
+            + "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n"
+            + "      \"url\" : \""
+            + targetServer.baseUrl()
+            + "{{{jsonPath originalRequest.body '$.callbackPath'}}}\",\n"
+            + "      \"headers\" : {\n"
+            + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
+            + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
+            + "      },\n"
+            + "      \"bodyFileName\" : \"myBodyFile.json\",\n"
+            + "      \"one\" : \"param-one-value\"\n"
+            + "    }\n"
+            + "  }]\n"
+            + "}\n");
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    client.postJson(
+        "/templating",
+        "{\n"
+            + "  \"callbackPath\": \"/callback/123\",\n"
+            + "  \"method\": \"POST\",\n"
+            + "  \"name\": \"Tom\"\n"
+            + "}");
+
+    waitForRequestToTargetServer();
+
+    LoggedRequest request =
+        targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+    assertThat(request.header("X-Single").firstValue(), is("3"));
+    assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+    assertThat(request.getBodyAsString(), is("Tom"));
+  }
+
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaDSL() throws Exception {
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
@@ -322,8 +408,8 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     assertThat(request.getBodyAsString(), is("Tom"));
   }
 
-  @Test
-  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON() throws Exception {
+  public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON(String bodyFileNameParam)
+      throws Exception {
     client.postJson(
         "/__admin/mappings",
         "{\n"
