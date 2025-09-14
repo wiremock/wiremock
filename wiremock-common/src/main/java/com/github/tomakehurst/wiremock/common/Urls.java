@@ -107,12 +107,17 @@ public class Urls {
   }
 
   private static boolean isISOOffsetDateTime(String encoded) {
+    ParsePosition pos = new ParsePosition(0);
+    TemporalAccessor temporalAccessor = ISO_OFFSET_DATE_TIME.parseUnresolved(encoded, pos);
+    if (temporalAccessor == null || pos.getIndex() != encoded.length()) {
+      return false;
+    }
     try {
       ISO_OFFSET_DATE_TIME.parse(encoded);
+      return true;
     } catch (DateTimeParseException e) {
       return false;
     }
-    return true;
   }
 
   public static URL safelyCreateURL(String url) {
