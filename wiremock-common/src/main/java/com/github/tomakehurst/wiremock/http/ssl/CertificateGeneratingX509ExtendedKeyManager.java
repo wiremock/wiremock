@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.net.ssl.*;
 
@@ -190,7 +191,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
   }
 
   private void notify(String reason, Exception e) {
-    notifier.error(
+    notifier.error(() ->
         "Dynamic certificate generation is not supported because "
             + reason
             + lineSeparator()
@@ -208,21 +209,21 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     }
 
     @Override
-    public void info(String message) {
+    public void info(Supplier<String> message) {
       if (onceOnly.unused()) {
         notifier.info(message);
       }
     }
 
     @Override
-    public void error(String message) {
+    public void error(Supplier<String> message) {
       if (onceOnly.unused()) {
         notifier.error(message);
       }
     }
 
     @Override
-    public void error(String message, Throwable t) {
+    public void error(Supplier<String> message, Throwable t) {
       if (onceOnly.unused()) {
         notifier.error(message, t);
       }

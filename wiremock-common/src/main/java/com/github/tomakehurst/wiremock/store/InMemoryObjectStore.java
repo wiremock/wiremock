@@ -112,7 +112,7 @@ public class InMemoryObjectStore implements ObjectStore, StoreEventEmitter<Strin
       try {
         listener.accept(event);
       } catch (Exception e) {
-        notifier().error("Error handling store event", e);
+        notifier().error(() -> "Error handling store event", e);
       }
     }
   }

@@ -41,7 +41,7 @@ public class ServeEventListenerUtils {
         Parameters parameters = listenerDef.getParameters();
         listener.onEvent(requestPhase, serveEvent, parameters);
       } else {
-        notifier().error("No per-stub listener was found named \"" + listenerDef.getName() + "\"");
+        notifier().error(() -> "No per-stub listener was found named \"" + listenerDef.getName() + "\"");
       }
     }
   }

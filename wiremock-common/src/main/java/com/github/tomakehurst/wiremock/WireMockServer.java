@@ -75,7 +75,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
         httpServerFactory.buildHttpServer(
             options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
 
-    notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
+    notifier.info(()-> "Using HTTP server impl: " + httpServer.getClass().getSimpleName());
 
     client = new WireMock(wireMockApp);
   }
@@ -152,7 +152,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
             new FileSourceBlobStore(filesFileSource),
             wireMockApp,
             options.matchingHeaders()));
-    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
+    notifier.info(() -> "Recording mappings to " + mappingsFileSource.getPath());
   }
 
   public void stop() {

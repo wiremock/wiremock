@@ -187,7 +187,7 @@ public class EqualToXmlPattern extends StringValuePattern {
           appendSubEvent(SubEvent.warning(e.getMessage()));
 
           notifier()
-              .info(
+              .info(() ->
                   "Failed to process XML. "
                       + e.getMessage()
                       + "\nExpected:\n"
@@ -231,7 +231,7 @@ public class EqualToXmlPattern extends StringValuePattern {
           diff = diffBuilder.build();
         } catch (XMLUnitException e) {
           notifier()
-              .info(
+              .info(() ->
                   "Failed to process XML. "
                       + e.getMessage()
                       + "\nExpected:\n"
@@ -242,7 +242,7 @@ public class EqualToXmlPattern extends StringValuePattern {
         }
 
         notifier()
-            .info(
+            .info(() ->
                 StreamSupport.stream(diff.getDifferences().spliterator(), false)
                     .map(Object::toString)
                     .collect(Collectors.joining("\n")));

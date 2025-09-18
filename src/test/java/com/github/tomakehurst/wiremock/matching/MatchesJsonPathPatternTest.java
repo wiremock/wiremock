@@ -34,7 +34,10 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.function.Supplier;
 
 public class MatchesJsonPathPatternTest {
 
@@ -143,7 +146,10 @@ public class MatchesJsonPathPatternTest {
 
   private static void checkWarningMessageAndEvent(
       Notifier notifier, MatchResult match, String warningMessage) {
-    verify(notifier).info(warningMessage);
+    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+    verify(notifier).info(captor.capture());
+    String actualMessage = captor.getValue().get();
+    assertEquals(warningMessage, actualMessage);
     checkMessage(match, WARNING, warningMessage);
   }
 

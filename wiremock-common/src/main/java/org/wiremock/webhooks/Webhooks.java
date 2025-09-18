@@ -88,7 +88,6 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       serveEvent.appendSubEvent("WEBHOOK_REQUEST", LoggedRequest.createFrom(request));
     } catch (Exception e) {
       final String msg = "Exception thrown while configuring webhook";
-      notifier().error(msg, e);
       serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
       return;
     }
@@ -98,7 +97,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         () -> {
           try {
             Response response = httpClient.execute(request);
-            notifier.info(
+            notifier.info(() ->
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
                     finalDefinition.getMethod(),
@@ -118,14 +117,14 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                         serveEvent.getStubMapping().getName(),
                         serveEvent.getStubMapping().getId(),
                         "<no name or id>"));
-            notifier.error(msg);
+            notifier.error(() -> msg);
             serveEvent.appendSubEvent(SubEvent.error(msg));
           } catch (Exception e) {
             final String msg =
                 String.format(
                     "Failed to fire webhook %s %s",
                     finalDefinition.getMethod(), finalDefinition.getUrl());
-            notifier.error(msg, e);
+            notifier.error(() -> msg, e);
             serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
           }
         },

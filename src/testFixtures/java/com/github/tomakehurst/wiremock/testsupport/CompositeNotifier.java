@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CompositeNotifier implements Notifier {
 
@@ -32,17 +33,17 @@ public class CompositeNotifier implements Notifier {
   }
 
   @Override
-  public void info(String message) {
+  public void info(Supplier<String> message) {
     notifiers.forEach(notifier -> notifier.info(message));
   }
 
   @Override
-  public void error(String message) {
+  public void error(Supplier<String> message) {
     notifiers.forEach(notifier -> notifier.error(message));
   }
 
   @Override
-  public void error(String message, Throwable t) {
+  public void error(Supplier<String> message, Throwable t) {
     notifiers.forEach(notifier -> notifier.error(message, t));
   }
 }
