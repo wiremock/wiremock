@@ -107,7 +107,7 @@ archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" 
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }
 android-json = { module = "com.vaadin.external.google:android-json", version = "0.0.20131108.vaadin1" }
-assertj-core = { module = "org.assertj:assertj-core", version = "3.27.4" }
+assertj-core = { module = "org.assertj:assertj-core", version = "3.27.5" }
 
 # JMH
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
