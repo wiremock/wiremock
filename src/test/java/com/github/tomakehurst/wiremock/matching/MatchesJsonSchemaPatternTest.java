@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -427,13 +427,11 @@ public class MatchesJsonSchemaPatternTest {
         matchResult3.getSubEvents(),
         not(
             contains(
-                new TypeSafeMatcher<>() {
-                  @Override
+                new TypeSafeMatcher<SubEvent>() {
                   protected boolean matchesSafely(SubEvent item) {
                     return item.getType().equals(SubEvent.ERROR);
                   }
 
-                  @Override
                   public void describeTo(Description description) {
                     description.appendText("a sub event of type " + SubEvent.ERROR);
                   }
