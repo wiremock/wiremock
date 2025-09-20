@@ -67,7 +67,7 @@ public class Recorder {
     state = state.start(initialId, proxyMapping, spec);
     stateStore.set(state);
 
-    notifier().info("Started recording with record spec:\n" + Json.write(spec));
+    notifier().info(() -> "Started recording with record spec:\n" + Json.write(spec));
   }
 
   public synchronized SnapshotRecordResult stopRecording() {
@@ -99,7 +99,7 @@ public class Recorder {
 
     SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
 
-    notifier().info("Stopped recording. Stubs captured:\n" + Json.write(result.getStubMappings()));
+    notifier().info(() -> "Stopped recording. Stubs captured:\n" + Json.write(result.getStubMappings()));
     return result;
   }
 

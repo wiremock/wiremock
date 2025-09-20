@@ -17,21 +17,32 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 public class AdminRequestHandlerTest {
 
   private Notifier notifier = mock(Notifier.class);
+
+  @Captor
+  private ArgumentCaptor<Supplier<String>> captor;
 
   @RegisterExtension
   private WireMockExtension wm =
@@ -63,8 +74,13 @@ public class AdminRequestHandlerTest {
         new StringEntity(postBody),
         withHeader(postHeaderABCName, postHeaderABCValue));
 
-    verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
-    verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
-    verify(notifier).info(contains(postBody));
+    verify(notifier, times(3)).info(captor.capture());
+    List<Supplier<String>> capturedSuppliers = captor.getAllValues();
+    String msg1 = capturedSuppliers.get(0).get();
+    String msg2 = capturedSuppliers.get(1).get();
+    String msg3 = capturedSuppliers.get(2).get();
+    assertTrue(msg1.contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+    assertTrue(msg2.contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+    assertTrue(msg3.contains(postBody));
   }
 }
