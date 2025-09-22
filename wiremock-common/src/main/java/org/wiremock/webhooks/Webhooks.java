@@ -88,6 +88,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       serveEvent.appendSubEvent("WEBHOOK_REQUEST", LoggedRequest.createFrom(request));
     } catch (Exception e) {
       final String msg = "Exception thrown while configuring webhook";
+      notifier().error(() -> msg, e);
       serveEvent.appendSubEvent(SubEvent.error(msg + ": " + e.getMessage()));
       return;
     }
