@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -41,7 +42,7 @@ public class AdminRequestHandlerTest {
       WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
   @Test
-  public void shouldLogInfoOnRequest() {
+  public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
     WireMockTestClient client = new WireMockTestClient(wm.getPort());
 
     String postHeaderABCName = "ABC";
@@ -66,7 +67,7 @@ public class AdminRequestHandlerTest {
         new StringEntity(postBody),
         withHeader(postHeaderABCName, postHeaderABCValue));
     ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass((Class) Supplier.class);
-    verify(notifier).info(captor.capture());
+    verify(notifier, times(2)).info(captor.capture());
     List<Supplier<String>> capturedSuppliers = captor.getAllValues();
     String msg2 = capturedSuppliers.get(1).get();
     assertTrue(msg2.contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
