@@ -114,11 +114,11 @@ public class Urls {
     exception handling in the case of a non-date string. If the soft parse succeeds, we
     then do a full parse to ensure the string is a valid date.
      */
-//    ParsePosition pos = new ParsePosition(0);
-//    TemporalAccessor temporalAccessor = ISO_OFFSET_DATE_TIME.parseUnresolved(encoded, pos);
-//    if (temporalAccessor == null || pos.getIndex() != encoded.length()) {
-//      return false;
-//    }
+    ParsePosition pos = new ParsePosition(0);
+    TemporalAccessor temporalAccessor = ISO_OFFSET_DATE_TIME.parseUnresolved(encoded, pos);
+    if (temporalAccessor == null || pos.getIndex() != encoded.length()) {
+      return false;
+    }
     try {
       ISO_OFFSET_DATE_TIME.parse(encoded);
       return true;
