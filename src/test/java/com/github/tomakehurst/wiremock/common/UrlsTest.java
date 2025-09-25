@@ -191,4 +191,14 @@ public class UrlsTest {
     params = Urls.splitQuery(trickyDate);
     Assertions.assertEquals(URLDecoder.decode(dateAsString, StandardCharsets.UTF_8), params.get("date").firstValue());
   }
+
+
+  @Test
+    public void doesNotDecodeValidIsoOffsetDateTimeLikeString() {
+    var dateAsString = "2023-02-28T10:00:00+01:00";
+    var trickyDate = URI.create("/date?date=" + dateAsString);
+    params = Urls.splitQuery(trickyDate);
+    Assertions.assertEquals(dateAsString, params.get("date").firstValue());
+  }
+
 }
