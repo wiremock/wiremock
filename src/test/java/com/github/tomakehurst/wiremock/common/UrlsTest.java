@@ -185,7 +185,7 @@ public class UrlsTest {
   }
 
   @Test
-  public void doesNotDecodeInvalidIsoOffsetDateTimeLikeString() {
+  public void decodesInvalidIsoOffsetDateTimeLikeString() {
     var dateAsString = "2023-02-30T10:00:00+01:00";
     var trickyDate = URI.create("/date?date=" + dateAsString);
     params = Urls.splitQuery(trickyDate);
