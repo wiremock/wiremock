@@ -396,6 +396,66 @@ public class ProxyResponseRendererTest {
             ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
+  @Test
+  void removeProxyRequestHeadersCaseInsensitive() throws IOException {
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            null,
+            RequestMethod.GET,
+            new HttpHeaders(
+                new HttpHeader("Header", "value1"),
+                new HttpHeader("HEADER", "value2"),
+                new HttpHeader("header", "value3")),
+            aResponse().proxiedFrom(origin.baseUrl()).withRemoveRequestHeader("header").build());
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            argThat(request -> {
+              // All variations of the header should be removed regardless of case
+              return Arrays.stream(request.getHeaders())
+                  .noneMatch(header -> 
+                      header.getName().equalsIgnoreCase("header"));
+            }),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  @Test
+  void removeProxyRequestHeadersMixedCase() throws IOException {
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            null,
+            RequestMethod.GET,
+            new HttpHeaders(
+                new HttpHeader("User-Agent", "TestAgent"),
+                new HttpHeader("Authorization", "Bearer token"),
+                new HttpHeader("content-type", "application/json")),
+            aResponse()
+                .proxiedFrom(origin.baseUrl())
+                .withRemoveRequestHeader("User-Agent")
+                .withRemoveRequestHeader("AUTHORIZATION")  // Uppercase
+                .withRemoveRequestHeader("Content-Type")   // Mixed case
+                .build());
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            argThat(request -> {
+              // All specified headers should be removed regardless of their original case
+              // or the case used in the removal specification
+              return Arrays.stream(request.getHeaders())
+                  .noneMatch(header -> 
+                      header.getName().equalsIgnoreCase("User-Agent") ||
+                      header.getName().equalsIgnoreCase("Authorization") ||
+                      header.getName().equalsIgnoreCase("Content-Type"));
+            }),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
   private static <T> T reflectiveInnerSpyField(
       Class<T> fieldType, String outerFieldName, String innerFieldName, Object object) {
     try {
