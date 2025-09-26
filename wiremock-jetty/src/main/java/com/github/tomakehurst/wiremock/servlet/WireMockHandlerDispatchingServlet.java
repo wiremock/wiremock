@@ -304,7 +304,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       byte[] body = bodyStream.readAllBytes();
 
       if (body.length < 1) {
-        notifier.error("Cannot chunk dribble delay when no body set");
+        notifier.error(() -> "Cannot chunk dribble delay when no body set");
         out.flush();
         return;
       }

@@ -164,7 +164,7 @@ public abstract class AbstractStubMappings implements StubMappings {
           "ID of the provided stub mapping '"
               + mapping.getUuid()
               + "' is already taken by another stub mapping";
-      notifier().error(msg);
+      notifier().error(() -> msg);
       throw new InvalidInputException(
           Errors.singleWithDetail(109, "Duplicate stub mapping ID", msg));
     }
@@ -201,7 +201,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     if (optionalExistingMapping.isEmpty()) {
       String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
-      notifier().error(msg);
+      notifier().error(() -> msg);
       throw new NotFoundException(msg);
     }
 

@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.function.Supplier;
+
 public class LocalNotifier {
 
-  private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
+  private static final ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
 
   public static Notifier notifier() {
     Notifier notifier = notifierHolder.get();
@@ -35,12 +37,12 @@ public class LocalNotifier {
   private static class NullNotifier implements Notifier {
 
     @Override
-    public void info(String message) {}
+    public void info(Supplier<String> message) {}
 
     @Override
-    public void error(String message) {}
+    public void error(Supplier<String> message) {}
 
     @Override
-    public void error(String message, Throwable t) {}
+    public void error(Supplier<String> message, Throwable t) {}
   }
 }

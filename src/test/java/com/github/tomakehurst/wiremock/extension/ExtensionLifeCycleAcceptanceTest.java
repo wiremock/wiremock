@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 
@@ -65,15 +67,15 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Override
-    public void info(String message) {
-      infoMessages.add(message);
+    public void info(Supplier<String> message) {
+      infoMessages.add(message.get());
     }
 
     @Override
-    public void error(String message) {}
+    public void error(Supplier<String> message) {}
 
     @Override
-    public void error(String message, Throwable t) {}
+    public void error(Supplier<String> message, Throwable t) {}
   }
 
   public static class StartStopLoggingExtension implements Extension {
@@ -90,12 +92,12 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
 
     @Override
     public void start() {
-      notifier.info("Extension started");
+      notifier.info(() -> "Extension started");
     }
 
     @Override
     public void stop() {
-      notifier.info("Extension stopped");
+      notifier.info(() -> "Extension stopped");
     }
   }
 }
