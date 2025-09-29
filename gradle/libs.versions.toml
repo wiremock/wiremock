@@ -46,7 +46,7 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 
 # HTTP Client
-apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.5" }
+apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.5.1" }
 apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
 
 # XML Unit
