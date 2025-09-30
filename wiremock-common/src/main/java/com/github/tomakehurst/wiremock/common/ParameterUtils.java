@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -22,6 +23,14 @@ import java.util.function.Predicate;
 public class ParameterUtils {
 
   private ParameterUtils() {}
+
+  public static <T> boolean isNullOrEmptyCollection(Collection<T> collection) {
+    return collection == null || collection.isEmpty();
+  }
+
+  public static <T> boolean isNotNullOrEmptyCollection(Collection<T> collection) {
+    return !isNullOrEmptyCollection(collection);
+  }
 
   public static <T> T getFirstNonNull(T first, T second) {
     if (first != null) {
