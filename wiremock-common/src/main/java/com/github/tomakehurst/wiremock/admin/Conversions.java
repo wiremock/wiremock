@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
@@ -31,12 +31,14 @@ public class Conversions {
   public static Date toDate(QueryParameter parameter) {
     try {
       return parameter.isPresent()
-          ? Date.from(ZonedDateTime.parse(parameter.firstValue()).toInstant())
+          ? Date.from(OffsetDateTime.parse(parameter.firstValue()).toInstant())
           : null;
     } catch (DateTimeParseException e) {
       throw new InvalidInputException(
           Errors.validation(
-              parameter.key(), parameter.firstValue() + " is not a valid ISO8601 date"));
+              parameter.key(),
+              parameter.firstValue()
+                  + " is not a valid format. Supported format is date time in ISO 8601, e.g. 2020-01-01T12:00:00Z or 2020-01-01T12:00:00+02:00"));
     }
   }
 }
