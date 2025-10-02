@@ -86,7 +86,7 @@ public class SslContexts {
         return certificateGeneratingSslContextFactory(
             notifier, browserProxyCaKeyStore, newKeyStore);
       } catch (Exception e) {
-        notifier.error("Unable to generate a certificate authority", e);
+        notifier.error(() -> "Unable to generate a certificate authority", e);
         return defaultSslContextFactory(defaultHttpsKeyStore);
       }
     }
