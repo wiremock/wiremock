@@ -90,3 +90,37 @@ Regardless of your expertise and time you could dedicate,
 there're opportunities to participate and help the project!
 
 See the [Contributing Guide](./CONTRIBUTING.md) for more information.
+
+## Setup & Usage
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/i-Akhlaque/wiremock.git
+cd wiremock
+```
+
+### 2. Install Dependencies
+Ensure Java 11+ and Maven are installed:
+```bash
+java -version
+mvn -version
+mvn clean install
+```
+
+### 3. Run WireMock
+```bash
+java -jar wiremock-standalone/target/wiremock-standalone-<version>.jar
+```
+- Default port: 8080
+- Access  in your browser
+
+### 4. Contributing
+- Fork the repo and create a branch
+- Commit with descriptive messages
+- Open a Pull Request
+
+### 5. Example Usage
+```bash
+java -jar wiremock-standalone/target/wiremock-standalone-<version>.jar --root-dir ./mappings
+```
+
