@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class UrlsTest {
@@ -177,5 +180,22 @@ public class UrlsTest {
   @Test
   void getsThePathAndQueryFromRelativeUrl() {
     assertThat(Urls.getPathAndQuery("/things?q=boo&limit=5"), is("/things?q=boo&limit=5"));
+  }
+
+  @Test
+  public void decodesInvalidIsoOffsetDateTimeLikeString() {
+    var dateAsString = "2023-02-30T10:00:00+01:00";
+    var trickyDate = URI.create("/date?date=" + dateAsString);
+    params = Urls.splitQuery(trickyDate);
+    Assertions.assertEquals(
+        URLDecoder.decode(dateAsString, StandardCharsets.UTF_8), params.get("date").firstValue());
+  }
+
+  @Test
+  public void doesNotDecodeValidIsoOffsetDateTimeLikeString() {
+    var dateAsString = "2023-02-28T10:00:00+01:00";
+    var trickyDate = URI.create("/date?date=" + dateAsString);
+    params = Urls.splitQuery(trickyDate);
+    Assertions.assertEquals(dateAsString, params.get("date").firstValue());
   }
 }
