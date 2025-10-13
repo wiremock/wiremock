@@ -220,6 +220,7 @@ tasks.shadowJar {
   relocate("org.yaml", "wiremock.org.yaml")
   relocate("com.ethlo", "wiremock.com.ethlo")
   relocate("com.networknt", "wiremock.com.networknt")
+  relocate("org.jspecify", "wiremock.org.jspecify")
 
   dependencies {
     exclude(dependency("junit:junit"))
