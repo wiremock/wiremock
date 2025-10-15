@@ -172,7 +172,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     List<String> removeProxyRequestHeaders =
         response.getRemoveProxyRequestHeaders() == null
             ? Collections.emptyList()
-            : response.getRemoveProxyRequestHeaders();
+            : response.getRemoveProxyRequestHeaders().stream()
+                .map(String::toLowerCase)
+                .toList();
     for (String key : originalRequest.getAllHeaderKeys()) {
       String lowerCaseKey = key.toLowerCase();
       if (removeProxyRequestHeaders.contains(lowerCaseKey)) {
