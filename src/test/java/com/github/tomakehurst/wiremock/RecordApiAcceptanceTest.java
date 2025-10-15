@@ -36,9 +36,9 @@ import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithFai
 import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
-import net.javacrumbs.jsonunit.core.internal.Options;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -729,6 +729,6 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
                   ]
                 }
             """)
-            .withOptions(new Options(Option.IGNORING_EXTRA_FIELDS)));
+            .withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
   }
 }
