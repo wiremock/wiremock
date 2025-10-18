@@ -21,6 +21,7 @@ import static java.lang.System.out;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Supplier;
 
 public class ConsoleNotifier implements Notifier {
 
@@ -36,25 +37,25 @@ public class ConsoleNotifier implements Notifier {
     this.prefix = name != null ? "[" + name + "] " : "";
 
     if (verbose) {
-      info("Verbose logging enabled");
+      info(() -> "Verbose logging enabled");
     }
   }
 
   @Override
-  public void info(String message) {
+  public void info(Supplier<String> message) {
     if (verbose) {
-      out.println(formatMessage(message));
+      out.println(formatMessage(message.get()));
     }
   }
 
   @Override
-  public void error(String message) {
-    err.println(formatMessage(message));
+  public void error(Supplier<String> message) {
+    err.println(formatMessage(message.get()));
   }
 
   @Override
-  public void error(String message, Throwable t) {
-    err.println(formatMessage(message));
+  public void error(Supplier<String> message, Throwable t) {
+    err.println(formatMessage(message.get()));
     t.printStackTrace(err);
   }
 

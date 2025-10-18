@@ -15,13 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.function.Supplier;
+
 public interface Notifier {
 
-  public static final String KEY = "Notifier";
+  String KEY = "Notifier";
 
-  void info(String message);
+  void info(Supplier<String> message);
 
-  void error(String message);
+  void error(Supplier<String> message);
 
-  void error(String message, Throwable t);
+  void error(Supplier<String> message, Throwable t);
 }

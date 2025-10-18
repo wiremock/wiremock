@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,19 +30,19 @@ public class Slf4jNotifier implements Notifier {
   }
 
   @Override
-  public void info(String message) {
+  public void info(Supplier<String> message) {
     if (verbose) {
-      log.info(message);
+      log.info(message.get());
     }
   }
 
   @Override
-  public void error(String message) {
-    log.error(message);
+  public void error(Supplier<String> message) {
+    log.error(message.get());
   }
 
   @Override
-  public void error(String message, Throwable t) {
-    log.error(message, t);
+  public void error(Supplier<String> message, Throwable t) {
+    log.error(message.get(), t);
   }
 }
