@@ -67,10 +67,13 @@ public class MatchesJsonPathPattern extends PathPattern {
       Object obj = evaluateJsonPath(value);
 
       boolean result;
-      if (obj instanceof Collection) {
-        result = !((Collection<?>) obj).isEmpty();
-      } else if (obj instanceof Map) {
-        result = !((Map<?, ?>) obj).isEmpty();
+      if (obj instanceof Collection<?> collection) {
+        // If the path is definite (e.g., $.items), an empty collection IS the value
+        // If the path is indefinite (e.g., $.items[?(@.id == 999)]), empty means no match
+        result = !collection.isEmpty() || jsonPath.isDefinite();
+      } else if (obj instanceof Map<?, ?> map) {
+        // If the path is definite (e.g., $.empty), an empty map IS the value
+        result = !map.isEmpty() || jsonPath.isDefinite();
       } else {
         result = obj != null;
       }
