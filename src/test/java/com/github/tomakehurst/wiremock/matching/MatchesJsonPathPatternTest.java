@@ -131,8 +131,7 @@ public class MatchesJsonPathPatternTest {
     // Definite path to an empty array - should match (the array exists and is empty)
     StringValuePattern definitePattern = WireMock.matchingJsonPath("$.items");
     assertTrue(
-        definitePattern.match(json).isExactMatch(),
-        "Definite path to empty array should match");
+        definitePattern.match(json).isExactMatch(), "Definite path to empty array should match");
 
     // Indefinite path that returns empty - should not match (no results found)
     StringValuePattern indefinitePattern = WireMock.matchingJsonPath("$.data[?(@.value == 999)]");
