@@ -19,21 +19,16 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.RequestCache;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import java.io.IOException;
 
 public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
-  private final Configuration config =
-      Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
-
-  private final ParseContext parseContext = JsonPath.using(config);
+  private final ParseContext parseContext = JsonPath.using(HelperUtils.jsonPathConfig);
 
   @Override
   public Object apply(final Object input, final Options options) throws IOException {
