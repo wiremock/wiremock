@@ -11,7 +11,7 @@ plugins {
   signing
   `maven-publish`
   id("com.diffplug.spotless")
-  id("com.github.johnrengelman.shadow")
+  id("com.gradleup.shadow")
   id("org.sonarqube")
   id("com.vanniktech.maven.publish.base")
 }
@@ -191,12 +191,6 @@ publishing {
 
   (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
   (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
-
-  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
-    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-      skip()
-    }
-  }
 
   publications {
     withType<MavenPublication> {
