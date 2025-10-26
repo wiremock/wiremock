@@ -250,7 +250,7 @@ publishing {
 
     create<MavenPublication>("standaloneJar") {
       artifactId = "${tasks.jar.get().archiveBaseName.get()}-standalone"
-      project.shadow.component(this)
+      from(components["shadow"])
 
       artifact(tasks.named("sourcesJar"))
       artifact(tasks.named("javadocJar"))

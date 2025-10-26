@@ -9,7 +9,7 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'com.github.johnrengelman.shadow'
+  id 'com.gradleup.shadow'
 }
 
 group 'org.wiremock.example'

@@ -120,7 +120,7 @@ nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0
 vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven-publish" }
 vanniktech-maven-publish-base = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktech-maven-publish" }
 spotless = { id = "com.diffplug.spotless", version = "8.0.0" }
-shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
+shadow = { id = "com.gradleup.shadow", version = "9.2.2" }
 sonarqube = { id = "org.sonarqube", version = "7.0.0.6105" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }
