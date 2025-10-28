@@ -146,10 +146,7 @@ public class MatchesJsonPathPatternTest {
 
   private static void checkWarningMessageAndEvent(
       Notifier notifier, MatchResult match, String warningMessage) {
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(notifier).info(captor.capture());
-    String actualMessage = captor.getValue().get();
-    assertEquals(warningMessage, actualMessage);
+    verify(notifier).info(warningMessage);
     checkMessage(match, WARNING, warningMessage);
   }
 

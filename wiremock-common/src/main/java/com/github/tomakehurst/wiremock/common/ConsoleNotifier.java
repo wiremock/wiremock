@@ -49,13 +49,13 @@ public class ConsoleNotifier implements Notifier {
   }
 
   @Override
-  public void error(Supplier<String> message) {
-    err.println(formatMessage(message.get()));
+  public void error(String message) {
+    err.println(formatMessage(message));
   }
 
   @Override
-  public void error(Supplier<String> message, Throwable t) {
-    err.println(formatMessage(message.get()));
+  public void error(String message, Throwable t) {
+    err.println(formatMessage(message));
     t.printStackTrace(err);
   }
 

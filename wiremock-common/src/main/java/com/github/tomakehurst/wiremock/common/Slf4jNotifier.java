@@ -37,12 +37,12 @@ public class Slf4jNotifier implements Notifier {
   }
 
   @Override
-  public void error(Supplier<String> message) {
-    log.error(message.get());
+  public void error(String message) {
+    log.error(message);
   }
 
   @Override
-  public void error(Supplier<String> message, Throwable t) {
-    log.error(message.get(), t);
+  public void error(String message, Throwable t) {
+    log.error(message, t);
   }
 }

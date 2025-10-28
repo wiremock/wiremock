@@ -66,7 +66,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
    */
   protected String handleError(
       final String message, final String logExclusive, final Throwable cause) {
-    notifier().error(() -> ERROR_PREFIX + message + " - " + logExclusive, cause);
+    notifier().error(ERROR_PREFIX + message + " - " + logExclusive, cause);
     return formatMessage(message);
   }
 

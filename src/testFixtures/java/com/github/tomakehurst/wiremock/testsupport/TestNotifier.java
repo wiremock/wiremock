@@ -56,16 +56,14 @@ public class TestNotifier implements Notifier {
   }
 
   @Override
-  public void error(Supplier<String> message) {
-    String msg = message.get();
-    this.error.add(msg);
+  public void error(String message) {
+    this.error.add(message);
     consoleNotifier.error(message);
   }
 
   @Override
-  public void error(Supplier<String> message, Throwable t) {
-    String msg = message.get();
-    this.error.add(msg);
+  public void error(String message, Throwable t) {
+    this.error.add(message);
     consoleNotifier.error(message, t);
   }
 

@@ -38,12 +38,12 @@ public class CompositeNotifier implements Notifier {
   }
 
   @Override
-  public void error(Supplier<String> message) {
+  public void error(String message) {
     notifiers.forEach(notifier -> notifier.error(message));
   }
 
   @Override
-  public void error(Supplier<String> message, Throwable t) {
+  public void error(String message, Throwable t) {
     notifiers.forEach(notifier -> notifier.error(message, t));
   }
 }

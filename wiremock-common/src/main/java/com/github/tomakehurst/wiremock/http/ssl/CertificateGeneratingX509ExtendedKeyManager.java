@@ -216,14 +216,14 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     }
 
     @Override
-    public void error(Supplier<String> message) {
+    public void error(String message) {
       if (onceOnly.unused()) {
         notifier.error(message);
       }
     }
 
     @Override
-    public void error(Supplier<String> message, Throwable t) {
+    public void error(String message, Throwable t) {
       if (onceOnly.unused()) {
         notifier.error(message, t);
       }

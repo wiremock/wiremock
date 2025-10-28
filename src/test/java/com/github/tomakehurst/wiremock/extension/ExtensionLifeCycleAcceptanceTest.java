@@ -72,10 +72,10 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Override
-    public void error(Supplier<String> message) {}
+    public void error(String message) {}
 
     @Override
-    public void error(Supplier<String> message, Throwable t) {}
+    public void error(String message, Throwable t) {}
   }
 
   public static class StartStopLoggingExtension implements Extension {

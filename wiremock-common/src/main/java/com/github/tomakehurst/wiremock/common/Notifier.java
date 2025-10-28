@@ -23,19 +23,12 @@ public interface Notifier {
 
   void info(Supplier<String> message);
 
-  void error(Supplier<String> message);
-
-  void error(Supplier<String> message, Throwable t);
-
   default void info(String message) {
     info(() -> message);
   }
 
-  default void error(String message) {
-    error(() -> message);
-  }
+  void error(String message);
 
-  default  void error(String message, Throwable t) {
-    error(() -> message, t);
-  }
+  void error(String message, Throwable t);
+
 }

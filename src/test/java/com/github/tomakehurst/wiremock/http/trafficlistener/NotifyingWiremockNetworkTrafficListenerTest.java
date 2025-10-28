@@ -41,10 +41,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.opened(socket);
 
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).info(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Opened "));
+    verify(mockNotifier).info(contains("Opened "));
   }
 
   @Test
@@ -55,10 +52,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.closed(socket);
 
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).info(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Closed "));
+    verify(mockNotifier).info(contains("Closed "));
   }
 
   @Test
@@ -69,11 +63,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
     ByteBuffer byteBuffer = stringToByteBuffer("Hello world", StandardCharsets.UTF_16);
 
     consoleNotifyingWiremockNetworkTrafficListener.incoming(socket, byteBuffer);
-
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).error(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Incoming bytes omitted."));
+    verify(mockNotifier).error(contains("Incoming bytes omitted."));
   }
 
   @Test
@@ -85,10 +75,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.incoming(socket, byteBuffer);
 
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).info(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Hello world"));
+    verify(mockNotifier).info(contains("Hello world"));
   }
 
   @Test
@@ -100,10 +87,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.outgoing(socket, byteBuffer);
 
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).error(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Outgoing bytes omitted."));
+    verify(mockNotifier).error(contains("Outgoing bytes omitted."));
   }
 
   @Test
@@ -115,10 +99,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.outgoing(socket, byteBuffer);
 
-    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
-    verify(mockNotifier).info(captor.capture());
-    String actual = captor.getValue().get();
-    assertTrue(actual.contains("Hello world"));
+    verify(mockNotifier).info(contains("Hello world"));
   }
 
   public static ByteBuffer stringToByteBuffer(String msg, Charset charset) {
