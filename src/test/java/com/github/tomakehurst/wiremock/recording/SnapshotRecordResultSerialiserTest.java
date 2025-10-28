@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
-import net.javacrumbs.jsonunit.core.internal.Options;
 import org.junit.jupiter.api.Test;
 
 public class SnapshotRecordResultSerialiserTest {
@@ -72,7 +71,7 @@ public class SnapshotRecordResultSerialiserTest {
               ]
             }
         """;
-    assertThat(json, jsonEquals(expected).withOptions(new Options(Option.IGNORING_EXTRA_FIELDS)));
+    assertThat(json, jsonEquals(expected).withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
   }
 
   @Test
@@ -111,6 +110,6 @@ public class SnapshotRecordResultSerialiserTest {
               ]
             }
         """;
-    assertThat(json, jsonEquals(expected).withOptions(new Options(Option.IGNORING_EXTRA_FIELDS)));
+    assertThat(json, jsonEquals(expected).withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
   }
 }
