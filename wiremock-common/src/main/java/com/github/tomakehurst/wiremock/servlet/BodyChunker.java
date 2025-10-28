@@ -30,12 +30,12 @@ public class BodyChunker {
 
     if (body.length < numberOfChunks) {
       notifier()
-              .error(
-                      "Number of chunks set to value greater then body length. Number of chunks: "
-                              + numberOfChunks
-                              + ". Body length: "
-                              + body.length
-                              + ". Overriding number of chunks to body length.");
+          .error(
+              "Number of chunks set to value greater then body length. Number of chunks: "
+                  + numberOfChunks
+                  + ". Body length: "
+                  + body.length
+                  + ". Overriding number of chunks to body length.");
       numberOfChunks = body.length;
     }
 
