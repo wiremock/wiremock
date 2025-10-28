@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
 import static org.xmlunit.diff.ComparisonType.NAMESPACE_PREFIX;
@@ -35,7 +34,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
-
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

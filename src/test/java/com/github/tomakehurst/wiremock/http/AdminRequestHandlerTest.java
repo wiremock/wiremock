@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class AdminRequestHandlerTest {
 
   @RegisterExtension
   private WireMockExtension wm =
-          WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
+      WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
   @Test
   public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
@@ -44,24 +44,24 @@ public class AdminRequestHandlerTest {
     String postHeaderABCName = "ABC";
     String postHeaderABCValue = "abc123";
     String postBody =
-            "{\n"
-                    + "    \"request\": {\n"
-                    + "        \"method\": \"GET\",\n"
-                    + "        \"url\": \"/some/thing\"\n"
-                    + "    },\n"
-                    + "    \"response\": {\n"
-                    + "        \"status\": 200,\n"
-                    + "        \"body\": \"Hello world!\",\n"
-                    + "        \"headers\": {\n"
-                    + "            \"Content-Type\": \"text/plain\"\n"
-                    + "        }\n"
-                    + "    }\n"
-                    + "}";
+        "{\n"
+            + "    \"request\": {\n"
+            + "        \"method\": \"GET\",\n"
+            + "        \"url\": \"/some/thing\"\n"
+            + "    },\n"
+            + "    \"response\": {\n"
+            + "        \"status\": 200,\n"
+            + "        \"body\": \"Hello world!\",\n"
+            + "        \"headers\": {\n"
+            + "            \"Content-Type\": \"text/plain\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
 
     client.post(
-            "/__admin/mappings",
-            new StringEntity(postBody),
-            withHeader(postHeaderABCName, postHeaderABCValue));
+        "/__admin/mappings",
+        new StringEntity(postBody),
+        withHeader(postHeaderABCName, postHeaderABCValue));
 
     verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
     verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
