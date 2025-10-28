@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public interface Notifier {
 
-  String KEY = "Notifier";
+  public static final String KEY = "Notifier";
 
   void info(Supplier<String> message);
 
@@ -30,5 +30,4 @@ public interface Notifier {
   void error(String message);
 
   void error(String message, Throwable t);
-
 }

@@ -24,18 +24,18 @@ public class BodyChunker {
   public static byte[][] chunkBody(byte[] body, int numberOfChunks) {
 
     if (numberOfChunks < 1) {
-      final String message = "Number of chunks set to value less than 1: " + numberOfChunks;
-      notifier().error(message);
+      notifier().error("Number of chunks set to value less than 1: " + numberOfChunks);
       numberOfChunks = 1;
     }
 
     if (body.length < numberOfChunks) {
-      final String message = "Number of chunks set to value greater then body length. Number of chunks: "
-          + numberOfChunks
-          + ". Body length: "
-          + body.length
-          + ". Overriding number of chunks to body length.";
-      notifier().error(message);
+      notifier()
+              .error(
+                      "Number of chunks set to value greater then body length. Number of chunks: "
+                              + numberOfChunks
+                              + ". Body length: "
+                              + body.length
+                              + ". Overriding number of chunks to body length.");
       numberOfChunks = body.length;
     }
 

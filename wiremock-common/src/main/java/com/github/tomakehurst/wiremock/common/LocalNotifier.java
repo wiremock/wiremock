@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class LocalNotifier {
 
-  private static final ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
+  private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
 
   public static Notifier notifier() {
     Notifier notifier = notifierHolder.get();
