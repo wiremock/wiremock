@@ -91,12 +91,12 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
 
     @Override
     public void start() {
-      notifier.info(() -> "Extension started");
+      notifier.info("Extension started");
     }
 
     @Override
     public void stop() {
-      notifier.info(() -> "Extension stopped");
+      notifier.info("Extension stopped");
     }
   }
 }

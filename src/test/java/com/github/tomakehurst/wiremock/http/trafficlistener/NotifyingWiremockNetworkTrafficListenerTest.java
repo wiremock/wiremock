@@ -59,6 +59,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
     ByteBuffer byteBuffer = stringToByteBuffer("Hello world", StandardCharsets.UTF_16);
 
     consoleNotifyingWiremockNetworkTrafficListener.incoming(socket, byteBuffer);
+
     verify(mockNotifier).error(contains("Incoming bytes omitted."));
   }
 

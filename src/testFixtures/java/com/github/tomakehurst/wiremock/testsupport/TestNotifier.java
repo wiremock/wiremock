@@ -50,8 +50,7 @@ public class TestNotifier implements Notifier {
 
   @Override
   public void info(Supplier<String> message) {
-    String msg = message.get();
-    this.info.add(msg);
+    this.info.add(message.get());
     consoleNotifier.info(message);
   }
 
