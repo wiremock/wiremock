@@ -38,7 +38,7 @@ final class NotifyingWiremockNetworkTrafficListener implements WiremockNetworkTr
 
   @Override
   public void opened(Socket socket) {
-    notifier.info(()-> "Opened " + socket);
+    notifier.info("Opened " + socket);
   }
 
   @Override
@@ -47,7 +47,7 @@ final class NotifyingWiremockNetworkTrafficListener implements WiremockNetworkTr
       final CharBuffer decodedBuffer = charsetDecoder.decode(bytes);
       notifier.info(() -> "Incoming bytes: " + decodedBuffer);
     } catch (CharacterCodingException e) {
-      notifier.error(() -> "Incoming bytes omitted. Could not decode with charset: " + charset);
+      notifier.error("Incoming bytes omitted. Could not decode with charset: " + charset);
     }
   }
 
@@ -57,12 +57,12 @@ final class NotifyingWiremockNetworkTrafficListener implements WiremockNetworkTr
       final CharBuffer decodedBuffer = charsetDecoder.decode(bytes);
       notifier.info(() -> "Outgoing bytes: " + decodedBuffer);
     } catch (CharacterCodingException e) {
-      notifier.error(() -> "Outgoing bytes omitted. Could not decode with charset: " + charset);
+      notifier.error("Outgoing bytes omitted. Could not decode with charset: " + charset);
     }
   }
 
   @Override
   public void closed(Socket socket) {
-    notifier.info(() -> "Closed " + socket);
+    notifier.info("Closed " + socket);
   }
 }

@@ -191,7 +191,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
   }
 
   private void notify(String reason, Exception e) {
-    notifier.error(() ->
+    notifier.error(
         "Dynamic certificate generation is not supported because "
             + reason
             + lineSeparator()

@@ -86,7 +86,7 @@ public class JettyHttpsFaultInjector implements FaultInjector {
             try {
               socket.close();
             } catch (IOException e) {
-              notifier().error(() -> "Failed to close socket after Garbage write succeeded", e);
+              notifier().error("Failed to close socket after Garbage write succeeded", e);
             }
           }
 
@@ -95,7 +95,7 @@ public class JettyHttpsFaultInjector implements FaultInjector {
             try {
               socket.close();
             } catch (IOException e) {
-              notifier().error(() -> "Failed to close socket after Garbage write failed", e);
+              notifier().error("Failed to close socket after Garbage write failed", e);
             }
           }
         },

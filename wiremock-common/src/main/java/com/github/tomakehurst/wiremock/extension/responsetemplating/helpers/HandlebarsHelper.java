@@ -39,7 +39,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
    * @return a message which will be used as content
    */
   protected String handleError(final String message) {
-    notifier().error(() -> formatMessage(message));
+    notifier().error(formatMessage(message));
     return formatMessage(message);
   }
 
@@ -51,7 +51,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
    * @return a message which will be used as content
    */
   protected String handleError(final String message, final Throwable cause) {
-    notifier().error(() -> formatMessage(message), cause);
+    notifier().error(formatMessage(message), cause);
     return formatMessage(message);
   }
 

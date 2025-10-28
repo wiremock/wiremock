@@ -106,7 +106,7 @@ public class MatchesXPathPattern extends PathPattern {
     if (value == null || !value.trim().startsWith("<")) {
       final String message =
           String.format("Warning: failed to parse the XML document\nXML: %s", value);
-      notifier().info(() -> message);
+      notifier().info(message);
       return new XmlNodeFindResult(null, SubEvent.warning(message));
     }
 
@@ -118,11 +118,11 @@ public class MatchesXPathPattern extends PathPattern {
           String.format(
               "Warning: failed to parse the XML document. Reason: %s\nXML: %s",
               e.getMessage(), value);
-      notifier().info(() -> message);
+      notifier().info(message);
       return new XmlNodeFindResult(null, SubEvent.warning(message));
     } catch (XPathException e) {
       final String message = "Warning: failed to evaluate the XPath expression " + expectedValue;
-      notifier().info(() -> message);
+      notifier().info(message);
       return new XmlNodeFindResult(null, SubEvent.warning(message));
     }
   }

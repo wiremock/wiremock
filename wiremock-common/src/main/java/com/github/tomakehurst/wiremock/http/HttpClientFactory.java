@@ -291,7 +291,7 @@ public class HttpClientFactory {
   }
 
   public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
-    notifier().info(() -> "Proxying: " + method + " " + url);
+    notifier().info("Proxying: " + method + " " + url);
 
     if (method.equals(GET)) return new HttpGet(url);
     else if (method.equals(POST)) return new HttpPost(url);

@@ -40,7 +40,7 @@ public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficL
     try {
       requestBuilder.append(decoder.decode(bytes));
     } catch (CharacterCodingException e) {
-      notifier().error(() -> "Problem decoding network traffic", e);
+      notifier().error("Problem decoding network traffic", e);
     }
   }
 
@@ -49,7 +49,7 @@ public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficL
     try {
       responseBuilder.append(decoder.decode(bytes));
     } catch (CharacterCodingException e) {
-      notifier().error(() -> "Problem decoding network traffic", e);
+      notifier().error("Problem decoding network traffic", e);
     }
   }
 

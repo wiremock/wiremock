@@ -25,7 +25,7 @@ public class BodyChunker {
 
     if (numberOfChunks < 1) {
       final String message = "Number of chunks set to value less than 1: " + numberOfChunks;
-      notifier().error(() -> message);
+      notifier().error(message);
       numberOfChunks = 1;
     }
 
@@ -35,7 +35,7 @@ public class BodyChunker {
           + ". Body length: "
           + body.length
           + ". Overriding number of chunks to body length.";
-      notifier().error(() -> message);
+      notifier().error(message);
       numberOfChunks = body.length;
     }
 

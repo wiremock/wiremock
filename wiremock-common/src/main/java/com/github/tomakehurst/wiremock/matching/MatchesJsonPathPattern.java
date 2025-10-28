@@ -60,7 +60,7 @@ public class MatchesJsonPathPattern extends PathPattern {
           String.format(
               "Warning: JSON path expression failed to match document '%s' because it's not JSON but probably XML",
               value);
-      notifier().info(() -> message);
+      notifier().info(message);
       return MatchResult.noMatch(SubEvent.warning(message));
     }
     try {

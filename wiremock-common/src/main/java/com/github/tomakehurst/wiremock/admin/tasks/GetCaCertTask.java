@@ -54,7 +54,7 @@ public class GetCaCertTask implements AdminTask {
           .build();
     } catch (Exception e) {
       String message = "Failed to export certificate authority cert from " + caKeyStore.path();
-      admin.getOptions().notifier().error(() -> message, e);
+      admin.getOptions().notifier().error(message, e);
       return new ResponseDefinition(HTTP_INTERNAL_ERROR, message);
     }
   }

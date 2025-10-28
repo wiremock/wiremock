@@ -37,7 +37,7 @@ public class ConsoleNotifier implements Notifier {
     this.prefix = name != null ? "[" + name + "] " : "";
 
     if (verbose) {
-      info(() -> "Verbose logging enabled");
+      info("Verbose logging enabled");
     }
   }
 

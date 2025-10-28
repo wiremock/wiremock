@@ -64,7 +64,7 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
       body = diffRenderer.render(firstDiff);
     }
 
-    notifier().error(() -> body);
+    notifier().error(body);
 
     return ResponseDefinitionBuilder.responseDefinition()
         .withStatus(404)

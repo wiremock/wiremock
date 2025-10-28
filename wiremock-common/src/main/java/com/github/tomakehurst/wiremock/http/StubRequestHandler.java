@@ -125,7 +125,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
         Parameters parameters = postServeActionDef.getParameters();
         action.doAction(serveEvent, admin, parameters);
       } else {
-        notifier().error(() -> "No extension was found named \"" + postServeActionDef.getName() + "\"");
+        notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
       }
     }
   }

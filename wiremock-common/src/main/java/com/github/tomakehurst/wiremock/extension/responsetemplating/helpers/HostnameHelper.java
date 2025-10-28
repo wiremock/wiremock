@@ -29,7 +29,7 @@ public class HostnameHelper extends HandlebarsHelper<Object> {
       HOSTNAME = InetAddress.getLocalHost().getHostName();
     } catch (Exception e) {
       notifier()
-          .error(() -> "Failed to look up localhost. {{hostname}} Handlebars helper will return localhost.",
+          .error("Failed to look up localhost. {{hostname}} Handlebars helper will return localhost.",
               e);
       HOSTNAME = "localhost";
     }
