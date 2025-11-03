@@ -59,7 +59,7 @@ json-unit-core = { module = "net.javacrumbs.json-unit:json-unit-core", version.r
 json-unit = { module = "net.javacrumbs.json-unit:json-unit", version.ref = "jsonUnit" }
 
 # JSON Path
-json-path = { module = "com.jayway.jsonpath:json-path", version = "2.9.0" }
+json-path = { module = "com.jayway.jsonpath:json-path", version = "2.10.0" }
 json-smart = { module = "net.minidev:json-smart", version = "2.6.0" }
 
 # SLF4J
