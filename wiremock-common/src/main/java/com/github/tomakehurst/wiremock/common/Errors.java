@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Objects;
 
 public class Errors {
 
@@ -69,6 +70,18 @@ public class Errors {
     return errors;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Errors errors1 = (Errors) o;
+    return Objects.equals(errors, errors1.errors);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(errors);
+  }
+
   public static class Error {
 
     private final Integer code;
@@ -111,6 +124,21 @@ public class Errors {
       return detail;
     }
 
+    @Override
+    public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) return false;
+      Error error = (Error) o;
+      return Objects.equals(code, error.code)
+          && Objects.equals(source, error.source)
+          && Objects.equals(title, error.title)
+          && Objects.equals(detail, error.detail);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(code, source, title, detail);
+    }
+
     public static class Source {
 
       private final String pointer;
@@ -121,6 +149,18 @@ public class Errors {
 
       public String getPointer() {
         return pointer;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Source source = (Source) o;
+        return Objects.equals(pointer, source.pointer);
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hashCode(pointer);
       }
     }
   }

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
+import java.util.Objects;
 
 public class ClientError extends RuntimeException {
 
@@ -33,19 +34,30 @@ public class ClientError extends RuntimeException {
 
   public static ClientError fromErrors(Errors errors) {
     Integer errorCode = errors.first().getCode();
-    switch (errorCode) {
-      case 10:
-        return new InvalidInputException(errors);
-      case 30:
-        return new NotRecordingException();
-      case 50:
-        return new NotPermittedException(errors);
-      default:
-        return new ClientError(errors);
+    if (errorCode == null) {
+      return new ClientError(errors);
     }
+    return switch (errorCode) {
+      case 10 -> new InvalidInputException(errors);
+      case 30 -> new NotRecordingException();
+      case 50 -> new NotPermittedException(errors);
+      default -> new ClientError(errors);
+    };
   }
 
   public Errors getErrors() {
     return errors;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    ClientError that = (ClientError) o;
+    return Objects.equals(errors, that.errors);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(errors);
   }
 }
