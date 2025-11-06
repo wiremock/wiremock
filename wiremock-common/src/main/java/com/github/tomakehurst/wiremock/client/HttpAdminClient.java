@@ -599,16 +599,14 @@ public class HttpAdminClient implements Admin {
       Errors.Error jsonError = e.getErrors().first();
       String jsonErrorDetail = jsonError.getDetail();
       String extendedDetail =
-          new StringBuilder()
-              .append("Error parsing response body '")
-              .append(responseBody)
-              .append("' with status code ")
-              .append(responseStatusCode)
-              .append(" for ")
-              .append(url)
-              .append(". Error: ")
-              .append(jsonErrorDetail)
-              .toString();
+          "Error parsing response body '"
+              + responseBody
+              + "' with status code "
+              + responseStatusCode
+              + " for "
+              + url
+              + ". Error: "
+              + jsonErrorDetail;
       errors =
           Errors.single(
               jsonError.getCode(),
