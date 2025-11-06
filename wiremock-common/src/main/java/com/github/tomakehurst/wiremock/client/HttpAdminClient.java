@@ -582,7 +582,7 @@ public class HttpAdminClient implements Admin {
 
       String body = getEntityAsStringAndCloseStream(response);
       if (HttpStatus.isClientError(statusCode)) {
-        throwParsedClientError(url, body, statusCode);
+        throw parseClientError(url, body, statusCode);
       }
 
       return body;
@@ -591,7 +591,7 @@ public class HttpAdminClient implements Admin {
     }
   }
 
-  private void throwParsedClientError(String url, String responseBody, int responseStatusCode) {
+  static ClientError parseClientError(String url, String responseBody, int responseStatusCode) {
     Errors errors;
     try {
       errors = Json.read(responseBody, Errors.class);
@@ -615,7 +615,7 @@ public class HttpAdminClient implements Admin {
               extendedDetail);
     }
 
-    throw ClientError.fromErrors(errors);
+    return ClientError.fromErrors(errors);
   }
 
   private String urlFor(Class<? extends AdminTask> taskClass) {

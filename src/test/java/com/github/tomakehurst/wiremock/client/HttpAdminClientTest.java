@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -144,5 +146,30 @@ class HttpAdminClientTest {
                 + "/admin-test/__admin/mappings. Error: (.|\n)*");
 
     nonWireMockServer.stop(0);
+  }
+
+  @Test
+  void shouldParseErrorsLeniently() {
+    var clientError =
+        HttpAdminClient.parseClientError(
+            "http://example.com",
+            """
+            {
+              "errors": [
+                {
+                  "title": "Conflict",
+                  "source": {}
+                }
+              ]
+            }
+            """,
+            409);
+
+    assertThat(clientError)
+        .isEqualTo(
+            ClientError.fromErrors(
+                new Errors(
+                    List.of(
+                        new Errors.Error(null, new Errors.Error.Source(null), "Conflict", null)))));
   }
 }

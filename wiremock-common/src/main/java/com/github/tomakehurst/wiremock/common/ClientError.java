@@ -34,16 +34,15 @@ public class ClientError extends RuntimeException {
 
   public static ClientError fromErrors(Errors errors) {
     Integer errorCode = errors.first().getCode();
-    switch (errorCode) {
-      case 10:
-        return new InvalidInputException(errors);
-      case 30:
-        return new NotRecordingException();
-      case 50:
-        return new NotPermittedException(errors);
-      default:
-        return new ClientError(errors);
+    if (errorCode == null) {
+      return new ClientError(errors);
     }
+    return switch (errorCode) {
+      case 10 -> new InvalidInputException(errors);
+      case 30 -> new NotRecordingException();
+      case 50 -> new NotPermittedException(errors);
+      default -> new ClientError(errors);
+    };
   }
 
   public Errors getErrors() {
