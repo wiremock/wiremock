@@ -85,7 +85,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   }
 
   private static final Predicate<String> absoluteUrlMatcher =
-      Pattern.compile("^https?://[a-zA-Z1-9]", CASE_INSENSITIVE).asPredicate();
+      Pattern.compile("^https?://[a-zA-Z0-9]", CASE_INSENSITIVE).asPredicate();
 
   @Override
   public Response render(ServeEvent serveEvent) {
