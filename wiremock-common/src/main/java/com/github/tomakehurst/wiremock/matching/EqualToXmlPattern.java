@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
@@ -183,7 +184,7 @@ public class EqualToXmlPattern extends StringValuePattern {
           Diff diff = diffBuilder.build();
 
           return !diff.hasDifferences();
-        } catch (XMLUnitException e) {
+        } catch (XMLUnitException | DOMException e) {
           appendSubEvent(SubEvent.warning(e.getMessage()));
 
           notifier()
