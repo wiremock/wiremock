@@ -590,4 +590,21 @@ class DiffTest {
                 "ANY\n/things/4321/bookings/whatever\n\nPath parameter: thingId = 1234\n",
                 "ANY\n/things/4321/bookings/whatever\n\n4321\n")));
   }
+
+  @Test
+  void showsDiffForDodgyUrls() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(GET, urlPathEqualTo("/news"))
+                .withQueryParam("page", equalTo("page"))
+                .build(),
+            mockRequest().method(POST).url("/news?page={page}"));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "GET\n/news?page={page}\n\nQuery: page = page\n",
+                "POST\n/news?page={page}\n\npage: {page}\n")));
+  }
 }

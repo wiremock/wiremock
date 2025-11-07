@@ -45,6 +45,8 @@ public class Urls {
     return splitQuery(queryPart);
   }
 
+  // Only call this method if you already have a URI. If you have a String, call
+  // `splitQueryFromUrl(String)`
   public static Map<String, QueryParameter> splitQuery(URI uri) {
     if (uri == null) {
       return Collections.emptyMap();

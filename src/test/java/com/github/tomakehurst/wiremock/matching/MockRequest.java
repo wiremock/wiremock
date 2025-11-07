@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import java.net.URI;
 import java.util.*;
 
 public class MockRequest implements Request {
@@ -233,7 +232,7 @@ public class MockRequest implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    Map<String, QueryParameter> queryParams = Urls.splitQuery(URI.create(url));
+    Map<String, QueryParameter> queryParams = Urls.splitQueryFromUrl(url);
     return queryParams.get(key);
   }
 

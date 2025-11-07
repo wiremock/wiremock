@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,8 +57,7 @@ public class RequestLine {
   }
 
   public static RequestLine fromRequest(final Request request) {
-    URI url = URI.create(request.getUrl());
-    Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
+    Map<String, QueryParameter> rawQuery = Urls.splitQueryFromUrl(request.getUrl());
     Map<String, ListOrSingle<String>> adaptedQuery =
         rawQuery.entrySet().stream()
             .map(entry -> Map.entry(entry.getKey(), ListOrSingle.of(entry.getValue().values())))
