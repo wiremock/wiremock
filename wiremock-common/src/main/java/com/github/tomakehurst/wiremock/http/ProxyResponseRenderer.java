@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -30,6 +31,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
 
@@ -81,13 +84,24 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     this.reverseProxyClient = reverseProxyClient;
   }
 
+  private static final Predicate<String> absoluteUrlMatcher =
+      Pattern.compile("^https?://[a-zA-Z1-9]", CASE_INSENSITIVE).asPredicate();
+
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
+    String proxyUrl = responseDefinition.getProxyUrl();
+    if (proxyUrl == null || !absoluteUrlMatcher.test(proxyUrl)) {
+      return response()
+          .status(HTTP_INTERNAL_ERROR)
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .body("The target proxy address `" + proxyUrl + "` is not an absolute URL.")
+          .build();
+    }
     final ImmutableRequest.Builder requestBuilder =
         ImmutableRequest.create()
-            .withAbsoluteUrl(responseDefinition.getProxyUrl())
+            .withAbsoluteUrl(proxyUrl)
             .withMethod(responseDefinition.getOriginalRequest().getMethod());
     addRequestHeaders(requestBuilder, responseDefinition);
 
