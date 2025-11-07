@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,13 +37,14 @@ import org.junitpioneer.jupiter.ClearSystemProperty;
 
 public class ResponseTemplatingAcceptanceTest {
 
+  @SuppressWarnings("JsonStandardCompliance")
   @Nested
   class Local {
 
     WireMockTestClient client;
 
     @RegisterExtension
-    public WireMockExtension wm =
+    public static WireMockExtension wm =
         WireMockExtension.newInstance()
             .options(options().dynamicPort().templatingEnabled(true).globalTemplating(false))
             .build();
@@ -95,7 +96,7 @@ public class ResponseTemplatingAcceptanceTest {
     WireMockTestClient client;
 
     @RegisterExtension
-    public WireMockExtension wm =
+    public static WireMockExtension wm =
         WireMockExtension.newInstance()
             .options(
                 options()
@@ -211,21 +212,23 @@ public class ResponseTemplatingAcceptanceTest {
     @Test
     public void supportsJsonBodiesWithTemplating() {
       String stubJson =
-          "{\n"
-              + "  \"request\": {\n"
-              + "    \"method\": \"POST\",\n"
-              + "    \"url\" : \"/json-body-templating\"\n"
-              + "  },\n"
-              + "  \"response\": {\n"
-              + "    \"status\": 200,\n"
-              + "    \"jsonBody\": {\n"
-              + "      \"modified\": \"{{jsonPath request.body '$.arrayprop.length()'}}\"\n"
-              + "    },\n"
-              + "    \"headers\": {\n"
-              + "      \"Content-Type\": \"application/json\"\n"
-              + "    }\n"
-              + "  }\n"
-              + "}";
+          """
+              {
+                "request": {
+                  "method": "POST",
+                  "url" : "/json-body-templating"
+                },
+                "response": {
+                  "status": 200,
+                  "jsonBody": {
+                    "modified": "{{jsonPath request.body '$.arrayprop.length()'}}"
+                  },
+                  "headers": {
+                    "Content-Type": "application/json"
+                  }
+                }
+              }
+              """;
 
       client.postJson("/__admin/mappings", stubJson);
 
@@ -239,21 +242,23 @@ public class ResponseTemplatingAcceptanceTest {
     @Test
     public void jsonBodyTemplatesCanSpecifyRequestAttributes() {
       String stubJson =
-          "{\n"
-              + "  \"request\": {\n"
-              + "    \"method\": \"GET\",\n"
-              + "    \"urlPath\": \"/jsonBody/template\"\n"
-              + "  },\n"
-              + "  \"response\": {\n"
-              + "    \"jsonBody\": {\n"
-              + "      \"Key\": \"Hello world {{request.query.qp}}!\"\n"
-              + "    },\n"
-              + "    \"status\": 200,\n"
-              + "    \"transformers\": [\n"
-              + "      \"response-template\"\n"
-              + "    ]\n"
-              + "  }\n"
-              + "}";
+          """
+              {
+                "request": {
+                  "method": "GET",
+                  "urlPath": "/jsonBody/template"
+                },
+                "response": {
+                  "jsonBody": {
+                    "Key": "Hello world {{request.query.qp}}!"
+                  },
+                  "status": 200,
+                  "transformers": [
+                    "response-template"
+                  ]
+                }
+              }
+              """;
       client.postJson("/__admin/mappings", stubJson);
 
       WireMockResponse response = client.get("/jsonBody/template?qp=2");
@@ -321,9 +326,9 @@ public class ResponseTemplatingAcceptanceTest {
     void bodyAsBase64IsAvailableOnTheRequestModel() {
       wm.stubFor(post("/v1/base64").willReturn(ok("{{request.bodyAsBase64}}")));
 
-      String content = client.postJson("/v1/base64", "{'foo':'bar'}").content();
+      String content = client.postJson("/v1/base64", "{\"foo\":\"bar\"}").content();
 
-      assertThat(content, is("eydmb28nOidiYXInfQ=="));
+      assertThat(content, is("eyJmb28iOiJiYXIifQ=="));
     }
 
     @Test
@@ -337,6 +342,21 @@ public class ResponseTemplatingAcceptanceTest {
 
       assertMessageSubEventPresent(wm, "ERROR", "1:2: java.lang.ArithmeticException: / by zero");
     }
+
+    @Test
+    void uncheckedExceptionThrownWhileRenderingIsSurfacedAndReportedViaSubEvent() {
+      wm.stubFor(
+          get("/bad")
+              .willReturn(
+                  ok("{{add (jsonPath request.body '$.num1') (jsonPath request.body '$.num2')}}")));
+
+      WireMockResponse response = client.get("/bad");
+
+      assertThat(response.statusCode(), is(500));
+      assertThat(response.content(), is("1:2: could not find helper: 'add'"));
+
+      assertMessageSubEventPresent(wm, "ERROR", "1:2: could not find helper: 'add'");
+    }
   }
 
   @Nested
@@ -345,7 +365,7 @@ public class ResponseTemplatingAcceptanceTest {
     WireMockTestClient client;
 
     @RegisterExtension
-    public WireMockExtension wm =
+    public static WireMockExtension wm =
         WireMockExtension.newInstance()
             .options(
                 options()
@@ -413,7 +433,7 @@ public class ResponseTemplatingAcceptanceTest {
     WireMockTestClient client;
 
     @RegisterExtension
-    public WireMockExtension wm =
+    public static WireMockExtension wm =
         WireMockExtension.newInstance()
             .options(
                 options()
@@ -446,7 +466,7 @@ public class ResponseTemplatingAcceptanceTest {
     WireMockTestClient client;
 
     @RegisterExtension
-    public WireMockExtension wm =
+    public static WireMockExtension wm =
         WireMockExtension.newInstance()
             .options(
                 options()
