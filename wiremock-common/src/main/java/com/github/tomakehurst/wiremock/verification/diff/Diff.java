@@ -53,7 +53,6 @@ import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -257,8 +256,7 @@ public class Diff {
   private void addQueryParametersSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     final Map<String, MultiValuePattern> queryParameters = requestPattern.getQueryParameters();
     if (queryParameters != null) {
-      Map<String, QueryParameter> requestQueryParams =
-          Urls.splitQuery(URI.create(request.getUrl()));
+      Map<String, QueryParameter> requestQueryParams = Urls.splitQueryFromUrl(request.getUrl());
 
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
         String key = entry.getKey();
