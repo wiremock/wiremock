@@ -342,6 +342,21 @@ public class ResponseTemplatingAcceptanceTest {
 
       assertMessageSubEventPresent(wm, "ERROR", "1:2: java.lang.ArithmeticException: / by zero");
     }
+
+    @Test
+    void uncheckedExceptionThrownWhileRenderingIsSurfacedAndReportedViaSubEvent() {
+      wm.stubFor(
+          get("/bad")
+              .willReturn(
+                  ok("{{add (jsonPath request.body '$.num1') (jsonPath request.body '$.num2')}}")));
+
+      WireMockResponse response = client.get("/bad");
+
+      assertThat(response.statusCode(), is(500));
+      assertThat(response.content(), is("1:2: could not find helper: 'add'"));
+
+      assertMessageSubEventPresent(wm, "ERROR", "1:2: could not find helper: 'add'");
+    }
   }
 
   @Nested

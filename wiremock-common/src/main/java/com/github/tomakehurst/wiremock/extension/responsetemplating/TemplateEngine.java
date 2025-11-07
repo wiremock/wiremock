@@ -40,6 +40,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -121,8 +123,8 @@ public class TemplateEngine {
 
     try {
       return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
-    } catch (ExecutionException e) {
-      return Exceptions.throwUnchecked(e, HandlebarsOptimizedTemplate.class);
+    } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
+      return Exceptions.throwUnchecked(e.getCause(), null);
     }
   }
 
