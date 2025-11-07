@@ -670,6 +670,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void copesWithInvalidFormEncoding() {
+    stubFor(post(urlPathEqualTo("/form")).willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.postWithBody("/form", "%}#", "application/x-www-form-urlencoded", "utf-8");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
   void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
     stubFor(
         get(urlPathEqualTo("/empty-header"))

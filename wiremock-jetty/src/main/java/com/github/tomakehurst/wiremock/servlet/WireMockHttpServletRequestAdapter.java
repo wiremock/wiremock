@@ -326,8 +326,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
     final String characterEncoding = request.getCharacterEncoding();
     final Charset charset =
         characterEncoding != null ? Charset.forName(characterEncoding) : Charset.defaultCharset();
-    UrlEncoded.decodeTo(getBodyAsString(), formParameterMultimap, charset);
-
+    try {
+      UrlEncoded.decodeTo(getBodyAsString(), formParameterMultimap, charset);
+    } catch (IllegalArgumentException ignored) {
+      return Collections.emptyMap();
+    }
     return formParameterMultimap.entrySet().stream()
         .collect(
             Collectors.toMap(
