@@ -181,6 +181,7 @@ tasks.jar {
   archiveBaseName.set("wiremock")
   manifest {
     attributes("Main-Class" to "wiremock.Run")
+    attributes("Automatic-Module-Name" to "org.wiremock")
   }
 }
 
