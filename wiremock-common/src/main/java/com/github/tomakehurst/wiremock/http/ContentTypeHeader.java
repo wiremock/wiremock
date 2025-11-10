@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
 
 public class ContentTypeHeader extends HttpHeader {
@@ -59,7 +60,11 @@ public class ContentTypeHeader extends HttpHeader {
 
   public Charset charset() {
     if (isPresent() && encodingPart().isPresent()) {
-      return Charset.forName(encodingPart().get());
+      try {
+        return Charset.forName(encodingPart().get());
+      } catch (UnsupportedCharsetException ignored) {
+        return UTF_8;
+      }
     }
 
     return UTF_8;
