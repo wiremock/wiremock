@@ -101,7 +101,7 @@ mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.
 jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.20.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.17" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
