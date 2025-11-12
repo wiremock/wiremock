@@ -574,6 +574,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void matchesCookiesUnencoded() {
+    stubFor(
+            get(urlPathEqualTo("/query"))
+                    .withCookie("cookie-one", equalTo("one two three ?"))
+                    .willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
+    response = testClient.get("/query", withHeader("Cookie", "cookie-one=one%20two%20three%20%3F"));
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
   void matchesFormParamUnencoded() {
     stubFor(
         put(urlPathEqualTo("/form"))
