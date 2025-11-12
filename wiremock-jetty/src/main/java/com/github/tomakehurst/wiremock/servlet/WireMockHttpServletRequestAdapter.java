@@ -23,20 +23,18 @@ import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
@@ -46,15 +44,17 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
-  private byte[] cachedBody;
-  private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
-  private final Lazy<Map<String, Cookie>> cookies = Lazy.lazy(this::adaptCookies);
+  private final Lazy<String> url;
+  private final Lazy<byte[]> body;
+  private final Lazy<Map<String, QueryParameter>> query;
+  private final Lazy<Map<String, Cookie>> cookies;
+  private final Lazy<Map<String, FormParameter>> formParameters;
+  private final Lazy<Collection<Part>> multiParts;
+  private final Lazy<HttpHeaders> headers;
 
-  private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
   private final JettyHttpUtils utils;
-  private Collection<Part> cachedMultiparts;
 
   public WireMockHttpServletRequestAdapter(
       HttpServletRequest request,
@@ -66,13 +66,21 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.utils = utils;
 
-    cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
-
-    this.cachedFormParameters = getFormParameters(request);
+    this.url = Lazy.lazy(this::adaptUrl);
+    this.query = Lazy.lazy(() -> splitQuery(request.getQueryString()));
+    this.headers = Lazy.lazy(this::adaptHeaders);
+    this.cookies = Lazy.lazy(this::adaptCookies);
+    this.body = Lazy.lazy(this::adaptBody);
+    this.formParameters = Lazy.lazy(() -> getFormParameters(request));
+    this.multiParts = Lazy.lazy(this::adaptParts);
   }
 
   @Override
   public String getUrl() {
+    return url.get();
+  }
+
+  private String adaptUrl() {
     String url = request.getRequestURI();
 
     String contextPath = request.getContextPath();
@@ -128,17 +136,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public byte[] getBody() {
-    if (cachedBody == null) {
-      try {
-        byte[] body = request.getInputStream().readAllBytes();
-        boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
-        cachedBody = isGzipped ? Gzip.unGzip(body) : body;
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
-    }
+    return body.get();
+  }
 
-    return cachedBody;
+  private byte[] adaptBody() {
+    byte[] body = Exceptions.uncheck(() -> request.getInputStream().readAllBytes(), byte[].class);
+    boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
+    return isGzipped ? Gzip.unGzip(body) : body;
   }
 
   private Charset encodingFromContentTypeHeaderOrUtf8() {
@@ -196,6 +200,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public HttpHeaders getHeaders() {
+    return headers.get();
+  }
+
+  private HttpHeaders adaptHeaders() {
     if (request instanceof org.eclipse.jetty.server.Request) {
       return getHeadersLinear((org.eclipse.jetty.server.Request) request);
     } else {
@@ -251,18 +259,18 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    Map<String, QueryParameter> queryParams = cachedQueryParams.get();
+    Map<String, QueryParameter> queryParams = query.get();
     return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
   }
 
   @Override
   public FormParameter formParameter(String key) {
-    return getFirstNonNull(cachedFormParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters().get(key), FormParameter.absent(key));
   }
 
   @Override
   public Map<String, FormParameter> formParameters() {
-    return cachedFormParameters;
+    return formParameters.get();
   }
 
   @Override
@@ -277,15 +285,17 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Collection<Part> getParts() {
+    return multiParts.get();
+  }
+
+  private Collection<Part> adaptParts() {
     if (!isMultipart()) {
       return null;
     }
 
-    if (cachedMultiparts == null) {
-      cachedMultiparts = PartParser.parseFrom(this);
-    }
+    Collection<Part> multiParts = PartParser.parseFrom(this);
 
-    return (cachedMultiparts.isEmpty()) ? null : cachedMultiparts;
+    return (multiParts.isEmpty()) ? null : multiParts;
   }
 
   @Override
@@ -296,14 +306,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Part getPart(final String name) {
-    if (isNullOrEmpty(name) || (cachedMultiparts == null && getParts() == null)) {
+    if (isNullOrEmpty(name) || (multiParts == null && getParts() == null)) {
       return null;
     }
 
-    return cachedMultiparts.stream()
-        .filter(part -> name.equals(part.getName()))
-        .findFirst()
-        .orElse(null);
+    return getParts().stream().filter(part -> name.equals(part.getName())).findFirst().orElse(null);
   }
 
   @Override
