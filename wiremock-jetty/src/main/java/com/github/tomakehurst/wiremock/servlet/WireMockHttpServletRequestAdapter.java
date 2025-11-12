@@ -240,13 +240,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     jakarta.servlet.http.Cookie[] cookies =
-            getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+        getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), Urls.decode(cookie.getValue()));
     }
 
     return Maps.transformValues(
-            builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
+        builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
   }
 
   @Override
