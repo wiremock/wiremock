@@ -563,17 +563,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void matchesPathParamsUnencoded() {
-    stubFor(
-        get(urlPathTemplate("/things/{thingTag}/stuff"))
-            .withPathParam("thingTag", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response = testClient.get("/things/one%20two%20three%20%3F/stuff");
-    assertThat(response.statusCode(), is(200));
-  }
-
-  @Test
   void matchesQueryParamsUnencoded() {
     stubFor(
         get(urlPathEqualTo("/query"))
@@ -587,9 +576,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void matchesCookiesUnencoded() {
     stubFor(
-        get(urlPathEqualTo("/query"))
-            .withCookie("cookie-one", equalTo("one two three ?"))
-            .willReturn(ok()));
+            get(urlPathEqualTo("/query"))
+                    .withCookie("cookie-one", equalTo("one two three ?"))
+                    .willReturn(ok()));
 
     WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
     response = testClient.get("/query", withHeader("Cookie", "cookie-one=one%20two%20three%20%3F"));

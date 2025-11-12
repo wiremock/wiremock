@@ -138,11 +138,7 @@ class Parser {
 
     PathParams pathParams = new PathParams();
     for (int i = 0; i < templateParameters.size(); i++) {
-      String value = matcher.group(i + 1);
-      if (!value.isEmpty() && (value.contains("%") || value.contains("%"))) {
-        value = Urls.decode(value);
-      }
-      pathParams.put(templateParameters.get(i), value);
+      pathParams.put(templateParameters.get(i), matcher.group(i + 1));
     }
 
     return pathParams;
