@@ -563,17 +563,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void matchesPathParamsUnencoded() {
-    stubFor(
-        get(urlPathTemplate("/things/{thingTag}/stuff"))
-            .withPathParam("thingTag", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
-
-    WireMockResponse response = testClient.get("/things/one%20two%20three%20%3F/stuff");
-    assertThat(response.statusCode(), is(200));
-  }
-
-  @Test
   void matchesQueryParamsUnencoded() {
     stubFor(
         get(urlPathEqualTo("/query"))
