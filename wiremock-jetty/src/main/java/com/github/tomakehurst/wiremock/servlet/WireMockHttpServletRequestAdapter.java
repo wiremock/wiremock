@@ -71,7 +71,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.body = Lazy.lazy(this::adaptBody);
-    this.formParameters = Lazy.lazy(() -> getFormParameters(request));
+    this.formParameters = Lazy.lazy(() -> adaptFormParameters(request));
     this.multiParts = Lazy.lazy(this::adaptParts);
   }
 
@@ -329,7 +329,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return request.getProtocol();
   }
 
-  private Map<String, FormParameter> getFormParameters(HttpServletRequest request) {
+  private Map<String, FormParameter> adaptFormParameters(HttpServletRequest request) {
 
     final String contentType = request.getContentType();
     if (contentType == null || !contentType.contains("application/x-www-form-urlencoded")) {
