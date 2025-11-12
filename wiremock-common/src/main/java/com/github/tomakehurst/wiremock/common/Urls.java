@@ -103,7 +103,7 @@ public class Urls {
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
   }
 
-  private static String decode(String encoded) {
+  public static String decode(String encoded) {
     if (!isISOOffsetDateTime(encoded)) {
       return URLDecoder.decode(encoded, UTF_8);
     }

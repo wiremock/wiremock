@@ -24,6 +24,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
+import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
@@ -46,6 +48,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final HttpServletRequest request;
   private byte[] cachedBody;
   private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
+  private final Lazy<Map<String, Cookie>> cookies = Lazy.lazy(this::adaptCookies);
 
   private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
@@ -230,12 +233,16 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Map<String, Cookie> getCookies() {
+    return cookies.get();
+  }
+
+  private Map<String, Cookie> adaptCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     jakarta.servlet.http.Cookie[] cookies =
         getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
-      builder.put(cookie.getName(), cookie.getValue());
+      builder.put(cookie.getName(), Urls.decode(cookie.getValue()));
     }
 
     return Maps.transformValues(
