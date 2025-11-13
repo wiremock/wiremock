@@ -311,7 +311,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     mapping.setScenarioName(scenarioName);
     mapping.setRequiredScenarioState(requiredScenarioState);
     mapping.setNewScenarioState(newScenarioState);
-    mapping.setUuid(id);
+    mapping.setId(id);
     mapping.setName(name);
     mapping.setPersistent(isPersistent);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -373,7 +373,6 @@ class StubMappingJsonRecorderTest {
   private static final String GZIP_REQUEST_MAPPING =
       "{ 													             \n"
           + "   \"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",            \n"
-          + "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n"
           + "	\"request\": {									             \n"
           + "		\"method\": \"GET\",						             \n"
           + "		\"url\": \"/gzipped/content\"				             \n"
@@ -460,8 +459,7 @@ class StubMappingJsonRecorderTest {
           + "	\"response\": {									            	\n"
           + "		\"status\": 200,							            	\n"
           + "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"  	\n"
-          + "	},												            	\n"
-          + "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\"				\n"
+          + "	}												            	\n"
           + "}																	";
 
   @Test
@@ -496,16 +494,15 @@ class StubMappingJsonRecorderTest {
   }
 
   private static final String BAD_MULTIPART_REQUEST_MAPPING =
-      "{ 													             \n"
-          + "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
-          + "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+      "{ 													                 \n"
+          + "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",			 \n"
           + "	\"request\": {									             \n"
           + "		\"url\": \"/multipart/content\",                         \n"
           + "		\"method\": \"POST\" 						             \n"
           + "	},												             \n"
           + "	\"response\": {									             \n"
           + "		\"status\": 200, 							             \n"
-          + "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"        \n"
+          + "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"   \n"
           + "	}												             \n"
           + "}";
 

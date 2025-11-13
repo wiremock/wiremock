@@ -31,13 +31,15 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@JsonPropertyOrder({"id", "name", "request", "newRequest", "response", "uuid"})
-@JsonIgnoreProperties({"$schema"}) // Allows this to be added as a hint to IDEs like VS Code
+@JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
+@JsonIgnoreProperties({
+  "$schema", "uuid"
+}) // $schema allows this to be added as a hint to IDEs like VS Code
 public class StubMapping {
 
   public static final int DEFAULT_PRIORITY = 5;
 
-  private UUID uuid = UUID.randomUUID();
+  private UUID id = UUID.randomUUID();
   private String name;
 
   private Boolean persistent;
@@ -78,16 +80,12 @@ public class StubMapping {
     return Json.write(mapping);
   }
 
-  public UUID getUuid() {
-    return uuid;
-  }
-
   public void setId(UUID uuid) {
-    this.uuid = uuid;
+    this.id = uuid;
   }
 
   public UUID getId() {
-    return uuid;
+    return id;
   }
 
   public String getName() {
@@ -96,10 +94,6 @@ public class StubMapping {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
   }
 
   public boolean shouldBePersisted() {
@@ -280,7 +274,7 @@ public class StubMapping {
     if (o == null || getClass() != o.getClass()) return false;
     StubMapping that = (StubMapping) o;
     return isDirty == that.isDirty
-        && Objects.equals(uuid, that.uuid)
+        && Objects.equals(id, that.id)
         && Objects.equals(request, that.request)
         && Objects.equals(response, that.response)
         && Objects.equals(priority, that.priority)
@@ -294,7 +288,7 @@ public class StubMapping {
   @Override
   public int hashCode() {
     return Objects.hash(
-        uuid,
+        id,
         request,
         response,
         priority,

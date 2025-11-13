@@ -167,7 +167,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
 
     StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
-    mapping.setUuid(UUID.nameUUIDFromBytes(fileId.getBytes()));
+    mapping.setId(UUID.nameUUIDFromBytes(fileId.getBytes()));
 
     filesBlobStore.put(bodyFileName, body);
     mappingsBlobStore.put(mappingFileName, Strings.bytesFromString(write(mapping)));
