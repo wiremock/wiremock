@@ -162,7 +162,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     if (store.get(mapping.getId()).isPresent()) {
       String msg =
           "ID of the provided stub mapping '"
-              + mapping.getUuid()
+              + mapping.getId()
               + "' is already taken by another stub mapping";
       notifier().error(msg);
       throw new InvalidInputException(
@@ -200,7 +200,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
     if (optionalExistingMapping.isEmpty()) {
-      String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
+      String msg = "StubMapping with UUID: " + stubMapping.getId() + " not found";
       notifier().error(msg);
       throw new NotFoundException(msg);
     }
