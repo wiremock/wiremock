@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,6 @@ public class RenderableDateTest {
   @Test
   void writesToJsonInStringFormat() {
     RenderableDate renderableDate = new RenderableDate(new Date(1729266504000L), null, null);
-    assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24Z\""));
+    assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24.000Z\""));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1096,7 +1096,7 @@ public class ResponseTemplateTransformerTest {
   public void dateTruncation() {
     assertThat(
         transform("{{date (truncateDate (parseDate '2021-06-29T11:22:33Z') 'first hour of day')}}"),
-        is("2021-06-29T00:00:00Z"));
+        is("2021-06-29T00:00:00.000Z"));
   }
 
   @Test
