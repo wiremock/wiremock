@@ -22,8 +22,6 @@ plugins {
   alias(libs.plugins.task.tree)
 }
 
-val standaloneOnly: Configuration by configurations.creating
-
 dependencies {
   api(project(":wiremock-common"))
   api(project(":wiremock-jetty"))
@@ -60,8 +58,6 @@ dependencies {
   compileOnly(platform(libs.junit.bom))
   compileOnly(libs.junit.jupiter.api)
   compileOnly(libs.junit.platform.commons)
-
-  add("standaloneOnly", libs.slf4j.nop)
 
   testFixturesApi(project(":wiremock-common"))
 
@@ -189,7 +185,6 @@ tasks.shadowJar {
   archiveClassifier = ""
   configurations = listOf(
     project.configurations.runtimeClasspath.get(),
-    standaloneOnly,
   )
 
   relocate("org.mortbay", "wiremock.org.mortbay")
