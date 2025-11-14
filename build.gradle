@@ -1,5 +1,6 @@
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.plugins.signing.Sign
+import com.vanniktech.maven.publish.SonatypeHost
 
 buildscript {
   repositories {
@@ -16,7 +17,7 @@ plugins {
   id 'scala'
   id 'signing'
   id 'maven-publish'
-  id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+  id 'com.vanniktech.maven.publish.base' version '0.32.0'
   id 'idea'
   id 'eclipse'
   id 'project-report'
@@ -390,20 +391,10 @@ publishing {
       }
     }
   }
+}
 
-  nexusPublishing {
-    // See https://github.com/wiremock/community/blob/main/infra/maven-central.md
-    repositories {
-      sonatype {
-        def envUsername = providers.environmentVariable("OSSRH_USERNAME").orElse("").get()
-        def envPassword = providers.environmentVariable("OSSRH_TOKEN").orElse("").get()
-        if (!envUsername.isEmpty() && !envPassword.isEmpty()) {
-          username.set(envUsername)
-          password.set(envPassword)
-        }
-      }
-    }
-  }
+mavenPublishing {
+  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, true)
 }
 
 task checkReleasePreconditions {
