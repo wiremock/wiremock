@@ -11,7 +11,7 @@ mockito = "5.20.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.1"
-vanniktech-maven-publish = "0.34.0"
+vanniktech-maven-publish = "0.35.0"
 
 [libraries]
 # Jetty dependencies
