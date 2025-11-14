@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.jetty.faults;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
+import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
