@@ -121,7 +121,7 @@ dependencies {
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation 'org.scala-lang:scala-library:2.13.16'
+  testImplementation 'org.scala-lang:scala-library:2.13.17'
   testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 
   testImplementation "org.eclipse.jetty:jetty-client"
