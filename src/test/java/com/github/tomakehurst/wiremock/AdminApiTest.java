@@ -296,7 +296,10 @@ class AdminApiTest extends AcceptanceTestBase {
     JsonVerifiable error = check.field("errors").elementWithIndex(0);
     error.field("code").isEqualTo(10);
     error.field("source").field("pointer").isEqualTo("since");
-    error.field("title").isEqualTo("foo is not a valid ISO8601 date");
+    error
+        .field("title")
+        .isEqualTo(
+            "foo is not a valid format. Supported format is date time in ISO 8601, e.g. 2020-01-01T12:00:00Z or 2020-01-01T12:00:00+02:00");
   }
 
   @Test
