@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty12;
+package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.jetty11.Jetty11Utils.createHttpConfig;
-import static com.github.tomakehurst.wiremock.jetty11.SslContexts.buildManInTheMiddleSslContextFactory;
+import static com.github.tomakehurst.wiremock.jetty.JettyUtils.createHttpConfig;
+import static com.github.tomakehurst.wiremock.jetty.ssl.SslContexts.buildManInTheMiddleSslContextFactory;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.jetty.JettyFaultInjectorFactory;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.github.tomakehurst.wiremock.jetty11.Jetty11Utils;
-import com.github.tomakehurst.wiremock.jetty11.SslContexts;
+import com.github.tomakehurst.wiremock.jetty.faults.JettyFaultInjectorFactory;
+import com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler;
+import com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler;
+import com.github.tomakehurst.wiremock.jetty.proxy.ManInTheMiddleSslConnectHandler;
+import com.github.tomakehurst.wiremock.jetty.ssl.SslContexts;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.servlet.NotMatchedServlet;
@@ -89,7 +88,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
             .filter(Objects::nonNull)
             .toArray(ConnectionFactory[]::new);
 
-    return Jetty11Utils.createServerConnector(
+    return JettyUtils.createServerConnector(
         jettyServer, bindAddress, jettySettings, port, listener, connectionFactories);
   }
 
@@ -133,7 +132,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
       connectionFactories = new ConnectionFactory[] {ssl, http};
     }
 
-    return Jetty11Utils.createServerConnector(
+    return JettyUtils.createServerConnector(
         jettyServer,
         bindAddress,
         jettySettings,

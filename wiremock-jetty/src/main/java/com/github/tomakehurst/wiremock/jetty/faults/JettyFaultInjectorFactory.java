@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty.faults;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

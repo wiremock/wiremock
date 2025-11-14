@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty11;
+package com.github.tomakehurst.wiremock.jetty;
 
 import static org.eclipse.jetty.http.UriCompliance.UNSAFE;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 
-public class Jetty11Utils {
+public class JettyUtils {
 
-  private Jetty11Utils() {}
+  private JettyUtils() {}
 
   private static final int DEFAULT_ACCEPTORS = 3;
   private static final int DEFAULT_HEADER_SIZE = 32768;

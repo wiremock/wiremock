@@ -13,39 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty12;
+package com.github.tomakehurst.wiremock.jetty.proxy;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.Callback;
 
-public class HttpsProxyDetectingHandler extends Handler.Abstract {
+/**
+ * The Jetty 11 implementation was relying on relative request URI presence to detect the proxying
+ * request. Jetty 12 does not do that anymore and URI is always converted to absolute form. To keep
+ * proxy detection working, the Jetty 12 specific implementation does compare connector and URI
+ * ports (which are different in case of proxying request).
+ */
+public class HttpProxyDetectingHandler extends Handler.Abstract {
 
-  public static final String IS_HTTPS_PROXY_REQUEST_ATTRIBUTE = "wiremock.isHttpsProxyRequest";
+  public static final String IS_HTTP_PROXY_REQUEST_ATTRIBUTE = "wiremock.isHttpProxyRequest";
 
-  private final ServerConnector mitmProxyConnector;
+  private final ServerConnector httpConnector;
 
-  public HttpsProxyDetectingHandler(ServerConnector mitmProxyConnector) {
-    this.mitmProxyConnector = mitmProxyConnector;
+  public HttpProxyDetectingHandler(ServerConnector httpConnector) {
+    this.httpConnector = httpConnector;
   }
 
   @Override
   public boolean handle(Request request, Response response, Callback callback) throws Exception {
-    final int httpsProxyPort = mitmProxyConnector.getLocalPort();
+    final int httpPort = httpConnector.getLocalPort();
 
-    int localPort = -1;
-    SocketAddress local = request.getConnectionMetaData().getLocalSocketAddress();
-    if (local instanceof InetSocketAddress) {
-      localPort = ((InetSocketAddress) local).getPort();
+    if (httpPort != request.getHttpURI().getPort()
+        && "http".equals(request.getHttpURI().getScheme())) {
+      request.setAttribute(IS_HTTP_PROXY_REQUEST_ATTRIBUTE, true);
     }
 
-    if (localPort == httpsProxyPort) {
-      request.setAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE, true);
-    }
     return false;
   }
 }
