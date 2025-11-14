@@ -24,6 +24,8 @@ plugins {
 
 dependencies {
   api(project(":wiremock-common"))
+  testImplementation(project(":wiremock-junit4"))
+  testImplementation(project(":wiremock-junit5"))
   api(project(":wiremock-jetty"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
