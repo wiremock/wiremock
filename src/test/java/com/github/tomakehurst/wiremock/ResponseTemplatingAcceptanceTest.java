@@ -338,9 +338,10 @@ public class ResponseTemplatingAcceptanceTest {
       WireMockResponse response = client.get("/bad");
 
       assertThat(response.statusCode(), is(500));
-      assertThat(response.content(), is("1:2: java.lang.ArithmeticException: / by zero"));
+      assertThat(response.content(), is("[ERROR] 1:2: java.lang.ArithmeticException: / by zero"));
 
-      assertMessageSubEventPresent(wm, "ERROR", "1:2: java.lang.ArithmeticException: / by zero");
+      assertMessageSubEventPresent(
+          wm, "ERROR", "[ERROR] 1:2: java.lang.ArithmeticException: / by zero");
     }
 
     @Test
@@ -353,9 +354,23 @@ public class ResponseTemplatingAcceptanceTest {
       WireMockResponse response = client.get("/bad");
 
       assertThat(response.statusCode(), is(500));
-      assertThat(response.content(), is("1:2: could not find helper: 'add'"));
+      assertThat(
+          response.content(),
+          is(
+              """
+              [ERROR] 1:2: could not find helper: 'add'
+              {{add (jsonPath request.body '$.num1') (jsonPath request.body '$.num2')}}
+                ^
+              """));
 
-      assertMessageSubEventPresent(wm, "ERROR", "1:2: could not find helper: 'add'");
+      assertMessageSubEventPresent(
+          wm,
+          "ERROR",
+          """
+              [ERROR] 1:2: could not find helper: 'add'
+              {{add (jsonPath request.body '$.num1') (jsonPath request.body '$.num2')}}
+                ^
+              """);
     }
   }
 

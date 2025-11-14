@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
@@ -171,7 +172,7 @@ public class ResponseTemplateTransformer
         return newResponseDefBuilder.build();
       }
     } catch (HandlebarsException he) {
-      final String message = cleanUpHandlebarsErrorMessage(he.getMessage());
+      final String message = cleanUpHandlebarsErrorMessage(he);
       serveEvent.appendSubEvent(SubEvent.error(message));
       return serverError()
           .withHeader(ContentTypeHeader.KEY, "text/plain")
@@ -180,8 +181,19 @@ public class ResponseTemplateTransformer
     }
   }
 
-  private static String cleanUpHandlebarsErrorMessage(String rawMessage) {
-    return rawMessage.replaceAll("inline@[a-z0-9]+:", "").replaceAll("\n.*", "");
+  private static String cleanUpHandlebarsErrorMessage(HandlebarsException t) {
+    String rawMessage;
+    if (t.getCause() instanceof JsonException) {
+      rawMessage = ((JsonException) t.getCause()).getErrors().first().getDetail();
+    } else {
+      rawMessage = t.getMessage() == null ? "" : t.getMessage();
+    }
+
+    var message =
+        rawMessage
+            .replaceAll("\\n\\s*inline@[a-z0-9]+:\\S+$", "")
+            .replaceAll("inline@[a-z0-9]+:", "");
+    return "[ERROR] " + message;
   }
 
   /** Override this to add extra elements to the template model */
