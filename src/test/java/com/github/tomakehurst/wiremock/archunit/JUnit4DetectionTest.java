@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.archunit;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.WireMockJUnitRuleTest;
