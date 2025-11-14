@@ -114,7 +114,7 @@ dependencies {
   testFixturesApi 'org.mockito:mockito-core:5.20.0'
   testFixturesApi 'org.mockito:mockito-junit-jupiter:5.20.0'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
-  testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
+  testFixturesApi "org.skyscreamer:jsonassert:1.5.3"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.3.0'
   testFixturesApi "commons-io:commons-io:2.21.0"
