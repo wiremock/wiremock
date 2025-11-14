@@ -45,10 +45,6 @@ project.ext {
   ]
 }
 
-configurations {
-  standaloneOnly
-}
-
 dependencies {
   api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
   api "org.eclipse.jetty:jetty-server"
@@ -82,7 +78,6 @@ dependencies {
   }
 
   implementation "org.slf4j:slf4j-api:2.0.17"
-  standaloneOnly "org.slf4j:slf4j-nop:2.0.17"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
@@ -283,7 +278,6 @@ shadowJar {
   archiveClassifier.set('')
   configurations = [
     project.configurations.runtimeClasspath,
-    project.configurations.standaloneOnly
   ]
 
   relocate "org.mortbay", 'wiremock.org.mortbay'
