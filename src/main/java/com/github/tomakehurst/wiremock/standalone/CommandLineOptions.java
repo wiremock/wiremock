@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;

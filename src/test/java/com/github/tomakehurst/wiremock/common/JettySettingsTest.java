@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

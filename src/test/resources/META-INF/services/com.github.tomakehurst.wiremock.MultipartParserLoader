@@ -1,1 +1,1 @@
-com.github.tomakehurst.wiremock.jetty12.Jetty12MultipartParserLoader
+com.github.tomakehurst.wiremock.jetty.Jetty12MultipartParserLoader

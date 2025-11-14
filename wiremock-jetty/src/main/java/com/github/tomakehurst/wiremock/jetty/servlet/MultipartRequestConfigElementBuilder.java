@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty.servlet;
 
-import com.github.tomakehurst.wiremock.jetty.servlet.MultipartRequestConfigElementBuilder;
 import jakarta.servlet.MultipartConfigElement;
 
-public class DefaultMultipartRequestConfigElementBuilder
-    implements MultipartRequestConfigElementBuilder {
-
-  public MultipartConfigElement build() {
-    return new MultipartConfigElement(
-        System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0);
-  }
+public interface MultipartRequestConfigElementBuilder {
+  MultipartConfigElement build();
 }

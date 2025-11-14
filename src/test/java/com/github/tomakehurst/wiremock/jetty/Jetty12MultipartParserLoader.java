@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.jetty.servlet.MultipartRequestConfigElementBuilder;
-import jakarta.servlet.MultipartConfigElement;
+import java.util.Optional;
 
-public class DefaultMultipartRequestConfigElementBuilder
-    implements MultipartRequestConfigElementBuilder {
+public class Jetty12MultipartParserLoader
+    implements com.github.tomakehurst.wiremock.MultipartParserLoader {
+  private static final String JETTY_12 = "12"; /* Jetty 12 */
 
-  public MultipartConfigElement build() {
-    return new MultipartConfigElement(
-        System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0);
+  @Override
+  public Optional<MultipartParser> getMultipartParser(String jettyMajorVersion) {
+    if (JETTY_12.equalsIgnoreCase(jettyMajorVersion)) {
+      return Optional.of(new Jetty12MultipartParser());
+    } else {
+      return Optional.empty();
+    }
   }
 }
