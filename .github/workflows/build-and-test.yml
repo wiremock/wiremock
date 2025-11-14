@@ -5,9 +5,10 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 3.x ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, 3.x ]
+  workflow_dispatch:
 
 jobs:
   core:
