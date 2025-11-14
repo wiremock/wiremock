@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.jetty.ServletContextFileSource;
 import jakarta.servlet.*;
 import jakarta.servlet.ServletRegistration.Dynamic;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
