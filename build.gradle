@@ -22,10 +22,11 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.25.0'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
-  id "org.sonarqube" version "6.2.0.5505"
+  id "org.sonarqube" version "6.3.1.5724"
   id 'jacoco'
   id "me.champeau.jmh" version "0.7.3"
   id 'com.dorongold.task-tree' version '4.0.1'
+  id 'com.github.ben-manes.versions' version '0.53.0'
 }
 
 apply from: "buildSchema.gradle"
@@ -36,11 +37,11 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.26',
-    guava          : '33.4.8-jre',
-    jackson        : '2.19.0',
-    xmlUnit        : '2.10.2',
+    guava          : '33.5.0-jre',
+    jackson        : '2.20.1',
+    xmlUnit        : '2.11.0',
     jsonUnit       : '2.40.1',
-    junitJupiter   : '5.13.1'
+    junitJupiter   : '5.14.1'
   ]
 }
 
@@ -69,19 +70,19 @@ dependencies {
       "com.fasterxml.jackson.core:jackson-annotations",
       "com.fasterxml.jackson.core:jackson-databind",
       "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-  api "org.apache.httpcomponents.client5:httpclient5:5.5"
+  api "org.apache.httpcomponents.client5:httpclient5:5.5.1"
   api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
   api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
     exclude group: 'junit', module: 'junit'
   }
   api "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
   api "net.javacrumbs.json-unit:json-unit-core:$versions.jsonUnit"
-  api "com.jayway.jsonpath:json-path:2.9.0", {
+  api "com.jayway.jsonpath:json-path:2.10.0", {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
 
-  implementation "org.slf4j:slf4j-api:1.7.36"
-  standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
+  implementation "org.slf4j:slf4j-api:2.0.17"
+  standaloneOnly "org.slf4j:slf4j-nop:2.0.17"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
@@ -101,7 +102,7 @@ dependencies {
 
   api 'commons-fileupload:commons-fileupload:1.6.0'
 
-  api 'com.networknt:json-schema-validator:1.5.7'
+  api 'com.networknt:json-schema-validator:1.5.9'
 
   testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testFixturesApi("org.junit.platform:junit-platform-testkit")
@@ -110,17 +111,17 @@ dependencies {
   testFixturesApi('org.junit-pioneer:junit-pioneer:2.3.0')
   testFixturesApi "org.hamcrest:hamcrest-core:3.0"
   testFixturesApi "org.hamcrest:hamcrest-library:3.0"
-  testFixturesApi 'org.mockito:mockito-core:5.18.0'
-  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.18.0'
+  testFixturesApi 'org.mockito:mockito-core:5.20.0'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.20.0'
   testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
-  testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
+  testFixturesApi "org.skyscreamer:jsonassert:1.5.3"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.3.0'
-  testFixturesApi "commons-io:commons-io:2.19.0"
+  testFixturesApi "commons-io:commons-io:2.21.0"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation 'org.scala-lang:scala-library:2.13.16'
+  testImplementation 'org.scala-lang:scala-library:2.13.17'
   testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 
   testImplementation "org.eclipse.jetty:jetty-client"
@@ -198,7 +199,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.13.1'
+  version = '3.13.2'
 
   compileJava {
     options.encoding = 'UTF-8'
