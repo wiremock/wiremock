@@ -98,7 +98,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         () -> {
           try {
             Response response = httpClient.execute(request);
-            notifier.info(
+            notifier.info(() ->
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
                     finalDefinition.getMethod(),

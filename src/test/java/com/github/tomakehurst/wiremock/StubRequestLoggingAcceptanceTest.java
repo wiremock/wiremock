@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
@@ -72,8 +73,8 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
     final List<String> infoMessages = new ArrayList<>();
 
     @Override
-    public void info(String message) {
-      infoMessages.add(message);
+    public void info(Supplier<String> message) {
+      infoMessages.add(message.get());
     }
 
     @Override

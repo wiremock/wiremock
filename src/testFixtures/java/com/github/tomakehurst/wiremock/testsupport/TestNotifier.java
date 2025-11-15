@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TestNotifier implements Notifier {
 
@@ -48,8 +49,8 @@ public class TestNotifier implements Notifier {
   }
 
   @Override
-  public void info(String message) {
-    this.info.add(message);
+  public void info(Supplier<String> message) {
+    this.info.add(message.get());
     consoleNotifier.info(message);
   }
 
