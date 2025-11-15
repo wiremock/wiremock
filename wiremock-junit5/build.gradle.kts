@@ -9,6 +9,16 @@ dependencies {
     api(libs.junit.jupiter.api)
 
     implementation(libs.junit.platform.commons)
+
+    testImplementation(libs.apache.http5.client)
+    testImplementation(libs.apache.http5.core)
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.junit.platform.engine)
+    testImplementation(libs.junit.platform.testkit)
+    testImplementation(libs.mockito.core)
+    testRuntimeOnly(libs.jetty.http)
+    testRuntimeOnly(libs.junit.jupiter)
+    testRuntimeOnly(project(":wiremock-jetty"))
 }
 
 tasks.jar {
