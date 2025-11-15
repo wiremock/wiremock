@@ -24,7 +24,6 @@ plugins {
 
 dependencies {
   api(project(":wiremock-common"))
-  testImplementation(project(":wiremock-junit4"))
   testImplementation(project(":wiremock-junit5"))
   api(project(":wiremock-jetty"))
   testImplementation(libs.apache.http5.client)
@@ -73,10 +72,11 @@ dependencies {
 
   testFixturesImplementation(libs.jetty.util)
   testFixturesImplementation(platform(libs.junit.bom))
-  testFixturesImplementation(libs.junit.jupiter.api)
+  testFixturesApi(libs.junit.jupiter.api)
   testFixturesImplementation(libs.mockito.core)
   testFixturesImplementation(libs.xmlunit.core)
 
+  testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.android.json)
   testImplementation(libs.archunit)
   testImplementation(libs.archunit.junit5.api)
@@ -97,8 +97,6 @@ dependencies {
   testImplementation(libs.junit.pioneer)
   testImplementation(libs.junit.platform.engine)
   testImplementation(libs.junit.platform.launcher)
-  testImplementation(libs.junit.platform.testkit)
-  testImplementation(libs.junit4)
   testImplementation(libs.mockito.core)
   testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)
@@ -109,6 +107,7 @@ dependencies {
   testRuntimeOnly(libs.jmh.generator.annprocess)
   testRuntimeOnly(libs.junit.vintage.engine)
   testRuntimeOnly(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit4)
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {

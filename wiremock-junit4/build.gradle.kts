@@ -8,6 +8,13 @@ dependencies {
     api(libs.junit4) {
         exclude(group = "org.hamcrest", module = "hamcrest-core")
     }
+
+    testImplementation(testFixtures(project(":")))
+    testImplementation(libs.apache.http5.client)
+    testImplementation(libs.apache.http5.core)
+    testImplementation(libs.hamcrest)
+    testImplementation(platform(libs.junit.bom))
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 tasks.jar {
