@@ -27,9 +27,13 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Version;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.List;
 import java.util.Set;
 
 public class WireMockServerRunner {
@@ -49,6 +53,7 @@ public class WireMockServerRunner {
           + "----------------------------------------------------------------";
 
   private WireMockServer wireMockServer;
+  private Thread shutdownHook;
 
   public void run(String... args) {
     CommandLineOptions options = new CommandLineOptions(args);
@@ -71,7 +76,7 @@ public class WireMockServerRunner {
     wireMockServer = new WireMockServer(options);
 
     if (options.recordMappingsEnabled()) {
-      wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
+      startRecordingWithOptions(options);
     }
 
     if (options.specifiesProxyUrl()) {
@@ -80,6 +85,12 @@ public class WireMockServerRunner {
 
     try {
       wireMockServer.start();
+
+      // Add shutdown hook to snapshot recordings before JVM exits
+      if (options.recordMappingsEnabled()) {
+        shutdownHook = new Thread(this::stopRecordingIfNecessary);
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+      }
       boolean https = options.httpsSettings().enabled();
 
       if (!options.getHttpDisabled()) {
@@ -110,6 +121,21 @@ public class WireMockServerRunner {
     }
   }
 
+  private void startRecordingWithOptions(CommandLineOptions options) {
+    RecordSpecBuilder recordSpecBuilder = new RecordSpecBuilder()
+            .makeStubsPersistent(true)
+            .ignoreRepeatRequests()
+            .extractBinaryBodiesOver(0)
+            .extractTextBodiesOver(0);
+
+    List<CaseInsensitiveKey> matchingHeaders = options.matchingHeaders();
+    for (CaseInsensitiveKey header : matchingHeaders) {
+      recordSpecBuilder.captureHeader(header.value());
+    }
+
+    wireMockServer.startRecording(recordSpecBuilder);
+  }
+
   private void addProxyMapping(final String baseUrl) {
     wireMockServer.loadMappingsUsing(
         stubMappings -> {
@@ -125,7 +151,24 @@ public class WireMockServerRunner {
 
   public void stop() {
     if (wireMockServer != null) {
+      if (wireMockServer.getRecordingStatus().getStatus() == RecordingStatus.Recording) {
+        stopRecordingIfNecessary();
+
+        // Remove shutdown hook to prevent double snapshotting
+        if (shutdownHook != null) {
+          try {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+          } catch (IllegalStateException e) {
+          }
+        }
+      }
       wireMockServer.stop();
+    }
+  }
+
+  private void stopRecordingIfNecessary() {
+    if (wireMockServer.getRecordingStatus().getStatus() == RecordingStatus.Recording) {
+      wireMockServer.stopRecording();
     }
   }
 
