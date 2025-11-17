@@ -5,9 +5,7 @@ plugins {
 dependencies {
     api(project(":wiremock-common"))
 
-    api(libs.junit4) {
-        exclude(group = "org.hamcrest", module = "hamcrest-core")
-    }
+    api(libs.junit4)
 
     testImplementation(testFixtures(project(":")))
     testImplementation(libs.apache.http5.client)
