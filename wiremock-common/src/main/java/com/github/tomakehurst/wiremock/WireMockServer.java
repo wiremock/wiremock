@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
@@ -39,15 +36,17 @@ import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -143,16 +142,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public void addMockServiceRequestListener(RequestListener listener) {
     stubRequestHandler.addRequestListener(listener);
-  }
-
-  public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
-    addMockServiceRequestListener(
-        new StubMappingJsonRecorder(
-            new FileSourceBlobStore(mappingsFileSource),
-            new FileSourceBlobStore(filesFileSource),
-            wireMockApp,
-            options.matchingHeaders()));
-    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
   }
 
   public void stop() {

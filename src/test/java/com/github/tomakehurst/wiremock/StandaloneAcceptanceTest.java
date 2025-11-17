@@ -61,8 +61,6 @@ public class StandaloneAcceptanceTest {
   private static final String FILES = "__files";
   private static final String MAPPINGS = "mappings";
 
-  private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
-
   private WireMockServerRunner runner;
   private WireMockTestClient testClient;
 
@@ -73,20 +71,16 @@ public class StandaloneAcceptanceTest {
   private final PrintStream stdErr = System.err;
   private ByteArrayOutputStream err;
 
+  @TempDir public Path tempFileRoot;
   private File mappingsDirectory;
   private File filesDirectory;
 
   @BeforeEach
   public void init() throws Exception {
-    if (FILE_SOURCE_ROOT.exists()) {
-      try (Stream<Path> pathStream = Files.walk(FILE_SOURCE_ROOT.toPath().toAbsolutePath())) {
-        pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
-    FILE_SOURCE_ROOT.mkdirs();
-
-    mappingsDirectory = new File(FILE_SOURCE_ROOT, MAPPINGS);
-    filesDirectory = new File(FILE_SOURCE_ROOT, FILES);
+    mappingsDirectory = tempFileRoot.resolve(MAPPINGS).toFile();
+    filesDirectory = tempFileRoot.resolve(FILES).toFile();
+    mappingsDirectory.mkdirs();
+    filesDirectory.mkdirs();
 
     runner = new WireMockServerRunner();
 
@@ -133,7 +127,7 @@ public class StandaloneAcceptanceTest {
 
   @Test
   void readsMappingFromSpecifiedRecordingsPath() {
-    String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
+    String differentRoot = tempFileRoot + separator + "differentRoot";
     writeFile(differentRoot + separator + underMappings("test-mapping-1.json"), MAPPING_REQUEST);
     startRunner("--root-dir", differentRoot);
     assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
@@ -151,7 +145,7 @@ public class StandaloneAcceptanceTest {
 
   @Test
   void servesFileFromSpecifiedRecordingsPath() {
-    String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
+    String differentRoot = tempFileRoot.toString() + separator + "differentRoot";
     writeFile(differentRoot + separator + underFiles("test-1.xml"), "<content>Blah</content>");
     startRunner("--root-dir", differentRoot);
     WireMockResponse response = testClient.get("/test-1.xml");
@@ -350,7 +344,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void recordsProxiedRequestsWhenSpecifiedOnCommandLineViaLegacyRecorder() throws Exception {
+  void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -362,10 +356,12 @@ public class StandaloneAcceptanceTest {
 
     testClient.get("/please/record-this");
 
+    stopRunner();
+
     assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
     assertThat(
-        contentsOfFirstFileNamedLike("please-record-this"),
-        containsString("bodyFileName\" : \"body-please-record-this"));
+        contentsOfFirstFileNamedLike("please_record-this"),
+        containsString("bodyFileName\" : \"please_record-this"));
   }
 
   @Test
@@ -381,13 +377,15 @@ public class StandaloneAcceptanceTest {
 
     testClient.get("/please/record-headers", withHeader("accept", "application/json"));
 
+    stopRunner();
+
     assertThat(mappingsDirectory, containsAFileContaining("/please/record-headers"));
     assertThat(
-        contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept\" : {"));
+        contentsOfFirstFileNamedLike("please_record-headers"), containsString("\"Accept\" : {"));
   }
 
   @Test
-  void recordsGzippedResponseBodiesDecompressedViaLegacyRecorder() {
+  void recordsGzippedResponseBodiesDecompressedViaCLI() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -398,6 +396,8 @@ public class StandaloneAcceptanceTest {
             .willReturn(aResponse().withStatus(HTTP_OK).withBody("gzipped body")));
 
     testClient.get("/record-zip", withHeader("Accept-Encoding", "gzip,deflate"));
+
+    stopRunner();
 
     assertThat(mappingsDirectory, containsAFileContaining("/record-zip"));
     assertThat(filesDirectory, containsAFileContaining("gzipped body"));
@@ -475,7 +475,9 @@ public class StandaloneAcceptanceTest {
     testClient.get("/try-to/record-this");
     testClient.get("/try-to/record-this");
 
-    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("try-to-record"));
+    stopRunner();
+
+    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("try-to_record-this"));
   }
 
   @Test
@@ -625,7 +627,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private String underFileSourceRoot(String relativePath) {
-    return FILE_SOURCE_ROOT + separator + relativePath;
+    return tempFileRoot + separator + relativePath;
   }
 
   private void startRunner(String... args) {
@@ -637,10 +639,14 @@ public class StandaloneAcceptanceTest {
     WireMock.configureFor(port);
   }
 
+  private void stopRunner() {
+    runner.stop();
+  }
+
   private String[] argsWithRecordingsPath(String[] args) {
     List<String> argsAsList = new ArrayList<>(asList(args));
     if (!argsAsList.contains("--root-dir")) {
-      argsAsList.addAll(asList("--root-dir", FILE_SOURCE_ROOT.getPath()));
+      argsAsList.addAll(asList("--root-dir", tempFileRoot.toFile().getAbsolutePath()));
     }
     return argsAsList.toArray(new String[] {});
   }
@@ -691,6 +697,13 @@ public class StandaloneAcceptanceTest {
 
         return false;
       }
+
+      @Override
+      protected void describeMismatchSafely(File dir, Description mismatchDescription) {
+        mismatchDescription
+                .appendText("directory contents were: ")
+                .appendValue(Arrays.toString(requireNonNull(dir.list())));
+      }
     };
   }
 
@@ -705,6 +718,13 @@ public class StandaloneAcceptanceTest {
       @Override
       public boolean matchesSafely(File dir) {
         return Arrays.stream(requireNonNull(dir.list())).noneMatch(contains(namePart));
+      }
+
+      @Override
+      protected void describeMismatchSafely(File dir, Description mismatchDescription) {
+        mismatchDescription
+                .appendText("directory contents were: ")
+                .appendValue(Arrays.toString(requireNonNull(dir.list())));
       }
     };
   }
@@ -721,6 +741,13 @@ public class StandaloneAcceptanceTest {
       public boolean matchesSafely(File dir) {
         return (int) Arrays.stream(requireNonNull(dir.list())).filter(contains(namePart)).count()
             == 1;
+      }
+
+      @Override
+      protected void describeMismatchSafely(File dir, Description mismatchDescription) {
+        mismatchDescription
+                .appendText("directory contents were: ")
+                .appendValue(Arrays.toString(requireNonNull(dir.list())));
       }
     };
   }
