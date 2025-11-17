@@ -1,0 +1,19 @@
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - 3.x
+  workflow_dispatch:
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        with:
+          name: 3.x-next
+          tag: 3.x-next
+          version: 3.x-next
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
