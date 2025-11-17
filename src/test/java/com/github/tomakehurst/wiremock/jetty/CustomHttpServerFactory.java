@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.*;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
-public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {
+public class CustomHttpServerFactory implements HttpServerFactory {
 
-  private final JettySettings settings;
-
-  public JettyHttpServerFactory() {
-    this(JettySettings.Builder.aJettySettings().build());
-  }
-
-  public JettyHttpServerFactory(JettySettings settings) {
-    this.settings = settings;
-  }
-
-  public JettySettings getSettings() {
-    return settings;
+  @Override
+  public String getName() {
+    return HttpServerFactory.super.getName();
   }
 
   @Override
@@ -40,11 +33,6 @@ public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    return new Jetty12HttpServer(
-        options,
-        adminRequestHandler,
-        stubRequestHandler,
-        settings,
-        new QueuedThreadPool(options.containerThreads()));
+    return new CustomHttpServer(options, adminRequestHandler, stubRequestHandler);
   }
 }
