@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http.trafficlistener;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -24,7 +25,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 public class NotifyingWiremockNetworkTrafficListenerTest {
   private final Notifier mockNotifier = mock(Notifier.class);
@@ -37,7 +40,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.opened(socket);
 
-    verify(mockNotifier).info(contains("Opened "));
+    verify(mockNotifier).info(contains("Opened Socket"));
   }
 
   @Test
@@ -48,7 +51,7 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.closed(socket);
 
-    verify(mockNotifier).info(contains("Closed "));
+    verify(mockNotifier).info(contains("Closed Socket"));
   }
 
   @Test
@@ -72,7 +75,10 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.incoming(socket, byteBuffer);
 
-    verify(mockNotifier).info(contains("Hello world"));
+    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+    verify(mockNotifier).info(captor.capture());
+    String actual = captor.getValue().get();
+    assertTrue(actual.contains("Hello world"));
   }
 
   @Test
@@ -96,7 +102,10 @@ public class NotifyingWiremockNetworkTrafficListenerTest {
 
     consoleNotifyingWiremockNetworkTrafficListener.outgoing(socket, byteBuffer);
 
-    verify(mockNotifier).info(contains("Hello world"));
+    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+    verify(mockNotifier).info(captor.capture());
+    String actual = captor.getValue().get();
+    assertTrue(actual.contains("Hello world"));
   }
 
   public static ByteBuffer stringToByteBuffer(String msg, Charset charset) {

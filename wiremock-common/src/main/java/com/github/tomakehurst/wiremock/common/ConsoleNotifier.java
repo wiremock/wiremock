@@ -21,6 +21,7 @@ import static java.lang.System.out;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Supplier;
 
 public class ConsoleNotifier implements Notifier {
 
@@ -41,9 +42,9 @@ public class ConsoleNotifier implements Notifier {
   }
 
   @Override
-  public void info(String message) {
+  public void info(Supplier<String> message) {
     if (verbose) {
-      out.println(formatMessage(message));
+      out.println(formatMessage(message.get()));
     }
   }
 
