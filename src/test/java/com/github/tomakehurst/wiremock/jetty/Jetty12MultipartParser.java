@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.client.BytesRequestContent;
-import org.eclipse.jetty.ee10.servlet.ServletMultiPartFormData.Parts;
+import org.eclipse.jetty.ee11.servlet.ServletMultiPartFormData.Parts;
 import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.http.MultiPartFormData;
 import org.eclipse.jetty.io.Content;
