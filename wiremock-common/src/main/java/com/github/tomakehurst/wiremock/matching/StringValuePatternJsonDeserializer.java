@@ -36,6 +36,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
       Map.ofEntries(
           Map.entry("equalTo", EqualToPattern.class),
+          Map.entry("equalToNumber", EqualToNumberPattern.class),
           Map.entry("equalToJson", EqualToJsonPattern.class),
           Map.entry("matchesJsonPath", MatchesJsonPathPattern.class),
           Map.entry("matchesJsonSchema", MatchesJsonSchemaPattern.class),
@@ -53,7 +54,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           Map.entry("absent", AbsentPattern.class),
           Map.entry("and", LogicalAnd.class),
           Map.entry("or", LogicalOr.class),
-          Map.entry("matchesPathTemplate", PathTemplatePattern.class));
+          Map.entry("matchesPathTemplate", PathTemplatePattern.class),
+          Map.entry("largerThan", LargerThanPattern.class),
+          Map.entry("largerThanEqual", LargerThanEqualPattern.class),
+          Map.entry("lessThan", LessThanPattern.class),
+          Map.entry("lessThanEqual", LessThanEqualPattern.class)
+      );
 
   @Override
   public StringValuePattern deserialize(JsonParser parser, DeserializationContext context)
