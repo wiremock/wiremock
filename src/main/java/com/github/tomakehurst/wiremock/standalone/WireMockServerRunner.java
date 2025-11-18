@@ -122,7 +122,8 @@ public class WireMockServerRunner {
   }
 
   private void startRecordingWithOptions(CommandLineOptions options) {
-    RecordSpecBuilder recordSpecBuilder = new RecordSpecBuilder()
+    RecordSpecBuilder recordSpecBuilder =
+        new RecordSpecBuilder()
             .makeStubsPersistent(true)
             .ignoreRepeatRequests()
             .extractBinaryBodiesOver(0)

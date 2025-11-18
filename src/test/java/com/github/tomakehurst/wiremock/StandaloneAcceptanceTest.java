@@ -44,10 +44,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -701,8 +699,8 @@ public class StandaloneAcceptanceTest {
       @Override
       protected void describeMismatchSafely(File dir, Description mismatchDescription) {
         mismatchDescription
-                .appendText("directory contents were: ")
-                .appendValue(Arrays.toString(requireNonNull(dir.list())));
+            .appendText("directory contents were: ")
+            .appendValue(Arrays.toString(requireNonNull(dir.list())));
       }
     };
   }
@@ -723,8 +721,8 @@ public class StandaloneAcceptanceTest {
       @Override
       protected void describeMismatchSafely(File dir, Description mismatchDescription) {
         mismatchDescription
-                .appendText("directory contents were: ")
-                .appendValue(Arrays.toString(requireNonNull(dir.list())));
+            .appendText("directory contents were: ")
+            .appendValue(Arrays.toString(requireNonNull(dir.list())));
       }
     };
   }
@@ -746,8 +744,8 @@ public class StandaloneAcceptanceTest {
       @Override
       protected void describeMismatchSafely(File dir, Description mismatchDescription) {
         mismatchDescription
-                .appendText("directory contents were: ")
-                .appendValue(Arrays.toString(requireNonNull(dir.list())));
+            .appendText("directory contents were: ")
+            .appendValue(Arrays.toString(requireNonNull(dir.list())));
       }
     };
   }
