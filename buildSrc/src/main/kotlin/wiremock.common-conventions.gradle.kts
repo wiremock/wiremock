@@ -94,43 +94,63 @@ tasks.withType<Test>().configureEach {
   useJUnitPlatform()
 }
 
-spotless {
-  java {
-    target("src/**/*.java")
-    googleJavaFormat("1.17.0")
-    licenseHeaderFile("$rootDir/gradle/spotless.java.license.txt")
-    ratchetFrom("origin/master")
-    trimTrailingWhitespace()
-    endWithNewline()
-    targetExclude("**/Tmp*.java")
+// Check if we're in a git worktree (where .git is a file, not a directory)
+fun isGitWorktree(): Boolean {
+  return try {
+    val gitFile = file("$rootDir/.git")
+    gitFile.exists() && gitFile.isFile
+  } catch (e: Exception) {
+    false
   }
-  kotlinGradle {
-    target("**/*.gradle.kts")
-    targetExclude("**/build/**")
-    indentWithSpaces(2)
-    trimTrailingWhitespace()
-    endWithNewline()
+}
+
+val inWorktree = isGitWorktree()
+val spotlessEnabled = providers.gradleProperty("spotless.enabled")
+  .map { it.toBoolean() }
+  .orElse(!inWorktree) // Auto-disable in worktrees unless explicitly enabled
+  .get()
+
+if (spotlessEnabled) {
+  spotless {
+    java {
+      target("src/**/*.java")
+      googleJavaFormat("1.17.0")
+      licenseHeaderFile("$rootDir/gradle/spotless.java.license.txt")
+      ratchetFrom("origin/master")
+      trimTrailingWhitespace()
+      endWithNewline()
+      targetExclude("**/Tmp*.java")
+    }
+    kotlinGradle {
+      target("**/*.gradle.kts")
+      targetExclude("**/build/**")
+      indentWithSpaces(2)
+      trimTrailingWhitespace()
+      endWithNewline()
+    }
+    groovyGradle {
+      target("**/*.gradle")
+      greclipse()
+      indentWithSpaces(2)
+      trimTrailingWhitespace()
+      endWithNewline()
+    }
+    json {
+      target("src/**/*.json")
+      targetExclude(
+        "**/tmp*.json",
+        "src/test/resources/sample.json",
+        "src/main/resources/swagger/*.json",
+        "src/test/resources/filesource/subdir/deepfile.json",
+        "src/test/resources/schema-validation/*.json",
+        "src/test/resources/test-file-root/mappings/testjsonmapping.json",
+        "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
+      )
+      simple().indentWithSpaces(2)
+    }
   }
-  groovyGradle {
-    target("**/*.gradle")
-    greclipse()
-    indentWithSpaces(2)
-    trimTrailingWhitespace()
-    endWithNewline()
-  }
-  json {
-    target("src/**/*.json")
-    targetExclude(
-      "**/tmp*.json",
-      "src/test/resources/sample.json",
-      "src/main/resources/swagger/*.json",
-      "src/test/resources/filesource/subdir/deepfile.json",
-      "src/test/resources/schema-validation/*.json",
-      "src/test/resources/test-file-root/mappings/testjsonmapping.json",
-      "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
-    )
-    simple().indentWithSpaces(2)
-  }
+} else {
+  logger.lifecycle("Spotless is disabled (git worktree detected or spotless.enabled=false)")
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
