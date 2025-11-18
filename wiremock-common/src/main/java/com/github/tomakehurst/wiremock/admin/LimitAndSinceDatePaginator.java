@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.admin;
 
 import static com.github.tomakehurst.wiremock.admin.Conversions.toDate;
 import static com.github.tomakehurst.wiremock.admin.Conversions.toInt;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toPredicate;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
@@ -24,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
@@ -31,29 +33,39 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   private final List<ServeEvent> source;
   private final Integer limit;
   private final Date since;
+  private final Predicate<ServeEvent> serveEventPredicate;
 
-  public LimitAndSinceDatePaginator(List<ServeEvent> source, Integer limit, Date since) {
+  public LimitAndSinceDatePaginator(
+      List<ServeEvent> source,
+      Integer limit,
+      Date since,
+      Predicate<ServeEvent> serveEventPredicate) {
     checkParameter(limit == null || limit >= 0, "limit must be 0 or greater");
     this.source = source;
     this.limit = limit;
     this.since = since;
+    this.serveEventPredicate = serveEventPredicate;
   }
 
   public static LimitAndSinceDatePaginator fromRequest(List<ServeEvent> source, Request request) {
     return new LimitAndSinceDatePaginator(
-        source, toInt(request.queryParameter("limit")), toDate(request.queryParameter("since")));
+        source,
+        toInt(request.queryParameter("limit")),
+        toDate(request.queryParameter("since")),
+        toPredicate(request.queryParameter("exclude"), request.queryParameter("include")));
   }
 
   @Override
   public List<ServeEvent> select() {
     return source.stream()
         .filter(input -> since == null || input.getRequest().getLoggedDate().after(since))
+        .filter(serveEventPredicate)
         .limit(getFirstNonNull(limit, source.size()))
         .collect(Collectors.toList());
   }
 
   @Override
   public int getTotal() {
-    return source.size();
+    return source.stream().filter(serveEventPredicate).toList().size();
   }
 }

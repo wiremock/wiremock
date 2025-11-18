@@ -224,6 +224,29 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  void getFilteredLoggedRequests() {
+
+    for (int i = 1; i <= 10; i++) {
+      final String id = "foo_" + i;
+      final String queryParams = i % 2 == 0 ? "?parity=even&id=" + id : "?parity=odd&id=" + id;
+      testClient.get("/received-request" + queryParams);
+    }
+
+    String body = testClient.get("/__admin/requests?exclude=foo_1,foo_3&include=odd").content();
+
+    System.out.println(body);
+    JsonVerifiable check = JsonAssertion.assertThat(body);
+    check.field("meta").field("total").isEqualTo(3);
+    check
+        .field("requests")
+        .elementWithIndex(0)
+        .field("request")
+        .field("url")
+        .isEqualTo("/received-request?parity=odd&id=foo_9");
+    check.field("requests").hasSize(3);
+  }
+
+  @Test
   void getLoggedRequestsWithLimit() {
     dsl.stubFor(
         get(urlPathEqualTo("/received-request/7"))
