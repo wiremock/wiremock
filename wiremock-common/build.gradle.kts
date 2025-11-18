@@ -82,7 +82,11 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-common")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.common")
+    }
 }
+
 
 publishing {
     publications {
