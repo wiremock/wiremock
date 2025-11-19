@@ -73,7 +73,7 @@ dependencies {
 }
 
 tasks.jar {
-    archiveBaseName.set("wiremock-common")
+    archiveBaseName.set("wiremock-core")
 }
 
 publishing {
@@ -83,7 +83,7 @@ publishing {
             from(components["java"])
 
             pom {
-                name = "WireMock Common"
+                name = "WireMock Core"
                 description = "The core engine of WireMock"
             }
         }
