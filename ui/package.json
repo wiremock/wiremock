@@ -13,8 +13,8 @@
     "glob": "11.0.0"
   },
   "scripts": {
-    "swaggerui": "cp -rf node_modules/swagger-ui-dist/ ../wiremock-common/src/main/resources/assets/swagger-ui/swagger-ui-dist/",
-    "swaggerjson": "npx redocly bundle --ext json ../wiremock-common/src/main/resources/swagger/wiremock-admin-api.yaml -o ../wiremock-common/src/main/resources/swagger/wiremock-admin-api.json",
+    "swaggerui": "cp -rf node_modules/swagger-ui-dist/ ../src/main/resources/assets/swagger-ui/swagger-ui-dist/",
+    "swaggerjson": "npx redocly bundle --ext json ../wiremock-core/src/main/resources/swagger/wiremock-admin-api.yaml -o ../wiremock-core/src/main/resources/swagger/wiremock-admin-api.json",
     "swagger": "npm run swaggerui && npm run swaggerjson"
   }
 }

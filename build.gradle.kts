@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-  api(project(":wiremock-common"))
+  api(project(":wiremock-core"))
   testImplementation(project(":wiremock-junit5"))
   api(project(":wiremock-jetty"))
   testImplementation(libs.apache.http5.client)
@@ -60,7 +60,7 @@ dependencies {
   compileOnly(libs.junit.jupiter.api)
   compileOnly(libs.junit.platform.commons)
 
-  testFixturesApi(project(":wiremock-common"))
+  testFixturesApi(project(":wiremock-core"))
 
   testFixturesApi(libs.apache.http5.client)
   testFixturesApi(libs.apache.http5.core)
@@ -310,9 +310,9 @@ fun updateFiles(currentVersion: String, nextVersion: String) {
   val filesWithVersion: Map<String, (String) -> String> = mapOf(
     "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts"    to { "version = \"${it}\"" },
     "ui/package.json"                                                    to { "\"version\": \"${it}\"" },
-    "wiremock-common/src/main/resources/version.properties"              to { "version=${it}" },
-    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
-    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" },
+    "wiremock-core/src/main/resources/version.properties"              to { "version=${it}" },
+    "wiremock-core/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
+    "wiremock-core/src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" },
   )
 
   filesWithVersion.forEach { (fileName, lineWithVersionTemplates) ->
@@ -430,7 +430,7 @@ dependencyAnalysis {
       onAny {
         exclude(
           ":wiremock-jetty",
-          ":wiremock-common",
+          ":wiremock-core",
         )
       }
     }
