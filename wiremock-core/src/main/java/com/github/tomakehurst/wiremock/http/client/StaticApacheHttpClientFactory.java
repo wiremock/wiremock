@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.Version;
-import com.github.tomakehurst.wiremock.http.NetworkAddressRulesAdheringDnsResolver;
 import com.github.tomakehurst.wiremock.http.ssl.*;
 import java.security.*;
 import java.util.Enumeration;
