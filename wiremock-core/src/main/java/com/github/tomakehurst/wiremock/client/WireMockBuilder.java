@@ -106,11 +106,6 @@ public class WireMockBuilder {
   }
 
   HttpAdminClient buildAdminClient(ProxySettings proxySettings) {
-    return new HttpAdminClient(
-        scheme, host, port, urlPathPrefix, hostHeader, authenticator, createClient(proxySettings));
-  }
-
-  static HttpClient createClient(ProxySettings proxySettings) {
 
     Options options =
         wireMockConfig()
@@ -119,7 +114,11 @@ public class WireMockBuilder {
             .proxyVia(proxySettings)
             .disableConnectionReuse(false);
 
-    return new ApacheHttpClientFactory()
-        .buildHttpClient(options, true, Collections.emptyList(), true);
+    com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
+        new ApacheHttpClientFactory();
+    HttpClient httpClient =
+        httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);
+    return new HttpAdminClient(
+        scheme, host, port, urlPathPrefix, hostHeader, authenticator, httpClient);
   }
 }
