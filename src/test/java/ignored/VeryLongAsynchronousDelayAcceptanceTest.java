@@ -19,6 +19,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
@@ -26,6 +29,7 @@ import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.IOException;
+import java.util.Collections;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -61,7 +65,17 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
     wireMockRule.addStubMapping(Json.read(json, StubMapping.class));
 
     CloseableHttpResponse response =
-        HttpClientFactory.createClient(50, 120000)
+        HttpClientFactory.createClient(
+                50,
+                120000,
+                ProxySettings.NO_PROXY,
+                KeyStoreSettings.NO_STORE,
+                true,
+                Collections.emptyList(),
+                true,
+                NetworkAddressRules.ALLOW_ALL,
+                false,
+                null)
             .execute(
                 ClassicRequestBuilder.post(wireMockRule.url("/faulty/1/path/path"))
                     .setEntity(new StringEntity("<xml>permissions</xml>"))

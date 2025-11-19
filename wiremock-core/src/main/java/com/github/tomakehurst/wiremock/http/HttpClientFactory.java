@@ -167,27 +167,6 @@ public class HttpClientFactory {
     }
   }
 
-  public static CloseableHttpClient createClient(
-      int maxConnections,
-      int timeoutMilliseconds,
-      ProxySettings proxySettings,
-      KeyStoreSettings trustStoreSettings,
-      boolean useSystemProperties,
-      NetworkAddressRules networkAddressRules,
-      boolean disableConnectionReuse) {
-    return createClient(
-        maxConnections,
-        timeoutMilliseconds,
-        proxySettings,
-        trustStoreSettings,
-        true,
-        Collections.emptyList(),
-        useSystemProperties,
-        networkAddressRules,
-        disableConnectionReuse,
-        null);
-  }
-
   private static SSLContext buildSSLContextWithTrustStore(
       KeyStoreSettings trustStoreSettings,
       boolean trustSelfSignedCertificates,
@@ -234,19 +213,18 @@ public class HttpClientFactory {
     }
   }
 
-  public static CloseableHttpClient createClient(int maxConnections, int timeoutMilliseconds) {
+  public static CloseableHttpClient createClient(int timeoutMilliseconds) {
     return createClient(
-        maxConnections,
+        DEFAULT_MAX_CONNECTIONS,
         timeoutMilliseconds,
         NO_PROXY,
         NO_STORE,
         true,
+        Collections.emptyList(),
+        true,
         NetworkAddressRules.ALLOW_ALL,
-        false);
-  }
-
-  public static CloseableHttpClient createClient(int timeoutMilliseconds) {
-    return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
+        false,
+        null);
   }
 
   public static CloseableHttpClient createClient() {
