@@ -16,11 +16,9 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
@@ -28,7 +26,6 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.http.ssl.*;
-import java.net.URI;
 import java.security.*;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -36,7 +33,6 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
@@ -192,28 +188,6 @@ public class HttpClientFactory {
         null);
   }
 
-  public static CloseableHttpClient createClient(
-      int maxConnections,
-      int timeoutMilliseconds,
-      ProxySettings proxySettings,
-      KeyStoreSettings trustStoreSettings,
-      boolean useSystemProperties,
-      NetworkAddressRules networkAddressRules,
-      boolean disableConnectionReuse,
-      String userAgent) {
-    return createClient(
-        maxConnections,
-        timeoutMilliseconds,
-        proxySettings,
-        trustStoreSettings,
-        true,
-        Collections.emptyList(),
-        useSystemProperties,
-        networkAddressRules,
-        disableConnectionReuse,
-        userAgent);
-  }
-
   private static SSLContext buildSSLContextWithTrustStore(
       KeyStoreSettings trustStoreSettings,
       boolean trustSelfSignedCertificates,
@@ -275,32 +249,7 @@ public class HttpClientFactory {
     return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
   }
 
-  public static CloseableHttpClient createClient(ProxySettings proxySettings) {
-    return createClient(
-        DEFAULT_MAX_CONNECTIONS,
-        DEFAULT_TIMEOUT,
-        proxySettings,
-        NO_STORE,
-        true,
-        NetworkAddressRules.ALLOW_ALL,
-        false);
-  }
-
   public static CloseableHttpClient createClient() {
     return createClient(DEFAULT_TIMEOUT);
-  }
-
-  public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
-    notifier().info("Proxying: " + method + " " + url);
-
-    if (method.equals(GET)) return new HttpGet(url);
-    else if (method.equals(POST)) return new HttpPost(url);
-    else if (method.equals(PUT)) return new HttpPut(url);
-    else if (method.equals(DELETE)) return new HttpDelete(url);
-    else if (method.equals(HEAD)) return new HttpHead(url);
-    else if (method.equals(OPTIONS)) return new HttpOptions(url);
-    else if (method.equals(TRACE)) return new HttpTrace(url);
-    else if (method.equals(PATCH)) return new HttpPatch(url);
-    else return new HttpUriRequestBase(method.toString(), URI.create(url));
   }
 }
