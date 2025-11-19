@@ -19,7 +19,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
-import org.eclipse.jetty.ee10.servlet.ServletApiResponse;
+import org.eclipse.jetty.ee11.servlet.ServletApiResponse;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.SelectableChannelEndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;

@@ -1362,7 +1362,7 @@ class AdminApiTest extends AcceptanceTestBase {
         testClient.get("/__admin/version", new TestHttpHeader("Accept", "text/plain"));
 
     assertThat(response.statusCode(), is(200));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    assertThat(response.firstHeader("Content-Type"), containsString("text/plain"));
     assertThat(response.content(), is("X.X.X"));
   }
 

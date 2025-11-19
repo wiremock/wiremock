@@ -43,8 +43,8 @@ import jakarta.servlet.DispatcherType;
 import java.util.*;
 import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
-import org.eclipse.jetty.ee10.servlet.*;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee11.servlet.*;
+import org.eclipse.jetty.ee11.servlets.CrossOriginFilter;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
@@ -359,6 +359,11 @@ public class Jetty12HttpServer extends JettyHttpServer {
     mimeTypes.addMimeMapping("html", "text/html");
     mimeTypes.addMimeMapping("xml", "application/xml");
     mimeTypes.addMimeMapping("txt", "text/plain");
+
+    // Nasty hack to prevent Jetty 12 + EE11 adding charsets we didn't ask for to the Content-Type
+    // header
+    Stream.of("text/plain", "text/xml", "text/html", "application/xhtml+xml")
+        .forEach(mt -> mimeTypes.addInferred(mt, null));
 
     mockServiceContext.setWelcomeFiles(
         new String[] {"index.json", "index.html", "index.xml", "index.txt"});

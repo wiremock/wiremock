@@ -16,10 +16,10 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import jakarta.servlet.ServletException;
-import org.eclipse.jetty.ee10.servlet.Dispatcher;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
-import org.eclipse.jetty.ee10.servlet.ServletContextResponse;
+import org.eclipse.jetty.ee11.servlet.Dispatcher;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletContextRequest;
+import org.eclipse.jetty.ee11.servlet.ServletContextResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ErrorHandler;

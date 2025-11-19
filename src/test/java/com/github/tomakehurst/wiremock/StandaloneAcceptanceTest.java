@@ -247,7 +247,7 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/34567/");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("<blob>BLAB</blob>"));
-    assertThat(response.firstHeader("Content-Type"), is("application/xml;charset=utf-8"));
+    assertThat(response.firstHeader("Content-Type"), is("application/xml"));
   }
 
   @Test
