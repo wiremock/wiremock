@@ -17,14 +17,17 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import java.util.Collections;
 
 public class WireMockBuilder {
 
@@ -111,9 +114,15 @@ public class WireMockBuilder {
   }
 
   static HttpClient createClient(ProxySettings proxySettings) {
-    final CloseableHttpClient apacheClient =
-        com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(proxySettings);
 
-    return new ApacheBackedHttpClient(apacheClient, false);
+    Options options =
+        wireMockConfig()
+            .maxHttpClientConnections(HttpClientFactory.DEFAULT_MAX_CONNECTIONS)
+            .timeout(HttpClientFactory.DEFAULT_TIMEOUT)
+            .proxyVia(proxySettings)
+            .disableConnectionReuse(false);
+
+    return new ApacheHttpClientFactory()
+        .buildHttpClient(options, true, Collections.emptyList(), true);
   }
 }
