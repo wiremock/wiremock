@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":wiremock-common"))
+    api(project(":wiremock-core"))
 
     api(libs.junit4)
 

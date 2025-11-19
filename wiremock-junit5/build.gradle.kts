@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":wiremock-common"))
+    api(project(":wiremock-core"))
 
     api(platform(libs.junit.bom))
     api(libs.junit.jupiter.api)
