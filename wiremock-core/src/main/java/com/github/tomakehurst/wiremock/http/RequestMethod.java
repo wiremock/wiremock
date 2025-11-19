@@ -15,22 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static java.util.Arrays.asList;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonDeserialize(using = RequestMethodJsonDeserializer.class)
-@JsonSerialize(using = RequestMethodJsonSerializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   public static final RequestMethod GET = new RequestMethod("GET");
@@ -43,6 +37,9 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
   public static final RequestMethod GET_OR_HEAD = isOneOf(GET, HEAD);
+
+  private static final List<RequestMethod> METHODS_WITH_ENTITY = Arrays.asList(PUT, PATCH, POST);
+
   private final String name;
 
   public RequestMethod(String name) {
@@ -80,7 +77,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   @JsonValue
-  public String value() {
+  public Object value() {
     return name;
   }
 
@@ -108,7 +105,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public boolean hasEntity() {
-    return (asList(PUT, PATCH, POST).contains(this));
+    return (METHODS_WITH_ENTITY.contains(this));
   }
 
   @Override

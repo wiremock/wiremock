@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+
+import java.util.Map;
 import java.util.Set;
 
 public abstract class MultiRequestMethodPattern extends RequestMethod {
@@ -50,6 +52,11 @@ public abstract class MultiRequestMethodPattern extends RequestMethod {
     }
 
     @Override
+    public Object value() {
+      return Map.of(NAME, methods);
+    }
+
+    @Override
     public MatchResult match(RequestMethod value) {
       return methods.contains(value) ? MatchResult.exactMatch() : MatchResult.noMatch();
     }
@@ -66,6 +73,11 @@ public abstract class MultiRequestMethodPattern extends RequestMethod {
     @Override
     public String getName() {
       return NAME;
+    }
+
+    @Override
+    public Object value() {
+      return Map.of(NAME, methods);
     }
 
     @Override
