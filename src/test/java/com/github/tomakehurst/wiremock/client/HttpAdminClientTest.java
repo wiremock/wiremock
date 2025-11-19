@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -49,7 +50,7 @@ class HttpAdminClientTest {
 
   @Test
   void returnsOptionsWhenCallingGetOptions() {
-    var client = new HttpAdminClient("localhost", 8080);
+    var client = buildHttpAdminClient(8080, "");
     assertThat(client.getOptions().portNumber()).isEqualTo(8080);
     assertThat(client.getOptions().bindAddress()).isEqualTo("localhost");
   }
@@ -62,7 +63,7 @@ class HttpAdminClientTest {
         post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
             .willReturn(ok()));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     client.resetToDefaultMappings();
   }
@@ -75,7 +76,7 @@ class HttpAdminClientTest {
         post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
             .willReturn(ok()));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     client.resetAll();
   }
@@ -132,7 +133,7 @@ class HttpAdminClientTest {
         get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, absent())
             .willReturn(jsonResponse(expectedResponse, HttpStatus.SC_OK)));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     assertThat(client.getAllScenarios()).usingRecursiveComparison().isEqualTo(expectedResponse);
   }
@@ -141,7 +142,7 @@ class HttpAdminClientTest {
   void reuseConnections() throws InterruptedException, IOException {
     var server = new SingleConnectionServer();
     server.start();
-    var client = new HttpAdminClient("localhost", server.getPort(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server.getPort(), ADMIN_TEST_PREFIX);
 
     client.resetAll();
     client.resetAll();
@@ -153,7 +154,7 @@ class HttpAdminClientTest {
     var nonWireMockServer = HttpServer.create(new InetSocketAddress(0), 0);
     nonWireMockServer.start();
     var serverPort = nonWireMockServer.getAddress().getPort();
-    var client = new HttpAdminClient("localhost", serverPort, ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(serverPort, ADMIN_TEST_PREFIX);
     var mapping = post(urlPathMatching("/test")).willReturn(ok()).build();
     var thrown = assertThrows(InvalidInputException.class, () -> client.addStubMapping(mapping));
     assertThat(thrown.getErrors().getErrors()).hasSize(1);
@@ -192,5 +193,20 @@ class HttpAdminClientTest {
                 new Errors(
                     List.of(
                         new Errors.Error(null, new Errors.Error.Source(null), "Conflict", null)))));
+  }
+
+  private static HttpAdminClient buildHttpAdminClient(WireMockServer server) {
+    return buildHttpAdminClient(server.port(), ADMIN_TEST_PREFIX);
+  }
+
+  private static HttpAdminClient buildHttpAdminClient(int port, String urlPathPrefix) {
+    return new HttpAdminClient(
+        "http",
+        "localhost",
+        port,
+        urlPathPrefix,
+        null,
+        noClientAuthenticator(),
+        WireMockBuilder.createClient());
   }
 }

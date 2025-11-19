@@ -15,9 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
+
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class WireMockBuilder {
 
@@ -86,7 +93,27 @@ public class WireMockBuilder {
   }
 
   public WireMock build() {
+    ProxySettings proxySettings =
+        isNotBlank(proxyHost) ? new ProxySettings(proxyHost, proxyPort) : NO_PROXY;
     return new WireMock(
-        scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
+        new HttpAdminClient(
+            scheme,
+            host,
+            port,
+            urlPathPrefix,
+            hostHeader,
+            authenticator,
+            createClient(proxySettings)));
+  }
+
+  static HttpClient createClient() {
+    return createClient(NO_PROXY);
+  }
+
+  static HttpClient createClient(ProxySettings proxySettings) {
+    final CloseableHttpClient apacheClient =
+        com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(proxySettings);
+
+    return new ApacheBackedHttpClient(apacheClient, false);
   }
 }

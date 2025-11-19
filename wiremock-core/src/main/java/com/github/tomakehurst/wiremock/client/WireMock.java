@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
@@ -37,7 +38,6 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
@@ -63,6 +63,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class WireMock {
 
   private static final int DEFAULT_PORT = 8080;
@@ -72,8 +73,8 @@ public class WireMock {
 
   private final SettingsStore settingsStore = new InMemorySettingsStore();
 
-  private static InheritableThreadLocal<WireMock> defaultInstance =
-      new InheritableThreadLocal<WireMock>() {
+  private static final InheritableThreadLocal<WireMock> defaultInstance =
+      new InheritableThreadLocal<>() {
         @Override
         protected WireMock initialValue() {
           return WireMock.create().build();
@@ -89,45 +90,15 @@ public class WireMock {
   }
 
   public WireMock(int port) {
-    this(DEFAULT_HOST, port);
-  }
-
-  public WireMock(String host, int port) {
-    admin = new HttpAdminClient(host, port);
-  }
-
-  public WireMock(String host, int port, String urlPathPrefix) {
-    admin = new HttpAdminClient(host, port, urlPathPrefix);
-  }
-
-  public WireMock(String scheme, String host, int port) {
-    admin = new HttpAdminClient(scheme, host, port);
-  }
-
-  public WireMock(String scheme, String host) {
-    admin = new HttpAdminClient(scheme, host);
-  }
-
-  public WireMock(String scheme, String host, int port, String urlPathPrefix) {
-    admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
-  }
-
-  public WireMock(
-      String scheme,
-      String host,
-      int port,
-      String urlPathPrefix,
-      String hostHeader,
-      String proxyHost,
-      int proxyPort,
-      ClientAuthenticator authenticator) {
-    admin =
+    this(
         new HttpAdminClient(
-            scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
-  }
-
-  public WireMock() {
-    admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
+            "http",
+            DEFAULT_HOST,
+            port,
+            "",
+            null,
+            noClientAuthenticator(),
+            WireMockBuilder.createClient()));
   }
 
   public static StubMapping givenThat(MappingBuilder mappingBuilder) {
@@ -1131,20 +1102,13 @@ public class WireMock {
     public static final JsonSchemaVersion DEFAULT = V202012;
 
     public SpecVersion.VersionFlag toVersionFlag() {
-      switch (this) {
-        case V4:
-          return SpecVersion.VersionFlag.V4;
-        case V6:
-          return SpecVersion.VersionFlag.V6;
-        case V7:
-          return SpecVersion.VersionFlag.V7;
-        case V201909:
-          return SpecVersion.VersionFlag.V201909;
-        case V202012:
-          return SpecVersion.VersionFlag.V202012;
-        default:
-          throw new IllegalArgumentException("Unknown schema version: " + this);
-      }
+      return switch (this) {
+        case V4 -> SpecVersion.VersionFlag.V4;
+        case V6 -> SpecVersion.VersionFlag.V6;
+        case V7 -> SpecVersion.VersionFlag.V7;
+        case V201909 -> SpecVersion.VersionFlag.V201909;
+        case V202012 -> SpecVersion.VersionFlag.V202012;
+      };
     }
   }
 }

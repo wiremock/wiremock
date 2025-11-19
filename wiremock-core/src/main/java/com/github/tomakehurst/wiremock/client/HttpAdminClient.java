@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
-import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
@@ -35,7 +33,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -52,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class HttpAdminClient implements Admin {
 
@@ -69,48 +65,6 @@ public class HttpAdminClient implements Admin {
   private final AdminRoutes adminRoutes;
 
   private final HttpClient httpClient;
-
-  public HttpAdminClient(String scheme, String host, int port) {
-    this(scheme, host, port, "");
-  }
-
-  public HttpAdminClient(String scheme, String host) {
-    this(scheme, host, NO_PORT_DEFINED, "");
-  }
-
-  public HttpAdminClient(String host, int port, String urlPathPrefix) {
-    this("http", host, port, urlPathPrefix);
-  }
-
-  public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
-    this(scheme, host, port, urlPathPrefix, null, null, 0, noClientAuthenticator());
-  }
-
-  public HttpAdminClient(
-      String scheme,
-      String host,
-      int port,
-      String urlPathPrefix,
-      String hostHeader,
-      String proxyHost,
-      int proxyPort,
-      ClientAuthenticator authenticator) {
-    this(
-        scheme,
-        host,
-        port,
-        urlPathPrefix,
-        hostHeader,
-        authenticator,
-        createClient(createProxySettings(proxyHost, proxyPort)));
-  }
-
-  private static HttpClient createClient(ProxySettings proxySettings) {
-    final CloseableHttpClient apacheClient =
-        com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(proxySettings);
-
-    return new ApacheBackedHttpClient(apacheClient, false);
-  }
 
   public HttpAdminClient(
       String scheme,
@@ -129,10 +83,6 @@ public class HttpAdminClient implements Admin {
     this.httpClient = httpClient;
 
     adminRoutes = AdminRoutes.forClient();
-  }
-
-  public HttpAdminClient(String host, int port) {
-    this(host, port, "");
   }
 
   @Override
@@ -446,13 +396,6 @@ public class HttpAdminClient implements Admin {
 
   public int port() {
     return port;
-  }
-
-  private static ProxySettings createProxySettings(String proxyHost, int proxyPort) {
-    if (isNotBlank(proxyHost)) {
-      return new ProxySettings(proxyHost, proxyPort);
-    }
-    return ProxySettings.NO_PROXY;
   }
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
