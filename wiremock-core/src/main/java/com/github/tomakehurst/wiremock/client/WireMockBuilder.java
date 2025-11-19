@@ -98,19 +98,16 @@ public class WireMockBuilder {
   public WireMock build() {
     ProxySettings proxySettings =
         isNotBlank(proxyHost) ? new ProxySettings(proxyHost, proxyPort) : NO_PROXY;
-    return new WireMock(
-        new HttpAdminClient(
-            scheme,
-            host,
-            port,
-            urlPathPrefix,
-            hostHeader,
-            authenticator,
-            createClient(proxySettings)));
+    return new WireMock(buildAdminClient(proxySettings));
   }
 
-  static HttpClient createClient() {
-    return createClient(NO_PROXY);
+  HttpAdminClient buildAdminClient() {
+    return buildAdminClient(NO_PROXY);
+  }
+
+  HttpAdminClient buildAdminClient(ProxySettings proxySettings) {
+    return new HttpAdminClient(
+        scheme, host, port, urlPathPrefix, hostHeader, authenticator, createClient(proxySettings));
   }
 
   static HttpClient createClient(ProxySettings proxySettings) {

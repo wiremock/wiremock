@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
-import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
@@ -90,15 +89,7 @@ public class WireMock {
   }
 
   public WireMock(int port) {
-    this(
-        new HttpAdminClient(
-            "http",
-            DEFAULT_HOST,
-            port,
-            "",
-            null,
-            noClientAuthenticator(),
-            WireMockBuilder.createClient()));
+    this(WireMock.create().port(port).buildAdminClient());
   }
 
   public static StubMapping givenThat(MappingBuilder mappingBuilder) {

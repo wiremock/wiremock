@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -200,13 +199,6 @@ class HttpAdminClientTest {
   }
 
   private static HttpAdminClient buildHttpAdminClient(int port, String urlPathPrefix) {
-    return new HttpAdminClient(
-        "http",
-        "localhost",
-        port,
-        urlPathPrefix,
-        null,
-        noClientAuthenticator(),
-        WireMockBuilder.createClient());
+    return WireMock.create().port(port).urlPathPrefix(urlPathPrefix).buildAdminClient();
   }
 }
