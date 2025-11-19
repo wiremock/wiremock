@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-  CloseableHttpClient httpClient = HttpClientFactory.createClient();
+  CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
 
   @Test
   public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {

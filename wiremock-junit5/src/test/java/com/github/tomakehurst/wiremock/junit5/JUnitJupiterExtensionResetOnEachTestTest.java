@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import java.util.Optional;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -39,7 +39,7 @@ public class JUnitJupiterExtensionResetOnEachTestTest {
 
   @BeforeEach
   void init() {
-    client = HttpClientFactory.createClient();
+    client = ApacheHttpClientFactory.createClient();
 
     extensionContext = Mockito.mock(ExtensionContext.class);
     when(extensionContext.getElement()).thenReturn(Optional.empty());

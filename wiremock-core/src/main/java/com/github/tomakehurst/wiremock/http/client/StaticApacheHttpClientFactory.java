@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.http.client;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
@@ -25,9 +25,9 @@ import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.Version;
+import com.github.tomakehurst.wiremock.http.NetworkAddressRulesAdheringDnsResolver;
 import com.github.tomakehurst.wiremock.http.ssl.*;
 import java.security.*;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import javax.net.ssl.SSLContext;
@@ -49,12 +49,9 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
-public class HttpClientFactory {
+class StaticApacheHttpClientFactory {
 
-  public static final int DEFAULT_MAX_CONNECTIONS = 50;
-  public static final int DEFAULT_TIMEOUT = 30000;
-
-  public static CloseableHttpClient createClient(
+  static CloseableHttpClient createClient(
       int maxConnections,
       int timeoutMilliseconds,
       ProxySettings proxySettings,
@@ -211,23 +208,5 @@ public class HttpClientFactory {
     } catch (Exception e) {
       return throwUnchecked(e, null);
     }
-  }
-
-  public static CloseableHttpClient createClient(int timeoutMilliseconds) {
-    return createClient(
-        DEFAULT_MAX_CONNECTIONS,
-        timeoutMilliseconds,
-        NO_PROXY,
-        NO_STORE,
-        true,
-        Collections.emptyList(),
-        true,
-        NetworkAddressRules.ALLOW_ALL,
-        false,
-        null);
-  }
-
-  public static CloseableHttpClient createClient() {
-    return createClient(DEFAULT_TIMEOUT);
   }
 }

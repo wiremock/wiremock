@@ -23,7 +23,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -46,7 +46,7 @@ public class JUnitJupiterExtensionJvmProxyStaticProgrammaticTest {
 
   @BeforeEach
   void init() {
-    client = HttpClientFactory.createClient();
+    client = ApacheHttpClientFactory.createClient();
   }
 
   @Test

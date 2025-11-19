@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -288,7 +288,7 @@ public class WireMockJUnitRuleTest {
     public void exposesHttpsOnly() throws Exception {
       wireMockRule.stubFor(any(anyUrl()).willReturn(ok()));
 
-      CloseableHttpClient client = HttpClientFactory.createClient();
+      CloseableHttpClient client = ApacheHttpClientFactory.createClient();
 
       HttpGet request = new HttpGet("https://localhost:" + wireMockRule.httpsPort() + "/anything");
       HttpResponse response = client.execute(request);

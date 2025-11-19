@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.junit5.WireMockExtension.extension
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.JUnitJupiterExtensionSubclassingTest;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class JupiterExtensionTestClass {
 
-  CloseableHttpClient client = HttpClientFactory.createClient();
+  CloseableHttpClient client = ApacheHttpClientFactory.createClient();
 
   @RegisterExtension
   static JUnitJupiterExtensionSubclassingTest.MyWireMockExtension wm =

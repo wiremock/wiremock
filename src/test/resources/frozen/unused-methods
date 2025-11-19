@@ -38,7 +38,7 @@ Method <com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.For
 Method <com.github.tomakehurst.wiremock.global.GlobalSettings.builder()> is unreferenced in (GlobalSettings.java:30)
 Method <com.github.tomakehurst.wiremock.http.Cookie.cookie(com.github.tomakehurst.wiremock.common.ListOrSingle)> is unreferenced in (Cookie.java:33)
 Method <com.github.tomakehurst.wiremock.http.Cookie.cookie(java.lang.String)> is unreferenced in (Cookie.java:37)
-Method <com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient()> is unreferenced in (HttpClientFactory.java:241)
+Method <com.github.tomakehurst.wiremock.http.client.StaticApacheHttpClientFactory.createClient()> is unreferenced in (HttpClientFactory.java:241)
 Method <com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader(com.github.tomakehurst.wiremock.http.CaseInsensitiveKey, [Ljava.lang.String;)> is unreferenced in (HttpHeader.java:40)
 Method <com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf(com.github.tomakehurst.wiremock.http.HttpHeaders)> is unreferenced in (HttpHeaders.java:98)
 Method <com.github.tomakehurst.wiremock.http.HttpStatus.isRedirection(int)> is unreferenced in (HttpStatus.java:25)

@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
@@ -413,12 +414,12 @@ public class ProxyResponseRendererTest {
     proxyResponseRenderer.render(serveEvent);
     Mockito.verify(reverseProxyApacheClient)
         .execute(
-            argThat(request -> {
-              // All variations of the header should be removed regardless of case
-              return Arrays.stream(request.getHeaders())
-                  .noneMatch(header -> 
-                      header.getName().equalsIgnoreCase("header"));
-            }),
+            argThat(
+                request -> {
+                  // All variations of the header should be removed regardless of case
+                  return Arrays.stream(request.getHeaders())
+                      .noneMatch(header -> header.getName().equalsIgnoreCase("header"));
+                }),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
@@ -437,22 +438,24 @@ public class ProxyResponseRendererTest {
             aResponse()
                 .proxiedFrom(origin.baseUrl())
                 .withRemoveRequestHeader("User-Agent")
-                .withRemoveRequestHeader("AUTHORIZATION")  // Uppercase
-                .withRemoveRequestHeader("Content-Type")   // Mixed case
+                .withRemoveRequestHeader("AUTHORIZATION") // Uppercase
+                .withRemoveRequestHeader("Content-Type") // Mixed case
                 .build());
 
     proxyResponseRenderer.render(serveEvent);
     Mockito.verify(reverseProxyApacheClient)
         .execute(
-            argThat(request -> {
-              // All specified headers should be removed regardless of their original case
-              // or the case used in the removal specification
-              return Arrays.stream(request.getHeaders())
-                  .noneMatch(header -> 
-                      header.getName().equalsIgnoreCase("User-Agent") ||
-                      header.getName().equalsIgnoreCase("Authorization") ||
-                      header.getName().equalsIgnoreCase("Content-Type"));
-            }),
+            argThat(
+                request -> {
+                  // All specified headers should be removed regardless of their original case
+                  // or the case used in the removal specification
+                  return Arrays.stream(request.getHeaders())
+                      .noneMatch(
+                          header ->
+                              header.getName().equalsIgnoreCase("User-Agent")
+                                  || header.getName().equalsIgnoreCase("Authorization")
+                                  || header.getName().equalsIgnoreCase("Content-Type"));
+                }),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
@@ -592,7 +595,7 @@ public class ProxyResponseRendererTest {
 
     reverseProxyApacheClient =
         spy(
-            HttpClientFactory.createClient(
+            ApacheHttpClientFactory.createClient(
                 1000,
                 PROXY_TIMEOUT,
                 ProxySettings.NO_PROXY,
@@ -607,7 +610,7 @@ public class ProxyResponseRendererTest {
 
     forwardProxyApacheClient =
         spy(
-            HttpClientFactory.createClient(
+            ApacheHttpClientFactory.createClient(
                 1000,
                 PROXY_TIMEOUT,
                 ProxySettings.NO_PROXY,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -60,7 +60,7 @@ public class ResponseDribbleAcceptanceTest {
   @BeforeEach
   public void init() throws IOException {
     stubFor(get("/warmup").willReturn(ok()));
-    httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+    httpClient = ApacheHttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
     // Warm up the server
     httpClient.execute(new HttpGet(wireMockRule.url("/warmup")));
   }

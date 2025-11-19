@@ -21,6 +21,9 @@ import java.util.List;
 
 public interface HttpClientFactory extends Extension {
 
+  public static final int DEFAULT_MAX_CONNECTIONS = 50;
+  public static final int DEFAULT_TIMEOUT = 30000;
+
   @Override
   default String getName() {
     return "http-client-factory";

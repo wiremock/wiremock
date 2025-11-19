@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -57,7 +57,7 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
 
   @BeforeEach
   void init() {
-    client = HttpClientFactory.createClient();
+    client = ApacheHttpClientFactory.createClient();
   }
 
   @Test

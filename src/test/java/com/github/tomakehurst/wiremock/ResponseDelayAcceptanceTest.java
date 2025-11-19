@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -67,7 +67,7 @@ public class ResponseDelayAcceptanceTest {
 
   @BeforeEach
   public void init() {
-    httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+    httpClient = ApacheHttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
     testClient = new WireMockTestClient(wireMockRule.getPort());
   }
 

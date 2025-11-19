@@ -18,10 +18,11 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.http.client.HttpClientFactory.DEFAULT_MAX_CONNECTIONS;
+import static com.github.tomakehurst.wiremock.http.client.HttpClientFactory.DEFAULT_TIMEOUT;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
@@ -109,8 +110,8 @@ public class WireMockBuilder {
 
     Options options =
         wireMockConfig()
-            .maxHttpClientConnections(HttpClientFactory.DEFAULT_MAX_CONNECTIONS)
-            .timeout(HttpClientFactory.DEFAULT_TIMEOUT)
+            .maxHttpClientConnections(DEFAULT_MAX_CONNECTIONS)
+            .timeout(DEFAULT_TIMEOUT)
             .proxyVia(proxySettings)
             .disableConnectionReuse(false);
 
