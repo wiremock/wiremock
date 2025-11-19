@@ -16,9 +16,10 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
@@ -33,9 +34,9 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpStatus;
+import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
@@ -47,19 +48,11 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 public class HttpAdminClient implements Admin {
 
@@ -75,7 +68,7 @@ public class HttpAdminClient implements Admin {
 
   private final AdminRoutes adminRoutes;
 
-  private final CloseableHttpClient httpClient;
+  private final HttpClient httpClient;
 
   public HttpAdminClient(String scheme, String host, int port) {
     this(scheme, host, port, "");
@@ -94,30 +87,6 @@ public class HttpAdminClient implements Admin {
   }
 
   public HttpAdminClient(
-      String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
-    this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
-  }
-
-  public HttpAdminClient(
-      String scheme,
-      String host,
-      int port,
-      String urlPathPrefix,
-      String hostHeader,
-      String proxyHost,
-      int proxyPort) {
-    this(
-        scheme,
-        host,
-        port,
-        urlPathPrefix,
-        hostHeader,
-        proxyHost,
-        proxyPort,
-        noClientAuthenticator());
-  }
-
-  public HttpAdminClient(
       String scheme,
       String host,
       int port,
@@ -133,7 +102,14 @@ public class HttpAdminClient implements Admin {
         urlPathPrefix,
         hostHeader,
         authenticator,
-        HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort)));
+        createClient(createProxySettings(proxyHost, proxyPort)));
+  }
+
+  private static HttpClient createClient(ProxySettings proxySettings) {
+    final CloseableHttpClient apacheClient =
+        com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(proxySettings);
+
+    return new ApacheBackedHttpClient(apacheClient, false);
   }
 
   public HttpAdminClient(
@@ -143,7 +119,7 @@ public class HttpAdminClient implements Admin {
       String urlPathPrefix,
       String hostHeader,
       ClientAuthenticator authenticator,
-      CloseableHttpClient httpClient) {
+      HttpClient httpClient) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
@@ -157,10 +133,6 @@ public class HttpAdminClient implements Admin {
 
   public HttpAdminClient(String host, int port) {
     this(host, port, "");
-  }
-
-  private static StringEntity jsonStringEntity(String json) {
-    return new StringEntity(json, StandardCharsets.UTF_8);
   }
 
   @Override
@@ -484,21 +456,22 @@ public class HttpAdminClient implements Admin {
   }
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
-    HttpPost post = new HttpPost(url);
-    post.addHeader(CONTENT_TYPE, "application/json");
-    post.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
+    ImmutableRequest.Builder post = ImmutableRequest.create().withMethod(POST).withAbsoluteUrl(url);
+    post.withHeader(CONTENT_TYPE, "application/json");
+    post.withBody(Optional.ofNullable(json).orElse("").getBytes(UTF_8));
     return safelyExecuteRequest(url, post);
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   private String putJsonAssertOkAndReturnBody(String url, String json) {
-    HttpPut put = new HttpPut(url);
-    put.addHeader(CONTENT_TYPE, "application/json");
-    put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
+    ImmutableRequest.Builder put = ImmutableRequest.create().withMethod(PUT).withAbsoluteUrl(url);
+    put.withHeader(CONTENT_TYPE, "application/json");
+    put.withBody(Optional.ofNullable(json).orElse("").getBytes(UTF_8));
     return safelyExecuteRequest(url, put);
   }
 
   protected String getJsonAssertOkAndReturnBody(String url) {
-    HttpGet get = new HttpGet(url);
+    ImmutableRequest.Builder get = ImmutableRequest.create().withMethod(GET).withAbsoluteUrl(url);
     return safelyExecuteRequest(url, get);
   }
 
@@ -510,11 +483,11 @@ public class HttpAdminClient implements Admin {
     return executeRequest(requestSpec, PathParams.empty(), requestBody, responseType);
   }
 
-  private <B, R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
+  private <R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
     return executeRequest(requestSpec, PathParams.empty(), null, responseType);
   }
 
-  private <B, R> R executeRequest(
+  private <R> R executeRequest(
       RequestSpec requestSpec, PathParams pathParams, Class<R> responseType) {
     return executeRequest(requestSpec, pathParams, null, responseType);
   }
@@ -531,31 +504,27 @@ public class HttpAdminClient implements Admin {
       B requestBody,
       Class<R> responseType) {
     String url = getAdminUrl(requestSpec.path(pathParams) + queryParams);
-    ClassicRequestBuilder requestBuilder =
-        ClassicRequestBuilder.create(requestSpec.method().getName()).setUri(url);
+    ImmutableRequest.Builder requestBuilder =
+        ImmutableRequest.create().withMethod(requestSpec.method()).withAbsoluteUrl(url);
 
     if (requestSpec.method().hasEntity()) {
-      requestBuilder.setEntity(
-          jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
-      requestBuilder.addHeader(CONTENT_TYPE, "application/json");
+      requestBuilder.withBody(
+          Optional.ofNullable(requestBody).map(Json::write).orElse("").getBytes(UTF_8));
+      requestBuilder.withHeader(CONTENT_TYPE, "application/json");
     }
 
-    String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
+    String responseBodyString = safelyExecuteRequest(url, requestBuilder);
 
     return responseType == Void.class ? null : Json.read(responseBodyString, responseType);
   }
 
-  private void injectHeaders(ClassicHttpRequest request) {
+  private void injectHeaders(ImmutableRequest.Builder request) {
     if (hostHeader != null) {
-      request.addHeader(HOST, hostHeader);
+      request.withHeader(HOST, hostHeader);
     }
 
     List<HttpHeader> httpHeaders = authenticator.generateAuthHeaders();
-    for (HttpHeader header : httpHeaders) {
-      for (String value : header.values()) {
-        request.addHeader(header.key(), value);
-      }
-    }
+    httpHeaders.forEach(header -> request.withHeader(header.key(), header.values()));
   }
 
   private void verifyResponseStatus(String url, int responseStatusCode) {
@@ -572,15 +541,16 @@ public class HttpAdminClient implements Admin {
     return "Expected status 2xx for " + url + " but was " + responseStatusCode;
   }
 
-  private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
+  private String safelyExecuteRequest(String url, ImmutableRequest.Builder request) {
     injectHeaders(request);
 
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
-      int statusCode = response.getCode();
+    try {
+      Response response = httpClient.execute(request.build());
+      int statusCode = response.getStatus();
 
       verifyResponseStatus(url, statusCode);
 
-      String body = getEntityAsStringAndCloseStream(response);
+      String body = response.getBodyAsString();
       if (HttpStatus.isClientError(statusCode)) {
         throw parseClientError(url, body, statusCode);
       }
