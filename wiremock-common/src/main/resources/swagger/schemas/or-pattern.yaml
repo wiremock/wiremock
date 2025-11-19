@@ -1,4 +1,4 @@
-title: Logical AND matcher
+title: Logical OR matcher
 type: object
 properties:
   or:
