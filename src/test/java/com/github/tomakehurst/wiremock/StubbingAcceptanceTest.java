@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -141,7 +140,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
         post(urlEqualTo("/some/url"))
             .withRequestBody(containing("BODY"))
             .withHeader("NoSuchHeader", equalTo("This better not be here"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(
         testClient.postWithBody("/some/url", "BODY", "text/plain", "utf-8").statusCode(), is(404));
@@ -152,7 +151,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/some/extra/header"))
             .withHeader("ExpectedHeader", equalTo("expected-value"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     WireMockResponse response =
         testClient.get(
@@ -169,7 +168,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
             .withQueryParam("since", equalTo("2014-10-14"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(
         testClient
@@ -187,7 +186,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParams(queryParameters)
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(
         testClient
@@ -198,14 +197,14 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
-    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(ok()));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
 
   @Test
   void doesNotMatchOnUrlPathWhenPathShorter() {
-    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(ok()));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
@@ -216,7 +215,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
         get(urlPathMatching("/path(.*)/match"))
             .withQueryParam("search", containing("WireMock"))
             .withQueryParam("since", equalTo("2014-10-14"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(
         testClient
@@ -232,9 +231,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     queryParameters.put("since", equalTo("2018-03-02"));
 
     stubFor(
-        get(urlPathMatching("/path(.*)/match"))
-            .withQueryParams(queryParameters)
-            .willReturn(aResponse().withStatus(200)));
+        get(urlPathMatching("/path(.*)/match")).withQueryParams(queryParameters).willReturn(ok()));
 
     assertThat(
         testClient
@@ -245,14 +242,14 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotMatchOnUrlPathPatternWhenPathShorter() {
-    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathMatching("/matching-path")).willReturn(ok()));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
 
   @Test
   void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
-    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathMatching("/matching-path")).willReturn(ok()));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
@@ -262,7 +259,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(testClient.get("/path-and-query/match?wrongParam=wrongVal").statusCode(), is(404));
   }
@@ -272,7 +269,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(testClient.get("/path-and-query/match?search=presentwhoops").statusCode(), is(404));
   }
@@ -282,7 +279,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(testClient.get("/path-and-query/match?anotherparam=present").statusCode(), is(200));
   }
@@ -292,7 +289,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/query/match"))
             .withQueryParam("search", notContaining("WireMock"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     assertThat(
         testClient.get("/query/match?search=WireMock%20stubbing").statusCode(), is(HTTP_NOT_FOUND));
@@ -429,10 +426,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
   void highPriorityMappingMatchedFirst() {
     stubFor(
         get(urlMatching("/priority/.*")).atPriority(10).willReturn(aResponse().withStatus(500)));
-    stubFor(
-        get(urlEqualTo("/priority/resource"))
-            .atPriority(2)
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(ok()));
 
     assertThat(testClient.get("/priority/resource").statusCode(), is(200));
   }
@@ -525,7 +519,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
-    stubFor(options(urlEqualTo("/no-body")).willReturn(aResponse().withStatus(200)));
+    stubFor(options(urlEqualTo("/no-body")).willReturn(ok()));
     stubFor(
         post(urlEqualTo("/no-body"))
             .withRequestBody(equalToXml("<some-xml />"))
@@ -564,7 +558,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/query"))
             .withQueryParam("param-one", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
     assertThat(response.statusCode(), is(200));
@@ -587,7 +581,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key-one", equalTo("one two three ?"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     WireMockResponse response =
         testClient.putWithBody(
@@ -603,7 +597,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key[one]", equalTo("firstValue"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     WireMockResponse response =
         testClient.putWithBody(
@@ -616,10 +610,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void matchesFormParamForGet() {
-    stubFor(
-        get(urlPathEqualTo("/form"))
-            .withFormParam("key", equalTo("value"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlPathEqualTo("/form")).withFormParam("key", equalTo("value")).willReturn(ok()));
 
     WireMockResponse response =
         testClient.getWithBody(
@@ -636,9 +627,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void matchesFormParamForDelete() {
     stubFor(
-        delete(urlPathEqualTo("/form"))
-            .withFormParam("key", equalTo("value"))
-            .willReturn(aResponse().withStatus(200)));
+        delete(urlPathEqualTo("/form")).withFormParam("key", equalTo("value")).willReturn(ok()));
 
     WireMockResponse response =
         testClient.deleteWithBody(
@@ -680,7 +669,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void copesWithInvalidFormEncoding() {
-    stubFor(post(urlPathEqualTo("/form")).willReturn(aResponse().withStatus(200)));
+    stubFor(post(urlPathEqualTo("/form")).willReturn(ok()));
 
     WireMockResponse response =
         testClient.postWithBody("/form", "%}#", "application/x-www-form-urlencoded", "utf-8");
@@ -692,7 +681,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlPathEqualTo("/empty-header"))
             .withHeader("X-My-Header", equalTo(""))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(ok()));
 
     WireMockResponse response = testClient.get("/empty-header", withHeader("X-My-Header", ""));
 
@@ -1412,9 +1401,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithIsOneOfRequestMethods() {
-    stubFor(
-        oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isOneOf(PUT, POST), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
     assertThat(response1.statusCode(), is(200));
@@ -1428,9 +1415,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithIsNoneOfRequestMethods() {
-    stubFor(
-        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isNoneOf(PUT, POST), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
     assertThat(response1.statusCode(), is(404));
@@ -1444,9 +1429,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithInvalidIsOneOfRequestMethods() {
-    stubFor(
-        oneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isOneOf(PUT, POST), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
     assertThat(response.statusCode(), is(404));
@@ -1454,9 +1437,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithInvalidIsNoneOfRequestMethods() {
-    stubFor(
-        noneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isNoneOf(PUT, POST), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
     assertThat(response.statusCode(), is(200));
@@ -1464,9 +1445,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithIsOneOfAndAnyRequestMethod() {
-    stubFor(
-        oneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isOneOf(PUT, POST, ANY), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
     assertThat(response1.statusCode(), is(200));
@@ -1480,9 +1459,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void testStubWithIsNoneOfAndAnyRequestMethod() {
-    stubFor(
-        noneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
-            .willReturn(aResponse().withStatus(200)));
+    stubFor(request(isNoneOf(PUT, POST, ANY), urlEqualTo("/some/url")).willReturn(ok()));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
     assertThat(response1.statusCode(), is(404));

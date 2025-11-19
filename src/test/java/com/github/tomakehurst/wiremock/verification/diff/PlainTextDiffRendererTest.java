@@ -18,10 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -40,7 +37,6 @@ import com.github.tomakehurst.wiremock.matching.WeightedMatchResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
@@ -685,7 +681,7 @@ class PlainTextDiffRendererTest {
   void showsIsOneOfMissingMethodMessage() {
     Diff diff =
         new Diff(
-            oneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            request(isOneOf(GET, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(POST).url("/url"));
 
     String output = diffRenderer.render(diff);
@@ -698,7 +694,7 @@ class PlainTextDiffRendererTest {
   void showsIsNoneOfMissingMethodMessage() {
     Diff diff =
         new Diff(
-            noneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            request(isNoneOf(GET, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/url"));
 
     String output = diffRenderer.render(diff);
@@ -711,7 +707,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsOneOfVersion1() {
     Diff diff =
         new Diff(
-            oneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            request(isOneOf(GET, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -724,7 +720,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsNoneOfVersion1() {
     Diff diff =
         new Diff(
-            noneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            request(isNoneOf(GET, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(POST).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -737,7 +733,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsOneOfVersion2() {
     Diff diff =
         new Diff(
-            oneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            request(isOneOf(POST, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);
@@ -750,7 +746,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsNoneOfVersion2() {
     Diff diff =
         new Diff(
-            noneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            request(isNoneOf(POST, PUT), urlEqualTo("/url")).build(),
             mockRequest().method(PUT).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);

@@ -21,7 +21,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +42,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
-  public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
+  public static final RequestMethod GET_OR_HEAD = isOneOf(GET, HEAD);
   private final String name;
 
   public RequestMethod(String name) {
@@ -50,8 +54,29 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return new RequestMethod(value);
   }
 
-  public static Set<RequestMethod> fromSet(Set<String> values) {
+  public static Set<RequestMethod> fromStrings(Set<String> values) {
     return values.stream().map(RequestMethod::fromString).collect(Collectors.toSet());
+  }
+
+  public static RequestMethod isOneOf(RequestMethod... methods) {
+    return isOneOf(setOf(methods));
+  }
+
+  public static MultiRequestMethodPattern.IsOneOf isOneOf(Set<RequestMethod> methods) {
+    return new MultiRequestMethodPattern.IsOneOf(methods);
+  }
+
+  public static RequestMethod isNoneOf(RequestMethod... methods) {
+    return isNoneOf(setOf(methods));
+  }
+
+  public static RequestMethod isNoneOf(Set<RequestMethod> methods) {
+    return new MultiRequestMethodPattern.IsNoneOf(methods);
+  }
+
+  @SafeVarargs
+  private static <T> Set<T> setOf(T... items) {
+    return Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(items)));
   }
 
   @JsonValue
