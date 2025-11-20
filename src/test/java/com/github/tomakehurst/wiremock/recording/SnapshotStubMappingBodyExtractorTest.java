@@ -44,11 +44,11 @@ public class SnapshotStubMappingBodyExtractorTest {
   @Test
   public void updatesStubMapping() {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
-    bodyExtractor.extractInPlace(stubMapping);
+    final StubMapping modifiedStub = bodyExtractor.extractInPlace(stubMapping);
     assertThat(
-        stubMapping.getResponse().getBodyFileName(), is("get-foo-" + stubMapping.getId() + ".txt"));
-    assertThat(stubMapping.getResponse().specifiesBodyFile(), is(true));
-    assertThat(stubMapping.getResponse().specifiesBodyContent(), is(false));
+            modifiedStub.getResponse().getBodyFileName(), is("get-foo-" + stubMapping.getId() + ".txt"));
+    assertThat(modifiedStub.getResponse().specifiesBodyFile(), is(true));
+    assertThat(modifiedStub.getResponse().specifiesBodyContent(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes
     verify(filesSource).writeBinaryFile(any(String.class), any(byte[].class));
   }

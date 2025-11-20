@@ -51,6 +51,7 @@ public class SnapshotStubMappingGeneratorTest {
             .setRequest(requestPatternBuilder.build())
             .setResponse(responseDefinition)
             .setId(actual.getId())
+            .setName("")
             .setPersistent(true)
             .build();
 
@@ -76,6 +77,7 @@ public class SnapshotStubMappingGeneratorTest {
             .setRequest(requestPatternBuilder.build())
             .setResponse(responseDefinition)
             .setId(actual.getId())
+            .setName("hello_1_2_3___ace--ace___and")
             .setPersistent(false)
             .build();
 

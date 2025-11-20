@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({
         "$schema", "uuid"
@@ -84,11 +86,11 @@ public record StubMapping(
   }
 
   public RequestPattern getRequest() {
-    return request;
+    return getFirstNonNull(request, RequestPattern.ANYTHING);
   }
 
   public ResponseDefinition getResponse() {
-    return response;
+    return getFirstNonNull(response, ResponseDefinition.ok());
   }
 
   public Integer getPriority() {
