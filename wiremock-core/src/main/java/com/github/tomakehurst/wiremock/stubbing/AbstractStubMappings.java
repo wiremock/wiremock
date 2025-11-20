@@ -210,8 +210,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       listener.beforeStubEdited(existingMapping, stubMapping);
     }
 
-    stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-    stubMapping.setDirty(true);
+    stubMapping = stubMapping.transform(b -> b.setInsertionIndex(existingMapping.getInsertionIndex()));
 
     store.replace(existingMapping, stubMapping);
     scenarios.onStubMappingUpdated(existingMapping, stubMapping);

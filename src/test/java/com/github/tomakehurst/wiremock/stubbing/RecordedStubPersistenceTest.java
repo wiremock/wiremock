@@ -83,11 +83,11 @@ class RecordedStubPersistenceTest {
     assertFalse(stubImport.getImportOptions().getDeleteAllNotInImport());
     assertThat(stubImport.getImportOptions().getDuplicatePolicy(), is(DuplicatePolicy.OVERWRITE));
 
-    assertThat(stubImport.getMappings().get(0).getRequest().getUrl(), is("/"));
+    assertThat(stubImport.getMappings().get(0).request().getUrl(), is("/"));
     assertThat(stubImport.getMappings().get(0).getResponse().getStatus(), is(200));
     assertTrue(stubImport.getMappings().get(0).shouldBePersisted());
 
-    assertThat(stubImport.getMappings().get(1).getRequest().getUrl(), is("/persist-me"));
+    assertThat(stubImport.getMappings().get(1).request().getUrl(), is("/persist-me"));
     assertThat(stubImport.getMappings().get(1).getResponse().getStatus(), is(202));
     assertTrue(stubImport.getMappings().get(1).shouldBePersisted());
   }

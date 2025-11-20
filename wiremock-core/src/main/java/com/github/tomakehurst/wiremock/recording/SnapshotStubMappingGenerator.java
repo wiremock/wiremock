@@ -31,32 +31,37 @@ import java.util.function.Function;
 class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
   private final RequestPatternTransformer requestTransformer;
   private final LoggedResponseDefinitionTransformer responseTransformer;
+  private final boolean markStubsPersistent;
 
   SnapshotStubMappingGenerator(
-      RequestPatternTransformer requestTransformer,
-      LoggedResponseDefinitionTransformer responseTransformer) {
+          RequestPatternTransformer requestTransformer,
+          LoggedResponseDefinitionTransformer responseTransformer, boolean markStubsPersistent) {
     this.requestTransformer = requestTransformer;
     this.responseTransformer = responseTransformer;
+      this.markStubsPersistent = markStubsPersistent;
   }
 
   SnapshotStubMappingGenerator(
-      Map<String, CaptureHeadersSpec> captureHeaders,
-      RequestBodyPatternFactory requestBodyPatternFactory) {
+          Map<String, CaptureHeadersSpec> captureHeaders,
+          RequestBodyPatternFactory requestBodyPatternFactory, boolean markStubsPersistent) {
     this(
         new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
-        new LoggedResponseDefinitionTransformer());
+        new LoggedResponseDefinitionTransformer(), markStubsPersistent);
   }
 
   @Override
   public StubMapping apply(ServeEvent event) {
     final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
     final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
-    StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
 
     URI uri = URI.create(event.getRequest().getUrl());
     FilenameMaker filenameMaker = new FilenameMaker();
-    stubMapping.setName(filenameMaker.sanitizeUrl(uri.getPath()));
 
-    return stubMapping;
+      return StubMapping.builder()
+              .setRequest(requestPattern)
+              .setResponse(responseDefinition)
+              .setPersistent(markStubsPersistent)
+              .setName(filenameMaker.sanitizeUrl(uri.getPath()))
+              .build();
   }
 }

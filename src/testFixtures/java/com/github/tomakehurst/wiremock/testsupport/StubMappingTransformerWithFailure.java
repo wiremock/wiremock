@@ -35,7 +35,7 @@ public class StubMappingTransformerWithFailure extends StubMappingTransformer {
           "POST " + serveEvent.getRequest().getUrl() + " not allowed");
     } else {
       return new StubGenerationResult.Success(
-          WireMock.get(urlEqualTo(stubMapping.getRequest().getUrl() + "?transformed=success"))
+          WireMock.get(urlEqualTo(stubMapping.request().getUrl() + "?transformed=success"))
               .build());
     }
   }

@@ -57,8 +57,7 @@ public class RemoteMappingsLoader {
         StubMappingCollection stubCollection =
             Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          convertBodyFromFileIfNecessary(mapping);
-          wireMock.register(mapping);
+          wireMock.register(convertBodyFromFileIfNecessary(mapping));
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
@@ -66,7 +65,7 @@ public class RemoteMappingsLoader {
     }
   }
 
-  private void convertBodyFromFileIfNecessary(StubMapping mapping) {
+  private StubMapping convertBodyFromFileIfNecessary(StubMapping mapping) {
     String bodyFileName = mapping.getResponse().getBodyFileName();
     if (bodyFileName != null) {
       ResponseDefinitionBuilder responseDefinitionBuilder =
@@ -83,8 +82,10 @@ public class RemoteMappingsLoader {
         responseDefinitionBuilder.withBody(bodyFile.readContents());
       }
 
-      mapping.setResponse(responseDefinitionBuilder.build());
+      return mapping.transform(sm -> sm.setResponse(responseDefinitionBuilder.build()));
     }
+
+    return mapping;
   }
 
   private String getMimeType(StubMapping mapping) {

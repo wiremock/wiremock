@@ -1191,8 +1191,8 @@ class AdminApiTest extends AcceptanceTestBase {
 
     List<StubMapping> allStubs = wm.getStubMappings();
     assertThat(allStubs.size(), is(2));
-    assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
-    assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+    assertThat(allStubs.get(0).request().getUrl(), is("/one"));
+    assertThat(allStubs.get(1).request().getUrl(), is("/two"));
   }
 
   @Test

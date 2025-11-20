@@ -65,7 +65,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
 
     assertInstanceOf(StubGenerationResult.Success.class, result);
     StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
-    assertEquals("/?transformed=nonglobal", stubMapping.getRequest().getUrl());
+    assertEquals("/?transformed=nonglobal", stubMapping.request().getUrl());
   }
 
   @Test
@@ -76,7 +76,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
 
     assertInstanceOf(StubGenerationResult.Success.class, result);
     StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
-    assertEquals("/?transformed=global", stubMapping.getRequest().getUrl());
+    assertEquals("/?transformed=global", stubMapping.request().getUrl());
   }
 
   @Test
@@ -88,6 +88,6 @@ public class SnapshotStubMappingTransformerRunnerTest {
 
     assertInstanceOf(StubGenerationResult.Success.class, result);
     StubMapping stubMapping = ((StubGenerationResult.Success) result).stubMapping();
-    assertEquals("/?transformed=my-value", stubMapping.getRequest().getUrl());
+    assertEquals("/?transformed=my-value", stubMapping.request().getUrl());
   }
 }
