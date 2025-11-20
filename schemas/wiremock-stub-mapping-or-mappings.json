@@ -674,6 +674,19 @@
       },
       "required" : [ "matchesXPath" ]
     },
+    "none-of-request-method-pattern" : {
+      "title" : "One of request method pattern",
+      "type" : "object",
+      "properties" : {
+        "noneOf" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "required" : [ "noneOf" ]
+    },
     "not-pattern" : {
       "title" : "Logical NOT modifier",
       "type" : "object",
@@ -683,6 +696,19 @@
         }
       },
       "required" : [ "not" ]
+    },
+    "one-of-request-method-pattern" : {
+      "title" : "One of request method pattern",
+      "type" : "object",
+      "properties" : {
+        "oneOf" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "required" : [ "oneOf" ]
     },
     "or-pattern" : {
       "title" : "Logical OR matcher",
@@ -835,6 +861,15 @@
         }
       }
     },
+    "request-method-pattern" : {
+      "type" : "object",
+      "title" : "Request method pattern",
+      "oneOf" : [ {
+        "$ref" : "#/definitions/one-of-request-method-pattern"
+      }, {
+        "$ref" : "#/definitions/none-of-request-method-pattern"
+      } ]
+    },
     "request-pattern" : {
       "type" : "object",
       "example" : "{\n  \"urlPath\" : \"/charges\",\n  \"method\" : \"POST\",\n  \"headers\" : {\n    \"Content-Type\" : {\n      \"equalTo\" : \"application/json\"\n    }\n  }\n}",
@@ -855,9 +890,15 @@
           "description" : "The HTTP port number of the request URL"
         },
         "method" : {
-          "type" : "string",
-          "pattern" : "^[A-Z]+$",
-          "description" : "The HTTP request method e.g. GET"
+          "oneOf" : [ {
+            "type" : "string",
+            "pattern" : "^[A-Z]+$",
+            "description" : "The HTTP request method e.g. GET"
+          }, {
+            "$ref" : "#/definitions/one-of-request-method-pattern"
+          }, {
+            "$ref" : "#/definitions/none-of-request-method-pattern"
+          } ]
         },
         "url" : {
           "type" : "string",
