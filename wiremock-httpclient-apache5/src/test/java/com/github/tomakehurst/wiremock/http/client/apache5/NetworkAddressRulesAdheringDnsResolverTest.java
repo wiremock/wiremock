@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.client;
+package com.github.tomakehurst.wiremock.http.client.apache5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.http.client.apache5.NetworkAddressRulesAdheringDnsResolver;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.stream.Stream;

@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -209,13 +210,11 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, PostServeAction> postServeActions = extensions.ofType(PostServeAction.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
 
-    final com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
-        extensions
-            .ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
-            .values()
-            .stream()
-            .findFirst()
-            .orElse(options.httpClientFactory());
+    final HttpClientFactory httpClientFactory =
+        new StaticExtensionLoader<>(HttpClientFactory.class)
+            .setDefaultInstance(options.httpClientFactory())
+            .setExtensions(extensions)
+            .load();
 
     final HttpClient reverseProxyClient =
         httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);

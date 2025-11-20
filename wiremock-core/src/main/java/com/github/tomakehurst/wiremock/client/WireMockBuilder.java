@@ -23,15 +23,13 @@ import static com.github.tomakehurst.wiremock.http.client.HttpClientFactory.DEFA
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.StaticExtensionLoader;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
 import java.util.Collections;
-import java.util.ServiceLoader;
-import java.util.stream.Stream;
 
 public class WireMockBuilder {
 
@@ -119,25 +117,11 @@ public class WireMockBuilder {
             .disableConnectionReuse(false);
 
     HttpClient httpClient =
-        httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);
+        new StaticExtensionLoader<>(HttpClientFactory.class)
+            .setDefaultInstance(options.httpClientFactory())
+            .load()
+            .buildHttpClient(options, true, Collections.emptyList(), true);
     return new HttpAdminClient(
         scheme, host, port, urlPathPrefix, hostHeader, authenticator, httpClient);
-  }
-
-  private static final HttpClientFactory httpClientFactory = loadHttpClientFactory();
-
-  private static HttpClientFactory loadHttpClientFactory() {
-    final ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);
-    Stream<HttpClientFactory> clientFactories =
-        loader.stream()
-            .filter(provider -> HttpClientFactory.class.isAssignableFrom(provider.type()))
-            .map(provider -> (HttpClientFactory) provider.get())
-        // TODO sort them so that client provided ones win
-        //                .sorted((o1, o2) -> );
-        ;
-    // TODO throw an exception that explains how to fix the problem
-    return clientFactories
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No HttpClientFactory found"));
   }
 }

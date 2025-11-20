@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.http.client.HttpClient.HOST_HEADER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
-import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
 import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
@@ -463,7 +463,7 @@ public class HttpAdminClient implements Admin {
 
   private void injectHeaders(ImmutableRequest.Builder request) {
     if (hostHeader != null) {
-      request.withHeader(HOST, hostHeader);
+      request.withHeader(HOST_HEADER, hostHeader);
     }
 
     List<HttpHeader> httpHeaders = authenticator.generateAuthHeaders();

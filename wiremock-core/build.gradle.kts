@@ -5,8 +5,6 @@ plugins {
 apply(from = "buildSchema.gradle")
 
 dependencies {
-    api(libs.apache.http5.client)
-    api(libs.apache.http5.core)
     api(libs.commons.fileupload)
     api(libs.guava) {
         exclude(group = "com.google.code.findbugs", module = "jsr305")
@@ -25,6 +23,7 @@ dependencies {
 
     api(libs.xmlunit.core)
 
+    implementation(libs.apache.http5.client)
     implementation(libs.handlebars.helpers) {
         exclude(group = "org.mozilla", module = "rhino")
         exclude(group = "org.apache.commons", module = "commons-lang3")

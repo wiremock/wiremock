@@ -36,7 +36,6 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
-import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -101,7 +100,7 @@ public class WireMockConfiguration implements Options {
   private boolean preserveUserAgentProxyHeader;
   private String proxyHostHeader;
   private HttpServerFactory httpServerFactory = null;
-  private HttpClientFactory httpClientFactory = new ApacheHttpClientFactory();
+  private HttpClientFactory httpClientFactory = null;
 
   private ExtensionDeclarations extensions = new ExtensionDeclarations();
   private boolean extensionScanningEnabled = false;
