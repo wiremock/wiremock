@@ -1,11 +1,11 @@
 [versions]
-jetty = "12.0.29"
+jetty = "12.1.4"
 jackson = "2.20.1"
 xmlUnit = "2.11.0"
-jsonUnit = "5.0.0"
-junitJupiter = "5.13.4"
+jsonUnit = "5.1.0"
+junitJupiter = "5.14.1"
 handlebars = "4.5.0"
-slf4j = "1.7.36"
+slf4j = "2.0.17"
 hamcrest = "3.0"
 mockito = "5.20.0"
 jmh = "1.37"
@@ -16,7 +16,7 @@ vanniktech-maven-publish = "0.34.0"
 [libraries]
 # Jetty dependencies
 jetty-bom = { module = "org.eclipse.jetty:jetty-bom", version.ref = "jetty" }
-jetty-ee10-bom = { module = "org.eclipse.jetty.ee10:jetty-ee10-bom", version.ref = "jetty" }
+jetty-ee11-bom = { module = "org.eclipse.jetty.ee11:jetty-ee11-bom", version.ref = "jetty" }
 jetty-server = { module = "org.eclipse.jetty:jetty-server" }
 jetty-proxy = { module = "org.eclipse.jetty:jetty-proxy" }
 jetty-http2-server = { module = "org.eclipse.jetty.http2:jetty-http2-server" }
@@ -24,9 +24,9 @@ jetty-alpn-server = { module = "org.eclipse.jetty:jetty-alpn-server" }
 jetty-alpn-java-server = { module = "org.eclipse.jetty:jetty-alpn-java-server" }
 jetty-alpn-java-client = { module = "org.eclipse.jetty:jetty-alpn-java-client" }
 jetty-alpn-client = { module = "org.eclipse.jetty:jetty-alpn-client" }
-jetty-ee10-servlet = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlet" }
-jetty-ee10-servlets = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlets" }
-jetty-ee10-webapp = { module = "org.eclipse.jetty.ee10:jetty-ee10-webapp" }
+jetty-ee11-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet" }
+jetty-ee11-servlets = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlets" }
+jetty-ee11-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp" }
 jetty-client = { module = "org.eclipse.jetty:jetty-client" }
 jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client" }
 jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport" }
@@ -98,11 +98,11 @@ hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest
 hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
-jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
+jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.20.0" }
-scala-library = { module = "org.scala-lang:scala-library", version = "2.13.17" }
+commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
+scala-library = { module = "org.scala-lang:scala-library", version = "2.13.18" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }

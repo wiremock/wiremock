@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigElementBuilder;
+import com.github.tomakehurst.wiremock.jetty.servlet.MultipartRequestConfigElementBuilder;
 import jakarta.servlet.MultipartConfigElement;
 
 public class DefaultMultipartRequestConfigElementBuilder

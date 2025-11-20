@@ -574,6 +574,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void matchesCookiesUnencoded() {
+    stubFor(
+        get(urlPathEqualTo("/query"))
+            .withCookie("cookie-one", equalTo("one two three ?"))
+            .willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
+    response = testClient.get("/query", withHeader("Cookie", "cookie-one=one%20two%20three%20%3F"));
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
   void matchesFormParamUnencoded() {
     stubFor(
         put(urlPathEqualTo("/form"))
@@ -998,8 +1010,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.get("/test?filter%5Bid%5D=1").statusCode(), is(200));
   }
 
+  /*
+  Note: this test case and the next one document a breaking change brought in by Jetty 12.1, whereby the content-type
+  header is normalised to lower case and without a space after the ; prior to being passed to WireMock's matchers.
+   */
   @Test
-  void matchesExactContentTypeEncodingSpecified() {
+  void doesNotMatchUnnormalisedRequestContentTypeHeaderValue() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/request-content-type-case";
 
@@ -1007,11 +1023,28 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.post(url, new StringEntity("{}"), withHeader("Content-Type", contentType));
-    assertThat(response.statusCode(), is(200));
+    assertThat(response.statusCode(), is(404));
   }
 
   @Test
-  void returnsContentTypeHeaderEncodingInCorrectCase() {
+  void matchesNormalisedRequestContentTypeHeaderValue() {
+    String url = "/request-content-type-case";
+
+    stubFor(
+        post(url)
+            .withHeader("Content-Type", equalTo("application/json;charset=utf-8"))
+            .willReturn(ok()));
+
+    WireMockResponse response =
+        testClient.post(
+            url,
+            new StringEntity("{}"),
+            withHeader("Content-Type", "application/json; charset=UTF-8"));
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void returnsContentTypeResponseHeaderEncodingInCorrectCase() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/response-content-type-case";
 

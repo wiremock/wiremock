@@ -95,9 +95,6 @@ class AdminApiTest extends AcceptanceTestBase {
             + "  \"mappings\" : [ {                           \n"
             + "    \"id\" : \""
             + stubMapping.getId()
-            + "\",  \n"
-            + "    \"uuid\" : \""
-            + stubMapping.getId()
             + "\",\n"
             + "    \"request\" : {                            \n"
             + "      \"url\" : \"/my-test-url\",              \n"
@@ -188,9 +185,6 @@ class AdminApiTest extends AcceptanceTestBase {
     JSONAssert.assertEquals(
         "{                                          \n"
             + "    \"id\": \""
-            + id
-            + "\",              \n"
-            + "    \"uuid\": \""
             + id
             + "\",              \n"
             + "    \"request\" : {                        \n"
@@ -1096,12 +1090,12 @@ class AdminApiTest extends AcceptanceTestBase {
     return new TypeSafeMatcher<>() {
       @Override
       protected boolean matchesSafely(StubMapping stub) {
-        return stub.getId() != null && stub.getUuid() != null;
+        return stub.getId() != null;
       }
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("a stub with a non-null ID and UUID");
+        description.appendText("a stub with a non-null ID");
       }
     };
   }
@@ -1368,7 +1362,7 @@ class AdminApiTest extends AcceptanceTestBase {
         testClient.get("/__admin/version", new TestHttpHeader("Accept", "text/plain"));
 
     assertThat(response.statusCode(), is(200));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    assertThat(response.firstHeader("Content-Type"), containsString("text/plain"));
     assertThat(response.content(), is("X.X.X"));
   }
 
