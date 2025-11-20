@@ -81,7 +81,7 @@ class ScenarioProcessor {
                         firstScenario.request().getUrlPath())));
 
     return IntStream.range(1, stubMappings.size() + 1)
-            .mapToObj(i -> stubMappings.get(i).transform(stub -> {
+            .mapToObj(i -> stubMappings.get(i - 1).transform(stub -> {
               stub.setScenarioName(scenarioName);
               if (i == 1) {
                 stub.setRequiredScenarioState(Scenario.STARTED);
