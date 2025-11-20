@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.extension.MappingsLoaderExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingFileException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,13 +58,12 @@ public class DummyMappingsLoaderExtension implements MappingsLoaderExtension {
       List<TextFile> mappingFiles =
           mappingsFileSource.listFilesRecursively().stream()
               .filter(byFileExtension("json"))
-              .collect(Collectors.toList());
+              .toList();
       for (TextFile mappingFile : mappingFiles) {
         try {
-          StubMappingCollection stubCollection =
-              Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+          StubMappingOrMappings stubCollection =
+              Json.read(mappingFile.readContentsAsString(), StubMappingOrMappings.class);
           for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-            mapping.setDirty(false);
             stubMappings.addMapping(mapping);
             StubMappingFileMetadata fileMetadata =
                 new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());

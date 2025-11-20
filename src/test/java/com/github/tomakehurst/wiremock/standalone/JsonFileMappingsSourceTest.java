@@ -93,7 +93,7 @@ class JsonFileMappingsSourceTest {
     assertThat(allMappings, hasSize(2));
 
     List<String> mappingRequestUrls =
-        asList(allMappings.get(0).getRequest().getUrl(), allMappings.get(1).getRequest().getUrl());
+        asList(allMappings.get(0).request().getUrl(), allMappings.get(1).request().getUrl());
     assertThat(mappingRequestUrls, is(asList("/second_test", "/test")));
   }
 
@@ -187,8 +187,7 @@ class JsonFileMappingsSourceTest {
   void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
-    StubMapping firstStub = stubMappings.getAll().get(0);
-    firstStub.setName("New name");
+    StubMapping firstStub = stubMappings.getAll().get(0).transform(b -> b.setName("New name"));
     source.save(firstStub);
 
     assertThat(Files.readString(stubMappingFile.toPath()), containsString("New name"));

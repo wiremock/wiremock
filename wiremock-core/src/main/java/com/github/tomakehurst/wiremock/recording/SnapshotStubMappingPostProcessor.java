@@ -23,6 +23,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
@@ -71,10 +72,10 @@ class SnapshotStubMappingPostProcessor {
     Multiset<RequestPattern> requestCounts = HashMultiset.create();
     List<StubMapping> processedStubMappings = new ArrayList<>();
     for (StubMapping transformedStubMapping : transformedStubMappings) {
-      requestCounts.add(transformedStubMapping.getRequest());
+      requestCounts.add(transformedStubMapping.request());
 
       // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
-      if (requestCounts.count(transformedStubMapping.getRequest()) > 1
+      if (requestCounts.count(transformedStubMapping.request()) > 1
           && !shouldRecordRepeatsAsScenarios) {
         continue;
       }
@@ -83,24 +84,22 @@ class SnapshotStubMappingPostProcessor {
     }
 
     if (shouldRecordRepeatsAsScenarios) {
-      new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
+      processedStubMappings = new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
     }
 
     // 3. Extract response bodies to a separate file, if applicable.
-    extractStubMappingBodies(processedStubMappings);
+    processedStubMappings = extractStubMappingBodies(processedStubMappings);
 
     return new Pair<>(errors, processedStubMappings);
   }
 
-  private void extractStubMappingBodies(List<StubMapping> stubMappings) {
+  private List<StubMapping> extractStubMappingBodies(List<StubMapping> stubMappings) {
     if (bodyExtractMatcher == null) {
-      return;
+      return stubMappings;
     }
 
-    for (StubMapping stubMapping : stubMappings) {
-      if (bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
-        bodyExtractor.extractInPlace(stubMapping);
-      }
-    }
+    return stubMappings.stream()
+        .map(sm -> bodyExtractMatcher.match(sm.getResponse()).isExactMatch() ? bodyExtractor.extractInPlace(sm) : sm)
+        .collect(Collectors.toList());
   }
 }

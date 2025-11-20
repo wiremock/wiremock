@@ -39,7 +39,7 @@ public interface StubMappingStore {
     return getAll()
         .map(
             stubMapping ->
-                Pair.pair(stubMapping, stubMapping.getRequest().match(request, customMatchers)))
+                Pair.pair(stubMapping, stubMapping.request().match(request, customMatchers)))
         .peek(stubAndMatchResult -> stubAndMatchResult.b.getSubEvents().forEach(subEventConsumer))
         .filter(stubAndMatchResult -> stubAndMatchResult.b.isExactMatch())
         .map(stubAndMatchResult -> stubAndMatchResult.a);

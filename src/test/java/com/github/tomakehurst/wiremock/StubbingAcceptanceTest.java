@@ -520,14 +520,14 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     ListStubMappingsResult listingResult = listAllStubMappings();
     StubMapping mapping1 = listingResult.getMappings().get(0);
-    assertThat(mapping1.getRequest().getMethod(), is(POST));
-    assertThat(mapping1.getRequest().getUrl(), is("/stub/two"));
+    assertThat(mapping1.request().getMethod(), is(POST));
+    assertThat(mapping1.request().getUrl(), is("/stub/two"));
     assertThat(mapping1.getResponse().getBody(), is("Two"));
     assertThat(mapping1.getResponse().getStatus(), is(201));
 
     StubMapping mapping2 = listingResult.getMappings().get(1);
-    assertThat(mapping2.getRequest().getMethod(), is(GET));
-    assertThat(mapping2.getRequest().getUrl(), is("/stub/one"));
+    assertThat(mapping2.request().getMethod(), is(GET));
+    assertThat(mapping2.request().getUrl(), is("/stub/one"));
     assertThat(mapping2.getResponse().getBody(), is("One"));
   }
 
