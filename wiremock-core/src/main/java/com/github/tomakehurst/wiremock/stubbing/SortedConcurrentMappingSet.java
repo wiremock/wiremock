@@ -53,8 +53,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
   }
 
   public void add(StubMapping mapping) {
-    mapping.setInsertionIndex(insertionCount.getAndIncrement());
-    mappingSet.add(mapping);
+    mappingSet.add(mapping.transform(b -> b.setInsertionIndex(insertionCount.getAndIncrement())));
   }
 
   public boolean remove(final UUID mappingId) {

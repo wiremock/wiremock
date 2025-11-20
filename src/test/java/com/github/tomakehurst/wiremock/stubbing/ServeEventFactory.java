@@ -32,8 +32,9 @@ public class ServeEventFactory {
 
   public static ServeEvent newPostMatchServeEvent(
       Request request, ResponseDefinition responseDefinition) {
-    StubMapping stubMapping = WireMock.any(WireMock.anyUrl()).build();
-    stubMapping.setResponse(responseDefinition);
+    StubMapping stubMapping = WireMock.any(WireMock.anyUrl())
+            .build()
+            .transform(b -> b.setResponse(responseDefinition));
     return newPostMatchServeEvent(request, responseDefinition, stubMapping);
   }
 

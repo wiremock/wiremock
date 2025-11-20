@@ -53,8 +53,8 @@ public class SnapshotStubMappingPostProcessorTest {
             .b;
 
     assertThat(actual, hasSize(2));
-    assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo"));
-    assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar"));
+    assertThat(actual.get(0).request().getUrl(), equalTo("/foo"));
+    assertThat(actual.get(1).request().getUrl(), equalTo("/bar"));
   }
 
   @Test
@@ -64,11 +64,12 @@ public class SnapshotStubMappingPostProcessorTest {
           @Override
           public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
-            String url = serveEventToStubMapping.b.getRequest().getUrl();
+            String url = serveEventToStubMapping.b.request().getUrl();
             return new StubGenerationResult.Success(
-                new StubMapping(
-                    newRequestPattern().withUrl(url + "/transformed").build(),
-                    ResponseDefinition.ok()));
+                    StubMapping.builder()
+                            .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                            .setResponse(ResponseDefinition.ok())
+                            .build());
           }
         };
 
@@ -78,8 +79,8 @@ public class SnapshotStubMappingPostProcessorTest {
             .b;
 
     assertThat(actual, hasSize(2));
-    assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
-    assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar/transformed"));
+    assertThat(actual.get(0).request().getUrl(), equalTo("/foo/transformed"));
+    assertThat(actual.get(1).request().getUrl(), equalTo("/bar/transformed"));
   }
 
   @Test
@@ -90,11 +91,12 @@ public class SnapshotStubMappingPostProcessorTest {
           @Override
           public StubGenerationResult apply(Pair<ServeEvent, StubMapping> serveEventToStubMapping) {
             // Return StubMapping with "/transformed" at the end of the original URL
-            String url = serveEventToStubMapping.b.getRequest().getUrl();
+            String url = serveEventToStubMapping.b.request().getUrl();
             return new StubGenerationResult.Success(
-                new StubMapping(
-                    newRequestPattern().withUrl(url + "/transformed").build(),
-                    ResponseDefinition.ok()));
+                    StubMapping.builder()
+                            .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                            .setResponse(ResponseDefinition.ok())
+                            .build());
           }
         };
 
@@ -104,9 +106,9 @@ public class SnapshotStubMappingPostProcessorTest {
             .b;
 
     assertThat(actual, hasSize(3));
-    assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
-    assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar/transformed"));
-    assertThat(actual.get(2).getRequest().getUrl(), equalTo("/foo/transformed"));
+    assertThat(actual.get(0).request().getUrl(), equalTo("/foo/transformed"));
+    assertThat(actual.get(1).request().getUrl(), equalTo("/bar/transformed"));
+    assertThat(actual.get(2).request().getUrl(), equalTo("/foo/transformed"));
 
     assertTrue(actual.get(0).isInScenario());
     assertFalse(actual.get(1).isInScenario());
@@ -129,8 +131,8 @@ public class SnapshotStubMappingPostProcessorTest {
     final SnapshotStubMappingBodyExtractor bodyExtractor =
         new SnapshotStubMappingBodyExtractor(null) {
           @Override
-          public void extractInPlace(StubMapping stubMapping) {
-            stubMapping.setRequest(newRequestPattern().withUrl("/extracted").build());
+          public StubMapping extractInPlace(StubMapping stubMapping) {
+            return stubMapping.transform(b -> b.setRequest(newRequestPattern().withUrl("/extracted").build()));
           }
         };
 
@@ -142,8 +144,8 @@ public class SnapshotStubMappingPostProcessorTest {
 
     assertThat(actual, hasSize(2));
     // Should've only modified second stub mapping
-    assertThat(actual.get(0).getRequest().getUrl(), is("/foo"));
-    assertThat(actual.get(1).getRequest().getUrl(), is("/extracted"));
+    assertThat(actual.get(0).request().getUrl(), is("/foo"));
+    assertThat(actual.get(1).request().getUrl(), is("/extracted"));
   }
 
   private static SnapshotStubMappingTransformerRunner noopTransformerRunner() {

@@ -38,11 +38,11 @@ public class FilenameTemplateModel {
   }
 
   public String getUrl() {
-    return stubMapping.getRequest().getUrlMatcher().getExpected();
+    return stubMapping.request().getUrlMatcher().getExpected();
   }
 
   public String getMethod() {
-    return stubMapping.getRequest().getMethod().getName();
+    return stubMapping.request().getMethod().getName();
   }
 
   public Integer getPriority() {
@@ -62,7 +62,7 @@ public class FilenameTemplateModel {
   }
 
   public RequestPattern getRequest() {
-    return stubMapping.getRequest();
+    return stubMapping.request();
   }
 
   public ResponseDefinition getResponse() {

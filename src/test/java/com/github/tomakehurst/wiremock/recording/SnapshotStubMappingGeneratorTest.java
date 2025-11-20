@@ -42,11 +42,17 @@ public class SnapshotStubMappingGeneratorTest {
     SnapshotStubMappingGenerator stubMappingTransformer =
         new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition));
+            responseDefinitionTransformer(responseDefinition),
+            true);
 
     StubMapping actual = stubMappingTransformer.apply(serveEvent());
-    StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
-    expected.setId(actual.getId());
+
+    StubMapping expected = StubMapping.builder()
+            .setRequest(requestPatternBuilder.build())
+            .setResponse(responseDefinition)
+            .setId(actual.getId())
+            .setPersistent(true)
+            .build();
 
     assertThat(actual, is(expected));
   }
@@ -60,12 +66,18 @@ public class SnapshotStubMappingGeneratorTest {
     SnapshotStubMappingGenerator stubMappingTransformer =
         new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition));
+            responseDefinitionTransformer(responseDefinition),
+            false);
 
     StubMapping actual =
         stubMappingTransformer.apply(serveEventWithPath("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?"));
-    StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
-    expected.setId(actual.getId());
+
+    StubMapping expected = StubMapping.builder()
+            .setRequest(requestPatternBuilder.build())
+            .setResponse(responseDefinition)
+            .setId(actual.getId())
+            .setPersistent(false)
+            .build();
 
     assertThat(actual, is(expected));
   }

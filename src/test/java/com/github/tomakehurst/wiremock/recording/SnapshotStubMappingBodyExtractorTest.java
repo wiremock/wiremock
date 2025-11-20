@@ -76,8 +76,7 @@ public class SnapshotStubMappingBodyExtractorTest {
 
   @Test
   public void determinesFileNameProperlyWithNamedStubMapping() {
-    StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build();
-    stubMapping.setName("TEST NAME!");
+    StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build().transform(b -> b.setName("TEST NAME!"));
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("test-name-" + stubMapping.getId() + ".json", "{}");
   }

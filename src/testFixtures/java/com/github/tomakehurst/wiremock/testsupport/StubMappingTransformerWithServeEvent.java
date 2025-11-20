@@ -34,8 +34,8 @@ public class StubMappingTransformerWithServeEvent extends StubMappingTransformer
         WireMock.get(
                 urlEqualTo(
                     ParameterUtils.getFirstNonNull(
-                            stubMapping.getRequest().getUrl(),
-                            stubMapping.getRequest().getUrlPath())
+                            stubMapping.request().getUrl(),
+                            stubMapping.request().getUrlPath())
                         + "?transformed="
                         + serveEvent.getRequest().queryParameter("some-query").firstValue()))
             .build());

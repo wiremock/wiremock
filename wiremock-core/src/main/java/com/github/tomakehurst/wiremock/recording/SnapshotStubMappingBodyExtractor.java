@@ -38,7 +38,7 @@ class SnapshotStubMappingBodyExtractor {
    *
    * @param stubMapping Stub mapping to extract
    */
-  void extractInPlace(StubMapping stubMapping) {
+  StubMapping extractInPlace(StubMapping stubMapping) {
     byte[] body = stubMapping.getResponse().getByteBody();
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
     String extension =
@@ -53,18 +53,20 @@ class SnapshotStubMappingBodyExtractor {
     FilenameMaker filenameMaker = new FilenameMaker("default", extension);
     String bodyFileName = filenameMaker.filenameFor(stubMapping);
 
+    filesBlobStore.put(bodyFileName, body);
+
     // used to prevent ambiguous method call error for withBody()
     String noStringBody = null;
     byte[] noByteBody = null;
 
-    stubMapping.setResponse(
-        ResponseDefinitionBuilder.like(stubMapping.getResponse())
-            .withBodyFile(bodyFileName)
-            .withBody(noStringBody)
-            .withBody(noByteBody)
-            .withBase64Body(null)
-            .build());
-
-    filesBlobStore.put(bodyFileName, body);
+    return stubMapping.transform(
+            sm -> sm.setResponse(
+                    ResponseDefinitionBuilder.like(stubMapping.getResponse())
+                            .withBodyFile(bodyFileName)
+                            .withBody(noStringBody)
+                            .withBody(noByteBody)
+                            .withBase64Body(null)
+                            .build())
+    );
   }
 }

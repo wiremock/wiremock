@@ -163,7 +163,7 @@ public class StubMappingPersistenceAcceptanceTest {
     Files.write(mappingsDir.resolve("do-not-delete.json"), Json.write(stubMapping).getBytes());
     resetToDefault();
 
-    assertThat(getSingleStubMapping(id).getRequest().getUrl(), is("/do-not-delete"));
+    assertThat(getSingleStubMapping(id).request().getUrl(), is("/do-not-delete"));
     assertMappingsDirContainsOneFile();
 
     removeStub(stubMapping);

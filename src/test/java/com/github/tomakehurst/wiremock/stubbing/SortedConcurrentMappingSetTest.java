@@ -104,7 +104,7 @@ public class SortedConcurrentMappingSetTest {
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
 
-    existingMapping.setNewScenarioState("New Scenario State");
+    existingMapping = existingMapping.transform(b -> b.setNewScenarioState("New Scenario State"));
 
     StubMapping newMapping = aMapping(2, "/priority2/1");
     boolean result = mappingSet.replace(existingMapping, newMapping);
@@ -136,9 +136,12 @@ public class SortedConcurrentMappingSetTest {
 
   private StubMapping aMapping(Integer priority, String url) {
     RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
-    StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
-    mapping.setPriority(priority);
-    return mapping;
+
+      return StubMapping.builder()
+              .setRequest(requestPattern)
+              .setResponse(new ResponseDefinition())
+              .setPriority(priority)
+              .build();
   }
 
   private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
@@ -149,7 +152,7 @@ public class SortedConcurrentMappingSetTest {
 
       @Override
       public boolean matchesSafely(StubMapping actualMapping) {
-        return actualMapping.getRequest().getUrl().equals(expectedUrl);
+        return actualMapping.request().getUrl().equals(expectedUrl);
       }
     };
   }

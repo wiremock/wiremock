@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -25,8 +26,8 @@ public class EditStubMappingTask extends AbstractSingleStubTask {
   @Override
   protected ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
-    StubMapping newStubMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
-    newStubMapping.setId(stubMapping.getId());
+    StubMapping newStubMapping = Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class)
+            .transform(sm -> sm.setId(stubMapping.getId()));
     admin.editStubMapping(newStubMapping);
     return ResponseDefinition.okForJson(newStubMapping);
   }
