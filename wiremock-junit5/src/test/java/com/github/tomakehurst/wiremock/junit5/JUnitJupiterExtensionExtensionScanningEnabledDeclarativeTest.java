@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.io.IOException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.client;
+package com.github.tomakehurst.wiremock.http.client.apache5;
 
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

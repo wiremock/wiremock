@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.http.client.apache5.NetworkAddressRulesAdheringDnsResolver;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.stream.Stream;

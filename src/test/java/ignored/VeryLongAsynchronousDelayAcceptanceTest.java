@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;

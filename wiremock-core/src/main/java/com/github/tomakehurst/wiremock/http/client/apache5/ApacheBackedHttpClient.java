@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.client;
+package com.github.tomakehurst.wiremock.http.client.apache5;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;

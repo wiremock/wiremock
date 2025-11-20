@@ -1,1 +1,1 @@
-com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory
+com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory
