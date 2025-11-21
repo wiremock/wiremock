@@ -80,7 +80,6 @@ public class SnapshotStubMappingGeneratorTest {
             .setResponse(responseDefinition)
             .setId(actual.getId())
             .setName("hello_1_2_3___ace--ace___and")
-            .setPersistent(false)
             .build();
 
     assertThat(actual, is(expected));
