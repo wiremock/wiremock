@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
@@ -401,15 +399,5 @@ public record StubMapping(
       this.insertionIndex = insertionIndex;
       return this;
     }
-  }
-
-  public static void main(String[] args) {
-    System.out.println(
-        Json.write(
-            StubMapping.builder()
-                .setRequest(WireMock.get("/things").build().request())
-                .setResponse(ResponseDefinitionBuilder.okForJson("[]").build())
-                .setPriority(7)
-                .build()));
   }
 }
