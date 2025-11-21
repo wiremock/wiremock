@@ -21,11 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDeserializer;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -48,7 +50,8 @@ public record StubMapping(
     String scenarioName,
     String requiredScenarioState,
     String newScenarioState,
-    List<PostServeActionDefinition> postServeActions,
+    @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
+        List<PostServeActionDefinition> postServeActions,
     List<ServeEventListenerDefinition> serveEventListeners,
     Metadata metadata,
     @JsonView(Json.PrivateView.class) long insertionIndex)
@@ -64,7 +67,8 @@ public record StubMapping(
       String scenarioName,
       String requiredScenarioState,
       String newScenarioState,
-      List<PostServeActionDefinition> postServeActions,
+      @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
+          List<PostServeActionDefinition> postServeActions,
       List<ServeEventListenerDefinition> serveEventListeners,
       Metadata metadata,
       @JsonView(Json.PrivateView.class) long insertionIndex) {
