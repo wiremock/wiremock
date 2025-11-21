@@ -26,7 +26,8 @@ public class EditStubMappingTask extends AbstractSingleStubTask {
   @Override
   protected ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
-    StubMapping newStubMapping = Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class)
+    StubMapping newStubMapping =
+        Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class)
             .transform(sm -> sm.setId(stubMapping.getId()));
     admin.editStubMapping(newStubMapping);
     return ResponseDefinition.okForJson(newStubMapping);

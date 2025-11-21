@@ -75,7 +75,8 @@ public class ScenarioProcessorTest {
     StubMapping two = WireMock.get("/two").build();
     StubMapping three = WireMock.get("/three").build();
 
-    final List<StubMapping> processed = processor.putRepeatedRequestsInScenarios(asList(one, two, three));
+    final List<StubMapping> processed =
+        processor.putRepeatedRequestsInScenarios(asList(one, two, three));
 
     final StubMapping processedOne = findStub(processed, one);
     final StubMapping processedTwo = findStub(processed, two);
@@ -86,6 +87,9 @@ public class ScenarioProcessorTest {
   }
 
   private static StubMapping findStub(List<StubMapping> processed, StubMapping foobar1) {
-    return processed.stream().filter(stub -> stub.getId().equals(foobar1.getId())).findFirst().orElseThrow();
+    return processed.stream()
+        .filter(stub -> stub.getId().equals(foobar1.getId()))
+        .findFirst()
+        .orElseThrow();
   }
 }

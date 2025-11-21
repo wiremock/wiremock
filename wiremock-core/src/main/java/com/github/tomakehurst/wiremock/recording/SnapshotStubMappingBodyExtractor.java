@@ -60,13 +60,13 @@ class SnapshotStubMappingBodyExtractor {
     byte[] noByteBody = null;
 
     return stubMapping.transform(
-            sm -> sm.setResponse(
-                    ResponseDefinitionBuilder.like(stubMapping.getResponse())
-                            .withBodyFile(bodyFileName)
-                            .withBody(noStringBody)
-                            .withBody(noByteBody)
-                            .withBase64Body(null)
-                            .build())
-    );
+        sm ->
+            sm.setResponse(
+                ResponseDefinitionBuilder.like(stubMapping.getResponse())
+                    .withBodyFile(bodyFileName)
+                    .withBody(noStringBody)
+                    .withBody(noByteBody)
+                    .withBase64Body(null)
+                    .build()));
   }
 }

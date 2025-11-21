@@ -46,7 +46,8 @@ public class SnapshotStubMappingBodyExtractorTest {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
     final StubMapping modifiedStub = bodyExtractor.extractInPlace(stubMapping);
     assertThat(
-            modifiedStub.getResponse().getBodyFileName(), is("get-foo-" + stubMapping.getId() + ".txt"));
+        modifiedStub.getResponse().getBodyFileName(),
+        is("get-foo-" + stubMapping.getId() + ".txt"));
     assertThat(modifiedStub.getResponse().specifiesBodyFile(), is(true));
     assertThat(modifiedStub.getResponse().specifiesBodyContent(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes
@@ -76,7 +77,11 @@ public class SnapshotStubMappingBodyExtractorTest {
 
   @Test
   public void determinesFileNameProperlyWithNamedStubMapping() {
-    StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build().transform(b -> b.setName("TEST NAME!"));
+    StubMapping stubMapping =
+        WireMock.get("/foo")
+            .willReturn(okJson("{}"))
+            .build()
+            .transform(b -> b.setName("TEST NAME!"));
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("test-name-" + stubMapping.getId() + ".json", "{}");
   }

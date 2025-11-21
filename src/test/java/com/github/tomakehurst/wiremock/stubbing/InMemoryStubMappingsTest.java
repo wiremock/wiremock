@@ -45,7 +45,8 @@ public class InMemoryStubMappingsTest {
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);
 
-    StubMapping newMapping = aMapping(1, "/priority1/2").transform(b -> b.setId(existingMapping.getId()));
+    StubMapping newMapping =
+        aMapping(1, "/priority1/2").transform(b -> b.setId(existingMapping.getId()));
 
     inMemoryStubMappings.editMapping(newMapping);
 
@@ -97,10 +98,10 @@ public class InMemoryStubMappingsTest {
   private StubMapping aMapping(Integer priority, String url) {
     RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
 
-      return StubMapping.builder()
-          .setRequest(requestPattern)
-          .setResponse(new ResponseDefinition())
-          .setPriority(priority)
-          .build();
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(new ResponseDefinition())
+        .setPriority(priority)
+        .build();
   }
 }

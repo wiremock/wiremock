@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 public class GlobalStubMappingTransformer extends StubMappingTransformer {
   @Override
   public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-    return WireMock.get(urlEqualTo(stubMapping.request().getUrl() + "?transformed=global"))
-        .build();
+    return WireMock.get(urlEqualTo(stubMapping.request().getUrl() + "?transformed=global")).build();
   }
 
   @Override

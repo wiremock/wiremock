@@ -137,11 +137,11 @@ public class SortedConcurrentMappingSetTest {
   private StubMapping aMapping(Integer priority, String url) {
     RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
 
-      return StubMapping.builder()
-              .setRequest(requestPattern)
-              .setResponse(new ResponseDefinition())
-              .setPriority(priority)
-              .build();
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(new ResponseDefinition())
+        .setPriority(priority)
+        .build();
   }
 
   private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
