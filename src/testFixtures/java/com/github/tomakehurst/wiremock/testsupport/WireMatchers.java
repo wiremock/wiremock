@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -381,7 +381,7 @@ public class WireMatchers {
   }
 
   public static Predicate<StubMapping> withUrl(final String url) {
-    return input -> url.equals(input.getRequest().getUrl());
+    return input -> url.equals(input.request().getUrl());
   }
 
   public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final String url) {
@@ -398,7 +398,7 @@ public class WireMatchers {
 
       @Override
       protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
-        return urlPattern.match(item.getRequest().getUrl()).isExactMatch();
+        return urlPattern.match(item.request().getUrl()).isExactMatch();
       }
     };
   }

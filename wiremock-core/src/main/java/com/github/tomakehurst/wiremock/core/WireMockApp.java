@@ -314,7 +314,7 @@ public class WireMockApp implements StubServer, Admin {
    */
   private void addStubMapping(StubMapping stubMapping, boolean persistNow) {
     if (stubMapping.getId() == null) {
-      stubMapping.setId(UUID.randomUUID());
+      stubMapping = stubMapping.transform(b -> b.setId(UUID.randomUUID()));
     }
 
     stubMappings.addMapping(stubMapping);
@@ -357,7 +357,7 @@ public class WireMockApp implements StubServer, Admin {
         .orElseGet(
             () ->
                 stubMappings.getAll().stream()
-                    .filter(stub -> stub.getRequest().equals(stubMapping.getRequest()))
+                    .filter(stub -> stub.request().equals(stubMapping.request()))
                     .findFirst()
                     .orElse(null));
   }
@@ -396,8 +396,7 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void saveMappings() {
     for (StubMapping stubMapping : stubMappings.getAll()) {
-      stubMapping.setPersistent(true);
-      stubMappings.editMapping(stubMapping);
+      stubMappings.editMapping(stubMapping.transform(b -> b.setPersistent(true)));
     }
     mappingsSaver.save(stubMappings.getAll());
   }

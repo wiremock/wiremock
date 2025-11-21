@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,9 +79,9 @@ public class NearMissCalculatorTest {
         nearMissCalculator.findNearestTo(mockRequest().url("/right").asLoggedRequest());
 
     assertThat(nearest.size(), is(NEAR_MISS_COUNT));
-    assertThat(nearest.get(0).getStubMapping().getRequest().getUrl(), is("/righ"));
-    assertThat(nearest.get(1).getStubMapping().getRequest().getUrl(), is("/rig"));
-    assertThat(nearest.get(2).getStubMapping().getRequest().getUrl(), is("/almost-right"));
+    assertThat(nearest.get(0).getStubMapping().request().getUrl(), is("/righ"));
+    assertThat(nearest.get(1).getStubMapping().request().getUrl(), is("/rig"));
+    assertThat(nearest.get(2).getStubMapping().request().getUrl(), is("/almost-right"));
   }
 
   @Test
@@ -176,8 +176,8 @@ public class NearMissCalculatorTest {
             mockRequest().method(GET).url("/correctpath").asLoggedRequest());
 
     assertThat(nearest.size(), is(2));
-    assertThat(nearest.get(0).getStubMapping().getRequest().getUrl(), is("/correctpath"));
-    assertThat(nearest.get(1).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+    assertThat(nearest.get(0).getStubMapping().request().getUrl(), is("/correctpath"));
+    assertThat(nearest.get(1).getStubMapping().request().getUrl(), is("/otherpath"));
   }
 
   private void givenStubMappings(final MappingBuilder... mappingBuilders) {

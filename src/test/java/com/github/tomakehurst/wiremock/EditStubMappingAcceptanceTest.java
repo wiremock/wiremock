@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,6 @@ public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   private Predicate<StubMapping> withUrl(final String url) {
     return mapping ->
-        (mapping.getRequest().getUrl() != null && mapping.getRequest().getUrl().equals(url));
+        (mapping.request().getUrl() != null && mapping.request().getUrl().equals(url));
   }
 }

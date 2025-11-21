@@ -31,7 +31,7 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,11 +54,10 @@ public class RemoteMappingsLoader {
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
-        StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+        StubMappingOrMappings stubCollection =
+            Json.read(mappingFile.readContentsAsString(), StubMappingOrMappings.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          convertBodyFromFileIfNecessary(mapping);
-          wireMock.register(mapping);
+          wireMock.register(convertBodyFromFileIfNecessary(mapping));
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
@@ -66,7 +65,7 @@ public class RemoteMappingsLoader {
     }
   }
 
-  private void convertBodyFromFileIfNecessary(StubMapping mapping) {
+  private StubMapping convertBodyFromFileIfNecessary(StubMapping mapping) {
     String bodyFileName = mapping.getResponse().getBodyFileName();
     if (bodyFileName != null) {
       ResponseDefinitionBuilder responseDefinitionBuilder =
@@ -83,8 +82,10 @@ public class RemoteMappingsLoader {
         responseDefinitionBuilder.withBody(bodyFile.readContents());
       }
 
-      mapping.setResponse(responseDefinitionBuilder.build());
+      return mapping.transform(sm -> sm.setResponse(responseDefinitionBuilder.build()));
     }
+
+    return mapping;
   }
 
   private String getMimeType(StubMapping mapping) {

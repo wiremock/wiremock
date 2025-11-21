@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class NearMissTest {
         Json.write(
             new NearMiss(
                 LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
-                get(urlEqualTo("/missed-me")).willReturn(aResponse()).build().getRequest(),
+                get(urlEqualTo("/missed-me")).willReturn(aResponse()).build().request(),
                 MatchResult.partialMatch(0.5)));
 
     assertThat(json, equalToJson(REQUEST_PATTERN_EXAMPLE, LENIENT));
@@ -100,8 +100,8 @@ public class NearMissTest {
 
     assertThat(nearMiss.getRequest().getUrl(), is("/nearly-missed-me"));
     assertThat(nearMiss.getRequest().getMethod(), is(HEAD));
-    assertThat(nearMiss.getStubMapping().getRequest().getUrl(), is("/missed-me"));
-    assertThat(nearMiss.getStubMapping().getRequest().getMethod(), is(GET));
+    assertThat(nearMiss.getStubMapping().request().getUrl(), is("/missed-me"));
+    assertThat(nearMiss.getStubMapping().request().getMethod(), is(GET));
     assertThat(nearMiss.getMatchResult().getDistance(), is(0.5));
     assertThat(nearMiss.getRequestPattern(), nullValue());
     assertThat(nearMiss.toString(), notNullValue());
