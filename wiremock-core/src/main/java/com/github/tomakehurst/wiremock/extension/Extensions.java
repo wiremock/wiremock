@@ -180,11 +180,10 @@ public class Extensions implements WireMockServices {
 
   private void configureHttpClient() {
     httpClientFactory =
-        ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
-            .values()
-            .stream()
-            .findFirst()
-            .orElse(options.httpClientFactory());
+        new StaticExtensionLoader<>(HttpClientFactory.class)
+            .setDefaultInstance(options.httpClientFactory())
+            .setExtensions(this)
+            .load();
   }
 
   private void configureWebhooks() {

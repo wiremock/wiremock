@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.apache.hc.core5.http.HttpHeaders.HOST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -27,16 +28,16 @@ import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.ClientTokenAuthenticator;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class HttpAdminClientTest {
 
   @Test
   void returnsOptionsWhenCallingGetOptions() {
-    var client = new HttpAdminClient("localhost", 8080);
+    var client = buildHttpAdminClient(8080, "");
     assertThat(client.getOptions().portNumber()).isEqualTo(8080);
     assertThat(client.getOptions().bindAddress()).isEqualTo("localhost");
   }
@@ -61,7 +62,7 @@ class HttpAdminClientTest {
         post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
             .willReturn(ok()));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     client.resetToDefaultMappings();
   }
@@ -74,32 +75,52 @@ class HttpAdminClientTest {
         post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
             .willReturn(ok()));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     client.resetAll();
   }
 
   @Test
-  void shouldBeAbleToContactWiremockIfPortIsNotSpecified() throws IOException, URISyntaxException {
+  void shouldBeAbleToContactWiremockIfPortIsNotSpecified() throws IOException {
 
-    CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+    HttpClient httpClient = mock(HttpClient.class);
     ClientAuthenticator authenticator = mock(ClientAuthenticator.class);
     when(authenticator.generateAuthHeaders()).thenReturn(Collections.emptyList());
-    ArgumentCaptor<ClassicHttpRequest> httpRequestSentCaptor =
-        ArgumentCaptor.forClass(ClassicHttpRequest.class);
+    ArgumentCaptor<Request> httpRequestSentCaptor = ArgumentCaptor.forClass(Request.class);
     var scheme = "https";
     var domain = "my.domain.name";
-    var client =
-        new HttpAdminClient(scheme, domain, -1, "", "", authenticator, closeableHttpClient);
+    var client = new HttpAdminClient(scheme, domain, -1, "", "", authenticator, httpClient);
 
     try {
       client.getAllScenarios();
     } catch (Exception e) {
       // ignore
     }
-    Mockito.verify(closeableHttpClient).execute(httpRequestSentCaptor.capture());
-    ClassicHttpRequest value = httpRequestSentCaptor.getValue();
-    assertThat(value.getUri().toString()).isEqualTo(scheme + "://" + domain + "/__admin/scenarios");
+    Mockito.verify(httpClient).execute(httpRequestSentCaptor.capture());
+    Request value = httpRequestSentCaptor.getValue();
+    assertThat(value.getAbsoluteUrl()).isEqualTo(scheme + "://" + domain + "/__admin/scenarios");
+  }
+
+  @Test
+  void shouldInjectCorrectHeaders() throws IOException {
+
+    HttpClient httpClient = mock(HttpClient.class);
+    ClientAuthenticator authenticator = new ClientTokenAuthenticator("my_token");
+    ArgumentCaptor<Request> httpRequestSentCaptor = ArgumentCaptor.forClass(Request.class);
+    var scheme = "https";
+    var domain = "my.domain.name";
+    var client =
+        new HttpAdminClient(scheme, domain, -1, "", "other.example.com", authenticator, httpClient);
+
+    try {
+      client.getAllScenarios();
+    } catch (Exception e) {
+      // ignore
+    }
+    Mockito.verify(httpClient).execute(httpRequestSentCaptor.capture());
+    Request value = httpRequestSentCaptor.getValue();
+    assertThat(value.getHeader(HOST)).isEqualTo("other.example.com");
+    assertThat(value.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Token my_token");
   }
 
   @Test
@@ -111,7 +132,7 @@ class HttpAdminClientTest {
         get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, absent())
             .willReturn(jsonResponse(expectedResponse, HttpStatus.SC_OK)));
-    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server);
 
     assertThat(client.getAllScenarios()).usingRecursiveComparison().isEqualTo(expectedResponse);
   }
@@ -120,7 +141,7 @@ class HttpAdminClientTest {
   void reuseConnections() throws InterruptedException, IOException {
     var server = new SingleConnectionServer();
     server.start();
-    var client = new HttpAdminClient("localhost", server.getPort(), ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(server.getPort(), ADMIN_TEST_PREFIX);
 
     client.resetAll();
     client.resetAll();
@@ -132,7 +153,7 @@ class HttpAdminClientTest {
     var nonWireMockServer = HttpServer.create(new InetSocketAddress(0), 0);
     nonWireMockServer.start();
     var serverPort = nonWireMockServer.getAddress().getPort();
-    var client = new HttpAdminClient("localhost", serverPort, ADMIN_TEST_PREFIX);
+    var client = buildHttpAdminClient(serverPort, ADMIN_TEST_PREFIX);
     var mapping = post(urlPathMatching("/test")).willReturn(ok()).build();
     var thrown = assertThrows(InvalidInputException.class, () -> client.addStubMapping(mapping));
     assertThat(thrown.getErrors().getErrors()).hasSize(1);
@@ -152,7 +173,7 @@ class HttpAdminClientTest {
   void shouldParseErrorsLeniently() {
     var clientError =
         HttpAdminClient.parseClientError(
-            "http://example.com",
+            "https://example.com",
             """
             {
               "errors": [
@@ -171,5 +192,13 @@ class HttpAdminClientTest {
                 new Errors(
                     List.of(
                         new Errors.Error(null, new Errors.Error.Source(null), "Conflict", null)))));
+  }
+
+  private static HttpAdminClient buildHttpAdminClient(WireMockServer server) {
+    return buildHttpAdminClient(server.port(), ADMIN_TEST_PREFIX);
+  }
+
+  private static HttpAdminClient buildHttpAdminClient(int port, String urlPathPrefix) {
+    return WireMock.create().port(port).urlPathPrefix(urlPathPrefix).buildAdminClient();
   }
 }

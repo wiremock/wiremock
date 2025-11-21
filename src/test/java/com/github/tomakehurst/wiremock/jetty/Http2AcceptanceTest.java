@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -71,7 +71,7 @@ public class Http2AcceptanceTest {
 
   @Test
   public void supportsHttp1_1Connections() throws Exception {
-    CloseableHttpClient client = HttpClientFactory.createClient();
+    CloseableHttpClient client = ApacheHttpClientFactory.createClient();
 
     wm.stubFor(get("/thing").willReturn(ok("HTTP/1.1 response")));
 
