@@ -84,7 +84,8 @@ class SnapshotStubMappingPostProcessor {
     }
 
     if (shouldRecordRepeatsAsScenarios) {
-      processedStubMappings = new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
+      processedStubMappings =
+          new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
     }
 
     // 3. Extract response bodies to a separate file, if applicable.
@@ -99,7 +100,11 @@ class SnapshotStubMappingPostProcessor {
     }
 
     return stubMappings.stream()
-        .map(sm -> bodyExtractMatcher.match(sm.getResponse()).isExactMatch() ? bodyExtractor.extractInPlace(sm) : sm)
+        .map(
+            sm ->
+                bodyExtractMatcher.match(sm.getResponse()).isExactMatch()
+                    ? bodyExtractor.extractInPlace(sm)
+                    : sm)
         .collect(Collectors.toList());
   }
 }

@@ -31,7 +31,7 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,8 +54,8 @@ public class RemoteMappingsLoader {
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
-        StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+        StubMappingOrMappings stubCollection =
+            Json.read(mappingFile.readContentsAsString(), StubMappingOrMappings.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
           wireMock.register(convertBodyFromFileIfNecessary(mapping));
         }

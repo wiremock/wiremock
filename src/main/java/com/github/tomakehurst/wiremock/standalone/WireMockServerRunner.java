@@ -143,11 +143,12 @@ public class WireMockServerRunner {
           RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
           ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
 
-          StubMapping proxyBasedMapping = StubMapping.builder()
-              .setRequest(requestPattern)
-              .setResponse(responseDef)
-              .setPriority(10)
-              .build();
+          StubMapping proxyBasedMapping =
+              StubMapping.builder()
+                  .setRequest(requestPattern)
+                  .setResponse(responseDef)
+                  .setPriority(10)
+                  .build();
 
           stubMappings.addMapping(proxyBasedMapping);
         });

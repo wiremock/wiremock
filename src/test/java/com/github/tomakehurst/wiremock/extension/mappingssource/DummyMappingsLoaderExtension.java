@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,9 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.extension.MappingsLoaderExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingFileException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DummyMappingsLoaderExtension implements MappingsLoaderExtension {
 
