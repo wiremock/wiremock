@@ -15,18 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static java.util.stream.Collectors.toList;
+
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static java.util.stream.Collectors.toList;
 
 class ScenarioProcessor {
 
@@ -60,12 +59,14 @@ class ScenarioProcessor {
       stubsInScenario.addAll(putStubsInScenario(scenarioIndex, batch));
     }
 
-    return stubMappings.stream().map(originalStub ->
-      stubsInScenario.stream()
-              .filter(stubMapping -> stubMapping.getId().equals(originalStub.getId()))
-              .findFirst()
-              .orElse(originalStub)
-    ).collect(toList());
+    return stubMappings.stream()
+        .map(
+            originalStub ->
+                stubsInScenario.stream()
+                    .filter(stubMapping -> stubMapping.getId().equals(originalStub.getId()))
+                    .findFirst()
+                    .orElse(originalStub))
+        .collect(toList());
   }
 
   private List<StubMapping> putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
@@ -77,21 +78,25 @@ class ScenarioProcessor {
             + Urls.urlToPathParts(
                 URI.create(
                     getFirstNonNull(
-                        firstScenario.request().getUrl(),
-                        firstScenario.request().getUrlPath())));
+                        firstScenario.request().getUrl(), firstScenario.request().getUrlPath())));
 
     return IntStream.range(1, stubMappings.size() + 1)
-            .mapToObj(i -> stubMappings.get(i - 1).transform(stub -> {
-              stub.setScenarioName(scenarioName);
-              if (i == 1) {
-                stub.setRequiredScenarioState(Scenario.STARTED);
-              } else {
-                stub.setRequiredScenarioState(scenarioName + "-" + i);
-              }
-              if (i < stubMappings.size()) {
-                stub.setNewScenarioState(scenarioName + "-" + (i + 1));
-              }
-            })
-          ).collect(toList());
+        .mapToObj(
+            i ->
+                stubMappings
+                    .get(i - 1)
+                    .transform(
+                        stub -> {
+                          stub.setScenarioName(scenarioName);
+                          if (i == 1) {
+                            stub.setRequiredScenarioState(Scenario.STARTED);
+                          } else {
+                            stub.setRequiredScenarioState(scenarioName + "-" + i);
+                          }
+                          if (i < stubMappings.size()) {
+                            stub.setNewScenarioState(scenarioName + "-" + (i + 1));
+                          }
+                        }))
+        .collect(toList());
   }
 }

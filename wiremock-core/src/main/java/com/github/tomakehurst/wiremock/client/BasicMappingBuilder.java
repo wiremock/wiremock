@@ -307,20 +307,19 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     RequestPattern requestPattern = requestPatternBuilder.build();
     ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
 
-      return StubMapping.builder()
-              .setRequest(requestPattern)
-              .setResponse(response)
-              .setPriority(priority)
-              .setScenarioName(scenarioName)
-              .setRequiredScenarioState(requiredScenarioState)
-              .setNewScenarioState(newScenarioState)
-              .setId(id)
-              .setName(name)
-              .setPersistent(isPersistent)
-              .setPostServeActions(postServeActions.isEmpty() ? null : postServeActions)
-              .setServeEventListeners(
-                  serveEventListeners.isEmpty() ? null : serveEventListeners)
-              .setMetadata(metadata)
-              .build();
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(response)
+        .setPriority(priority)
+        .setScenarioName(scenarioName)
+        .setRequiredScenarioState(requiredScenarioState)
+        .setNewScenarioState(newScenarioState)
+        .setId(id)
+        .setName(name)
+        .setPersistent(isPersistent)
+        .setPostServeActions(postServeActions.isEmpty() ? null : postServeActions)
+        .setServeEventListeners(serveEventListeners.isEmpty() ? null : serveEventListeners)
+        .setMetadata(metadata)
+        .build();
   }
 }

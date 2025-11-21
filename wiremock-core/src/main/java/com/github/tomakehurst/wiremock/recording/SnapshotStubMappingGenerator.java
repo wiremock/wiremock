@@ -34,19 +34,22 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
   private final boolean markStubsPersistent;
 
   SnapshotStubMappingGenerator(
-          RequestPatternTransformer requestTransformer,
-          LoggedResponseDefinitionTransformer responseTransformer, boolean markStubsPersistent) {
+      RequestPatternTransformer requestTransformer,
+      LoggedResponseDefinitionTransformer responseTransformer,
+      boolean markStubsPersistent) {
     this.requestTransformer = requestTransformer;
     this.responseTransformer = responseTransformer;
-      this.markStubsPersistent = markStubsPersistent;
+    this.markStubsPersistent = markStubsPersistent;
   }
 
   SnapshotStubMappingGenerator(
-          Map<String, CaptureHeadersSpec> captureHeaders,
-          RequestBodyPatternFactory requestBodyPatternFactory, boolean markStubsPersistent) {
+      Map<String, CaptureHeadersSpec> captureHeaders,
+      RequestBodyPatternFactory requestBodyPatternFactory,
+      boolean markStubsPersistent) {
     this(
         new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
-        new LoggedResponseDefinitionTransformer(), markStubsPersistent);
+        new LoggedResponseDefinitionTransformer(),
+        markStubsPersistent);
   }
 
   @Override
@@ -57,11 +60,11 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
     URI uri = URI.create(event.getRequest().getUrl());
     FilenameMaker filenameMaker = new FilenameMaker();
 
-      return StubMapping.builder()
-              .setRequest(requestPattern)
-              .setResponse(responseDefinition)
-              .setPersistent(markStubsPersistent)
-              .setName(filenameMaker.sanitizeUrl(uri.getPath()))
-              .build();
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(responseDefinition)
+        .setPersistent(markStubsPersistent)
+        .setName(filenameMaker.sanitizeUrl(uri.getPath()))
+        .build();
   }
 }

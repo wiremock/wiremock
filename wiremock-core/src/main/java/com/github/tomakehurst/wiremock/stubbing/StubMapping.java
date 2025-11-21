@@ -1,4 +1,21 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.stubbing;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -12,34 +29,45 @@ import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({
-        "$schema", "uuid"
+  "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
 public record StubMapping(
-        UUID id,
-        String name,
-        Boolean persistent,
-        RequestPattern request,
-        ResponseDefinition response,
-        Integer priority,
-        String scenarioName,
-        String requiredScenarioState,
-        String newScenarioState,
-        List<PostServeActionDefinition> postServeActions,
-        List<ServeEventListenerDefinition> serveEventListeners,
-        Metadata metadata,
-        @JsonView(Json.PrivateView.class) long insertionIndex
-) implements StubMappingOrMappings {
+    UUID id,
+    String name,
+    Boolean persistent,
+    RequestPattern request,
+    ResponseDefinition response,
+    Integer priority,
+    String scenarioName,
+    String requiredScenarioState,
+    String newScenarioState,
+    List<PostServeActionDefinition> postServeActions,
+    List<ServeEventListenerDefinition> serveEventListeners,
+    Metadata metadata,
+    @JsonView(Json.PrivateView.class) long insertionIndex)
+    implements StubMappingOrMappings {
 
-  public StubMapping(UUID id, String name, Boolean persistent, RequestPattern request, ResponseDefinition response, Integer priority, String scenarioName, String requiredScenarioState, String newScenarioState, List<PostServeActionDefinition> postServeActions, List<ServeEventListenerDefinition> serveEventListeners, Metadata metadata, @JsonView(Json.PrivateView.class) long insertionIndex) {
+  public StubMapping(
+      UUID id,
+      String name,
+      Boolean persistent,
+      RequestPattern request,
+      ResponseDefinition response,
+      Integer priority,
+      String scenarioName,
+      String requiredScenarioState,
+      String newScenarioState,
+      List<PostServeActionDefinition> postServeActions,
+      List<ServeEventListenerDefinition> serveEventListeners,
+      Metadata metadata,
+      @JsonView(Json.PrivateView.class) long insertionIndex) {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.persistent = persistent;
@@ -57,7 +85,8 @@ public record StubMapping(
 
   public static final int DEFAULT_PRIORITY = 5;
 
-  public static final StubMapping NOT_CONFIGURED = StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
+  public static final StubMapping NOT_CONFIGURED =
+      StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
 
   public static Builder builder() {
     return new Builder();
@@ -160,6 +189,41 @@ public record StubMapping(
     return false;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    StubMapping that = (StubMapping) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(name, that.name)
+        && Objects.equals(priority, that.priority)
+        && Objects.equals(metadata, that.metadata)
+        && Objects.equals(persistent, that.persistent)
+        && Objects.equals(scenarioName, that.scenarioName)
+        && Objects.equals(request, that.request)
+        && Objects.equals(newScenarioState, that.newScenarioState)
+        && Objects.equals(response, that.response)
+        && Objects.equals(requiredScenarioState, that.requiredScenarioState)
+        && Objects.equals(postServeActions, that.postServeActions)
+        && Objects.equals(serveEventListeners, that.serveEventListeners);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        id,
+        name,
+        persistent,
+        request,
+        response,
+        priority,
+        scenarioName,
+        requiredScenarioState,
+        newScenarioState,
+        postServeActions,
+        serveEventListeners,
+        metadata);
+  }
+
   public static class Builder {
     private UUID id = UUID.randomUUID();
     private String name;
@@ -182,8 +246,7 @@ public record StubMapping(
     private long insertionIndex;
     private boolean isDirty;
 
-    public Builder() {
-    }
+    public Builder() {}
 
     public Builder(StubMapping existing) {
       this.id = existing.id();
@@ -203,20 +266,19 @@ public record StubMapping(
 
     public StubMapping build() {
       return new StubMapping(
-              id,
-              name,
-              persistent,
-              request,
-              response,
-              priority,
-              scenarioName,
-              requiredScenarioState,
-              newScenarioState,
-              postServeActions,
-              serveEventListeners,
-              metadata,
-              insertionIndex
-      );
+          id,
+          name,
+          persistent,
+          request,
+          response,
+          priority,
+          scenarioName,
+          requiredScenarioState,
+          newScenarioState,
+          postServeActions,
+          serveEventListeners,
+          metadata,
+          insertionIndex);
     }
 
     public UUID getId() {
@@ -339,12 +401,11 @@ public record StubMapping(
 
   public static void main(String[] args) {
     System.out.println(
-            Json.write(StubMapping.builder()
-                    .setRequest(WireMock.get("/things").build().request())
-                    .setResponse(ResponseDefinitionBuilder.okForJson("[]").build())
-                    .setPriority(7)
-                    .build()
-            )
-    );
+        Json.write(
+            StubMapping.builder()
+                .setRequest(WireMock.get("/things").build().request())
+                .setResponse(ResponseDefinitionBuilder.okForJson("[]").build())
+                .setPriority(7)
+                .build()));
   }
 }

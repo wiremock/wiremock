@@ -47,7 +47,8 @@ public class SnapshotStubMappingGeneratorTest {
 
     StubMapping actual = stubMappingTransformer.apply(serveEvent());
 
-    StubMapping expected = StubMapping.builder()
+    StubMapping expected =
+        StubMapping.builder()
             .setRequest(requestPatternBuilder.build())
             .setResponse(responseDefinition)
             .setId(actual.getId())
@@ -73,7 +74,8 @@ public class SnapshotStubMappingGeneratorTest {
     StubMapping actual =
         stubMappingTransformer.apply(serveEventWithPath("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?"));
 
-    StubMapping expected = StubMapping.builder()
+    StubMapping expected =
+        StubMapping.builder()
             .setRequest(requestPatternBuilder.build())
             .setResponse(responseDefinition)
             .setId(actual.getId())

@@ -66,10 +66,10 @@ public class SnapshotStubMappingPostProcessorTest {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.request().getUrl();
             return new StubGenerationResult.Success(
-                    StubMapping.builder()
-                            .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
-                            .setResponse(ResponseDefinition.ok())
-                            .build());
+                StubMapping.builder()
+                    .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                    .setResponse(ResponseDefinition.ok())
+                    .build());
           }
         };
 
@@ -93,10 +93,10 @@ public class SnapshotStubMappingPostProcessorTest {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.request().getUrl();
             return new StubGenerationResult.Success(
-                    StubMapping.builder()
-                            .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
-                            .setResponse(ResponseDefinition.ok())
-                            .build());
+                StubMapping.builder()
+                    .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                    .setResponse(ResponseDefinition.ok())
+                    .build());
           }
         };
 
@@ -132,7 +132,8 @@ public class SnapshotStubMappingPostProcessorTest {
         new SnapshotStubMappingBodyExtractor(null) {
           @Override
           public StubMapping extractInPlace(StubMapping stubMapping) {
-            return stubMapping.transform(b -> b.setRequest(newRequestPattern().withUrl("/extracted").build()));
+            return stubMapping.transform(
+                b -> b.setRequest(newRequestPattern().withUrl("/extracted").build()));
           }
         };
 
