@@ -75,8 +75,8 @@ public record StubMapping(
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.persistent = persistent;
-    this.request = request;
-    this.response = response;
+    this.request = getFirstNonNull(request, RequestPattern.ANYTHING);
+    this.response = getFirstNonNull(response, ResponseDefinition.ok());
     this.priority = priority;
     this.scenarioName = scenarioName;
     this.requiredScenarioState = requiredScenarioState;
@@ -119,11 +119,11 @@ public record StubMapping(
   }
 
   public RequestPattern getRequest() {
-    return getFirstNonNull(request, RequestPattern.ANYTHING);
+    return request;
   }
 
   public ResponseDefinition getResponse() {
-    return getFirstNonNull(response, ResponseDefinition.ok());
+    return response;
   }
 
   public Integer getPriority() {
