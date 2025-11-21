@@ -63,7 +63,7 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
     return StubMapping.builder()
         .setRequest(requestPattern)
         .setResponse(responseDefinition)
-        .setPersistent(markStubsPersistent)
+        .setPersistent(markStubsPersistent ? true : null)
         .setName(filenameMaker.sanitizeUrl(uri.getPath()))
         .build();
   }
