@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -24,7 +23,6 @@ import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 
 public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
@@ -50,7 +48,7 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
             .notifier(notifier)
             .extensions(new StartStopLoggingExtension(notifier)));
     notifier.reset();
-    testClient.post("/__admin/shutdown", new StringEntity("", TEXT_PLAIN));
+    testClient.post("/__admin/shutdown");
     // should contain the admin request log message and the stop message from our extension
     assertThat(notifier.infoMessages.size(), is(2));
     assertThat(notifier.infoMessages.get(1), containsString("Extension stopped"));
