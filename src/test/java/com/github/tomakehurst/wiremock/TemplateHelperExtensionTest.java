@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Map;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -68,7 +67,7 @@ public class TemplateHelperExtensionTest {
   void appliesHelpersFromProvider() {
     wm.stubFor(post("/things").willReturn(ok("{{{ string-length request.body }}}")));
 
-    WireMockResponse response = client.post("/things", new StringEntity("fiver"));
+    WireMockResponse response = client.postWithBody("/things", "fiver");
 
     assertThat(response.content(), is("5"));
   }

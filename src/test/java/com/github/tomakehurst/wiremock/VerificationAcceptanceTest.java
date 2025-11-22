@@ -24,7 +24,6 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findServeEventWithUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -50,7 +49,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.hc.client5.http.entity.EntityBuilder;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -593,7 +591,7 @@ public class VerificationAcceptanceTest {
 
     @Test
     void verifiesBodyAbsent() {
-      testClient.post("/no/body", new StringEntity(""));
+      testClient.post("/no/body");
       verify(postRequestedFor(urlEqualTo("/no/body")).withRequestBody(absent()));
     }
 
@@ -602,7 +600,7 @@ public class VerificationAcceptanceTest {
       assertThrows(
           VerificationException.class,
           () -> {
-            testClient.post("/no/body", new StringEntity("not absent"));
+            testClient.postWithBody("/no/body", "not absent");
             verify(postRequestedFor(urlEqualTo("/no/body")).withRequestBody(absent()));
           });
     }
@@ -817,7 +815,7 @@ public class VerificationAcceptanceTest {
 
     @Test
     void copesWithAttemptedXmlBodyMatchWhenRequestHasNoXmlBody() {
-      testClient.post("/missing-xml", new StringEntity("", TEXT_PLAIN));
+      testClient.post("/missing-xml");
 
       try {
         verify(

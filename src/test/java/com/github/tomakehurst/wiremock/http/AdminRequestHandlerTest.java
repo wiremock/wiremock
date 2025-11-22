@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.UnsupportedEncodingException;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -58,10 +57,8 @@ public class AdminRequestHandlerTest {
             + "    }\n"
             + "}";
 
-    client.post(
-        "/__admin/mappings",
-        new StringEntity(postBody),
-        withHeader(postHeaderABCName, postHeaderABCValue));
+    client.postWithBody(
+        "/__admin/mappings", postBody, withHeader(postHeaderABCName, postHeaderABCValue));
 
     verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
     verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
