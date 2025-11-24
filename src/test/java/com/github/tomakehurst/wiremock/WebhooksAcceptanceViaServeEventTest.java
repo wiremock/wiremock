@@ -493,6 +493,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
   @ParameterizedTest
   @MethodSource("allHttpMethodsForWebhooks")
   public void firesWebhookForAllHttpMethods(RequestMethod method) throws Exception {
+    String body = "{ \"test\": \"data\" }";
     rule.stubFor(
         post(urlPathEqualTo("/trigger-webhook"))
             .willReturn(ok())
@@ -502,7 +503,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                     .withMethod(method)
                     .withUrl(targetServer.url("/callback"))
                     .withHeader("Content-Type", "application/json")
-                    .withBody("{ \"test\": \"data\" }")));
+                    .withBody(body)));
 
     client.post("/trigger-webhook", new StringEntity("", TEXT_PLAIN));
 
@@ -512,6 +513,9 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     List<LoggedRequest> requests = targetServer.findAll(anyRequestedFor(urlEqualTo("/callback")));
     assertThat(requests, hasSize(1));
     assertThat(requests.get(0).getMethod(), is(method));
+    if (method.hasEntity()) {
+      assertThat(requests.get(0).getBodyAsString(), is(body));
+    }
   }
 
   private static Stream<RequestMethod> allHttpMethodsForWebhooks() {

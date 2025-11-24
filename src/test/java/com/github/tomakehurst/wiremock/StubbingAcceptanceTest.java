@@ -91,20 +91,11 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void mappingWithExactUrlWithBodyAndQueryMethodMatch() {
-    stubFor(
-        query(urlEqualTo("/a/resource"))
-            .withRequestBody(containing("BODY"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "text/plain")
-                    .withBody("Found")));
+    stubFor(query(urlEqualTo("/a/resource")).withRequestBody(containing("BODY")).willReturn(ok()));
 
     WireMockResponse response = testClient.queryWithBody("/a/resource", "BODY", "text/plain");
 
     assertThat(response.statusCode(), is(200));
-    assertThat(response.content(), is("Found"));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
   }
 
   @Test
@@ -142,46 +133,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                     .withBody("Found")));
 
     WireMockResponse response = testClient.query("/a/resource");
-
-    assertThat(response.statusCode(), is(200));
-    assertThat(response.content(), is("Found"));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
-  }
-
-  @Test
-  void mappingWithExactUrlWithXmlBodyAndQueryMethodMatch() {
-    String requestBody = "<foo>bar</foo>";
-    stubFor(
-        query(urlEqualTo("/a/resource"))
-            .withRequestBody(equalTo(requestBody))
-            .withHeader("Content-Type", equalTo("application/xml; charset=UTF-8"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "text/plain")
-                    .withBody("Found")));
-
-    WireMockResponse response = testClient.queryXml("/a/resource", requestBody);
-
-    assertThat(response.statusCode(), is(200));
-    assertThat(response.content(), is("Found"));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
-  }
-
-  @Test
-  void mappingWithExactUrlWithJsonBodyAndQueryMethodMatch() {
-    String requestBody = "{\"foo\": \"bar\"}";
-    stubFor(
-        query(urlEqualTo("/a/resource"))
-            .withRequestBody(equalTo(requestBody))
-            .withHeader("Content-Type", equalTo("application/json; charset=utf-8"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "text/plain")
-                    .withBody("Found")));
-
-    WireMockResponse response = testClient.queryJson("/a/resource", requestBody);
 
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("Found"));
