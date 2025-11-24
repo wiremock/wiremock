@@ -43,6 +43,17 @@ public class RequestPatternTransformerTest {
   }
 
   @Test
+  public void applyIncludesQueryMethod() {
+    Request request = mockRequest().url("/foo").method(RequestMethod.QUERY);
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.QUERY, urlEqualTo("/foo"));
+
+    assertEquals(
+        expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
+  }
+
+  @Test
   public void applyWithHeaders() {
     Request request =
         mockRequest()

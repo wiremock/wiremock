@@ -90,6 +90,56 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void mappingWithExactUrlWithBodyAndQueryMethodMatch() {
+    stubFor(query(urlEqualTo("/a/resource")).withRequestBody(containing("BODY")).willReturn(ok()));
+
+    WireMockResponse response = testClient.queryWithBody("/a/resource", "BODY", "text/plain");
+
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void mappingWithExactUrlWithBodyAndHeadersAndQueryMethodMatch() {
+    stubFor(
+        query(urlEqualTo("/a/resource"))
+            .withRequestBody(containing("BODY"))
+            .withHeader("Some-Header", equalTo("Some-Value"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Found")));
+
+    WireMockResponse response =
+        testClient.queryWithBody(
+            "/a/resource",
+            "BODY",
+            "text/plain",
+            TestHttpHeader.withHeader("Some-Header", "Some-Value"));
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("Found"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  void mappingWithExactUrlWithNoBodyAndQueryMethodMatch() {
+    stubFor(
+        query(urlEqualTo("/a/resource"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Found")));
+
+    WireMockResponse response = testClient.query("/a/resource");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("Found"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
   void mappingWithUrlContainingQueryParameters() {
     stubFor(
         get(urlEqualTo("/search?name=John&postcode=N44LL"))

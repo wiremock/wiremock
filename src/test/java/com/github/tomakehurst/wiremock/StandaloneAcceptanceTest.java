@@ -55,7 +55,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class StandaloneAcceptanceTest {
+public class StandaloneAcceptanceTest extends AcceptanceTestBase {
   private static final String FILES = "__files";
   private static final String MAPPINGS = "mappings";
 
@@ -74,7 +74,7 @@ public class StandaloneAcceptanceTest {
   private File filesDirectory;
 
   @BeforeEach
-  public void init() throws Exception {
+  public void init() {
     mappingsDirectory = tempFileRoot.resolve(MAPPINGS).toFile();
     filesDirectory = tempFileRoot.resolve(FILES).toFile();
     mappingsDirectory.mkdirs();
@@ -121,6 +121,13 @@ public class StandaloneAcceptanceTest {
     writeMappingFile("test-mapping-1.json", MAPPING_REQUEST);
     startRunner();
     assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
+  }
+
+  @Test
+  void readsQueryMappingFromMappingsDir() {
+    writeMappingFile("test-mapping-1.json", MAPPING_REQUEST.replace("GET", "QUERY"));
+    startRunner();
+    assertThat(testClient.query("/resource/from/file").content(), is("Body from mapping file"));
   }
 
   @Test

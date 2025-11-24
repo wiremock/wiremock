@@ -301,6 +301,7 @@ public class HttpClientFactory {
     else if (method.equals(OPTIONS)) return new HttpOptions(url);
     else if (method.equals(TRACE)) return new HttpTrace(url);
     else if (method.equals(PATCH)) return new HttpPatch(url);
+    else if (method.equals(QUERY)) return new HttpUriRequestBase(QUERY.toString(), URI.create(url));
     else return new HttpUriRequestBase(method.toString(), URI.create(url));
   }
 }
