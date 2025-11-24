@@ -63,7 +63,7 @@ public class Examples extends AcceptanceTestBase {
     assertThat(testClient.get("/some/thing").statusCode(), is(200));
     assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
   }
-
+  
   @Test
   public void queryMethod() {
     stubFor(
