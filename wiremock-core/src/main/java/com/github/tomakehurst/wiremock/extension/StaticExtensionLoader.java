@@ -71,7 +71,7 @@ public final class StaticExtensionLoader<T extends Extension> {
   private T pickMostAppropriateFrom(Stream<T> candidates) {
     return candidates
         .min(defaultFactoryLast())
-        .orElseThrow(this::couldNotFindSuitableClientException);
+        .orElseThrow(this::couldNotFindSuitableImplementationException);
   }
 
   private Comparator<Object> defaultFactoryLast() {
@@ -88,7 +88,7 @@ public final class StaticExtensionLoader<T extends Extension> {
     };
   }
 
-  private FatalStartupException couldNotFindSuitableClientException() {
+  private FatalStartupException couldNotFindSuitableImplementationException() {
     return new FatalStartupException(
         "No suitable "
             + type.getSimpleName()
