@@ -19,6 +19,7 @@ dependencies {
     testRuntimeOnly(libs.jetty.http)
     testRuntimeOnly(libs.junit.jupiter)
     testRuntimeOnly(project(":wiremock-jetty"))
+    testImplementation(project(":wiremock-httpclient-apache5"))
 }
 
 tasks.jar {

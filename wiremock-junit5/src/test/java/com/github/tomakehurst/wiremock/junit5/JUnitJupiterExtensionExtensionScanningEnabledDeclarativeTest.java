@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.io.IOException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -32,9 +32,11 @@ import org.junit.jupiter.api.Test;
 public class JUnitJupiterExtensionExtensionScanningEnabledDeclarativeTest {
 
   private static int responseCode(String url) {
-    try (CloseableHttpClient client = HttpClientFactory.createClient();
-        CloseableHttpResponse response = client.execute(new HttpGet(url))) {
-      return response.getCode();
+    try {
+      try (CloseableHttpClient client = ApacheHttpClientFactory.createClient();
+          CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+        return response.getCode();
+      }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

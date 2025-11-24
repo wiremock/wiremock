@@ -24,7 +24,7 @@ import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-  CloseableHttpClient httpClient = HttpClientFactory.createClient();
+  CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
 
   @Test
   public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {

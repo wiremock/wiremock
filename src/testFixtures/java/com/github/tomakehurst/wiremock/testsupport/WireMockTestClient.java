@@ -28,7 +28,6 @@ import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -192,19 +191,22 @@ public class WireMockTestClient {
   }
 
   public WireMockResponse query(String url, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery = HttpClientFactory.getHttpRequestFor(QUERY, mockServiceUrlFor(url));
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
     return executeMethodAndConvertExceptions(httpQuery);
   }
 
   public WireMockResponse query(String url, HttpEntity entity, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery = HttpClientFactory.getHttpRequestFor(QUERY, mockServiceUrlFor(url));
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
     httpQuery.setEntity(entity);
     return executeMethodAndConvertExceptions(httpQuery, headers);
   }
 
   public WireMockResponse queryWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery = HttpClientFactory.getHttpRequestFor(QUERY, mockServiceUrlFor(url));
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
     return requestWithBody(httpQuery, body, contentType, headers);
   }
 
