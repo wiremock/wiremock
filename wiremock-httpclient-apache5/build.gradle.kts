@@ -47,8 +47,8 @@ publishing {
             from(components["java"])
 
             pom {
-                name = "WireMock Core"
-                description = "The core engine of WireMock"
+                name = "WireMock HTTP Client Apache 5"
+                description = "A WireMock HTTP client implementation that uses the Apache 5HTTP client"
             }
         }
     }
