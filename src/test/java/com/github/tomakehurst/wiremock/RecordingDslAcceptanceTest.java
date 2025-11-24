@@ -143,7 +143,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedDuringRecording() {
+  public void recordsNothingWhenNoServeEventsAreReceivedDuringRecording() {
     targetService.stubFor(get(urlPathMatching("/do-not-record-this/.*")).willReturn(noContent()));
 
     client.get("/do-not-record-this/1");
@@ -158,7 +158,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedAtAll() {
+  public void recordsNothingWhenNoServeEventsAreReceivedAtAll() {
     startRecording(targetBaseUrl);
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 

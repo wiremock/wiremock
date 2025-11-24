@@ -34,6 +34,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
   public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
+  public static final RequestMethod QUERY = new RequestMethod("QUERY");
   private final String name;
 
   public RequestMethod(String name) {
@@ -81,7 +82,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public boolean hasEntity() {
-    return (asList(PUT, PATCH, POST).contains(this));
+    return (asList(PUT, PATCH, POST, QUERY).contains(this));
   }
 
   @Override
@@ -96,7 +97,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   public static RequestMethod[] values() {
     return new RequestMethod[] {
-      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD
+      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD, QUERY
     };
   }
 }

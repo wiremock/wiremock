@@ -589,6 +589,10 @@ public class WireMock {
     return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
   }
 
+  public static MappingBuilder query(UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.QUERY, urlPattern);
+  }
+
   /**
    * A mapping builder that can be used for both GET and HEAD http method. Returns a response body
    * in case for GET and not in case of HEAD method. In case of tie the request is treated as a GET
@@ -679,6 +683,10 @@ public class WireMock {
 
   public static MappingBuilder patch(String url) {
     return patch(urlEqualTo(url));
+  }
+
+  public static MappingBuilder query(String url) {
+    return query(urlEqualTo(url));
   }
 
   public static ResponseDefinitionBuilder created() {
@@ -871,6 +879,10 @@ public class WireMock {
 
   public static RequestPatternBuilder anyRequestedFor(UrlPattern urlPattern) {
     return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
+  }
+
+  public static RequestPatternBuilder queryRequestedFor(UrlPattern urlPattern) {
+    return new RequestPatternBuilder(RequestMethod.QUERY, urlPattern);
   }
 
   public static RequestPatternBuilder requestedFor(String method, UrlPattern urlPattern) {

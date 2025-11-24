@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.QUERY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -71,6 +72,15 @@ class RequestPatternTest {
     RequestPattern requestPattern = newRequestPattern(PUT, urlPathEqualTo("/my/url")).build();
 
     MatchResult matchResult = requestPattern.match(mockRequest().method(PUT).url("/my/url"));
+    assertThat(matchResult.getDistance(), is(0.0));
+    assertTrue(matchResult.isExactMatch());
+  }
+
+  @Test
+  void matchesExactlyWithQueryMethod0DistanceWhenUrlAndMethodAreExactMatch() {
+    RequestPattern requestPattern = newRequestPattern(QUERY, urlPathEqualTo("/my/url")).build();
+
+    MatchResult matchResult = requestPattern.match(mockRequest().method(QUERY).url("/my/url"));
     assertThat(matchResult.getDistance(), is(0.0));
     assertTrue(matchResult.isExactMatch());
   }
