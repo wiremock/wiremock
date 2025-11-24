@@ -63,6 +63,21 @@ public class Examples extends AcceptanceTestBase {
     assertThat(testClient.get("/some/thing").statusCode(), is(200));
     assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
   }
+  
+  @Test
+  public void queryMethod() {
+    stubFor(
+            query(urlEqualTo("/some/thing"))
+                    .withRequestBody(matching("<status>OK</status>"))
+                    .willReturn(
+                            aResponse()
+                                    .withHeader("Content-Type", "text/plain")
+                                    .withBody("Hello world!")));
+
+    assertThat(testClient.queryXml("/some/thing", "<status>OK</status>").statusCode(), is(200));
+    assertThat(testClient.queryXml("/some/thing", "<status>OK</status>").content(), is("Hello World!"));
+    assertThat(testClient.query("/some/thing/else").statusCode(), is(404));
+  }
 
   @Test
   public void urlRegexMatch() {
