@@ -181,7 +181,7 @@ public class Extensions implements WireMockServices {
   private void configureHttpClient() {
     httpClientFactory =
         new StaticExtensionLoader<>(HttpClientFactory.class)
-            .setDefaultInstance(options.httpClientFactory())
+            .setSpecificInstance(options.httpClientFactory())
             .setExtensions(this)
             .load();
   }

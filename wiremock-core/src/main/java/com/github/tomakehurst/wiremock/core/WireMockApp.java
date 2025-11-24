@@ -212,7 +212,7 @@ public class WireMockApp implements StubServer, Admin {
 
     final HttpClientFactory httpClientFactory =
         new StaticExtensionLoader<>(HttpClientFactory.class)
-            .setDefaultInstance(options.httpClientFactory())
+            .setSpecificInstance(options.httpClientFactory())
             .setExtensions(extensions)
             .load();
 

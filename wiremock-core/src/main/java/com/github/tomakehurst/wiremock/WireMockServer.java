@@ -81,7 +81,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   private HttpServerFactory getHttpServerFactory() {
     return new StaticExtensionLoader<>(HttpServerFactory.class)
-        .setDefaultInstance(options.httpServerFactory())
+        .setSpecificInstance(options.httpServerFactory())
         .setExtensions(wireMockApp.getExtensions())
         .load();
   }

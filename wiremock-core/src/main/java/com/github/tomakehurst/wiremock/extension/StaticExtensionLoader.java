@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public final class StaticExtensionLoader<T extends Extension> {
 
   private final Class<T> type;
-  private T defaultInstance = null;
+  private T specificInstance = null;
   private Collection<T> extensions = List.of();
   private Supplier<Stream<T>> serviceLoader;
 
@@ -37,8 +37,8 @@ public final class StaticExtensionLoader<T extends Extension> {
   }
 
   public T load() {
-    if (defaultInstance != null) {
-      return defaultInstance;
+    if (specificInstance != null) {
+      return specificInstance;
     }
 
     if (!extensions.isEmpty()) {
@@ -48,8 +48,8 @@ public final class StaticExtensionLoader<T extends Extension> {
     return pickMostAppropriateFrom(serviceLoader.get());
   }
 
-  public StaticExtensionLoader<T> setDefaultInstance(T defaultInstance) {
-    this.defaultInstance = defaultInstance;
+  public StaticExtensionLoader<T> setSpecificInstance(T specificInstance) {
+    this.specificInstance = specificInstance;
     return this;
   }
 

@@ -118,7 +118,7 @@ public class WireMockBuilder {
 
     HttpClient httpClient =
         new StaticExtensionLoader<>(HttpClientFactory.class)
-            .setDefaultInstance(options.httpClientFactory())
+            .setSpecificInstance(options.httpClientFactory())
             .load()
             .buildHttpClient(options, true, Collections.emptyList(), true);
     return new HttpAdminClient(

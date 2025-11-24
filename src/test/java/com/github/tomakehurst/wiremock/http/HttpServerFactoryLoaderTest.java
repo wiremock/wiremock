@@ -116,7 +116,7 @@ public class HttpServerFactoryLoaderTest {
 
   private HttpServerFactory loadHttpServerFactory(Options options) {
     return new StaticExtensionLoader<>(HttpServerFactory.class)
-        .setDefaultInstance(options.httpServerFactory())
+        .setSpecificInstance(options.httpServerFactory())
         .setExtensions(extensions)
         .setServiceLoader(serviceLoader)
         .load();
