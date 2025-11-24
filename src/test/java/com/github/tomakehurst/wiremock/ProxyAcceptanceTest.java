@@ -131,7 +131,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void
-      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
+      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAdditionalRequestHeaders() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -658,7 +658,7 @@ public class ProxyAcceptanceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "BLAH"})
+  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "QUERY", "BLAH"})
   void proxiesRequestBodyForAnyMethod(String method) {
     initWithDefaultConfig();
 

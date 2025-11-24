@@ -41,6 +41,7 @@ public class ContentTypes {
   public static final String ACCEPT = "Accept";
   public static final String COOKIE = "Cookie";
   public static final String APPLICATION_JSON = "application/json";
+  public static final String APPLICATION_XML = "application/xml";
 
   private static final Map<String, String> COMMON_MIME_TYPES =
       Map.ofEntries(

@@ -19,6 +19,16 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_ANY_METHOD;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_DELETE;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_GET;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_HEAD;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_OPTIONS;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_PATCH;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_POST;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_PUT;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_QUERY;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_TRACE;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 
@@ -32,9 +42,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.provider.Arguments;
 
 public class AcceptanceTestBase {
 
@@ -113,5 +125,19 @@ public class AcceptanceTestBase {
   @BeforeEach
   public void init() throws InterruptedException {
     WireMock.resetToDefault();
+  }
+
+  public static Stream<Arguments> provideStubMappingJson() {
+    return Stream.of(
+        Arguments.of(BASIC_GET),
+        Arguments.of(BASIC_POST),
+        Arguments.of(BASIC_PUT),
+        Arguments.of(BASIC_DELETE),
+        Arguments.of(BASIC_PATCH),
+        Arguments.of(BASIC_HEAD),
+        Arguments.of(BASIC_OPTIONS),
+        Arguments.of(BASIC_TRACE),
+        Arguments.of(BASIC_ANY_METHOD),
+        Arguments.of(BASIC_QUERY));
   }
 }
