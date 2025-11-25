@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
@@ -55,10 +56,7 @@ import com.networknt.schema.SpecVersion;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -554,7 +552,7 @@ public class WireMock {
   }
 
   public static MappingBuilder get(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
+    return new BasicMappingBuilder(GET, urlPattern);
   }
 
   public static MappingBuilder post(UrlPattern urlPattern) {
@@ -602,11 +600,15 @@ public class WireMock {
    * @return a mapping builder for {@link RequestMethod#GET_OR_HEAD} http method
    */
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.GET_OR_HEAD, urlPattern);
+    return request(isOneOf(GET, HEAD), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
     return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
+  }
+
+  public static MappingBuilder request(RequestMethod method, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(method, urlPattern);
   }
 
   public static MappingBuilder requestMatching(String customRequestMatcherName) {
@@ -846,7 +848,7 @@ public class WireMock {
   }
 
   public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
-    return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
+    return new RequestPatternBuilder(GET, urlPattern);
   }
 
   public static RequestPatternBuilder postRequestedFor(UrlPattern urlPattern) {

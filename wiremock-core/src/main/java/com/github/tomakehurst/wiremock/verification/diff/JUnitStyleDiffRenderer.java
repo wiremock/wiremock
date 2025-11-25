@@ -27,6 +27,7 @@ public class JUnitStyleDiffRenderer {
 
     String expected =
         lines.stream().map(EXPECTED).map(Object::toString).collect(Collectors.joining("\n"));
+
     String actual =
         lines.stream().map(ACTUAL).map(Object::toString).collect(Collectors.joining("\n"));
 
