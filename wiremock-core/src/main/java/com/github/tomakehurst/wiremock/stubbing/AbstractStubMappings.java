@@ -170,7 +170,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     }
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.beforeStubCreated(mapping);
+      mapping = listener.beforeStubCreated(mapping);
     }
 
     store.add(mapping);
@@ -207,7 +207,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     final StubMapping existingMapping = optionalExistingMapping.get();
     for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.beforeStubEdited(existingMapping, stubMapping);
+      stubMapping = listener.beforeStubEdited(existingMapping, stubMapping);
     }
 
     stubMapping =
