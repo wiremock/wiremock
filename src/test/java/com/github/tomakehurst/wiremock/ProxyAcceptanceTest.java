@@ -34,7 +34,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -131,7 +131,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void
-      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
+      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAdditionalRequestHeaders() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -279,7 +279,7 @@ public class ProxyAcceptanceTest {
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getCode(), is(200));
@@ -296,7 +296,7 @@ public class ProxyAcceptanceTest {
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getCode(), is(200));
@@ -658,7 +658,7 @@ public class ProxyAcceptanceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "BLAH"})
+  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "QUERY", "BLAH"})
   void proxiesRequestBodyForAnyMethod(String method) {
     initWithDefaultConfig();
 

@@ -38,7 +38,6 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
@@ -61,6 +60,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class WireMock {
 
   private static final int DEFAULT_PORT = 8080;
@@ -70,8 +70,8 @@ public class WireMock {
 
   private final SettingsStore settingsStore = new InMemorySettingsStore();
 
-  private static InheritableThreadLocal<WireMock> defaultInstance =
-      new InheritableThreadLocal<WireMock>() {
+  private static final InheritableThreadLocal<WireMock> defaultInstance =
+      new InheritableThreadLocal<>() {
         @Override
         protected WireMock initialValue() {
           return WireMock.create().build();
@@ -87,45 +87,7 @@ public class WireMock {
   }
 
   public WireMock(int port) {
-    this(DEFAULT_HOST, port);
-  }
-
-  public WireMock(String host, int port) {
-    admin = new HttpAdminClient(host, port);
-  }
-
-  public WireMock(String host, int port, String urlPathPrefix) {
-    admin = new HttpAdminClient(host, port, urlPathPrefix);
-  }
-
-  public WireMock(String scheme, String host, int port) {
-    admin = new HttpAdminClient(scheme, host, port);
-  }
-
-  public WireMock(String scheme, String host) {
-    admin = new HttpAdminClient(scheme, host);
-  }
-
-  public WireMock(String scheme, String host, int port, String urlPathPrefix) {
-    admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
-  }
-
-  public WireMock(
-      String scheme,
-      String host,
-      int port,
-      String urlPathPrefix,
-      String hostHeader,
-      String proxyHost,
-      int proxyPort,
-      ClientAuthenticator authenticator) {
-    admin =
-        new HttpAdminClient(
-            scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
-  }
-
-  public WireMock() {
-    admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
+    this(WireMock.create().port(port).buildAdminClient());
   }
 
   public static StubMapping givenThat(MappingBuilder mappingBuilder) {
@@ -625,6 +587,18 @@ public class WireMock {
     return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
   }
 
+  public static MappingBuilder query(UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.QUERY, urlPattern);
+  }
+
+  /**
+   * A mapping builder that can be used for both GET and HEAD http method. Returns a response body
+   * in case for GET and not in case of HEAD method. In case of tie the request is treated as a GET
+   * request
+   *
+   * @param urlPattern for the specified method
+   * @return a mapping builder for {@link RequestMethod#GET_OR_HEAD} http method
+   */
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
     return request(isOneOf(GET, HEAD), urlPattern);
   }
@@ -711,6 +685,10 @@ public class WireMock {
 
   public static MappingBuilder patch(String url) {
     return patch(urlEqualTo(url));
+  }
+
+  public static MappingBuilder query(String url) {
+    return query(urlEqualTo(url));
   }
 
   public static ResponseDefinitionBuilder created() {
@@ -903,6 +881,10 @@ public class WireMock {
 
   public static RequestPatternBuilder anyRequestedFor(UrlPattern urlPattern) {
     return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
+  }
+
+  public static RequestPatternBuilder queryRequestedFor(UrlPattern urlPattern) {
+    return new RequestPatternBuilder(RequestMethod.QUERY, urlPattern);
   }
 
   public static RequestPatternBuilder requestedFor(String method, UrlPattern urlPattern) {
@@ -1125,20 +1107,13 @@ public class WireMock {
     public static final JsonSchemaVersion DEFAULT = V202012;
 
     public SpecVersion.VersionFlag toVersionFlag() {
-      switch (this) {
-        case V4:
-          return SpecVersion.VersionFlag.V4;
-        case V6:
-          return SpecVersion.VersionFlag.V6;
-        case V7:
-          return SpecVersion.VersionFlag.V7;
-        case V201909:
-          return SpecVersion.VersionFlag.V201909;
-        case V202012:
-          return SpecVersion.VersionFlag.V202012;
-        default:
-          throw new IllegalArgumentException("Unknown schema version: " + this);
-      }
+      return switch (this) {
+        case V4 -> SpecVersion.VersionFlag.V4;
+        case V6 -> SpecVersion.VersionFlag.V6;
+        case V7 -> SpecVersion.VersionFlag.V7;
+        case V201909 -> SpecVersion.VersionFlag.V201909;
+        case V202012 -> SpecVersion.VersionFlag.V202012;
+      };
     }
   }
 }

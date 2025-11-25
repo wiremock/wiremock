@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 aResponse().withHeader("Content-Type", "text/plain").withBody("Number one")));
 
     client.get("/one");
-    client.get("/two");
+    client.query("/two");
     client.postJson("/three", "{ \"counter\": 55 }");
 
     List<StubMapping> returnedMappings = proxyingService.snapshotRecord().getStubMappings();
@@ -106,6 +106,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
 
     assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
+    assertThat(returnedMappings.get(1).getRequest().getMethod(), is(RequestMethod.QUERY));
 
     assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/three"));
 

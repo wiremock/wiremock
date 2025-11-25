@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.StaticExtensionLoader;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -79,8 +80,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   private HttpServerFactory getHttpServerFactory() {
-    return new HttpServerFactoryLoader(
-            options, wireMockApp.getExtensions(), HttpServerFactoryLoader.systemServiceLoader())
+    return new StaticExtensionLoader<>(HttpServerFactory.class)
+        .setSpecificInstance(options.httpServerFactory())
+        .setExtensions(wireMockApp.getExtensions())
         .load();
   }
 

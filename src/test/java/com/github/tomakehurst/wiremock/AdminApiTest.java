@@ -62,6 +62,8 @@ import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 class AdminApiTest extends AcceptanceTestBase {
@@ -384,27 +386,16 @@ class AdminApiTest extends AcceptanceTestBase {
         is(404));
   }
 
-  @Test
-  void createStubMappingReturnsTheCreatedMapping() {
-    WireMockResponse response =
-        testClient.postJson(
-            "/__admin/mappings",
-            "{                                \n"
-                + "    \"name\": \"Teapot putter\",   \n"
-                + "    \"request\": {                 \n"
-                + "        \"method\": \"PUT\",       \n"
-                + "        \"url\": \"/put/this\"     \n"
-                + "    },                             \n"
-                + "    \"response\": {                \n"
-                + "        \"status\": 418            \n"
-                + "    }                              \n"
-                + "}");
+  @ParameterizedTest
+  @MethodSource("provideStubMappingJson")
+  void createStubMappingReturnsTheCreatedMapping(String stubJson) {
+    WireMockResponse response = testClient.postJson("/__admin/mappings", stubJson);
 
     assertThat(response.statusCode(), is(201));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     String body = response.content();
     JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
-    JsonAssertion.assertThat(body).field("name").isEqualTo("Teapot putter");
+    JsonAssertion.assertThat(body).field("name").isEqualTo("Basic Resource");
   }
 
   @Test

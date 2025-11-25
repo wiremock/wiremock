@@ -24,8 +24,28 @@ plugins {
 
 dependencies {
   api(project(":wiremock-core"))
-  testImplementation(project(":wiremock-junit5"))
   api(project(":wiremock-jetty"))
+  implementation(project(":wiremock-httpclient-apache5"))
+
+  implementation(libs.jopt.simple)
+
+  testFixturesApi(project(":wiremock-core"))
+
+  testFixturesApi(libs.apache.http5.client)
+  testFixturesApi(libs.apache.http5.core)
+  testFixturesApi(libs.guava)
+  testFixturesApi(libs.hamcrest)
+  testFixturesApi(libs.handlebars)
+  testFixturesApi(libs.jakarta.servlet.api)
+  testFixturesApi(libs.jsonassert)
+  testFixturesApi(libs.junit.jupiter.api)
+
+  testFixturesImplementation(libs.jetty.util)
+  testFixturesImplementation(platform(libs.junit.bom))
+  testFixturesImplementation(libs.mockito.core)
+  testFixturesImplementation(libs.xmlunit.core)
+
+  testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)
@@ -47,34 +67,11 @@ dependencies {
   testImplementation(libs.xmlunit.core)
   testImplementation(libs.json.unit.core)
 
-  implementation(libs.jopt.simple)
   testImplementation(libs.json.path) {
     // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
   testImplementation(libs.slf4j.api)
-
-  // We do not want JUnit on the classpath, users should provide it themselves
-  compileOnly(libs.junit4)
-  compileOnly(platform(libs.junit.bom))
-  compileOnly(libs.junit.jupiter.api)
-  compileOnly(libs.junit.platform.commons)
-
-  testFixturesApi(project(":wiremock-core"))
-
-  testFixturesApi(libs.apache.http5.client)
-  testFixturesApi(libs.apache.http5.core)
-  testFixturesApi(libs.guava)
-  testFixturesApi(libs.hamcrest)
-  testFixturesApi(libs.handlebars)
-  testFixturesApi(libs.jakarta.servlet.api)
-  testFixturesApi(libs.jsonassert)
-
-  testFixturesImplementation(libs.jetty.util)
-  testFixturesImplementation(platform(libs.junit.bom))
-  testFixturesApi(libs.junit.jupiter.api)
-  testFixturesImplementation(libs.mockito.core)
-  testFixturesImplementation(libs.xmlunit.core)
 
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.android.json)

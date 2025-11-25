@@ -37,8 +37,9 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
   public static final RequestMethod GET_OR_HEAD = isOneOf(GET, HEAD);
+  public static final RequestMethod QUERY = new RequestMethod("QUERY");
 
-  private static final List<RequestMethod> METHODS_WITH_ENTITY = Arrays.asList(PUT, PATCH, POST);
+  private static final List<RequestMethod> METHODS_WITH_ENTITY = Arrays.asList(PUT, PATCH, POST, QUERY);
 
   private final String name;
 
@@ -119,6 +120,8 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public static RequestMethod[] values() {
-    return new RequestMethod[] {GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY};
+    return new RequestMethod[] {
+      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD, QUERY
+    };
   }
 }

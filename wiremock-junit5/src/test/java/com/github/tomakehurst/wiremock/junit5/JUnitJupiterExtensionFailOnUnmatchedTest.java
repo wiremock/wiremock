@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.util.Optional;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -41,7 +41,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
   @BeforeEach
   void init() {
-    client = HttpClientFactory.createClient();
+    client = ApacheHttpClientFactory.createClient();
 
     extensionContext = Mockito.mock(ExtensionContext.class);
     when(extensionContext.getElement()).thenReturn(Optional.empty());
