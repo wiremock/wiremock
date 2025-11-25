@@ -21,25 +21,30 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class RemoveStubMappingTest {
 
+  StubLifecycleListener listener;
+
+  @BeforeEach
+  void init() {
+    listener = mock(StubLifecycleListener.class);
+    when(listener.beforeStubCreated(any())).thenCallRealMethod();
+    when(listener.beforeStubEdited(any(), any())).thenCallRealMethod();
+  }
+
   @Test
   void removingNonExistentStubByIdDoesNotTriggerStubListeners() {
-    StubLifecycleListener listener = mock(StubLifecycleListener.class);
     WireMockServer wireMockServer =
         new WireMockServer(wireMockConfig().extensions(listener).dynamicPort());
     try {
@@ -69,7 +74,6 @@ class RemoveStubMappingTest {
 
   @Test
   void removingNonExistentStubDoesNotTriggerStubListeners() {
-    StubLifecycleListener listener = mock(StubLifecycleListener.class);
     WireMockServer wireMockServer =
         new WireMockServer(wireMockConfig().extensions(listener).dynamicPort());
     try {
@@ -158,7 +162,6 @@ class RemoveStubMappingTest {
   @Test
   void stubIsNotDeletedIfListenersPreventRemoval() {
     MappingsSource mappingsSource = mock();
-    StubLifecycleListener listener = mock(StubLifecycleListener.class);
     UUID disallowedStubId = UUID.randomUUID();
     doThrow(new RuntimeException("stop that"))
         .when(listener)
