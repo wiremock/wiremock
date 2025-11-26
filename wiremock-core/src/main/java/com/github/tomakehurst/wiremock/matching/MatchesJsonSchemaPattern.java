@@ -48,7 +48,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
     SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).build();
 
-    SchemaRegistry schemaFactory =
+    SchemaRegistry schemaRegistry =
         SchemaRegistry.withDefaultDialect(
             schemaVersion.toVersionFlag(), builder -> builder.schemaRegistryConfig(config));
     Schema schema;
@@ -56,7 +56,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     int schemaPropertyCount;
     Errors invalidSchemaErrors;
     try {
-      schema = schemaFactory.getSchema(schemaAsJson);
+      schema = schemaRegistry.getSchema(schemaAsJson);
       schemaPropertyCount = Json.schemaPropertyCount(schemaAsJson);
       invalidSchemaErrors = null;
     } catch (Exception e) {

@@ -50,13 +50,13 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     SpecificationVersion version =
         SpecificationVersion.fromDialectId(schemaJson.get("$schema").textValue()).orElseThrow();
 
-    SchemaRegistry schemaFactory =
+    SchemaRegistry schemaRegistry =
         SchemaRegistry.withDefaultDialect(
             version, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
     JsonNode metaSchemaJson =
         Json.node(loadResourceAsString(URI.create(version.getDialectId()).getPath().substring(1)));
-    final Schema metaSchema = schemaFactory.getSchema(metaSchemaJson);
+    final Schema metaSchema = schemaRegistry.getSchema(metaSchemaJson);
 
     assertThat(metaSchema.validate(schemaJson), is(empty()));
   }

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 public class ContentPatternsJsonValidityTest {
 
-  static SchemaRegistry schemaFactory;
+  static SchemaRegistry schemaRegistry;
   static SchemaRegistryConfig config;
   static Schema schema;
 
@@ -43,13 +43,13 @@ public class ContentPatternsJsonValidityTest {
   static void init() {
     config = SchemaRegistryConfig.builder().build();
 
-    schemaFactory =
+    schemaRegistry =
         SchemaRegistry.withDefaultDialect(
             WireMock.JsonSchemaVersion.V202012.toVersionFlag(),
             builder -> builder.schemaRegistryConfig(config));
 
     schema =
-        schemaFactory.getSchema(
+        schemaRegistry.getSchema(
             SchemaLocation.of("classpath:swagger/schemas/content-pattern.yaml"));
   }
 
