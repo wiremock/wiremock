@@ -15,4 +15,46 @@
  */
 package org.wiremock.url;
 
-public interface Host {}
+import static org.wiremock.url.Constants.pctEncoded;
+import static org.wiremock.url.Constants.subDelims;
+import static org.wiremock.url.Constants.unreserved;
+
+import java.util.regex.Pattern;
+
+public interface Host {
+
+  static Host parse(String hostString) throws IllegalHost {
+    return HostParser.INSTANCE.parse(hostString);
+  }
+}
+
+class HostParser implements CharSequenceParser<Host> {
+
+  static final HostParser INSTANCE = new HostParser();
+
+  final String octet = "(([1-2][0-9][0-9])|([0-9][0-9])|([0-9]))";
+  final String ipv4Address = "(?<ipv4Address>" + octet + "(\\." + octet + "){3})";
+  final String ipV6Address = "(\\[(?<ipV6Address>[^]]+)])";
+  final String registeredName = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + ")*";
+  final String hostRegex =
+      "(" + ipV6Address + "|" + ipv4Address + "|(?<registeredName>" + registeredName + "))";
+
+  private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
+
+  @Override
+  public Host parse(CharSequence stringForm) throws IllegalHost {
+    String hostStr = stringForm.toString();
+    if (hostPattern.matcher(hostStr).matches()) {
+      return new Host(hostStr);
+    } else {
+      throw new IllegalHost(hostStr);
+    }
+  }
+
+  record Host(String host) implements org.wiremock.url.Host {
+    @Override
+    public String toString() {
+      return host;
+    }
+  }
+}

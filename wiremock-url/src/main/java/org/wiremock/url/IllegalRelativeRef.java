@@ -18,6 +18,6 @@ package org.wiremock.url;
 public class IllegalRelativeRef extends IllegalUrlReference {
 
   public IllegalRelativeRef(String message) {
-    super(message);
+    super(message, null);
   }
 }

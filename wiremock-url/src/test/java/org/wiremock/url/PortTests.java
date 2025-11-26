@@ -18,6 +18,7 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.net.URI;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,11 +59,19 @@ class PortTests {
   @Nested
   class ParseMethod {
 
+    @Test
+    void uri() {
+      var uri = URI.create("http://localhost:00080");
+      assertThat(uri.getPort()).isEqualTo(80);
+      assertThat(uri.toString()).isEqualTo("http://localhost:00080");
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {"1", "80", "443", "8080", "8443", "9000", "65535"})
+    @ValueSource(strings = {"1", "80", "443", "8080", "8443", "9000", "65535", "00080"})
     void parses_various_valid_port_strings(String portString) {
       Port port = Port.parse(portString);
       assertThat(port.port()).isEqualTo(Integer.parseInt(portString));
+      assertThat(port.toString()).isEqualTo(portString);
     }
 
     @ParameterizedTest

@@ -18,9 +18,14 @@ package org.wiremock.url;
 import org.jspecify.annotations.Nullable;
 
 public interface Authority {
+
   @Nullable UserInfo userInfo();
 
   Host host();
 
   @Nullable Port port();
+
+  static Authority parse(String authorityStr) throws IllegalAuthority {
+    return AuthorityParser.INSTANCE.parse(authorityStr);
+  }
 }

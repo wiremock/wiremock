@@ -17,13 +17,17 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract class IllegalUrlPart extends IllegalUrlReferenceOrPart {
-
-  public IllegalUrlPart(String message) {
-    this(message, null);
-  }
-
-  public IllegalUrlPart(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
+public interface HostAndPort extends Authority {
+  /**
+   * {@implSpec} Implementations must ALWAYS return null
+   *
+   * @deprecated This always returns null so you have no reason to ever call it
+   * @return null
+   */
+  @Override
+  @Nullable
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default UserInfo userInfo() {
+    return null;
   }
 }

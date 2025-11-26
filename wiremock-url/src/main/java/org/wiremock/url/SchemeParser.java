@@ -39,7 +39,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
   }
 
   @Override
-  public Scheme parse(CharSequence scheme) {
+  public Scheme parse(CharSequence scheme) throws IllegalScheme {
     String schemeString = scheme.toString();
     Scheme canonicalScheme = getCanonicalScheme(schemeString);
     if (canonicalScheme.scheme.equals(schemeString)) {
@@ -49,7 +49,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
     }
   }
 
-  private Scheme getCanonicalScheme(String schemeString) {
+  private Scheme getCanonicalScheme(String schemeString) throws IllegalScheme {
     String canonicalSchemeString = schemeString.toLowerCase();
     var existingCanonical = knownSchemes.get(canonicalSchemeString);
     if (existingCanonical != null) {

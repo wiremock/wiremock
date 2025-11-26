@@ -19,8 +19,15 @@ import org.jspecify.annotations.Nullable;
 
 public non-sealed interface RelativeRef extends UrlReference {
 
+  /**
+   * {@implSpec} Implementations must ALWAYS return null
+   *
+   * @deprecated This always returns null so you have no reason to ever call it
+   * @return null
+   */
   @Override
   @Nullable
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Scheme scheme() {
     return null;
   }

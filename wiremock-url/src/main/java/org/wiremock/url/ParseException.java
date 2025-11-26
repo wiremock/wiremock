@@ -17,13 +17,9 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract class IllegalUrlPart extends IllegalUrlReferenceOrPart {
+public class ParseException extends IllegalArgumentException {
 
-  public IllegalUrlPart(String message) {
-    this(message, null);
-  }
-
-  public IllegalUrlPart(String message, @Nullable IllegalUrlPart cause) {
+  public ParseException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 }

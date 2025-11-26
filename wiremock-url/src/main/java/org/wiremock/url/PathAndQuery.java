@@ -19,14 +19,28 @@ import org.jspecify.annotations.Nullable;
 
 public interface PathAndQuery extends RelativeRef {
 
+  /**
+   * {@implSpec} Implementations must ALWAYS return null
+   *
+   * @deprecated This always returns null so you have no reason to ever call it
+   * @return null
+   */
   @Override
   @Nullable
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Authority authority() {
     return null;
   }
 
+  /**
+   * {@implSpec} Implementations must ALWAYS return null
+   *
+   * @deprecated This always returns null so you have no reason to ever call it
+   * @return null
+   */
   @Override
   @Nullable
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Fragment fragment() {
     return null;
   }
