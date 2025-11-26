@@ -37,14 +37,14 @@ class SchemeTests {
           "svn+ssh", "content-type", "x.custom", "h2c", "custom+proto-1.0"
         })
     void parses_valid_schemes(String schemeString) {
-      Scheme scheme = Scheme.of(schemeString);
+      Scheme scheme = Scheme.parse(schemeString);
       assertThat(scheme.toString()).isEqualTo(schemeString);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"h", "a", "z", "A", "Z"})
     void parses_single_letter_schemes(String schemeString) {
-      Scheme scheme = Scheme.of(schemeString);
+      Scheme scheme = Scheme.parse(schemeString);
       assertThat(scheme.toString()).isEqualTo(schemeString);
     }
 
@@ -70,11 +70,11 @@ class SchemeTests {
         })
     void throws_exception_for_illegal_schemes(String illegalScheme) {
       assertThatExceptionOfType(IllegalScheme.class)
-          .isThrownBy(() -> Scheme.of(illegalScheme))
+          .isThrownBy(() -> Scheme.parse(illegalScheme))
           .withMessage(
               "Illegal scheme ["
                   + illegalScheme
-                  + "]; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,199}")
+                  + "]; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
           .withNoCause()
           .extracting(IllegalScheme::illegalScheme)
           .isEqualTo(String.valueOf(illegalScheme));
@@ -165,13 +165,13 @@ class SchemeTests {
 
     @Test
     void parsing_http_returns_predefined_instance() {
-      Scheme parsed = Scheme.of("http");
+      Scheme parsed = Scheme.parse("http");
       assertThat(parsed).isSameAs(Scheme.http);
     }
 
     @Test
     void parsing_https_returns_predefined_instance() {
-      Scheme parsed = Scheme.of("https");
+      Scheme parsed = Scheme.parse("https");
       assertThat(parsed).isSameAs(Scheme.https);
     }
   }
@@ -181,39 +181,39 @@ class SchemeTests {
 
     @Test
     void lowercase_scheme_is_its_own_canonical() {
-      Scheme scheme = Scheme.of("http");
+      Scheme scheme = Scheme.parse("http");
       assertThat(scheme.canonical()).isSameAs(scheme);
       assertThat(scheme.isCanonical()).isTrue();
     }
 
     @Test
     void uppercase_scheme_has_lowercase_canonical() {
-      Scheme uppercase = Scheme.of("HTTP");
-      Scheme lowercase = Scheme.of("http");
+      Scheme uppercase = Scheme.parse("HTTP");
+      Scheme lowercase = Scheme.parse("http");
       assertThat(uppercase.canonical()).isSameAs(lowercase);
       assertThat(uppercase.isCanonical()).isFalse();
     }
 
     @Test
     void mixed_case_scheme_has_lowercase_canonical() {
-      Scheme mixedCase = Scheme.of("HtTp");
-      Scheme lowercase = Scheme.of("http");
+      Scheme mixedCase = Scheme.parse("HtTp");
+      Scheme lowercase = Scheme.parse("http");
       assertThat(mixedCase.canonical()).isSameAs(lowercase);
       assertThat(mixedCase.isCanonical()).isFalse();
     }
 
     @Test
     void custom_lowercase_scheme_is_canonical() {
-      Scheme scheme = Scheme.of("canon1");
-      assertThat(scheme.canonical()).isSameAs(scheme);
+      Scheme scheme = Scheme.parse("canon1");
+      assertThat(scheme.canonical()).isEqualTo(scheme);
       assertThat(scheme.isCanonical()).isTrue();
     }
 
     @Test
     void custom_uppercase_scheme_references_lowercase_canonical() {
-      Scheme uppercase = Scheme.of("CANON2");
-      Scheme lowercase = Scheme.of("canon2");
-      assertThat(uppercase.canonical()).isSameAs(lowercase);
+      Scheme uppercase = Scheme.parse("CANON2");
+      Scheme lowercase = Scheme.parse("canon2");
+      assertThat(uppercase.canonical()).isEqualTo(lowercase);
       assertThat(uppercase.isCanonical()).isFalse();
     }
   }
@@ -223,7 +223,7 @@ class SchemeTests {
 
     @Test
     void scheme_without_registered_port_returns_null() {
-      Scheme scheme = Scheme.of("port1");
+      Scheme scheme = Scheme.parse("port1");
       assertThat(scheme.defaultPort()).isNull();
     }
 
@@ -236,14 +236,14 @@ class SchemeTests {
     @Test
     void non_canonical_scheme_inherits_default_port_from_canonical() {
       Scheme canonical = Scheme.register("port3", Port.of(7777));
-      Scheme uppercase = Scheme.of("PORT3");
+      Scheme uppercase = Scheme.parse("PORT3");
       assertThat(uppercase.defaultPort()).isEqualTo(Port.of(7777));
       assertThat(uppercase.defaultPort()).isSameAs(canonical.defaultPort());
     }
 
     @Test
     void parsing_uppercase_predefined_scheme_gets_default_port() {
-      Scheme uppercase = Scheme.of("HTTP");
+      Scheme uppercase = Scheme.parse("HTTP");
       assertThat(uppercase.defaultPort()).isEqualTo(Port.of(80));
     }
   }
@@ -253,61 +253,61 @@ class SchemeTests {
 
     @Test
     void schemes_with_same_string_are_equal() {
-      Scheme scheme1 = Scheme.of("http");
-      Scheme scheme2 = Scheme.of("http");
+      Scheme scheme1 = Scheme.parse("http");
+      Scheme scheme2 = Scheme.parse("http");
       assertThat(scheme1).isEqualTo(scheme2);
     }
 
     @Test
     void schemes_with_different_case_are_not_equal() {
-      Scheme lowercase = Scheme.of("http");
-      Scheme uppercase = Scheme.of("HTTP");
+      Scheme lowercase = Scheme.parse("http");
+      Scheme uppercase = Scheme.parse("HTTP");
       assertThat(lowercase).isNotEqualTo(uppercase);
     }
 
     @Test
     void scheme_equals_itself() {
-      Scheme scheme = Scheme.of("https");
+      Scheme scheme = Scheme.parse("https");
       assertThat(scheme).isEqualTo(scheme);
     }
 
     @Test
     void scheme_not_equal_to_null() {
-      Scheme scheme = Scheme.of("http");
+      Scheme scheme = Scheme.parse("http");
       assertThat(scheme).isNotEqualTo(null);
     }
 
     @Test
     void scheme_not_equal_to_string() {
-      Scheme scheme = Scheme.of("http");
+      Scheme scheme = Scheme.parse("http");
       assertThat(scheme).isNotEqualTo("http");
     }
 
     @Test
     void different_schemes_are_not_equal() {
-      Scheme http = Scheme.of("http");
-      Scheme https = Scheme.of("https");
+      Scheme http = Scheme.parse("http");
+      Scheme https = Scheme.parse("https");
       assertThat(http).isNotEqualTo(https);
     }
 
     @Test
     void equals_is_reflexive() {
-      Scheme scheme = Scheme.of("ftp");
+      Scheme scheme = Scheme.parse("ftp");
       assertThat(scheme.equals(scheme)).isTrue();
     }
 
     @Test
     void equals_is_symmetric() {
-      Scheme scheme1 = Scheme.of("ssh");
-      Scheme scheme2 = Scheme.of("ssh");
+      Scheme scheme1 = Scheme.parse("ssh");
+      Scheme scheme2 = Scheme.parse("ssh");
       assertThat(scheme1.equals(scheme2)).isEqualTo(scheme2.equals(scheme1));
     }
 
     @Test
     void equals_is_transitive() {
-      Scheme scheme1 = Scheme.of("mailto");
-      Scheme scheme2 = Scheme.of("mailto");
-      Scheme scheme3 = Scheme.of("mailto");
+      Scheme scheme1 = Scheme.parse("mailto");
+      Scheme scheme2 = Scheme.parse("mailto");
+      Scheme scheme3 = Scheme.parse("mailto");
       assertThat(scheme1).isEqualTo(scheme2);
       assertThat(scheme2).isEqualTo(scheme3);
       assertThat(scheme1).isEqualTo(scheme3);
@@ -319,21 +319,21 @@ class SchemeTests {
 
     @Test
     void equal_schemes_have_same_hash_code() {
-      Scheme scheme1 = Scheme.of("http");
-      Scheme scheme2 = Scheme.of("http");
+      Scheme scheme1 = Scheme.parse("http");
+      Scheme scheme2 = Scheme.parse("http");
       assertThat(scheme1.hashCode()).isEqualTo(scheme2.hashCode());
     }
 
     @Test
     void different_case_schemes_have_different_hash_codes() {
-      Scheme lowercase = Scheme.of("http");
-      Scheme uppercase = Scheme.of("HTTP");
+      Scheme lowercase = Scheme.parse("http");
+      Scheme uppercase = Scheme.parse("HTTP");
       assertThat(lowercase.hashCode()).isNotEqualTo(uppercase.hashCode());
     }
 
     @Test
     void hash_code_is_consistent() {
-      Scheme scheme = Scheme.of("https");
+      Scheme scheme = Scheme.parse("https");
       int hash1 = scheme.hashCode();
       int hash2 = scheme.hashCode();
       assertThat(hash1).isEqualTo(hash2);
@@ -341,7 +341,7 @@ class SchemeTests {
 
     @Test
     void hash_code_equals_string_hash_code() {
-      Scheme scheme = Scheme.of("ftp");
+      Scheme scheme = Scheme.parse("ftp");
       assertThat(scheme.hashCode()).isEqualTo("ftp".hashCode());
     }
   }
@@ -364,7 +364,7 @@ class SchemeTests {
           "tostr1+proto-1.0"
         })
     void to_string_returns_correct_value(String schemeString) {
-      Scheme original = Scheme.of(schemeString);
+      Scheme original = Scheme.parse(schemeString);
       assertThat(original.toString()).isEqualTo(schemeString);
       String stringForm = original.toString();
       assertThat(stringForm).isEqualTo(schemeString);
@@ -375,32 +375,32 @@ class SchemeTests {
   class Caching {
 
     @Test
-    void parsing_same_scheme_twice_returns_same_instance() {
-      Scheme scheme1 = Scheme.of("http");
-      Scheme scheme2 = Scheme.of("http");
+    void parsing_same_registered_scheme_twice_returns_same_instance() {
+      Scheme scheme1 = Scheme.parse("http");
+      Scheme scheme2 = Scheme.parse("http");
       assertThat(scheme1).isSameAs(scheme2);
     }
 
     @Test
     void parsing_different_case_returns_different_instances() {
-      Scheme lowercase = Scheme.of("http");
-      Scheme uppercase = Scheme.of("HTTP");
-      assertThat(lowercase).isNotSameAs(uppercase);
+      Scheme lowercase = Scheme.parse("http");
+      Scheme uppercase = Scheme.parse("HTTP");
+      assertThat(lowercase).isNotEqualTo(uppercase);
     }
 
     @Test
-    void parsing_custom_scheme_twice_returns_same_instance() {
-      Scheme scheme1 = Scheme.of("cache1");
-      Scheme scheme2 = Scheme.of("cache1");
-      assertThat(scheme1).isSameAs(scheme2);
+    void parsing_custom_scheme_twice_returns_equal_instances() {
+      Scheme scheme1 = Scheme.parse("cache1");
+      Scheme scheme2 = Scheme.parse("cache1");
+      assertThat(scheme1).isEqualTo(scheme2);
     }
 
     @Test
-    void canonical_and_non_canonical_are_different_instances() {
-      Scheme lowercase = Scheme.of("cache2");
-      Scheme uppercase = Scheme.of("CACHE2");
-      assertThat(lowercase).isNotSameAs(uppercase);
-      assertThat(uppercase.canonical()).isSameAs(lowercase);
+    void canonical_and_non_canonical_are_not_equal() {
+      Scheme lowercase = Scheme.parse("cache2");
+      Scheme uppercase = Scheme.parse("CACHE2");
+      assertThat(lowercase).isNotEqualTo(uppercase);
+      assertThat(uppercase.canonical()).isEqualTo(lowercase);
     }
   }
 
@@ -409,50 +409,50 @@ class SchemeTests {
 
     @Test
     void parses_common_web_schemes() {
-      assertThat(Scheme.of("http").toString()).isEqualTo("http");
-      assertThat(Scheme.of("https").toString()).isEqualTo("https");
-      assertThat(Scheme.of("ws").toString()).isEqualTo("ws");
-      assertThat(Scheme.of("wss").toString()).isEqualTo("wss");
+      assertThat(Scheme.parse("http").toString()).isEqualTo("http");
+      assertThat(Scheme.parse("https").toString()).isEqualTo("https");
+      assertThat(Scheme.parse("ws").toString()).isEqualTo("ws");
+      assertThat(Scheme.parse("wss").toString()).isEqualTo("wss");
     }
 
     @Test
     void parses_file_transfer_schemes() {
-      assertThat(Scheme.of("ftp").toString()).isEqualTo("ftp");
-      assertThat(Scheme.of("ftps").toString()).isEqualTo("ftps");
-      assertThat(Scheme.of("sftp").toString()).isEqualTo("sftp");
+      assertThat(Scheme.parse("ftp").toString()).isEqualTo("ftp");
+      assertThat(Scheme.parse("ftps").toString()).isEqualTo("ftps");
+      assertThat(Scheme.parse("sftp").toString()).isEqualTo("sftp");
     }
 
     @Test
     void parses_email_schemes() {
-      assertThat(Scheme.of("mailto").toString()).isEqualTo("mailto");
-      assertThat(Scheme.of("smtp").toString()).isEqualTo("smtp");
-      assertThat(Scheme.of("imap").toString()).isEqualTo("imap");
-      assertThat(Scheme.of("pop3").toString()).isEqualTo("pop3");
+      assertThat(Scheme.parse("mailto").toString()).isEqualTo("mailto");
+      assertThat(Scheme.parse("smtp").toString()).isEqualTo("smtp");
+      assertThat(Scheme.parse("imap").toString()).isEqualTo("imap");
+      assertThat(Scheme.parse("pop3").toString()).isEqualTo("pop3");
     }
 
     @Test
     void parses_database_schemes() {
-      assertThat(Scheme.of("jdbc").toString()).isEqualTo("jdbc");
-      assertThat(Scheme.of("postgresql").toString()).isEqualTo("postgresql");
-      assertThat(Scheme.of("mysql").toString()).isEqualTo("mysql");
-      assertThat(Scheme.of("mongodb").toString()).isEqualTo("mongodb");
+      assertThat(Scheme.parse("jdbc").toString()).isEqualTo("jdbc");
+      assertThat(Scheme.parse("postgresql").toString()).isEqualTo("postgresql");
+      assertThat(Scheme.parse("mysql").toString()).isEqualTo("mysql");
+      assertThat(Scheme.parse("mongodb").toString()).isEqualTo("mongodb");
     }
 
     @Test
     void parses_git_schemes() {
-      assertThat(Scheme.of("git").toString()).isEqualTo("git");
-      assertThat(Scheme.of("git+ssh").toString()).isEqualTo("git+ssh");
-      assertThat(Scheme.of("git+https").toString()).isEqualTo("git+https");
+      assertThat(Scheme.parse("git").toString()).isEqualTo("git");
+      assertThat(Scheme.parse("git+ssh").toString()).isEqualTo("git+ssh");
+      assertThat(Scheme.parse("git+https").toString()).isEqualTo("git+https");
     }
 
     @Test
     void parses_data_uri_scheme() {
-      assertThat(Scheme.of("data").toString()).isEqualTo("data");
+      assertThat(Scheme.parse("data").toString()).isEqualTo("data");
     }
 
     @Test
     void parses_tel_scheme() {
-      assertThat(Scheme.of("tel").toString()).isEqualTo("tel");
+      assertThat(Scheme.parse("tel").toString()).isEqualTo("tel");
     }
   }
 
@@ -461,50 +461,50 @@ class SchemeTests {
 
     @Test
     void single_letter_scheme_is_valid() {
-      Scheme scheme = Scheme.of("x");
+      Scheme scheme = Scheme.parse("x");
       assertThat(scheme.toString()).isEqualTo("x");
     }
 
     @Test
     void very_long_scheme_is_valid() {
       String longScheme = "verylongschemenamethatcontainsmanycharactersandisvalidaccordingtotherfc";
-      Scheme scheme = Scheme.of(longScheme);
+      Scheme scheme = Scheme.parse(longScheme);
       assertThat(scheme.toString()).isEqualTo(longScheme);
     }
 
     @Test
     void scheme_with_all_allowed_special_chars() {
-      Scheme scheme = Scheme.of("x+proto-v1.0");
+      Scheme scheme = Scheme.parse("x+proto-v1.0");
       assertThat(scheme.toString()).isEqualTo("x+proto-v1.0");
     }
 
     @Test
     void scheme_ending_with_digit() {
-      Scheme scheme = Scheme.of("http2");
+      Scheme scheme = Scheme.parse("http2");
       assertThat(scheme.toString()).isEqualTo("http2");
     }
 
     @Test
     void scheme_ending_with_plus() {
-      Scheme scheme = Scheme.of("svn+");
+      Scheme scheme = Scheme.parse("svn+");
       assertThat(scheme.toString()).isEqualTo("svn+");
     }
 
     @Test
     void scheme_ending_with_hyphen() {
-      Scheme scheme = Scheme.of("proto-");
+      Scheme scheme = Scheme.parse("proto-");
       assertThat(scheme.toString()).isEqualTo("proto-");
     }
 
     @Test
     void scheme_ending_with_dot() {
-      Scheme scheme = Scheme.of("custom.");
+      Scheme scheme = Scheme.parse("custom.");
       assertThat(scheme.toString()).isEqualTo("custom.");
     }
 
     @Test
     void multiple_consecutive_special_chars() {
-      Scheme scheme = Scheme.of("x+-.");
+      Scheme scheme = Scheme.parse("x+-.");
       assertThat(scheme.toString()).isEqualTo("x+-.");
     }
   }
@@ -515,30 +515,30 @@ class SchemeTests {
     @Test
     void exception_contains_invalid_scheme_in_message() {
       assertThatExceptionOfType(IllegalScheme.class)
-          .isThrownBy(() -> Scheme.of("1invalid"))
+          .isThrownBy(() -> Scheme.parse("1invalid"))
           .withMessageContaining("1invalid");
     }
 
     @Test
     void exception_for_special_character_prefix() {
       assertThatExceptionOfType(IllegalScheme.class)
-          .isThrownBy(() -> Scheme.of("@invalid"))
+          .isThrownBy(() -> Scheme.parse("@invalid"))
           .withMessageContaining("@invalid");
     }
 
     @Test
     void exception_for_whitespace() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.of("http scheme"));
+      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http scheme"));
     }
 
     @Test
     void exception_for_colon() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.of("http:"));
+      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http:"));
     }
 
     @Test
     void exception_for_slash() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.of("http/"));
+      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http/"));
     }
   }
 }

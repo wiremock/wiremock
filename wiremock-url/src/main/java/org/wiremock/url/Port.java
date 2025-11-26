@@ -18,13 +18,15 @@ package org.wiremock.url;
 /**
  * Represents a valid network port.
  *
+ * <p>An implementation must be immutable (and hence threadsafe)
+ *
  * <p>Implementations must enforce that 1 <= port <= 65,535
  *
  * <p>Implementations should be equal to any other port implementation with the same port number
  *
- * <p>An implementation's toString should return <code>String.valueOf(port())</code>
+ * <p>An implementation's toString should return {@code String.valueOf(port())}
  *
- * <p>An implementation's hashCode() should return <code>port()</code>
+ * <p>An implementation's hashCode() should return {@code port()}
  */
 public interface Port {
 
