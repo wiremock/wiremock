@@ -17,13 +17,12 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract class IllegalUrlPart extends IllegalUrlReferenceOrPart {
+class RelativeRefParser {
 
-  public IllegalUrlPart(String message) {
-    this(message, null);
-  }
-
-  public IllegalUrlPart(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
-  }
+  record RelativeRef(
+      @Override @Nullable Authority authority,
+      @Override Path path,
+      @Override @Nullable Query query,
+      @Override @Nullable Fragment fragment)
+      implements org.wiremock.url.RelativeRef {}
 }

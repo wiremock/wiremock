@@ -17,6 +17,44 @@ package org.wiremock.url;
 
 public interface Query extends PctEncoded {
   static Query parse(CharSequence query) throws IllegalQuery {
-    throw new IllegalQuery(query.toString());
+    return QueryParser.INSTANCE.parse(query);
+  }
+}
+
+class QueryParser implements CharSequenceParser<Query> {
+
+  static final QueryParser INSTANCE = new QueryParser();
+
+  @Override
+  public Query parse(CharSequence stringForm) throws IllegalQuery {
+    return new Query(stringForm.toString());
+  }
+
+  record Query(String query) implements org.wiremock.url.Query {
+
+    @Override
+    public int length() {
+      return query.length();
+    }
+
+    @Override
+    public char charAt(int index) {
+      return query.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+      return query.subSequence(start, end);
+    }
+
+    @Override
+    public String toString() {
+      return query;
+    }
+
+    @Override
+    public String decode() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

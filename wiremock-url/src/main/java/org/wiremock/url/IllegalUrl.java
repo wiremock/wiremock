@@ -15,9 +15,15 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 public final class IllegalUrl extends IllegalUrlReference {
 
-  public IllegalUrl(String message) {
-    super(message);
+  public IllegalUrl(String urlString) {
+    this(urlString, null);
+  }
+
+  public IllegalUrl(String urlString, @Nullable IllegalUrlPart cause) {
+    super("Illegal url [" + urlString + "]", cause);
   }
 }

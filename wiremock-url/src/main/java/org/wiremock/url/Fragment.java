@@ -18,6 +18,44 @@ package org.wiremock.url;
 public interface Fragment extends PctEncoded {
 
   static Fragment parse(CharSequence fragment) throws IllegalFragment {
-    throw new IllegalFragment(fragment.toString());
+    return FragmentParser.INSTANCE.parse(fragment);
+  }
+}
+
+class FragmentParser implements CharSequenceParser<Fragment> {
+
+  static final FragmentParser INSTANCE = new FragmentParser();
+
+  @Override
+  public Fragment parse(CharSequence stringForm) {
+    return new Fragment(stringForm.toString());
+  }
+
+  record Fragment(String fragment) implements org.wiremock.url.Fragment {
+
+    @Override
+    public int length() {
+      return fragment.length();
+    }
+
+    @Override
+    public char charAt(int index) {
+      return fragment.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+      return fragment.subSequence(start, end);
+    }
+
+    @Override
+    public String toString() {
+      return fragment;
+    }
+
+    @Override
+    public String decode() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

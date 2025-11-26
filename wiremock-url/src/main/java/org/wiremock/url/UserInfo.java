@@ -15,4 +15,26 @@
  */
 package org.wiremock.url;
 
-public interface UserInfo {}
+public interface UserInfo {
+
+  static UserInfo parse(String userInfoString) {
+    return UserInfoParser.INSTANCE.parse(userInfoString);
+  }
+}
+
+class UserInfoParser implements CharSequenceParser<UserInfo> {
+
+  static final UserInfoParser INSTANCE = new UserInfoParser();
+
+  @Override
+  public UserInfo parse(CharSequence stringForm) {
+    return new UserInfo(stringForm.toString());
+  }
+
+  record UserInfo(String userInfo) implements org.wiremock.url.UserInfo {
+    @Override
+    public String toString() {
+      return userInfo;
+    }
+  }
+}
