@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -678,6 +675,84 @@ class PlainTextDiffRendererTest {
 
     assertThat(
         output, equalsMultiLine(file("not-found-diff-sample_no_path_parameter_message.txt")));
+  }
+
+  @Test
+  void showsIsOneOfMissingMethodMessage() {
+    Diff diff =
+        new Diff(
+            request(isOneOf(GET, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v1.txt")));
+  }
+
+  @Test
+  void showsIsNoneOfMissingMethodMessage() {
+    Diff diff =
+        new Diff(
+            request(isNoneOf(GET, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v1.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion1() {
+    Diff diff =
+        new Diff(
+            request(isOneOf(GET, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v2.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion1() {
+    Diff diff =
+        new Diff(
+            request(isNoneOf(GET, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v2.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion2() {
+    Diff diff =
+        new Diff(
+            request(isOneOf(POST, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v3.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion2() {
+    Diff diff =
+        new Diff(
+            request(isNoneOf(POST, PUT), urlEqualTo("/url")).build(),
+            mockRequest().method(PUT).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v3.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {

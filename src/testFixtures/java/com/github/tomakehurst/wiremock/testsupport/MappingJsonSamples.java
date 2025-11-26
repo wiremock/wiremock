@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,14 @@ public class MappingJsonSamples {
 
   public static final String BASIC_GET =
       "{ 													\n"
+          + "	\"name\": \"Basic Resource\",					\n"
           + "	\"request\": {									\n"
           + "		\"method\": \"GET\",						\n"
           + "		\"url\": \"/basic/mapping/resource\"		\n"
           + "	},												\n"
           + "	\"response\": {									\n"
-          + "		\"status\": 304 							\n"
+          + "		\"status\": 304, 							\n"
+          + "		\"body\": \"Body from mapping file\"		\n"
           + "	}												\n"
           + "}													";
 
@@ -99,6 +101,7 @@ public class MappingJsonSamples {
   public static final String BASIC_OPTIONS = BASIC_GET.replace("GET", "OPTIONS");
   public static final String BASIC_TRACE = BASIC_GET.replace("GET", "TRACE");
   public static final String BASIC_ANY_METHOD = BASIC_GET.replace("GET", "ANY");
+  public static final String BASIC_QUERY = BASIC_GET.replace("GET", "QUERY");
 
   public static final String MAPPING_REQUEST_WITH_EXACT_HEADERS =
       "{ 													\n"

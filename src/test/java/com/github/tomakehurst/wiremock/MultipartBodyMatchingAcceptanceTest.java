@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,12 @@ import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.UUID;
 import org.apache.hc.client5.http.entity.mime.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -42,7 +43,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-  CloseableHttpClient httpClient = HttpClientFactory.createClient();
+  CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
 
   @Test
   public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
@@ -307,5 +308,25 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     ClassicHttpResponse response = httpClient.execute(request);
 
     assertThat(response.getCode(), is(200));
+  }
+
+  @Test
+  public void acceptsQueryMethodRequestWithMultipartBody() {
+    stubFor(
+        query("/search")
+            .withMultipartRequestBody(
+                aMultipart().withName("filters").withBody(containing("active")))
+            .withMultipartRequestBody(aMultipart().withName("data").withBody(containing("SEARCH")))
+            .willReturn(ok().withBody("Search results")));
+
+    WireMockResponse response =
+        testClient.queryWithMultiparts(
+            "/search",
+            List.of(
+                part("filters", "active users", TEXT_PLAIN),
+                part("data", "SEARCH DATA", TEXT_PLAIN)));
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("Search results"));
   }
 }

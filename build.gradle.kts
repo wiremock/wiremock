@@ -22,11 +22,30 @@ plugins {
   alias(libs.plugins.task.tree)
 }
 
-val standaloneOnly: Configuration by configurations.creating
-
 dependencies {
-  api(project(":wiremock-common"))
+  api(project(":wiremock-core"))
   api(project(":wiremock-jetty"))
+  implementation(project(":wiremock-httpclient-apache5"))
+
+  implementation(libs.jopt.simple)
+
+  testFixturesApi(project(":wiremock-core"))
+
+  testFixturesApi(libs.apache.http5.client)
+  testFixturesApi(libs.apache.http5.core)
+  testFixturesApi(libs.guava)
+  testFixturesApi(libs.hamcrest)
+  testFixturesApi(libs.handlebars)
+  testFixturesApi(libs.jakarta.servlet.api)
+  testFixturesApi(libs.jsonassert)
+  testFixturesApi(libs.junit.jupiter.api)
+
+  testFixturesImplementation(libs.jetty.util)
+  testFixturesImplementation(platform(libs.junit.bom))
+  testFixturesImplementation(libs.mockito.core)
+  testFixturesImplementation(libs.xmlunit.core)
+
+  testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)
@@ -38,8 +57,8 @@ dependencies {
   testImplementation(libs.jakarta.servlet.api)
 
   testImplementation(platform(libs.jetty.bom))
-  testImplementation(platform(libs.jetty.ee10.bom))
-  testImplementation(libs.jetty.ee10.servlet)
+  testImplementation(platform(libs.jetty.ee11.bom))
+  testImplementation(libs.jetty.ee11.servlet)
   testImplementation(libs.jetty.io)
   testImplementation(libs.jetty.server)
   testImplementation(libs.jetty.util)
@@ -48,37 +67,13 @@ dependencies {
   testImplementation(libs.xmlunit.core)
   testImplementation(libs.json.unit.core)
 
-  implementation(libs.jopt.simple)
   testImplementation(libs.json.path) {
     // See https://github.com/json-path/JsonPath/issues/224
     exclude(group = "org.ow2.asm", module = "asm")
   }
   testImplementation(libs.slf4j.api)
 
-  // We do not want JUnit on the classpath, users should provide it themselves
-  compileOnly(libs.junit4)
-  compileOnly(platform(libs.junit.bom))
-  compileOnly(libs.junit.jupiter.api)
-  compileOnly(libs.junit.platform.commons)
-
-  add("standaloneOnly", libs.slf4j.nop)
-
-  testFixturesApi(project(":wiremock-common"))
-
-  testFixturesApi(libs.apache.http5.client)
-  testFixturesApi(libs.apache.http5.core)
-  testFixturesApi(libs.guava)
-  testFixturesApi(libs.hamcrest)
-  testFixturesApi(libs.handlebars)
-  testFixturesApi(libs.jakarta.servlet.api)
-  testFixturesApi(libs.jsonassert)
-
-  testFixturesImplementation(libs.jetty.util)
-  testFixturesImplementation(platform(libs.junit.bom))
-  testFixturesImplementation(libs.junit.jupiter.api)
-  testFixturesImplementation(libs.mockito.core)
-  testFixturesImplementation(libs.xmlunit.core)
-
+  testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.android.json)
   testImplementation(libs.archunit)
   testImplementation(libs.archunit.junit5.api)
@@ -86,7 +81,7 @@ dependencies {
   testImplementation(libs.awaitility)
   testImplementation(libs.jackson.databind)
   testImplementation(libs.jetty.client)
-  testImplementation(libs.jetty.ee10.webapp)
+  testImplementation(libs.jetty.ee11.webapp)
   testImplementation(libs.jetty.http)
   testImplementation(libs.jetty.http2.client)
   testImplementation(libs.jetty.http2.client.transport)
@@ -99,8 +94,6 @@ dependencies {
   testImplementation(libs.junit.pioneer)
   testImplementation(libs.junit.platform.engine)
   testImplementation(libs.junit.platform.launcher)
-  testImplementation(libs.junit.platform.testkit)
-  testImplementation(libs.junit4)
   testImplementation(libs.mockito.core)
   testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)
@@ -111,6 +104,7 @@ dependencies {
   testRuntimeOnly(libs.jmh.generator.annprocess)
   testRuntimeOnly(libs.junit.vintage.engine)
   testRuntimeOnly(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit4)
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {
@@ -189,7 +183,6 @@ tasks.shadowJar {
   archiveClassifier = ""
   configurations = listOf(
     project.configurations.runtimeClasspath.get(),
-    standaloneOnly,
   )
 
   relocate("org.mortbay", "wiremock.org.mortbay")
@@ -220,6 +213,7 @@ tasks.shadowJar {
   relocate("org.yaml", "wiremock.org.yaml")
   relocate("com.ethlo", "wiremock.com.ethlo")
   relocate("com.networknt", "wiremock.com.networknt")
+  relocate("org.jspecify", "wiremock.org.jspecify")
 
   dependencies {
     exclude(dependency("junit:junit"))
@@ -313,9 +307,9 @@ fun updateFiles(currentVersion: String, nextVersion: String) {
   val filesWithVersion: Map<String, (String) -> String> = mapOf(
     "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts"    to { "version = \"${it}\"" },
     "ui/package.json"                                                    to { "\"version\": \"${it}\"" },
-    "wiremock-common/src/main/resources/version.properties"              to { "version=${it}" },
-    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
-    "wiremock-common/src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" },
+    "wiremock-core/src/main/resources/version.properties"              to { "version=${it}" },
+    "wiremock-core/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
+    "wiremock-core/src/main/resources/swagger/wiremock-admin-api.yaml" to { "version: $it" },
   )
 
   filesWithVersion.forEach { (fileName, lineWithVersionTemplates) ->
@@ -433,7 +427,7 @@ dependencyAnalysis {
       onAny {
         exclude(
           ":wiremock-jetty",
-          ":wiremock-common",
+          ":wiremock-core",
         )
       }
     }

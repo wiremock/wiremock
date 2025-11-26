@@ -1,8 +1,12 @@
 plugins {
-    id("com.autonomousapps.build-health") version "3.3.0"
+    id("com.autonomousapps.build-health") version "3.5.0"
 }
 
 rootProject.name = "wiremock"
 
-include("wiremock-common")
+include("wiremock-core")
+include("wiremock-junit4")
+include("wiremock-junit5")
 include("wiremock-jetty")
+include("wiremock-httpclient-apache5")
+include("test-extension")
