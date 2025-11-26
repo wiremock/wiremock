@@ -25,7 +25,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
 
   static final SchemeParser INSTANCE = new SchemeParser();
 
-  private final Pattern schemeRegex = Pattern.compile("[a-zA-Z][a-zA-Z0-9+\\-.]*");
+  final Pattern schemeRegex = Pattern.compile("[a-zA-Z][a-zA-Z0-9+\\-.]{0,199}");
 
   private final Map<String, Scheme> knownSchemes = new ConcurrentHashMap<>();
 
