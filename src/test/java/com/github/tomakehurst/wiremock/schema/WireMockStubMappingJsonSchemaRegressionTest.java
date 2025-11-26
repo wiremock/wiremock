@@ -27,13 +27,12 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import com.networknt.schema.SpecificationVersion;
 import org.junit.jupiter.api.Test;
 
 class WireMockStubMappingJsonSchemaRegressionTest {
@@ -51,10 +50,9 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     SpecificationVersion version =
         SpecificationVersion.fromDialectId(schemaJson.get("$schema").textValue()).orElseThrow();
 
-    SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(
-            version,
-            builder -> builder.schemaRegistryConfig(schemaValidatorsConfig)
-    );
+    SchemaRegistry schemaFactory =
+        SchemaRegistry.withDefaultDialect(
+            version, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
     JsonNode metaSchemaJson =
         Json.node(loadResourceAsString(URI.create(version.getDialectId()).getPath().substring(1)));

@@ -28,7 +28,6 @@ import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
-
 import java.util.List;
 
 public class MatchesJsonSchemaPattern extends StringValuePattern {
@@ -48,13 +47,10 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     super(schemaJson);
 
     SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).build();
-//    config.setTypeLoose(false);
-//    config.setHandleNullableField(true);
 
-    SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(
-            schemaVersion.toVersionFlag(),
-            builder -> builder.schemaRegistryConfig(config)
-    );
+    SchemaRegistry schemaFactory =
+        SchemaRegistry.withDefaultDialect(
+            schemaVersion.toVersionFlag(), builder -> builder.schemaRegistryConfig(config));
     Schema schema;
     JsonNode schemaAsJson = Json.read(schemaJson, JsonNode.class);
     int schemaPropertyCount;

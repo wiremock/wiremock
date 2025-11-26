@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,10 @@ import static org.hamcrest.Matchers.empty;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.networknt.schema.*;
-
+import com.networknt.schema.Error;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import com.networknt.schema.Error;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,13 +43,14 @@ public class ContentPatternsJsonValidityTest {
   static void init() {
     config = SchemaRegistryConfig.builder().build();
 
-    schemaFactory = SchemaRegistry.withDefaultDialect(
+    schemaFactory =
+        SchemaRegistry.withDefaultDialect(
             WireMock.JsonSchemaVersion.V202012.toVersionFlag(),
-            builder -> builder.schemaRegistryConfig(config)
-    );
+            builder -> builder.schemaRegistryConfig(config));
 
     schema =
-        schemaFactory.getSchema(SchemaLocation.of(TestFiles.fileUri("swagger/schemas/content-pattern.yaml").toString()));
+        schemaFactory.getSchema(
+            SchemaLocation.of("classpath:swagger/schemas/content-pattern.yaml"));
   }
 
   @Test
