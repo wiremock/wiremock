@@ -94,14 +94,20 @@ public record StubMapping(
     return new Builder();
   }
 
-  public Builder thaw() {
-    return new Builder(this);
+  public static StubMapping create(Consumer<Builder> transformer) {
+    final Builder builder = builder();
+    transformer.accept(builder);
+    return builder.build();
   }
 
   public StubMapping transform(Consumer<Builder> transformer) {
     final Builder builder = thaw();
     transformer.accept(builder);
     return builder.build();
+  }
+
+  public Builder thaw() {
+    return new Builder(this);
   }
 
   public UUID getId() {
