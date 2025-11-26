@@ -34,10 +34,6 @@ public sealed interface UrlReference permits RelativeRef, Url {
   boolean isUrl();
 
   static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
-    if (urlReference.toString().contains(":")) {
-      return Url.parse(urlReference);
-    } else {
-      return RelativeRef.parse(urlReference);
-    }
+    return UrlReferenceParser.INSTANCE.parse(urlReference);
   }
 }

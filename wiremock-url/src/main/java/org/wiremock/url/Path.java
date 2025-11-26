@@ -17,9 +17,54 @@ package org.wiremock.url;
 
 public interface Path extends PctEncoded {
 
-  Path EMPTY = Path.parse("");
+  Path EMPTY = new PathParser.Path("");
+
+  boolean isAbsolute();
 
   static Path parse(CharSequence path) throws IllegalPath {
-    throw new IllegalPath(path.toString());
+    return PathParser.INSTANCE.parse(path);
+  }
+}
+
+class PathParser implements CharSequenceParser<Path> {
+
+  static final PathParser INSTANCE = new PathParser();
+
+  @Override
+  public Path parse(CharSequence stringForm) {
+    return new Path(stringForm.toString());
+  }
+
+  record Path(String path) implements org.wiremock.url.Path {
+
+    @Override
+    public int length() {
+      return path.length();
+    }
+
+    @Override
+    public char charAt(int index) {
+      return path.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+      return path.subSequence(start, end);
+    }
+
+    @Override
+    public String toString() {
+      return path;
+    }
+
+    @Override
+    public boolean isAbsolute() {
+      return path.charAt(0) == '/';
+    }
+
+    @Override
+    public String decode() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

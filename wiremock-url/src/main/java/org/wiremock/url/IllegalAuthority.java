@@ -17,13 +17,13 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract class IllegalUrlPart extends IllegalUrlReferenceOrPart {
+public class IllegalAuthority extends IllegalUrlPart {
 
-  public IllegalUrlPart(String message) {
-    this(message, null);
+  public IllegalAuthority(String authority) {
+    this(authority, null);
   }
 
-  public IllegalUrlPart(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
+  public IllegalAuthority(String authority, @Nullable IllegalUrlPart cause) {
+    super("Illegal authority: [" + authority + "]", cause);
   }
 }

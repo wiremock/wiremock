@@ -27,14 +27,14 @@ final class PortParser implements CharSequenceParser<Port> {
   private final Map<Integer, Port> portsByInt = new ConcurrentHashMap<>();
   private final Map<String, Port> portsByString = new ConcurrentHashMap<>();
 
-  Port of(int port) {
+  Port of(int port) throws IllegalPort {
     return portsByInt.computeIfAbsent(
         port,
         (key) -> {
           if (port < 1 || port > MAX_PORT) {
             throw new IllegalPort(port);
           }
-          return new Port(port);
+          return new Port(port, String.valueOf(port));
         });
   }
 
@@ -48,18 +48,22 @@ final class PortParser implements CharSequenceParser<Port> {
             if (string.startsWith("+")) {
               throw new IllegalPort(string);
             }
-            return of(Integer.parseInt(string));
+            int port = Integer.parseInt(string);
+            if (port < 1 || port > MAX_PORT) {
+              throw new IllegalPort(port);
+            }
+            return new Port(port, string);
           } catch (NumberFormatException e) {
             throw new IllegalPort(string);
           }
         });
   }
 
-  record Port(@Override int port) implements org.wiremock.url.Port {
+  record Port(@Override int port, String portString) implements org.wiremock.url.Port {
 
     @Override
     public String toString() {
-      return String.valueOf(port);
+      return portString;
     }
 
     @Override
