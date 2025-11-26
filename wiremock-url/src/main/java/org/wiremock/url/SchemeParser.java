@@ -25,7 +25,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
 
   static final SchemeParser INSTANCE = new SchemeParser();
 
-  final Pattern schemeRegex = Pattern.compile("[a-zA-Z][a-zA-Z0-9+\\-.]{0,199}");
+  final Pattern schemeRegex = Pattern.compile("[a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
 
   private final Map<String, Scheme> knownSchemes = new ConcurrentHashMap<>();
 
@@ -41,18 +41,23 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
   @Override
   public Scheme parse(CharSequence scheme) {
     String schemeString = scheme.toString();
-    if (!schemeRegex.matcher(schemeString).matches()) {
-      throw new IllegalScheme(schemeString);
-    }
-    String canonicalSchemeString = schemeString.toLowerCase();
-    if (canonicalSchemeString.equals(schemeString)) {
-      return knownSchemes.computeIfAbsent(
-          canonicalSchemeString, (key) -> new Scheme(key, null, null));
+    Scheme canonicalScheme = getCanonicalScheme(schemeString);
+    if (canonicalScheme.scheme.equals(schemeString)) {
+      return canonicalScheme;
     } else {
-      Scheme canonicalScheme =
-          knownSchemes.computeIfAbsent(canonicalSchemeString, (key) -> new Scheme(key, null, null));
-      return knownSchemes.computeIfAbsent(
-          schemeString, (key) -> new Scheme(key, canonicalScheme, null));
+      return new Scheme(schemeString, canonicalScheme, null);
+    }
+  }
+
+  private Scheme getCanonicalScheme(String schemeString) {
+    String canonicalSchemeString = schemeString.toLowerCase();
+    var existingCanonical = knownSchemes.get(canonicalSchemeString);
+    if (existingCanonical != null) {
+      return existingCanonical;
+    } else if (!schemeRegex.matcher(schemeString).matches()) {
+      throw new IllegalScheme(schemeString);
+    } else {
+      return new Scheme(canonicalSchemeString, null, null);
     }
   }
 
