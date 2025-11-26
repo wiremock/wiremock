@@ -205,7 +205,6 @@ public record StubMapping(
         && Objects.equals(name, that.name)
         && Objects.equals(priority, that.priority)
         && Objects.equals(metadata, that.metadata)
-        && Objects.equals(persistent, that.persistent)
         && Objects.equals(scenarioName, that.scenarioName)
         && Objects.equals(request, that.request)
         && Objects.equals(newScenarioState, that.newScenarioState)
@@ -220,7 +219,6 @@ public record StubMapping(
     return Objects.hash(
         id,
         name,
-        persistent,
         request,
         response,
         priority,
