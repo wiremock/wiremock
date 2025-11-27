@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class MetadataTest {
@@ -56,5 +57,51 @@ public class MetadataTest {
     Metadata metadata = stub.getMetadata();
     assertThat(metadata.getString("single"), is("value"));
     assertThat(metadata.getMetadata("obj").getString("a"), is("b"));
+  }
+
+  @Test
+  void deepMergesMetadata() {
+    final Metadata initialMetadata =
+        Metadata.create(
+            builder ->
+                builder
+                    .attr("oneString", "abc")
+                    .list("oneList", "a", "b", "c")
+                    .list("oneListToBeReplaced", "1", "2")
+                    .attr("oneInt", 1)
+                    .attr("oneObjToBeReplaced", innerBuilder -> innerBuilder.attr("inner", "to go"))
+                    .attr("oneObj", innerBuilder -> innerBuilder.attr("oneInner", 123)));
+
+    Metadata toMerge =
+        Metadata.create(
+            builder ->
+                builder
+                    .attr("twoString", "def")
+                    .list("oneList", "d", "e")
+                    .attr("oneListToBeReplaced", false)
+                    .attr("oneObjToBeReplaced", 0)
+                    .attr("twoObj", innerBuilder -> innerBuilder.attr("twoInner", 456))
+                    .attr("oneInt", 2)
+                    .attr("oneObj", innerBuilder -> innerBuilder.attr("oneInner", 789)));
+
+    Metadata merged = initialMetadata.deepMerge(toMerge);
+
+    // Unchanged
+    assertThat(merged.getString("oneString"), is("abc"));
+
+    // Added
+    assertThat(merged.getString("twoString"), is("def"));
+    assertThat(merged.getMetadata("twoObj").getInt("twoInner"), is(456));
+
+    // Overridden
+    assertThat(merged.getInt("oneInt"), is(2));
+    assertThat(merged.getMetadata("oneObj").getInt("oneInner"), is(789));
+
+    // Replaced with different type
+    assertThat(merged.get("oneListToBeReplaced"), is(false));
+    assertThat(merged.getInt("oneObjToBeReplaced"), is(0));
+
+    // Inserted
+    assertThat(merged.getList("oneList"), is(List.of("a", "b", "c", "d", "e")));
   }
 }
