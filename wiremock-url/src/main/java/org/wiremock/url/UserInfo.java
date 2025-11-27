@@ -15,6 +15,12 @@
  */
 package org.wiremock.url;
 
+import java.util.regex.Pattern;
+
+import static org.wiremock.url.Constants.pctEncoded;
+import static org.wiremock.url.Constants.subDelims;
+import static org.wiremock.url.Constants.unreserved;
+
 public interface UserInfo {
 
   static UserInfo parse(String userInfoString) {
@@ -26,9 +32,17 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 
+  final String userInfoRegex = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + "|:)*";
+
+  private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
+
   @Override
   public UserInfo parse(CharSequence stringForm) {
-    return new UserInfo(stringForm.toString());
+    if (userInfoPattern.matcher(stringForm).matches()) {
+      return new UserInfo(stringForm.toString());
+    } else {
+      throw new IllegalUserInfo(stringForm.toString());
+    }
   }
 
   record UserInfo(String userInfo) implements org.wiremock.url.UserInfo {

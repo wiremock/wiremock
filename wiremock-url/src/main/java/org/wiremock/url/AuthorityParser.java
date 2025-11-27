@@ -15,10 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.pctEncoded;
-import static org.wiremock.url.Constants.subDelims;
-import static org.wiremock.url.Constants.unreserved;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -27,13 +23,11 @@ class AuthorityParser implements CharSequenceParser<Authority> {
 
   public static final AuthorityParser INSTANCE = new AuthorityParser();
 
-  final String userInfoRegex = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + "|:)*";
-
   final String portRegex = "[0-9]+";
 
   final String authorityRegex =
       "((?<userInfo>"
-          + userInfoRegex
+          + UserInfoParser.INSTANCE.userInfoRegex
           + ")@)?(?<host>"
           + HostParser.INSTANCE.hostRegex
           + ")(:(?<port>"
@@ -55,7 +49,7 @@ class AuthorityParser implements CharSequenceParser<Authority> {
   Authority parse(Matcher matcher, String rawAuthority) throws IllegalAuthority {
     try {
       String userInfoString = matcher.group("userInfo");
-      var userInfo = userInfoString == null ? null : UserInfo.parse(userInfoString);
+      var userInfo = userInfoString == null ? null : new UserInfoParser.UserInfo(userInfoString);
       var hostString = matcher.group("host");
       var host = new HostParser.Host(hostString);
       String portString = matcher.group("port");
