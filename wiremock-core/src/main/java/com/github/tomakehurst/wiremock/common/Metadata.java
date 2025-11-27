@@ -18,12 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -287,6 +282,35 @@ public class Metadata implements Map<String, Object> {
     return data.hashCode();
   }
 
+  public Metadata deepMerge(Metadata toMerge) {
+    // recursively merge nested metadata
+    return transform(
+        builder -> {
+          for (Map.Entry<String, Object> entry : toMerge.entrySet()) {
+            if (entry.getValue() instanceof Metadata) {
+              Object existing = get(entry.getKey());
+              if (existing instanceof Metadata) {
+                builder.attr(
+                    entry.getKey(), ((Metadata) existing).deepMerge((Metadata) entry.getValue()));
+              } else {
+                builder.attr(entry.getKey(), entry.getValue());
+              }
+            } else if (entry.getValue() instanceof List<?>) {
+              Object existing = get(entry.getKey());
+              if (existing instanceof List<?>) {
+                List<Object> merged = new ArrayList<>((List<?>) existing);
+                merged.addAll((List<?>) entry.getValue());
+                builder.attr(entry.getKey(), merged);
+              } else {
+                builder.attr(entry.getKey(), entry.getValue());
+              }
+            } else {
+              builder.attr(entry.getKey(), entry.getValue());
+            }
+          }
+        });
+  }
+
   public static class Builder {
 
     private final Map<String, Object> mapBuilder;
@@ -304,14 +328,25 @@ public class Metadata implements Map<String, Object> {
       return this;
     }
 
-    public Builder list(String key, Object... values) {
-      mapBuilder.put(key, List.of(values));
+    public Builder attr(String key, Consumer<Metadata.Builder> transformer) {
+      final Builder builder = Metadata.builder();
+      transformer.accept(builder);
+      attr(key, builder);
       return this;
     }
 
     public Builder attr(String key, Metadata.Builder metadataBuilder) {
       mapBuilder.put(key, metadataBuilder.build());
       return this;
+    }
+
+    public Builder list(String key, Object... values) {
+      mapBuilder.put(key, List.of(values));
+      return this;
+    }
+
+    public Object get(String key) {
+      return mapBuilder.get(key);
     }
 
     public Metadata build() {
