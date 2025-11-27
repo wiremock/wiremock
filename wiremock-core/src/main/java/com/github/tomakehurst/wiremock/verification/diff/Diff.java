@@ -150,16 +150,16 @@ public class Diff {
       List<DiffLine<?>> diffLineList) {
     if (requestPattern.hasNamedCustomMatcher()) {
       RequestMatcherExtension customMatcher =
-          customMatcherExtensions.get(requestPattern.getCustomMatcher().name());
+          customMatcherExtensions.get(requestPattern.getCustomMatcher().getName());
       if (customMatcher != null) {
         NamedCustomMatcherLine namedCustomMatcherLine =
             new NamedCustomMatcherLine(
-                customMatcher, requestPattern.getCustomMatcher().parameters(), request);
+                customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
         diffLineList.addAll(toDiffDescriptionLines(namedCustomMatcherLine));
       } else {
         diffLineList.add(
             new SectionDelimiter(
-                "[custom matcher: " + requestPattern.getCustomMatcher().name() + "]"));
+                "[custom matcher: " + requestPattern.getCustomMatcher().getName() + "]"));
       }
     }
   }

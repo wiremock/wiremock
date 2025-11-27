@@ -211,10 +211,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     final MatchResult standardMatchResult = matcher.match(request);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
-          getFirstNonNull(customMatchers.get(customMatcherDefinition.name()), NEVER);
+          getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
       MatchResult customMatchResult =
-          requestMatcher.match(request, customMatcherDefinition.parameters());
+          requestMatcher.match(request, customMatcherDefinition.getParameters());
 
       return MatchResult.aggregate(standardMatchResult, customMatchResult);
     }

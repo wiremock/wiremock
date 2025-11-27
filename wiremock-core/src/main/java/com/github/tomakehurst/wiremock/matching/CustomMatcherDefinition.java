@@ -18,5 +18,22 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 
-public record CustomMatcherDefinition(
-    @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {}
+public class CustomMatcherDefinition {
+
+  private final String name;
+  private final Parameters parameters;
+
+  public CustomMatcherDefinition(
+      @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
+    this.name = name;
+    this.parameters = parameters;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Parameters getParameters() {
+    return parameters;
+  }
+}
