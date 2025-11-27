@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 public class IllegalHost extends IllegalUrlPart {
 
-  public IllegalHost(String message) {
-    super(message);
+  public IllegalHost(String host) {
+    super("Illegal host: `" + host + "`");
   }
 }

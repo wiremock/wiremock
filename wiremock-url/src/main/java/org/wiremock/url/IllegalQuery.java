@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 public final class IllegalQuery extends IllegalUrlPart {
 
-  public IllegalQuery(String message) {
-    super(message);
+  public IllegalQuery(String query) {
+    super("Illegal query: `" + query + "`");
   }
 }
