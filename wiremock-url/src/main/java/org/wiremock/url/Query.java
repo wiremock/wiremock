@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import java.util.regex.Pattern;
+
 public interface Query extends PctEncoded {
   static Query parse(CharSequence query) throws IllegalQuery {
     return QueryParser.INSTANCE.parse(query);
@@ -25,9 +27,17 @@ class QueryParser implements CharSequenceParser<Query> {
 
   static final QueryParser INSTANCE = new QueryParser();
 
+  final String queryRegex = "[^#]*";
+  private final Pattern queryPattern = Pattern.compile("^" + queryRegex + "$");
+
   @Override
   public Query parse(CharSequence stringForm) throws IllegalQuery {
-    return new Query(stringForm.toString());
+    String queryStr = stringForm.toString();
+    if (queryPattern.matcher(queryStr).matches()) {
+      return new QueryParser.Query(queryStr);
+    } else {
+      throw new IllegalQuery(queryStr);
+    }
   }
 
   record Query(String query) implements org.wiremock.url.Query {
