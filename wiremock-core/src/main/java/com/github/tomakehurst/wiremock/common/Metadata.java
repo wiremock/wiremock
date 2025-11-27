@@ -283,7 +283,6 @@ public class Metadata implements Map<String, Object> {
   }
 
   public Metadata deepMerge(Metadata toMerge) {
-    // recursively merge nested metadata
     return transform(
         builder -> {
           for (Map.Entry<String, Object> entry : toMerge.entrySet()) {
