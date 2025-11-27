@@ -15,13 +15,22 @@
  */
 package org.wiremock.url;
 
+import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.HostTests.ParseMethod.IPv4Addresses;
+import org.wiremock.url.HostTests.ParseMethod.IPv6Addresses;
+import org.wiremock.url.HostTests.ParseMethod.RegisteredNames;
 
 class HostTests {
 
@@ -30,10 +39,8 @@ class HostTests {
 
     @Nested
     class IPv4Addresses {
-
-      @ParameterizedTest
-      @ValueSource(
-          strings = {
+      static Stream<String> validIpv4Addresses() {
+        return Stream.of(
             "0.0.0.0",
             "1.1.1.1",
             "8.8.8.8",
@@ -44,8 +51,11 @@ class HostTests {
             "172.16.0.1",
             "255.255.255.255",
             "1.2.3.4",
-            "100.200.50.25"
-          })
+            "100.200.50.25");
+      }
+
+      @ParameterizedTest
+      @MethodSource("validIpv4Addresses")
       void parses_valid_ipv4_addresses(String ipv4) {
         Host host = Host.parse(ipv4);
         assertThat(host.toString()).isEqualTo(ipv4);
@@ -69,9 +79,8 @@ class HostTests {
     @Nested
     class IPv6Addresses {
 
-      @ParameterizedTest
-      @ValueSource(
-          strings = {
+      static Stream<String> validIpv6Addresses() {
+        return Stream.of(
             "[::1]", // loopback
             "[::ffff:192.0.2.1]", // IPv4-mapped
             "[2001:db8::1]",
@@ -83,8 +92,11 @@ class HostTests {
             "[::]", // all zeros
             "[2001:db8::8a2e:370:7334]",
             "[ff02::1]",
-            "[ff02::2]"
-          })
+            "[ff02::2]");
+      }
+
+      @ParameterizedTest
+      @MethodSource("validIpv6Addresses")
       void parses_valid_ipv6_addresses(String ipv6) {
         Host host = Host.parse(ipv6);
         assertThat(host.toString()).isEqualTo(ipv6);
@@ -123,9 +135,8 @@ class HostTests {
     @Nested
     class RegisteredNames {
 
-      @ParameterizedTest
-      @ValueSource(
-          strings = {
+      static Stream<String> validRegisteredNames() {
+        return Stream.of(
             "localhost",
             "example.com",
             "www.example.com",
@@ -143,7 +154,30 @@ class HostTests {
             "test_123.example.com",
             "test~server", // tilde is unreserved
             "test.server",
-          })
+            "%20", // space encoded
+            "%2F", // slash encoded
+            "test%20server",
+            "my%2Fserver",
+            "%C3%A9", // é encoded
+            "caf%C3%A9.example.com",
+            "%41%42%43", // ABC encoded
+            "test!", // sub-delims
+            "test$",
+            "test&",
+            "test'",
+            "test(",
+            "test)",
+            "test*",
+            "test+",
+            "test,",
+            "test;",
+            "test=",
+            "ex!ample.com",
+            "ex$ample.com");
+      }
+
+      @ParameterizedTest
+      @MethodSource("validRegisteredNames")
       void parses_valid_registered_names(String registeredName) {
         Host host = Host.parse(registeredName);
         assertThat(host.toString()).isEqualTo(registeredName);
@@ -173,22 +207,6 @@ class HostTests {
       @ParameterizedTest
       @ValueSource(
           strings = {
-            "%20", // space encoded
-            "%2F", // slash encoded
-            "test%20server",
-            "my%2Fserver",
-            "%C3%A9", // é encoded
-            "caf%C3%A9.example.com",
-            "%41%42%43", // ABC encoded
-          })
-      void parses_percent_encoded_registered_names(String encodedName) {
-        Host host = Host.parse(encodedName);
-        assertThat(host.toString()).isEqualTo(encodedName);
-      }
-
-      @ParameterizedTest
-      @ValueSource(
-          strings = {
             "%", // incomplete encoding
             "%2", // incomplete encoding
             "%GG", // invalid hex
@@ -203,28 +221,6 @@ class HostTests {
             .withMessage("Illegal host: `" + invalidEncoding + "`")
             .extracting(IllegalHost::getIllegalValue)
             .isEqualTo(invalidEncoding);
-      }
-
-      @ParameterizedTest
-      @ValueSource(
-          strings = {
-            "test!", // sub-delims
-            "test$",
-            "test&",
-            "test'",
-            "test(",
-            "test)",
-            "test*",
-            "test+",
-            "test,",
-            "test;",
-            "test=",
-            "ex!ample.com",
-            "ex$ample.com",
-          })
-      void parses_registered_names_with_sub_delims(String nameWithSubDelims) {
-        Host host = Host.parse(nameWithSubDelims);
-        assertThat(host.toString()).isEqualTo(nameWithSubDelims);
       }
 
       @Test
@@ -444,5 +440,19 @@ class HostTests {
       Host host = Host.parse("255.255.255.255");
       assertThat(host.toString()).isEqualTo("255.255.255.255");
     }
+  }
+
+  @TestFactory
+  Stream<DynamicTest> invariants() {
+    List<String> validHosts =
+        Stream.of(
+                IPv4Addresses.validIpv4Addresses(),
+                IPv6Addresses.validIpv6Addresses(),
+                RegisteredNames.validRegisteredNames(),
+                Stream.of(""))
+            .flatMap(identity())
+            .toList();
+
+    return CharSequenceParserInvariantTests.generateInvariantTests(HostParser.INSTANCE, validHosts);
   }
 }
