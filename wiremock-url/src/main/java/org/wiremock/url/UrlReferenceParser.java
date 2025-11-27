@@ -30,10 +30,8 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   @Language("RegExp")
   private final String authority = "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")";
 
-  private final String pathRegex = "[^#?]*";
-
   @Language("RegExp")
-  private final String path = "(?<path>" + pathRegex + ")";
+  private final String path = "(?<path>" + PathParser.INSTANCE.pathRegex + ")";
 
   private final String queryRegex = "[^#]*";
 
@@ -95,7 +93,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   private HierarchicalPart extractHierarchicalPart(Matcher matcher) {
     var authority = extractAuthorityOrNull(matcher);
     var pathStr = matcher.group("path");
-    var path = Path.parse(pathStr);
+    var path = new PathParser.Path(pathStr);
     return new HierarchicalPart(authority, path);
   }
 
