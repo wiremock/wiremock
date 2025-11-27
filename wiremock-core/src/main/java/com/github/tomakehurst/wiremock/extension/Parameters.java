@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import java.util.LinkedHashMap;
@@ -22,14 +23,21 @@ import java.util.Map;
 
 public class Parameters extends Metadata {
 
+  public Parameters() {
+    super();
+  }
+
+  @JsonCreator
+  public Parameters(Map<? extends String, ?> data) {
+    super(data);
+  }
+
   public static Parameters empty() {
     return new Parameters();
   }
 
   public static Parameters from(Map<String, Object> parameterMap) {
-    Parameters parameters = new Parameters();
-    parameters.putAll(parameterMap);
-    return parameters;
+    return new Parameters(parameterMap);
   }
 
   public static Parameters one(String name, Object value) {

@@ -215,10 +215,10 @@ public class WebhookDefinition {
   @JsonAnySetter
   public WebhookDefinition withExtraParameter(String key, Object value) {
     if (parameters == null) {
-      parameters = new Parameters();
+      parameters = Parameters.one(key, value);
+    } else {
+      parameters = parameters.merge(Parameters.one(key, value));
     }
-
-    this.parameters.put(key, value);
     return this;
   }
 
