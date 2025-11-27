@@ -19,9 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.net.URI;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class PortTests {
@@ -61,8 +65,12 @@ class PortTests {
       assertThat(uri.toString()).isEqualTo("http://localhost:00080");
     }
 
+    static Stream<String> validPortStrings() {
+      return Stream.of("1", "80", "443", "8080", "8443", "9000", "65535", "00080");
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {"1", "80", "443", "8080", "8443", "9000", "65535", "00080"})
+    @MethodSource("validPortStrings")
     void parses_various_valid_port_strings(String portString) {
       Port port = Port.parse(portString);
       assertThat(port.port()).isEqualTo(Integer.parseInt(portString));
@@ -83,7 +91,7 @@ class PortTests {
                   + "]; Port value must be an integer between 1 and 65535")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
-          .isEqualTo(String.valueOf(invalidPortString));
+          .isEqualTo(invalidPortString);
     }
 
     @ParameterizedTest
@@ -482,6 +490,12 @@ class PortTests {
       Port normalised = port.normalise();
       assertThat(normalised.toString()).isEqualTo("80");
       assertThat(normalised.port()).isEqualTo(80);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> port_parser_invariants() {
+      return CharSequenceParserInvariantTests.generateInvariantTests(
+          PortParser.INSTANCE, ParseMethod.validPortStrings().toList());
     }
   }
 }

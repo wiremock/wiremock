@@ -67,5 +67,19 @@ class AuthorityParser implements CharSequenceParser<Authority> {
   }
 
   record Authority(@Nullable @Override UserInfo userInfo, Host host, @Nullable @Override Port port)
-      implements org.wiremock.url.Authority {}
+      implements org.wiremock.url.Authority {
+
+    @Override
+    public String toString() {
+      StringBuilder result = new StringBuilder();
+      if (userInfo != null) {
+        result.append(userInfo).append('@');
+      }
+      result.append(host);
+      if (port != null) {
+        result.append(':').append(port);
+      }
+      return result.toString();
+    }
+  }
 }

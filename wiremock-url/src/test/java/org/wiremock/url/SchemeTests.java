@@ -18,9 +18,13 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class SchemeTests {
@@ -28,22 +32,44 @@ class SchemeTests {
   @Nested
   class OfMethod {
 
-    @ParameterizedTest
-    @ValueSource(
-        strings = {
-          "http", "https", "ftp", "ssh", "file", "mailto",
-          "HTTP", "HTTPS", "FTP", "SSH", "FILE", "MAILTO",
-          "Http", "Https", "Ftp", "Ssh", "File", "Mailto",
-          "svn+ssh", "content-type", "x.custom", "h2c", "custom+proto-1.0"
-        })
-    void parses_valid_schemes(String schemeString) {
-      Scheme scheme = Scheme.parse(schemeString);
-      assertThat(scheme.toString()).isEqualTo(schemeString);
+    static Stream<String> validSchemes() {
+      return Stream.of(
+          "x",
+          "X",
+          "verylongschemenamethatcontainsmanycharactersandisvalidaccordingtotherfc",
+          "http2",
+          "svn+",
+          "proto-",
+          "custom.",
+          "x+-.",
+          "http",
+          "https",
+          "ftp",
+          "ssh",
+          "file",
+          "mailto",
+          "HTTP",
+          "HTTPS",
+          "FTP",
+          "SSH",
+          "FILE",
+          "MAILTO",
+          "Http",
+          "Https",
+          "Ftp",
+          "Ssh",
+          "File",
+          "Mailto",
+          "svn+ssh",
+          "content-type",
+          "x.custom",
+          "h2c",
+          "custom+proto-1.0");
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"h", "a", "z", "A", "Z"})
-    void parses_single_letter_schemes(String schemeString) {
+    @MethodSource("validSchemes")
+    void parses_valid_schemes(String schemeString) {
       Scheme scheme = Scheme.parse(schemeString);
       assertThat(scheme.toString()).isEqualTo(schemeString);
     }
@@ -66,7 +92,12 @@ class SchemeTests {
           "://",
           " http",
           "http ",
-          " http "
+          " http ",
+          "1invalid",
+          "@invalid",
+          "http scheme",
+          "http:",
+          "http/"
         })
     void throws_exception_for_illegal_schemes(String illegalScheme) {
       assertThatExceptionOfType(IllegalScheme.class)
@@ -77,7 +108,7 @@ class SchemeTests {
                   + "`; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
           .withNoCause()
           .extracting(IllegalScheme::getIllegalValue)
-          .isEqualTo(String.valueOf(illegalScheme));
+          .isEqualTo(illegalScheme);
     }
   }
 
@@ -347,31 +378,6 @@ class SchemeTests {
   }
 
   @Nested
-  class ToStringMethod {
-
-    @ParameterizedTest
-    @ValueSource(
-        strings = {
-          "http",
-          "https",
-          "ftp",
-          "ssh",
-          "file",
-          "mailto",
-          "custom",
-          "HTTP",
-          "HtTpS",
-          "tostr1+proto-1.0"
-        })
-    void to_string_returns_correct_value(String schemeString) {
-      Scheme original = Scheme.parse(schemeString);
-      assertThat(original.toString()).isEqualTo(schemeString);
-      String stringForm = original.toString();
-      assertThat(stringForm).isEqualTo(schemeString);
-    }
-  }
-
-  @Nested
   class Caching {
 
     @Test
@@ -404,141 +410,9 @@ class SchemeTests {
     }
   }
 
-  @Nested
-  class CommonSchemes {
-
-    @Test
-    void parses_common_web_schemes() {
-      assertThat(Scheme.parse("http").toString()).isEqualTo("http");
-      assertThat(Scheme.parse("https").toString()).isEqualTo("https");
-      assertThat(Scheme.parse("ws").toString()).isEqualTo("ws");
-      assertThat(Scheme.parse("wss").toString()).isEqualTo("wss");
-    }
-
-    @Test
-    void parses_file_transfer_schemes() {
-      assertThat(Scheme.parse("ftp").toString()).isEqualTo("ftp");
-      assertThat(Scheme.parse("ftps").toString()).isEqualTo("ftps");
-      assertThat(Scheme.parse("sftp").toString()).isEqualTo("sftp");
-    }
-
-    @Test
-    void parses_email_schemes() {
-      assertThat(Scheme.parse("mailto").toString()).isEqualTo("mailto");
-      assertThat(Scheme.parse("smtp").toString()).isEqualTo("smtp");
-      assertThat(Scheme.parse("imap").toString()).isEqualTo("imap");
-      assertThat(Scheme.parse("pop3").toString()).isEqualTo("pop3");
-    }
-
-    @Test
-    void parses_database_schemes() {
-      assertThat(Scheme.parse("jdbc").toString()).isEqualTo("jdbc");
-      assertThat(Scheme.parse("postgresql").toString()).isEqualTo("postgresql");
-      assertThat(Scheme.parse("mysql").toString()).isEqualTo("mysql");
-      assertThat(Scheme.parse("mongodb").toString()).isEqualTo("mongodb");
-    }
-
-    @Test
-    void parses_git_schemes() {
-      assertThat(Scheme.parse("git").toString()).isEqualTo("git");
-      assertThat(Scheme.parse("git+ssh").toString()).isEqualTo("git+ssh");
-      assertThat(Scheme.parse("git+https").toString()).isEqualTo("git+https");
-    }
-
-    @Test
-    void parses_data_uri_scheme() {
-      assertThat(Scheme.parse("data").toString()).isEqualTo("data");
-    }
-
-    @Test
-    void parses_tel_scheme() {
-      assertThat(Scheme.parse("tel").toString()).isEqualTo("tel");
-    }
-  }
-
-  @Nested
-  class EdgeCases {
-
-    @Test
-    void single_letter_scheme_is_valid() {
-      Scheme scheme = Scheme.parse("x");
-      assertThat(scheme.toString()).isEqualTo("x");
-    }
-
-    @Test
-    void very_long_scheme_is_valid() {
-      String longScheme = "verylongschemenamethatcontainsmanycharactersandisvalidaccordingtotherfc";
-      Scheme scheme = Scheme.parse(longScheme);
-      assertThat(scheme.toString()).isEqualTo(longScheme);
-    }
-
-    @Test
-    void scheme_with_all_allowed_special_chars() {
-      Scheme scheme = Scheme.parse("x+proto-v1.0");
-      assertThat(scheme.toString()).isEqualTo("x+proto-v1.0");
-    }
-
-    @Test
-    void scheme_ending_with_digit() {
-      Scheme scheme = Scheme.parse("http2");
-      assertThat(scheme.toString()).isEqualTo("http2");
-    }
-
-    @Test
-    void scheme_ending_with_plus() {
-      Scheme scheme = Scheme.parse("svn+");
-      assertThat(scheme.toString()).isEqualTo("svn+");
-    }
-
-    @Test
-    void scheme_ending_with_hyphen() {
-      Scheme scheme = Scheme.parse("proto-");
-      assertThat(scheme.toString()).isEqualTo("proto-");
-    }
-
-    @Test
-    void scheme_ending_with_dot() {
-      Scheme scheme = Scheme.parse("custom.");
-      assertThat(scheme.toString()).isEqualTo("custom.");
-    }
-
-    @Test
-    void multiple_consecutive_special_chars() {
-      Scheme scheme = Scheme.parse("x+-.");
-      assertThat(scheme.toString()).isEqualTo("x+-.");
-    }
-  }
-
-  @Nested
-  class IllegalSchemeException {
-
-    @Test
-    void exception_contains_invalid_scheme_in_message() {
-      assertThatExceptionOfType(IllegalScheme.class)
-          .isThrownBy(() -> Scheme.parse("1invalid"))
-          .withMessageContaining("1invalid");
-    }
-
-    @Test
-    void exception_for_special_character_prefix() {
-      assertThatExceptionOfType(IllegalScheme.class)
-          .isThrownBy(() -> Scheme.parse("@invalid"))
-          .withMessageContaining("@invalid");
-    }
-
-    @Test
-    void exception_for_whitespace() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http scheme"));
-    }
-
-    @Test
-    void exception_for_colon() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http:"));
-    }
-
-    @Test
-    void exception_for_slash() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.parse("http/"));
-    }
+  @TestFactory
+  Stream<DynamicTest> invariants() {
+    return CharSequenceParserInvariantTests.generateInvariantTests(
+        SchemeParser.INSTANCE, OfMethod.validSchemes().toList());
   }
 }

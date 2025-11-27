@@ -15,6 +15,6 @@
  */
 package org.wiremock.url;
 
-interface CharSequenceParser<T> {
+public interface CharSequenceParser<T> {
   T parse(CharSequence stringForm) throws ParseException;
 }
