@@ -335,5 +335,153 @@ class PortTests {
       assertThat(Port.parse("80").port()).isEqualTo(80);
       assertThat(Port.of(80).port()).isEqualTo(80);
     }
+
+    @Test
+    void ports_with_leading_zeros_are_not_cached() {
+      Port port1 = Port.parse("00080");
+      Port port2 = Port.parse("00080");
+      // Non-canonical ports are not cached, so different instances
+      assertThat(port1).isNotSameAs(port2);
+      // But they are equal (same string representation)
+      assertThat(port1).isEqualTo(port2);
+    }
+
+    @Test
+    void canonical_ports_are_cached() {
+      Port port1 = Port.parse("80");
+      Port port2 = Port.parse("80");
+      Port port3 = Port.of(80);
+      // Canonical ports are cached, so same instance
+      assertThat(port1).isSameAs(port2);
+      assertThat(port1).isSameAs(port3);
+    }
+
+    @Test
+    void mixed_canonical_and_non_canonical_not_cached_together() {
+      Port canonical = Port.parse("80");
+      Port withLeadingZeros = Port.parse("00080");
+      // Different instances (canonical cached, non-canonical not)
+      assertThat(canonical).isNotSameAs(withLeadingZeros);
+      // Different values (different string representations)
+      assertThat(canonical).isNotEqualTo(withLeadingZeros);
+    }
+  }
+
+  @Nested
+  class Normalise {
+
+    @Test
+    void normalise_removes_leading_zeros() {
+      Port portWithLeadingZeros = Port.parse("00080");
+      Port normalised = portWithLeadingZeros.normalise();
+      assertThat(normalised.toString()).isEqualTo("80");
+      assertThat(normalised.port()).isEqualTo(80);
+    }
+
+    @Test
+    void normalise_returns_equal_to_port_of() {
+      Port portWithLeadingZeros = Port.parse("00080");
+      Port normalised = portWithLeadingZeros.normalise();
+      Port canonical = Port.of(80);
+      assertThat(normalised).isEqualTo(canonical);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"00080", "0080", "080", "00443", "01", "001", "0001", "00001"})
+    void normalise_removes_all_leading_zeros(String portString) {
+      Port port = Port.parse(portString);
+      Port normalised = port.normalise();
+      int expectedPort = Integer.parseInt(portString);
+      assertThat(normalised.toString()).isEqualTo(String.valueOf(expectedPort));
+      assertThat(normalised.port()).isEqualTo(expectedPort);
+    }
+
+    @Test
+    void normalise_on_canonical_form_returns_equal_port() {
+      Port canonical = Port.of(8080);
+      Port normalised = canonical.normalise();
+      assertThat(normalised).isEqualTo(canonical);
+      assertThat(normalised.toString()).isEqualTo("8080");
+    }
+
+    @Test
+    void normalise_on_parsed_canonical_form_returns_equal_port() {
+      Port parsed = Port.parse("443");
+      Port normalised = parsed.normalise();
+      assertThat(normalised).isEqualTo(parsed);
+      assertThat(normalised.toString()).isEqualTo("443");
+    }
+
+    @Test
+    void normalise_is_idempotent() {
+      Port port = Port.parse("00080");
+      Port normalised1 = port.normalise();
+      Port normalised2 = normalised1.normalise();
+      assertThat(normalised1).isEqualTo(normalised2);
+      assertThat(normalised1.toString()).isEqualTo("80");
+      assertThat(normalised2.toString()).isEqualTo("80");
+    }
+
+    @Test
+    void normalise_allows_comparison_of_ports_with_different_formats() {
+      Port port1 = Port.parse("00080");
+      Port port2 = Port.parse("080");
+      Port port3 = Port.parse("80");
+      Port port4 = Port.of(80);
+
+      // Original ports are not equal
+      assertThat(port1).isNotEqualTo(port2);
+      assertThat(port1).isNotEqualTo(port3);
+      assertThat(port1).isNotEqualTo(port4);
+
+      // Normalised ports are all equal
+      assertThat(port1.normalise()).isEqualTo(port2.normalise());
+      assertThat(port1.normalise()).isEqualTo(port3.normalise());
+      assertThat(port1.normalise()).isEqualTo(port4.normalise());
+    }
+
+    @Test
+    void normalise_preserves_port_number() {
+      Port port = Port.parse("00443");
+      Port normalised = port.normalise();
+      assertThat(port.port()).isEqualTo(normalised.port());
+      assertThat(normalised.port()).isEqualTo(443);
+    }
+
+    @Test
+    void normalise_creates_cacheable_instance() {
+      Port port1 = Port.parse("00080");
+      Port port2 = Port.parse("0080");
+      Port normalised1 = port1.normalise();
+      Port normalised2 = port2.normalise();
+
+      // Normalised instances should be the same cached instance
+      assertThat(normalised1).isSameAs(normalised2);
+      assertThat(normalised1).isSameAs(Port.of(80));
+    }
+
+    @Test
+    void normalise_minimum_port() {
+      Port port = Port.parse("01");
+      Port normalised = port.normalise();
+      assertThat(normalised.toString()).isEqualTo("1");
+      assertThat(normalised).isEqualTo(Port.of(1));
+    }
+
+    @Test
+    void normalise_maximum_port() {
+      Port port = Port.parse("065535");
+      Port normalised = port.normalise();
+      assertThat(normalised.toString()).isEqualTo("65535");
+      assertThat(normalised).isEqualTo(Port.of(65535));
+    }
+
+    @Test
+    void normalise_with_many_leading_zeros() {
+      Port port = Port.parse("000000080");
+      Port normalised = port.normalise();
+      assertThat(normalised.toString()).isEqualTo("80");
+      assertThat(normalised.port()).isEqualTo(80);
+    }
   }
 }

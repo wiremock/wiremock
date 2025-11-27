@@ -25,37 +25,41 @@ final class PortParser implements CharSequenceParser<Port> {
   static final int MAX_PORT = 65_535;
 
   private final Map<Integer, Port> portsByInt = new ConcurrentHashMap<>();
-  private final Map<String, Port> portsByString = new ConcurrentHashMap<>();
 
   Port of(int port) throws IllegalPort {
     return portsByInt.computeIfAbsent(
         port,
         (p) -> {
-          if (p < 1 || p > MAX_PORT) {
-            throw new IllegalPort(p);
-          }
+          validate(p);
           return new Port(p, String.valueOf(p));
         });
   }
 
   @Override
   public org.wiremock.url.Port parse(CharSequence stringForm) {
-    return portsByString.computeIfAbsent(
-        stringForm.toString(),
-        (s) -> {
-          try {
-            if (s.startsWith("+")) {
-              throw new IllegalPort(s);
-            }
-            int port = Integer.parseInt(s);
-            if (port < 1 || port > MAX_PORT) {
-              throw new IllegalPort(port);
-            }
-            return new Port(port, s);
-          } catch (NumberFormatException e) {
-            throw new IllegalPort(s);
-          }
-        });
+    String s = stringForm.toString();
+    try {
+      if (s.startsWith("+")) {
+        throw new IllegalPort(s);
+      }
+      int port = Integer.parseInt(s);
+      String canonical = String.valueOf(port);
+      if (s.equals(canonical)) {
+        return of(port);
+      } else {
+        validate(port);
+        return new Port(port, s);
+      }
+
+    } catch (NumberFormatException e) {
+      throw new IllegalPort(s);
+    }
+  }
+
+  private static void validate(int port) {
+    if (port < 1 || port > MAX_PORT) {
+      throw new IllegalPort(port);
+    }
   }
 
   record Port(@Override int port, String portString) implements org.wiremock.url.Port {
@@ -63,6 +67,15 @@ final class PortParser implements CharSequenceParser<Port> {
     @Override
     public String toString() {
       return portString;
+    }
+
+    @Override
+    public org.wiremock.url.Port normalise() {
+      if (portString.equals(String.valueOf(port))) {
+        return this;
+      } else {
+        return PortParser.INSTANCE.of(port);
+      }
     }
 
     @Override
