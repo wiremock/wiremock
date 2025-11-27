@@ -24,7 +24,7 @@ public class NotImplementedContainer implements Container {
   }
 
   @Override
-  public void shutdown() {
+  public NotImplementedContainer shutdown() {
     throw new UnsupportedOperationException("Stopping the server is not supported");
   }
 }
