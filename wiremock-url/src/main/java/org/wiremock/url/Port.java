@@ -22,11 +22,19 @@ package org.wiremock.url;
  *
  * <p>Implementations must enforce that 1 <= port <= 65,535
  *
- * <p>Implementations should be equal to any other port implementation with the same port number
+ * <p>Implementations should be equal to any other Port implementation with the same text
+ * representation. Implementations are <b>NOT</b> equal if they have different string
+ * representations, even if they represent the same port number. For example, {@code
+ * Port.parse("00080").equals(Port.of(80)) == false} because their string representations differ
+ * ("00080" vs "80"), even though both represent port 80. This preserves the original format as it
+ * appeared in the URL.
  *
- * <p>An implementation's toString should return {@code String.valueOf(port())}
+ * <p>An implementation's toString should return the String used when it was created. For ports
+ * created via {@code parse()}, this preserves the original format including any leading zeros. For
+ * ports created via {@code of()}, this returns the canonical form without leading zeros.
  *
- * <p>An implementation's hashCode() should return {@code port()}
+ * <p>An implementation's hashCode() is based on the string representation, ensuring consistency
+ * with equals.
  */
 public interface Port {
 

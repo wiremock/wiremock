@@ -30,31 +30,30 @@ final class PortParser implements CharSequenceParser<Port> {
   Port of(int port) throws IllegalPort {
     return portsByInt.computeIfAbsent(
         port,
-        (key) -> {
-          if (port < 1 || port > MAX_PORT) {
-            throw new IllegalPort(port);
+        (p) -> {
+          if (p < 1 || p > MAX_PORT) {
+            throw new IllegalPort(p);
           }
-          return new Port(port, String.valueOf(port));
+          return new Port(p, String.valueOf(p));
         });
   }
 
   @Override
   public org.wiremock.url.Port parse(CharSequence stringForm) {
-    String string = stringForm.toString();
     return portsByString.computeIfAbsent(
-        string,
-        (key) -> {
+        stringForm.toString(),
+        (s) -> {
           try {
-            if (string.startsWith("+")) {
-              throw new IllegalPort(string);
+            if (s.startsWith("+")) {
+              throw new IllegalPort(s);
             }
-            int port = Integer.parseInt(string);
+            int port = Integer.parseInt(s);
             if (port < 1 || port > MAX_PORT) {
               throw new IllegalPort(port);
             }
-            return new Port(port, string);
+            return new Port(port, s);
           } catch (NumberFormatException e) {
-            throw new IllegalPort(string);
+            throw new IllegalPort(s);
           }
         });
   }
@@ -71,12 +70,12 @@ final class PortParser implements CharSequenceParser<Port> {
       if (!(o instanceof org.wiremock.url.Port other)) {
         return false;
       }
-      return port == other.port();
+      return toString().equals(other.toString());
     }
 
     @Override
     public int hashCode() {
-      return port;
+      return portString.hashCode();
     }
   }
 }
