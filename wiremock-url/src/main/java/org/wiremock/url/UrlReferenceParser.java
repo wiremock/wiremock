@@ -33,10 +33,8 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   @Language("RegExp")
   private final String path = "(?<path>" + PathParser.INSTANCE.pathRegex + ")";
 
-  private final String queryRegex = "[^#]*";
-
   @Language("RegExp")
-  private final String query = "(?<query>" + queryRegex + ")";
+  private final String query = "(?<query>" + QueryParser.INSTANCE.queryRegex + ")";
 
   private final String fragmentRegex = ".*";
 
