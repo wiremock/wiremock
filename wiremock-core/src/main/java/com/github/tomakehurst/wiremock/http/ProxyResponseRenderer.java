@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.Strings.removeStart;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -26,11 +27,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -91,7 +88,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
-    String proxyUrl = responseDefinition.getProxyUrl();
+    String proxyUrl = getProxyUrl(serveEvent);
     if (proxyUrl == null || !absoluteUrlMatcher.test(proxyUrl)) {
       return response()
           .status(HTTP_INTERNAL_ERROR)
@@ -102,12 +99,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     final ImmutableRequest.Builder requestBuilder =
         ImmutableRequest.create()
             .withAbsoluteUrl(proxyUrl)
-            .withMethod(responseDefinition.getOriginalRequest().getMethod());
-    addRequestHeaders(requestBuilder, responseDefinition);
+            .withMethod(serveEvent.getRequest().getMethod());
+    addRequestHeaders(requestBuilder, responseDefinition, serveEvent.getRequest());
 
     GlobalSettings settings = settingsStore.get();
 
-    Request originalRequest = responseDefinition.getOriginalRequest();
+    Request originalRequest = serveEvent.getRequest();
 
     boolean originalRequestBodyExists =
         originalRequest.getBody() != null && originalRequest.getBody().length > 0;
@@ -143,6 +140,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     } catch (IOException e) {
       return proxyResponseError("Network", request, e);
     }
+  }
+
+  private String getProxyUrl(ServeEvent serveEvent) {
+    final ResponseDefinition responseDef = serveEvent.getResponseDefinition();
+    if (responseDef.getBrowserProxyUrl() != null) {
+      return responseDef.getBrowserProxyUrl();
+    }
+
+    return responseDef.getProxyBaseUrl()
+        + removeStart(serveEvent.getRequest().getUrl(), responseDef.getProxyUrlPrefixToRemove());
   }
 
   private Response proxyResponseError(String type, Request request, Exception e) {
@@ -181,8 +188,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   }
 
   private void addRequestHeaders(
-      ImmutableRequest.Builder requestBuilder, ResponseDefinition response) {
-    Request originalRequest = response.getOriginalRequest();
+      ImmutableRequest.Builder requestBuilder,
+      ResponseDefinition response,
+      Request originalRequest) {
     List<String> removeProxyRequestHeaders =
         response.getRemoveProxyRequestHeaders() == null
             ? Collections.emptyList()

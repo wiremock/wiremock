@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -22,7 +23,6 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Iterator;
 import org.hamcrest.Description;
@@ -139,7 +139,7 @@ public class SortedConcurrentMappingSetTest {
 
     return StubMapping.builder()
         .setRequest(requestPattern)
-        .setResponse(new ResponseDefinition())
+        .setResponse(responseDefinition().build())
         .setPriority(priority)
         .build();
   }

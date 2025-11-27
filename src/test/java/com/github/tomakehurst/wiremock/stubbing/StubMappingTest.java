@@ -26,11 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import org.junit.jupiter.api.Test;
-
-import java.util.AbstractMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.Test;
 
 public class StubMappingTest {
 
@@ -101,30 +98,41 @@ public class StubMappingTest {
 
   @Test
   public void canBeDeeplyTransformed() {
-    StubMapping stub = get("/transformable")
+    StubMapping stub =
+        get("/transformable")
             .withHeader("One", equalTo("1"))
             .withHeader("Two", containing("2"))
-            .willReturn(okJson("{}"))
+            .willReturn(okJson("{}").withHeader("To-Remove", "xxx"))
             .build();
 
-    StubMapping transformed = stub.transform(stubBuilder ->
-            stubBuilder
+    StubMapping transformed =
+        stub.transform(
+            stubBuilder ->
+                stubBuilder
                     .setName("Transformed stub")
                     .setPriority(8)
-                    .request(requestBuilder ->
-                      requestBuilder
-                              .setUrl(urlPathEqualTo("/transformed"))
-                              .setMethod(RequestMethod.POST)
-                              .setHeaders(
-                                requestBuilder.getHeaders().entrySet().stream()
-                                    .filter(e -> !e.getKey().equals("Two"))
-                                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
-            )
-    );
+                    .request(
+                        requestBuilder ->
+                            requestBuilder
+                                .setUrl(urlPathEqualTo("/transformed"))
+                                .setMethod(RequestMethod.POST)
+                                .setHeaders(
+                                    requestBuilder.getHeaders().entrySet().stream()
+                                        .filter(e -> !e.getKey().equals("Two"))
+                                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue))))
+                    .response(
+                        responseBuilder ->
+                            responseBuilder.headers(
+                                headersBuilder ->
+                                    headersBuilder.remove("To-Remove").put("To-Add", "yyy"))));
 
     assertThat(transformed.getName(), is("Transformed stub"));
     assertThat(transformed.getPriority(), is(8));
 
     assertThat(transformed.request().getHeaders().get("Two"), nullValue());
+
+    assertThat(
+        transformed.getResponse().getHeaders().getHeader("To-Remove").isPresent(), is(false));
+    assertThat(transformed.getResponse().getHeaders().getHeader("To-Add").firstValue(), is("yyy"));
   }
 }
