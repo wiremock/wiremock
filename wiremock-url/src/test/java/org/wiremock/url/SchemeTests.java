@@ -72,9 +72,9 @@ class SchemeTests {
       assertThatExceptionOfType(IllegalScheme.class)
           .isThrownBy(() -> Scheme.parse(illegalScheme))
           .withMessage(
-              "Illegal scheme ["
+              "Illegal scheme `"
                   + illegalScheme
-                  + "]; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
+                  + "`; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
           .withNoCause()
           .extracting(IllegalScheme::illegalScheme)
           .isEqualTo(String.valueOf(illegalScheme));
