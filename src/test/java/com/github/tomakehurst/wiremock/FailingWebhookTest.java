@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -121,7 +119,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/something-async", new StringEntity("", TEXT_PLAIN));
+    client.post("/something-async");
     assertFalse(latch.await(1, SECONDS));
 
     printAllErrorNotifications();
@@ -149,7 +147,7 @@ public class FailingWebhookTest extends WebhooksAcceptanceTest {
                     .withBody("{ \"result\": \"ERROR\" }")));
 
     client = new WireMockTestClient(fakeHttpClientFactoryExtension.getPort());
-    client.post("/error", new StringEntity("", TEXT_PLAIN));
+    client.post("/error");
     assertFalse(latch.await(1, SECONDS));
 
     printAllErrorNotifications();
