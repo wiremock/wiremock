@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import java.util.regex.Pattern;
+
 public interface Path extends PctEncoded {
 
   Path EMPTY = new PathParser.Path("");
@@ -30,9 +32,17 @@ class PathParser implements CharSequenceParser<Path> {
 
   static final PathParser INSTANCE = new PathParser();
 
+  final String pathRegex = "[^#?]*";
+  private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
+
   @Override
   public Path parse(CharSequence stringForm) {
-    return new Path(stringForm.toString());
+    String pathStr = stringForm.toString();
+    if (pathPattern.matcher(pathStr).matches()) {
+      return new Path(pathStr);
+    } else {
+      throw new IllegalPath(pathStr);
+    }
   }
 
   record Path(String path) implements org.wiremock.url.Path {

@@ -15,11 +15,11 @@
  */
 package org.wiremock.url;
 
-import java.util.regex.Pattern;
-
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
+
+import java.util.regex.Pattern;
 
 public interface UserInfo {
 
