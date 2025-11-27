@@ -15,16 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import org.junit.jupiter.api.Test;
+
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class StubMappingTest {
 
@@ -91,5 +97,34 @@ public class StubMappingTest {
     StubMapping stub = assertDoesNotThrow(() -> Json.read(json, StubMapping.class));
 
     assertThat(stub.getId().toString(), is("edf19376-0e08-4b27-8632-fb7852c9e62d"));
+  }
+
+  @Test
+  public void canBeDeeplyTransformed() {
+    StubMapping stub = get("/transformable")
+            .withHeader("One", equalTo("1"))
+            .withHeader("Two", containing("2"))
+            .willReturn(okJson("{}"))
+            .build();
+
+    StubMapping transformed = stub.transform(stubBuilder ->
+            stubBuilder
+                    .setName("Transformed stub")
+                    .setPriority(8)
+                    .request(requestBuilder ->
+                      requestBuilder
+                              .setUrl(urlPathEqualTo("/transformed"))
+                              .setMethod(RequestMethod.POST)
+                              .setHeaders(
+                                requestBuilder.getHeaders().entrySet().stream()
+                                    .filter(e -> !e.getKey().equals("Two"))
+                                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
+            )
+    );
+
+    assertThat(transformed.getName(), is("Transformed stub"));
+    assertThat(transformed.getPriority(), is(8));
+
+    assertThat(transformed.request().getHeaders().get("Two"), nullValue());
   }
 }
