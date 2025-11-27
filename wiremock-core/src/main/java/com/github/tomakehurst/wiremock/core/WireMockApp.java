@@ -356,7 +356,7 @@ public class WireMockApp implements StubServer, Admin {
         .orElseGet(
             () ->
                 stubMappings.getAll().stream()
-                    .filter(stub -> stub.request().equals(stubMapping.request()))
+                    .filter(stub -> stub.getRequest().equals(stubMapping.getRequest()))
                     .findFirst()
                     .orElse(null));
   }

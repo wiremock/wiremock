@@ -129,7 +129,7 @@ public class StubMappingTest {
     assertThat(transformed.getName(), is("Transformed stub"));
     assertThat(transformed.getPriority(), is(8));
 
-    assertThat(transformed.request().getHeaders().get("Two"), nullValue());
+    assertThat(transformed.getRequest().getHeaders().get("Two"), nullValue());
 
     assertThat(
         transformed.getResponse().getHeaders().getHeader("To-Remove").isPresent(), is(false));

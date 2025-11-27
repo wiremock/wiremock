@@ -34,7 +34,7 @@ class ScenarioProcessor {
         stubMappings.stream()
             .collect(
                 Collectors.groupingBy(
-                    StubMapping::request,
+                    StubMapping::getRequest,
                     LinkedHashMap::new,
                     Collectors.toCollection(LinkedList::new)));
 
@@ -78,7 +78,8 @@ class ScenarioProcessor {
             + Urls.urlToPathParts(
                 URI.create(
                     getFirstNonNull(
-                        firstScenario.request().getUrl(), firstScenario.request().getUrlPath())));
+                        firstScenario.getRequest().getUrl(),
+                        firstScenario.getRequest().getUrlPath())));
 
     return IntStream.range(1, stubMappings.size() + 1)
         .mapToObj(

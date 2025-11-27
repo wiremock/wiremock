@@ -152,7 +152,7 @@ public class SortedConcurrentMappingSetTest {
 
       @Override
       public boolean matchesSafely(StubMapping actualMapping) {
-        return actualMapping.request().getUrl().equals(expectedUrl);
+        return actualMapping.getRequest().getUrl().equals(expectedUrl);
       }
     };
   }

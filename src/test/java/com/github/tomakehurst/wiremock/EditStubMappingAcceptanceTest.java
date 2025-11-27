@@ -51,6 +51,6 @@ public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   private Predicate<StubMapping> withUrl(final String url) {
     return mapping ->
-        (mapping.request().getUrl() != null && mapping.request().getUrl().equals(url));
+        (mapping.getRequest().getUrl() != null && mapping.getRequest().getUrl().equals(url));
   }
 }

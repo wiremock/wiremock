@@ -93,7 +93,7 @@ class JsonFileMappingsSourceTest {
     assertThat(allMappings, hasSize(2));
 
     List<String> mappingRequestUrls =
-        asList(allMappings.get(0).request().getUrl(), allMappings.get(1).request().getUrl());
+        asList(allMappings.get(0).getRequest().getUrl(), allMappings.get(1).getRequest().getUrl());
     assertThat(mappingRequestUrls, is(asList("/second_test", "/test")));
   }
 

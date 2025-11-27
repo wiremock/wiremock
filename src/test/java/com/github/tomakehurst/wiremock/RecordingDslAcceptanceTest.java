@@ -103,7 +103,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     client.get("/do-not-record-this/4");
 
     assertThat(returnedMappings.size(), is(1));
-    assertThat(returnedMappings.get(0).request().getUrl(), is("/record-this"));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
     assertThat(mapping.getResponse().getBody(), is("Got it"));
@@ -136,7 +136,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
     assertThat(returnedMappings.size(), is(1));
-    assertThat(returnedMappings.get(0).request().getUrl(), is("/record-this"));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
     assertThat(mapping.getResponse().getBody(), is("Got it"));
@@ -177,7 +177,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
     assertThat(
-        returnedMappings.get(0).request().getHeaders().get("Accept").getExpected(),
+        returnedMappings.get(0).getRequest().getHeaders().get("Accept").getExpected(),
         is("text/plain"));
   }
 
@@ -192,7 +192,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = adminClient.stopStubRecording().getStubMappings();
 
     assertThat(returnedMappings.size(), is(1));
-    assertThat(returnedMappings.get(0).request().getUrl(), is("/record-this"));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
     assertThat(mapping.getResponse().getBody(), is("Got it"));
@@ -210,7 +210,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = adminClient.stopStubRecording().getStubMappings();
 
     EqualToJsonPattern bodyPattern =
-        (EqualToJsonPattern) returnedMappings.get(0).request().getBodyPatterns().get(0);
+        (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
     assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
     assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
   }
@@ -227,7 +227,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = proxyingService.stopRecording().getStubMappings();
 
     EqualToJsonPattern bodyPattern =
-        (EqualToJsonPattern) returnedMappings.get(0).request().getBodyPatterns().get(0);
+        (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
     assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
     assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
   }
@@ -270,7 +270,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     client.post("/gzipped", compressedBody);
 
     StubMapping mapping = proxyingService.stopRecording().getStubMappings().get(0);
-    assertThat(mapping.request().getBodyPatterns().get(0).getExpected(), is("expected body"));
+    assertThat(mapping.getRequest().getBodyPatterns().get(0).getExpected(), is("expected body"));
   }
 
   @Test
@@ -386,7 +386,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> mappings = stopRecording().getStubMappings();
 
     StubMapping mapping = mappings.get(0);
-    assertThat(mapping.request().getUrl(), is("/record-this/123"));
+    assertThat(mapping.getRequest().getUrl(), is("/record-this/123"));
   }
 
   @Test
@@ -432,10 +432,10 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
     assertThat(returnedMappings.size(), is(1));
-    assertThat(returnedMappings.get(0).request().getUrl(), nullValue());
-    assertThat(returnedMappings.get(0).request().getUrlPath(), is("/record-this"));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), nullValue());
+    assertThat(returnedMappings.get(0).getRequest().getUrlPath(), is("/record-this"));
     Map<String, MultiValuePattern> queryParameters =
-        returnedMappings.get(0).request().getQueryParameters();
+        returnedMappings.get(0).getRequest().getQueryParameters();
     assertThat(queryParameters.size(), is(2));
     assertThat(queryParameters.get("q1"), is(havingExactly("my-value", "my-other-value")));
     assertThat(

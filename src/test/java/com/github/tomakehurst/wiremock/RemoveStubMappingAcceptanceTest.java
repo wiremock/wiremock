@@ -167,7 +167,8 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   private Predicate<StubMapping> withAnyOf(final String... urls) {
     return mapping ->
-        mapping.request().getUrl() != null && asList(urls).contains(mapping.request().getUrl());
+        mapping.getRequest().getUrl() != null
+            && asList(urls).contains(mapping.getRequest().getUrl());
   }
 
   private synchronized int getMatchingStubCount(String url1, String url2) {
