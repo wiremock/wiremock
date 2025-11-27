@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,7 @@ public class StubMappingTest {
   @Test
   public void deserialisesInsertionIndex() {
     String json =
+        // language=json
         "{\n"
             + "    \"request\": {\n"
             + "        \"method\": \"ANY\",\n"
@@ -64,5 +66,30 @@ public class StubMappingTest {
     StubMapping stub = Json.read(json, StubMapping.class);
 
     assertThat(stub.getInsertionIndex(), is(42L));
+  }
+
+  @Test
+  public void ignoresUuidProperty() {
+    String json =
+        // language=json
+        """
+            {
+              "id": "edf19376-0e08-4b27-8632-fb7852c9e62d",
+              "request": {
+                "url": "/",
+                "method": "GET"
+              },
+
+              "response": {
+                "status": 200
+              },
+
+              "uuid": "07150a3a-47ea-4182-9792-c49eb77b862e"
+            }
+            """;
+
+    StubMapping stub = assertDoesNotThrow(() -> Json.read(json, StubMapping.class));
+
+    assertThat(stub.getId().toString(), is("edf19376-0e08-4b27-8632-fb7852c9e62d"));
   }
 }
