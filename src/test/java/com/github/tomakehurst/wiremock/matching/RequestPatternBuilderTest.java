@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -25,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.ImmutableRequest;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.List;
@@ -90,13 +92,22 @@ class RequestPatternBuilderTest {
         new RequestMatcherExtension() {
           @Override
           public MatchResult match(Request request, Parameters parameters) {
-            return MatchResult.noMatch();
+            return MatchResult.of(request.getUrl().contains("/match-me"));
           }
         };
-    RequestPattern requestPattern = new RequestPattern(customRequestMatcher);
+    RequestPattern requestPattern =
+        RequestPatternBuilder.forCustomMatcher(customRequestMatcher).build();
 
     RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
-    assertThat(newRequestPattern, is(requestPattern));
+    assertThat(
+        newRequestPattern
+            .match(
+                ImmutableRequest.create()
+                    .withMethod(GET)
+                    .withAbsoluteUrl("https://localhost/match-me")
+                    .build())
+            .isExactMatch(),
+        is(true));
   }
 
   @Test
@@ -149,9 +160,10 @@ class RequestPatternBuilderTest {
   void likeRequestPatternWithCustomMatcherDefinition() {
     CustomMatcherDefinition customMatcherDefinition =
         new CustomMatcherDefinition("foo", Parameters.empty());
-    RequestPattern requestPattern = new RequestPattern(customMatcherDefinition);
+    RequestPattern requestPattern =
+        RequestPatternBuilder.forCustomMatcher("foo", Parameters.empty()).build();
 
     RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
-    assertThat(newRequestPattern, is(requestPattern));
+    assertThat(newRequestPattern.getCustomMatcher(), is(customMatcherDefinition));
   }
 }

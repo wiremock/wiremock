@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -63,7 +64,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final ValueMatcher<Request> matcher;
   private final boolean hasInlineCustomMatcher;
 
-  public RequestPattern(
+  RequestPattern(
       final String scheme,
       final StringValuePattern host,
       final Integer port,
@@ -185,63 +186,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         multiPattern);
   }
 
-  public static final RequestPattern ANYTHING =
-      new RequestPattern(
-          null,
-          null,
-          null,
-          null,
-          anyUrl(),
-          RequestMethod.ANY,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
+  public static final RequestPattern ANYTHING = RequestPatternBuilder.newRequestPattern()
+          .setUrl(anyUrl())
+          .setMethod(RequestMethod.ANY)
+          .build();
 
-  public RequestPattern(ValueMatcher<Request> customMatcher) {
-    this(
-        null,
-        null,
-        null,
-        null,
-        UrlPattern.ANY,
-        RequestMethod.ANY,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        customMatcher,
-        null);
-  }
-
-  public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-    this(
-        null,
-        null,
-        null,
-        null,
-        UrlPattern.ANY,
-        RequestMethod.ANY,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        customMatcherDefinition,
-        null,
-        null);
+  public RequestPattern transform(Consumer<RequestPatternBuilder> transformer) {
+    final RequestPatternBuilder builder = RequestPatternBuilder.like(this);
+    transformer.accept(builder);
+    return builder.build();
   }
 
   @Override
@@ -258,10 +211,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     final MatchResult standardMatchResult = matcher.match(request);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
-          getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
+          getFirstNonNull(customMatchers.get(customMatcherDefinition.name()), NEVER);
 
       MatchResult customMatchResult =
-          requestMatcher.match(request, customMatcherDefinition.getParameters());
+          requestMatcher.match(request, customMatcherDefinition.parameters());
 
       return MatchResult.aggregate(standardMatchResult, customMatchResult);
     }

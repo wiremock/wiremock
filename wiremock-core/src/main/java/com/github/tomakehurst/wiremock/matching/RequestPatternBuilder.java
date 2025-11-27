@@ -130,6 +130,87 @@ public class RequestPatternBuilder {
     return builder;
   }
 
+  public RequestPatternBuilder setScheme(String scheme) {
+    this.scheme = scheme;
+    return this;
+  }
+
+  public RequestPatternBuilder setHost(StringValuePattern hostPattern) {
+    this.hostPattern = hostPattern;
+    return this;
+  }
+
+  public RequestPatternBuilder setPort(Integer port) {
+    this.port = port;
+    return this;
+  }
+
+  public RequestPatternBuilder setClientIp(StringValuePattern clientIpPattern) {
+    this.clientIpPattern = clientIpPattern;
+    return this;
+  }
+
+  public RequestPatternBuilder setUrl(UrlPattern url) {
+    this.url = url;
+    return this;
+  }
+
+  public RequestPatternBuilder setMethod(RequestMethod method) {
+    this.method = method;
+    return this;
+  }
+
+  public RequestPatternBuilder setHeaders(Map<String, MultiValuePattern> headers) {
+    this.headers = headers;
+    return this;
+  }
+
+  public RequestPatternBuilder setQueryParams(Map<String, MultiValuePattern> queryParams) {
+    this.queryParams = queryParams;
+    return this;
+  }
+
+  public RequestPatternBuilder setFormParams(Map<String, MultiValuePattern> formParams) {
+    this.formParams = formParams;
+    return this;
+  }
+
+  public RequestPatternBuilder setPathParams(Map<String, StringValuePattern> pathParams) {
+    this.pathParams = pathParams;
+    return this;
+  }
+
+  public RequestPatternBuilder setBodyPatterns(List<ContentPattern<?>> bodyPatterns) {
+    this.bodyPatterns = bodyPatterns;
+    return this;
+  }
+
+  public RequestPatternBuilder setCookies(Map<String, StringValuePattern> cookies) {
+    this.cookies = cookies;
+    return this;
+  }
+
+  public RequestPatternBuilder setBasicCredentials(BasicCredentials basicCredentials) {
+    this.basicCredentials = basicCredentials;
+    return this;
+  }
+
+  public RequestPatternBuilder setRequestBodyParts(List<MultipartValuePattern> multiparts) {
+    this.multiparts = multiparts;
+    return this;
+  }
+
+  public RequestPatternBuilder setCustomMatcher(ValueMatcher<Request> customMatcher) {
+    this.customMatcher = customMatcher;
+    return this;
+  }
+
+  public RequestPatternBuilder setCustomMatcherDefinition(
+      CustomMatcherDefinition customMatcherDefinition) {
+    this.customMatcherDefinition = customMatcherDefinition;
+    return this;
+  }
+
   public RequestPatternBuilder but() {
     return this;
   }

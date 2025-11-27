@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDe
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -321,6 +322,10 @@ public record StubMapping(
     public Builder setRequest(RequestPattern request) {
       this.request = request;
       return this;
+    }
+
+    public Builder request(Consumer<RequestPatternBuilder> transformer) {
+      return setRequest(request.transform(transformer));
     }
 
     public ResponseDefinition getResponse() {
