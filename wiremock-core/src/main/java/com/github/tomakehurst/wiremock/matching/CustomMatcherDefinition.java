@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 
+import java.util.Objects;
+
 public class CustomMatcherDefinition {
 
   private final String name;
@@ -36,4 +38,16 @@ public class CustomMatcherDefinition {
   public Parameters getParameters() {
     return parameters;
   }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomMatcherDefinition that = (CustomMatcherDefinition) o;
+        return Objects.equals(name, that.name) && Objects.equals(parameters, that.parameters);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, parameters);
+    }
 }

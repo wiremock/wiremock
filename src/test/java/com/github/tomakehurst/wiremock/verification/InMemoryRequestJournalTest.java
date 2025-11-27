@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.ALWAYS;
-import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
 import java.util.Map;
@@ -64,9 +64,9 @@ public class InMemoryRequestJournalTest {
 
     RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
     journal.requestReceived(ServeEvent.of(loggedRequest));
-    assertThat(journal.countRequestsMatching(everything()), is(1));
+    assertThat(journal.countRequestsMatching(RequestPattern.ANYTHING), is(1));
     journal.reset();
-    assertThat(journal.countRequestsMatching(everything()), is(0));
+    assertThat(journal.countRequestsMatching(RequestPattern.ANYTHING), is(0));
   }
 
   @Test
@@ -76,7 +76,7 @@ public class InMemoryRequestJournalTest {
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);
 
-    assertThat(journal.countRequestsMatching(everything()), is(2));
+    assertThat(journal.countRequestsMatching(RequestPattern.ANYTHING), is(2));
     assertThat(
         journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
     assertThat(
