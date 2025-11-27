@@ -66,10 +66,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
     response =
         applyTransformations(
-            responseDefinition.getOriginalRequest(),
-            responseDefinition,
-            response,
-            responseTransformers);
+            serveEvent.getRequest(), responseDefinition, response, responseTransformers);
 
     response = applyV2Transformations(response, serveEvent, v2ResponseTransformers);
 

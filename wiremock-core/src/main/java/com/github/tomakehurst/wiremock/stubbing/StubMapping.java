@@ -336,6 +336,10 @@ public record StubMapping(
       return this;
     }
 
+    public Builder response(Consumer<ResponseDefinition.Builder> transformer) {
+      return setResponse(response.transform(transformer));
+    }
+
     public Integer getPriority() {
       return priority;
     }

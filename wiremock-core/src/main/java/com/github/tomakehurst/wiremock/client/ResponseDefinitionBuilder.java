@@ -303,6 +303,7 @@ public class ResponseDefinitionBuilder {
         this.transformerParameters == null || this.transformerParameters.isEmpty()
             ? null
             : Parameters.from(this.transformerParameters);
+
     return new ResponseDefinition(
         status,
         statusMessage,
@@ -319,6 +320,7 @@ public class ResponseDefinitionBuilder {
         fault,
         responseTransformerNames,
         transformerParameters,
+        null,
         wasConfigured);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public class ResponseDefinitionTest {
 
   @Test
   public void omitsResponseTransformerAttributesFromJsonWhenEmpty() {
-    String json = Json.write(new ResponseDefinition(200, ""));
+    String json = Json.write(responseDefinition().withStatus(200).build());
 
     assertThat(json, not(containsString("transformers")));
     assertThat(json, not(containsString("transformerParameters")));
