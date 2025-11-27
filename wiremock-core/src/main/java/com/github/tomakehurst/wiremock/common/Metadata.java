@@ -17,16 +17,63 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class Metadata extends LinkedHashMap<String, Object> {
+public class Metadata implements Map<String, Object> {
 
-  public Metadata() {}
+  private final Map<String, Object> data;
 
+  public Metadata() {
+    this.data = Collections.emptyMap();
+  }
+
+  @JsonCreator
   public Metadata(Map<? extends String, ?> data) {
-    super(data);
+    this.data = Collections.unmodifiableMap(convertNestedMapsToMetadata(data));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> convertNestedMapsToMetadata(Map<? extends String, ?> data) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<? extends String, ?> entry : data.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof Map && !(value instanceof Metadata)) {
+        result.put(entry.getKey(), new Metadata((Map<String, ?>) value));
+      } else {
+        result.put(entry.getKey(), value);
+      }
+    }
+    return result;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static Metadata create(Consumer<Builder> transformer) {
+    final Builder builder = builder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Metadata transform(Consumer<Builder> transformer) {
+    final Builder builder = thaw();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Builder thaw() {
+    return new Builder(this);
   }
 
   public Integer getInt(String key) {
@@ -107,12 +154,149 @@ public class Metadata extends LinkedHashMap<String, Object> {
     return Json.mapToObject(this, myDataClass);
   }
 
+  // Map interface implementation - delegate to immutable data map
+  @Override
+  public int size() {
+    return data.size();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return data.isEmpty();
+  }
+
+  @Override
+  public boolean containsKey(Object key) {
+    return data.containsKey(key);
+  }
+
+  @Override
+  public boolean containsValue(Object value) {
+    return data.containsValue(value);
+  }
+
+  @Override
+  public Object get(Object key) {
+    return data.get(key);
+  }
+
+  @Override
+  public Set<String> keySet() {
+    return data.keySet();
+  }
+
+  @Override
+  public Collection<Object> values() {
+    return data.values();
+  }
+
+  @Override
+  public Set<Entry<String, Object>> entrySet() {
+    return data.entrySet();
+  }
+
+  @Override
+  public Object getOrDefault(Object key, Object defaultValue) {
+    return data.getOrDefault(key, defaultValue);
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super Object> action) {
+    data.forEach(action);
+  }
+
+  // Unsupported mutating operations
+  @Override
+  public Object put(String key, Object value) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object remove(Object key) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public void putAll(Map<? extends String, ?> m) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public void replaceAll(BiFunction<? super String, ? super Object, ?> function) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object putIfAbsent(String key, Object value) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public boolean remove(Object key, Object value) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public boolean replace(String key, Object oldValue, Object newValue) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object replace(String key, Object value) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object computeIfAbsent(String key, Function<? super String, ?> mappingFunction) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object computeIfPresent(
+      String key, BiFunction<? super String, ? super Object, ?> remappingFunction) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object compute(
+      String key, BiFunction<? super String, ? super Object, ?> remappingFunction) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public Object merge(
+      String key, Object value, BiFunction<? super Object, ? super Object, ?> remappingFunction) {
+    throw new UnsupportedOperationException("Metadata is immutable");
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Metadata metadata = (Metadata) o;
+    return data.equals(metadata.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return data.hashCode();
+  }
+
   public static class Builder {
 
     private final Map<String, Object> mapBuilder;
 
     public Builder() {
       this.mapBuilder = new LinkedHashMap<>();
+    }
+
+    public Builder(Metadata existing) {
+      this.mapBuilder = new LinkedHashMap<>(existing.data);
     }
 
     public Builder attr(String key, Object value) {

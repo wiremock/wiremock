@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.*;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 
@@ -25,10 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ResponseDefinitionBuilder {
 
@@ -177,12 +172,16 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withTransformerParameters(Map<String, Object> parameters) {
-    transformerParameters.putAll(parameters);
+    Map<String, Object> merged = new LinkedHashMap<>(transformerParameters);
+    merged.putAll(parameters);
+    transformerParameters = merged;
     return this;
   }
 
   public ResponseDefinitionBuilder withTransformerParameter(String name, Object value) {
-    transformerParameters.put(name, value);
+    Map<String, Object> merged = new LinkedHashMap<>(transformerParameters);
+    merged.put(name, value);
+    transformerParameters = merged;
     return this;
   }
 
