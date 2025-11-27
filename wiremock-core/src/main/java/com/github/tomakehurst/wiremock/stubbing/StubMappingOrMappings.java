@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
 
-@JsonIgnoreProperties({"$schema", "meta", "uuid"})
-public class StubMappingCollection implements StubMappingOrMappings {
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StubMapping.class)
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = StubMappingCollection.class),
+  @JsonSubTypes.Type(StubMapping.class)
+})
+public interface StubMappingOrMappings {
 
-  private List<StubMapping> mappings;
+  @JsonIgnore
+  List<StubMapping> getMappingOrMappings();
 
-  @Override
-  public List<StubMapping> getMappingOrMappings() {
-    return getMappings();
-  }
-
-  @Override
-  public boolean isMulti() {
-    return true;
-  }
-
-  public List<StubMapping> getMappings() {
-    return mappings;
-  }
-
-  public void setMappings(List<StubMapping> mappings) {
-    this.mappings = mappings;
-  }
+  @JsonIgnore
+  boolean isMulti();
 }

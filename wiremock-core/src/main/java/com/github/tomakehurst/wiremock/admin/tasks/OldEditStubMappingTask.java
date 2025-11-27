@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -26,7 +27,8 @@ public class OldEditStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMapping stubMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    StubMapping stubMapping =
+        Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.editStubMapping(stubMapping);
     return ResponseDefinition.noContent();
   }

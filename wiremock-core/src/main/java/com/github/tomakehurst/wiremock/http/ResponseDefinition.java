@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.common.Strings.removeStart;
 import static java.net.HttpURLConnection.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -31,10 +30,9 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 public class ResponseDefinition {
 
@@ -54,9 +52,8 @@ public class ResponseDefinition {
   private final List<String> transformers;
   private final Parameters transformerParameters;
 
-  private String browserProxyUrl;
-  private Boolean wasConfigured = true;
-  private Request originalRequest;
+  private final String browserProxyUrl;
+  private final Boolean wasConfigured;
 
   @JsonCreator
   public ResponseDefinition(
@@ -94,44 +91,7 @@ public class ResponseDefinition {
         fault,
         transformers,
         transformerParameters,
-        wasConfigured);
-  }
-
-  public ResponseDefinition(
-      int status,
-      String statusMessage,
-      byte[] body,
-      JsonNode jsonBody,
-      String base64Body,
-      String bodyFileName,
-      HttpHeaders headers,
-      HttpHeaders additionalProxyRequestHeaders,
-      List<String> removeProxyRequestHeaders,
-      Integer fixedDelayMilliseconds,
-      DelayDistribution delayDistribution,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      String proxyBaseUrl,
-      String proxyUrlPrefixToRemove,
-      Fault fault,
-      List<String> transformers,
-      Parameters transformerParameters,
-      Boolean wasConfigured) {
-    this(
-        status,
-        statusMessage,
-        Body.fromOneOf(body, null, jsonBody, base64Body),
-        bodyFileName,
-        headers,
-        additionalProxyRequestHeaders,
-        removeProxyRequestHeaders,
-        fixedDelayMilliseconds,
-        delayDistribution,
-        chunkedDribbleDelay,
-        proxyBaseUrl,
-        proxyUrlPrefixToRemove,
-        fault,
-        transformers,
-        transformerParameters,
+        null,
         wasConfigured);
   }
 
@@ -151,6 +111,7 @@ public class ResponseDefinition {
       Fault fault,
       List<String> transformers,
       Parameters transformerParameters,
+      String browserProxyUrl,
       Boolean wasConfigured) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
@@ -169,75 +130,16 @@ public class ResponseDefinition {
     this.fault = fault;
     this.transformers = transformers;
     this.transformerParameters = transformerParameters;
-    this.wasConfigured = wasConfigured == null ? true : wasConfigured;
-  }
-
-  public ResponseDefinition(final int statusCode, final String bodyContent) {
-    this(
-        statusCode,
-        null,
-        Body.fromString(bodyContent),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        Collections.emptyList(),
-        Parameters.empty(),
-        true);
-  }
-
-  public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-    this(
-        statusCode,
-        null,
-        Body.fromBytes(bodyContent),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        Collections.emptyList(),
-        Parameters.empty(),
-        true);
-  }
-
-  public ResponseDefinition() {
-    this(
-        HTTP_OK,
-        null,
-        Body.none(),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        Collections.emptyList(),
-        Parameters.empty(),
-        true);
+    this.browserProxyUrl = browserProxyUrl;
+    this.wasConfigured = wasConfigured == null || wasConfigured;
   }
 
   public static ResponseDefinition notFound() {
-    return new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
+    return new Builder().setStatus(HTTP_NOT_FOUND).build();
   }
 
   public static ResponseDefinition ok() {
-    return new ResponseDefinition(HTTP_OK, (byte[]) null);
+    return new Builder().setStatus(HTTP_OK).build();
   }
 
   public static ResponseDefinition okEmptyJson() {
@@ -249,11 +151,11 @@ public class ResponseDefinition {
   }
 
   public static ResponseDefinition created() {
-    return new ResponseDefinition(HTTP_CREATED, (byte[]) null);
+    return new Builder().setStatus(HTTP_CREATED).build();
   }
 
   public static ResponseDefinition noContent() {
-    return new ResponseDefinition(HTTP_NO_CONTENT, (byte[]) null);
+    return new Builder().setStatus(HTTP_NO_CONTENT).build();
   }
 
   public static ResponseDefinition badRequest(Errors errors) {
@@ -280,13 +182,11 @@ public class ResponseDefinition {
   }
 
   public static ResponseDefinition notConfigured() {
-    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
-    response.wasConfigured = false;
-    return response;
+    return new Builder().setStatus(HTTP_NOT_FOUND).setWasConfigured(false).build();
   }
 
   public static ResponseDefinition notAuthorised() {
-    return new ResponseDefinition(HTTP_UNAUTHORIZED, (byte[]) null);
+    return new Builder().setStatus(HTTP_UNAUTHORIZED).build();
   }
 
   public static ResponseDefinition notPermitted(String message) {
@@ -297,10 +197,12 @@ public class ResponseDefinition {
     return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_FORBIDDEN);
   }
 
+  public static ResponseDefinition serverError() {
+    return ResponseDefinitionBuilder.responseDefinition().withStatus(HTTP_INTERNAL_ERROR).build();
+  }
+
   public static ResponseDefinition browserProxy(Request originalRequest) {
-    final ResponseDefinition response = new ResponseDefinition();
-    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
-    return response;
+    return new Builder().setBrowserProxyUrl(originalRequest.getAbsoluteUrl()).build();
   }
 
   public static ResponseDefinition copyOf(ResponseDefinition original) {
@@ -308,25 +210,30 @@ public class ResponseDefinition {
   }
 
   public ResponseDefinition copy() {
-    ResponseDefinition newResponseDef =
-        new ResponseDefinition(
-            this.status,
-            this.statusMessage,
-            this.body,
-            this.bodyFileName,
-            this.headers,
-            this.additionalProxyRequestHeaders,
-            this.removeProxyRequestHeaders,
-            this.fixedDelayMilliseconds,
-            this.delayDistribution,
-            this.chunkedDribbleDelay,
-            this.proxyBaseUrl,
-            this.proxyUrlPrefixToRemove,
-            this.fault,
-            this.transformers,
-            this.transformerParameters,
-            this.wasConfigured);
-    return newResponseDef;
+    return new ResponseDefinition(
+        this.status,
+        this.statusMessage,
+        this.body,
+        this.bodyFileName,
+        this.headers,
+        this.additionalProxyRequestHeaders,
+        this.removeProxyRequestHeaders,
+        this.fixedDelayMilliseconds,
+        this.delayDistribution,
+        this.chunkedDribbleDelay,
+        this.proxyBaseUrl,
+        this.proxyUrlPrefixToRemove,
+        this.fault,
+        this.transformers,
+        this.transformerParameters,
+        null,
+        this.wasConfigured);
+  }
+
+  public ResponseDefinition transform(Consumer<Builder> transformer) {
+    final Builder builder = new Builder(this);
+    transformer.accept(builder);
+    return builder.build();
   }
 
   public HttpHeaders getHeaders() {
@@ -406,17 +313,6 @@ public class ResponseDefinition {
     return chunkedDribbleDelay;
   }
 
-  @JsonIgnore
-  public String getProxyUrl() {
-    if (browserProxyUrl != null) {
-      return browserProxyUrl;
-    }
-
-    String originalRequestUrl =
-        Optional.ofNullable(originalRequest).map(Request::getUrl).orElse("");
-    return proxyBaseUrl + removeStart(originalRequestUrl, proxyUrlPrefixToRemove);
-  }
-
   public String getProxyBaseUrl() {
     return proxyBaseUrl;
   }
@@ -451,12 +347,8 @@ public class ResponseDefinition {
   }
 
   @JsonIgnore
-  public Request getOriginalRequest() {
-    return originalRequest;
-  }
-
-  public void setOriginalRequest(final Request originalRequest) {
-    this.originalRequest = originalRequest;
+  public String getBrowserProxyUrl() {
+    return browserProxyUrl;
   }
 
   public Fault getFault() {
@@ -526,5 +418,236 @@ public class ResponseDefinition {
   @Override
   public String toString() {
     return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
+  }
+
+  public static class Builder {
+    private int status = 200;
+    private String statusMessage;
+    private Body body = Body.none();
+    private String bodyFileName;
+    private HttpHeaders headers;
+    private HttpHeaders additionalProxyRequestHeaders;
+    private List<String> removeProxyRequestHeaders;
+    private Integer fixedDelayMilliseconds;
+    private DelayDistribution delayDistribution;
+    private ChunkedDribbleDelay chunkedDribbleDelay;
+    private String proxyBaseUrl;
+    private String proxyUrlPrefixToRemove;
+    private Fault fault;
+    private List<String> transformers;
+    private Parameters transformerParameters;
+    private String browserProxyUrl;
+    private Boolean wasConfigured = true;
+    private Request originalRequest;
+
+    public Builder() {}
+
+    public Builder(ResponseDefinition original) {
+      this.status = original.status;
+      this.statusMessage = original.statusMessage;
+      this.body = original.body;
+      this.bodyFileName = original.bodyFileName;
+      this.headers = original.headers;
+      this.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
+      this.removeProxyRequestHeaders = original.removeProxyRequestHeaders;
+      this.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
+      this.delayDistribution = original.delayDistribution;
+      this.chunkedDribbleDelay = original.chunkedDribbleDelay;
+      this.proxyBaseUrl = original.proxyBaseUrl;
+      this.proxyUrlPrefixToRemove = original.proxyUrlPrefixToRemove;
+      this.fault = original.fault;
+      this.transformers = original.transformers;
+      this.transformerParameters = original.transformerParameters;
+      this.browserProxyUrl = original.browserProxyUrl;
+      this.wasConfigured = original.wasConfigured;
+    }
+
+    public int getStatus() {
+      return status;
+    }
+
+    public String getStatusMessage() {
+      return statusMessage;
+    }
+
+    public Body getBody() {
+      return body;
+    }
+
+    public String getBodyFileName() {
+      return bodyFileName;
+    }
+
+    public HttpHeaders getHeaders() {
+      return headers;
+    }
+
+    public HttpHeaders getAdditionalProxyRequestHeaders() {
+      return additionalProxyRequestHeaders;
+    }
+
+    public List<String> getRemoveProxyRequestHeaders() {
+      return removeProxyRequestHeaders;
+    }
+
+    public Integer getFixedDelayMilliseconds() {
+      return fixedDelayMilliseconds;
+    }
+
+    public DelayDistribution getDelayDistribution() {
+      return delayDistribution;
+    }
+
+    public ChunkedDribbleDelay getChunkedDribbleDelay() {
+      return chunkedDribbleDelay;
+    }
+
+    public String getProxyBaseUrl() {
+      return proxyBaseUrl;
+    }
+
+    public String getProxyUrlPrefixToRemove() {
+      return proxyUrlPrefixToRemove;
+    }
+
+    public Fault getFault() {
+      return fault;
+    }
+
+    public List<String> getTransformers() {
+      return transformers;
+    }
+
+    public Parameters getTransformerParameters() {
+      return transformerParameters;
+    }
+
+    public String getBrowserProxyUrl() {
+      return browserProxyUrl;
+    }
+
+    public Boolean getWasConfigured() {
+      return wasConfigured;
+    }
+
+    public Request getOriginalRequest() {
+      return originalRequest;
+    }
+
+    public Builder setStatus(int status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder setStatusMessage(String statusMessage) {
+      this.statusMessage = statusMessage;
+      return this;
+    }
+
+    public Builder setBody(Body body) {
+      this.body = body;
+      return this;
+    }
+
+    public Builder setBodyFileName(String bodyFileName) {
+      this.bodyFileName = bodyFileName;
+      return this;
+    }
+
+    public Builder setHeaders(HttpHeaders headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    public Builder headers(Consumer<HttpHeaders.Builder> transformer) {
+      this.headers = headers.transform(transformer);
+      return this;
+    }
+
+    public Builder setAdditionalProxyRequestHeaders(HttpHeaders additionalProxyRequestHeaders) {
+      this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
+      return this;
+    }
+
+    public Builder setRemoveProxyRequestHeaders(List<String> removeProxyRequestHeaders) {
+      this.removeProxyRequestHeaders = removeProxyRequestHeaders;
+      return this;
+    }
+
+    public Builder setFixedDelayMilliseconds(Integer fixedDelayMilliseconds) {
+      this.fixedDelayMilliseconds = fixedDelayMilliseconds;
+      return this;
+    }
+
+    public Builder setDelayDistribution(DelayDistribution delayDistribution) {
+      this.delayDistribution = delayDistribution;
+      return this;
+    }
+
+    public Builder setChunkedDribbleDelay(ChunkedDribbleDelay chunkedDribbleDelay) {
+      this.chunkedDribbleDelay = chunkedDribbleDelay;
+      return this;
+    }
+
+    public Builder setProxyBaseUrl(String proxyBaseUrl) {
+      this.proxyBaseUrl = proxyBaseUrl;
+      return this;
+    }
+
+    public Builder setProxyUrlPrefixToRemove(String proxyUrlPrefixToRemove) {
+      this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
+      return this;
+    }
+
+    public Builder setFault(Fault fault) {
+      this.fault = fault;
+      return this;
+    }
+
+    public Builder setTransformers(List<String> transformers) {
+      this.transformers = transformers;
+      return this;
+    }
+
+    public Builder setTransformerParameters(Parameters transformerParameters) {
+      this.transformerParameters = transformerParameters;
+      return this;
+    }
+
+    public Builder setBrowserProxyUrl(String browserProxyUrl) {
+      this.browserProxyUrl = browserProxyUrl;
+      return this;
+    }
+
+    public Builder setWasConfigured(Boolean wasConfigured) {
+      this.wasConfigured = wasConfigured;
+      return this;
+    }
+
+    public Builder setOriginalRequest(Request originalRequest) {
+      this.originalRequest = originalRequest;
+      return this;
+    }
+
+    public ResponseDefinition build() {
+      return new ResponseDefinition(
+          status,
+          statusMessage,
+          body,
+          bodyFileName,
+          headers,
+          additionalProxyRequestHeaders,
+          removeProxyRequestHeaders,
+          fixedDelayMilliseconds,
+          delayDistribution,
+          chunkedDribbleDelay,
+          proxyBaseUrl,
+          proxyUrlPrefixToRemove,
+          fault,
+          transformers,
+          transformerParameters,
+          browserProxyUrl,
+          wasConfigured);
+    }
   }
 }

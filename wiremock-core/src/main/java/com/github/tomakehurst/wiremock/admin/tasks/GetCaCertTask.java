@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
@@ -55,7 +54,7 @@ public class GetCaCertTask implements AdminTask {
     } catch (Exception e) {
       String message = "Failed to export certificate authority cert from " + caKeyStore.path();
       admin.getOptions().notifier().error(message, e);
-      return new ResponseDefinition(HTTP_INTERNAL_ERROR, message);
+      return ResponseDefinition.serverError();
     }
   }
 }

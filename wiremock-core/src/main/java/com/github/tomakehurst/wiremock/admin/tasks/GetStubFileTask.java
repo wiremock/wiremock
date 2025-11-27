@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
@@ -39,7 +40,7 @@ public class GetStubFileTask implements AdminTask {
     Optional<byte[]> fileContents = stores.getFilesBlobStore().get(filename);
 
     return fileContents
-        .map(bytes -> new ResponseDefinition(HTTP_OK, bytes))
+        .map(bytes -> responseDefinition().withStatus(HTTP_OK).withBody(bytes).build())
         .orElseGet(ResponseDefinition::notFound);
   }
 }

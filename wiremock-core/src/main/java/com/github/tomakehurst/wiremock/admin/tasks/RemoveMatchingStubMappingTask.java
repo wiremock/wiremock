@@ -21,14 +21,14 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 
 public class RemoveMatchingStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMappingCollection removeMappings =
-        Json.read(serveEvent.getRequest().getBodyAsString(), StubMappingCollection.class);
+    StubMappingOrMappings removeMappings =
+        Json.read(serveEvent.getRequest().getBodyAsString(), StubMappingOrMappings.class);
     admin.removeStubMappings(removeMappings.getMappingOrMappings());
     return ResponseDefinition.ok();
   }

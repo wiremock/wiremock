@@ -61,16 +61,8 @@ public class Body {
     json = true;
   }
 
-  static Body fromBytes(byte[] bytes) {
-    return bytes != null ? new Body(bytes) : none();
-  }
-
   public static Body fromJsonBytes(byte[] bytes) {
     return bytes != null ? new Body(bytes, false, true) : none();
-  }
-
-  static Body fromString(String str) {
-    return str != null ? new Body(str) : none();
   }
 
   public static Body ofBinaryOrText(byte[] content, ContentTypeHeader contentTypeHeader) {

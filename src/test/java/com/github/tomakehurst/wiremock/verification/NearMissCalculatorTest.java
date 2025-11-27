@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -29,7 +30,6 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.*;
@@ -190,7 +190,7 @@ public class NearMissCalculatorTest {
   private void givenRequests(final Request... requests) {
     final List<ServeEvent> serveEvents =
         Arrays.stream(requests)
-            .map(request -> newPostMatchServeEvent(request, new ResponseDefinition()))
+            .map(request -> newPostMatchServeEvent(request, responseDefinition().build()))
             .collect(Collectors.toList());
 
     when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);

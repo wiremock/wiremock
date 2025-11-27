@@ -66,9 +66,10 @@ public class SnapshotStubMappingPostProcessorTest {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.getRequest().getUrl();
             return new StubGenerationResult.Success(
-                new StubMapping(
-                    newRequestPattern().withUrl(url + "/transformed").build(),
-                    ResponseDefinition.ok()));
+                StubMapping.builder()
+                    .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                    .setResponse(ResponseDefinition.ok())
+                    .build());
           }
         };
 
@@ -92,9 +93,10 @@ public class SnapshotStubMappingPostProcessorTest {
             // Return StubMapping with "/transformed" at the end of the original URL
             String url = serveEventToStubMapping.b.getRequest().getUrl();
             return new StubGenerationResult.Success(
-                new StubMapping(
-                    newRequestPattern().withUrl(url + "/transformed").build(),
-                    ResponseDefinition.ok()));
+                StubMapping.builder()
+                    .setRequest(newRequestPattern().withUrl(url + "/transformed").build())
+                    .setResponse(ResponseDefinition.ok())
+                    .build());
           }
         };
 
@@ -129,8 +131,9 @@ public class SnapshotStubMappingPostProcessorTest {
     final SnapshotStubMappingBodyExtractor bodyExtractor =
         new SnapshotStubMappingBodyExtractor(null) {
           @Override
-          public void extractInPlace(StubMapping stubMapping) {
-            stubMapping.setRequest(newRequestPattern().withUrl("/extracted").build());
+          public StubMapping extractInPlace(StubMapping stubMapping) {
+            return stubMapping.transform(
+                b -> b.setRequest(newRequestPattern().withUrl("/extracted").build()));
           }
         };
 

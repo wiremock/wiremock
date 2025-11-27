@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,8 +132,9 @@ public class StubLifecycleListenerAcceptanceTest {
     public List<String> events = new ArrayList<>();
 
     @Override
-    public void beforeStubCreated(StubMapping stub) {
+    public StubMapping beforeStubCreated(StubMapping stub) {
       events.add("beforeStubCreated, name: " + stub.getName());
+      return stub;
     }
 
     @Override
@@ -142,9 +143,10 @@ public class StubLifecycleListenerAcceptanceTest {
     }
 
     @Override
-    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+    public StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
       events.add(
           "beforeStubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
+      return newStub;
     }
 
     @Override
@@ -184,16 +186,18 @@ public class StubLifecycleListenerAcceptanceTest {
     public boolean throwException = false;
 
     @Override
-    public void beforeStubCreated(StubMapping stub) {
+    public StubMapping beforeStubCreated(StubMapping stub) {
       throwIfRequired();
+      return stub;
     }
 
     @Override
     public void afterStubCreated(StubMapping stub) {}
 
     @Override
-    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+    public StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
       throwIfRequired();
+      return newStub;
     }
 
     @Override
