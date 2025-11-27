@@ -47,6 +47,24 @@ public class ParametersTest {
     assertThat(parameters.getString("date"), is("2023-01-01"));
   }
 
+  @Test
+  public void deepMergesParameters() {
+    final Parameters initialParameters = Parameters.from(Map.of(
+            "one", 1,
+            "two", 2
+    ));
+    final Parameters toMerge = Parameters.from(Map.of(
+            "two", 22,
+            "three", 3
+    ));
+
+    final Parameters merged = initialParameters.deepMerge(toMerge);
+
+    assertThat(merged.getInt("one"), is(1));
+    assertThat(merged.getInt("two"), is(22));
+    assertThat(merged.getInt("three"), is(3));
+  }
+
   public static class MyData {
 
     private final String name;

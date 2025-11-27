@@ -53,4 +53,8 @@ public class Parameters extends Metadata {
     attributes.putAll(other);
     return Parameters.from(attributes);
   }
+
+  public Parameters deepMerge(Parameters other) {
+    return from(super.deepMerge(other));
+  }
 }
