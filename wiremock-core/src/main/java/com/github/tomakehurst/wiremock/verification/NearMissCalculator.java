@@ -63,7 +63,7 @@ public class NearMissCalculator {
                 stubMapping -> {
                   MatchResult matchResult =
                       new MemoizingMatchResult(
-                          stubMapping.request().match(request, customMatchers));
+                          stubMapping.getRequest().match(request, customMatchers));
                   String actualScenarioState = getScenarioStateOrNull(stubMapping);
                   return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
                 })

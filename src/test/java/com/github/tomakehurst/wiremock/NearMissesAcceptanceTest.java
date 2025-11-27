@@ -52,9 +52,9 @@ class NearMissesAcceptanceTest extends AcceptanceTestBase {
     assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
     assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
 
-    assertThat(nearMisses.get(0).getStubMapping().request().getUrl(), is("/otherpath"));
-    assertThat(nearMisses.get(1).getStubMapping().request().getUrl(), is("/yet/another/path"));
-    assertThat(nearMisses.get(2).getStubMapping().request().getUrl(), is("/mypath"));
+    assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+    assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+    assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
   }
 
   @Test
@@ -96,9 +96,9 @@ class NearMissesAcceptanceTest extends AcceptanceTestBase {
     assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
     assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
 
-    assertThat(nearMisses.get(0).getStubMapping().request().getUrl(), is("/otherpath"));
-    assertThat(nearMisses.get(1).getStubMapping().request().getUrl(), is("/yet/another/path"));
-    assertThat(nearMisses.get(2).getStubMapping().request().getUrl(), is("/mypath"));
+    assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+    assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+    assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
   }
 
   @Test

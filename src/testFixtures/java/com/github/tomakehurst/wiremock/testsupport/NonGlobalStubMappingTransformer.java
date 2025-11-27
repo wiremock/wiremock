@@ -26,7 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 public class NonGlobalStubMappingTransformer extends StubMappingTransformer {
   @Override
   public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-    return WireMock.get(stubMapping.request().getUrl() + "?transformed=nonglobal")
+    return WireMock.get(stubMapping.getRequest().getUrl() + "?transformed=nonglobal")
         .withHeader("Accept", equalTo("B"))
         .build();
   }

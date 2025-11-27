@@ -17,10 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
@@ -38,38 +35,43 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties({
   "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
-public record StubMapping(
-    UUID id,
-    String name,
-    Boolean persistent,
-    RequestPattern request,
-    ResponseDefinition response,
-    Integer priority,
-    String scenarioName,
-    String requiredScenarioState,
-    String newScenarioState,
-    @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
-        List<PostServeActionDefinition> postServeActions,
-    List<ServeEventListenerDefinition> serveEventListeners,
-    Metadata metadata,
-    @JsonView(Json.PrivateView.class) long insertionIndex)
-    implements StubMappingOrMappings {
+public final class StubMapping implements StubMappingOrMappings {
 
+  public static final int DEFAULT_PRIORITY = 5;
+
+  public static final StubMapping NOT_CONFIGURED =
+      StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
+  private final UUID id;
+  private final String name;
+  private final Boolean persistent;
+  private final RequestPattern request;
+  private final ResponseDefinition response;
+  private final Integer priority;
+  private final String scenarioName;
+  private final String requiredScenarioState;
+  private final String newScenarioState;
+  private final List<PostServeActionDefinition> postServeActions;
+  private final List<ServeEventListenerDefinition> serveEventListeners;
+  private final Metadata metadata;
+  private final long insertionIndex;
+
+  @JsonCreator
   public StubMapping(
-      UUID id,
-      String name,
-      Boolean persistent,
-      RequestPattern request,
-      ResponseDefinition response,
-      Integer priority,
-      String scenarioName,
-      String requiredScenarioState,
-      String newScenarioState,
-      @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
+      @JsonProperty("id") UUID id,
+      @JsonProperty("name") String name,
+      @JsonProperty("persistent") Boolean persistent,
+      @JsonProperty("request") RequestPattern request,
+      @JsonProperty("response") ResponseDefinition response,
+      @JsonProperty("priority") Integer priority,
+      @JsonProperty("scenarioName") String scenarioName,
+      @JsonProperty("requiredScenarioState") String requiredScenarioState,
+      @JsonProperty("newScenarioState") String newScenarioState,
+      @JsonProperty("postServeActions")
+          @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
           List<PostServeActionDefinition> postServeActions,
-      List<ServeEventListenerDefinition> serveEventListeners,
-      Metadata metadata,
-      @JsonView(Json.PrivateView.class) long insertionIndex) {
+      @JsonProperty("serveEventListeners") List<ServeEventListenerDefinition> serveEventListeners,
+      @JsonProperty("metadata") Metadata metadata,
+      @JsonProperty("insertionIndex") @JsonView(Json.PrivateView.class) long insertionIndex) {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.persistent = persistent;
@@ -84,11 +86,6 @@ public record StubMapping(
     this.metadata = metadata;
     this.insertionIndex = insertionIndex;
   }
-
-  public static final int DEFAULT_PRIORITY = 5;
-
-  public static final StubMapping NOT_CONFIGURED =
-      StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
 
   public static Builder builder() {
     return new Builder();
@@ -222,12 +219,55 @@ public record StubMapping(
         request,
         response,
         priority,
-        scenarioName,
         requiredScenarioState,
         newScenarioState,
         postServeActions,
         serveEventListeners,
         metadata);
+  }
+
+  @Override
+  public String toString() {
+    return "StubMapping["
+        + "id="
+        + id
+        + ", "
+        + "name="
+        + name
+        + ", "
+        + "persistent="
+        + persistent
+        + ", "
+        + "request="
+        + request
+        + ", "
+        + "response="
+        + response
+        + ", "
+        + "priority="
+        + priority
+        + ", "
+        + "scenarioName="
+        + scenarioName
+        + ", "
+        + "requiredScenarioState="
+        + requiredScenarioState
+        + ", "
+        + "newScenarioState="
+        + newScenarioState
+        + ", "
+        + "postServeActions="
+        + postServeActions
+        + ", "
+        + "serveEventListeners="
+        + serveEventListeners
+        + ", "
+        + "metadata="
+        + metadata
+        + ", "
+        + "insertionIndex="
+        + insertionIndex
+        + ']';
   }
 
   public static class Builder {
@@ -255,19 +295,19 @@ public record StubMapping(
     public Builder() {}
 
     public Builder(StubMapping existing) {
-      this.id = existing.id();
-      this.name = existing.name();
-      this.persistent = existing.persistent();
-      this.request = existing.request();
-      this.response = existing.response();
-      this.priority = existing.priority();
-      this.scenarioName = existing.scenarioName();
-      this.requiredScenarioState = existing.requiredScenarioState();
-      this.newScenarioState = existing.newScenarioState();
-      this.postServeActions = existing.postServeActions();
-      this.serveEventListeners = existing.serveEventListeners();
-      this.metadata = existing.metadata();
-      this.insertionIndex = existing.insertionIndex();
+      this.id = existing.id;
+      this.name = existing.name;
+      this.persistent = existing.persistent;
+      this.request = existing.request;
+      this.response = existing.response;
+      this.priority = existing.priority;
+      this.scenarioName = existing.scenarioName;
+      this.requiredScenarioState = existing.requiredScenarioState;
+      this.newScenarioState = existing.newScenarioState;
+      this.postServeActions = existing.postServeActions;
+      this.serveEventListeners = existing.serveEventListeners;
+      this.metadata = existing.metadata;
+      this.insertionIndex = existing.insertionIndex;
     }
 
     public StubMapping build() {

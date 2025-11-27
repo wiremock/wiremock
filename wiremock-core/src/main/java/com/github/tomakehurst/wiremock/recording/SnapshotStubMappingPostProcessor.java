@@ -72,10 +72,10 @@ class SnapshotStubMappingPostProcessor {
     Multiset<RequestPattern> requestCounts = HashMultiset.create();
     List<StubMapping> processedStubMappings = new ArrayList<>();
     for (StubMapping transformedStubMapping : transformedStubMappings) {
-      requestCounts.add(transformedStubMapping.request());
+      requestCounts.add(transformedStubMapping.getRequest());
 
       // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
-      if (requestCounts.count(transformedStubMapping.request()) > 1
+      if (requestCounts.count(transformedStubMapping.getRequest()) > 1
           && !shouldRecordRepeatsAsScenarios) {
         continue;
       }

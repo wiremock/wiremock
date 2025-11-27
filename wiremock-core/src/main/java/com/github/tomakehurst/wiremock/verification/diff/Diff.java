@@ -83,7 +83,7 @@ public class Diff {
   }
 
   public Diff(StubMapping expected, Request actual, String scenarioState) {
-    this.requestPattern = expected.request();
+    this.requestPattern = expected.getRequest();
     this.request = actual;
     this.stubMappingName = expected.getName();
     this.scenarioName = expected.getScenarioName();

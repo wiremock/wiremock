@@ -227,7 +227,7 @@ class RemoveStubMappingsAcceptanceTest extends AcceptanceTestBase {
 
   private synchronized long matchingStubCount(String url) {
     return listAllStubMappings().getMappings().stream()
-        .filter(stub -> stub.request().getUrl().equals(url))
+        .filter(stub -> stub.getRequest().getUrl().equals(url))
         .count();
   }
 }
