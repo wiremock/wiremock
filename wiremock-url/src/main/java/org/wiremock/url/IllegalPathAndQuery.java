@@ -15,9 +15,15 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 public final class IllegalPathAndQuery extends IllegalRelativeRef {
 
-  public IllegalPathAndQuery(String message) {
-    super(message);
+  public IllegalPathAndQuery(String pathAndQuery) {
+    this(pathAndQuery, null);
+  }
+
+  public IllegalPathAndQuery(String pathAndQuery, @Nullable IllegalUrlPart cause) {
+    super(pathAndQuery, "Illegal path and query: `" + pathAndQuery + "`", cause);
   }
 }

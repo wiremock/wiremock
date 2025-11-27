@@ -15,9 +15,20 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 public class IllegalRelativeRef extends IllegalUrlReference {
 
-  public IllegalRelativeRef(String message) {
-    super(message, null);
+  public IllegalRelativeRef(String relativeRef) {
+    this(relativeRef, null);
+  }
+
+  public IllegalRelativeRef(String illegalRelativeRef, @Nullable IllegalUrlPart cause) {
+    this(illegalRelativeRef, "Illegal relative ref: `" + illegalRelativeRef + "`", cause);
+  }
+
+  public IllegalRelativeRef(
+      String illegalRelativeRef, String message, @Nullable IllegalUrlPart cause) {
+    super(illegalRelativeRef, message, cause);
   }
 }

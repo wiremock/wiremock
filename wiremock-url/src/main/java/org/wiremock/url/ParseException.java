@@ -17,9 +17,16 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public class ParseException extends IllegalArgumentException {
+public abstract class ParseException extends IllegalArgumentException {
 
-  public ParseException(String message, @Nullable Throwable cause) {
+  private final String illegalValue;
+
+  public ParseException(String illegalValue, String message, @Nullable Throwable cause) {
     super(message, cause);
+    this.illegalValue = illegalValue;
+  }
+
+  public String getIllegalValue() {
+    return illegalValue;
   }
 }

@@ -17,39 +17,18 @@ package org.wiremock.url;
 
 import static org.wiremock.url.PortParser.MAX_PORT;
 
-import org.jspecify.annotations.Nullable;
-
 public final class IllegalPort extends IllegalUrlPart {
 
-  private final String illegalPortString;
-
-  @Nullable private final Integer illegalPort;
-
-  private IllegalPort(String illegalPortString, @Nullable Integer illegalPort) {
+  public IllegalPort(String illegalPortString) {
     super(
+        illegalPortString,
         "Illegal port ["
             + illegalPortString
             + "]; Port value must be an integer between 1 and "
             + MAX_PORT);
-    this.illegalPortString = illegalPortString;
-    this.illegalPort = illegalPort;
-  }
-
-  public IllegalPort(String illegalPortString) {
-    this(illegalPortString, null);
   }
 
   public IllegalPort(int illegalPort) {
-    this(String.valueOf(illegalPort), illegalPort);
-  }
-
-  @SuppressWarnings("unused")
-  public String illegalPortString() {
-    return illegalPortString;
-  }
-
-  @Nullable
-  public Integer illegalPort() {
-    return illegalPort;
+    this(String.valueOf(illegalPort));
   }
 }
