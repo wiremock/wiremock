@@ -76,7 +76,7 @@ class SchemeTests {
                   + illegalScheme
                   + "`; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
           .withNoCause()
-          .extracting(IllegalScheme::illegalScheme)
+          .extracting(IllegalScheme::getIllegalValue)
           .isEqualTo(String.valueOf(illegalScheme));
     }
   }

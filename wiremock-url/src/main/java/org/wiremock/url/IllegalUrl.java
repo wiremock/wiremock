@@ -19,11 +19,11 @@ import org.jspecify.annotations.Nullable;
 
 public final class IllegalUrl extends IllegalUrlReference {
 
-  public IllegalUrl(String urlString) {
-    this(urlString, null);
+  public IllegalUrl(String url) {
+    this(url, null);
   }
 
-  public IllegalUrl(String urlString, @Nullable IllegalUrlPart cause) {
-    super("Illegal url [" + urlString + "]", cause);
+  public IllegalUrl(String url, @Nullable IllegalUrlPart cause) {
+    super(url, "Illegal URL: `" + url + "`", cause);
   }
 }

@@ -39,20 +39,15 @@ class PortTests {
     @ParameterizedTest
     @ValueSource(ints = {-1000, -1, 0, 65536, 70000, 100000})
     void throws_exception_for_various_invalid_ports(int invalidPort) {
-      var illegalPortThrowableAssertion =
-          assertThatExceptionOfType(IllegalPort.class)
-              .isThrownBy(() -> Port.of(invalidPort))
-              .withMessage(
-                  "Illegal port ["
-                      + invalidPort
-                      + "]; Port value must be an integer between 1 and 65535")
-              .withNoCause();
-
-      illegalPortThrowableAssertion
-          .extracting(IllegalPort::illegalPortString)
+      assertThatExceptionOfType(IllegalPort.class)
+          .isThrownBy(() -> Port.of(invalidPort))
+          .withMessage(
+              "Illegal port ["
+                  + invalidPort
+                  + "]; Port value must be an integer between 1 and 65535")
+          .withNoCause()
+          .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(String.valueOf(invalidPort));
-
-      illegalPortThrowableAssertion.extracting(IllegalPort::illegalPort).isEqualTo(invalidPort);
     }
   }
 
@@ -80,22 +75,15 @@ class PortTests {
           "-1000", "-1", "0", "65536", "70000", "100000",
         })
     void throws_exception_for_strings_in_invalid_range(String invalidPortString) {
-      var illegalPortAssertion =
-          assertThatExceptionOfType(IllegalPort.class)
-              .isThrownBy(() -> Port.parse(invalidPortString))
-              .withMessage(
-                  "Illegal port ["
-                      + invalidPortString
-                      + "]; Port value must be an integer between 1 and 65535")
-              .withNoCause();
-
-      illegalPortAssertion
-          .extracting(IllegalPort::illegalPortString)
+      assertThatExceptionOfType(IllegalPort.class)
+          .isThrownBy(() -> Port.parse(invalidPortString))
+          .withMessage(
+              "Illegal port ["
+                  + invalidPortString
+                  + "]; Port value must be an integer between 1 and 65535")
+          .withNoCause()
+          .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(String.valueOf(invalidPortString));
-
-      illegalPortAssertion
-          .extracting(IllegalPort::illegalPort)
-          .isEqualTo(Integer.parseInt(invalidPortString));
     }
 
     @ParameterizedTest
@@ -117,20 +105,15 @@ class PortTests {
           "80 80"
         })
     void throws_exception_for_various_invalid_strings(String invalidPortString) {
-      var illegalPortThrowableAssertion =
-          assertThatExceptionOfType(IllegalPort.class)
-              .isThrownBy(() -> Port.parse(invalidPortString))
-              .withMessage(
-                  "Illegal port ["
-                      + invalidPortString
-                      + "]; Port value must be an integer between 1 and 65535")
-              .withNoCause();
-
-      illegalPortThrowableAssertion
-          .extracting(IllegalPort::illegalPortString)
+      assertThatExceptionOfType(IllegalPort.class)
+          .isThrownBy(() -> Port.parse(invalidPortString))
+          .withMessage(
+              "Illegal port ["
+                  + invalidPortString
+                  + "]; Port value must be an integer between 1 and 65535")
+          .withNoCause()
+          .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(String.valueOf(invalidPortString));
-
-      illegalPortThrowableAssertion.extracting(IllegalPort::illegalPort).isEqualTo(null);
     }
   }
 

@@ -103,7 +103,9 @@ class HostTests {
       void throws_exception_for_invalid_ipv6_addresses(String invalidIpv6) {
         assertThatExceptionOfType(IllegalHost.class)
             .isThrownBy(() -> Host.parse(invalidIpv6))
-            .withMessage("Illegal host: `" + invalidIpv6 + "`");
+            .withMessage("Illegal host: `" + invalidIpv6 + "`")
+            .extracting(IllegalHost::getIllegalValue)
+            .isEqualTo(invalidIpv6);
       }
 
       @Test
@@ -163,7 +165,9 @@ class HostTests {
       void throws_exception_for_invalid_registered_names(String invalidName) {
         assertThatExceptionOfType(IllegalHost.class)
             .isThrownBy(() -> Host.parse(invalidName))
-            .withMessage("Illegal host: `" + invalidName + "`");
+            .withMessage("Illegal host: `" + invalidName + "`")
+            .extracting(IllegalHost::getIllegalValue)
+            .isEqualTo(invalidName);
       }
 
       @ParameterizedTest
@@ -196,7 +200,9 @@ class HostTests {
       void throws_exception_for_invalid_percent_encoding(String invalidEncoding) {
         assertThatExceptionOfType(IllegalHost.class)
             .isThrownBy(() -> Host.parse(invalidEncoding))
-            .withMessage("Illegal host: `" + invalidEncoding + "`");
+            .withMessage("Illegal host: `" + invalidEncoding + "`")
+            .extracting(IllegalHost::getIllegalValue)
+            .isEqualTo(invalidEncoding);
       }
 
       @ParameterizedTest
