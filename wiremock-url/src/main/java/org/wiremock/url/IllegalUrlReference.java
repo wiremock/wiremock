@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 public abstract class IllegalUrlReference extends IllegalUrlReferenceOrPart {
 
-  public IllegalUrlReference(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
+  public IllegalUrlReference(String illegalValue, String message, @Nullable IllegalUrlPart cause) {
+    super(illegalValue, message, cause);
   }
 }

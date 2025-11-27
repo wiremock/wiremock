@@ -18,6 +18,6 @@ package org.wiremock.url;
 public final class IllegalFragment extends IllegalUrlPart {
 
   public IllegalFragment(String fragment) {
-    super("Illegal fragment: `" + fragment + "`");
+    super(fragment, "Illegal fragment: `" + fragment + "`");
   }
 }

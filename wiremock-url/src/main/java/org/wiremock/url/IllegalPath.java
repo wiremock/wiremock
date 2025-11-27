@@ -16,7 +16,8 @@
 package org.wiremock.url;
 
 public final class IllegalPath extends IllegalUrlPart {
+
   public IllegalPath(String path) {
-    super("Illegal path: `" + path + "`");
+    super(path, "Illegal path: `" + path + "`");
   }
 }

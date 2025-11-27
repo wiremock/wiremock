@@ -24,6 +24,6 @@ public class IllegalAuthority extends IllegalUrlPart {
   }
 
   public IllegalAuthority(String authority, @Nullable IllegalUrlPart cause) {
-    super("Illegal authority: `" + authority + "`", cause);
+    super(authority, "Illegal authority: `" + authority + "`", cause);
   }
 }

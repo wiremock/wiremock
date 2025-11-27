@@ -19,7 +19,8 @@ import org.jspecify.annotations.Nullable;
 
 public abstract class IllegalUrlReferenceOrPart extends ParseException {
 
-  public IllegalUrlReferenceOrPart(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
+  public IllegalUrlReferenceOrPart(
+      String illegalValue, String message, @Nullable IllegalUrlPart cause) {
+    super(illegalValue, message, cause);
   }
 }

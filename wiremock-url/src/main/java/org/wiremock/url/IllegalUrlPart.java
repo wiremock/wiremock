@@ -19,11 +19,11 @@ import org.jspecify.annotations.Nullable;
 
 public abstract class IllegalUrlPart extends IllegalUrlReferenceOrPart {
 
-  public IllegalUrlPart(String message) {
-    this(message, null);
+  public IllegalUrlPart(String illegalValue, String message) {
+    this(illegalValue, message, null);
   }
 
-  public IllegalUrlPart(String message, @Nullable IllegalUrlPart cause) {
-    super(message, cause);
+  public IllegalUrlPart(String illegalValue, String message, @Nullable IllegalUrlPart cause) {
+    super(illegalValue, message, cause);
   }
 }

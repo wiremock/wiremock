@@ -17,19 +17,12 @@ package org.wiremock.url;
 
 public final class IllegalScheme extends IllegalUrlPart {
 
-  private final String illegalScheme;
-
   public IllegalScheme(String illegalScheme) {
     super(
+        illegalScheme,
         "Illegal scheme `"
             + illegalScheme
             + "`; Scheme must match "
             + SchemeParser.INSTANCE.schemeRegex);
-    this.illegalScheme = illegalScheme;
-  }
-
-  @SuppressWarnings("unused")
-  public String illegalScheme() {
-    return illegalScheme;
   }
 }
