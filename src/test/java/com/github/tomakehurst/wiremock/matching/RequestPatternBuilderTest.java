@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 class RequestPatternBuilderTest {
   @Test
   void likeRequestPatternWithDifferentUrl() {
-    RequestPattern requestPattern = RequestPattern.everything();
+    RequestPattern requestPattern = RequestPattern.ANYTHING;
 
     RequestPattern newRequestPattern =
         RequestPatternBuilder.like(requestPattern).but().withUrl("/foo").build();
@@ -47,7 +47,7 @@ class RequestPatternBuilderTest {
 
   @Test
   void likeRequestPatternWithDifferentUrlPath() {
-    RequestPattern requestPattern = RequestPattern.everything();
+    RequestPattern requestPattern = RequestPattern.ANYTHING;
 
     RequestPattern newRequestPattern =
         RequestPatternBuilder.like(requestPattern)
@@ -114,7 +114,7 @@ class RequestPatternBuilderTest {
   void likeRequestPatternWithMultipartMatcher() {
     MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
 
-    RequestPattern requestPattern = RequestPattern.everything();
+    RequestPattern requestPattern = RequestPattern.ANYTHING;
     RequestPattern newRequestPattern =
         RequestPatternBuilder.like(requestPattern)
             .but()

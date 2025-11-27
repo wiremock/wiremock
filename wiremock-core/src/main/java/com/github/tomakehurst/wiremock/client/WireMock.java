@@ -778,7 +778,7 @@ public class WireMock {
     int actualCount;
     if (requestPattern.hasInlineCustomMatcher()) {
       List<LoggedRequest> requests =
-          admin.findRequestsMatching(RequestPattern.everything()).getRequests();
+          admin.findRequestsMatching(RequestPattern.ANYTHING).getRequests();
       actualCount = (int) requests.stream().filter(thatMatch(requestPattern)).count();
     } else {
       VerificationResult result = admin.countRequestsMatching(requestPattern);
