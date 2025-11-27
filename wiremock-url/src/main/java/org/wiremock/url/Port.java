@@ -40,6 +40,19 @@ public interface Port {
 
   int port();
 
+  /**
+   * Returns a Port with the canonical (normalized) string representation of this port number,
+   * without any leading zeros.
+   *
+   * <p>For example, {@code Port.parse("00080").normalise()} returns a Port whose {@code toString()}
+   * is "80".
+   *
+   * <p>If this Port is already in canonical form, returns a Port equal to this one.
+   *
+   * @return a Port with the canonical string representation
+   */
+  Port normalise();
+
   static Port parse(String port) throws IllegalPort {
     return PortParser.INSTANCE.parse(port);
   }
