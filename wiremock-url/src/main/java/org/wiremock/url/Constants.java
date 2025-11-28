@@ -15,10 +15,24 @@
  */
 package org.wiremock.url;
 
+import org.intellij.lang.annotations.Language;
+
 class Constants {
+
+  @Language("RegExp")
   static final String unreserved = "[a-zA-Z0-9\\-._~]";
+
+  @Language("RegExp")
   static final String pctEncoded = "%[0-9A-F]{2}";
+
+  @Language("RegExp")
   static final String subDelims = "[!$&'()*+,;=]";
 
-  private Constants() {}
+  @Language("RegExp")
+  static final String alwaysIllegal =
+      "\\u0000-\\u0008\\u000A-\\u001F\\u007F\\u0080-\\u009F\\uD800-\\uDFFF";
+
+  private Constants() {
+    throw new UnsupportedOperationException("Not instantiable");
+  }
 }
