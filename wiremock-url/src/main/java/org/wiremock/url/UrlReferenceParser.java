@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.Constants.alwaysIllegal;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.intellij.lang.annotations.Language;
@@ -36,7 +38,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   @Language("RegExp")
   private final String query = "(?<query>" + QueryParser.INSTANCE.queryRegex + ")";
 
-  private final String fragmentRegex = ".*";
+  private final String fragmentRegex = "[^" + alwaysIllegal + "]*";
 
   @Language("RegExp")
   private final String fragment = "(?<fragment>" + fragmentRegex + ")";

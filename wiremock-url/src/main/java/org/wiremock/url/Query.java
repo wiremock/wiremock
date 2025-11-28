@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.Constants.alwaysIllegal;
+
 import java.util.regex.Pattern;
 
 public interface Query extends PctEncoded {
@@ -27,7 +29,7 @@ class QueryParser implements CharSequenceParser<Query> {
 
   static final QueryParser INSTANCE = new QueryParser();
 
-  final String queryRegex = "[^#]*";
+  final String queryRegex = "[^#" + alwaysIllegal + "]*";
   private final Pattern queryPattern = Pattern.compile("^" + queryRegex + "$");
 
   @Override
