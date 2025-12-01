@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,13 +45,17 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest {
 
@@ -484,5 +488,38 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             "body", "{ \"result\": \"SUCCESS\" }");
     assertSubEvent(subEvents.get(0), WEBHOOK_REQUEST_SUB_EVENT_NAME, expectedRequestEntries);
     assertSubEvent(subEvents.get(1), SubEvent.ERROR, expectedErrorMessage);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allHttpMethodsForWebhooks")
+  public void firesWebhookForAllHttpMethods(RequestMethod method) throws Exception {
+    String body = "{ \"test\": \"data\" }";
+    rule.stubFor(
+        post(urlPathEqualTo("/trigger-webhook"))
+            .willReturn(ok())
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withMethod(method)
+                    .withUrl(targetServer.url("/callback"))
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(body)));
+
+    client.post("/trigger-webhook", new StringEntity("", TEXT_PLAIN));
+
+    waitForRequestToTargetServer();
+
+    // Verify the webhook was called with the correct method
+    List<LoggedRequest> requests = targetServer.findAll(anyRequestedFor(urlEqualTo("/callback")));
+    assertThat(requests, hasSize(1));
+    assertThat(requests.get(0).getMethod(), is(method));
+    if (method.hasEntity()) {
+      assertThat(requests.get(0).getBodyAsString(), is(body));
+    }
+  }
+
+  private static Stream<RequestMethod> allHttpMethodsForWebhooks() {
+    return Arrays.stream(RequestMethod.values())
+        .filter(m -> !m.equals(RequestMethod.ANY) && !m.equals(RequestMethod.GET_OR_HEAD));
   }
 }

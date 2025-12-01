@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.QUERY;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -187,6 +188,47 @@ public class WireMockTestClient {
       ClassicHttpRequest request, String body, String contentType, TestHttpHeader... headers) {
     request.setEntity(new StringEntity(body, ContentType.create(contentType, "utf-8")));
     return executeMethodAndConvertExceptions(request, headers);
+  }
+
+  public WireMockResponse query(String url, TestHttpHeader... headers) {
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
+    return executeMethodAndConvertExceptions(httpQuery);
+  }
+
+  public WireMockResponse query(String url, HttpEntity entity, TestHttpHeader... headers) {
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
+    httpQuery.setEntity(entity);
+    return executeMethodAndConvertExceptions(httpQuery, headers);
+  }
+
+  public WireMockResponse queryWithBody(
+      String url, String body, String contentType, TestHttpHeader... headers) {
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
+    return requestWithBody(httpQuery, body, contentType, headers);
+  }
+
+  public WireMockResponse queryXml(String url, String body, TestHttpHeader... headers) {
+    return queryWithBody(url, body, APPLICATION_XML.getMimeType(), headers);
+  }
+
+  public WireMockResponse queryJson(String url, String body, TestHttpHeader... headers) {
+    return queryWithBody(url, body, APPLICATION_JSON.getMimeType(), headers);
+  }
+
+  public WireMockResponse queryWithMultiparts(
+      String url, Collection<MultipartBody> parts, TestHttpHeader... headers) {
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+    if (parts != null) {
+      for (MultipartBody part : parts) {
+        builder.addPart(part.getFilename(), part);
+      }
+    }
+
+    return query(url, builder.build(), headers);
   }
 
   public WireMockResponse postWithBody(

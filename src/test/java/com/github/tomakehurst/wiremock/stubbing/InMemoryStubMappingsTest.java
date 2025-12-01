@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class InMemoryStubMappingsTest {
     inMemoryStubMappings.addMapping(existingMapping);
 
     StubMapping newMapping = aMapping(1, "/priority1/2");
-    newMapping.setUuid(existingMapping.getUuid());
+    newMapping.setId(existingMapping.getId());
 
     inMemoryStubMappings.editMapping(newMapping);
 
@@ -91,7 +91,7 @@ public class InMemoryStubMappingsTest {
       inMemoryStubMappings.editMapping(newMapping);
       fail("Expected Exception");
     } catch (RuntimeException e) {
-      assertThat(e.getMessage(), containsString(newMapping.getUuid().toString()));
+      assertThat(e.getMessage(), containsString(newMapping.getId().toString()));
     }
   }
 

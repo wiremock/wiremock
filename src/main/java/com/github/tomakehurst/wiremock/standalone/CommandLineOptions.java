@@ -34,12 +34,13 @@ import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -160,7 +161,7 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
     optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
     optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
-    optionParser.accepts(TIMEOUT, "The default global timeout.");
+    optionParser.accepts(TIMEOUT, "The default global timeout in milliseconds.").withRequiredArg();
     optionParser.accepts(
         DISABLE_OPTIMIZE_XML_FACTORIES_LOADING,
         "Whether to disable optimize XML factories loading or not.");
@@ -916,7 +917,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public long timeout() {
-    return optionSet.has(TIMEOUT)
+    return optionSet.hasArgument(TIMEOUT)
         ? Long.parseLong((String) optionSet.valueOf(TIMEOUT))
         : DEFAULT_TIMEOUT;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,21 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     LoggedRequest firstRequest = requests.get(0);
     assertThat(firstRequest.getUrl(), is("/return/this"));
     assertThat(firstRequest.getMethod(), is(RequestMethod.GET));
+    assertThat(firstRequest.getLoggedDate(), isToday());
+    assertThat(parse(firstRequest.getLoggedDateString()), isToday());
+  }
+
+  @Test
+  public void returnsRecordedRequestsMatchingOnQueryMethodAndExactUrl() throws Exception {
+    testClient.query("/return/this");
+    testClient.get("/but/not/this");
+
+    List<LoggedRequest> requests = findAll(queryRequestedFor(urlEqualTo("/return/this")));
+
+    assertThat(requests.size(), is(1));
+    LoggedRequest firstRequest = requests.get(0);
+    assertThat(firstRequest.getUrl(), is("/return/this"));
+    assertThat(firstRequest.getMethod(), is(RequestMethod.QUERY));
     assertThat(firstRequest.getLoggedDate(), isToday());
     assertThat(parse(firstRequest.getLoggedDateString()), isToday());
   }

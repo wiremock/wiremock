@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -99,7 +99,7 @@ class HttpsAcceptanceTest {
               wireMockServer = new WireMockServer(config);
               wireMockServer.start();
               WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
-              httpClient = HttpClientFactory.createClient();
+              httpClient = ApacheHttpClientFactory.createClient();
 
               stubFor(
                   get(urlEqualTo("/https-test"))
@@ -312,7 +312,7 @@ class HttpsAcceptanceTest {
     proxy.start();
     proxy.stubFor(get("/no-proxying-thanks").willReturn(ok("proxyless")));
 
-    httpClient = HttpClientFactory.createClient();
+    httpClient = ApacheHttpClientFactory.createClient();
 
     String url = "https://localhost:" + proxy.httpsPort() + "/no-proxying-thanks";
     HttpGet get = new HttpGet(url);
@@ -374,7 +374,7 @@ class HttpsAcceptanceTest {
     wireMockServer.start();
     WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
 
-    httpClient = HttpClientFactory.createClient();
+    httpClient = ApacheHttpClientFactory.createClient();
   }
 
   private void startServerWithKeystore(
@@ -391,7 +391,7 @@ class HttpsAcceptanceTest {
     wireMockServer.start();
     WireMock.configureFor(wireMockServer.port());
 
-    httpClient = HttpClientFactory.createClient();
+    httpClient = ApacheHttpClientFactory.createClient();
   }
 
   private void startServerWithKeystore(String keystorePath) {

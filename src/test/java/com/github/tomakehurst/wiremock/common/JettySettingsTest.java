@@ -17,16 +17,17 @@ package com.github.tomakehurst.wiremock.common;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-public class JettySettingsTest {
+class JettySettingsTest {
 
   private static final int number = 1234;
   private static final long longNumber = Long.MAX_VALUE;
 
   @Test
-  public void testBuilderWithValues() {
+  void testBuilderWithValues() {
     JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
     builder
         .withAcceptors(number)
@@ -47,7 +48,7 @@ public class JettySettingsTest {
   }
 
   @Test
-  public void testBuilderWithNoValues() {
+  void testBuilderWithNoValues() {
 
     JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
     JettySettings jettySettings = builder.build();

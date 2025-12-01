@@ -36,9 +36,9 @@ import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithFai
 import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
-import net.javacrumbs.jsonunit.core.internal.Options;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -729,6 +729,48 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
                   ]
                 }
             """)
-            .withOptions(new Options(Option.IGNORING_EXTRA_FIELDS)));
+            .withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
+  }
+
+  private static final String QUERY_METHOD_SNAPSHOT_REQUEST =
+      "{                                      \n"
+          + "    \"outputFormat\": \"full\",        \n"
+          + "    \"persist\": \"false\"             \n"
+          + "}                                        ";
+
+  private static final String QUERY_METHOD_SNAPSHOT_RESPONSE =
+      "{                                                           \n"
+          + "    \"mappings\": [                                         \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/search/users\",                \n"
+          + "                \"method\" : \"QUERY\",                     \n"
+          + "                \"bodyPatterns\" : [                        \n"
+          + "                    {                                       \n"
+          + "                        \"equalToJson\" : \"{\\\"name\\\":\\\"John\\\"}\",\n"
+          + "                        \"ignoreArrayOrder\" : true,        \n"
+          + "                        \"ignoreExtraElements\" : true      \n"
+          + "                    }                                       \n"
+          + "                ]                                           \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                   \n"
+          + "    ]                                                       \n"
+          + "}                                                             ";
+
+  @Test
+  public void recordsQueryMethodRequestsWithBody() {
+    proxyServerStartWithEmptyFileRoot();
+
+    // Make a QUERY request with a JSON body
+    proxyingTestClient.queryJson("/search/users", "{\"name\":\"John\"}");
+
+    String actual = proxyingTestClient.snapshot(QUERY_METHOD_SNAPSHOT_REQUEST);
+    assertThat(actual, equalToJson(QUERY_METHOD_SNAPSHOT_RESPONSE, JSONCompareMode.LENIENT));
+
+    // Should have persisted the stub mapping (2 = 1 proxy + 1 recorded)
+    assertEquals(2, proxyingService.getStubMappings().size());
   }
 }

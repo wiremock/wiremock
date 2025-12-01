@@ -32,7 +32,9 @@ class NonPathBasedBlobStoreTest {
   void canUseANonPathBasedBlobStoreTest() {
     WireMockServer wireMockServer =
         new WireMockServer(
-            wireMockConfig().fileSource(new BlobStoreFileSource(new NonPathBasedBlobStore())));
+            wireMockConfig()
+                .dynamicPort()
+                .fileSource(new BlobStoreFileSource(new NonPathBasedBlobStore())));
     try {
       wireMockServer.start();
     } finally {

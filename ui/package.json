@@ -1,6 +1,6 @@
 {
   "name": "wiremock-ui-resources",
-  "version": "4.0.0-beta.14",
+  "version": "4.0.0-beta.19",
   "description": "WireMock UI resources processor",
   "engines": {
     "node": ">= 0.10.0"
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "swaggerui": "cp -rf node_modules/swagger-ui-dist/ ../src/main/resources/assets/swagger-ui/swagger-ui-dist/",
-    "swaggerjson": "npx redocly bundle --ext json ../src/main/resources/swagger/wiremock-admin-api.yaml -o ../src/main/resources/swagger/wiremock-admin-api.json",
+    "swaggerjson": "npx redocly bundle --ext json ../wiremock-core/src/main/resources/swagger/wiremock-admin-api.yaml -o ../wiremock-core/src/main/resources/swagger/wiremock-admin-api.json",
     "swagger": "npm run swaggerui && npm run swaggerjson"
   }
 }

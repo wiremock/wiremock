@@ -62,6 +62,8 @@ import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 class AdminApiTest extends AcceptanceTestBase {
@@ -94,9 +96,6 @@ class AdminApiTest extends AcceptanceTestBase {
         "{                                              \n"
             + "  \"mappings\" : [ {                           \n"
             + "    \"id\" : \""
-            + stubMapping.getId()
-            + "\",  \n"
-            + "    \"uuid\" : \""
             + stubMapping.getId()
             + "\",\n"
             + "    \"request\" : {                            \n"
@@ -188,9 +187,6 @@ class AdminApiTest extends AcceptanceTestBase {
     JSONAssert.assertEquals(
         "{                                          \n"
             + "    \"id\": \""
-            + id
-            + "\",              \n"
-            + "    \"uuid\": \""
             + id
             + "\",              \n"
             + "    \"request\" : {                        \n"
@@ -390,27 +386,16 @@ class AdminApiTest extends AcceptanceTestBase {
         is(404));
   }
 
-  @Test
-  void createStubMappingReturnsTheCreatedMapping() {
-    WireMockResponse response =
-        testClient.postJson(
-            "/__admin/mappings",
-            "{                                \n"
-                + "    \"name\": \"Teapot putter\",   \n"
-                + "    \"request\": {                 \n"
-                + "        \"method\": \"PUT\",       \n"
-                + "        \"url\": \"/put/this\"     \n"
-                + "    },                             \n"
-                + "    \"response\": {                \n"
-                + "        \"status\": 418            \n"
-                + "    }                              \n"
-                + "}");
+  @ParameterizedTest
+  @MethodSource("provideStubMappingJson")
+  void createStubMappingReturnsTheCreatedMapping(String stubJson) {
+    WireMockResponse response = testClient.postJson("/__admin/mappings", stubJson);
 
     assertThat(response.statusCode(), is(201));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     String body = response.content();
     JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
-    JsonAssertion.assertThat(body).field("name").isEqualTo("Teapot putter");
+    JsonAssertion.assertThat(body).field("name").isEqualTo("Basic Resource");
   }
 
   @Test
@@ -1096,12 +1081,12 @@ class AdminApiTest extends AcceptanceTestBase {
     return new TypeSafeMatcher<>() {
       @Override
       protected boolean matchesSafely(StubMapping stub) {
-        return stub.getId() != null && stub.getUuid() != null;
+        return stub.getId() != null;
       }
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("a stub with a non-null ID and UUID");
+        description.appendText("a stub with a non-null ID");
       }
     };
   }
@@ -1368,7 +1353,7 @@ class AdminApiTest extends AcceptanceTestBase {
         testClient.get("/__admin/version", new TestHttpHeader("Accept", "text/plain"));
 
     assertThat(response.statusCode(), is(200));
-    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    assertThat(response.firstHeader("Content-Type"), containsString("text/plain"));
     assertThat(response.content(), is("X.X.X"));
   }
 

@@ -24,8 +24,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -40,9 +39,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -241,5 +238,36 @@ class JsonFileMappingsSourceTest {
         containsInAnyOrder(existingStub2File, newStub2File));
     assertThat(Files.readString(existingStub2File.toPath()), is(Json.writePrivate(newStub1)));
     assertThat(Files.readString(newStub2File.toPath()), is(Json.writePrivate(newStub2)));
+  }
+
+  @Test
+  void ignoresUuidFieldOnSingleStubJsonFiles() throws Exception {
+    stubMappingFile = File.createTempFile("with-uuid", ".json", tempDir);
+    String json =
+        // language=json
+        """
+            {
+              "id": "edf19376-0e08-4b27-8632-fb7852c9e62d",
+              "request": {
+                "url": "/",
+                "method": "GET"
+              },
+
+              "response": {
+                "status": 200
+              },
+
+              "uuid": "07150a3a-47ea-4182-9792-c49eb77b862e"
+            }
+            """;
+
+    Files.write(stubMappingFile.toPath(), json.getBytes());
+
+    assertDoesNotThrow(this::load);
+
+    Optional<StubMapping> maybeStub =
+        stubMappings.get(UUID.fromString("edf19376-0e08-4b27-8632-fb7852c9e62d"));
+    assertTrue(maybeStub.isPresent());
+    assertThat(maybeStub.get().getId().toString(), is("edf19376-0e08-4b27-8632-fb7852c9e62d"));
   }
 }

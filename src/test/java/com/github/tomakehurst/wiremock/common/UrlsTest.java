@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class UrlsTest {
@@ -31,14 +34,14 @@ public class UrlsTest {
 
   @Test
   public void copesWithEqualsInParamValues() {
-    params = Urls.splitQuery(URI.create("/thing?param1=one&param2=one==two=three"));
+    params = Urls.splitQueryFromUrl("/thing?param1=one&param2=one==two=three");
     assertThat(params.get("param1").firstValue(), is("one"));
     assertThat(params.get("param2").firstValue(), is("one==two=three"));
   }
 
   @Test
   public void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
-    params = Urls.splitQuery(URI.create("/thing?param1&param2&param3"));
+    params = Urls.splitQueryFromUrl("/thing?param1&param2&param3");
     assertThat(params.get("param1").firstValue(), is(""));
     assertThat(params.get("param2").firstValue(), is(""));
     assertThat(params.get("param3").firstValue(), is(""));
@@ -46,7 +49,7 @@ public class UrlsTest {
 
   @Test
   public void supportsMultiValuedParameters() {
-    params = Urls.splitQuery(URI.create("/thing?param1=1&param2=two&param1=2&param1=3"));
+    params = Urls.splitQueryFromUrl("/thing?param1=1&param2=two&param1=2&param1=3");
     assertThat(params.size(), is(2));
     assertThat(params.get("param1").isSingleValued(), is(false));
     assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
@@ -56,9 +59,8 @@ public class UrlsTest {
   public void supportsOffsetDateTimeParameterValues() {
     OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-05-01T09:30:00.000Z");
     params =
-        Urls.splitQuery(
-            URI.create(
-                "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z"));
+        Urls.splitQueryFromUrl(
+            "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z");
     for (QueryParameter queryParameter : params.values()) {
       for (String parameterValue : queryParameter.values()) {
         assert (offsetDateTime.isEqual(OffsetDateTime.parse(parameterValue)));
@@ -68,8 +70,7 @@ public class UrlsTest {
 
   @Test
   public void doesNotAttemptToDoubleDecodeSplitQueryString() {
-    URI url = URI.create("/thing?q=a%25b");
-    Map<String, QueryParameter> query = Urls.splitQuery(url);
+    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/thing?q=a%25b");
     assertThat(query.get("q").firstValue(), is("a%b"));
   }
 
@@ -177,5 +178,20 @@ public class UrlsTest {
   @Test
   void getsThePathAndQueryFromRelativeUrl() {
     assertThat(Urls.getPathAndQuery("/things?q=boo&limit=5"), is("/things?q=boo&limit=5"));
+  }
+
+  @Test
+  public void decodesInvalidIsoOffsetDateTimeLikeString() {
+    var dateAsString = "2023-02-30T10:00:00+01:00";
+    params = Urls.splitQueryFromUrl("/date?date=" + dateAsString);
+    Assertions.assertEquals(
+        URLDecoder.decode(dateAsString, StandardCharsets.UTF_8), params.get("date").firstValue());
+  }
+
+  @Test
+  public void doesNotDecodeValidIsoOffsetDateTimeLikeString() {
+    var dateAsString = "2023-02-28T10:00:00+01:00";
+    params = Urls.splitQueryFromUrl("/date?date=" + dateAsString);
+    Assertions.assertEquals(dateAsString, params.get("date").firstValue());
   }
 }
