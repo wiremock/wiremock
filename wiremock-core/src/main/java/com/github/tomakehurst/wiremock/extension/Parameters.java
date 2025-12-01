@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class Parameters extends Metadata {
 
@@ -46,6 +47,12 @@ public class Parameters extends Metadata {
 
   public static <T> Parameters of(T myData) {
     return from(Json.objectToMap(myData));
+  }
+
+  public Parameters transform(Consumer<Builder> transformer) {
+    final Builder builder = new Builder(this);
+    transformer.accept(builder);
+    return Parameters.from(builder.build());
   }
 
   public Parameters merge(Parameters other) {

@@ -310,6 +310,20 @@ public class Metadata implements Map<String, Object> {
         });
   }
 
+  public Map<String, Object> asMutableMap() {
+    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+    forEach(
+        (key, value) -> {
+          if (this.getClass().isInstance(value)) {
+            map.put(key, (this.getClass().cast(value)).asMutableMap());
+          } else {
+            map.put(key, value);
+          }
+        });
+
+    return map;
+  }
+
   public static class Builder {
 
     private final Map<String, Object> mapBuilder;
@@ -346,6 +360,14 @@ public class Metadata implements Map<String, Object> {
 
     public Object get(String key) {
       return mapBuilder.get(key);
+    }
+
+    public boolean contains(String key) {
+      return mapBuilder.containsKey(key);
+    }
+
+    public void remove(String key) {
+      mapBuilder.remove(key);
     }
 
     public Metadata build() {
