@@ -162,22 +162,24 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
     URI proxyUrl = URI.create(serveEvent.getRequest().getAbsoluteUrl());
     var proxyDefaultPort = getDefaultPort(proxyUrl.getScheme());
+    var proxyActualPort = proxyUrl.getPort() == -1 ? proxyDefaultPort : proxyUrl.getPort();
     var proxyWsScheme = getWebSocketScheme(proxyUrl);
 
     URI originUrl = URI.create(serveEvent.getResponseDefinition().getProxyBaseUrl());
     var originDefaultPort = getDefaultPort(originUrl.getScheme());
+    var originActualPort = originUrl.getPort() == -1 ? originDefaultPort : originUrl.getPort();
     var originWsScheme = getWebSocketScheme(originUrl);
 
     var replacements = new LinkedHashMap<Pattern, String>();
 
-    if (originUrl.getPort() == -1 || originUrl.getPort() == originDefaultPort) {
-      if (proxyUrl.getPort() == -1 || proxyUrl.getPort() == proxyDefaultPort) {
+    if (originActualPort == originDefaultPort) {
+      if (proxyActualPort == proxyDefaultPort) {
         // origin is on default port, proxy is on default port
 
         // https://origin.example.com:443 -> https://proxy.example.com:443
         replacements.put(
-            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originDefaultPort),
-            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyDefaultPort);
+            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originActualPort),
+            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // https://origin.example.com -> https://proxy.example.com
         replacements.put(
@@ -186,8 +188,8 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
         // wss://origin.example.com:443 -> wss://proxy.example.com:443
         replacements.put(
-            fullUrlPattern(originWsScheme, originUrl.getHost(), originDefaultPort),
-            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyDefaultPort);
+            fullUrlPattern(originWsScheme, originUrl.getHost(), originActualPort),
+            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // wss://origin.example.com -> wss://proxy.example.com
         replacements.put(
@@ -196,8 +198,8 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
         // origin.example.com:443 -> proxy.example.com:443
         replacements.put(
-            schemelessPattern(originUrl.getHost(), originDefaultPort),
-            proxyUrl.getHost() + ":" + proxyDefaultPort);
+            schemelessPattern(originUrl.getHost(), originActualPort),
+            proxyUrl.getHost() + ":" + proxyActualPort);
 
         // origin.example.com -> proxy.example.com
         replacements.put(schemelessPattern(originUrl.getHost()), proxyUrl.getHost());
@@ -206,50 +208,50 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
         // https://origin.example.com:443 -> https://proxy.example.com:4434
         replacements.put(
-            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originDefaultPort),
-            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originActualPort),
+            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // https://origin.example.com -> https://proxy.example.com:4434
         replacements.put(
             fullUrlPattern(originUrl.getScheme(), originUrl.getHost()),
-            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // wss://origin.example.com:443 -> wss://proxy.example.com:4434
         replacements.put(
-            fullUrlPattern(originWsScheme, originUrl.getHost(), originDefaultPort),
-            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            fullUrlPattern(originWsScheme, originUrl.getHost(), originActualPort),
+            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // wss://origin.example.com -> wss://proxy.example.com:4434
         replacements.put(
             fullUrlPattern(originWsScheme, originUrl.getHost()),
-            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // origin.example.com:443 -> proxy.example.com:4434
         replacements.put(
-            schemelessPattern(originUrl.getHost(), originDefaultPort),
-            proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            schemelessPattern(originUrl.getHost(), originActualPort),
+            proxyUrl.getHost() + ":" + proxyActualPort);
 
         // origin.example.com -> proxy.example.com:4434
         replacements.put(
-            schemelessPattern(originUrl.getHost()), proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            schemelessPattern(originUrl.getHost()), proxyUrl.getHost() + ":" + proxyActualPort);
       }
     } else {
-      if (proxyUrl.getPort() == -1 || proxyUrl.getPort() == proxyDefaultPort) {
+      if (proxyActualPort == proxyDefaultPort) {
         // origin is on custom port, proxy is on default port
 
         // https://origin.example.com:4434 -> https://proxy.example.com
         replacements.put(
-            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originUrl.getPort()),
+            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originActualPort),
             proxyUrl.getScheme() + "://" + proxyUrl.getHost());
 
         // wss://origin.example.com:4434 -> wss://proxy.example.com
         replacements.put(
-            fullUrlPattern(originWsScheme, originUrl.getHost(), originUrl.getPort()),
+            fullUrlPattern(originWsScheme, originUrl.getHost(), originActualPort),
             proxyWsScheme + "://" + proxyUrl.getHost());
 
         // origin.example.com:4434 -> proxy.example.com
         replacements.put(
-            schemelessPattern(originUrl.getHost(), originUrl.getPort()), proxyUrl.getHost());
+            schemelessPattern(originUrl.getHost(), originActualPort), proxyUrl.getHost());
 
         // origin.example.com -> proxy.example.com
         replacements.put(schemelessPattern(originUrl.getHost()), proxyUrl.getHost());
@@ -258,18 +260,18 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
         // https://origin.example.com:4434 -> https://proxy.example.com:4434
         replacements.put(
-            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originUrl.getPort()),
-            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            fullUrlPattern(originUrl.getScheme(), originUrl.getHost(), originActualPort),
+            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // wss://origin.example.com:4434 -> wss://proxy.example.com:4434
         replacements.put(
-            fullUrlPattern(originWsScheme, originUrl.getHost(), originUrl.getPort()),
-            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            fullUrlPattern(originWsScheme, originUrl.getHost(), originActualPort),
+            proxyWsScheme + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
 
         // origin.example.com:4434 -> proxy.example.com:4434
         replacements.put(
-            schemelessPattern(originUrl.getHost(), originUrl.getPort()),
-            proxyUrl.getHost() + ":" + proxyUrl.getPort());
+            schemelessPattern(originUrl.getHost(), originActualPort),
+            proxyUrl.getHost() + ":" + proxyActualPort);
 
         // origin.example.com -> proxy.example.com
         replacements.put(schemelessPattern(originUrl.getHost()), proxyUrl.getHost());
