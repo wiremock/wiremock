@@ -158,7 +158,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   @Override
-  public void addMapping(StubMapping mapping) {
+  public StubMapping addMapping(StubMapping mapping) {
     if (store.get(mapping.getId()).isPresent()) {
       String msg =
           "ID of the provided stub mapping '"
@@ -173,16 +173,23 @@ public abstract class AbstractStubMappings implements StubMappings {
       mapping = listener.beforeStubCreated(mapping);
     }
 
+    if (mapping.getInsertionIndex() < 1) {
+      long maxIndex = store.getAll().mapToLong(StubMapping::getInsertionIndex).max().orElse(0);
+      mapping = mapping.transform(b -> b.setInsertionIndex(maxIndex + 1));
+    }
+
     store.add(mapping);
     scenarios.onStubMappingAdded(mapping);
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubCreated(mapping);
     }
+
+    return mapping;
   }
 
   @Override
-  public void removeMapping(StubMapping mapping) {
+  public StubMapping removeMapping(StubMapping mapping) {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubRemoved(mapping);
     }
@@ -193,10 +200,12 @@ public abstract class AbstractStubMappings implements StubMappings {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubRemoved(mapping);
     }
+
+    return mapping;
   }
 
   @Override
-  public void editMapping(StubMapping stubMapping) {
+  public StubMapping editMapping(StubMapping stubMapping) {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
     if (optionalExistingMapping.isEmpty()) {
@@ -219,6 +228,8 @@ public abstract class AbstractStubMappings implements StubMappings {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubEdited(existingMapping, stubMapping);
     }
+
+    return stubMapping;
   }
 
   @Override
