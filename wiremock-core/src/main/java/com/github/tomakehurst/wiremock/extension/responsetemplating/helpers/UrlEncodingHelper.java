@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -26,13 +27,17 @@ public class UrlEncodingHelper implements Helper<Object> {
 
   @Override
   public Object apply(Object context, Options options) throws IOException {
+    String value =
+        options.tagType == TagType.SECTION ? options.fn(context).toString() : context.toString();
+
     Object encodingObj = options.hash.get("encoding");
     String encoding = encodingObj != null ? encodingObj.toString() : "utf-8";
+
     if (Boolean.TRUE.equals(options.hash.get("decode"))) {
-      return decode(context.toString(), encoding);
+      return decode(value, encoding);
     }
 
-    return encode(context.toString(), encoding);
+    return encode(value, encoding);
   }
 
   private String encode(String value, String encoding) throws IOException {

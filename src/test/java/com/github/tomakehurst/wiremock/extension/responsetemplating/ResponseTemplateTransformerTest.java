@@ -586,15 +586,27 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void urlEncodeValue() {
+  public void urlEncodeValueInline() {
     String body = transform("{{{urlEncode 'one two'}}}");
     assertThat(body, is("one+two"));
   }
 
   @Test
-  public void urlDecodeValue() {
+  public void urlEncodeValueBlock() {
+    String body = transform("{{#urlEncode}}Content to encode{{/urlEncode}}");
+    assertThat(body, is("Content+to+encode"));
+  }
+
+  @Test
+  public void urlDecodeValueInline() {
     String body = transform("{{{urlEncode 'one+two' decode=true}}}");
     assertThat(body, is("one two"));
+  }
+
+  @Test
+  public void urlDecodeValueBlock() {
+    String body = transform("{{#urlEncode decode=true}}Content%20to%20decode{{/urlEncode}}");
+    assertThat(body, is("Content to decode"));
   }
 
   @Test
