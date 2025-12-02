@@ -93,7 +93,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
             .willReturn(
                 aResponse()
                     .withStatus(307) // Temporary redirect
-                    .withHeader(LOCATION, "http://localhost/end")));
+                    .withHeader(LOCATION, "http://localhost:" + targetService.port() + "/end")));
 
     // Set up the proxy with the hostname rewrite transformer
     proxy.register(
@@ -107,7 +107,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     WireMockResponse response = testClient.get("/start");
 
     // Verify the location header has been rewritten
-    assertThat(response.firstHeader(LOCATION), is("http://localhost/end"));
+    assertThat(response.firstHeader(LOCATION), is("http://localhost:" + proxyingService.port() + "/end"));
   }
 
   @Test
@@ -143,7 +143,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     initWithDefaultConfig();
 
     // JSON response with a link containing the localhost hostname
-    String responseString = "{ \"link\": \"http://localhost/other\" }";
+    String responseString = "{ \"link\": \"http://localhost:" + targetService.port() + "/other\" }";
 
     // Set up the target service to return the JSON
     target.register(
@@ -166,7 +166,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     String responseContent = response.content();
 
     // Verify the link in the response has been rewritten
-    assertThat("{ \"link\": \"http://localhost/other\" }", is(responseContent));
+    assertThat("{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }", is(responseContent));
 
     // Verify the content length header is correct
     assertThat(
@@ -215,7 +215,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     initWithDefaultConfig();
 
     // JSON response with a link containing the localhost hostname
-    String responseString = "{ \"link\": \"http://localhost/other\" }";
+    String responseString = "{ \"link\": \"http://localhost:" + targetService.port() + "/other\" }";
 
     // Gzipping the original body
     byte[] gzippedBody = Gzip.gzip(responseString.getBytes());
@@ -247,7 +247,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     String responseContent = Gzip.unGzipToString(response.binaryContent());
 
     // Expected body with the hostname rewritten
-    String expectedBody = "{ \"link\": \"http://localhost/other\" }";
+    String expectedBody = "{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }";
 
     // Verify the content of the response after unzipping and rewriting
     assertThat(responseContent, is(expectedBody));
