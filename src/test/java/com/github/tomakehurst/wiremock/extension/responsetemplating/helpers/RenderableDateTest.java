@@ -28,7 +28,7 @@ public class RenderableDateTest {
   @Test
   void writesToJsonInStringFormat() {
     RenderableDate renderableDate = new RenderableDate(new Date(1729266504010L), null, null);
-    assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24Z\""));
+    assertThat(Json.write(renderableDate), is("\"2024-10-18T15:48:24.010Z\""));
   }
 
   @Test
