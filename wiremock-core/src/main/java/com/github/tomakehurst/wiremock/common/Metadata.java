@@ -282,6 +282,13 @@ public class Metadata implements Map<String, Object> {
     return data.hashCode();
   }
 
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", Metadata.class.getSimpleName() + "[", "]")
+            .add("data=" + data)
+            .toString();
+  }
+
   public Metadata deepMerge(Metadata toMerge) {
     return transform(
         builder -> {
