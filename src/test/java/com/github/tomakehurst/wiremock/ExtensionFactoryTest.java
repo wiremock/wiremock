@@ -86,7 +86,7 @@ public class ExtensionFactoryTest {
     assertThat(content, jsonPartEquals("requestCount", 2));
     assertThat(content, jsonPartEquals("stubCorsEnabled", true));
     assertThat(
-        content, jsonPartEquals("extensionCount", 6)); // Includes the service loaded extensions
+        content, jsonPartEquals("extensionCount", 7)); // Includes the service loaded extensions
   }
 
   @Test

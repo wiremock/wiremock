@@ -62,7 +62,18 @@ class ExtensionsTest {
     List<String> allExtensions = extensions.ofType(Extension.class).keySet().stream().toList();
 
     assertEquals(
-        List.of("e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "response-template", "webhook"),
+        List.of(
+            "e1",
+            "e2",
+            "e3",
+            "e4",
+            "e5",
+            "e6",
+            "e7",
+            "e8",
+            "response-template",
+            "webhook",
+            "proxied-hostname-rewrite"),
         allExtensions);
   }
 

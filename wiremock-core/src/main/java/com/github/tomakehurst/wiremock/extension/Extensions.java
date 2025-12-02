@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClient;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClientFactory;
+import com.github.tomakehurst.wiremock.proxy.ProxiedHostnameRewriteResponseTransformer;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -129,6 +130,7 @@ public class Extensions implements WireMockServices {
     configureTemplating();
     configureHttpClient();
     configureWebhooks();
+    configureProxiedHostnameRewrite();
   }
 
   private Stream<Extension> loadExtensionsAsServices() {
@@ -196,6 +198,13 @@ public class Extensions implements WireMockServices {
             Executors.newScheduledThreadPool(options.getWebhookThreadPoolSize()),
             webhookTransformers);
     loadedExtensions.put(webhooks.getName(), webhooks);
+  }
+
+  private void configureProxiedHostnameRewrite() {
+    final ProxiedHostnameRewriteResponseTransformer proxiedHostnameRewriteTransformer =
+        new ProxiedHostnameRewriteResponseTransformer();
+    loadedExtensions.put(
+        proxiedHostnameRewriteTransformer.getName(), proxiedHostnameRewriteTransformer);
   }
 
   @Override
