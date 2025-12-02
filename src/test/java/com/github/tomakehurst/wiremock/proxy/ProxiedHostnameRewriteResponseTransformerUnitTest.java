@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -164,6 +165,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "http://proxy.example.com"),
@@ -192,6 +198,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:80",
             "ws://origin.example.com:80",
             "ws://proxy.example.com:80"),
+        testCase(
+            "http://proxy.example.com",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "http://proxy.example.com",
             "http://origin.example.com:8080",
@@ -244,6 +255,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "http://proxy.example.com"),
@@ -272,6 +288,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "https://origin.example.com:443",
             "wss://origin.example.com:443",
             "ws://proxy.example.com:80"),
+        testCase(
+            "http://proxy.example.com",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "http://proxy.example.com",
             "https://origin.example.com:443443",
@@ -324,6 +345,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com:80",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com:80",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "http://proxy.example.com"),
@@ -354,6 +380,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com:80",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com:80",
             "http://origin.example.com:8080",
             "http://origin.example.com:8080",
             "http://proxy.example.com"),
@@ -404,6 +435,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com:80",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com:80",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "http://proxy.example.com"),
@@ -434,6 +470,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:80"),
         testCase(
             "http://proxy.example.com:80",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "http://proxy.example.com:80",
             "https://origin.example.com:443443",
             "https://origin.example.com:443443",
             "http://proxy.example.com"),
@@ -484,6 +525,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:8080"),
         testCase(
             "http://proxy.example.com:8080",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "http://proxy.example.com:8080"),
+        testCase(
+            "http://proxy.example.com:8080",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "http://proxy.example.com:8080"),
@@ -512,6 +558,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:80",
             "ws://origin.example.com:80",
             "ws://proxy.example.com:8080"),
+        testCase(
+            "http://proxy.example.com:8080",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "http://proxy.example.com:8080"),
         testCase(
             "http://proxy.example.com:8080",
             "http://origin.example.com:8080",
@@ -564,6 +615,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "ws://proxy.example.com:8080"),
         testCase(
             "http://proxy.example.com:8080",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "http://proxy.example.com:8080"),
+        testCase(
+            "http://proxy.example.com:8080",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "http://proxy.example.com:8080"),
@@ -592,6 +648,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "https://origin.example.com:443",
             "wss://origin.example.com:443",
             "ws://proxy.example.com:8080"),
+        testCase(
+            "http://proxy.example.com:8080",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "http://proxy.example.com:8080"),
         testCase(
             "http://proxy.example.com:8080",
             "https://origin.example.com:443443",
@@ -644,6 +705,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443"),
         testCase(
             "https://proxy.example.com",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "https://proxy.example.com",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "https://proxy.example.com"),
@@ -672,6 +738,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:80",
             "ws://origin.example.com:80",
             "wss://proxy.example.com:443"),
+        testCase(
+            "https://proxy.example.com",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "https://proxy.example.com",
             "http://origin.example.com:8080",
@@ -724,6 +795,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443"),
         testCase(
             "https://proxy.example.com",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "https://proxy.example.com",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "https://proxy.example.com"),
@@ -752,6 +828,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "https://origin.example.com:443",
             "wss://origin.example.com:443",
             "wss://proxy.example.com:443"),
+        testCase(
+            "https://proxy.example.com",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "https://proxy.example.com",
             "https://origin.example.com:443443",
@@ -804,6 +885,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443"),
         testCase(
             "https://proxy.example.com:443",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "https://proxy.example.com:443",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "https://proxy.example.com"),
@@ -832,6 +918,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:80",
             "ws://origin.example.com:80",
             "wss://proxy.example.com:443"),
+        testCase(
+            "https://proxy.example.com:443",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "https://proxy.example.com:443",
             "http://origin.example.com:8080",
@@ -884,6 +975,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443"),
         testCase(
             "https://proxy.example.com:443",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "//proxy.example.com"),
+        testCase(
+            "https://proxy.example.com:443",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "https://proxy.example.com"),
@@ -912,6 +1008,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "https://origin.example.com:443",
             "wss://origin.example.com:443",
             "wss://proxy.example.com:443"),
+        testCase(
+            "https://proxy.example.com:443",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "//proxy.example.com"),
         testCase(
             "https://proxy.example.com:443",
             "https://origin.example.com:443443",
@@ -964,6 +1065,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443443"),
         testCase(
             "https://proxy.example.com:443443",
+            "http://origin.example.com",
+            "//origin.example.com",
+            "https://proxy.example.com:443443"),
+        testCase(
+            "https://proxy.example.com:443443",
             "http://origin.example.com:80",
             "http://origin.example.com",
             "https://proxy.example.com:443443"),
@@ -992,6 +1098,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:80",
             "ws://origin.example.com:80",
             "wss://proxy.example.com:443443"),
+        testCase(
+            "https://proxy.example.com:443443",
+            "http://origin.example.com:80",
+            "//origin.example.com",
+            "https://proxy.example.com:443443"),
         testCase(
             "https://proxy.example.com:443443",
             "http://origin.example.com:8080",
@@ -1044,6 +1155,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "wss://proxy.example.com:443443"),
         testCase(
             "https://proxy.example.com:443443",
+            "https://origin.example.com",
+            "//origin.example.com",
+            "https://proxy.example.com:443443"),
+        testCase(
+            "https://proxy.example.com:443443",
             "https://origin.example.com:443",
             "https://origin.example.com",
             "https://proxy.example.com:443443"),
@@ -1072,6 +1188,11 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "https://origin.example.com:443",
             "wss://origin.example.com:443",
             "wss://proxy.example.com:443443"),
+        testCase(
+            "https://proxy.example.com:443443",
+            "https://origin.example.com:443",
+            "//origin.example.com",
+            "https://proxy.example.com:443443"),
         testCase(
             "https://proxy.example.com:443443",
             "https://origin.example.com:443443",
@@ -1228,6 +1349,8 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("http://origin.example.com", "origin.example.com:80"),
         testCase("http://origin.example.com", " origin.example.com "),
         testCase("http://origin.example.com", " origin.example.com:80 "),
+        testCase("http://origin.example.com", "//origin.example.com"),
+        testCase("http://origin.example.com", " //origin.example.com "),
         testCase("http://origin.example.com:80", " http://origin.example.com "),
         testCase("http://origin.example.com:80", " http://origin.example.com:80 "),
         testCase("http://origin.example.com:80", "http://origin.example.com"),
@@ -1240,6 +1363,8 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("http://origin.example.com:80", "origin.example.com:80"),
         testCase("http://origin.example.com:80", " origin.example.com "),
         testCase("http://origin.example.com:80", " origin.example.com:80 "),
+        testCase("http://origin.example.com:80", "//origin.example.com"),
+        testCase("http://origin.example.com:80", " //origin.example.com "),
         testCase("http://origin.example.com:8080", " http://origin.example.com:8080 "),
         testCase("http://origin.example.com:8080", "http://origin.example.com:8080"),
         testCase("http://origin.example.com:8080", " ws://origin.example.com:8080 "),
@@ -1260,6 +1385,8 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("https://origin.example.com", " origin.example.com:443 "),
         testCase("https://origin.example.com", "origin.example.com"),
         testCase("https://origin.example.com", " origin.example.com "),
+        testCase("https://origin.example.com", "//origin.example.com"),
+        testCase("https://origin.example.com", " //origin.example.com "),
         testCase("https://origin.example.com:443", " https://origin.example.com "),
         testCase("https://origin.example.com:443", " https://origin.example.com:443 "),
         testCase("https://origin.example.com:443", "https://origin.example.com"),
@@ -1272,6 +1399,8 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("https://origin.example.com:443", "origin.example.com:443"),
         testCase("https://origin.example.com:443", " origin.example.com "),
         testCase("https://origin.example.com:443", " origin.example.com:443 "),
+        testCase("https://origin.example.com:443", "//origin.example.com"),
+        testCase("https://origin.example.com:443", " //origin.example.com "),
         testCase("https://origin.example.com:443443", " https://origin.example.com:443443 "),
         testCase("https://origin.example.com:443443", "https://origin.example.com:443443"),
         testCase("https://origin.example.com:443443", " wss://origin.example.com:443443 "),
@@ -1354,6 +1483,8 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("http://origin.example.com:8080", " origin.example.com:80 "),
         testCase("http://origin.example.com:8080", " origin.example.com:443 "),
         testCase("http://origin.example.com:8080", " origin.example.com:443443 "),
+        testCase("http://origin.example.com:8080", "//origin.example.com"),
+        testCase("http://origin.example.com:8080", " //origin.example.com "),
         testCase("https://origin.example.com", " http://origin.example.com "),
         testCase("https://origin.example.com", " http://origin.example.com:80 "),
         testCase("https://origin.example.com", " http://origin.example.com:8080 "),
@@ -1423,7 +1554,9 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         testCase("https://origin.example.com:443443", "origin.example.com:443"),
         testCase("https://origin.example.com:443443", " origin.example.com:80 "),
         testCase("https://origin.example.com:443443", " origin.example.com:8080 "),
-        testCase("https://origin.example.com:443443", " origin.example.com:443 "));
+        testCase("https://origin.example.com:443443", " origin.example.com:443 "),
+        testCase("https://origin.example.com:443443", "//origin.example.com"),
+        testCase("https://origin.example.com:443443", " //origin.example.com "));
   }
 
   static Stream<String> proxyUrls() {
@@ -1481,7 +1614,9 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
         " origin.example.com:80 ",
         " origin.example.com:8080 ",
         " origin.example.com:443 ",
-        " origin.example.com:443443 ");
+        " origin.example.com:443443 ",
+        "//origin.example.com",
+        " //origin.example.com ");
   }
 
   static SourceTestCase testCase(String originUrl, String originResponseBody) {
@@ -1520,6 +1655,13 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
                             "proxy.example.com:" + proxyUrl.getPort());
                     expectedResponseBody =
                         expectedResponseBody.replace(
+                            "://origin.example.com", "://proxy.example.com:" + proxyUrl.getPort());
+                    expectedResponseBody =
+                        expectedResponseBody.replace(
+                            "//origin.example.com",
+                            proxyUrl.getScheme() + "://proxy.example.com:" + proxyUrl.getPort());
+                    expectedResponseBody =
+                        expectedResponseBody.replace(
                             "origin.example.com", "proxy.example.com:" + proxyUrl.getPort());
                   }
                 } else {
@@ -1527,16 +1669,14 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
                     expectedResponseBody =
                         expectedResponseBody.replace(
                             "origin.example.com:" + originUrl.getPort(), "proxy.example.com");
-                    expectedResponseBody =
-                        expectedResponseBody.replace("origin.example.com", "proxy.example.com");
                   } else {
                     expectedResponseBody =
                         expectedResponseBody.replace(
                             "origin.example.com:" + originUrl.getPort(),
                             "proxy.example.com:" + proxyUrl.getPort());
-                    expectedResponseBody =
-                        expectedResponseBody.replace("origin.example.com", "proxy.example.com");
                   }
+                  expectedResponseBody =
+                      expectedResponseBody.replace("origin.example.com", "proxy.example.com");
                 }
                 return testCase(
                     proxyUrlStr, this.originUrl, originResponseBody, expectedResponseBody);
@@ -1558,14 +1698,14 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
   record BodyRewriteTestCase(
       String proxyUrl, String originUrl, String originResponseBody, String expectedResponseBody)
       implements Comparable<BodyRewriteTestCase> {
+
     private static final Comparator<BodyRewriteTestCase> ORDER =
         Comparator.comparing(BodyRewriteTestCase::proxyUrl)
             .thenComparing(BodyRewriteTestCase::originUrl)
             .thenComparing(BodyRewriteTestCase::originResponseBody);
-    ;
 
     @Override
-    public int compareTo(BodyRewriteTestCase other) {
+    public int compareTo(@NonNull BodyRewriteTestCase other) {
       return ORDER.compare(this, other);
     }
 

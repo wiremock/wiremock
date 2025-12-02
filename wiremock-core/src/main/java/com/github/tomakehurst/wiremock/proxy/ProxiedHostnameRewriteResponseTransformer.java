@@ -203,6 +203,11 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
         // origin.example.com -> proxy.example.com
         replacements.put(schemelessPattern(originUrl.getHost()), proxyUrl.getHost());
+
+        // //origin.example.com -> //proxy.example.com
+        replacements.put(
+            pattern("[^:]", "//" + originUrl.getHost(), possibleHostPrefix),
+            "//" + proxyUrl.getHost());
       } else {
         // origin is on default port, proxy is on custom port
 
@@ -234,6 +239,11 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
         // origin.example.com -> proxy.example.com:4434
         replacements.put(
             schemelessPattern(originUrl.getHost()), proxyUrl.getHost() + ":" + proxyActualPort);
+
+        // //origin.example.com -> https://proxy.example.com:4434
+        replacements.put(
+            pattern("[^:]", "//" + originUrl.getHost(), possibleHostPrefix),
+            proxyUrl.getScheme() + "://" + proxyUrl.getHost() + ":" + proxyActualPort);
       }
     } else {
       if (proxyActualPort == proxyDefaultPort) {
