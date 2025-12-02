@@ -52,6 +52,24 @@ import org.xmlunit.diff.Diff;
 
 public class WireMatchers {
 
+  public static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
+      new TypeSafeDiagnosingMatcher<>() {
+        @Override
+        public void describeTo(Description description) {
+          description.appendText("a stub mapping marked as persistent");
+        }
+
+        @Override
+        protected boolean matchesSafely(StubMapping stub, Description mismatchDescription) {
+          final boolean result = stub.shouldBePersisted();
+          if (!result) {
+            mismatchDescription.appendText(stub.getId() + " not marked as persistent");
+          }
+
+          return result;
+        }
+      };
+
   public static Matcher<String> equalToJson(final String expectedJson) {
     return new TypeSafeMatcher<>() {
 

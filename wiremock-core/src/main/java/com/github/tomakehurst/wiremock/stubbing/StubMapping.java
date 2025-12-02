@@ -443,6 +443,11 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
+    public Builder metadata(Consumer<Metadata.Builder> transformer) {
+      this.metadata = getFirstNonNull(metadata, new Metadata()).transform(transformer);
+      return this;
+    }
+
     public long getInsertionIndex() {
       return insertionIndex;
     }

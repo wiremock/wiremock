@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.File;
 import java.nio.file.Files;
@@ -90,7 +91,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("Response to /some/url"));
 
-    assertThat(listAllStubMappings().getMappings(), everyItem(IS_PERSISTENT));
+    assertThat(listAllStubMappings().getMappings(), everyItem(WireMatchers.IS_PERSISTENT));
   }
 
   @Test
@@ -163,21 +164,4 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(Objects.requireNonNull(MAPPINGS_DIRECTORY.listFiles()).length, is(1));
   }
 
-  static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
-      new TypeSafeDiagnosingMatcher<>() {
-        @Override
-        public void describeTo(Description description) {
-          description.appendText("a stub mapping marked as persistent");
-        }
-
-        @Override
-        protected boolean matchesSafely(StubMapping stub, Description mismatchDescription) {
-          final boolean result = stub.shouldBePersisted();
-          if (!result) {
-            mismatchDescription.appendText(stub.getId() + " not marked as persistent");
-          }
-
-          return result;
-        }
-      };
 }

@@ -24,11 +24,9 @@ import java.util.stream.Stream;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
-  private final AtomicLong insertionCount;
   private final ConcurrentSkipListSet<StubMapping> mappingSet;
 
   public SortedConcurrentMappingSet() {
-    insertionCount = new AtomicLong();
     mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
   }
 
@@ -53,7 +51,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
   }
 
   public void add(StubMapping mapping) {
-    mappingSet.add(mapping.transform(b -> b.setInsertionIndex(insertionCount.getAndIncrement())));
+    mappingSet.add(mapping);
   }
 
   public boolean remove(final UUID mappingId) {
