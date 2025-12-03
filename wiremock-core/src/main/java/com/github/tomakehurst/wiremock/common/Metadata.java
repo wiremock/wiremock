@@ -38,17 +38,21 @@ public class Metadata implements Map<String, Object> {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<String, Object> convertNestedMapsToMetadata(Map<? extends String, ?> data) {
+  protected Map<String, Object> convertNestedMapsToMetadata(Map<? extends String, ?> data) {
     Map<String, Object> result = new LinkedHashMap<>();
     for (Map.Entry<? extends String, ?> entry : data.entrySet()) {
       Object value = entry.getValue();
-      if (value instanceof Map && !(value instanceof Metadata)) {
-        result.put(entry.getKey(), new Metadata((Map<String, ?>) value));
+      if (value instanceof Map && !(this.getClass().isInstance(value))) {
+        result.put(entry.getKey(), newInstance((Map<String, Object>) value));
       } else {
         result.put(entry.getKey(), value);
       }
     }
     return result;
+  }
+
+  protected Metadata newInstance(Map<String, Object> value) {
+    return new Metadata(value);
   }
 
   public static Builder builder() {
@@ -106,6 +110,7 @@ public class Metadata implements Map<String, Object> {
     return new Metadata((Map<String, ?>) get(key));
   }
 
+  @SuppressWarnings("unchecked")
   public Metadata getMetadata(String key, Metadata defaultValue) {
     if (!containsKey(key)) {
       return defaultValue;
@@ -133,7 +138,7 @@ public class Metadata implements Map<String, Object> {
     return (T) get(key);
   }
 
-  private void checkKeyPresent(String key) {
+  protected void checkKeyPresent(String key) {
     checkParameter(containsKey(key), key + "' not present");
   }
 
@@ -285,8 +290,8 @@ public class Metadata implements Map<String, Object> {
   @Override
   public String toString() {
     return new StringJoiner(", ", Metadata.class.getSimpleName() + "[", "]")
-            .add("data=" + data)
-            .toString();
+        .add("data=" + data)
+        .toString();
   }
 
   public Metadata deepMerge(Metadata toMerge) {

@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
@@ -33,6 +35,11 @@ public class Parameters extends Metadata {
     super(data);
   }
 
+  @Override
+  protected Metadata newInstance(Map<String, Object> value) {
+    return new Parameters(value);
+  }
+
   public static Parameters empty() {
     return new Parameters();
   }
@@ -47,6 +54,23 @@ public class Parameters extends Metadata {
 
   public static <T> Parameters of(T myData) {
     return from(Json.objectToMap(myData));
+  }
+
+  @SuppressWarnings("unchecked")
+  public Parameters getParameters(String key) {
+    checkKeyPresent(key);
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    return new Parameters((Map<String, ?>) get(key));
+  }
+
+  @SuppressWarnings("unchecked")
+  public Parameters getParameters(String key, Parameters defaultValue) {
+    if (!containsKey(key)) {
+      return defaultValue;
+    }
+
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    return new Parameters((Map<String, ?>) get(key));
   }
 
   public Parameters transform(Consumer<Builder> transformer) {
