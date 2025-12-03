@@ -19,7 +19,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
