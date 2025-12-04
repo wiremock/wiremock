@@ -40,6 +40,14 @@ public non-sealed interface RelativeRef extends UrlReference {
     return false;
   }
 
+  @Override
+  RelativeRef withPort(@Nullable Port port);
+
+  @Override
+  default RelativeRef withoutPort() {
+    return withPort(null);
+  }
+
   static RelativeRef parse(CharSequence relativeRef) throws IllegalRelativeRef {
     throw new IllegalRelativeRef(relativeRef.toString());
   }

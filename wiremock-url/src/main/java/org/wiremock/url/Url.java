@@ -35,6 +35,11 @@ public non-sealed interface Url extends UrlReference {
     return true;
   }
 
+  @Override
+  default Host host() {
+    return authority().host();
+  }
+
   default boolean isAbsolute() {
     return fragment() == null;
   }
@@ -55,6 +60,14 @@ public non-sealed interface Url extends UrlReference {
     Builder builder = this.thaw();
     consumer.accept(builder);
     return builder.build();
+  }
+
+  default Url withPort(@Nullable Port port) {
+    return transform(builder -> builder.setAuthority(authority().withPort(port)));
+  }
+
+  default Url withoutPort() {
+    return withPort(null);
   }
 
   static Url parse(CharSequence url) throws IllegalUrl {

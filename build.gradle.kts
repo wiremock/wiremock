@@ -47,6 +47,7 @@ dependencies {
   testFixturesImplementation(libs.xmlunit.core)
 
   testImplementation(project(":wiremock-junit5"))
+  testImplementation(project(":wiremock-url"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)

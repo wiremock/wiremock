@@ -45,6 +45,18 @@ public interface PathAndQuery extends RelativeRef {
     return null;
   }
 
+  @Override
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default PathAndQuery withPort(@Nullable Port port) {
+    return this;
+  }
+
+  @Override
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default PathAndQuery withoutPort() {
+    return this;
+  }
+
   static PathAndQuery parse(CharSequence pathAndQuery) throws IllegalPathAndQuery {
     throw new IllegalPathAndQuery(pathAndQuery.toString());
   }

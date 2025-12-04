@@ -23,11 +23,11 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.wiremock.url.UrlReference;
 
 class ScenarioProcessor {
 
@@ -76,7 +76,7 @@ class ScenarioProcessor {
             + scenarioIndex
             + "-"
             + Urls.urlToPathParts(
-                URI.create(
+                UrlReference.parse(
                     getFirstNonNull(
                         firstScenario.getRequest().getUrl(),
                         firstScenario.getRequest().getUrlPath())));

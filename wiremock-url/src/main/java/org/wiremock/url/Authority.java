@@ -25,7 +25,31 @@ public interface Authority {
 
   @Nullable Port port();
 
+  HostAndPort hostAndPort();
+
+  Authority withPort(@Nullable Port port);
+
+  default Authority withoutPort() {
+    return withPort(null);
+  }
+
   static Authority parse(String authorityStr) throws IllegalAuthority {
     return AuthorityParser.INSTANCE.parse(authorityStr);
+  }
+
+  static Authority of(Host host) {
+    return of(null, host, null);
+  }
+
+  static Authority of(Host host, @Nullable Port port) {
+    return of(null, host, port);
+  }
+
+  static Authority of(@Nullable UserInfo userInfo, Host host) {
+    return of(userInfo, host, null);
+  }
+
+  static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
+    return new AuthorityParser.Authority(userInfo, host, port);
   }
 }

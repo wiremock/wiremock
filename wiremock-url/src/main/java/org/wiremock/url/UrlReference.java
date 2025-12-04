@@ -33,6 +33,20 @@ public sealed interface UrlReference permits RelativeRef, Url {
 
   boolean isUrl();
 
+  default @Nullable Host host() {
+    Authority authority = authority();
+    return authority != null ? authority.host() : null;
+  }
+
+  default @Nullable Port port() {
+    Authority authority = authority();
+    return authority != null ? authority.port() : null;
+  }
+
+  UrlReference withPort(@Nullable Port port);
+
+  UrlReference withoutPort();
+
   static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
     return UrlReferenceParser.INSTANCE.parse(urlReference);
   }
