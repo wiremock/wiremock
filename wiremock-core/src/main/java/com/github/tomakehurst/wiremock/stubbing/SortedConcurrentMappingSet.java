@@ -52,21 +52,22 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
     return mappingSet.stream();
   }
 
-  public void add(StubMapping mapping) {
-    mappingSet.add(mapping.transform(b -> b.setInsertionIndex(insertionCount.getAndIncrement())));
+  public StubMapping add(StubMapping mapping) {
+    mapping = mapping.transform(b -> b.setInsertionIndex(insertionCount.getAndIncrement()));
+    mappingSet.add(mapping);
+    return mapping;
   }
 
   public boolean remove(final UUID mappingId) {
     return mappingSet.removeIf(mapping -> mappingId != null && mappingId.equals(mapping.getId()));
   }
 
-  public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
-
+  public StubMapping replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
     if (mappingSet.remove(existingStubMapping)) {
       mappingSet.add(newStubMapping);
-      return true;
     }
-    return false;
+
+    return newStubMapping;
   }
 
   public void clear() {

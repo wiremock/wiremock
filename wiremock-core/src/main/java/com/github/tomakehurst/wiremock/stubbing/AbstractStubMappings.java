@@ -173,7 +173,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       mapping = listener.beforeStubCreated(mapping);
     }
 
-    store.add(mapping);
+    mapping = store.add(mapping);
     scenarios.onStubMappingAdded(mapping);
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {

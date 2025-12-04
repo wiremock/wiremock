@@ -107,11 +107,10 @@ public class SortedConcurrentMappingSetTest {
     existingMapping = existingMapping.transform(b -> b.setNewScenarioState("New Scenario State"));
 
     StubMapping newMapping = aMapping(2, "/priority2/1");
-    boolean result = mappingSet.replace(existingMapping, newMapping);
+    mappingSet.replace(existingMapping, newMapping);
 
     Iterator<StubMapping> it = mappingSet.iterator();
 
-    assertThat(result, is(true));
     assertThat(it.hasNext(), is(true));
     assertThat(it.next(), is(newMapping));
     assertThat(it.hasNext(), is(false));
@@ -124,11 +123,10 @@ public class SortedConcurrentMappingSetTest {
     mappingSet.add(existingMapping);
 
     StubMapping newMapping = aMapping(2, "/priority2/1");
-    boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
+    mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
 
     Iterator<StubMapping> it = mappingSet.iterator();
 
-    assertThat(result, is(false));
     assertThat(it.hasNext(), is(true));
     assertThat(it.next(), is(existingMapping));
     assertThat(it.hasNext(), is(false));
