@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "org.wiremock"
-version = "4.0.0-beta.18"
+version = "4.0.0-beta.20"
 
 repositories {
   mavenCentral()
@@ -209,9 +209,6 @@ publishing {
     }
   }
 
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
-  (components["java"] as AdhocComponentWithVariants).withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
-
   getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
     c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
       skip()
@@ -223,6 +220,8 @@ publishing {
       pom {
         pomInfo()
       }
+      suppressPomMetadataWarningsFor("testFixturesApiElements")
+      suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
     }
   }
 }

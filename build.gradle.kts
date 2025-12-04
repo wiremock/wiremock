@@ -40,6 +40,7 @@ dependencies {
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.junit.jupiter.api)
 
+  testFixturesImplementation(platform(libs.jetty.bom))
   testFixturesImplementation(libs.jetty.util)
   testFixturesImplementation(platform(libs.junit.bom))
   testFixturesImplementation(libs.mockito.core)
