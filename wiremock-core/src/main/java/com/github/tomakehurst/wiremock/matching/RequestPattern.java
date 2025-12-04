@@ -190,9 +190,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       newRequestPattern(RequestMethod.ANY, anyUrl()).build();
 
   public RequestPattern transform(Consumer<Builder> transformer) {
-    final RequestPattern.Builder builder = new RequestPattern.Builder(this);
+    final RequestPattern.Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new RequestPattern.Builder(this);
   }
 
   @Override

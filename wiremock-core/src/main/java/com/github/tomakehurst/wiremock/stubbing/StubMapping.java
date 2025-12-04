@@ -98,12 +98,12 @@ public final class StubMapping implements StubMappingOrMappings {
   }
 
   public StubMapping transform(Consumer<Builder> transformer) {
-    final Builder builder = thaw();
+    final Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
   }
 
-  public Builder thaw() {
+  public Builder toBuilder() {
     return new Builder(this);
   }
 
