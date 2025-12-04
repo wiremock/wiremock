@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
+import org.wiremock.url.UrlReference;
 
 /**
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
@@ -53,9 +53,9 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
     final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
     StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
 
-    URI uri = URI.create(event.getRequest().getUrl());
+    UrlReference uri = UrlReference.parse(event.getRequest().getUrl());
     FilenameMaker filenameMaker = new FilenameMaker();
-    stubMapping.setName(filenameMaker.sanitizeUrl(uri.getPath()));
+    stubMapping.setName(filenameMaker.sanitizeUrl(uri.path()));
 
     return stubMapping;
   }

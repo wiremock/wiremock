@@ -20,8 +20,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.Urls;
-import java.net.URI;
 import java.util.*;
+import org.wiremock.url.Port;
+import org.wiremock.url.Url;
 
 public class ImmutableRequest implements Request {
 
@@ -58,10 +59,11 @@ public class ImmutableRequest implements Request {
     this.method = requireNonNull(method);
     this.protocol = protocol;
 
-    final URI uri = URI.create(absoluteUrl);
-    this.scheme = uri.getScheme();
-    this.host = uri.getHost();
-    this.port = uri.getPort();
+    final Url uri = Url.parse(absoluteUrl);
+    this.scheme = uri.scheme().toString();
+    this.host = uri.authority().host().toString();
+    Port maybePort = uri.authority().port();
+    this.port = maybePort != null ? maybePort.port() : -1;
 
     this.clientIp = clientIp;
     this.headers = headers;

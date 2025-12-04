@@ -24,5 +24,12 @@ class RelativeRefParser {
       @Override Path path,
       @Override @Nullable Query query,
       @Override @Nullable Fragment fragment)
-      implements org.wiremock.url.RelativeRef {}
+      implements org.wiremock.url.RelativeRef {
+
+    @Override
+    public RelativeRef withPort(@Nullable Port port) {
+      return new RelativeRef(
+          authority != null ? authority.withPort(port) : null, path, query, fragment);
+    }
+  }
 }

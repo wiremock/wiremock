@@ -32,7 +32,7 @@ import java.text.ParsePosition;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
-import java.util.stream.Collectors;
+import org.wiremock.url.UrlReference;
 
 public class Urls {
 
@@ -60,7 +60,7 @@ public class Urls {
       return Collections.emptyMap();
     }
 
-    List<String> pairs = Arrays.stream(query.split("&")).collect(Collectors.toList());
+    List<String> pairs = Arrays.stream(query.split("&")).toList();
     Builder<String, String> builder = ImmutableListMultimap.builder();
     for (String queryElement : pairs) {
       int firstEqualsIndex = queryElement.indexOf('=');
@@ -86,7 +86,7 @@ public class Urls {
   }
 
   private static boolean isAbsolute(String url) {
-    return url.matches("^https?:\\/\\/.*");
+    return url.matches("^https?://.*");
   }
 
   public static List<String> getPathSegments(String path) {
@@ -95,9 +95,15 @@ public class Urls {
 
   public static String urlToPathParts(URI uri) {
     List<String> uriPathNodes =
-        Arrays.stream(uri.getPath().split("/"))
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toUnmodifiableList());
+        Arrays.stream(uri.getPath().split("/")).filter(s -> !s.isEmpty()).toList();
+    int nodeCount = uriPathNodes.size();
+
+    return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
+  }
+
+  public static String urlToPathParts(UrlReference uri) {
+    List<String> uriPathNodes =
+        Arrays.stream(uri.path().toString().split("/")).filter(s -> !s.isEmpty()).toList();
     int nodeCount = uriPathNodes.size();
 
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";

@@ -30,4 +30,13 @@ public interface HostAndPort extends Authority {
   default UserInfo userInfo() {
     return null;
   }
+
+  @Override
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default HostAndPort hostAndPort() {
+    return this;
+  }
+
+  @Override
+  HostAndPort withPort(@Nullable Port port);
 }

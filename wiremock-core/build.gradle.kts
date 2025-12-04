@@ -22,6 +22,7 @@ dependencies {
     api(libs.json.unit.core)
 
     api(libs.xmlunit.core)
+    api(project(":wiremock-url"))
 
     implementation(libs.apache.http5.client)
     implementation(libs.handlebars.helpers) {

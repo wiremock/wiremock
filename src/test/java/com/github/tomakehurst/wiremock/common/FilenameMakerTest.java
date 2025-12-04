@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.Path;
 
 class FilenameMakerTest {
 
@@ -91,7 +92,7 @@ class FilenameMakerTest {
 
   @Test
   void sanitizesUrlWithCharactersSafeForFilenames() {
-    String output = filenameMaker.sanitizeUrl("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?");
+    String output = filenameMaker.sanitizeUrl(Path.parse("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿"));
     assertThat(output, is("hello_1_2_3___ace--ace___and"));
   }
 
@@ -99,7 +100,7 @@ class FilenameMakerTest {
   void generatesSanitizedFilename() {
     String filename =
         filenameMaker.filenameFor(
-            get("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?").willReturn(ok()).build());
+            get("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿").willReturn(ok()).build());
     assertThat(filename, startsWith("get-hello123__--aceand-"));
   }
 
@@ -107,7 +108,8 @@ class FilenameMakerTest {
   void truncatesWhenResultingNameOver200Chars() {
     String output =
         filenameMaker.sanitizeUrl(
-            "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿?");
+            Path.parse(
+                "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿"));
     assertThat(output.length(), is(200));
   }
 

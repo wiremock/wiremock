@@ -60,7 +60,8 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     }
   }
 
-  record Authority(@Nullable @Override UserInfo userInfo, Host host, @Nullable @Override Port port)
+  record Authority(
+      @Nullable @Override UserInfo userInfo, @Override Host host, @Nullable @Override Port port)
       implements org.wiremock.url.Authority {
 
     @Override
@@ -74,6 +75,33 @@ class AuthorityParser implements CharSequenceParser<Authority> {
         result.append(':').append(port);
       }
       return result.toString();
+    }
+
+    @Override
+    public HostAndPort hostAndPort() {
+      return new HostAndPort(host, port);
+    }
+
+    @Override
+    public org.wiremock.url.Authority withPort(@Nullable Port port) {
+      return new Authority(userInfo, host, port);
+    }
+  }
+
+  record HostAndPort(@Override Host host, @Nullable @Override Port port)
+      implements org.wiremock.url.HostAndPort {
+    @Override
+    public String toString() {
+      if (port != null) {
+        return host + ":" + port;
+      } else {
+        return host.toString();
+      }
+    }
+
+    @Override
+    public org.wiremock.url.HostAndPort withPort(@Nullable Port port) {
+      return new HostAndPort(host, port);
     }
   }
 }
