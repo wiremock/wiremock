@@ -231,9 +231,13 @@ public class ResponseDefinition {
   }
 
   public ResponseDefinition transform(Consumer<Builder> transformer) {
-    final Builder builder = new Builder(this);
+    final Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
   public HttpHeaders getHeaders() {
