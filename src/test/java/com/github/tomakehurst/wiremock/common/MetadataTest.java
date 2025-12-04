@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -171,5 +172,28 @@ public class MetadataTest {
 
     Parameters three = (Parameters) two.get("three");
     assertThat(three.getString("e"), is("f"));
+  }
+
+  @Test
+  void transformBasedMetadataAttributeMethodPreservesExistingData() {
+    var metadata =
+        Metadata.create(
+            builder ->
+                builder.attr("one", 1).attr("two", attrBuilder -> attrBuilder.attr("three", 3)));
+
+    var transformed =
+        metadata.transform(
+            builder -> builder.attr("two", attrBuilder -> attrBuilder.attr("four", 4)));
+
+    assertThat(transformed.getInt("one"), is(1));
+
+    var two = transformed.getMetadata("two");
+    assertThat(two.getInt("three"), is(3));
+    assertThat(two.getInt("four"), is(4));
+  }
+
+  @Test
+  void supportsInitialisationFromANullMap() {
+    assertDoesNotThrow(() -> new Metadata(null));
   }
 }
