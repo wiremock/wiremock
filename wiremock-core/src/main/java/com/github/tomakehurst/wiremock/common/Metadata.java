@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+import static java.util.Collections.emptyMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.*;
@@ -29,7 +30,7 @@ public class Metadata implements Map<String, Object> {
   private final Map<String, Object> data;
 
   public Metadata() {
-    this.data = Collections.emptyMap();
+    this.data = emptyMap();
   }
 
   @JsonCreator
@@ -39,6 +40,10 @@ public class Metadata implements Map<String, Object> {
 
   @SuppressWarnings("unchecked")
   protected Map<String, Object> convertNestedMapsToMetadata(Map<? extends String, ?> data) {
+    if (data == null) {
+      return emptyMap();
+    }
+
     Map<String, Object> result = new LinkedHashMap<>();
     for (Map.Entry<? extends String, ?> entry : data.entrySet()) {
       Object value = entry.getValue();
@@ -353,14 +358,16 @@ public class Metadata implements Map<String, Object> {
       return this;
     }
 
-    public Builder attr(String key, Consumer<Metadata.Builder> transformer) {
-      final Builder builder = Metadata.builder();
+    public Builder attr(String key, Consumer<Builder> transformer) {
+      final Object existing = get(key);
+      final Builder builder =
+          existing instanceof Metadata ? new Builder((Metadata) existing) : builder();
       transformer.accept(builder);
       attr(key, builder);
       return this;
     }
 
-    public Builder attr(String key, Metadata.Builder metadataBuilder) {
+    public Builder attr(String key, Builder metadataBuilder) {
       mapBuilder.put(key, metadataBuilder.build());
       return this;
     }
