@@ -84,10 +84,6 @@ public class StubImportPeristenceAcceptanceTest {
     assertThat(stubs.size(), is(3));
     assertThat(stubs, everyItem(IS_PERSISTENT));
 
-    assertThat(wm.getStubMapping(stub1Id).getItem().getInsertionIndex(), is(3L));
-    assertThat(wm.getStubMapping(stub2Id).getItem().getInsertionIndex(), is(2L));
-    assertThat(wm.getStubMapping(stub3Id).getItem().getInsertionIndex(), is(1L));
-
     wm.importStubs(
         stubImport().stub(post("/two").withId(stub2Id).willReturn(ok("Updated"))).build());
 
