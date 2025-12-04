@@ -173,11 +173,6 @@ public abstract class AbstractStubMappings implements StubMappings {
       mapping = listener.beforeStubCreated(mapping);
     }
 
-    if (mapping.getInsertionIndex() < 1) {
-      long maxIndex = store.getAll().mapToLong(StubMapping::getInsertionIndex).max().orElse(0);
-      mapping = mapping.transform(b -> b.setInsertionIndex(maxIndex + 1));
-    }
-
     store.add(mapping);
     scenarios.onStubMappingAdded(mapping);
 
