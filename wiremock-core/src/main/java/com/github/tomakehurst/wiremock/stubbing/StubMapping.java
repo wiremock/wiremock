@@ -199,7 +199,6 @@ public final class StubMapping implements StubMappingOrMappings {
     if (o == null || getClass() != o.getClass()) return false;
     StubMapping that = (StubMapping) o;
     return Objects.equals(id, that.id)
-        && Objects.equals(name, that.name)
         && Objects.equals(priority, that.priority)
         && Objects.equals(metadata, that.metadata)
         && Objects.equals(scenarioName, that.scenarioName)
@@ -215,7 +214,6 @@ public final class StubMapping implements StubMappingOrMappings {
   public int hashCode() {
     return Objects.hash(
         id,
-        name,
         request,
         response,
         priority,
