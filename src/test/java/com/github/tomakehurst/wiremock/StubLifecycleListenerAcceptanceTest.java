@@ -127,9 +127,21 @@ public class StubLifecycleListenerAcceptanceTest {
     }
   }
 
+  @Test
+  void insertionIndexIsSetOnStubsByTheTimeTheyArePassedToAfterStubCreated() {
+    wm.stubFor(get("/1").willReturn(ok()));
+    wm.stubFor(get("/2").willReturn(ok()));
+    wm.stubFor(get("/3").willReturn(ok()));
+
+    assertThat(loggingListener.afterCreatedStubs.get(0).getInsertionIndex(), is(0L));
+    assertThat(loggingListener.afterCreatedStubs.get(1).getInsertionIndex(), is(1L));
+    assertThat(loggingListener.afterCreatedStubs.get(2).getInsertionIndex(), is(2L));
+  }
+
   public static class TestStubLifecycleListener implements StubLifecycleListener {
 
     public List<String> events = new ArrayList<>();
+    public List<StubMapping> afterCreatedStubs = new ArrayList<>();
 
     @Override
     public StubMapping beforeStubCreated(StubMapping stub) {
@@ -140,6 +152,7 @@ public class StubLifecycleListenerAcceptanceTest {
     @Override
     public void afterStubCreated(StubMapping stub) {
       events.add("afterStubCreated, name: " + stub.getName());
+      afterCreatedStubs.add(stub);
     }
 
     @Override
