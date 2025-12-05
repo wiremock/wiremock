@@ -448,6 +448,22 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  void sortsComplexObjectsByDateFieldWithMixedDataTypes() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Objects with mixed data types (string, number, boolean) and nested objects
+    String input =
+        """
+            [{"id":1,"name":"alice","active":true,"score":95.5,"created":"2025-06-20T10:00:00Z","metadata":{"department":"engineering","level":3}},{"id":2,"name":"bob","active":false,"score":87.2,"created":"2025-02-15T14:30:00Z","metadata":{"department":"sales","level":2}},{"id":3,"name":"charlie","active":true,"score":92.0,"created":"2025-09-10T08:45:00Z","metadata":{"department":"engineering","level":4}}]""";
+    String expected =
+        """
+            [{"id":2,"name":"bob","active":false,"score":87.2,"created":"2025-02-15T14:30:00Z","metadata":{"department":"sales","level":2}},{"id":1,"name":"alice","active":true,"score":95.5,"created":"2025-06-20T10:00:00Z","metadata":{"department":"engineering","level":3}},{"id":3,"name":"charlie","active":true,"score":92.0,"created":"2025-09-10T08:45:00Z","metadata":{"department":"engineering","level":4}}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].created' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
   void sortsLargeIntegersCorrectly() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     // Values beyond double precision: 2^53 + 1, 2^53, 2^53 + 2
