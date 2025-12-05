@@ -432,6 +432,47 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
         handleBars.compileInline("{{ jsonSort input '$[*].created' order='desc' }}").apply(context);
     assertThat(output, is(expected));
   }
+  
+  @Test
+  void sortsLargeIntegersCorrectly() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Values beyond double precision: 2^53 + 1, 2^53, 2^53 + 2
+    // With the old doubleValue() approach, these would sort INCORRECTLY
+    String input = """
+      [{"id":9007199254740993},{"id":9007199254740992},{"id":9007199254740994}]""";
+    String expected = """
+      [{"id":9007199254740992},{"id":9007199254740993},{"id":9007199254740994}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].id' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+  
+  @Test
+  void sortsMixedIntegerAndFloatNumbers() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"val":2},{"val":1.5},{"val":1},{"val":2.7}]""";
+    String expected = """
+      [{"val":1},{"val":1.5},{"val":2},{"val":2.7}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].val' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsVeryLargeNegativeNumbers() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"id":-9007199254740993},{"id":-9007199254740992},{"id":-9007199254740994}]""";
+    String expected = """
+      [{"id":-9007199254740994},{"id":-9007199254740993},{"id":-9007199254740992}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].id' }}").apply(context);
+    assertThat(output, is(expected));
+  }
 
   private Handlebars getHandlebarsWithJsonSort() {
     return new Handlebars()

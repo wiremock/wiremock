@@ -22,6 +22,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -222,7 +223,11 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
   private Comparator<Object> createComparator(Class<?> type) {
     if (Number.class.equals(type)) {
-      return Comparator.comparingDouble(v -> ((Number) v).doubleValue());
+      return (a, b) -> {
+        BigDecimal bdA = toBigDecimal((Number) a);
+        BigDecimal bdB = toBigDecimal((Number) b);
+        return bdA.compareTo(bdB);
+      };
     } else if (String.class.equals(type)) {
       return Comparator.comparing(v -> (String) v);
     } else if (Boolean.class.equals(type)) {
@@ -230,6 +235,22 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
     throw new IllegalArgumentException("Unsupported type: " + type);
   }
+
+  private BigDecimal toBigDecimal(Number number) {
+    if (number instanceof BigDecimal) {
+      return (BigDecimal) number;
+    } else if (number instanceof Integer || number instanceof Long ||
+            number instanceof Short || number instanceof Byte) {
+      return BigDecimal.valueOf(number.longValue());
+    } else if (number instanceof Float || number instanceof Double) {
+      return BigDecimal.valueOf(number.doubleValue());
+    } else {
+      // Fallback for other Number types
+      return new BigDecimal(number.toString());
+    }
+  }
+
+
 
   private DocumentContext getParsedDocument(String json, Options options) {
     RequestCache requestCache = getRequestCache(options);
