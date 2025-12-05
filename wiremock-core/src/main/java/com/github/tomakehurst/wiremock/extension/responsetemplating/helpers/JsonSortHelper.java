@@ -188,18 +188,18 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
       return null;
     }
 
-    Class<?> firstType = getComparableType(values.get(0));
-    if (firstType == null) {
-      return null;
-    }
-
+    Class<?> firstType = null;
     for (Object value : values) {
-      Class<?> valueType = getComparableType(value);
-      if (!firstType.equals(valueType)) {
-        return null;
+      Class<?> currentType = getComparableType(value);
+      if (currentType == null) {
+        return null; // Unsupported type
+      }
+      if (firstType == null) {
+        firstType = currentType;
+      } else if (!firstType.equals(currentType)) {
+        return null; // Mixed types
       }
     }
-
     return firstType;
   }
 
@@ -207,7 +207,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     if (value == null) {
       return null;
     }
-    if (Number.class.isAssignableFrom(value.getClass())) {
+    if (value instanceof Number) {
       return Number.class;
     }
     if (value instanceof String) {
@@ -239,8 +239,10 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
   private BigDecimal toBigDecimal(Number number) {
     if (number instanceof BigDecimal) {
       return (BigDecimal) number;
-    } else if (number instanceof Integer || number instanceof Long ||
-            number instanceof Short || number instanceof Byte) {
+    } else if (number instanceof Integer
+        || number instanceof Long
+        || number instanceof Short
+        || number instanceof Byte) {
       return BigDecimal.valueOf(number.longValue());
     } else if (number instanceof Float || number instanceof Double) {
       return BigDecimal.valueOf(number.doubleValue());
@@ -249,8 +251,6 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
       return new BigDecimal(number.toString());
     }
   }
-
-
 
   private DocumentContext getParsedDocument(String json, Options options) {
     RequestCache requestCache = getRequestCache(options);
@@ -263,7 +263,8 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     return document;
   }
 
-  private <T> T readJsonPath(DocumentContext document, String jsonPath, Class<T> returnType, Options options) {
+  private <T> T readJsonPath(
+      DocumentContext document, String jsonPath, Class<T> returnType, Options options) {
     RequestCache requestCache = getRequestCache(options);
     RequestCache.Key cacheKey = RequestCache.Key.keyFor(returnType, jsonPath, document);
     T value = requestCache.get(cacheKey);
@@ -273,5 +274,4 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
     return value;
   }
-
 }

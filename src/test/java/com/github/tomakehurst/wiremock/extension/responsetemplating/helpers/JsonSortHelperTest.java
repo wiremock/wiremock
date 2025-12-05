@@ -432,22 +432,24 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
         handleBars.compileInline("{{ jsonSort input '$[*].created' order='desc' }}").apply(context);
     assertThat(output, is(expected));
   }
-  
+
   @Test
   void sortsLargeIntegersCorrectly() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     // Values beyond double precision: 2^53 + 1, 2^53, 2^53 + 2
     // With the old doubleValue() approach, these would sort INCORRECTLY
-    String input = """
+    String input =
+        """
       [{"id":9007199254740993},{"id":9007199254740992},{"id":9007199254740994}]""";
-    String expected = """
+    String expected =
+        """
       [{"id":9007199254740992},{"id":9007199254740993},{"id":9007199254740994}]""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
     String output = handleBars.compileInline("{{ jsonSort input '$[*].id' }}").apply(context);
     assertThat(output, is(expected));
   }
-  
+
   @Test
   void sortsMixedIntegerAndFloatNumbers() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
@@ -464,9 +466,11 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   @Test
   void sortsVeryLargeNegativeNumbers() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
-    String input = """
+    String input =
+        """
       [{"id":-9007199254740993},{"id":-9007199254740992},{"id":-9007199254740994}]""";
-    String expected = """
+    String expected =
+        """
       [{"id":-9007199254740994},{"id":-9007199254740993},{"id":-9007199254740992}]""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
