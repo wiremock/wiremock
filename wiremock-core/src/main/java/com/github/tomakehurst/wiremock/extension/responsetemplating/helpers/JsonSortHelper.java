@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 public class JsonSortHelper extends HandlebarsHelper<Object> {
 
@@ -123,23 +124,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     // Validate sort values list matches array size
     if (sortValues.size() != array.size()) {
-      String errorMsg =
-          "Number of sort values ("
-              + sortValues.size()
-              + ") does not match array size ("
-              + array.size()
-              + ")";
-
-      // Detect multiple wildcards and add a helpful hint
-      int wildcardCount = countWildcards((String) jsonPathString);
-      if (wildcardCount > 1) {
-        errorMsg +=
-            ". JSONPath contains "
-                + wildcardCount
-                + " wildcards [*] but only single-level array sorting is supported";
-      }
-
-      return handleError(errorMsg);
+      return handleError(getError(sortValues, array, (String) jsonPathString));
     }
 
     // Handle empty arrays early - nothing to validate or sort
@@ -188,6 +173,25 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     jsonDocument.set(arrayPath, sortedArray);
 
     return jsonDocument.jsonString();
+  }
+
+  private @NonNull String getError(List<?> sortValues, List<Object> array, String jsonPathString) {
+    String errorMsg =
+        "Number of sort values ("
+            + sortValues.size()
+            + ") does not match array size ("
+            + array.size()
+            + ")";
+
+    // Detect multiple wildcards and add a helpful hint
+    int wildcardCount = countWildcards(jsonPathString);
+    if (wildcardCount > 1) {
+      errorMsg +=
+          ". JSONPath contains "
+              + wildcardCount
+              + " wildcards [*] but only single-level array sorting is supported";
+    }
+    return errorMsg;
   }
 
   private String extractArrayPath(String jsonPath) {
