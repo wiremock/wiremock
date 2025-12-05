@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 import com.github.jknack.handlebars.EscapingStrategy;
@@ -136,10 +134,10 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     Map<String, String> context = new HashMap<>();
     context.put("input", """
-              [{"id":123,"name":"bob"}]""");
+              [{"id":123,"name":"bob"},{"id":456,"name":"alice"}]""");
     String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
     // Should not error - order parameter is optional
-    assertThat(output, is("[{\"id\":123,\"name\":\"bob\"}]"));
+    assertThat(output, is("[{\"id\":456,\"name\":\"alice\"},{\"id\":123,\"name\":\"bob\"}]"));
   }
 
   @ParameterizedTest
@@ -162,10 +160,10 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     Map<String, String> context = new HashMap<>();
     context.put("input", """
-              [{"id":123,"name":"bob"}]""");
-    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
-    // Should not error about missing [*]
-    assertThat(output, not(containsString("must include [*]")));
+              [{"id":123,"name":"bob"},{"id":456,"name":"alice"}]""");
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].id' }}").apply(context);
+    // Should not error - order parameter is optional
+    assertThat(output, is("[{\"id\":123,\"name\":\"bob\"},{\"id\":456,\"name\":\"alice\"}]"));
   }
 
   @Test
@@ -182,13 +180,13 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   void acceptsNestedArrayJsonPath() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     String input = """
-            {"users":[{"name":"bob"}]}""";
+            {"users":[{"name":"fred"},{"name":"bob"}]}""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
     String output =
         handleBars.compileInline("{{ jsonSort input '$.users[*].name' }}").apply(context);
     // Should not error - valid nested array path
-    assertThat(output, not(containsString("ERROR")));
+    assertThat(output, is("{\"users\":[{\"name\":\"bob\"},{\"name\":\"fred\"}]}"));
   }
 
   @Test
@@ -324,7 +322,10 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
     String output = handleBars.compileInline("{{ jsonSort input '$[*].value' }}").apply(context);
-    assertThat(output, containsString("same comparable type"));
+    assertThat(
+        output,
+        is(
+            "[ERROR: All sort field values must be of the same comparable type (Number, String, or Boolean)]"));
   }
 
   @Test
@@ -334,13 +335,15 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     // $[*].users[*].name will return 3 values for an array of size 2
     String input =
         """
-                    [{"users":[{"name":"bob"},{"name":"alice"}]},{"users":[{"name":"charlie"}]}]""";
+              [{"users":[{"name":"bob"},{"name":"alice"}]},{"users":[{"name":"charlie"}]}]""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
     String output =
         handleBars.compileInline("{{ jsonSort input '$[*].users[*].name' }}").apply(context);
-    assertThat(output, containsString("Number of sort values"));
-    assertThat(output, containsString("does not match array size"));
+    assertThat(
+        output,
+        is(
+            "[ERROR: Number of sort values (3) does not match array size (2). JSONPath contains 2 wildcards [*] but only single-level array sorting is supported]"));
   }
 
   @Test
