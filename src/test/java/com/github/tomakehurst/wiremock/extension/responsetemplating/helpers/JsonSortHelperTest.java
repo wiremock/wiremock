@@ -532,6 +532,53 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[ERROR: Cannot sort a JSON null value - input must be a JSON array]"));
   }
 
+  @Test
+  void providesHelpfulErrorMessageForMultipleWildcards() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Root array has 2 elements, but $[*].users[*].name returns 3 values (bob, alice, charlie)
+    // because of the TWO wildcards flattening nested arrays
+    String input =
+        """
+      [{"users":[{"name":"bob"},{"name":"alice"}]},{"users":[{"name":"charlie"}]}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[*].users[*].name' }}").apply(context);
+
+    // Should mention multiple wildcards in the error message
+    assertThat(
+        output,
+        is(
+            "[ERROR: Number of sort values (3) does not match array size (2). JSONPath contains 2 wildcards [*] but only single-level array sorting is supported]"));
+  }
+
+  @Test
+  void sortsSimpleArrayOfStrings() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      ["charlie","alice","bob"]""";
+    String expected = """
+      ["alice","bob","charlie"]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    // Note: $[*] gets the array elements themselves (not a field within objects)
+    String output = handleBars.compileInline("{{ jsonSort input '$[*]' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsSimpleArrayOfNumbers() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [456,123,789,321]""";
+    String expected = """
+      [123,321,456,789]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*]' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
   private Handlebars getHandlebarsWithJsonSort() {
     return new Handlebars()
         .with(EscapingStrategy.NOOP)

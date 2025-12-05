@@ -80,7 +80,8 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     try {
       sortValues = readJsonPath(jsonDocument, (String) jsonPathString, List.class, options);
     } catch (PathNotFoundException e) {
-      return handleError("JSONPath expression did not match any values ('" + jsonPathString + "')", e);
+      return handleError(
+          "JSONPath expression did not match any values ('" + jsonPathString + "')", e);
     } catch (Exception e) {
       return handleError("Invalid JSONPath expression ('" + jsonPathString + "')", e);
     }
@@ -104,12 +105,23 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     // Validate sort values list matches array size
     if (sortValues.size() != array.size()) {
-      return handleError(
+      String errorMsg =
           "Number of sort values ("
               + sortValues.size()
               + ") does not match array size ("
               + array.size()
-              + ")");
+              + ")";
+
+      // Detect multiple wildcards and add a helpful hint
+      int wildcardCount = countWildcards((String) jsonPathString);
+      if (wildcardCount > 1) {
+        errorMsg +=
+            ". JSONPath contains "
+                + wildcardCount
+                + " wildcards [*] but only single-level array sorting is supported";
+      }
+
+      return handleError(errorMsg);
     }
 
     // Handle empty arrays early - nothing to validate or sort
@@ -180,6 +192,16 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     // Return everything before [*]
     String path = jsonPath.substring(0, wildcardIndex);
     return path.isEmpty() ? "$" : path;
+  }
+
+  private int countWildcards(String jsonPath) {
+    int count = 0;
+    int index = 0;
+    while ((index = jsonPath.indexOf("[*]", index)) != -1) {
+      count++;
+      index += 3;
+    }
+    return count;
   }
 
   private Class<?> detectCommonType(List<?> values) {
