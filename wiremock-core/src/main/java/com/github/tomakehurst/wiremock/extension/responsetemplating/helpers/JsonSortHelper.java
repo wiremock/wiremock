@@ -37,6 +37,9 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     if (!(inputJson instanceof String)) {
       return handleError("Input JSON must be a string");
     }
+    if (inputJson.equals("null")) {
+      return handleError("Cannot sort a JSON null value - input must be a JSON array");
+    }
     if (options.params.length != 1) {
       return handleError("A single JSONPath expression parameter must be supplied");
     }
@@ -77,7 +80,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     try {
       sortValues = readJsonPath(jsonDocument, (String) jsonPathString, List.class, options);
     } catch (PathNotFoundException e) {
-      return handleError("JSONPath expression did not match any values ('" + jsonPathString + "')");
+      return handleError("JSONPath expression did not match any values ('" + jsonPathString + "')", e);
     } catch (Exception e) {
       return handleError("Invalid JSONPath expression ('" + jsonPathString + "')", e);
     }
@@ -86,7 +89,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     try {
       arrayObject = readJsonPath(jsonDocument, arrayPath, Object.class, options);
     } catch (PathNotFoundException e) {
-      return handleError("Array not found at path ('" + arrayPath + "')");
+      return handleError("Array not found at path ('" + arrayPath + "')", e);
     } catch (Exception e) {
       return handleError("Error reading array at path ('" + arrayPath + "')", e);
     }

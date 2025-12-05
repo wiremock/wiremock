@@ -478,6 +478,60 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is(expected));
   }
 
+  @Test
+  void errorsIfArrayContainsNullSortValues() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"name":null},{"name":"bob"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(
+        output,
+        is(
+            "[ERROR: All objects in the array must have the sort field specified by JSONPath expression ('$[*].name')]"));
+  }
+
+  @Test
+  void maintainsSortStabilityForEqualValues() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Multiple objects with same name - should maintain original order
+    String input =
+        """
+      [{"name":"alice","id":1},{"name":"alice","id":2},{"name":"alice","id":3}]""";
+    String expected =
+        """
+      [{"name":"alice","id":1},{"name":"alice","id":2},{"name":"alice","id":3}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsUnicodeStringsCorrectly() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"name":"Zoë"},{"name":"Émilie"},{"name":"André"}]""";
+    // Sorts by Unicode code point: A(U+0041) < Z(U+005A) < É(U+00C9)
+    String expected = """
+      [{"name":"André"},{"name":"Zoë"},{"name":"Émilie"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void errorsWhenInputIsJsonNull() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    Map<String, String> context = new HashMap<>();
+    context.put("input", "null");
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    // Should give a clear error that null cannot be sorted
+    assertThat(output, is("[ERROR: Cannot sort a JSON null value - input must be a JSON array]"));
+  }
+
   private Handlebars getHandlebarsWithJsonSort() {
     return new Handlebars()
         .with(EscapingStrategy.NOOP)
