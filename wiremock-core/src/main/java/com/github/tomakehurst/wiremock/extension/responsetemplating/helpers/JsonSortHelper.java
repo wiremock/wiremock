@@ -62,6 +62,22 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
         }
       }
     }
+
+    // Extract and validate optional 'nulls' parameter
+    String nullsPlacement = "first"; // default to nulls first
+    if (options.hash != null) {
+      Object nullsParam = options.hash.get("nulls");
+      if (nullsParam != null) {
+        if (!(nullsParam instanceof String)) {
+          return handleError("nulls parameter must be a string");
+        }
+        nullsPlacement = (String) nullsParam;
+        if (!nullsPlacement.equals("first") && !nullsPlacement.equals("last")) {
+          return handleError("nulls parameter must be 'first' or 'last'");
+        }
+      }
+    }
+
     // Extract array path from JsonPath
     String arrayPath = extractArrayPath((String) jsonPathString);
     if (arrayPath == null) {
@@ -76,6 +92,8 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
       return handleError("Input JSON string is not valid JSON ('" + inputJson + "')", e);
     }
     // Read the sort values using the full JsonPath with [*]
+    // ASSUMPTION: JsonPath maintains document order for wildcard projections,
+    // so sortValues[i] corresponds to array[i]
     List<?> sortValues;
     try {
       sortValues = readJsonPath(jsonDocument, (String) jsonPathString, List.class, options);
@@ -130,14 +148,15 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
 
     // Check for nulls (missing fields)
-    for (Object value : sortValues) {
-      if (value == null) {
-        return handleError(
-            "All objects in the array must have the sort field specified by JSONPath expression ('"
-                + jsonPathString
-                + "')");
-      }
-    }
+    //    for (Object value : sortValues) {
+    //      if (value == null) {
+    //        return handleError(
+    //            "All objects in the array must have the sort field specified by JSONPath
+    // expression ('"
+    //                + jsonPathString
+    //                + "')");
+    //      }
+    //    }
 
     // Validate all values are the same comparable type
     Class<?> commonType = detectCommonType(sortValues);
@@ -158,7 +177,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
 
     // Create comparator based on detected type
-    Comparator<Object> valueComparator = createComparator(commonType);
+    Comparator<Object> valueComparator = createComparator(commonType, nullsPlacement);
     if ("desc".equals(order)) {
       valueComparator = valueComparator.reversed();
     }
@@ -211,6 +230,11 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     Class<?> firstType = null;
     for (Object value : values) {
+      // Skip nulls when detecting type - they'll be handled by comparator
+      if (value == null) {
+        continue;
+      }
+
       Class<?> currentType = getComparableType(value);
       if (currentType == null) {
         return null; // Unsupported type
@@ -221,7 +245,9 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
         return null; // Mixed types
       }
     }
-    return firstType;
+
+    // If all values are null, default to String comparison
+    return firstType != null ? firstType : String.class;
   }
 
   private Class<?> getComparableType(Object value) {
@@ -242,20 +268,29 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
   private record SortPair(Object object, Object sortValue) {}
 
-  private Comparator<Object> createComparator(Class<?> type) {
+  private Comparator<Object> createComparator(Class<?> type, String nullsPlacement) {
+    Comparator<Object> baseComparator;
+
     if (Number.class.equals(type)) {
-      return (a, b) -> {
-        BigDecimal bdA = toBigDecimal((Number) a);
-        BigDecimal bdB = toBigDecimal((Number) b);
-        return bdA.compareTo(bdB);
-      };
+      baseComparator =
+          (a, b) -> {
+            BigDecimal bdA = toBigDecimal((Number) a);
+            BigDecimal bdB = toBigDecimal((Number) b);
+            return bdA.compareTo(bdB);
+          };
     } else if (String.class.equals(type)) {
-      return Comparator.comparing(v -> (String) v);
+      baseComparator = Comparator.comparing(v -> (String) v);
     } else if (Boolean.class.equals(type)) {
       // Booleans sort as: false < true (false comes before true)
-      return Comparator.comparing(v -> (Boolean) v);
+      baseComparator = Comparator.comparing(v -> (Boolean) v);
+    } else {
+      throw new IllegalArgumentException("Unsupported type: " + type);
     }
-    throw new IllegalArgumentException("Unsupported type: " + type);
+
+    // Wrap with null handling based on user preference
+    return "last".equals(nullsPlacement)
+        ? Comparator.nullsLast(baseComparator)
+        : Comparator.nullsFirst(baseComparator);
   }
 
   private BigDecimal toBigDecimal(Number number) {

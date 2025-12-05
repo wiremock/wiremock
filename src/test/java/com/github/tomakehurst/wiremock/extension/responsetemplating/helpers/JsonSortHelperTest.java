@@ -275,17 +275,31 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  void errorsIfSortFieldIsMissingFromObjects() throws IOException {
+  void sortsArrayWhenSortFieldIsMissingFromAllObjects() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     Map<String, String> context = new HashMap<>();
     context.put("input", """
-              [{"id":123,"name":"bob"}]""");
+      [{"id":3},{"id":1},{"id":2}]""");
+    // Missing field returns null for all objects
+    // All nulls are equal, so stable sort maintains original order
+    String expected = """
+      [{"id":3},{"id":1},{"id":2}]""";
     String output =
         handleBars.compileInline("{{ jsonSort input '$[*].missingField' }}").apply(context);
-    assertThat(
-        output,
-        is(
-            "[ERROR: All objects in the array must have the sort field specified by JSONPath expression ('$[*].missingField')]"));
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsArrayWithSomeObjectsMissingSortField() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    Map<String, String> context = new HashMap<>();
+    context.put("input", """
+      [{"id":1,"name":"alice"},{"id":2},{"id":3,"name":"bob"}]""");
+    // Objects without 'name' sort first (nulls first is default)
+    String expected = """
+      [{"id":2},{"id":1,"name":"alice"},{"id":3,"name":"bob"}]""";
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
   }
 
   @Test
@@ -479,20 +493,6 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  void errorsIfArrayContainsNullSortValues() throws IOException {
-    Handlebars handleBars = getHandlebarsWithJsonSort();
-    String input = """
-      [{"name":null},{"name":"bob"}]""";
-    Map<String, String> context = new HashMap<>();
-    context.put("input", input);
-    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
-    assertThat(
-        output,
-        is(
-            "[ERROR: All objects in the array must have the sort field specified by JSONPath expression ('$[*].name')]"));
-  }
-
-  @Test
   void maintainsSortStabilityForEqualValues() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     // Multiple objects with same name - should maintain original order
@@ -648,6 +648,214 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     context.put("input", input);
     String output =
         handleBars.compileInline("{{ jsonSort input '$[\"my-key\"].items[*].id' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void errorsWhenJsonPathUsesFilterInsteadOfWildcard() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input =
+        """
+      [{"id":1,"name":"alice"},{"id":2,"name":"bob"},{"id":3,"name":"charlie"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    // Filter expressions are not supported - must use [*] wildcard
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[?(@.id > 2)].name' }}").apply(context);
+
+    // Should error because filter syntax [?(...)] is not supported
+    assertThat(
+        output,
+        is(
+            "[ERROR: JSONPath must include [*] to specify array location (e.g., '$[*].name' or '$.users[*].name')]"));
+  }
+
+  @Test
+  void maintainsOrderForNestedFieldAccess() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Verify that nested field access maintains array order
+    String input =
+        """
+      [{"id":1,"data":{"value":"c"}},{"id":2,"data":{"value":"a"}},{"id":3,"data":{"value":"b"}}]""";
+    String expected =
+        """
+      [{"id":2,"data":{"value":"a"}},{"id":3,"data":{"value":"b"}},{"id":1,"data":{"value":"c"}}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[*].data.value' }}").apply(context);
+
+    // If order is maintained, this should sort correctly
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsWithNullsFirstByDefault() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input =
+        """
+      [{"id":5,"name":"charlie"},{"id":2,"name":null},{"id":4,"name":"alice"},{"id":1,"name":null},{"id":3,"name":"bob"}]""";
+    // Stable sort: nulls maintain original order (id:2 before id:1)
+    // Note: Jackson omits null field values in output
+    String expected =
+        """
+      [{"id":2},{"id":1},{"id":4,"name":"alice"},{"id":3,"name":"bob"},{"id":5,"name":"charlie"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsWithNullsLast() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input =
+        """
+      [{"id":4,"name":"charlie"},{"id":2,"name":null},{"id":3,"name":"alice"},{"id":1,"name":"bob"}]""";
+    // Nulls sort last; note that null 'name' field is omitted in output
+    String expected =
+        """
+      [{"id":3,"name":"alice"},{"id":1,"name":"bob"},{"id":4,"name":"charlie"},{"id":2}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[*].name' nulls='last' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsArrayWithAllNullValues() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // With all nulls, objects still have 'id' field to show they exist
+    String input = """
+      [{"id":3,"name":null},{"id":1,"name":null},{"id":2,"name":null}]""";
+    // Objects maintain their other fields even though 'name' is null
+    String expected = """
+      [{"id":3},{"id":1},{"id":2}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsNumbersWithNullsFirst() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input =
+        """
+      [{"id":"a","score":100},{"id":"b","score":null},{"id":"c","score":50},{"id":"d","score":null}]""";
+    String expected =
+        """
+      [{"id":"b"},{"id":"d"},{"id":"c","score":50},{"id":"a","score":100}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].score' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void errorsIfNullsParameterIsInvalid() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    Map<String, String> context = new HashMap<>();
+    context.put("input", """
+      [{"name":"alice"}]""");
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[*].name' nulls='middle' }}").apply(context);
+    assertThat(output, is("[ERROR: nulls parameter must be 'first' or 'last']"));
+  }
+
+  @Test
+  void sortsStringsWithEmoji() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Emoji sorted by UTF-16 code units:
+    // 🎉(U+1F389) < 💻(U+1F4BB) < 😀(U+1F600) < 🚀(U+1F680)
+    String input =
+        """
+      [{"name":"😀 smile"},{"name":"🎉 party"},{"name":"💻 laptop"},{"name":"🚀 rocket"}]""";
+    String expected =
+        """
+      [{"name":"🎉 party"},{"name":"💻 laptop"},{"name":"😀 smile"},{"name":"🚀 rocket"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsMixedAsciiAccentedAndEmoji() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Java String comparison: ASCII (a,b) < accented (Á,É) < emoji (😀)
+    // Order: a(U+0061) < b(U+0062) < Á(U+00C1) < É(U+00C9) < 😀(U+1F600)
+    String input =
+        """
+      [{"name":"😀"},{"name":"Álvaro"},{"name":"alice"},{"name":"Élodie"},{"name":"bob"}]""";
+    String expected =
+        """
+      [{"name":"alice"},{"name":"bob"},{"name":"Álvaro"},{"name":"Élodie"},{"name":"😀"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsComplexEmoji() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Flag emoji use regional indicator symbols (U+1F1E6-1F1FF)
+    // 🇫🇷: U+1F1EB,U+1F1F7  🇬🇧: U+1F1EC,U+1F1E7  🇯🇵: U+1F1EF,U+1F1F5  🇺🇸: U+1F1FA,U+1F1F8
+    String input = """
+      [{"flag":"🇬🇧"},{"flag":"🇺🇸"},{"flag":"🇯🇵"},{"flag":"🇫🇷"}]""";
+    String expected =
+        """
+      [{"flag":"🇫🇷"},{"flag":"🇬🇧"},{"flag":"🇯🇵"},{"flag":"🇺🇸"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].flag' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsRightToLeftText() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Arabic (U+0600-06FF), Hebrew (U+0590-05FF), ASCII (U+0041-007A)
+    // Order by first code point: hello(h=U+0068) < שלום(ש=U+05E9) < مرحبا(م=U+0645)
+    String input = """
+      [{"name":"مرحبا"},{"name":"שלום"},{"name":"hello"}]""";
+    String expected = """
+      [{"name":"hello"},{"name":"שלום"},{"name":"مرحبا"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsArrayWithDuplicateValues() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // "bob" appears twice (id:1 and id:3), should maintain the original order
+    String input = """
+      [{"id":1,"name":"bob"},{"id":2,"name":"alice"},{"id":3,"name":"bob"},{"id":4,"name":"charlie"}]""";
+    // Stable sort: alice, bob(id:1), bob(id:3), charlie
+    String expected = """
+      [{"id":2,"name":"alice"},{"id":1,"name":"bob"},{"id":3,"name":"bob"},{"id":4,"name":"charlie"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsNumbersWithDuplicateValues() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    // Score 50 appears three times
+    String input = """
+      [{"id":"a","score":100},{"id":"b","score":50},{"id":"c","score":50},{"id":"d","score":25},{"id":"e","score":50}]""";
+    // Stable sort: 25, 50(b), 50(c), 50(e), 100
+    String expected = """
+      [{"id":"d","score":25},{"id":"b","score":50},{"id":"c","score":50},{"id":"e","score":50},{"id":"a","score":100}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].score' }}").apply(context);
     assertThat(output, is(expected));
   }
 
