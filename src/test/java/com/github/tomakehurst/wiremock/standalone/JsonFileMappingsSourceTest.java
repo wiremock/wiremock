@@ -187,8 +187,7 @@ class JsonFileMappingsSourceTest {
   void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
-    StubMapping firstStub = stubMappings.getAll().get(0);
-    firstStub.setName("New name");
+    StubMapping firstStub = stubMappings.getAll().get(0).transform(b -> b.setName("New name"));
     source.save(firstStub);
 
     assertThat(Files.readString(stubMappingFile.toPath()), containsString("New name"));

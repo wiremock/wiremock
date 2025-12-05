@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,7 +27,7 @@ public class ResponseDefinitionBodyMatcherTest {
   @Test
   public void noThresholds() {
     ResponseDefinitionBodyMatcher matcher = new ResponseDefinitionBodyMatcher(0, 0);
-    assertFalse(matcher.match(new ResponseDefinition()).isExactMatch());
+    assertFalse(matcher.match(responseDefinition().build()).isExactMatch());
     assertTrue(matcher.match(textResponseDefinition("a")).isExactMatch());
     assertTrue(matcher.match(binaryResponseDefinition(new byte[] {0x1})).isExactMatch());
   }

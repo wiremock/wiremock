@@ -306,21 +306,20 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         "Scenario name must be specified to require or set a new scenario state");
     RequestPattern requestPattern = requestPatternBuilder.build();
     ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
-    StubMapping mapping = new StubMapping(requestPattern, response);
-    mapping.setPriority(priority);
-    mapping.setScenarioName(scenarioName);
-    mapping.setRequiredScenarioState(requiredScenarioState);
-    mapping.setNewScenarioState(newScenarioState);
-    mapping.setId(id);
-    mapping.setName(name);
-    mapping.setPersistent(isPersistent);
 
-    mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
-    mapping.setServeEventListenerDefinitions(
-        serveEventListeners.isEmpty() ? null : serveEventListeners);
-
-    mapping.setMetadata(metadata);
-
-    return mapping;
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(response)
+        .setPriority(priority)
+        .setScenarioName(scenarioName)
+        .setRequiredScenarioState(requiredScenarioState)
+        .setNewScenarioState(newScenarioState)
+        .setId(id)
+        .setName(name)
+        .setPersistent(isPersistent)
+        .setPostServeActions(postServeActions.isEmpty() ? null : postServeActions)
+        .setServeEventListeners(serveEventListeners.isEmpty() ? null : serveEventListeners)
+        .setMetadata(metadata)
+        .build();
   }
 }

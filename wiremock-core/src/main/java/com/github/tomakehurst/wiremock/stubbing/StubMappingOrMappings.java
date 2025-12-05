@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
-public interface StubMappings {
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StubMapping.class)
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = StubMappingCollection.class),
+  @JsonSubTypes.Type(StubMapping.class)
+})
+public interface StubMappingOrMappings {
 
-  ServeEvent serveFor(ServeEvent request);
+  @JsonIgnore
+  List<StubMapping> getMappingOrMappings();
 
-  StubMapping addMapping(StubMapping mapping);
-
-  StubMapping removeMapping(StubMapping mapping);
-
-  StubMapping editMapping(StubMapping stubMapping);
-
-  void reset();
-
-  void resetScenarios();
-
-  List<StubMapping> getAll();
-
-  Optional<StubMapping> get(UUID id);
-
-  List<Scenario> getAllScenarios();
-
-  List<StubMapping> findByMetadata(StringValuePattern pattern);
+  @JsonIgnore
+  boolean isMulti();
 }

@@ -311,15 +311,17 @@ public class WireMockApp implements StubServer, Admin {
    * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
    *     to the caller.
    */
-  private void addStubMapping(StubMapping stubMapping, boolean persistNow) {
+  private StubMapping addStubMapping(StubMapping stubMapping, boolean persistNow) {
     if (stubMapping.getId() == null) {
-      stubMapping.setId(UUID.randomUUID());
+      stubMapping = stubMapping.transform(b -> b.setId(UUID.randomUUID()));
     }
 
-    stubMappings.addMapping(stubMapping);
+    stubMapping = stubMappings.addMapping(stubMapping);
     if (persistNow && stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
+
+    return stubMapping;
   }
 
   @Override
@@ -375,11 +377,13 @@ public class WireMockApp implements StubServer, Admin {
    * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
    *     to the caller.
    */
-  private void editStubMapping(StubMapping stubMapping, boolean persistNow) {
-    stubMappings.editMapping(stubMapping);
+  private StubMapping editStubMapping(StubMapping stubMapping, boolean persistNow) {
+    stubMapping = stubMappings.editMapping(stubMapping);
     if (persistNow && stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
+
+    return stubMapping;
   }
 
   @Override
@@ -395,8 +399,7 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void saveMappings() {
     for (StubMapping stubMapping : stubMappings.getAll()) {
-      stubMapping.setPersistent(true);
-      stubMappings.editMapping(stubMapping);
+      stubMappings.editMapping(stubMapping.transform(b -> b.setPersistent(true)));
     }
     mappingsSaver.save(stubMappings.getAll());
   }
@@ -661,12 +664,12 @@ public class WireMockApp implements StubServer, Admin {
       StubMapping mapping = mappings.get(i);
       if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
         if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-          editStubMapping(mapping, false);
-          if (mapping.shouldBePersisted()) mappingsToSave.add(mapping);
+          final StubMapping updatedStubMapping = editStubMapping(mapping, false);
+          if (updatedStubMapping.shouldBePersisted()) mappingsToSave.add(updatedStubMapping);
         }
       } else {
-        addStubMapping(mapping, false);
-        if (mapping.shouldBePersisted()) mappingsToSave.add(mapping);
+        final StubMapping createdStubMapping = addStubMapping(mapping, false);
+        if (createdStubMapping.shouldBePersisted()) mappingsToSave.add(createdStubMapping);
       }
     }
 

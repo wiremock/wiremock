@@ -22,7 +22,7 @@ import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   @Override
   public void save(List<StubMapping> stubMappings) {
     for (StubMapping mapping : stubMappings) {
-      if (mapping != null && mapping.isDirty()) {
+      if (mapping != null) {
         save(mapping);
       }
     }
@@ -68,7 +68,6 @@ public class JsonFileMappingsSource implements MappingsSource {
     mappingsFileSource.writeTextFile(fileMetadata.path, writePrivate(stubMapping));
 
     fileNameMap.put(stubMapping.getId(), fileMetadata);
-    stubMapping.setDirty(false);
   }
 
   @Override
@@ -112,10 +111,9 @@ public class JsonFileMappingsSource implements MappingsSource {
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
-        StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContents(), StubMappingCollection.class);
+        StubMappingOrMappings stubCollection =
+            Json.read(mappingFile.readContents(), StubMappingOrMappings.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          mapping.setDirty(false);
           stubMappings.addMapping(mapping);
           StubMappingFileMetadata fileMetadata =
               new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());

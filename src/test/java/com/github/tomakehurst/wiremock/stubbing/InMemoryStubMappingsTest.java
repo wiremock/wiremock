@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -24,7 +25,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,8 +45,8 @@ public class InMemoryStubMappingsTest {
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);
 
-    StubMapping newMapping = aMapping(1, "/priority1/2");
-    newMapping.setId(existingMapping.getId());
+    StubMapping newMapping =
+        aMapping(1, "/priority1/2").transform(b -> b.setId(existingMapping.getId()));
 
     inMemoryStubMappings.editMapping(newMapping);
 
@@ -97,8 +97,11 @@ public class InMemoryStubMappingsTest {
 
   private StubMapping aMapping(Integer priority, String url) {
     RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
-    StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
-    mapping.setPriority(priority);
-    return mapping;
+
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(responseDefinition().build())
+        .setPriority(priority)
+        .build();
   }
 }

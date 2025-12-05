@@ -553,7 +553,6 @@ public class ProxyResponseRendererTest {
                 .isBrowserProxyRequest(isBrowserProxyRequest)
                 .body(body)
                 .protocol("HTTP/1.1"));
-    responseDefinition.setOriginalRequest(loggedRequest);
 
     return newPostMatchServeEvent(loggedRequest, responseDefinition);
   }

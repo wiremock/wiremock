@@ -19,11 +19,15 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public interface StubLifecycleListener extends Extension {
 
-  default void beforeStubCreated(StubMapping stub) {}
+  default StubMapping beforeStubCreated(StubMapping stub) {
+    return stub;
+  }
 
   default void afterStubCreated(StubMapping stub) {}
 
-  default void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {}
+  default StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+    return newStub;
+  }
 
   default void afterStubEdited(StubMapping oldStub, StubMapping newStub) {}
 

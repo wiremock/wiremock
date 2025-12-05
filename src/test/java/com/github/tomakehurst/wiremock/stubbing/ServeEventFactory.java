@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ public class ServeEventFactory {
 
   public static ServeEvent newPostMatchServeEvent(
       Request request, ResponseDefinition responseDefinition) {
-    StubMapping stubMapping = WireMock.any(WireMock.anyUrl()).build();
-    stubMapping.setResponse(responseDefinition);
+    StubMapping stubMapping =
+        WireMock.any(WireMock.anyUrl()).build().transform(b -> b.setResponse(responseDefinition));
     return newPostMatchServeEvent(request, responseDefinition, stubMapping);
   }
 
