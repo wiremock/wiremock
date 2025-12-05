@@ -323,5 +323,14 @@ public enum WireMockHelpers implements Helper<Object> {
     public Object apply(Object context, Options options) throws IOException {
       return helper.apply(context, options);
     }
-  }
+  },
+
+  jsonSort {
+    private final JsonSortHelper helper = new JsonSortHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
+  },
 }
