@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ParseContext;
@@ -70,14 +71,14 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     DocumentContext jsonDocument;
     try {
-      jsonDocument = parseContext.parse((String) inputJson);
+      jsonDocument = getParsedDocument((String) inputJson, options);
     } catch (Exception e) {
       return handleError("Input JSON string is not valid JSON ('" + inputJson + "')", e);
     }
     // Read the sort values using the full JsonPath with [*]
     List<?> sortValues;
     try {
-      sortValues = jsonDocument.read((String) jsonPathString, List.class);
+      sortValues = readJsonPath(jsonDocument, (String) jsonPathString, List.class, options);
     } catch (PathNotFoundException e) {
       return handleError("JSONPath expression did not match any values ('" + jsonPathString + "')");
     } catch (Exception e) {
@@ -86,7 +87,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     // Read the array to sort
     Object arrayObject;
     try {
-      arrayObject = jsonDocument.read(arrayPath);
+      arrayObject = readJsonPath(jsonDocument, arrayPath, Object.class, options);
     } catch (PathNotFoundException e) {
       return handleError("Array not found at path ('" + arrayPath + "')");
     } catch (Exception e) {
@@ -229,4 +230,27 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
     throw new IllegalArgumentException("Unsupported type: " + type);
   }
+
+  private DocumentContext getParsedDocument(String json, Options options) {
+    RequestCache requestCache = getRequestCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(DocumentContext.class, json);
+    DocumentContext document = requestCache.get(cacheKey);
+    if (document == null) {
+      document = parseContext.parse(json);
+      requestCache.put(cacheKey, document);
+    }
+    return document;
+  }
+
+  private <T> T readJsonPath(DocumentContext document, String jsonPath, Class<T> returnType, Options options) {
+    RequestCache requestCache = getRequestCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(returnType, jsonPath, document);
+    T value = requestCache.get(cacheKey);
+    if (value == null) {
+      value = document.read(jsonPath, returnType);
+      requestCache.put(cacheKey, value);
+    }
+    return value;
+  }
+
 }
