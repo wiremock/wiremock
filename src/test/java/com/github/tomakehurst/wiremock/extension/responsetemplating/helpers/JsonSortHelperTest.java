@@ -139,7 +139,7 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
               [{"id":123,"name":"bob"}]""");
     String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
     // Should not error - order parameter is optional
-    assertThat(output, not(containsString("ERROR")));
+    assertThat(output, is("[{\"id\":123,\"name\":\"bob\"}]"));
   }
 
   @ParameterizedTest
