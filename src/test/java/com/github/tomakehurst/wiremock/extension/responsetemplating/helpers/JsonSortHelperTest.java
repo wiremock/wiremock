@@ -833,10 +833,12 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   void sortsArrayWithDuplicateValues() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     // "bob" appears twice (id:1 and id:3), should maintain the original order
-    String input = """
+    String input =
+        """
       [{"id":1,"name":"bob"},{"id":2,"name":"alice"},{"id":3,"name":"bob"},{"id":4,"name":"charlie"}]""";
     // Stable sort: alice, bob(id:1), bob(id:3), charlie
-    String expected = """
+    String expected =
+        """
       [{"id":2,"name":"alice"},{"id":1,"name":"bob"},{"id":3,"name":"bob"},{"id":4,"name":"charlie"}]""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
@@ -848,10 +850,12 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
   void sortsNumbersWithDuplicateValues() throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     // Score 50 appears three times
-    String input = """
+    String input =
+        """
       [{"id":"a","score":100},{"id":"b","score":50},{"id":"c","score":50},{"id":"d","score":25},{"id":"e","score":50}]""";
     // Stable sort: 25, 50(b), 50(c), 50(e), 100
-    String expected = """
+    String expected =
+        """
       [{"id":"d","score":25},{"id":"b","score":50},{"id":"c","score":50},{"id":"e","score":50},{"id":"a","score":100}]""";
     Map<String, String> context = new HashMap<>();
     context.put("input", input);
