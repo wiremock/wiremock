@@ -37,10 +37,6 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     if (!(inputJson instanceof String)) {
       return handleError("Input JSON must be a string");
     }
-    if (inputJson.equals("null")) {
-      // No op
-      return inputJson;
-    }
     if (options.params.length != 1) {
       return handleError("A single JSONPath expression parameter must be supplied");
     }
