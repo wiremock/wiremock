@@ -147,17 +147,6 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
       return jsonDocument.jsonString();
     }
 
-    // Check for nulls (missing fields)
-    //    for (Object value : sortValues) {
-    //      if (value == null) {
-    //        return handleError(
-    //            "All objects in the array must have the sort field specified by JSONPath
-    // expression ('"
-    //                + jsonPathString
-    //                + "')");
-    //      }
-    //    }
-
     // Validate all values are the same comparable type
     Class<?> commonType = detectCommonType(sortValues);
     if (commonType == null) {
