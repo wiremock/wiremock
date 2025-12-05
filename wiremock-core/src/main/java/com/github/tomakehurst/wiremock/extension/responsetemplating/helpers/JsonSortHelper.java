@@ -252,6 +252,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     } else if (String.class.equals(type)) {
       return Comparator.comparing(v -> (String) v);
     } else if (Boolean.class.equals(type)) {
+      // Booleans sort as: false < true (false comes before true)
       return Comparator.comparing(v -> (Boolean) v);
     }
     throw new IllegalArgumentException("Unsupported type: " + type);

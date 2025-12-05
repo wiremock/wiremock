@@ -579,6 +579,78 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is(expected));
   }
 
+  @Test
+  void sortsMixedPositiveAndNegativeNumbers() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"val":5},{"val":-3},{"val":0},{"val":-10},{"val":2}]""";
+    String expected = """
+      [{"val":-10},{"val":-3},{"val":0},{"val":2},{"val":5}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].val' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsStringsByCaseSensitiveUnicodeOrder() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"name":"zebra"},{"name":"Apple"},{"name":"banana"}]""";
+    // Uppercase 'A' (U+0041) < lowercase 'b' (U+0062) < lowercase 'z' (U+007A)
+    String expected = """
+      [{"name":"Apple"},{"name":"banana"},{"name":"zebra"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output = handleBars.compileInline("{{ jsonSort input '$[*].name' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsStringFieldDescending() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      [{"name":"alice"},{"name":"charlie"},{"name":"bob"}]""";
+    String expected = """
+      [{"name":"charlie"},{"name":"bob"},{"name":"alice"}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[*].name' order='desc' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsNestedArrayAtSpecificIndex() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input =
+        """
+      [{"items":[{"price":30},{"price":10},{"price":20}]},{"items":[{"price":100},{"price":50}]}]""";
+    // Only sorts items[0], leaves items[1] unchanged
+    String expected =
+        """
+      [{"items":[{"price":10},{"price":20},{"price":30}]},{"items":[{"price":100},{"price":50}]}]""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[0].items[*].price' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
+  @Test
+  void sortsArrayWithBracketNotationPropertyAccess() throws IOException {
+    Handlebars handleBars = getHandlebarsWithJsonSort();
+    String input = """
+      {"my-key":{"items":[{"id":3},{"id":1},{"id":2}]}}""";
+    String expected = """
+      {"my-key":{"items":[{"id":1},{"id":2},{"id":3}]}}""";
+    Map<String, String> context = new HashMap<>();
+    context.put("input", input);
+    String output =
+        handleBars.compileInline("{{ jsonSort input '$[\"my-key\"].items[*].id' }}").apply(context);
+    assertThat(output, is(expected));
+  }
+
   private Handlebars getHandlebarsWithJsonSort() {
     return new Handlebars()
         .with(EscapingStrategy.NOOP)
