@@ -1,47 +1,49 @@
-http://f:21/ b ? d # e 
-http://foo.com/\@
-http://foo/path;a??e#f#g
-file:///w|m
-file:///w||m
-file:///w|/m
-http://example.com/foo/%2e%2
-http://example.com/foo%
-http://example.com/foo%2
-http://example.com/foo%2zbar
-http://example.com/foo%2Â©zbar
-http://example.com/foo	bar
-http://example.com/你好你好
-http://example.com/‥/foo
-http://example.com/﻿/foo
-http://example.com/‮/foo/‭/bar
-http://www.google.com/foo?bar=baz# »
-https://x/�?�#�
-http://foo.bar/baz?qux#foo"bar
-http://foo.bar/baz?qux#foo<bar
-http://foo.bar/baz?qux#foo>bar
-http://foo.bar/baz?qux#foo`bar
-http://example.org/test?"
-http://example.org/test?<
-http://example.org/test?>
-http://example.org/test?⌣
-http://example.org/test?%GH
-http://example.org/test?a#%GH
-foo://host/ !"$%&'()*+,-./:;<=>@[\]^_`{|}~
-wss://host/ !"$%&'()*+,-./:;<=>@[\]^_`{|}~
-foo://host/dir/? !"$%&'()*+,-./:;<=>?@[\]^_`{|}~
-wss://host/dir/? !"$%&'()*+,-./:;<=>?@[\]^_`{|}~
-foo://host/dir/# !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-wss://host/dir/# !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-https://x/￿y
-https://x/?￿y
-https://x/?#￿y
-https://example.com/"quoted"
-///\//\//test
-non-special://host/a\b
-http://example.com/😀
-http://example.com/안녕,
-http://example.com/unicode/नमस्ते
-http://example.com/unicode/مرحب,ا
-http://example.com/unicode/こんにちは
-http://example.com/unicode/Здравствуйте
-http://example.com/unicode/שָׁלוֹ,ם
+[
+"http://f:21/ b ? d # e ",
+"http://foo.com/\\@",
+"http://foo/path;a??e#f#g",
+"file:///w|m",
+"file:///w||m",
+"file:///w|/m",
+"http://example.com/foo/%2e%2",
+"http://example.com/foo%",
+"http://example.com/foo%2",
+"http://example.com/foo%2zbar",
+"http://example.com/foo%2Â©zbar",
+"http://example.com/foo\tbar",
+"http://example.com/你好你好",
+"http://example.com/‥/foo",
+"http://example.com/﻿/foo",
+"http://example.com/‮/foo/‭/bar",
+"http://www.google.com/foo?bar=baz# »",
+"https://x/�?�#�",
+"http://foo.bar/baz?qux#foo\"bar",
+"http://foo.bar/baz?qux#foo<bar",
+"http://foo.bar/baz?qux#foo>bar",
+"http://foo.bar/baz?qux#foo`bar",
+"http://example.org/test?\"",
+"http://example.org/test?<",
+"http://example.org/test?>",
+"http://example.org/test?⌣",
+"http://example.org/test?%GH",
+"http://example.org/test?a#%GH",
+"foo://host/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~",
+"wss://host/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~",
+"foo://host/dir/? !\"$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+"wss://host/dir/? !\"$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+"foo://host/dir/# !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+"wss://host/dir/# !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+"https://x/￿y",
+"https://x/?￿y",
+"https://x/?#￿y",
+"https://example.com/\"quoted\"",
+"///\\//\\//test",
+"non-special://host/a\\b",
+"http://example.com/😀",
+"http://example.com/안녕",
+"http://example.com/unicode/नमस्ते",
+"http://example.com/unicode/مرحب,ا",
+"http://example.com/unicode/こんにちは",
+"http://example.com/unicode/Здравствуйте",
+"http://example.com/unicode/שָׁלוֹ,ם"
+]
