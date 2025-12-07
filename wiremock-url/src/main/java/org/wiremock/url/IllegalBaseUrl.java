@@ -17,30 +17,13 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface RelativeRef extends UrlReference {
+public final class IllegalBaseUrl extends IllegalUrl {
 
-  /**
-   * {@implSpec} Implementations must ALWAYS return null
-   *
-   * @deprecated This always returns null so you have no reason to ever call it
-   * @return null
-   */
-  @Override
-  @Nullable
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Scheme scheme() {
-    return null;
+  public IllegalBaseUrl(String url) {
+    this(url, null);
   }
 
-  default boolean isRelativeRef() {
-    return true;
-  }
-
-  default boolean isUrl() {
-    return false;
-  }
-
-  static RelativeRef parse(CharSequence relativeRef) throws IllegalRelativeRef {
-    throw new IllegalRelativeRef(relativeRef.toString());
+  public IllegalBaseUrl(String url, @Nullable IllegalUrlPart cause) {
+    super(url, "Illegal base URL: `" + url + "`", cause);
   }
 }

@@ -17,7 +17,21 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-class RelativeRefParser {
+class RelativeRefParser implements CharSequenceParser<RelativeRef> {
+
+  @Override
+  public org.wiremock.url.RelativeRef parse(CharSequence stringForm) {
+    try {
+      var urlReference = UrlReferenceParser.INSTANCE.parse(stringForm);
+      if (urlReference instanceof org.wiremock.url.RelativeRef) {
+        return (org.wiremock.url.RelativeRef) urlReference;
+      } else {
+        throw new IllegalBaseUrl(stringForm.toString());
+      }
+    } catch (IllegalUrlPart illegalUrlPart) {
+      throw new IllegalBaseUrl(stringForm.toString(), illegalUrlPart);
+    }
+  }
 
   record RelativeRef(
       @Override @Nullable Authority authority,
@@ -27,9 +41,18 @@ class RelativeRefParser {
       implements org.wiremock.url.RelativeRef {
 
     @Override
-    public RelativeRef withPort(@Nullable Port port) {
-      return new RelativeRef(
-          authority != null ? authority.withPort(port) : null, path, query, fragment);
+    public boolean equals(Object obj) {
+      return UrlReferenceParser.equals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return UrlReferenceParser.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+      return UrlReferenceParser.toString(this);
     }
   }
 }

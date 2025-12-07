@@ -44,8 +44,8 @@ public non-sealed interface Url extends UrlReference {
     return fragment() == null;
   }
 
-  default Url baseUrl() {
-    return transform(builder -> builder.setPath(Path.EMPTY).setQuery(null).setFragment(null));
+  default BaseUrl baseUrl() {
+    return BaseUrl.of(scheme(), authority());
   }
 
   default PathAndQuery pathAndQuery() {
@@ -62,14 +62,6 @@ public non-sealed interface Url extends UrlReference {
     return builder.build();
   }
 
-  default Url withPort(@Nullable Port port) {
-    return transform(builder -> builder.setAuthority(authority().withPort(port)));
-  }
-
-  default Url withoutPort() {
-    return withPort(null);
-  }
-
   static Url parse(CharSequence url) throws IllegalUrl {
     return UrlParser.INSTANCE.parse(url);
   }
@@ -83,6 +75,12 @@ public non-sealed interface Url extends UrlReference {
     Builder setScheme(Scheme scheme);
 
     Builder setAuthority(Authority authority);
+
+    Builder setUserInfo(@Nullable UserInfo userInfo);
+
+    Builder setHost(Host host);
+
+    Builder setPort(@Nullable Port port);
 
     Builder setPath(Path path);
 

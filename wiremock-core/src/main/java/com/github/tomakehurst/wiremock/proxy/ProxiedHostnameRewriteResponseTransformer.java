@@ -186,12 +186,12 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
         // https://origin.example.com:443 -> https://proxy.example.com:443
         replacements.put(
             fullUrlPattern(originUrl.scheme(), originUrl.host(), originActualPort),
-            proxyUrl.withPort(proxyActualPort).toString());
+            proxyUrl.transform(it -> it.setPort(proxyActualPort)).toString());
 
         // https://origin.example.com -> https://proxy.example.com
         replacements.put(
             fullUrlPattern(originUrl.scheme(), originUrl.host()),
-            proxyUrl.withoutPort().toString());
+            proxyUrl.transform(it -> it.setPort(null)).toString());
 
         // wss://origin.example.com:443 -> wss://proxy.example.com:443
         replacements.put(

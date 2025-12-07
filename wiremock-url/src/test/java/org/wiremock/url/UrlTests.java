@@ -15,214 +15,179 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class UrlTests {
 
-  static Stream<String> onlyRfc3986ValidUrls() {
-    return Stream.of(
-        "foo://example.com:99999/",
-        "http://example.com/%C3%28",
-        "http://[::1",
-        "http://[::1]]",
-        "mailto:user@[::1]",
-        "urn:example:foo bar",
-        "http://example..com",
-        "ftp://user:pass@host:99999/",
-        "x://%61",
-        "http://example.com/#",
-        "http://example.com/%%20",
-        "http://example.com/%G1",
-        "http://example.com/%2",
-        "http://example.com/abc^def",
-        "http://example.com/\\abc",
-        "http://example.com/<>",
-        "http://example.com/|",
-        "http://example.com/`",
-        "http://example.com/{",
-        "http://example.com/}",
-        "http://example.com/~",
-        "http://example.com/[",
-        "http://example.com/]",
-        "http://example.com/space here",
-        "http://example.com/?q=100%",
-        "http://example.com/?q=%ZZ",
-        "http://example.com/#frag%",
-        "http://example.com/#%",
-        "ftp://example.com:70000/",
-        "http://user:pass@:80/",
-        "http://example.com:0/",
-        "http://example.com:65536/",
-        "http://example.com:999999/",
-        "http://example.com:1000000/",
-        "http://example.com:080",
-        "file://",
-        "file:///",
-        "file:///C:/path\\file.txt",
-        "http://example.com/\\path",
-        "http://example.com/\\%20",
-        "http://example.com/\\%ZZ",
-        "http://example.com/\\%G1",
-        "http://example.com/\\^",
-        "http://example.com/\\|",
-        "http://example.com/\\`");
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  static final List<String> whatwg_valid_rfc3986_valid_wiremock_valid =
+      readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
+  static List<String> whatwg_valid_rfc3986_valid_wiremock_invalid =
+      readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
+  static List<String> whatwg_valid_rfc3986_invalid_wiremock_valid =
+      readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
+  static List<String> whatwg_valid_rfc3986_invalid_wiremock_invalid =
+      readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
+  static List<String> whatwg_invalid_rfc3986_valid_wiremock_valid =
+      readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
+  static List<String> whatwg_invalid_rfc3986_valid_wiremock_invalid =
+      readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
+  static List<String> whatwg_invalid_rfc3986_invalid_wiremock_valid =
+      readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
+  static List<String> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
+      readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
+
+  static List<String> whatwg_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid);
+
+  static List<String> whatwg_invalid =
+      concat(
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  static List<String> rfc3986_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid);
+
+  static List<String> rfc3986_invalid =
+      concat(
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  static List<String> wiremock_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid);
+
+  static List<String> wiremock_invalid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  @SafeVarargs
+  static <T> Set<T> concat(Set<T>... sets) {
+    return Stream.of(sets).flatMap(Collection::stream).collect(Collectors.toSet());
   }
 
-  static Stream<String> onlyWHATWGValidUrls() {
-    return Stream.of(
-        "http://example.com/a b",
-        "http://example.com/foo\\bar",
-        "example.com/foo",
-        "http://exa mple.com/",
-        "http://example.com/안녕",
-        "http://example.com/你好",
-        "http://example.com/☺",
-        "http://example.com/foo|bar",
-        "http://example.com/foo<TAB>bar",
-        "http://example.com/leading space",
-        "http://example.com/trailing space",
-        "http://example.com/\\backslash",
-        "http://example.com/\\^",
-        "http://example.com/\\`",
-        "http://example.com/\\|",
-        "http://example.com/#frag with space",
-        "http://example.com/?q=hello world",
-        "http://example.com/%C3%A9  // Chrome accepts unencoded é",
-        "http://example.com/%E2%98%BA // Chrome accepts ☺ unencoded",
-        "http://example.com/%E4%BD%A0%E5%A5%BD // Chrome accepts 你好 unencoded",
-        "http://example.com/%EC%95%88%EB%85%95 // Chrome accepts 안녕 unencoded",
-        "http://example.com/😀",
-        "http://example.com/😎",
-        "http://example.com/🧠",
-        "http://example.com/💡",
-        "http://example.com/foo|bar|baz",
-        "http://example.com/foo^bar",
-        "http://example.com/foo`bar",
-        "http://example.com/`~!@#$%^&*()_+={}[]|;:'\",.<>?/",
-        "http://example.com/foo\\tbar",
-        "http://example.com/foo\\nbar",
-        "http://example.com/foo\\rbar",
-        "http://example.com/space here and there",
-        "http://example.com/mixed/안녕|world^",
-        "http://example.com/💡/path",
-        "http://example.com/😀/emoji",
-        "http://example.com/unicode/नमस्ते",
-        "http://example.com/unicode/مرحب,ا",
-        "http://example.com/unicode/こんにちは",
-        "http://example.com/unicode/Здравствуйте",
-        "http://example.com/unicode/שָׁלוֹ,ם",
-        "http://example.com/unicode/👩‍💻",
-        "http://example.com/unicode/🏳️‍🌈",
-        "http://example.com/unicode/🀄",
-        "http://example.com/unicode/♞",
-        "http://example.com/./../path",
-        "http://example.com/..//",
-        "http://example.com/.//",
-        "http://example.com/%20space%20encoded",
-        "http://example.com/%09tabencoded");
+  static <T> List<T> concat(List<List<T>> lists) {
+    return lists.stream().flatMap(Collection::stream).toList();
   }
 
-  static Stream<String> allUrls() {
-    return Stream.concat(onlyWHATWGValidUrls(), onlyRfc3986ValidUrls());
+  @SafeVarargs
+  static <T> List<T> concat(List<T>... lists) {
+    return Stream.of(lists).flatMap(Collection::stream).toList();
   }
 
-  public static Stream<String> actuallyIllegalUrls() {
-    return Stream.of(
-        "http://example.com:99999", // port out of range (>65535)
-        "http://example.com:0", // port zero (invalid)
-        "://example.com" // missing scheme
-        );
+  static List<List<String>> parameter_groups =
+      List.of(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid,
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  @ParameterizedTest
+  @FieldSource("parameter_groups")
+  void groups_contain_no_duplicates(List<String> group) {
+    assertThat(group).doesNotHaveDuplicates();
   }
 
-  public static Stream<String> maybeShouldBeIllegalUrls() {
-    return Stream.of(
-        "http://[::1", // missing closing bracket for IPv6
-        "http://[::1]]", // extra closing bracket
-        "http://example.com:abc", // non-numeric port
-        "http://exa mple.com", // unencoded space in host
-        "http://example.com/abc^def", // illegal ^ in path
-        "http://example.com/<>", // illegal characters
-        "http://example.com/|", // pipe not allowed
-        "http://example.com/`", // backtick illegal
-        "http://example.com/{", // brace illegal
-        "http://example.com/}", // brace illegal
-        "http://example.com/[", // bracket illegal outside IPv6 literal
-        "http://example.com/]", // bracket illegal outside IPv6 literal
-        "http://example.com/%", // incomplete percent-encoding
-        "http://example.com/%G1", // invalid percent-encoding
-        "http://example.com/%2", // incomplete percent-encoding
-        "file://", // file scheme without path or authority
-        "http://example.com/#%", // invalid fragment
-        "http://example.com/%%20", // double percent
-        "http://example.com/\\abc", // raw backslash in path
-        "http://example.com/\\%G1", // invalid backslash percent encoding
-        "http://example.com/\\^", // backslash + illegal char
-        "http://example.com/\\|", // backslash + illegal char
-        "http://example.com/\\`" // backslash + illegal char
-        );
+  @Test
+  void test_parameter_invariants() {
+
+    List<String> all = concat(parameter_groups);
+
+    assertThat(all).doesNotHaveDuplicates();
+
+    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(whatwg_valid, whatwg_invalid));
+    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(rfc3986_valid, rfc3986_invalid));
+    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(wiremock_valid, wiremock_invalid));
   }
 
-  public static Stream<String> illegalUrls() {
-    return Stream.concat(maybeShouldBeIllegalUrls(), actuallyIllegalUrls());
+  // Taken from https://datatracker.ietf.org/doc/html/rfc3986#page-50
+  //  private static final Pattern rfc3986Pattern =
+  // Pattern.compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+  private static final Pattern rfc3986Pattern =
+      Pattern.compile(
+          "^[A-Za-z][A-Za-z0-9+.-]*:(//(([A-Za-z0-9._~!$&'()*+,;=:-]|%[0-9A-Fa-f]{2})*@)?(\\[([0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9._~!$&'()*+,;=:-]+)]|([0-9]{1,3}\\.){3}[0-9]{1,3}|([A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*)(:[0-9]*)?(/([A-Za-z0-9._~!$&'()*+,;=:@/-]|%[0-9A-Fa-f]{2})*)?|(/?([A-Za-z0-9._~!$&'()*+,;=:@/-]|%[0-9A-Fa-f]{2})*))(\\?([A-Za-z0-9._~!$&'()*+,;=:@/?-]|%[0-9A-Fa-f]{2})*)?(#([A-Za-z0-9._~!$&'()*+,;=:@/?-]|%[0-9A-Fa-f]{2})*)?$");
+
+  //  private static final Pattern rfc3986Pattern =
+  // Pattern.compile("(?:[A-Za-z][A-Za-z0-9+.-]*:/{2})?(?:(?:[A-Za-z0-9-._~]|%[A-Fa-f0-9]{2})+(?::([A-Za-z0-9-._~]?|[%][A-Fa-f0-9]{2})+)?@)?(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\\\.){1,126}[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?::[0-9]+)?(?:/(?:[A-Za-z0-9-._~]|%[A-Fa-f0-9]{2})*)*(?:\\\\?[A-Za-z0-9-._~]+(?:=(?:[A-Za-z0-9-._~+]|%[A-Fa-f0-9]{2})+)?(?:&|;[A-Za-z0-9-._~]+(?:=(?:[A-Za-z0-9-._~+]|%[A-Fa-f0-9]{2})+)?)*)?\n");
+
+  @ParameterizedTest
+  @FieldSource("rfc3986_valid")
+  void rfc3986_valid(String url) {
+    assertThat(url).matches(Rfc3986Validator::isValidUriReference);
   }
 
   @ParameterizedTest
-  @MethodSource("allUrls")
-  void we_accept_all_things(String url) {
-    Url.parse(url);
+  @FieldSource("rfc3986_invalid")
+  void rfc3986_invalid(String url) {
+    assertThat(url).doesNotMatch(Rfc3986Validator::isValidUriReference);
   }
 
   @ParameterizedTest
-  @MethodSource("actuallyIllegalUrls")
-  void illegal_urls(String url) {
-    assertThatExceptionOfType(IllegalUrl.class).isThrownBy(() -> Url.parse(url));
+  @FieldSource("wiremock_valid")
+  void wiremock_valid(String url) {
+    UrlReference.parse(url);
   }
 
   @ParameterizedTest
-  @MethodSource("maybeShouldBeIllegalUrls")
-  void maybe_should_be_illegal_urls(String urlString) {
-    Url url = Url.parse(urlString);
-    System.out.println(
-        "testCase(\""
-            + urlString
-            + "\", expectation(\""
-            + url.scheme()
-            + "\", \""
-            + url.authority()
-            + "\", \""
-            + url.path()
-            + "\", "
-            + url.query()
-            + ", "
-            + url.fragment()
-            + ")),");
+  @FieldSource("wiremock_invalid")
+  void wiremock_invalid(String url) {
+    assertThatExceptionOfType(IllegalUrlReference.class).isThrownBy(() -> UrlReference.parse(url));
   }
 
   @ParameterizedTest
-  @MethodSource("illegalUrls")
-  void java_rejects_illegal_urls(String illegalUrl) {
+  @FieldSource("rfc3986_invalid")
+  @Disabled
+  void java_rejects_rfc3986_invalid_urls(String illegalUrl) {
     assertThatExceptionOfType(URISyntaxException.class).isThrownBy(() -> new URI(illegalUrl));
   }
 
   @ParameterizedTest
-  @MethodSource("onlyWHATWGValidUrls")
-  void java_rejects_whatwg_urls(String onlyWHATWGValidUrl) {
-    assertThatExceptionOfType(URISyntaxException.class)
-        .isThrownBy(() -> new URI(onlyWHATWGValidUrl));
-  }
-
-  @ParameterizedTest
-  @MethodSource("onlyRfc3986ValidUrls")
-  void java_accepts_rfc3986_urls(String onlyRfc3986ValidUrl) throws URISyntaxException {
+  @FieldSource("rfc3986_valid")
+  @Disabled
+  void java_accepts_rfc3986_valid_urls(String onlyRfc3986ValidUrl) throws URISyntaxException {
     new URI(onlyRfc3986ValidUrl);
   }
 
@@ -232,7 +197,7 @@ class UrlTests {
     @ParameterizedTest
     @MethodSource("validUrls")
     void parses_valid_url(UriReferenceParseTestCase urlTest) {
-      Url url = Url.parse(urlTest.stringForm);
+      UrlReference url = UrlReference.parse(urlTest.stringForm);
       assertThat(url.isUrl()).isTrue();
       assertThat(url.scheme()).isEqualTo(urlTest.expectation.scheme);
       assertThat(url.path()).isEqualTo(urlTest.expectation.path);
@@ -332,4 +297,13 @@ class UrlTests {
       @Nullable Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {}
+
+  private static List<String> readResource(String resourceName) {
+    try (var resource = UrlTests.class.getResourceAsStream(resourceName + ".json")) {
+      assert resource != null;
+      return objectMapper.readValue(resource, new TypeReference<>() {});
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

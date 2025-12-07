@@ -21,8 +21,33 @@ final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
 
   @Override
   public org.wiremock.url.PathAndQuery parse(CharSequence stringForm) {
-    throw new UnsupportedOperationException();
+    try {
+      var urlReference = UrlReferenceParser.INSTANCE.parse(stringForm);
+      if (urlReference instanceof org.wiremock.url.PathAndQuery) {
+        return (org.wiremock.url.PathAndQuery) urlReference;
+      } else {
+        throw new IllegalPathAndQuery(stringForm.toString());
+      }
+    } catch (IllegalUrlPart illegalUrlPart) {
+      throw new IllegalPathAndQuery(stringForm.toString(), illegalUrlPart);
+    }
   }
 
-  record PathAndQuery(Path path, @Nullable Query query) implements org.wiremock.url.PathAndQuery {}
+  record PathAndQuery(Path path, @Nullable Query query) implements org.wiremock.url.PathAndQuery {
+
+    @Override
+    public boolean equals(Object obj) {
+      return UrlReferenceParser.equals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return UrlReferenceParser.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+      return UrlReferenceParser.toString(this);
+    }
+  }
 }

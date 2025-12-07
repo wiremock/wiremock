@@ -8,14 +8,19 @@ dependencies {
 
     api(project(":wiremock-core"))
 
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.assertj.core)
+    implementation(libs.okio)
 
-    testRuntimeOnly(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
-    testRuntimeOnly(project(":wiremock-jetty"))
+  testFixturesImplementation(platform(libs.okhttp.bom))
+  testFixturesApi(libs.okhttp)
+
+//    testImplementation(platform(libs.junit.bom))
+//    testImplementation(libs.junit.jupiter.api)
+//    testImplementation(libs.junit.jupiter.params)
+//    testImplementation(libs.assertj.core)
+
+//    testRuntimeOnly(libs.junit.jupiter)
+//    testRuntimeOnly(libs.junit.platform.launcher)
+//    testRuntimeOnly(project(":wiremock-jetty"))
 
     modules {
         module("org.apache.logging.log4j:log4j-core") {

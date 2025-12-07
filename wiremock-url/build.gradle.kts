@@ -11,12 +11,16 @@ dependencies {
   compileOnly("org.jetbrains:annotations:26.0.2-1")
 
   testImplementation(platform("org.junit:junit-bom:6.0.1"))
-  testImplementation("org.junit.jupiter:junit-jupiter-api")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
+  testImplementation(libs.junit.jupiter.api)
+  testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.assertj.core)
 
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(platform(libs.jackson.bom))
+  testImplementation(libs.jackson.core)
+  testImplementation(libs.jackson.databind)
+
+  testRuntimeOnly(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 publishing {

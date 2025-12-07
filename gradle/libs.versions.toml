@@ -52,6 +52,8 @@ apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", vers
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
 
+okio = { module = "com.squareup.okio:okio", version = "3.16.4" }
+
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
 xmlunit-legacy = { module = "org.xmlunit:xmlunit-legacy", version.ref = "xmlUnit" }
