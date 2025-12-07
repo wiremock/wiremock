@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.url;
+package org.wiremock.url.whatwg;
 
 import org.jspecify.annotations.Nullable;
 
-public class IllegalUrl extends IllegalUrlReference {
-
-  public IllegalUrl(String url) {
-    this(url, null);
-  }
-
-  public IllegalUrl(String url, @Nullable IllegalUrlPart cause) {
-    this(url, "Illegal URL: `" + url + "`", cause);
-  }
-
-  public IllegalUrl(String url, String message, @Nullable IllegalUrlPart cause) {
-    super(url, message, cause);
-  }
-}
+record WhatWGUrlTestCase(
+    @Nullable String comment,
+    String input,
+    String base,
+    boolean failure,
+    @Nullable String relativeTo,
+    String href,
+    String origin,
+    String protocol,
+    String username,
+    String password,
+    String host,
+    String hostname,
+    String port,
+    String pathname,
+    String search,
+    @Nullable String searchParams,
+    String hash) {}

@@ -66,7 +66,9 @@ class PortTests {
     }
 
     static Stream<String> validPortStrings() {
-      return Stream.of("0", "1", "80", "443", "8080", "8443", "9000", "65535", "00080", "65536", "70000", "100000");
+      return Stream.of(
+          "0", "1", "80", "443", "8080", "8443", "9000", "65535", "00080", "65536", "70000",
+          "100000");
     }
 
     @ParameterizedTest
@@ -78,10 +80,7 @@ class PortTests {
     }
 
     @ParameterizedTest
-    @ValueSource(
-        strings = {
-          "-1000", "-1"
-        })
+    @ValueSource(strings = {"-1000", "-1"})
     void throws_exception_for_strings_in_invalid_range(String invalidPortString) {
       assertThatExceptionOfType(IllegalPort.class)
           .isThrownBy(() -> Port.parse(invalidPortString))

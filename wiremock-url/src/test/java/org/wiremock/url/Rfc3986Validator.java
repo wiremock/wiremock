@@ -1,27 +1,37 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wiremock.url;
 
 import java.util.regex.Pattern;
 
 /**
  * A strict RFC 3986 URI-reference validator.
- * <p>
- * This validates the syntax defined
- * <a href="https://www.rfc-editor.org/rfc/rfc3986#appendix-A">RFC 3986 Appendix A.</a>
- * <p>
- * Key grammar rules implemented:
- * <p>
- *   URI-reference = URI / relative-ref
- *   URI           = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
- *   relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
- * <p>
- *   hier-part     = "//" authority path-abempty
- *                 / path-absolute
- *                 / path-rootless
- *                 / path-empty
- * <p>
- *   authority     = [ userinfo "@" ] host [ ":" port ]
- *   host          = IP-literal / IPv4address / reg-name
- *   IP-literal    = "[" ( IPv6address / IPvFuture ) "]"
+ *
+ * <p>This validates the syntax defined <a
+ * href="https://www.rfc-editor.org/rfc/rfc3986#appendix-A">RFC 3986 Appendix A.</a>
+ *
+ * <p>Key grammar rules implemented:
+ *
+ * <p>URI-reference = URI / relative-ref URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+ * relative-ref = relative-part [ "?" query ] [ "#" fragment ]
+ *
+ * <p>hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+ *
+ * <p>authority = [ userinfo "@" ] host [ ":" port ] host = IP-literal / IPv4address / reg-name
+ * IP-literal = "[" ( IPv6address / IPvFuture ) "]"
  */
 public final class Rfc3986Validator {
 
@@ -41,10 +51,10 @@ public final class Rfc3986Validator {
   private static final String HEXDIG = "0-9A-Fa-f";
 
   // unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
-  private static final String UNRESERVED = ALPHA + DIGIT + "-._~";
+  private static final String UNRESERVED = ALPHA + DIGIT + "\\-._~";
 
   // sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-  private static final String SUB_DELIMS = "!\\$&'\\(\\)*+,;=";
+  private static final String SUB_DELIMS = "!$&'()*+,;=";
 
   // pct-encoded = "%" HEXDIG HEXDIG
   private static final String PCT_ENCODED = "%[" + HEXDIG + "]{2}";
@@ -70,8 +80,7 @@ public final class Rfc3986Validator {
   //           / "1" 2DIGIT            ; 100-199
   //           / "2" %x30-34 DIGIT     ; 200-249
   //           / "25" %x30-35          ; 250-255
-  private static final String DEC_OCTET =
-          "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]";
+  private static final String DEC_OCTET = "(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])";
 
   // IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
   private static final String IPV4_ADDRESS =
@@ -95,36 +104,36 @@ public final class Rfc3986Validator {
   private static final String IPV6_ADDRESS = buildIpv6Pattern();
 
   private static String buildIpv6Pattern() {
-    String h16c = H16 + ":";  // h16 followed by colon
+    String h16c = H16 + ":"; // h16 followed by colon
 
     // Build each alternative
     String[] alts = {
-        // 6( h16 ":" ) ls32
-        "(?:" + h16c + "){6}" + LS32,
+      // 6( h16 ":" ) ls32
+      "(?:" + h16c + "){6}" + LS32,
 
-        // "::" 5( h16 ":" ) ls32
-        "::(?:" + h16c + "){5}" + LS32,
+      // "::" 5( h16 ":" ) ls32
+      "::(?:" + h16c + "){5}" + LS32,
 
-        // [ h16 ] "::" 4( h16 ":" ) ls32
-        "(?:" + H16 + ")?::(?:" + h16c + "){4}" + LS32,
+      // [ h16 ] "::" 4( h16 ":" ) ls32
+      "(?:" + H16 + ")?::(?:" + h16c + "){4}" + LS32,
 
-        // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-        "(?:(?:" + h16c + "){0,1}" + H16 + ")?::(?:" + h16c + "){3}" + LS32,
+      // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+      "(?:(?:" + h16c + "){0,1}" + H16 + ")?::(?:" + h16c + "){3}" + LS32,
 
-        // [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-        "(?:(?:" + h16c + "){0,2}" + H16 + ")?::(?:" + h16c + "){2}" + LS32,
+      // [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+      "(?:(?:" + h16c + "){0,2}" + H16 + ")?::(?:" + h16c + "){2}" + LS32,
 
-        // [ *3( h16 ":" ) h16 ] "::" h16 ":" ls32
-        "(?:(?:" + h16c + "){0,3}" + H16 + ")?::" + h16c + LS32,
+      // [ *3( h16 ":" ) h16 ] "::" h16 ":" ls32
+      "(?:(?:" + h16c + "){0,3}" + H16 + ")?::" + h16c + LS32,
 
-        // [ *4( h16 ":" ) h16 ] "::" ls32
-        "(?:(?:" + h16c + "){0,4}" + H16 + ")?::" + LS32,
+      // [ *4( h16 ":" ) h16 ] "::" ls32
+      "(?:(?:" + h16c + "){0,4}" + H16 + ")?::" + LS32,
 
-        // [ *5( h16 ":" ) h16 ] "::" h16
-        "(?:(?:" + h16c + "){0,5}" + H16 + ")?::" + H16,
+      // [ *5( h16 ":" ) h16 ] "::" h16
+      "(?:(?:" + h16c + "){0,5}" + H16 + ")?::" + H16,
 
-        // [ *6( h16 ":" ) h16 ] "::"
-        "(?:(?:" + h16c + "){0,6}" + H16 + ")?::"
+      // [ *6( h16 ":" ) h16 ] "::"
+      "(?:(?:" + h16c + "){0,6}" + H16 + ")?::"
     };
 
     return "(?:" + String.join("|", alts) + ")";
@@ -135,8 +144,7 @@ public final class Rfc3986Validator {
       "v[" + HEXDIG + "]+\\.[" + UNRESERVED + SUB_DELIMS + ":]+";
 
   // IP-literal = "[" ( IPv6address / IPvFuture ) "]"
-  private static final String IP_LITERAL =
-      "\\[(?:" + IPV6_ADDRESS + "|" + IPV_FUTURE + ")]";
+  private static final String IP_LITERAL = "\\[(?:" + IPV6_ADDRESS + "|" + IPV_FUTURE + ")\\]";
 
   // reg-name = *( unreserved / pct-encoded / sub-delims )
   private static final String REG_NAME_CHAR = "[" + UNRESERVED + SUB_DELIMS + "]";
@@ -144,23 +152,20 @@ public final class Rfc3986Validator {
 
   // host = IP-literal / IPv4address / reg-name
   // Note: Order matters - we try IP-literal first, then IPv4, then reg-name
-  private static final String HOST =
-      "(?:" + IP_LITERAL + "|" + IPV4_ADDRESS + "|" + REG_NAME + ")";
+  private static final String HOST = "(?:" + IP_LITERAL + "|" + IPV4_ADDRESS + "|" + REG_NAME + ")";
 
   // port = *DIGIT
   private static final String PORT = "[" + DIGIT + "]*";
 
   // authority = [ userinfo "@" ] host [ ":" port ]
-  private static final String AUTHORITY =
-      "(?:" + USERINFO + "@)?" + HOST + "(?::" + PORT + ")?";
+  private static final String AUTHORITY = "(?:" + USERINFO + "@)?" + HOST + "(?::" + PORT + ")?";
 
   // ===========================================
   // Path Components
   // ===========================================
 
   // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
-  private static final String PCHAR =
-      "(?:[" + UNRESERVED + SUB_DELIMS + ":@]|" + PCT_ENCODED + ")";
+  private static final String PCHAR = "(?:[" + UNRESERVED + SUB_DELIMS + ":@]|" + PCT_ENCODED + ")";
 
   // segment = *pchar
   private static final String SEGMENT = PCHAR + "*";
@@ -177,16 +182,13 @@ public final class Rfc3986Validator {
   private static final String PATH_ABEMPTY = "(?:/" + SEGMENT + ")*";
 
   // path-absolute = "/" [ segment-nz *( "/" segment ) ]
-  private static final String PATH_ABSOLUTE =
-      "/(?:" + SEGMENT_NZ + "(?:/" + SEGMENT + ")*)?";
+  private static final String PATH_ABSOLUTE = "/(?:" + SEGMENT_NZ + "(?:/" + SEGMENT + ")*)?";
 
   // path-noscheme = segment-nz-nc *( "/" segment )
-  private static final String PATH_NOSCHEME =
-      SEGMENT_NZ_NC + "(?:/" + SEGMENT + ")*";
+  private static final String PATH_NOSCHEME = SEGMENT_NZ_NC + "(?:/" + SEGMENT + ")*";
 
   // path-rootless = segment-nz *( "/" segment )
-  private static final String PATH_ROOTLESS =
-      SEGMENT_NZ + "(?:/" + SEGMENT + ")*";
+  private static final String PATH_ROOTLESS = SEGMENT_NZ + "(?:/" + SEGMENT + ")*";
 
   // path-empty = 0<pchar>
   private static final String PATH_EMPTY = "";
@@ -196,11 +198,10 @@ public final class Rfc3986Validator {
   // ===========================================
 
   // query = *( pchar / "/" / "?" )
-  private static final String QUERY =
-      "(?:" + PCHAR + "|[/?])*";
+  private static final String QUERY = "(?:" + PCHAR + "|[/?])*";
 
   // fragment = *( pchar / "/" / "?" )
-  private static final String FRAGMENT = QUERY;  // Same as query
+  private static final String FRAGMENT = QUERY; // Same as query
 
   // ===========================================
   // Hierarchical Part
@@ -211,20 +212,32 @@ public final class Rfc3986Validator {
   //           / path-rootless
   //           / path-empty
   private static final String HIER_PART =
-      "(?://" + AUTHORITY + PATH_ABEMPTY +
-          "|" + PATH_ABSOLUTE +
-          "|" + PATH_ROOTLESS +
-          "|" + PATH_EMPTY + ")";
+      "(?://"
+          + AUTHORITY
+          + PATH_ABEMPTY
+          + "|"
+          + PATH_ABSOLUTE
+          + "|"
+          + PATH_ROOTLESS
+          + "|"
+          + PATH_EMPTY
+          + ")";
 
   // relative-part = "//" authority path-abempty
   //               / path-absolute
   //               / path-noscheme
   //               / path-empty
   private static final String RELATIVE_PART =
-      "(?://" + AUTHORITY + PATH_ABEMPTY +
-          "|" + PATH_ABSOLUTE +
-          "|" + PATH_NOSCHEME +
-          "|" + PATH_EMPTY + ")";
+      "(?://"
+          + AUTHORITY
+          + PATH_ABEMPTY
+          + "|"
+          + PATH_ABSOLUTE
+          + "|"
+          + PATH_NOSCHEME
+          + "|"
+          + PATH_EMPTY
+          + ")";
 
   // ===========================================
   // Full URI and URI-reference
@@ -239,8 +252,7 @@ public final class Rfc3986Validator {
       RELATIVE_PART + "(?:\\?" + QUERY + ")?(?:#" + FRAGMENT + ")?";
 
   // URI-reference = URI / relative-ref
-  private static final String URI_REFERENCE =
-      "(?:" + URI + "|" + RELATIVE_REF + ")";
+  private static final String URI_REFERENCE = "(?:" + URI + "|" + RELATIVE_REF + ")";
 
   // ===========================================
   // Compiled Patterns
@@ -255,7 +267,17 @@ public final class Rfc3986Validator {
   private static final Pattern HOST_PATTERN = Pattern.compile("^" + HOST + "$");
   private static final Pattern IPV4_PATTERN = Pattern.compile("^" + IPV4_ADDRESS + "$");
   private static final Pattern IPV6_PATTERN = Pattern.compile("^" + IPV6_ADDRESS + "$");
-  private static final Pattern PATH_PATTERN = Pattern.compile("^(?:" + PATH_ABEMPTY + "|" + PATH_ABSOLUTE + "|" + PATH_ROOTLESS + "|" + PATH_NOSCHEME + ")$");
+  private static final Pattern PATH_PATTERN =
+      Pattern.compile(
+          "^(?:"
+              + PATH_ABEMPTY
+              + "|"
+              + PATH_ABSOLUTE
+              + "|"
+              + PATH_ROOTLESS
+              + "|"
+              + PATH_NOSCHEME
+              + ")$");
   private static final Pattern QUERY_PATTERN = Pattern.compile("^" + QUERY + "$");
   private static final Pattern FRAGMENT_PATTERN = Pattern.compile("^" + FRAGMENT + "$");
 
@@ -274,8 +296,7 @@ public final class Rfc3986Validator {
   }
 
   /**
-   * Validates a URI-reference (URI or relative-ref).
-   * This is the most permissive validation.
+   * Validates a URI-reference (URI or relative-ref). This is the most permissive validation.
    *
    * @param input the string to validate
    * @return true if valid RFC 3986 URI-reference
@@ -362,5 +383,15 @@ public final class Rfc3986Validator {
    */
   public static boolean isValidFragment(String input) {
     return FRAGMENT_PATTERN.matcher(input).matches();
+  }
+
+  /** Returns the regex pattern string for debugging/inspection. */
+  public static String getUriPatternString() {
+    return "^" + URI + "$";
+  }
+
+  /** Returns the regex pattern string for URI-reference for debugging/inspection. */
+  public static String getUriReferencePatternString() {
+    return "^" + URI_REFERENCE + "$";
   }
 }

@@ -25,10 +25,8 @@ plugins {
 dependencies {
   api(project(":wiremock-core"))
   api(project(":wiremock-jetty"))
-  implementation(project(":wiremock-httpclient-okhttp"))
   implementation(platform(libs.okhttp.bom))
   implementation(project(":wiremock-httpclient-apache5"))
-  implementation(project(":wiremock-url"))
 
   implementation(libs.jopt.simple)
 
@@ -46,7 +44,6 @@ dependencies {
   testFixturesImplementation(platform(libs.jetty.bom))
   testFixturesImplementation(libs.jetty.util)
   testFixturesImplementation(platform(libs.junit.bom))
-  testFixturesImplementation(project(":wiremock-url"))
   testFixturesImplementation(libs.mockito.core)
   testFixturesImplementation(libs.xmlunit.core)
 
@@ -54,6 +51,7 @@ dependencies {
   testImplementation(libs.okhttp)
 
   testImplementation(project(":wiremock-junit5"))
+  testImplementation(project(":wiremock-httpclient-okhttp"))
   testImplementation(project(":wiremock-url"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)

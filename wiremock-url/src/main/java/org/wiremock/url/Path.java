@@ -71,7 +71,7 @@ class PathParser implements CharSequenceParser<Path> {
 
     @Override
     public boolean isAbsolute() {
-      return path.charAt(0) == '/';
+      return !path.isEmpty() && path.charAt(0) == '/';
     }
 
     @Override

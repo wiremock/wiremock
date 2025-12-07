@@ -43,9 +43,11 @@ public sealed interface UrlReference permits RelativeRef, Url {
     return authority != null ? authority.port() : null;
   }
 
-  UrlReference withPort(@Nullable Port port);
-
-  UrlReference withoutPort();
+  default @Nullable Port resolvedPort() {
+    Port definedPort = port();
+    Scheme scheme = scheme();
+    return definedPort != null ? definedPort : (scheme != null ? scheme.defaultPort() : null);
+  }
 
   static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
     return UrlReferenceParser.INSTANCE.parse(urlReference);

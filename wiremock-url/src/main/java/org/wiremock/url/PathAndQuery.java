@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
 
 public interface PathAndQuery extends RelativeRef {
 
+  PathAndQuery EMPTY = new PathAndQueryParser.PathAndQuery(Path.EMPTY, null);
+
   /**
    * {@implSpec} Implementations must ALWAYS return null
    *
@@ -43,18 +45,6 @@ public interface PathAndQuery extends RelativeRef {
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Fragment fragment() {
     return null;
-  }
-
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default PathAndQuery withPort(@Nullable Port port) {
-    return this;
-  }
-
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default PathAndQuery withoutPort() {
-    return this;
   }
 
   static PathAndQuery parse(CharSequence pathAndQuery) throws IllegalPathAndQuery {

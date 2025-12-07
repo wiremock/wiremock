@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.alwaysIllegal;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.intellij.lang.annotations.Language;
@@ -26,14 +27,58 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
   static final UrlReferenceParser INSTANCE = new UrlReferenceParser();
 
+  static boolean equals(UrlReference one, Object o) {
+    if (one == o) {
+      return true;
+    }
+
+    if (!(o instanceof UrlReference other)) {
+      return false;
+    }
+
+    return Objects.equals(one.scheme(), other.scheme())
+        && Objects.equals(one.authority(), other.authority())
+        && Objects.equals(one.path(), other.path())
+        && Objects.equals(one.query(), other.query())
+        && Objects.equals(one.fragment(), other.fragment());
+  }
+
+  static int hashCode(UrlReference urlReference) {
+    return Objects.hash(
+        urlReference.scheme(),
+        urlReference.authority(),
+        urlReference.path(),
+        urlReference.query(),
+        urlReference.fragment());
+  }
+
+  static String toString(UrlReference urlReference) {
+    StringBuilder result = new StringBuilder();
+    if (urlReference.scheme() != null) {
+      result.append(urlReference.scheme()).append(":");
+    }
+    if (urlReference.authority() != null) {
+      result.append("//").append(urlReference.authority());
+    }
+    result.append(urlReference.path());
+    if (urlReference.query() != null) {
+      result.append("?").append(urlReference.query());
+    }
+    if (urlReference.fragment() != null) {
+      result.append("#").append(urlReference.fragment());
+    }
+    return result.toString();
+  }
+
   @Language("RegExp")
   private final String scheme = "(?<scheme>" + SchemeParser.INSTANCE.schemeRegex + ")";
 
   @Language("RegExp")
-  private final String authority = "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")";
+  private final String authority =
+      "(?>(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")?)";
 
   @Language("RegExp")
-  private final String path = "(?<path>" + PathParser.INSTANCE.pathRegex + ")";
+  private final String path = "(?<path>(|/" + PathParser.INSTANCE.pathRegex + "))";
 
   @Language("RegExp")
   private final String query = "(?<query>" + QueryParser.INSTANCE.queryRegex + ")";
@@ -45,48 +90,56 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
   private final Pattern regex =
       Pattern.compile(
-          "^(" + scheme + ":)?(//" + authority + ")?" + path + "(\\?" + query + ")?(#" + fragment
+          "^(" + scheme + ":)?(//" + authority + ")" + path + "(\\?" + query + ")?(#" + fragment
               + ")?$");
 
   @Override
   public UrlReference parse(CharSequence stringForm) {
     String string = stringForm.toString();
-    var result = regex.matcher(stringForm);
-    if (!result.matches()) {
-      if (string.contains(":")) {
-        throw new IllegalUrl(string);
-      } else {
-        throw new IllegalRelativeRef(string);
+    try {
+      var result = regex.matcher(stringForm);
+      if (!result.matches()) {
+        if (string.contains(":")) {
+          throw new IllegalUrl(string);
+        } else {
+          throw new IllegalRelativeRef(string);
+        }
       }
-    }
 
-    var schemeString = result.group("scheme");
-    var scheme = schemeString == null ? null : Scheme.parse(schemeString);
+      var schemeString = result.group("scheme");
+      var scheme = schemeString == null ? null : Scheme.parse(schemeString);
 
-    var queryString = result.group("query");
-    var query = queryString == null ? null : Query.parse(queryString);
+      var queryString = result.group("query");
+      var query = queryString == null ? null : Query.parse(queryString);
 
-    var fragmentString = result.group("fragment");
-    var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
+      var fragmentString = result.group("fragment");
+      var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
-    var hierarchicalPart = extractHierarchicalPart(result);
-    if (scheme != null) {
-      if (hierarchicalPart.authority != null) {
-        return Url.builder(scheme, hierarchicalPart.authority)
-            .setPath(hierarchicalPart.path)
-            .setQuery(query)
-            .setFragment(fragment)
-            .build();
+      var hierarchicalPart = extractHierarchicalPart(result);
+      if (scheme != null) {
+        if (hierarchicalPart.authority != null) {
+          if (hierarchicalPart.path.equals(Path.EMPTY) && query == null && fragment == null) {
+            return new BaseUrlParser.BaseUrl(scheme, hierarchicalPart.authority);
+          } else {
+            return Url.builder(scheme, hierarchicalPart.authority)
+                .setPath(hierarchicalPart.path)
+                .setQuery(query)
+                .setFragment(fragment)
+                .build();
+          }
+        } else {
+          throw new IllegalUrl(string);
+        }
       } else {
-        throw new IllegalUrl(string);
+        if (fragment == null && (hierarchicalPart.path.isAbsolute())) {
+          return new PathAndQueryParser.PathAndQuery(hierarchicalPart.path, query);
+        } else {
+          return new RelativeRefParser.RelativeRef(
+              hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
+        }
       }
-    } else {
-      if (fragment == null && (hierarchicalPart.path.isAbsolute())) {
-        return new PathAndQueryParser.PathAndQuery(hierarchicalPart.path, query);
-      } else {
-        return new RelativeRefParser.RelativeRef(
-            hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
-      }
+    } catch (IllegalUrlPart illegalPart) {
+      throw new IllegalUrl(string, illegalPart);
     }
   }
 

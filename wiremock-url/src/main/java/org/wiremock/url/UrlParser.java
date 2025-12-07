@@ -22,11 +22,11 @@ final class UrlParser implements CharSequenceParser<Url> {
   static final UrlParser INSTANCE = new UrlParser();
 
   @Override
-  public Url parse(CharSequence url) throws IllegalUrl {
+  public org.wiremock.url.Url parse(CharSequence url) throws IllegalUrl {
     try {
       var urlReference = UrlReferenceParser.INSTANCE.parse(url);
-      if (urlReference instanceof Url) {
-        return (Url) urlReference;
+      if (urlReference instanceof org.wiremock.url.Url) {
+        return (org.wiremock.url.Url) urlReference;
       } else {
         throw new IllegalUrl(url.toString());
       }
@@ -40,23 +40,22 @@ final class UrlParser implements CharSequenceParser<Url> {
       Authority authority,
       Path path,
       @Nullable Query query,
-      @Nullable Fragment fragment,
-      String asString)
+      @Nullable Fragment fragment)
       implements org.wiremock.url.Url {
 
-    Url(
-        Scheme scheme,
-        Authority authority,
-        Path path,
-        @Nullable Query query,
-        @Nullable Fragment fragment) {
-      this(
-          scheme,
-          authority,
-          path,
-          query,
-          fragment,
-          stringValue(scheme, authority, path, query, fragment));
+    @Override
+    public boolean equals(Object obj) {
+      return UrlReferenceParser.equals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return UrlReferenceParser.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+      return UrlReferenceParser.toString(this);
     }
 
     static class Builder implements org.wiremock.url.Url.Builder {
@@ -93,6 +92,24 @@ final class UrlParser implements CharSequenceParser<Url> {
       }
 
       @Override
+      public Builder setUserInfo(@Nullable UserInfo userInfo) {
+        this.authority = Authority.of(userInfo, authority.host(), authority.port());
+        return this;
+      }
+
+      @Override
+      public org.wiremock.url.Url.Builder setHost(Host host) {
+        this.authority = Authority.of(authority.userInfo(), host, authority.port());
+        return this;
+      }
+
+      @Override
+      public org.wiremock.url.Url.Builder setPort(@Nullable Port port) {
+        this.authority = Authority.of(authority.userInfo(), authority.host(), port);
+        return this;
+      }
+
+      @Override
       public Builder setPath(Path path) {
         this.path = path;
         return this;
@@ -111,31 +128,13 @@ final class UrlParser implements CharSequenceParser<Url> {
       }
 
       @Override
-      public Url build() {
-        return new Url(scheme, authority, path, query, fragment);
+      public org.wiremock.url.Url build() {
+        if (path.isEmpty() && query == null && fragment == null) {
+          return new BaseUrlParser.BaseUrl(scheme, authority);
+        } else {
+          return new Url(scheme, authority, path, query, fragment);
+        }
       }
-    }
-
-    @Override
-    public String toString() {
-      return asString;
-    }
-
-    private static String stringValue(
-        Scheme scheme,
-        Authority authority,
-        Path path,
-        @Nullable Query query,
-        @Nullable Fragment fragment) {
-      StringBuilder url =
-          new StringBuilder().append(scheme).append("://").append(authority).append(path);
-      if (query != null) {
-        url.append('?').append(query);
-      }
-      if (fragment != null) {
-        url.append('#').append(fragment);
-      }
-      return url.toString();
     }
   }
 }
