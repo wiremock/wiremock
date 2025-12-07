@@ -34,14 +34,14 @@ class PortTests {
   class OfMethod {
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 80, 443, 8080, 8443, 9000, 65535})
+    @ValueSource(ints = {0, 1, 80, 443, 8080, 8443, 9000, 65535, 65536, 70000, 100000})
     void creates_ports_with_various_valid_values(int portNumber) {
       Port port = Port.of(portNumber);
       assertThat(port.port()).isEqualTo(portNumber);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {-1000, -1, 0, 65536, 70000, 100000})
+    @ValueSource(ints = {-1000, -1})
     void throws_exception_for_various_invalid_ports(int invalidPort) {
       assertThatExceptionOfType(IllegalPort.class)
           .isThrownBy(() -> Port.of(invalidPort))
@@ -66,7 +66,7 @@ class PortTests {
     }
 
     static Stream<String> validPortStrings() {
-      return Stream.of("1", "80", "443", "8080", "8443", "9000", "65535", "00080");
+      return Stream.of("0", "1", "80", "443", "8080", "8443", "9000", "65535", "00080", "65536", "70000", "100000");
     }
 
     @ParameterizedTest
@@ -80,7 +80,7 @@ class PortTests {
     @ParameterizedTest
     @ValueSource(
         strings = {
-          "-1000", "-1", "0", "65536", "70000", "100000",
+          "-1000", "-1"
         })
     void throws_exception_for_strings_in_invalid_range(String invalidPortString) {
       assertThatExceptionOfType(IllegalPort.class)
