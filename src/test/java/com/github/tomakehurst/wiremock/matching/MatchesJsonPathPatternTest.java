@@ -600,6 +600,53 @@ public class MatchesJsonPathPatternTest {
     assertNotEquals(b.hashCode(), c.hashCode());
   }
 
+  @Test
+  void shouldSafelyHandleNullAndResultInNoMatch() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("true"));
+    String json = "{\"data\": {\"prop1\": false, \"prop2\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
+  void shouldMatchSuccessfullyForASingleNonNullValue() {
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath("$.data.prop1", WireMock.equalTo("false"));
+    String json = "{\"data\": {\"prop1\": false, \"prop2\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void shouldHandleNullAndNumberMixedAndResultInNoMatch() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("100"));
+    String json = "{\"data\": {\"prop1\": 200, \"prop2\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
+  void shouldMatchSuccessfullyWhenAllExtractedValuesAreNull() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("null"));
+    String json = "{\"data\": {\"prop1\": null, \"prop2\": null, \"prop3\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void shouldResultInNoMatchWhenJsonPathReturnsEmptyArray() {
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath("$.data.list.*", WireMock.equalTo("false"));
+    String json = "{\"data\": {\"list\": []}}";
+
+    MatchResult result = pattern.match(json);
+    assertFalse(result.isExactMatch());
+  }
+
   private static Notifier setMockNotifier() {
     final Notifier notifier = Mockito.mock(Notifier.class);
     LocalNotifier.set(notifier);
