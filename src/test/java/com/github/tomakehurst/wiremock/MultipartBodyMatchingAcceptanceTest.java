@@ -254,16 +254,17 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void acceptsAMultipartRelatedSOAPWithAttachmentRequest() throws Exception {
     final String soapBody =
-        "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\">\n"
-            + "  <soap:Header></soap:Header>\n"
-            + "  <soap:Body>\n"
-            + "    <ns1:Test xmlns:ns1=\"http://www.test.org/some-test-namespace\">\n"
-            + "      <ns1:Attachment>\n"
-            + "        <xop:Include xmlns:xop=\"http://www.w3.org/2004/08/xop/include\" href=\"ref-to-attachment%40some.domain.org\"/>\n"
-            + "      </ns1:Attachment>\n"
-            + "    </ns1:Test>\n"
-            + "  </soap:Body>\n"
-            + "</soap:Envelope>";
+        """
+            <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+              <soap:Header></soap:Header>
+              <soap:Body>
+                <ns1:Test xmlns:ns1="http://www.test.org/some-test-namespace">
+                  <ns1:Attachment>
+                    <xop:Include xmlns:xop="http://www.w3.org/2004/08/xop/include" href="ref-to-attachment%40some.domain.org"/>
+                  </ns1:Attachment>
+                </ns1:Test>
+              </soap:Body>
+            </soap:Envelope>""";
 
     stubFor(
         post("/multipart-related")

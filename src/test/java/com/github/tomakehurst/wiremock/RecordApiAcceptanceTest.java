@@ -21,7 +21,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -39,7 +38,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -588,8 +586,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     proxyingTestClient.put(
         "/foo/bar", withHeader("Accept", "text/plain"), withHeader("X-Another", "blah"));
 
-    WireMockResponse response =
-        proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
     assertThat(
         response.content(),
         equalToJson(RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE, JSONCompareMode.STRICT_ORDER));
