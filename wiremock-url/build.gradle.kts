@@ -36,3 +36,9 @@ publishing {
     }
   }
 }
+
+spotless {
+  json {
+    targetExclude("src/test/resources/org/wiremock/url/whatwg/urltestdata.json")
+  }
+}

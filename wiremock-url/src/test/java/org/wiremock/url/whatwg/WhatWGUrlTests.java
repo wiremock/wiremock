@@ -15,6 +15,7 @@
  */
 package org.wiremock.url.whatwg;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -25,6 +26,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
@@ -67,7 +69,7 @@ class WhatWGUrlTests {
   @Test
   @EnabledIf("remoteDataReachable")
   void test_data_is_up_to_date() throws IOException, URISyntaxException {
-    JsonNode expected = readRemote();
+    String expected = readRemote();
     try {
       assertThat(readLocal()).isEqualTo(expected);
     } catch (AssertionError e) {
@@ -75,7 +77,7 @@ class WhatWGUrlTests {
       if (theFile != null && theFile.getProtocol().equals("file")) {
         File file = new File(theFile.toURI());
         try (var writer = new BufferedWriter(new FileWriter(file))) {
-          objectMapper.writeValue(writer, expected);
+          writer.write(expected);
           System.err.println(
               "Updated with latest from " + remoteUrl + ", test should pass next time");
         }
@@ -85,7 +87,7 @@ class WhatWGUrlTests {
   }
 
   private static final List<WhatWGUrlTestCase> testData =
-      readLocal()
+      readLocalJson()
           .valueStream()
           .filter(JsonNode::isObject)
           .map(
@@ -106,17 +108,35 @@ class WhatWGUrlTests {
   private static final List<WhatWGUrlTestCase> whatwg_invalid =
       testData.stream().filter(WhatWGUrlTestCase::failure).toList();
 
-  private static JsonNode readLocal() {
+  private static String readLocal() {
     try (var testData = WhatWGUrlTests.class.getResourceAsStream("urltestdata.json")) {
-      return objectMapper.readTree(testData);
+      assert testData != null;
+      return normaliseToString(testData);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static JsonNode readRemote() throws IOException {
+  private static String normaliseToString(InputStream testData) throws IOException {
+    String value = new String(testData.readAllBytes(), UTF_8);
+    if (value.endsWith("\n")) {
+      return value;
+    } else {
+      return value + "\n";
+    }
+  }
+
+  private static JsonNode readLocalJson() {
+    try {
+      return objectMapper.readTree(readLocal());
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String readRemote() throws IOException {
     try (var testData = new URL(remoteUrl.toString()).openStream()) {
-      return objectMapper.readTree(testData);
+      return normaliseToString(testData);
     }
   }
 
