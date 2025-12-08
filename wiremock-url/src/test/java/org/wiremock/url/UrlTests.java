@@ -16,180 +16,14 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class UrlTests {
-
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
-  static final List<String> whatwg_valid_rfc3986_valid_wiremock_valid =
-      readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
-  static List<String> whatwg_valid_rfc3986_valid_wiremock_invalid =
-      readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
-  static List<String> whatwg_valid_rfc3986_invalid_wiremock_valid =
-      readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
-  static List<String> whatwg_valid_rfc3986_invalid_wiremock_invalid =
-      readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
-  static List<String> whatwg_invalid_rfc3986_valid_wiremock_valid =
-      readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
-  static List<String> whatwg_invalid_rfc3986_valid_wiremock_invalid =
-      readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
-  static List<String> whatwg_invalid_rfc3986_invalid_wiremock_valid =
-      readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
-  static List<String> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
-      readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
-
-  static List<String> whatwg_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid);
-
-  static List<String> whatwg_invalid =
-      concat(
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-
-  static List<String> rfc3986_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid);
-
-  static List<String> rfc3986_invalid =
-      concat(
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-
-  static List<String> wiremock_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid);
-
-  static List<String> wiremock_invalid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-
-  @SafeVarargs
-  static <T> Set<T> concat(Set<T>... sets) {
-    return Stream.of(sets).flatMap(Collection::stream).collect(Collectors.toSet());
-  }
-
-  static <T> List<T> concat(List<List<T>> lists) {
-    return lists.stream().flatMap(Collection::stream).toList();
-  }
-
-  @SafeVarargs
-  static <T> List<T> concat(List<T>... lists) {
-    return Stream.of(lists).flatMap(Collection::stream).toList();
-  }
-
-  static List<List<String>> parameter_groups =
-      List.of(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid,
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-
-  @ParameterizedTest
-  @FieldSource("parameter_groups")
-  void groups_contain_no_duplicates(List<String> group) {
-    assertThat(group).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void test_parameter_invariants() {
-
-    List<String> all = concat(parameter_groups);
-
-    assertThat(all).doesNotHaveDuplicates();
-
-    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(whatwg_valid, whatwg_invalid));
-    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(rfc3986_valid, rfc3986_invalid));
-    assertThat(all).containsExactlyInAnyOrderElementsOf(concat(wiremock_valid, wiremock_invalid));
-  }
-
-  // Taken from https://datatracker.ietf.org/doc/html/rfc3986#page-50
-  //  private static final Pattern rfc3986Pattern =
-  // Pattern.compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-  private static final Pattern rfc3986Pattern =
-      Pattern.compile(
-          "^[A-Za-z][A-Za-z0-9+.-]*:(//(([A-Za-z0-9._~!$&'()*+,;=:-]|%[0-9A-Fa-f]{2})*@)?(\\[([0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9._~!$&'()*+,;=:-]+)]|([0-9]{1,3}\\.){3}[0-9]{1,3}|([A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*)(:[0-9]*)?(/([A-Za-z0-9._~!$&'()*+,;=:@/-]|%[0-9A-Fa-f]{2})*)?|(/?([A-Za-z0-9._~!$&'()*+,;=:@/-]|%[0-9A-Fa-f]{2})*))(\\?([A-Za-z0-9._~!$&'()*+,;=:@/?-]|%[0-9A-Fa-f]{2})*)?(#([A-Za-z0-9._~!$&'()*+,;=:@/?-]|%[0-9A-Fa-f]{2})*)?$");
-
-  //  private static final Pattern rfc3986Pattern =
-  // Pattern.compile("(?:[A-Za-z][A-Za-z0-9+.-]*:/{2})?(?:(?:[A-Za-z0-9-._~]|%[A-Fa-f0-9]{2})+(?::([A-Za-z0-9-._~]?|[%][A-Fa-f0-9]{2})+)?@)?(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\\\.){1,126}[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?::[0-9]+)?(?:/(?:[A-Za-z0-9-._~]|%[A-Fa-f0-9]{2})*)*(?:\\\\?[A-Za-z0-9-._~]+(?:=(?:[A-Za-z0-9-._~+]|%[A-Fa-f0-9]{2})+)?(?:&|;[A-Za-z0-9-._~]+(?:=(?:[A-Za-z0-9-._~+]|%[A-Fa-f0-9]{2})+)?)*)?\n");
-
-  @ParameterizedTest
-  @FieldSource("rfc3986_valid")
-  void rfc3986_valid(String url) {
-    assertThat(url).matches(Rfc3986Validator::isValidUriReference);
-  }
-
-  @ParameterizedTest
-  @FieldSource("rfc3986_invalid")
-  void rfc3986_invalid(String url) {
-    assertThat(url).doesNotMatch(Rfc3986Validator::isValidUriReference);
-  }
-
-  @ParameterizedTest
-  @FieldSource("wiremock_valid")
-  void wiremock_valid(String url) {
-    UrlReference.parse(url);
-  }
-
-  @ParameterizedTest
-  @FieldSource("wiremock_invalid")
-  void wiremock_invalid(String url) {
-    assertThatExceptionOfType(IllegalUrlReference.class).isThrownBy(() -> UrlReference.parse(url));
-  }
-
-  @ParameterizedTest
-  @FieldSource("rfc3986_invalid")
-  @Disabled
-  void java_rejects_rfc3986_invalid_urls(String illegalUrl) {
-    assertThatExceptionOfType(URISyntaxException.class).isThrownBy(() -> new URI(illegalUrl));
-  }
-
-  @ParameterizedTest
-  @FieldSource("rfc3986_valid")
-  @Disabled
-  void java_accepts_rfc3986_valid_urls(String onlyRfc3986ValidUrl) throws URISyntaxException {
-    new URI(onlyRfc3986ValidUrl);
-  }
 
   @Nested
   class ParseMethod {
@@ -297,13 +131,4 @@ class UrlTests {
       @Nullable Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {}
-
-  private static List<String> readResource(String resourceName) {
-    try (var resource = UrlTests.class.getResourceAsStream(resourceName + ".json")) {
-      assert resource != null;
-      return objectMapper.readValue(resource, new TypeReference<>() {});
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

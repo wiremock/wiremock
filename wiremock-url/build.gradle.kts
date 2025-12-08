@@ -39,6 +39,6 @@ publishing {
 
 spotless {
   json {
-    targetExclude("src/test/resources/org/wiremock/url/whatwg/urltestdata.json")
+    targetExclude("src/test/resources/org/wiremock/url/whatwg/*.json")
   }
 }

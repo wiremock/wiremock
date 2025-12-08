@@ -17,7 +17,7 @@ package org.wiremock.url.whatwg;
 
 import org.jspecify.annotations.Nullable;
 
-record WhatWGUrlTestCase(
+public record WhatWGUrlTestCase(
     @Nullable String comment,
     String input,
     String base,
