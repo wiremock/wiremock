@@ -17,7 +17,11 @@ package org.wiremock.url.whatwg;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedWriter;
@@ -25,17 +29,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
-import org.wiremock.url.IllegalUrlReference;
+import java.util.stream.Stream;
 import org.wiremock.url.Rfc3986Validator;
 import org.wiremock.url.Url;
-import org.wiremock.url.UrlReference;
 
-class WhatWGUrlTestManagement {
+public class WhatWGUrlTestManagement {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -59,6 +62,72 @@ class WhatWGUrlTestManagement {
               })
           .toList();
 
+  static final List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
+      readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
+
+  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_invalid =
+      readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
+
+  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_valid =
+      readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
+
+  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_invalid =
+      readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
+
+  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_valid =
+      readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
+
+  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_invalid =
+      readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
+
+  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_valid =
+      readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
+
+  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
+      readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
+
+  static List<WhatWGUrlTestCase> whatwg_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid);
+
+  static List<WhatWGUrlTestCase> whatwg_invalid =
+      concat(
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  static List<WhatWGUrlTestCase> rfc3986_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid);
+
+  static List<WhatWGUrlTestCase> rfc3986_invalid =
+      concat(
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
+  public static List<WhatWGUrlTestCase> wiremock_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid,
+          whatwg_valid_rfc3986_invalid_wiremock_valid,
+          whatwg_invalid_rfc3986_valid_wiremock_valid,
+          whatwg_invalid_rfc3986_invalid_wiremock_valid);
+
+  public static List<WhatWGUrlTestCase> wiremock_invalid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_invalid,
+          whatwg_valid_rfc3986_invalid_wiremock_invalid,
+          whatwg_invalid_rfc3986_valid_wiremock_invalid,
+          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+
   private static JsonNode readLocalJson() {
     try {
       return objectMapper.readTree(readLocal());
@@ -67,11 +136,10 @@ class WhatWGUrlTestManagement {
     }
   }
 
-  static void updateTestData(String testData) throws URISyntaxException, IOException {
-    URL theFile = WhatWGUrlTests.class.getResource(URLTESTDATA_JSON);
-    if (theFile != null && theFile.getProtocol().equals("file")) {
-      File file = new File(theFile.toURI());
-      try (var writer = new BufferedWriter(new FileWriter(file))) {
+  static void updateTestData(String testData) throws IOException {
+    File theFile = getResourceFile(URLTESTDATA_JSON);
+    if (theFile != null) {
+      try (var writer = new BufferedWriter(new FileWriter(theFile))) {
         writer.write(testData);
         System.err.println(
             "Updated with latest from " + remoteUrl + ", test should pass next time");
@@ -80,7 +148,7 @@ class WhatWGUrlTestManagement {
   }
 
   static String readLocal() {
-    try (var testData = WhatWGUrlTests.class.getResourceAsStream(URLTESTDATA_JSON)) {
+    try (var testData = WhatWGUrlTestManagement.class.getResourceAsStream(URLTESTDATA_JSON)) {
       assert testData != null;
       return normaliseToString(testData);
     } catch (IOException e) {
@@ -103,107 +171,174 @@ class WhatWGUrlTestManagement {
     }
   }
 
-  public static void main(String[] args) throws IOException {
-    var whatwg_valid_rfc3986_valid_wiremock_valid = new LinkedHashSet<String>();
-    var whatwg_valid_rfc3986_valid_wiremock_invalid = new LinkedHashSet<String>();
-    var whatwg_valid_rfc3986_invalid_wiremock_valid = new LinkedHashSet<String>();
-    var whatwg_valid_rfc3986_invalid_wiremock_invalid = new LinkedHashSet<String>();
-    var whatwg_invalid_rfc3986_valid_wiremock_valid = new LinkedHashSet<String>();
-    var whatwg_invalid_rfc3986_valid_wiremock_invalid = new LinkedHashSet<String>();
-    var whatwg_invalid_rfc3986_invalid_wiremock_valid = new LinkedHashSet<String>();
-    var whatwg_invalid_rfc3986_invalid_wiremock_invalid = new LinkedHashSet<String>();
+  static List<WhatWGUrlTestCase> readResource(String resourceName) {
+    try (var resource = WhatWGUrlTestManagement.class.getResourceAsStream(resourceName + ".json")) {
+      if (resource == null) {
+        return Collections.emptyList();
+      } else {
+        try {
+          return objectMapper.readValue(resource, new TypeReference<>() {});
+        } catch (Exception e) {
+          return Collections.emptyList();
+        }
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  static void writeResource(String resourceName, List<WhatWGUrlTestCase> testCases)
+      throws IOException {
+    File theFile = getResourceFile(resourceName + ".json");
+    if (theFile != null) {
+      objectMapper.writer(new OneObjectPerLinePrettyPrinter()).writeValue(theFile, testCases);
+    }
+  }
+
+  private static File getResourceFile(String resourceName) {
+    URL resourceUrl = WhatWGUrlTestManagement.class.getResource(resourceName);
+    if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
+      return new File(
+          resourceUrl.getPath().replace("/build/resources/test/", "/src/test/resources/"));
+    } else {
+      return null;
+    }
+  }
+
+  static <C extends Collection<T>, T> List<T> concat(Collection<C> lists) {
+    return concat(lists.stream());
+  }
+
+  @SafeVarargs
+  static <T> List<T> concat(Collection<T>... lists) {
+    return concat(Stream.of(lists));
+  }
+
+  static <C extends Collection<T>, T> List<T> concat(Stream<C> lists) {
+    return lists.flatMap(Collection::stream).toList();
+  }
+
+  @SuppressWarnings("ConstantValue")
+  static void sortTestData() throws IOException {
+    var whatwg_valid_rfc3986_valid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_valid_rfc3986_valid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_valid_rfc3986_invalid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_valid_rfc3986_invalid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_invalid_rfc3986_valid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_invalid_rfc3986_valid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_invalid_rfc3986_invalid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
+    var whatwg_invalid_rfc3986_invalid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
 
     testData.forEach(
         test -> {
           var whatwg_valid = !test.failure();
-          var rfc3986_valid = rfc3986_valid(test.input());
-          var wiremock_valid = wiremock_valid(test.input());
+          var rfc3986_valid = Rfc3986Validator.isValidUriReference(test.input());
+
+          var wiremock_valid = shouldBeValid(rfc3986_valid, test);
+
           if (whatwg_valid && rfc3986_valid && wiremock_valid) {
-            whatwg_valid_rfc3986_valid_wiremock_valid.add(test.input());
-          }
-          if (whatwg_valid && rfc3986_valid && !wiremock_valid) {
-            whatwg_valid_rfc3986_valid_wiremock_invalid.add(test.input());
-          }
-          if (whatwg_valid && !rfc3986_valid && wiremock_valid) {
-            whatwg_valid_rfc3986_invalid_wiremock_valid.add(test.input());
-          }
-          if (whatwg_valid && !rfc3986_valid && !wiremock_valid) {
-            whatwg_valid_rfc3986_invalid_wiremock_invalid.add(test.input());
-          }
-          if (!whatwg_valid && rfc3986_valid && wiremock_valid) {
-            whatwg_invalid_rfc3986_valid_wiremock_valid.add(test.input());
-          }
-          if (!whatwg_valid && rfc3986_valid && !wiremock_valid) {
-            whatwg_invalid_rfc3986_valid_wiremock_invalid.add(test.input());
-          }
-          if (!whatwg_valid && !rfc3986_valid && wiremock_valid) {
-            whatwg_invalid_rfc3986_invalid_wiremock_valid.add(test.input());
-          }
-          if (!whatwg_valid && !rfc3986_valid && !wiremock_valid) {
-            whatwg_invalid_rfc3986_invalid_wiremock_invalid.add(test.input());
+            whatwg_valid_rfc3986_valid_wiremock_valid.add(test);
+          } else if (whatwg_valid && rfc3986_valid && !wiremock_valid) {
+            whatwg_valid_rfc3986_valid_wiremock_invalid.add(test);
+          } else if (whatwg_valid && !rfc3986_valid && wiremock_valid) {
+            whatwg_valid_rfc3986_invalid_wiremock_valid.add(test);
+          } else if (whatwg_valid && !rfc3986_valid && !wiremock_valid) {
+            whatwg_valid_rfc3986_invalid_wiremock_invalid.add(test);
+          } else if (!whatwg_valid && rfc3986_valid && wiremock_valid) {
+            whatwg_invalid_rfc3986_valid_wiremock_valid.add(test);
+          } else if (!whatwg_valid && rfc3986_valid && !wiremock_valid) {
+            whatwg_invalid_rfc3986_valid_wiremock_invalid.add(test);
+          } else if (!whatwg_valid && !rfc3986_valid && wiremock_valid) {
+            whatwg_invalid_rfc3986_invalid_wiremock_valid.add(test);
+          } else if (!whatwg_valid && !rfc3986_valid && !wiremock_valid) {
+            whatwg_invalid_rfc3986_invalid_wiremock_invalid.add(test);
+          } else {
+            throw new IllegalStateException("Unreachable");
           }
         });
 
-    report("whatwg_valid_rfc3986_valid_wiremock_valid", whatwg_valid_rfc3986_valid_wiremock_valid);
-
-    report(
+    writeResource(
+        "whatwg_valid_rfc3986_valid_wiremock_valid", whatwg_valid_rfc3986_valid_wiremock_valid);
+    writeResource(
         "whatwg_valid_rfc3986_valid_wiremock_invalid", whatwg_valid_rfc3986_valid_wiremock_invalid);
-
-    report(
+    writeResource(
         "whatwg_valid_rfc3986_invalid_wiremock_valid", whatwg_valid_rfc3986_invalid_wiremock_valid);
-
-    report(
+    writeResource(
         "whatwg_valid_rfc3986_invalid_wiremock_invalid",
         whatwg_valid_rfc3986_invalid_wiremock_invalid);
-
-    report(
+    writeResource(
         "whatwg_invalid_rfc3986_valid_wiremock_valid", whatwg_invalid_rfc3986_valid_wiremock_valid);
-
-    report(
+    writeResource(
         "whatwg_invalid_rfc3986_valid_wiremock_invalid",
         whatwg_invalid_rfc3986_valid_wiremock_invalid);
-
-    report(
+    writeResource(
         "whatwg_invalid_rfc3986_invalid_wiremock_valid",
         whatwg_invalid_rfc3986_invalid_wiremock_valid);
-
-    report(
+    writeResource(
         "whatwg_invalid_rfc3986_invalid_wiremock_invalid",
         whatwg_invalid_rfc3986_invalid_wiremock_invalid);
   }
 
-  private static void report(String title, Collection<String> items) throws IOException {
-    File file = new File("tmp/" + title + ".json");
-    //noinspection ResultOfMethodCallIgnored
-    file.createNewFile();
-    try (var writer = new BufferedWriter(new FileWriter(file))) {
-      writer.write("[\n");
-      List<String> escaped =
-          items.stream()
-              .map(
-                  s -> {
-                    try {
-                      return objectMapper.writeValueAsString(s);
-                    } catch (JsonProcessingException e) {
-                      throw new RuntimeException(e);
-                    }
-                  })
-              .toList();
-      writer.write(String.join(",\n", escaped));
-      writer.write("\n]\n");
-    }
+  @SuppressWarnings("unused")
+  private static boolean shouldBeValid(boolean rfc3986Valid, WhatWGUrlTestCase test) {
+    return rfc3986Valid && !test.failure();
+  }
+}
+
+class OneObjectPerLinePrettyPrinter extends DefaultPrettyPrinter {
+  public OneObjectPerLinePrettyPrinter() {
+    super();
+    _arrayIndenter = new DefaultIndenter("", "");
+    _objectIndenter = new DefaultIndenter("", "");
+    _spacesInObjectEntries = true;
   }
 
-  private static boolean rfc3986_valid(String input) {
-    return Rfc3986Validator.isValidUriReference(input);
+  @Override
+  public DefaultPrettyPrinter createInstance() {
+    return new OneObjectPerLinePrettyPrinter();
   }
 
-  private static boolean wiremock_valid(String input) {
-    try {
-      UrlReference.parse(input);
-      return true;
-    } catch (IllegalUrlReference ignored) {
-      return false;
+  @Override
+  public void writeStartArray(JsonGenerator g) throws IOException {
+    g.writeRaw('[');
+  }
+
+  @Override
+  public void writeEndArray(JsonGenerator g, int nrOfValues) throws IOException {
+    if (nrOfValues > 0) {
+      g.writeRaw('\n');
     }
+    g.writeRaw(']');
+  }
+
+  @Override
+  public void beforeArrayValues(JsonGenerator g) throws IOException {
+    g.writeRaw('\n');
+  }
+
+  @Override
+  public void writeArrayValueSeparator(JsonGenerator g) throws IOException {
+    g.writeRaw(',');
+    g.writeRaw('\n');
+  }
+
+  @Override
+  public void writeStartObject(JsonGenerator g) throws IOException {
+    g.writeRaw("{ ");
+  }
+
+  @Override
+  public void writeEndObject(JsonGenerator g, int nrOfEntries) throws IOException {
+    g.writeRaw(" }");
+  }
+
+  @Override
+  public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException {
+    g.writeRaw(": ");
+  }
+
+  @Override
+  public void writeObjectEntrySeparator(JsonGenerator g) throws IOException {
+    g.writeRaw(", ");
   }
 }
