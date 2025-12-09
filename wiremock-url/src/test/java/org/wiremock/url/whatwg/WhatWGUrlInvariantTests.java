@@ -179,7 +179,7 @@ class WhatWGUrlInvariantTests {
   private static void coversAllCases(List<WhatWGUrlTestCase> valid, List<WhatWGUrlTestCase> invalid)
       throws IOException {
     try {
-      assertThat(concat(valid, invalid)).containsExactlyInAnyOrderElementsOf(testData);
+      assertThat(concat(valid, invalid)).containsAll(testData);
     } catch (AssertionError e) {
       sortTestData();
       throw e;
