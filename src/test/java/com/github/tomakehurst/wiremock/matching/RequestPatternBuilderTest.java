@@ -108,6 +108,24 @@ class RequestPatternBuilderTest {
                     .build())
             .isExactMatch(),
         is(true));
+    assertThat(
+        newRequestPattern
+            .match(
+                ImmutableRequest.create()
+                    .withMethod(GET)
+                    .withAbsoluteUrl("https://localhost/match-me-too")
+                    .build())
+            .isExactMatch(),
+        is(true));
+    assertThat(
+        newRequestPattern
+            .match(
+                ImmutableRequest.create()
+                    .withMethod(GET)
+                    .withAbsoluteUrl("https://localhost/match-not-me")
+                    .build())
+            .isExactMatch(),
+        is(false));
   }
 
   @Test
