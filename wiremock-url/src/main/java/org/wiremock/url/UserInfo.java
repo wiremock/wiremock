@@ -15,13 +15,12 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
-
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
 
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 public interface UserInfo {
 
@@ -29,8 +28,7 @@ public interface UserInfo {
     return UserInfoParser.INSTANCE.parse(userInfoString);
   }
 
-  @Nullable
-  UserInfo normalise();
+  @Nullable UserInfo normalise();
 }
 
 class UserInfoParser implements CharSequenceParser<UserInfo> {
@@ -59,7 +57,8 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     }
   }
 
-  record UserInfo(String userInfo, String username, @Nullable String password) implements org.wiremock.url.UserInfo {
+  record UserInfo(String userInfo, String username, @Nullable String password)
+      implements org.wiremock.url.UserInfo {
 
     @Override
     public String toString() {

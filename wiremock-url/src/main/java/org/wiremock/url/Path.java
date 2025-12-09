@@ -51,7 +51,8 @@ class PathParser implements CharSequenceParser<Path> {
   public Path parse(CharSequence stringForm) {
     String pathStr = stringForm.toString();
     if (pathPattern.matcher(pathStr).matches()) {
-      var segments = Arrays.stream(pathStr.split("/", -1)).map(s -> (Segment) new SegmentImpl(s)).toList();
+      var segments =
+          Arrays.stream(pathStr.split("/", -1)).map(s -> (Segment) new SegmentImpl(s)).toList();
       return new Path(pathStr, segments);
     } else {
       throw new IllegalPath(pathStr);
