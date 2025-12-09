@@ -96,7 +96,7 @@ class PathParser implements CharSequenceParser<Path> {
       // Handle empty path and single slash early
       List<Segment> otherSegments = other.segments();
       for (Segment candidate : otherSegments) {
-        if (candidate.equals(Segment.DOT_DOT)) {
+        if (candidate.isDotDot()) {
           if (pathStack.size() <= 2) {
             pathStack.clear();
             pathStack.add(Segment.EMPTY);
@@ -108,7 +108,7 @@ class PathParser implements CharSequenceParser<Path> {
             pathStack.removeLast();
             pathStack.add(Segment.EMPTY);
           }
-        } else if (candidate.equals(Segment.DOT) || candidate.equals(Segment.EMPTY)) {
+        } else if (candidate.isDot() || candidate.isEmpty()) {
           if (!pathStack.getLast().isEmpty()) {
             pathStack.add(Segment.EMPTY);
           }
