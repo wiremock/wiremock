@@ -55,15 +55,25 @@ public class WhatWGUrlTestManagement {
       readLocalJson()
           .valueStream()
           .filter(JsonNode::isObject)
-          .map(
-              o -> {
-                try {
-                  return objectMapper.treeToValue(o, WhatWGUrlTestCase.class);
-                } catch (JsonProcessingException e) {
-                  throw new AssertionError(e);
-                }
-              })
+          .map(WhatWGUrlTestManagement::map)
           .toList();
+
+  private static WhatWGUrlTestCase map(JsonNode o) {
+    try {
+      JsonNode failure = o.get("failure");
+      if (failure != null && failure.asBoolean()) {
+        if (o.get("relativeTo") == null) {
+          return objectMapper.treeToValue(o, SimpleFailureWhatWGUrlTestCase.class);
+        } else {
+          return objectMapper.treeToValue(o, RelativeToFailureWhatWGUrlTestCase.class);
+        }
+      } else {
+        return objectMapper.treeToValue(o, SuccessWhatWGUrlTestCase.class);
+      }
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   static final List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
       readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
@@ -198,8 +208,10 @@ public class WhatWGUrlTestManagement {
         return Collections.emptyList();
       } else {
         try {
-          return objectMapper.readValue(resource, new TypeReference<>() {});
+          var json = objectMapper.readTree(resource);
+          return json.valueStream().map(WhatWGUrlTestManagement::map).toList();
         } catch (Exception e) {
+          e.printStackTrace();
           return Collections.emptyList();
         }
       }
