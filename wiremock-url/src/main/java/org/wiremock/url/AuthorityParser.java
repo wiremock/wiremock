@@ -127,6 +127,8 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
       if (normalisedPort.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
         return this;
+      } else if (normalisedUserInfo == null) {
+        return new HostAndPort(host, normalisedPort.flatMap(identity()).orElse(null));
       } else {
         return new Authority(normalisedUserInfo, host, normalisedPort);
       }
