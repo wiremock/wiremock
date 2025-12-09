@@ -23,7 +23,6 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
@@ -105,6 +104,6 @@ class SnapshotStubMappingPostProcessor {
                 bodyExtractMatcher.match(sm.getResponse()).isExactMatch()
                     ? bodyExtractor.extractInPlace(sm)
                     : sm)
-        .collect(Collectors.toList());
+        .toList();
   }
 }
