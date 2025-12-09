@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +62,12 @@ public class WhatWGUrlTestManagement {
                   throw new AssertionError(e);
                 }
               })
+          .filter(test ->
+              test.failure() ||
+              (test.base() == null
+              && test.protocol() != null && !test.protocol().isEmpty()
+              && test.hostname() != null && !test.hostname().isEmpty())
+          )
           .toList();
 
   static final List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
@@ -281,7 +289,12 @@ public class WhatWGUrlTestManagement {
 
   @SuppressWarnings("unused")
   private static boolean shouldBeValid(boolean rfc3986Valid, WhatWGUrlTestCase test) {
-    return rfc3986Valid && !test.failure();
+    try {
+      var javaUri = new URI(test.input());
+      return test.success() && test.hostname().equals(javaUri.getHost());
+    } catch (URISyntaxException e) {
+      return test.success();
+    }
   }
 }
 

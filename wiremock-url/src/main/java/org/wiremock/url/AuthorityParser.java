@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -30,9 +31,9 @@ class AuthorityParser implements CharSequenceParser<Authority> {
           + UserInfoParser.INSTANCE.userInfoRegex
           + ")@)?(?<host>"
           + HostParser.INSTANCE.hostRegex
-          + ")(:(?<port>"
+          + ")(?<colonAndPort>:(?<port>"
           + portRegex
-          + "))?";
+          + ")?)?";
 
   private final Pattern authorityPattern = Pattern.compile("^" + authorityRegex + "$");
 
@@ -52,17 +53,32 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       var userInfo = userInfoString == null ? null : new UserInfoParser.UserInfo(userInfoString);
       var hostString = matcher.group("host");
       var host = new HostParser.Host(hostString);
-      String portString = matcher.group("port");
-      var port = portString == null ? null : Port.parse(portString);
-      return new AuthorityParser.Authority(userInfo, host, port);
+      String colonAndPort = matcher.group("port");
+      Optional<Optional<Port>> maybePort;
+      if (colonAndPort != null) {
+        String portString = matcher.group("port");
+        Optional<Port> port =
+            portString == null ? Optional.empty() : Optional.of(Port.parse(portString));
+        maybePort = Optional.of(port);
+      } else {
+        maybePort = Optional.empty();
+      }
+      return new AuthorityParser.Authority(userInfo, host, maybePort);
     } catch (IllegalUrlPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
     }
   }
 
   record Authority(
-      @Nullable @Override UserInfo userInfo, @Override Host host, @Nullable @Override Port port)
+      @Nullable @Override UserInfo userInfo,
+      @Override Host host,
+      Optional<Optional<Port>> maybePort)
       implements org.wiremock.url.Authority {
+
+    @Override
+    public @Nullable Port port() {
+      return maybePort.flatMap(p -> p).orElse(null);
+    }
 
     @Override
     public String toString() {
@@ -71,20 +87,23 @@ class AuthorityParser implements CharSequenceParser<Authority> {
         result.append(userInfo).append('@');
       }
       result.append(host);
-      if (port != null) {
-        result.append(':').append(port);
-      }
+
+      maybePort.ifPresent(
+          port -> {
+            result.append(':');
+            port.ifPresent(result::append);
+          });
       return result.toString();
     }
 
     @Override
     public HostAndPort hostAndPort() {
-      return new HostAndPort(host, port);
+      return new HostAndPort(host, port());
     }
 
     @Override
     public org.wiremock.url.Authority withPort(@Nullable Port port) {
-      return new Authority(userInfo, host, port);
+      return new Authority(userInfo, host, Optional.of(Optional.ofNullable(port)));
     }
   }
 

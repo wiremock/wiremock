@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 public interface Authority {
@@ -50,6 +51,6 @@ public interface Authority {
   }
 
   static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
-    return new AuthorityParser.Authority(userInfo, host, port);
+    return new AuthorityParser.Authority(userInfo, host, Optional.of(Optional.ofNullable(port)));
   }
 }
