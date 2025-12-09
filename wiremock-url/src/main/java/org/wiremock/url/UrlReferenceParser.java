@@ -150,7 +150,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   private HierarchicalPart extractHierarchicalPart(Matcher matcher) {
     var authority = extractAuthorityOrNull(matcher);
     var pathStr = matcher.group("path");
-    var path = new PathParser.Path(pathStr);
+    var path = PathParser.INSTANCE.parse(pathStr);
     return new HierarchicalPart(authority, path);
   }
 
