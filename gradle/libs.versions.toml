@@ -102,6 +102,7 @@ jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
 commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
+commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.20.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.18" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
