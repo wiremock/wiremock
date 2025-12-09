@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
@@ -29,15 +30,16 @@ public class UrlReferenceTests {
   private static final List<WhatWGUrlTestCase> wiremock_valid =
       WhatWGUrlTestManagement.wiremock_valid;
 
-  @SuppressWarnings("unused")
-  private static final List<WhatWGUrlTestCase> wiremock_invalid =
-      WhatWGUrlTestManagement.wiremock_invalid;
-
   @ParameterizedTest
   @FieldSource("wiremock_valid")
   void wiremock_valid(WhatWGUrlTestCase testCase) {
-    UrlReference.parse(testCase.input());
+    var urlReference = UrlReference.parse(testCase.input());
+    assertThat(urlReference.toString()).isEqualTo(testCase.input());
   }
+
+  @SuppressWarnings("unused")
+  private static final List<WhatWGUrlTestCase> wiremock_invalid =
+      WhatWGUrlTestManagement.wiremock_invalid;
 
   @ParameterizedTest
   @FieldSource("wiremock_invalid")

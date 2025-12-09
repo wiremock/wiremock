@@ -18,17 +18,13 @@ package org.wiremock.url.whatwg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.concat;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.remoteUrl;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.rfc3986_invalid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.rfc3986_valid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.sortTestData;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.testData;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.updateTestData;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_invalid_wiremock_invalid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_invalid_wiremock_valid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_valid_wiremock_invalid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_valid_wiremock_valid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_invalid_wiremock_invalid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_invalid_wiremock_valid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_valid_wiremock_invalid;
@@ -43,13 +39,16 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.Rfc3986Validator;
 import org.wiremock.url.Url;
 
 class WhatWGUrlInvariantTests {
 
   @Test
   @EnabledIf("remoteDataReachable")
-  void test_data_is_up_to_date() throws IOException, URISyntaxException {
+  void test_data_is_up_to_date() throws IOException {
     String expected = WhatWGUrlTestManagement.readRemote();
     try {
       assertThat(WhatWGUrlTestManagement.readLocal()).isEqualTo(expected);
@@ -105,22 +104,54 @@ class WhatWGUrlInvariantTests {
   }
 
   @Test
-  void whatwg_covers_all_cases() throws IOException, URISyntaxException {
+  void whatwg_covers_all_cases() throws IOException {
     coversAllCases(whatwg_valid, whatwg_invalid);
   }
 
   @Test
-  void rfc3986_covers_all_cases() throws IOException, URISyntaxException {
+  void rfc3986_covers_all_cases() throws IOException {
     coversAllCases(rfc3986_valid, rfc3986_invalid);
   }
 
   @Test
-  void wiremock_covers_all_cases() throws IOException, URISyntaxException {
+  void wiremock_covers_all_cases() throws IOException {
     coversAllCases(wiremock_valid, wiremock_invalid);
   }
 
+  private static final List<WhatWGUrlTestCase> rfc3986_valid = WhatWGUrlTestManagement.rfc3986_valid;
+
+  @ParameterizedTest
+  @FieldSource("rfc3986_valid")
+  void rfc3986_valid_is_correct(WhatWGUrlTestCase testCase) {
+    assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isTrue();
+  }
+
+  private static final List<WhatWGUrlTestCase> rfc3986_invalid = WhatWGUrlTestManagement.rfc3986_invalid;
+
+  @ParameterizedTest
+  @FieldSource("rfc3986_invalid")
+  void rfc3986_invalid_is_correct(WhatWGUrlTestCase testCase) {
+    assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isFalse();
+  }
+
+  private static final List<WhatWGUrlTestCase> whatwg_valid = WhatWGUrlTestManagement.whatwg_valid;
+
+  @ParameterizedTest
+  @FieldSource("whatwg_valid")
+  void whatwg_valid_is_correct(WhatWGUrlTestCase testCase) {
+    assertThat(testCase.success()).isTrue();
+  }
+
+  private static final List<WhatWGUrlTestCase> whatwg_invalid = WhatWGUrlTestManagement.whatwg_invalid;
+
+  @ParameterizedTest
+  @FieldSource("whatwg_invalid")
+  void whatwg_invalid_is_correct(WhatWGUrlTestCase testCase) {
+    assertThat(testCase.success()).isFalse();
+  }
+
   private static void coversAllCases(List<WhatWGUrlTestCase> valid, List<WhatWGUrlTestCase> invalid)
-      throws IOException, URISyntaxException {
+      throws IOException {
     try {
       assertThat(concat(valid, invalid)).containsExactlyInAnyOrderElementsOf(testData);
     } catch (AssertionError e) {
