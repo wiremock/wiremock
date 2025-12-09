@@ -55,7 +55,7 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       String userInfoString = matcher.group("userInfo");
       var userInfo = userInfoString == null ? null : UserInfoParser.INSTANCE.parse(userInfoString);
       var hostString = matcher.group("host");
-      var host = new HostParser.Host(hostString);
+      var host = HostParser.INSTANCE.parse(hostString);
       Optional<Optional<Port>> maybePort = extractPort(matcher);
       if (userInfo == null && !(maybePort.isPresent() && maybePort.get().isEmpty())) {
         return new HostAndPort(host, maybePort.flatMap(identity()).orElse(null));

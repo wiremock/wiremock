@@ -19,6 +19,11 @@ import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Host {
@@ -34,17 +39,40 @@ class HostParser implements CharSequenceParser<Host> {
 
   final String octet = "(([1-2][0-9][0-9])|([0-9][0-9])|([0-9]))";
   final String ipv4Address = "(?<ipv4Address>" + octet + "(\\." + octet + "){3})";
-  final String ipV6Address = "(\\[(?<ipV6Address>[^]]+)])";
+  final String ipv6Address = "(\\[(?<ipv6Address>[^]]+)])";
   final String registeredName = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + ")*";
   final String hostRegex =
-      "(" + ipV6Address + "|" + ipv4Address + "|(?<registeredName>" + registeredName + "))";
+      "(" + ipv6Address + "|" + ipv4Address + "|(?<registeredName>" + registeredName + "))";
 
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
 
   @Override
   public Host parse(CharSequence stringForm) throws IllegalHost {
     String hostStr = stringForm.toString();
-    if (hostPattern.matcher(hostStr).matches()) {
+    Matcher matcher = hostPattern.matcher(hostStr);
+    if (matcher.matches()) {
+      String ipv4Address = matcher.group("ipv4Address");
+      if (ipv4Address != null) {
+        try {
+          var addr = InetAddress.getByName(ipv4Address);
+          if (!(addr instanceof Inet4Address)) {
+            throw new IllegalHost(hostStr);
+          }
+        } catch (UnknownHostException e) {
+          throw new IllegalHost(hostStr);
+        }
+      }
+      String ipv6ddress = matcher.group("ipv6Address");
+      if (ipv6ddress != null) {
+        try {
+          var addr = InetAddress.getByName(ipv6ddress);
+          if (!(addr instanceof Inet6Address)) {
+            throw new IllegalHost(hostStr);
+          }
+        } catch (UnknownHostException e) {
+          throw new IllegalHost(hostStr);
+        }
+      }
       return new Host(hostStr);
     } else {
       throw new IllegalHost(hostStr);
