@@ -15,12 +15,17 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class PathTests {
@@ -138,5 +143,100 @@ public class PathTests {
   Stream<DynamicTest> invariants() {
     return CharSequenceParserInvariantTests.generateInvariantTests(
         PathParser.INSTANCE, validPaths().toList());
+  }
+
+  private static final List<Entry<Path, Path>> normaliseTestCases = List.of(
+      entry("", "/"),
+      entry(".", "/"),
+      entry("..", "/"),
+      entry("a", "/a"),
+      entry("/", "/"),
+      entry("/.", "/"),
+      entry("/..", "/"),
+      entry("/a", "/a"),
+      entry("./", "/"),
+      entry("../", "/"),
+      entry("a/", "/a/"),
+      entry("//", "/"),
+      entry("/./", "/"),
+      entry("/../", "/"),
+      entry("/a/", "/a/"),
+      entry(".//", "/"),
+      entry("././", "/"),
+      entry("./../", "/"),
+      entry("./a/", "/a/"),
+      entry("//.", "/"),
+      entry("/./.", "/"),
+      entry("/../.", "/"),
+      entry("/a/.", "/a/"),
+      entry("..//", "/"),
+      entry(".././", "/"),
+      entry("../../", "/"),
+      entry("../a/", "/a/"),
+      entry("//..", "/"),
+      entry("/./..", "/"),
+      entry("/../..", "/"),
+      entry("/a/..", "/"),
+      entry("a//", "/a/"),
+      entry("a/./", "/a/"),
+      entry("a/../", "/"),
+      entry("a/a/", "/a/a/"),
+      entry("//a", "/a"),
+      entry("/./a", "/a"),
+      entry("/../a", "/a"),
+      entry("/a/a", "/a/a"),
+      entry("/foo/bar/..", "/foo/"),
+      entry("/foo/bar/baz/../..", "/foo/"),
+      entry("/foo/../bar/../baz", "/baz")
+  );
+
+  private static Entry<Path, Path> entry(String nonNormalised, String normalised) {
+    return Map.entry(Path.parse(nonNormalised), Path.parse(normalised));
+  }
+
+  @ParameterizedTest
+  @FieldSource("normaliseTestCases")
+  void pathNormalises(Entry<Path, Path> testCase) {
+    assertThat(testCase.getKey().normalise()).isEqualTo(testCase.getValue());
+  }
+
+  private static final List<Entry<Path, Path>> rfc3986TestCases = List.of(
+      entry("g"             ,  "/b/c/g"),
+      entry("./g"           ,  "/b/c/g"),
+      entry("g/"            ,  "/b/c/g/"),
+      entry("/g"            ,  "/g"),
+      entry(";x"            ,  "/b/c/;x"),
+      entry("g;x"           ,  "/b/c/g;x"),
+      entry(""              ,  "/b/c/d;p"),
+      entry("."             ,  "/b/c/"),
+      entry("./"            ,  "/b/c/"),
+      entry(".."            ,  "/b/"),
+      entry("../"           ,  "/b/"),
+      entry("../g"          ,  "/b/g"),
+      entry("../.."         ,  "/"),
+      entry("../../"        ,  "/"),
+      entry("../../g"       ,  "/g"),
+      entry("../../../g"    ,  "/g"),
+      entry("../../../../g" ,  "/g"),
+      entry("/./g"          ,  "/g"),
+      entry("/../g"         ,  "/g"),
+      entry("g."            ,  "/b/c/g."),
+      entry(".g"            ,  "/b/c/.g"),
+      entry("g.."           ,  "/b/c/g.."),
+      entry("..g"           ,  "/b/c/..g"),
+      entry("./../g"        ,  "/b/g"),
+      entry("./g/."         ,  "/b/c/g/"),
+      entry("g/./h"         ,  "/b/c/g/h"),
+      entry("g/../h"        ,  "/b/c/h"),
+      entry("g;x=1/./y"     ,  "/b/c/g;x=1/y"),
+      entry("g;x=1/../y"    ,  "/b/c/y")
+  );
+
+  private static final Path original = Path.parse("/b/c/d;p");
+
+  @ParameterizedTest
+  @FieldSource("rfc3986TestCases")
+  void resolvePath(Entry<Path, Path> testCase) {
+    assertThat(original.resolve(testCase.getKey())).isEqualTo(testCase.getValue());
   }
 }

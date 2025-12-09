@@ -17,20 +17,27 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.alwaysIllegal;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
-public interface Path extends PctEncoded {
+public interface Path {
 
-  Path EMPTY = new PathParser.Path("");
-  Path SINGLE = new PathParser.Path("/");
+  Path EMPTY = PathParser.INSTANCE.parse("");
+  Path ROOT = PathParser.INSTANCE.parse("/");
 
   boolean isAbsolute();
+
+  List<Segment> segments();
 
   static Path parse(CharSequence path) throws IllegalPath {
     return PathParser.INSTANCE.parse(path);
   }
 
   Path normalise();
+
+  Path resolve(Path other);
 }
 
 class PathParser implements CharSequenceParser<Path> {
@@ -44,28 +51,14 @@ class PathParser implements CharSequenceParser<Path> {
   public Path parse(CharSequence stringForm) {
     String pathStr = stringForm.toString();
     if (pathPattern.matcher(pathStr).matches()) {
-      return new Path(pathStr);
+      var segments = Arrays.stream(pathStr.split("/", -1)).map(s -> (Segment) new SegmentImpl(s)).toList();
+      return new Path(pathStr, segments);
     } else {
       throw new IllegalPath(pathStr);
     }
   }
 
-  record Path(String path) implements org.wiremock.url.Path {
-
-    @Override
-    public int length() {
-      return path.length();
-    }
-
-    @Override
-    public char charAt(int index) {
-      return path.charAt(index);
-    }
-
-    @Override
-    public CharSequence subSequence(int start, int end) {
-      return path.subSequence(start, end);
-    }
+  record Path(String path, List<Segment> segments) implements org.wiremock.url.Path {
 
     @Override
     public String toString() {
@@ -79,16 +72,59 @@ class PathParser implements CharSequenceParser<Path> {
 
     @Override
     public org.wiremock.url.Path normalise() {
-      if (path.isEmpty()) {
-        return org.wiremock.url.Path.SINGLE;
-      } else {
-        return this;
-      }
+      return ROOT.resolve(this);
     }
 
     @Override
-    public String decode() {
-      throw new UnsupportedOperationException();
+    public org.wiremock.url.Path resolve(org.wiremock.url.Path other) {
+      if (other.equals(ROOT)) {
+        return this;
+      }
+      if (other.equals(Path.EMPTY)) {
+        return this.normalise();
+      }
+      var pathStack = new LinkedList<Segment>();
+      if (!other.isAbsolute()) {
+        pathStack.addAll(this.normalise().segments());
+        if (!pathStack.getLast().isEmpty()) {
+          pathStack.removeLast();
+        }
+      } else {
+        pathStack.add(Segment.EMPTY);
+        pathStack.add(Segment.EMPTY);
+      }
+      // Handle empty path and single slash early
+      List<Segment> otherSegments = other.segments();
+      for (Segment candidate : otherSegments) {
+        if (candidate.equals(Segment.DOT_DOT)) {
+          if (pathStack.size() <= 2) {
+            pathStack.clear();
+            pathStack.add(Segment.EMPTY);
+            pathStack.add(Segment.EMPTY);
+          } else {
+            if (pathStack.getLast().isEmpty()) {
+              pathStack.removeLast();
+            }
+            pathStack.removeLast();
+            pathStack.add(Segment.EMPTY);
+          }
+        } else if (candidate.equals(Segment.DOT) || candidate.equals(Segment.EMPTY)) {
+          if (!pathStack.getLast().isEmpty()) {
+            pathStack.add(Segment.EMPTY);
+          }
+        } else {
+          if (pathStack.getLast().isEmpty()) {
+            pathStack.removeLast();
+          }
+          pathStack.add(candidate);
+        }
+      }
+      if (pathStack.equals(otherSegments)) {
+        return other;
+      } else {
+        String normalizedPath = String.join("/", pathStack);
+        return new Path(normalizedPath, pathStack);
+      }
     }
   }
 }
