@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 public interface PathAndQuery extends RelativeRef {
 
-  PathAndQuery EMPTY = new PathAndQueryParser.PathAndQuery(Path.SINGLE, null);
+  PathAndQuery EMPTY = new PathAndQueryParser.PathAndQuery(Path.ROOT, null);
 
   /**
    * {@implSpec} Implementations must ALWAYS return null

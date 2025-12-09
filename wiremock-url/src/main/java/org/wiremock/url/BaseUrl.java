@@ -28,7 +28,7 @@ public interface BaseUrl extends Url {
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Path path() {
-    return Path.SINGLE;
+    return Path.ROOT;
   }
 
   @Override
