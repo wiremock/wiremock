@@ -125,7 +125,8 @@ class WhatWGUrlInvariantTests {
     coversAllCases(java_valid, java_invalid);
   }
 
-  private static final List<WhatWGUrlTestCase> rfc3986_valid = WhatWGUrlTestManagement.rfc3986_valid;
+  private static final List<WhatWGUrlTestCase> rfc3986_valid =
+      WhatWGUrlTestManagement.rfc3986_valid;
 
   @ParameterizedTest
   @FieldSource("rfc3986_valid")
@@ -133,7 +134,8 @@ class WhatWGUrlInvariantTests {
     assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isTrue();
   }
 
-  private static final List<WhatWGUrlTestCase> rfc3986_invalid = WhatWGUrlTestManagement.rfc3986_invalid;
+  private static final List<WhatWGUrlTestCase> rfc3986_invalid =
+      WhatWGUrlTestManagement.rfc3986_invalid;
 
   @ParameterizedTest
   @FieldSource("rfc3986_invalid")
@@ -149,7 +151,8 @@ class WhatWGUrlInvariantTests {
     assertThat(testCase.success()).isTrue();
   }
 
-  private static final List<WhatWGUrlTestCase> whatwg_invalid = WhatWGUrlTestManagement.whatwg_invalid;
+  private static final List<WhatWGUrlTestCase> whatwg_invalid =
+      WhatWGUrlTestManagement.whatwg_invalid;
 
   @ParameterizedTest
   @FieldSource("whatwg_invalid")

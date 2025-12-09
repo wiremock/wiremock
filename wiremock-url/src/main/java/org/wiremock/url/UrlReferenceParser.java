@@ -116,7 +116,17 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
       var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
       var hierarchicalPart = extractHierarchicalPart(result);
-      if (scheme != null) {
+      if (scheme == null) {
+        if (hierarchicalPart.authority == null
+            && fragment == null
+            && (hierarchicalPart.path.isAbsolute())) {
+          return new PathAndQueryParser.PathAndQuery(hierarchicalPart.path, query);
+        } else {
+          return new RelativeRefParser.RelativeRef(
+              hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
+        }
+
+      } else {
         if (hierarchicalPart.authority != null) {
           if (hierarchicalPart.path.equals(Path.EMPTY) && query == null && fragment == null) {
             return new BaseUrlParser.BaseUrl(scheme, hierarchicalPart.authority);
@@ -128,14 +138,8 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
                 .build();
           }
         } else {
+          // not handling URIs yet
           throw new IllegalUrl(string);
-        }
-      } else {
-        if (fragment == null && (hierarchicalPart.path.isAbsolute())) {
-          return new PathAndQueryParser.PathAndQuery(hierarchicalPart.path, query);
-        } else {
-          return new RelativeRefParser.RelativeRef(
-              hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
         }
       }
     } catch (IllegalUrlPart illegalPart) {
