@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.whatwg.WhatWGUrlTestCase;
@@ -33,8 +34,7 @@ public class UrlReferenceTests {
   @ParameterizedTest
   @FieldSource("wiremock_valid")
   void wiremock_valid(WhatWGUrlTestCase testCase) {
-    var urlReference = UrlReference.parse(testCase.input());
-    assertThat(urlReference.toString()).isEqualTo(testCase.input());
+    testValid(testCase.input());
   }
 
   @SuppressWarnings("unused")
@@ -46,5 +46,16 @@ public class UrlReferenceTests {
   void wiremock_invalid(WhatWGUrlTestCase testCase) {
     assertThatExceptionOfType(IllegalUrlReference.class)
         .isThrownBy(() -> UrlReference.parse(testCase.input()));
+  }
+
+  // convenience way to test specific cases
+  @Test
+  void debug() {
+    testValid("//foo/bar");
+  }
+
+  private static void testValid(String input) {
+    var urlReference = UrlReference.parse(input);
+    assertThat(urlReference.toString()).isEqualTo(input);
   }
 }

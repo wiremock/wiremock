@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.wiremock.url.Rfc3986Validator;
 import org.wiremock.url.Url;
+import org.wiremock.url.UrlReference;
 
 public class WhatWGUrlTestManagement {
 
@@ -62,12 +63,6 @@ public class WhatWGUrlTestManagement {
                   throw new AssertionError(e);
                 }
               })
-          .filter(test ->
-              test.failure() ||
-              (test.base() == null
-              && test.protocol() != null && !test.protocol().isEmpty()
-              && test.hostname() != null && !test.hostname().isEmpty())
-          )
           .toList();
 
   static final List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
@@ -106,9 +101,11 @@ public class WhatWGUrlTestManagement {
   static List<WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
       readResource("rfc3986_invalid_java_invalid");
 
-  static List<WhatWGUrlTestCase> java_valid = concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
+  static List<WhatWGUrlTestCase> java_valid =
+      concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
 
-  static List<WhatWGUrlTestCase> java_invalid = concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
+  static List<WhatWGUrlTestCase> java_invalid =
+      concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
 
   static List<WhatWGUrlTestCase> whatwg_valid =
       concat(
@@ -318,18 +315,10 @@ public class WhatWGUrlTestManagement {
     writeResource(
         "whatwg_invalid_rfc3986_invalid_wiremock_invalid",
         whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-    writeResource(
-        "rfc3986_valid_java_valid",
-        rfc3986_valid_java_valid);
-    writeResource(
-        "rfc3986_valid_java_invalid",
-        rfc3986_valid_java_invalid);
-    writeResource(
-        "rfc3986_invalid_java_valid",
-        rfc3986_invalid_java_valid);
-    writeResource(
-        "rfc3986_invalid_java_invalid",
-        rfc3986_invalid_java_invalid);
+    writeResource("rfc3986_valid_java_valid", rfc3986_valid_java_valid);
+    writeResource("rfc3986_valid_java_invalid", rfc3986_valid_java_invalid);
+    writeResource("rfc3986_invalid_java_valid", rfc3986_invalid_java_valid);
+    writeResource("rfc3986_invalid_java_invalid", rfc3986_invalid_java_invalid);
   }
 
   private static boolean javaValid(String input) {
@@ -344,10 +333,10 @@ public class WhatWGUrlTestManagement {
   @SuppressWarnings("unused")
   private static boolean shouldBeValid(boolean rfc3986Valid, WhatWGUrlTestCase test) {
     try {
-      var javaUri = new URI(test.input());
-      return test.success() && test.hostname().equals(javaUri.getHost());
-    } catch (URISyntaxException e) {
-      return test.success();
+      UrlReference.parse(test.input());
+      return true;
+    } catch (Exception e) {
+      return false;
     }
   }
 }

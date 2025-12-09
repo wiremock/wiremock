@@ -53,19 +53,22 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       var userInfo = userInfoString == null ? null : new UserInfoParser.UserInfo(userInfoString);
       var hostString = matcher.group("host");
       var host = new HostParser.Host(hostString);
-      String colonAndPort = matcher.group("port");
-      Optional<Optional<Port>> maybePort;
-      if (colonAndPort != null) {
-        String portString = matcher.group("port");
-        Optional<Port> port =
-            portString == null ? Optional.empty() : Optional.of(Port.parse(portString));
-        maybePort = Optional.of(port);
-      } else {
-        maybePort = Optional.empty();
-      }
+      Optional<Optional<Port>> maybePort = extractPort(matcher);
       return new AuthorityParser.Authority(userInfo, host, maybePort);
     } catch (IllegalUrlPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
+    }
+  }
+
+  private static Optional<Optional<Port>> extractPort(Matcher matcher) {
+    String colonAndPort = matcher.group("colonAndPort");
+    if (colonAndPort == null) {
+      return Optional.empty();
+    } else {
+      String portString = matcher.group("port");
+      Optional<Port> port =
+          portString == null ? Optional.empty() : Optional.of(Port.parse(portString));
+      return Optional.of(port);
     }
   }
 
