@@ -16,6 +16,7 @@
 package org.wiremock.url.whatwg;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.concat;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.remoteUrl;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.sortTestData;
@@ -35,6 +36,7 @@ import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.wiremock_valid;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -118,6 +120,11 @@ class WhatWGUrlInvariantTests {
     coversAllCases(wiremock_valid, wiremock_invalid);
   }
 
+  @Test
+  void java_covers_all_cases() throws IOException {
+    coversAllCases(java_valid, java_invalid);
+  }
+
   private static final List<WhatWGUrlTestCase> rfc3986_valid = WhatWGUrlTestManagement.rfc3986_valid;
 
   @ParameterizedTest
@@ -148,6 +155,22 @@ class WhatWGUrlInvariantTests {
   @FieldSource("whatwg_invalid")
   void whatwg_invalid_is_correct(WhatWGUrlTestCase testCase) {
     assertThat(testCase.success()).isFalse();
+  }
+
+  private static final List<WhatWGUrlTestCase> java_valid = WhatWGUrlTestManagement.java_valid;
+
+  @ParameterizedTest
+  @FieldSource("java_valid")
+  void java_valid_is_correct(WhatWGUrlTestCase testCase) throws URISyntaxException {
+    new URI(testCase.input());
+  }
+
+  private static final List<WhatWGUrlTestCase> java_invalid = WhatWGUrlTestManagement.java_invalid;
+
+  @ParameterizedTest
+  @FieldSource("java_invalid")
+  void java_invalid_is_correct(WhatWGUrlTestCase testCase) {
+    assertThatThrownBy(() -> new URI(testCase.input())).isInstanceOf(URISyntaxException.class);
   }
 
   private static void coversAllCases(List<WhatWGUrlTestCase> valid, List<WhatWGUrlTestCase> invalid)

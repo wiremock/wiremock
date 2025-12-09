@@ -1,0 +1,3 @@
+[
+{ "comment": null, "input": "http:", "base": "https://example.org/foo/bar", "failure": true, "relativeTo": null, "href": null, "origin": null, "protocol": null, "username": null, "password": null, "host": null, "hostname": null, "port": null, "pathname": null, "search": null, "searchParams": null, "hash": null }
+]

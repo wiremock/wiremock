@@ -94,6 +94,22 @@ public class WhatWGUrlTestManagement {
   static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
       readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
 
+  static List<WhatWGUrlTestCase> rfc3986_valid_java_valid =
+      readResource("rfc3986_valid_java_valid");
+
+  static List<WhatWGUrlTestCase> rfc3986_valid_java_invalid =
+      readResource("rfc3986_valid_java_invalid");
+
+  static List<WhatWGUrlTestCase> rfc3986_invalid_java_valid =
+      readResource("rfc3986_invalid_java_valid");
+
+  static List<WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
+      readResource("rfc3986_invalid_java_invalid");
+
+  static List<WhatWGUrlTestCase> java_valid = concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
+
+  static List<WhatWGUrlTestCase> java_invalid = concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
+
   static List<WhatWGUrlTestCase> whatwg_valid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_valid,
@@ -236,6 +252,10 @@ public class WhatWGUrlTestManagement {
     var whatwg_invalid_rfc3986_valid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
     var whatwg_invalid_rfc3986_invalid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
     var whatwg_invalid_rfc3986_invalid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
+    var rfc3986_valid_java_valid = new ArrayList<WhatWGUrlTestCase>();
+    var rfc3986_valid_java_invalid = new ArrayList<WhatWGUrlTestCase>();
+    var rfc3986_invalid_java_valid = new ArrayList<WhatWGUrlTestCase>();
+    var rfc3986_invalid_java_invalid = new ArrayList<WhatWGUrlTestCase>();
 
     testData.forEach(
         test -> {
@@ -243,6 +263,7 @@ public class WhatWGUrlTestManagement {
           var rfc3986_valid = Rfc3986Validator.isValidUriReference(test.input());
 
           var wiremock_valid = shouldBeValid(rfc3986_valid, test);
+          var java_valid = javaValid(test.input());
 
           if (whatwg_valid && rfc3986_valid && wiremock_valid) {
             whatwg_valid_rfc3986_valid_wiremock_valid.add(test);
@@ -260,6 +281,18 @@ public class WhatWGUrlTestManagement {
             whatwg_invalid_rfc3986_invalid_wiremock_valid.add(test);
           } else if (!whatwg_valid && !rfc3986_valid && !wiremock_valid) {
             whatwg_invalid_rfc3986_invalid_wiremock_invalid.add(test);
+          } else {
+            throw new IllegalStateException("Unreachable");
+          }
+
+          if (rfc3986_valid && java_valid) {
+            rfc3986_valid_java_valid.add(test);
+          } else if (rfc3986_valid && !java_valid) {
+            rfc3986_valid_java_invalid.add(test);
+          } else if (!rfc3986_valid && java_valid) {
+            rfc3986_invalid_java_valid.add(test);
+          } else if (!rfc3986_valid && !java_valid) {
+            rfc3986_invalid_java_invalid.add(test);
           } else {
             throw new IllegalStateException("Unreachable");
           }
@@ -285,6 +318,27 @@ public class WhatWGUrlTestManagement {
     writeResource(
         "whatwg_invalid_rfc3986_invalid_wiremock_invalid",
         whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+    writeResource(
+        "rfc3986_valid_java_valid",
+        rfc3986_valid_java_valid);
+    writeResource(
+        "rfc3986_valid_java_invalid",
+        rfc3986_valid_java_invalid);
+    writeResource(
+        "rfc3986_invalid_java_valid",
+        rfc3986_invalid_java_valid);
+    writeResource(
+        "rfc3986_invalid_java_invalid",
+        rfc3986_invalid_java_invalid);
+  }
+
+  private static boolean javaValid(String input) {
+    try {
+      new URI(input);
+      return true;
+    } catch (URISyntaxException e) {
+      return false;
+    }
   }
 
   @SuppressWarnings("unused")
