@@ -15,7 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -55,10 +54,11 @@ public class UrlReferenceTests {
   // convenience way to test specific cases
   @Test
   void debug() {
-    testValid(success("https://:@test", "https://test/", "https://test", "https:", "test", "test", "", "/", "", ""));
+    testValid(new SuccessWhatWGUrlTestCase("http://example.com/././foo", null, "http://example.com/foo", "http://example.com", "http:", "", "", "example.com", "example.com", "", "/foo", "", null, ""));
   }
 
   private static void testValid(WhatWGUrlTestCase testCase) {
+    System.out.println(testCase);
     var input = testCase.input();
     var urlReference = UrlReference.parse(input);
     assertThat(urlReference.toString()).isEqualTo(input);

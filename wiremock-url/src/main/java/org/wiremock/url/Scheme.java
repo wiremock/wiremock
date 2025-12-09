@@ -49,7 +49,7 @@ public interface Scheme {
   @Nullable Port defaultPort();
 
   default boolean isCanonical() {
-    return canonical() == this;
+    return canonical().equals(this);
   }
 
   /**

@@ -174,12 +174,12 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     @Override
     public org.wiremock.url.HostAndPort normalise() {
       var normalisedPort = port == null ? null : port.normalise();
-      return normalisedPort == port ? this : new HostAndPort(host, normalisedPort);
+      return Objects.equals(normalisedPort, port) ? this : new HostAndPort(host, normalisedPort);
     }
 
     @Override
     public org.wiremock.url.HostAndPort normalise(Scheme canonicalScheme) {
-      if (port != null && canonicalScheme.defaultPort() == port) {
+      if (port != null && Objects.equals(canonicalScheme.defaultPort(), port)) {
         return new HostAndPort(host, null);
       } else {
         return this;

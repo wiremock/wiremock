@@ -1,6 +1,7 @@
 package org.wiremock.url.whatwg;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 // 596 success
@@ -59,5 +60,30 @@ public record SuccessWhatWGUrlTestCase(
 
   public boolean success() {
     return true;
+  }
+
+  @Override
+  @NonNull
+  public String toString() {
+    return "new SuccessWhatWGUrlTestCase(" +
+        '"' + input + '"' +
+        ", " + stringOrNull(base) +
+        ", " + stringOrNull(href) +
+        ", " + stringOrNull(origin) +
+        ", \"" + protocol + '"' +
+        ", \"" + username + '"' +
+        ", \"" + password + '"' +
+        ", \"" + host + '"' +
+        ", \"" + hostname + '"' +
+        ", " + stringOrNull(port) +
+        ", \"" + pathname + '"' +
+        ", \"" + search + '"' +
+        ", " + stringOrNull(searchParams) +
+        ", \"" + hash + '"' +
+        ')';
+  }
+
+  private @NonNull String stringOrNull(@Nullable String value) {
+    return value == null ? "null" : '"' + value + '"';
   }
 }
