@@ -1,8 +1,6 @@
 package org.wiremock.url.whatwg;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.Nullable;
 
 // 596 success
@@ -18,11 +16,6 @@ public record SuccessWhatWGUrlTestCase(
     // 213 null base & failure
     //  60 present base & failure
     @Nullable String base,
-
-    @Override
-    @JsonProperty(value = "failure", access = JsonProperty.Access.READ_ONLY)
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    boolean failure,
 
     // can be absent (null), never empty, 536 occurrences
     @Nullable String href,
@@ -63,5 +56,8 @@ public record SuccessWhatWGUrlTestCase(
     // always present, often empty (537) on success
     String hash
 ) implements WhatWGUrlTestCase {
-  
+
+  public boolean success() {
+    return true;
+  }
 }

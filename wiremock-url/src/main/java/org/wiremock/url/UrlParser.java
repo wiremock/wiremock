@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import java.util.Objects;
 
 final class UrlParser implements CharSequenceParser<Url> {
 
@@ -56,6 +57,21 @@ final class UrlParser implements CharSequenceParser<Url> {
     @Override
     public String toString() {
       return UrlReferenceParser.toString(this);
+    }
+
+    @Override
+    public org.wiremock.url.Url normalise() {
+      Scheme canonicalScheme = scheme.canonical();
+      Authority normalisedAuthority = authority.normalise(canonicalScheme);
+      Path normalisedPath = path.normalise();
+
+      if (scheme.equals(canonicalScheme) && authority.equals(normalisedAuthority) && path.equals(normalisedPath)) {
+        return this;
+      } else if (normalisedPath.equals(Path.SINGLE) && query == null && fragment == null) {
+        return new BaseUrlParser.BaseUrl(canonicalScheme, normalisedAuthority);
+      } else {
+        return new Url(canonicalScheme, normalisedAuthority, normalisedPath, query, fragment);
+      }
     }
 
     static class Builder implements org.wiremock.url.Url.Builder {
@@ -129,7 +145,7 @@ final class UrlParser implements CharSequenceParser<Url> {
 
       @Override
       public org.wiremock.url.Url build() {
-        if (path.isEmpty() && query == null && fragment == null) {
+        if (path.equals(Path.SINGLE) && query == null && fragment == null) {
           return new BaseUrlParser.BaseUrl(scheme, authority);
         } else {
           return new Url(scheme, authority, path, query, fragment);

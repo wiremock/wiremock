@@ -15,6 +15,9 @@
  */
 package org.wiremock.url;
 
+import static java.util.function.Function.identity;
+
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +41,7 @@ class AuthorityParser implements CharSequenceParser<Authority> {
   private final Pattern authorityPattern = Pattern.compile("^" + authorityRegex + "$");
 
   @Override
-  public Authority parse(CharSequence stringForm) throws IllegalAuthority {
+  public org.wiremock.url.Authority parse(CharSequence stringForm) throws IllegalAuthority {
     var matcher = authorityPattern.matcher(stringForm);
     if (matcher.matches()) {
       return parse(matcher, stringForm.toString());
@@ -47,14 +50,18 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     }
   }
 
-  Authority parse(Matcher matcher, String rawAuthority) throws IllegalAuthority {
+  org.wiremock.url.Authority parse(Matcher matcher, String rawAuthority) throws IllegalAuthority {
     try {
       String userInfoString = matcher.group("userInfo");
-      var userInfo = userInfoString == null ? null : new UserInfoParser.UserInfo(userInfoString);
+      var userInfo = userInfoString == null ? null : UserInfoParser.INSTANCE.parse(userInfoString);
       var hostString = matcher.group("host");
       var host = new HostParser.Host(hostString);
       Optional<Optional<Port>> maybePort = extractPort(matcher);
-      return new AuthorityParser.Authority(userInfo, host, maybePort);
+      if (userInfo == null && !(maybePort.isPresent() && maybePort.get().isEmpty())) {
+        return new HostAndPort(host, maybePort.flatMap(identity()).orElse(null));
+      } else {
+        return new Authority(userInfo, host, maybePort);
+      }
     } catch (IllegalUrlPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
     }
@@ -108,6 +115,44 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     public org.wiremock.url.Authority withPort(@Nullable Port port) {
       return new Authority(userInfo, host, Optional.of(Optional.ofNullable(port)));
     }
+
+    @Override
+    public org.wiremock.url.Authority normalise() {
+      final Optional<Optional<Port>> normalisedPort;
+      if (maybePort.isEmpty() || maybePort.get().isPresent()) {
+        normalisedPort = maybePort;
+      } else {
+        normalisedPort = Optional.empty();
+      }
+      var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
+      if (normalisedPort.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+        return this;
+      } else {
+        return new Authority(normalisedUserInfo, host, normalisedPort);
+      }
+    }
+
+    @Override
+    public org.wiremock.url.Authority normalise(Scheme canonicalScheme) {
+      Port port = port();
+      var normalisedPort = port == null ? null : port.normalise();
+      final Optional<Optional<Port>> normalisedPort2;
+      if (normalisedPort == null || Objects.equals(normalisedPort, canonicalScheme.defaultPort())) {
+        normalisedPort = null;
+        normalisedPort2 = Optional.empty();
+      } else {
+        normalisedPort2 = Optional.of(Optional.of(normalisedPort));
+      }
+
+      var normalisedUserInfo = Optional.ofNullable(userInfo).map(UserInfo::normalise).orElse(null);
+      if (normalisedPort2.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+        return this;
+      } else if (normalisedUserInfo == null) {
+        return new HostAndPort(host, normalisedPort);
+      } else {
+        return new Authority(normalisedUserInfo, host, normalisedPort2);
+      }
+    }
   }
 
   record HostAndPort(@Override Host host, @Nullable @Override Port port)
@@ -124,6 +169,21 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     @Override
     public org.wiremock.url.HostAndPort withPort(@Nullable Port port) {
       return new HostAndPort(host, port);
+    }
+
+    @Override
+    public org.wiremock.url.HostAndPort normalise() {
+      var normalisedPort = port == null ? null : port.normalise();
+      return normalisedPort == port ? this : new HostAndPort(host, normalisedPort);
+    }
+
+    @Override
+    public org.wiremock.url.HostAndPort normalise(Scheme canonicalScheme) {
+      if (port != null && canonicalScheme.defaultPort() == port) {
+        return new HostAndPort(host, null);
+      } else {
+        return this;
+      }
     }
   }
 }

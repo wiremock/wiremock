@@ -53,4 +53,8 @@ public interface Authority {
   static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
     return new AuthorityParser.Authority(userInfo, host, Optional.of(Optional.ofNullable(port)));
   }
+
+  Authority normalise();
+
+  Authority normalise(Scheme canonicalScheme);
 }

@@ -22,12 +22,15 @@ import java.util.regex.Pattern;
 public interface Path extends PctEncoded {
 
   Path EMPTY = new PathParser.Path("");
+  Path SINGLE = new PathParser.Path("/");
 
   boolean isAbsolute();
 
   static Path parse(CharSequence path) throws IllegalPath {
     return PathParser.INSTANCE.parse(path);
   }
+
+  Path normalise();
 }
 
 class PathParser implements CharSequenceParser<Path> {
@@ -72,6 +75,15 @@ class PathParser implements CharSequenceParser<Path> {
     @Override
     public boolean isAbsolute() {
       return !path.isEmpty() && path.charAt(0) == '/';
+    }
+
+    @Override
+    public org.wiremock.url.Path normalise() {
+      if (path.isEmpty()) {
+        return org.wiremock.url.Path.SINGLE;
+      } else {
+        return this;
+      }
     }
 
     @Override
