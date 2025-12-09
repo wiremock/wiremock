@@ -52,4 +52,6 @@ public sealed interface UrlReference permits RelativeRef, Url {
   static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
     return UrlReferenceParser.INSTANCE.parse(urlReference);
   }
+
+  UrlReference normalise();
 }

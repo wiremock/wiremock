@@ -62,6 +62,9 @@ public non-sealed interface Url extends UrlReference {
     return builder.build();
   }
 
+  @Override
+  Url normalise();
+
   static Url parse(CharSequence url) throws IllegalUrl {
     return UrlParser.INSTANCE.parse(url);
   }

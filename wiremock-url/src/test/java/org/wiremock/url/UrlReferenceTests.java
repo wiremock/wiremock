@@ -15,13 +15,17 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
+import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
@@ -34,7 +38,7 @@ public class UrlReferenceTests {
   @ParameterizedTest
   @FieldSource("wiremock_valid")
   void wiremock_valid(WhatWGUrlTestCase testCase) {
-    testValid(testCase.input());
+    testValid(testCase);
   }
 
   @SuppressWarnings("unused")
@@ -51,11 +55,29 @@ public class UrlReferenceTests {
   // convenience way to test specific cases
   @Test
   void debug() {
-    testValid("//foo/bar");
+    testValid(success("https://:@test", "https://test/", "https://test", "https:", "test", "test", "", "/", "", ""));
   }
 
-  private static void testValid(String input) {
+  private static void testValid(WhatWGUrlTestCase testCase) {
+    var input = testCase.input();
     var urlReference = UrlReference.parse(input);
     assertThat(urlReference.toString()).isEqualTo(input);
+
+    UrlReference normalised = urlReference.normalise();
+    UrlReference reconstituted = UrlReference.parse(normalised.toString());
+    assertThat(reconstituted).isEqualTo(normalised);
+
+    if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase && successTestCase.base() == null) {
+      assertThat(normalised.toString()).isEqualTo(successTestCase.href());
+      assertThat(Optional.ofNullable(normalised.scheme()).map(scheme -> scheme + ":").orElse("")).isEqualTo(successTestCase.protocol());
+      assertThat(Optional.ofNullable(normalised.authority()).map(Authority::hostAndPort).map(Object::toString).orElse("")).isEqualTo(successTestCase.host());
+      assertThat(Optional.ofNullable(normalised.host()).map(Object::toString).orElse("")).isEqualTo(successTestCase.hostname());
+    }
+  }
+
+  private WhatWGUrlTestCase success(String input, @Nullable String href, @Nullable String origin, String protocol, String host,
+      String hostname, String port, String pathname, String search,
+      String hash) {
+    return new SuccessWhatWGUrlTestCase(input, null, href, origin, protocol, null, null, host, hostname, port, pathname, search, null, hash);
   }
 }

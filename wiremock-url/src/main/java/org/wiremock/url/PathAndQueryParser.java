@@ -49,5 +49,10 @@ final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
     public String toString() {
       return UrlReferenceParser.toString(this);
     }
+
+    @Override
+    public PathAndQuery normalise() {
+      return this;
+    }
   }
 }

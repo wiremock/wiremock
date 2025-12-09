@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
@@ -26,6 +28,9 @@ public interface UserInfo {
   static UserInfo parse(String userInfoString) {
     return UserInfoParser.INSTANCE.parse(userInfoString);
   }
+
+  @Nullable
+  UserInfo normalise();
 }
 
 class UserInfoParser implements CharSequenceParser<UserInfo> {
@@ -38,17 +43,38 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
 
   @Override
   public UserInfo parse(CharSequence stringForm) {
+    String userInfoStr = stringForm.toString();
     if (userInfoPattern.matcher(stringForm).matches()) {
-      return new UserInfo(stringForm.toString());
+      var components = userInfoStr.split(":", 2);
+      var username = components[0];
+      final String password;
+      if (components.length == 2) {
+        password = components[1];
+      } else {
+        password = null;
+      }
+      return new UserInfo(userInfoStr, username, password);
     } else {
-      throw new IllegalUserInfo(stringForm.toString());
+      throw new IllegalUserInfo(userInfoStr);
     }
   }
 
-  record UserInfo(String userInfo) implements org.wiremock.url.UserInfo {
+  record UserInfo(String userInfo, String username, @Nullable String password) implements org.wiremock.url.UserInfo {
+
     @Override
     public String toString() {
       return userInfo;
+    }
+
+    @Override
+    public org.wiremock.url.@Nullable UserInfo normalise() {
+      if (!username.isEmpty() && password != null && password.isEmpty()) {
+        return new UserInfo(username, username, null);
+      } else if (username.isEmpty() && (password == null || password.isEmpty())) {
+        return null;
+      } else {
+        return this;
+      }
     }
   }
 }
