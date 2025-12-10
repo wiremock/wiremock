@@ -56,20 +56,21 @@ public class UrlReferenceTests {
   void debug() {
     testValid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "notspecial://host/?'",
-            /* base */ null,
-            /* href */ "notspecial://host/?'",
-            /* origin */ "null",
-            /* protocol */ "notspecial:",
+            /* input */ "",
+            /* base */ "http://example.org/foo/bar",
+            /* href */ "http://example.org/foo/bar",
+            /* origin */ "http://example.org",
+            /* protocol */ "http:",
             /* username */ "",
             /* password */ "",
-            /* host */ "host",
-            /* hostname */ "host",
+            /* host */ "example.org",
+            /* hostname */ "example.org",
             /* port */ "",
-            /* pathname */ "/",
-            /* search */ "?'",
+            /* pathname */ "/foo/bar",
+            /* search */ "",
             /* searchParams */ null,
-            /* hash */ ""));
+            /* hash */ ""
+        ));
   }
 
   private static void testValid(WhatWGUrlTestCase testCase) {
@@ -98,20 +99,15 @@ public class UrlReferenceTests {
         assertThat(userInfo.map(UserInfo::password).orElse(""))
             .isEqualTo(successTestCase.password());
 
-        //
-        // assertThat(Optional.ofNullable(normalised.host()).map(Object::toString).orElse(""))
-        //            .isEqualTo(successTestCase.hostname());
+//        assertThat(Optional.ofNullable(normalised.host()).map(Object::toString).orElse(""))
+//            .isEqualTo(successTestCase.hostname());
         assertThat(Optional.ofNullable(normalised.port()).map(Object::toString).orElse(""))
             .isEqualTo(successTestCase.port());
-        //        assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
-        //            .isEqualTo(successTestCase.host());
-        //        assertThat(normalised.path().toString()).isEqualTo(successTestCase.pathname());
-        //        final String expected;
-        //        if (successTestCase.href().contains("?") && successTestCase.search().isEmpty()) {
-        //          expected = "?";
-        //        } else {
-        //          expected = successTestCase.search();
-        //        }
+//        assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
+//            .isEqualTo(successTestCase.host());
+
+        assertThat(normalised.path().toString()).isEqualTo(successTestCase.pathname());
+
         assertThat(
                 Optional.ofNullable(normalised.query())
                     .map(o -> o.isEmpty() ? "" : "?" + o)
