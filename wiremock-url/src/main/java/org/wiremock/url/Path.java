@@ -18,7 +18,6 @@ package org.wiremock.url;
 import static org.wiremock.url.Constants.alwaysIllegal;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -73,67 +72,71 @@ class PathParser implements CharSequenceParser<Path> {
 
     @Override
     public org.wiremock.url.Path normalise() {
-      return ROOT.resolve(this);
+      if (this.equals(ROOT) || this.equals(EMPTY)) {
+        return this;
+      }
+      var original = path;
+      var output = new StringBuilder();
+      while (!original.isEmpty()) {
+        if (original.startsWith("../")) {
+          original = original.substring(3);
+        } else if (original.startsWith("./")) {
+          original = original.substring(2);
+        } else if (original.startsWith("/./")) {
+          original = original.substring(2);
+        } else if (original.equals("/.")) {
+          original = "/" + original.substring(2);
+        } else if (original.startsWith("/../")) {
+          original = original.substring(3);
+          var lastSegment = output.lastIndexOf("/");
+          if (lastSegment >= 0) {
+            output.replace(lastSegment, output.length(), "");
+          }
+        } else if (original.equals("/..")) {
+          original = "/";
+          var lastSegment = output.lastIndexOf("/");
+          if (lastSegment >= 0) {
+            output.replace(lastSegment, output.length(), "");
+          }
+        } else if (original.equals(".") || original.equals("..")) {
+          original = "";
+        } else {
+          int end;
+          if (original.startsWith("/")) {
+            end = original.indexOf('/', 1);
+          } else {
+            end = original.indexOf('/');
+          }
+          if (end == -1) {
+            end = original.length();
+          }
+          output.append(original, 0, end);
+          original = original.substring(end);
+        }
+      }
+      var outStr = output.toString();
+      if (outStr.equals(path)) {
+        return this;
+      } else if (outStr.equals(ROOT.toString())) {
+        return ROOT;
+      } else {
+        return PathParser.INSTANCE.parse(outStr);
+      }
     }
 
     @Override
     public org.wiremock.url.Path resolve(org.wiremock.url.Path other) {
-      if (other.equals(ROOT)) {
-        return this;
-      }
-      if (other.equals(Path.EMPTY)) {
-        return this.normalise();
-      }
-      var pathStack = new LinkedList<Segment>();
-      if (!other.isAbsolute()) {
-        pathStack.addAll(this.normalise().segments());
-        if (!pathStack.getLast().isEmpty()) {
-          pathStack.removeLast();
-        }
+      final org.wiremock.url.Path result;
+      if (other.toString().isEmpty()) {
+        result = this;
+      } else if (other.isAbsolute()) {
+        result = other;
+      } else if (this.path.endsWith("/")) {
+        result = PathParser.INSTANCE.parse(this.path + other);
       } else {
-//        pathStack.add(Segment.EMPTY);
-//        pathStack.add(Segment.EMPTY);
+        result = PathParser.INSTANCE.parse(this.path + "/../" + other);
       }
-      // Handle empty path and single slash early
-      List<Segment> otherSegments = other.segments();
-      for (int i = 0; i < otherSegments.size(); i++) {
-        Segment candidate = otherSegments.get(i);
-        if (candidate.isDotDot()) {
-          if (pathStack.size() <= 2) {
-            pathStack.clear();
-            pathStack.add(Segment.EMPTY);
-            pathStack.add(Segment.EMPTY);
-          } else {
-//            if (pathStack.getLast().isEmpty()) {
-//              pathStack.removeLast();
-//            }
-            pathStack.removeLast();
-            if (i == otherSegments.size() -1) {
-            pathStack.add(Segment.EMPTY);
-            }
-          }
-        } else if (candidate.isDot()) {
-          if (i == otherSegments.size() -1) {
-            pathStack.add(Segment.EMPTY);
-          }
-//          if (!pathStack.getLast().isEmpty()) {
-//            pathStack.add(Segment.EMPTY);
-//          }
-        } else if (candidate.isEmpty()) {
-          pathStack.add(Segment.EMPTY);
-        } else {
-          if (pathStack.size() > 1 && pathStack.getLast().isEmpty()) {
-            pathStack.removeLast();
-          }
-          pathStack.add(candidate);
-        }
-      }
-      if (pathStack.equals(otherSegments)) {
-        return other;
-      } else {
-        String normalizedPath = String.join("/", pathStack);
-        return new Path(normalizedPath, pathStack);
-      }
+      return result.normalise();
     }
   }
 }
