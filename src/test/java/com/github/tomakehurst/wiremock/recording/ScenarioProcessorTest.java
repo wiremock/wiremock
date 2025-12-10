@@ -42,26 +42,31 @@ public class ScenarioProcessorTest {
 
     List<StubMapping> stubs = asList(foobar1, other1, foobar2, foobar3, other2);
     Collections.reverse(stubs);
-    processor.putRepeatedRequestsInScenarios(stubs);
+    List<StubMapping> processed = processor.putRepeatedRequestsInScenarios(stubs);
 
-    assertThat(foobar1.getScenarioName(), is("scenario-2-foo-bar"));
-    assertThat(foobar1.getRequiredScenarioState(), is(Scenario.STARTED));
-    assertThat(foobar1.getNewScenarioState(), is("scenario-2-foo-bar-2"));
+    final StubMapping processedFoobar1 = findStub(processed, foobar1);
+    assertThat(processedFoobar1.getScenarioName(), is("scenario-2-foo-bar"));
+    assertThat(processedFoobar1.getRequiredScenarioState(), is(Scenario.STARTED));
+    assertThat(processedFoobar1.getNewScenarioState(), is("scenario-2-foo-bar-2"));
 
-    assertThat(foobar2.getScenarioName(), is(foobar1.getScenarioName()));
-    assertThat(foobar2.getRequiredScenarioState(), is("scenario-2-foo-bar-2"));
-    assertThat(foobar2.getNewScenarioState(), is("scenario-2-foo-bar-3"));
+    final StubMapping processedFoobar2 = findStub(processed, foobar2);
+    assertThat(processedFoobar2.getScenarioName(), is(processedFoobar1.getScenarioName()));
+    assertThat(processedFoobar2.getRequiredScenarioState(), is("scenario-2-foo-bar-2"));
+    assertThat(processedFoobar2.getNewScenarioState(), is("scenario-2-foo-bar-3"));
 
-    assertThat(foobar1.getScenarioName(), is(foobar3.getScenarioName()));
-    assertThat(foobar3.getRequiredScenarioState(), is("scenario-2-foo-bar-3"));
+    final StubMapping processedFoobar3 = findStub(processed, foobar3);
+    assertThat(processedFoobar1.getScenarioName(), is(processedFoobar3.getScenarioName()));
+    assertThat(processedFoobar3.getRequiredScenarioState(), is("scenario-2-foo-bar-3"));
     assertThat(
         "Last mapping should not have a state transition",
-        foobar3.getNewScenarioState(),
+        processedFoobar3.getNewScenarioState(),
         nullValue());
 
-    assertThat(other1.getScenarioName(), is("scenario-1-other"));
-    assertThat(other1.getNewScenarioState(), is("scenario-1-other-2"));
-    assertThat(other2.getRequiredScenarioState(), is("scenario-1-other-2"));
+    final StubMapping processedOther1 = findStub(processed, other1);
+    final StubMapping processedOther2 = findStub(processed, other2);
+    assertThat(processedOther1.getScenarioName(), is("scenario-1-other"));
+    assertThat(processedOther1.getNewScenarioState(), is("scenario-1-other-2"));
+    assertThat(processedOther2.getRequiredScenarioState(), is("scenario-1-other-2"));
   }
 
   @Test
@@ -70,10 +75,21 @@ public class ScenarioProcessorTest {
     StubMapping two = WireMock.get("/two").build();
     StubMapping three = WireMock.get("/three").build();
 
-    processor.putRepeatedRequestsInScenarios(asList(one, two, three));
+    final List<StubMapping> processed =
+        processor.putRepeatedRequestsInScenarios(asList(one, two, three));
 
-    assertThat(one.getScenarioName(), nullValue());
-    assertThat(two.getScenarioName(), nullValue());
-    assertThat(three.getScenarioName(), nullValue());
+    final StubMapping processedOne = findStub(processed, one);
+    final StubMapping processedTwo = findStub(processed, two);
+    final StubMapping processedThree = findStub(processed, three);
+    assertThat(processedOne.getScenarioName(), nullValue());
+    assertThat(processedTwo.getScenarioName(), nullValue());
+    assertThat(processedThree.getScenarioName(), nullValue());
+  }
+
+  private static StubMapping findStub(List<StubMapping> processed, StubMapping foobar1) {
+    return processed.stream()
+        .filter(stub -> stub.getId().equals(foobar1.getId()))
+        .findFirst()
+        .orElseThrow();
   }
 }

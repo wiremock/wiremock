@@ -45,9 +45,9 @@ public interface StubMappingStore {
         .map(stubAndMatchResult -> stubAndMatchResult.a);
   }
 
-  void add(StubMapping stub);
+  StubMapping add(StubMapping stub);
 
-  void replace(StubMapping existing, StubMapping updated);
+  StubMapping replace(StubMapping existing, StubMapping updated);
 
   void remove(UUID stubMapping);
 

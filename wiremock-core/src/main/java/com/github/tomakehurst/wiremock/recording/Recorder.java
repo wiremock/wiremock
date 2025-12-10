@@ -113,16 +113,12 @@ public class Recorder {
             serveEvents,
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
-                recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
+                recordSpec.getCaptureHeaders(),
+                recordSpec.getRequestBodyPatternFactory(),
+                recordSpec.shouldPersist()),
             getStubMappingPostProcessor(recordSpec));
 
-    for (StubMapping stubMapping : results.b) {
-      if (recordSpec.shouldPersist()) {
-        stubMapping.setPersistent(true);
-      }
-    }
     admin.importStubs(new StubImport(results.b, StubImport.Options.DEFAULTS));
-
     return recordSpec.getOutputFormat().format(results.b, results.a);
   }
 

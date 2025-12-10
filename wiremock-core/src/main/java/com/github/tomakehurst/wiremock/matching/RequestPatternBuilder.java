@@ -92,7 +92,9 @@ public class RequestPatternBuilder {
    *
    * @param requestPattern A RequestPattern to copy
    * @return A builder based on the RequestPattern
+   * @deprecated use RequestPattern.transform() instead
    */
+  @Deprecated
   public static RequestPatternBuilder like(RequestPattern requestPattern) {
     RequestPatternBuilder builder = new RequestPatternBuilder();
     builder.scheme = requestPattern.getScheme();
@@ -130,6 +132,11 @@ public class RequestPatternBuilder {
     return builder;
   }
 
+  /**
+   * @deprecated intended for use with now-deprecated like() method. Use RequestPattern.transform()
+   *     instead.
+   */
+  @Deprecated
   public RequestPatternBuilder but() {
     return this;
   }

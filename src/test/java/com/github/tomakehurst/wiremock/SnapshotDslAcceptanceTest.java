@@ -411,8 +411,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
               .but()
               .withHeader(parameters.getString("headerKey"), parameters.getString("headerValue"))
               .build();
-      stubMapping.setResponse(newResponse);
-      return stubMapping;
+      return stubMapping.transform(b -> b.setResponse(newResponse));
     }
 
     @Override

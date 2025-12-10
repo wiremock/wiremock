@@ -15,24 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.Collections;
 import java.util.List;
 
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
-public class StubMappingCollection extends StubMapping {
+public class StubMappingCollection implements StubMappingOrMappings {
 
   private List<StubMapping> mappings;
 
-  @JsonIgnore
-  public boolean isMulti() {
-    return mappings != null;
+  @Override
+  public List<StubMapping> getMappingOrMappings() {
+    return getMappings();
   }
 
-  @JsonIgnore
-  public List<StubMapping> getMappingOrMappings() {
-    return isMulti() ? getMappings() : Collections.singletonList(this);
+  @Override
+  public boolean isMulti() {
+    return true;
   }
 
   public List<StubMapping> getMappings() {

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -22,7 +23,6 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Iterator;
 import org.hamcrest.Description;
@@ -104,14 +104,13 @@ public class SortedConcurrentMappingSetTest {
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
 
-    existingMapping.setNewScenarioState("New Scenario State");
+    existingMapping = existingMapping.transform(b -> b.setNewScenarioState("New Scenario State"));
 
     StubMapping newMapping = aMapping(2, "/priority2/1");
-    boolean result = mappingSet.replace(existingMapping, newMapping);
+    mappingSet.replace(existingMapping, newMapping);
 
     Iterator<StubMapping> it = mappingSet.iterator();
 
-    assertThat(result, is(true));
     assertThat(it.hasNext(), is(true));
     assertThat(it.next(), is(newMapping));
     assertThat(it.hasNext(), is(false));
@@ -124,11 +123,10 @@ public class SortedConcurrentMappingSetTest {
     mappingSet.add(existingMapping);
 
     StubMapping newMapping = aMapping(2, "/priority2/1");
-    boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
+    mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
 
     Iterator<StubMapping> it = mappingSet.iterator();
 
-    assertThat(result, is(false));
     assertThat(it.hasNext(), is(true));
     assertThat(it.next(), is(existingMapping));
     assertThat(it.hasNext(), is(false));
@@ -136,9 +134,12 @@ public class SortedConcurrentMappingSetTest {
 
   private StubMapping aMapping(Integer priority, String url) {
     RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
-    StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
-    mapping.setPriority(priority);
-    return mapping;
+
+    return StubMapping.builder()
+        .setRequest(requestPattern)
+        .setResponse(responseDefinition().build())
+        .setPriority(priority)
+        .build();
   }
 
   private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {

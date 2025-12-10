@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
@@ -91,6 +92,12 @@ public class HttpHeaders {
     return new HttpHeaders(source);
   }
 
+  public HttpHeaders transform(Consumer<Builder> transformer) {
+    final Builder builder = new Builder(this);
+    transformer.accept(builder);
+    return builder.build();
+  }
+
   public int size() {
     return headers.asMap().size();
   }
@@ -132,5 +139,59 @@ public class HttpHeaders {
 
   private CaseInsensitiveKey caseInsensitive(String key) {
     return new CaseInsensitiveKey(key);
+  }
+
+  public static class Builder {
+    private Map<CaseInsensitiveKey, HttpHeader> headers = new LinkedHashMap<>();
+
+    public Builder() {}
+
+    public Builder(HttpHeaders httpHeaders) {
+      httpHeaders.all().forEach(h -> headers.put(new CaseInsensitiveKey(h.key()), h));
+    }
+
+    public Builder setAll(Map<CaseInsensitiveKey, HttpHeader> headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    public Builder put(String key, String... values) {
+      return put(new CaseInsensitiveKey(key), values);
+    }
+
+    public Builder put(CaseInsensitiveKey key, String... values) {
+      headers.put(key, new HttpHeader(key, List.of(values)));
+      return this;
+    }
+
+    public Builder remove(String key) {
+      return remove(new CaseInsensitiveKey(key));
+    }
+
+    public Builder remove(CaseInsensitiveKey key) {
+      headers.remove(key);
+      return this;
+    }
+
+    public Builder removeAll() {
+      headers.clear();
+      return this;
+    }
+
+    public HttpHeader get(String key) {
+      return get(new CaseInsensitiveKey(key));
+    }
+
+    public HttpHeader get(CaseInsensitiveKey key) {
+      return headers.get(key);
+    }
+
+    public Set<CaseInsensitiveKey> keys() {
+      return headers.keySet();
+    }
+
+    public HttpHeaders build() {
+      return new HttpHeaders(headers.values());
+    }
   }
 }

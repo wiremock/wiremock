@@ -158,7 +158,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   @Override
-  public void addMapping(StubMapping mapping) {
+  public StubMapping addMapping(StubMapping mapping) {
     if (store.get(mapping.getId()).isPresent()) {
       String msg =
           "ID of the provided stub mapping '"
@@ -170,19 +170,21 @@ public abstract class AbstractStubMappings implements StubMappings {
     }
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.beforeStubCreated(mapping);
+      mapping = listener.beforeStubCreated(mapping);
     }
 
-    store.add(mapping);
+    mapping = store.add(mapping);
     scenarios.onStubMappingAdded(mapping);
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubCreated(mapping);
     }
+
+    return mapping;
   }
 
   @Override
-  public void removeMapping(StubMapping mapping) {
+  public StubMapping removeMapping(StubMapping mapping) {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubRemoved(mapping);
     }
@@ -193,10 +195,12 @@ public abstract class AbstractStubMappings implements StubMappings {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubRemoved(mapping);
     }
+
+    return mapping;
   }
 
   @Override
-  public void editMapping(StubMapping stubMapping) {
+  public StubMapping editMapping(StubMapping stubMapping) {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
     if (optionalExistingMapping.isEmpty()) {
@@ -207,11 +211,11 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     final StubMapping existingMapping = optionalExistingMapping.get();
     for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.beforeStubEdited(existingMapping, stubMapping);
+      stubMapping = listener.beforeStubEdited(existingMapping, stubMapping);
     }
 
-    stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-    stubMapping.setDirty(true);
+    stubMapping =
+        stubMapping.transform(b -> b.setInsertionIndex(existingMapping.getInsertionIndex()));
 
     store.replace(existingMapping, stubMapping);
     scenarios.onStubMappingUpdated(existingMapping, stubMapping);
@@ -219,6 +223,8 @@ public abstract class AbstractStubMappings implements StubMappings {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubEdited(existingMapping, stubMapping);
     }
+
+    return stubMapping;
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,24 +127,39 @@ public class StubLifecycleListenerAcceptanceTest {
     }
   }
 
+  @Test
+  void insertionIndexIsSetOnStubsByTheTimeTheyArePassedToAfterStubCreated() {
+    wm.stubFor(get("/1").willReturn(ok()));
+    wm.stubFor(get("/2").willReturn(ok()));
+    wm.stubFor(get("/3").willReturn(ok()));
+
+    assertThat(loggingListener.afterCreatedStubs.get(0).getInsertionIndex(), is(0L));
+    assertThat(loggingListener.afterCreatedStubs.get(1).getInsertionIndex(), is(1L));
+    assertThat(loggingListener.afterCreatedStubs.get(2).getInsertionIndex(), is(2L));
+  }
+
   public static class TestStubLifecycleListener implements StubLifecycleListener {
 
     public List<String> events = new ArrayList<>();
+    public List<StubMapping> afterCreatedStubs = new ArrayList<>();
 
     @Override
-    public void beforeStubCreated(StubMapping stub) {
+    public StubMapping beforeStubCreated(StubMapping stub) {
       events.add("beforeStubCreated, name: " + stub.getName());
+      return stub;
     }
 
     @Override
     public void afterStubCreated(StubMapping stub) {
       events.add("afterStubCreated, name: " + stub.getName());
+      afterCreatedStubs.add(stub);
     }
 
     @Override
-    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+    public StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
       events.add(
           "beforeStubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
+      return newStub;
     }
 
     @Override
@@ -184,16 +199,18 @@ public class StubLifecycleListenerAcceptanceTest {
     public boolean throwException = false;
 
     @Override
-    public void beforeStubCreated(StubMapping stub) {
+    public StubMapping beforeStubCreated(StubMapping stub) {
       throwIfRequired();
+      return stub;
     }
 
     @Override
     public void afterStubCreated(StubMapping stub) {}
 
     @Override
-    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+    public StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
       throwIfRequired();
+      return newStub;
     }
 
     @Override
