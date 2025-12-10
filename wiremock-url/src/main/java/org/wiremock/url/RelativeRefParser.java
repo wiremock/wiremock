@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
@@ -58,11 +59,17 @@ class RelativeRefParser implements CharSequenceParser<RelativeRef> {
 
     @Override
     public RelativeRef normalise() {
-      return new RelativeRef(
-          Optional.ofNullable(authority).map(Authority::normalise).orElse(null),
-          path,
-          query,
-          fragment);
+      Authority normalisedAuthority =
+          Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
+      Path normalisedPath = path.normalise();
+      Query normalisedQuery = query == null ? null : query.normalise();
+      if (Objects.equals(normalisedAuthority, authority)
+          && Objects.equals(normalisedPath, path)
+          && Objects.equals(normalisedQuery, query)) {
+        return this;
+      } else {
+        return new RelativeRef(normalisedAuthority, path, query, fragment);
+      }
     }
   }
 }

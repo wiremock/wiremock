@@ -29,6 +29,10 @@ public interface UserInfo {
   }
 
   @Nullable UserInfo normalise();
+
+  String username();
+
+  @Nullable String password();
 }
 
 class UserInfoParser implements CharSequenceParser<UserInfo> {
@@ -57,7 +61,7 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     }
   }
 
-  record UserInfo(String userInfo, String username, @Nullable String password)
+  record UserInfo(String userInfo, @Override String username, @Override @Nullable String password)
       implements org.wiremock.url.UserInfo {
 
     @Override

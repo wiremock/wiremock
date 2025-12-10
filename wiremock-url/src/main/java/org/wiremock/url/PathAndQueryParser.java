@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
@@ -52,7 +53,13 @@ final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
 
     @Override
     public PathAndQuery normalise() {
-      return this;
+      var normalisedPath = path.normalise();
+      var normalisedQuery = query == null ? null : query.normalise();
+      if (normalisedPath.equals(path) && Objects.equals(normalisedQuery, query)) {
+        return this;
+      } else {
+        return new PathAndQuery(normalisedPath, normalisedQuery);
+      }
     }
   }
 }

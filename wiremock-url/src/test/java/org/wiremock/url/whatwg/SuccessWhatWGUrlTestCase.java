@@ -81,44 +81,38 @@ public record SuccessWhatWGUrlTestCase(
   @NonNull
   public String toString() {
     return "new SuccessWhatWGUrlTestCase("
-        + '"'
-        + input
-        + '"'
-        + ", "
-        + stringOrNull(base)
-        + ", "
-        + stringOrNull(href)
-        + ", "
-        + stringOrNull(origin)
-        + ", \""
-        + protocol
-        + '"'
-        + ", \""
-        + username
-        + '"'
-        + ", \""
-        + password
-        + '"'
-        + ", \""
-        + host
-        + '"'
-        + ", \""
-        + hostname
-        + '"'
-        + ", "
-        + stringOrNull(port)
-        + ", \""
-        + pathname
-        + '"'
-        + ", \""
-        + search
-        + '"'
-        + ", "
-        + stringOrNull(searchParams)
-        + ", \""
-        + hash
-        + '"'
-        + ')';
+        + appendParameter("input", input)
+        + ','
+        + appendParameter("base", base)
+        + ','
+        + appendParameter("href", href)
+        + ','
+        + appendParameter("origin", origin)
+        + ','
+        + appendParameter("protocol", protocol)
+        + ','
+        + appendParameter("username", username)
+        + ','
+        + appendParameter("password", password)
+        + ','
+        + appendParameter("host", host)
+        + ','
+        + appendParameter("hostname", hostname)
+        + ','
+        + appendParameter("port", port)
+        + ','
+        + appendParameter("pathname", pathname)
+        + ','
+        + appendParameter("search", search)
+        + ','
+        + appendParameter("searchParams", searchParams)
+        + ','
+        + appendParameter("hash", hash)
+        + "\n)";
+  }
+
+  private @NonNull String appendParameter(String name, String value) {
+    return "\n  /* " + name + " */ " + stringOrNull(value);
   }
 
   private @NonNull String stringOrNull(@Nullable String value) {
