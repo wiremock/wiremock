@@ -64,6 +64,9 @@ final class UrlParser implements CharSequenceParser<Url> {
       Scheme canonicalScheme = scheme.canonical();
       Authority normalisedAuthority = authority.normalise(canonicalScheme);
       Path normalisedPath = path.normalise();
+      if (normalisedPath.equals(Path.EMPTY)) {
+        normalisedPath = Path.ROOT;
+      }
       Query normalisedQuery = query == null ? null : query.normalise(canonicalScheme);
       Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 

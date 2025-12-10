@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
@@ -148,59 +148,64 @@ public class PathTests {
 
   private static final List<Entry<Path, Path>> normaliseTestCases =
       List.of(
-//          entry("", "/"),
-//          entry(".", "/"),
-//          entry("..", "/"),
-//          entry("a", "/a"),
-//          entry("/", "/"),
-//          entry("/.", "/"),
-//          entry("/..", "/"),
-//          entry("/a", "/a"),
-//          entry("./", "/"),
-//          entry("../", "/"),
-//          entry("a/", "/a/"),
-//          entry("//", "/"),
-//          entry("/./", "/"),
-//          entry("/../", "/"),
-//          entry("/a/", "/a/"),
-//          entry("/foo/bar/../ton", "/foo/ton"),
-//          entry("//a//../..//foo", "///foo"),
-//          entry("/﻿/foo", "/%EF%BB%BF/foo"),
-//          entry("/foo%2Â©zbar", "/foo%2%C3%82%C2%A9zbar"),
-//          entry("/你好你好", "/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD"),
-//          entry("/‮/foo/‭/bar", "/%E2%80%AE/foo/%E2%80%AD/bar"),
+          entry("", ""),
+          entry(".", ""),
+          entry("..", ""),
+          entry("a", "a"),
+          entry("/", "/"),
+          entry("/.", "/"),
+          entry("/..", "/"),
+          entry("/a", "/a"),
+          entry("./", ""),
+          entry("../", ""),
+          entry("a/", "a/"),
+          entry("//", "//"),
+          entry("/./", "/"),
+          entry("/../", "/"),
+          entry("/a/", "/a/"),
+          entry("/foo/bar/../ton", "/foo/ton"),
+          entry("//a//../..//foo", "///foo"),
+          entry("/﻿/foo", "/%EF%BB%BF/foo"),
+          entry("/foo%2Â©zbar", "/foo%2%C3%82%C2%A9zbar"),
+          entry("/你好你好", "/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD"),
+          entry("/‮/foo/‭/bar", "/%E2%80%AE/foo/%E2%80%AD/bar"),
+          entry("/w|/m", "/w:/m"),
+          entry("/foo\tbar", "/foobar"),
+          entry("/\"quoted\"", "/%22quoted%22"),
+          entry(
+              "/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~",
+              "/%20!%22$%&'()*+,-./:;%3C=%3E@[/]%5E_%60%7B|%7D~"),
+          entry("/￿y", "/%EF%BF%BFy"),
+          entry("/‥/foo", "/%E2%80%A5/foo"),
+          entry(
+              "/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~",
+              "/%20!%22$%&'()*+,-./:;%3C=%3E@[\\]%5E_%60%7B|%7D~"),
+          entry("/�", "/%EF%BF%BD"),
           entry("/foo/../../..", "/"),
           entry("/foo/%2e./%2e%2e/.%2e/%2e.bar", "/%2e.bar"),
           entry("/foo/%2e", "/foo/"),
-//          entry("/w|/m", "/w:/m"),
           entry("/foo/.", "/foo/"),
-//          entry("/foo\tbar", "/foobar"),
           entry("/./y:", "/y:"),
           entry("/foo/./", "/foo/"),
           entry("/a/../b", "/b"),
-//          entry("/\"quoted\"", "/%22quoted%22"),
           entry("/foo/bar//../..", "/foo/"),
-//          entry("/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~", "/%20!%22$%&'()*+,-./:;%3C=%3E@[/]%5E_%60%7B|%7D~"),
           entry("/aaa/bbb/%2e%2e", "/aaa/"),
-//          entry("/￿y", "/%EF%BF%BFy"),
           entry("/./Y:", "/Y:"),
-          entry("", "/"),
+          entry("", ""),
           entry("/foo/../../../ton", "/ton"),
           entry("/./Y", "/Y"),
           entry("/./.foo", "/.foo"),
           entry("/foo/%2E/html", "/foo/html"),
           entry("/foo/bar/../ton/../../a", "/a"),
           entry("/foo/bar/../", "/foo/"),
-//          entry("/‥/foo", "/%E2%80%A5/foo"),
-//          entry("/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~", "/%20!%22$%&'()*+,-./:;%3C=%3E@[\\]%5E_%60%7B|%7D~"),
           entry("//a//../..//", "///"),
           entry("/./y", "/y"),
           entry("////../..", "//"),
           entry("/foo/bar/..", "/foo/"),
           entry("/././foo", "/foo"),
-//          entry("/�", "/%EF%BF%BD"),
-          entry("/foo/bar//..", "/foo/bar/")
-      );
+          entry("/foo/bar//..", "/foo/bar/"),
+          entry("/a/b/c/./../../g", "/a/g"),
+          entry("mid/content=5/../6", "mid/6"));
 
   private static Entry<Path, Path> entry(String nonNormalised, String normalised) {
     return Map.entry(Path.parse(nonNormalised), Path.parse(normalised));
@@ -210,6 +215,11 @@ public class PathTests {
   @FieldSource("normaliseTestCases")
   void pathNormalises(Entry<Path, Path> testCase) {
     assertThat(testCase.getKey().normalise()).isEqualTo(testCase.getValue());
+  }
+
+  @Test
+  void pathNormalisesSingle() {
+    pathNormalises(entry("", ""));
   }
 
   private static final List<Entry<Path, Path>> rfc3986TestCases =
@@ -250,5 +260,10 @@ public class PathTests {
   @FieldSource("rfc3986TestCases")
   void resolvePath(Entry<Path, Path> testCase) {
     assertThat(original.resolve(testCase.getKey())).isEqualTo(testCase.getValue());
+  }
+
+  @Test
+  void resolvePathSingle() {
+    resolvePath(entry("", "/b/c/d;p"));
   }
 }
