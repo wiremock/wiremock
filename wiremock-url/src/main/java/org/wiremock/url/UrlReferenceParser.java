@@ -74,8 +74,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   private final String scheme = "(?<scheme>" + SchemeParser.INSTANCE.schemeRegex + ")";
 
   @Language("RegExp")
-  private final String authority =
-      "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")?";
+  private final String authority = "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")";
 
   @Language("RegExp")
   private final String path = "(?<path>|/" + PathParser.INSTANCE.pathRegex + ")";
@@ -90,7 +89,16 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
   private final Pattern regex =
       Pattern.compile(
-          "^(?:" + scheme + ":)?//" + authority + path + "(?:\\?" + query + ")?(?:#" + fragment
+          "^(?:"
+              + scheme
+              + ":)?(?://"
+              + authority
+              + ")?"
+              + path
+              + "(?:\\?"
+              + query
+              + ")?(?:#"
+              + fragment
               + ")?$");
 
   @Override
