@@ -75,7 +75,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
   @Language("RegExp")
   private final String authority =
-      "(?>(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")?)";
+      "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")?";
 
   @Language("RegExp")
   private final String path = "(?<path>|/" + PathParser.INSTANCE.pathRegex + ")";
