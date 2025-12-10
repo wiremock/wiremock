@@ -81,6 +81,7 @@ public class UrlReferenceTests {
     UrlReference normalised = urlReference.normalise();
     UrlReference reconstituted = UrlReference.parse(normalised.toString());
     assertThat(reconstituted).isEqualTo(normalised);
+    assertThat(normalised.normalise()).isSameAs(normalised);
 
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
       if (successTestCase.base() == null) {
