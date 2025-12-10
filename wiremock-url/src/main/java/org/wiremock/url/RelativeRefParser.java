@@ -63,12 +63,14 @@ class RelativeRefParser implements CharSequenceParser<RelativeRef> {
           Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
       Path normalisedPath = path.normalise();
       Query normalisedQuery = query == null ? null : query.normalise();
+      Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
       if (Objects.equals(normalisedAuthority, authority)
           && Objects.equals(normalisedPath, path)
-          && Objects.equals(normalisedQuery, query)) {
+          && Objects.equals(normalisedQuery, query)
+          && Objects.equals(normalisedFragment, fragment)) {
         return this;
       } else {
-        return new RelativeRef(normalisedAuthority, path, query, fragment);
+        return new RelativeRef(normalisedAuthority, normalisedPath, normalisedQuery, normalisedFragment);
       }
     }
   }

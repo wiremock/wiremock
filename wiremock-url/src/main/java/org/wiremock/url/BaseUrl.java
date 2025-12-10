@@ -90,7 +90,12 @@ class BaseUrlParser implements CharSequenceParser<BaseUrl> {
     @Override
     public BaseUrl normalise() {
       Scheme canonicalScheme = scheme.canonical();
-      return new BaseUrl(canonicalScheme, authority.normalise(canonicalScheme));
+      Authority normalisedAuthority = authority.normalise(canonicalScheme);
+      if (scheme.equals(canonicalScheme) && authority.equals(normalisedAuthority)) {
+        return this;
+      } else {
+        return new BaseUrl(canonicalScheme, normalisedAuthority);
+      }
     }
   }
 }
