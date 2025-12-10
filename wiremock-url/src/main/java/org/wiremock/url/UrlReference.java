@@ -49,9 +49,9 @@ public sealed interface UrlReference permits RelativeRef, Url {
     return definedPort != null ? definedPort : (scheme != null ? scheme.defaultPort() : null);
   }
 
+  UrlReference normalise();
+
   static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
     return UrlReferenceParser.INSTANCE.parse(urlReference);
   }
-
-  UrlReference normalise();
 }

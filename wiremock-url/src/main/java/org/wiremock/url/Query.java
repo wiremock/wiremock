@@ -15,14 +15,18 @@
  */
 package org.wiremock.url;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.alwaysIllegal;
 
+import java.net.URLEncoder;
 import java.util.regex.Pattern;
 
 public interface Query extends PctEncoded {
   static Query parse(CharSequence query) throws IllegalQuery {
     return QueryParser.INSTANCE.parse(query);
   }
+
+  Query normalise();
 }
 
 class QueryParser implements CharSequenceParser<Query> {
@@ -67,6 +71,11 @@ class QueryParser implements CharSequenceParser<Query> {
     @Override
     public String decode() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public org.wiremock.url.Query normalise() {
+      return new Query(URLEncoder.encode(query, UTF_8));
     }
   }
 }

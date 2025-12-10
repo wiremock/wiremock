@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 final class UrlParser implements CharSequenceParser<Url> {
@@ -63,15 +64,18 @@ final class UrlParser implements CharSequenceParser<Url> {
       Scheme canonicalScheme = scheme.canonical();
       Authority normalisedAuthority = authority.normalise(canonicalScheme);
       Path normalisedPath = path.normalise();
+      Query normalisedQuery = query == null ? null : query.normalise();
 
       if (scheme.equals(canonicalScheme)
           && authority.equals(normalisedAuthority)
-          && path.equals(normalisedPath)) {
+          && path.equals(normalisedPath)
+          && Objects.equals(query, normalisedQuery)) {
         return this;
-      } else if (normalisedPath.equals(Path.ROOT) && query == null && fragment == null) {
+      } else if (normalisedPath.equals(Path.ROOT) && normalisedQuery == null && fragment == null) {
         return new BaseUrlParser.BaseUrl(canonicalScheme, normalisedAuthority);
       } else {
-        return new Url(canonicalScheme, normalisedAuthority, normalisedPath, query, fragment);
+        return new Url(
+            canonicalScheme, normalisedAuthority, normalisedPath, normalisedQuery, fragment);
       }
     }
 
