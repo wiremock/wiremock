@@ -91,30 +91,38 @@ class PathParser implements CharSequenceParser<Path> {
           pathStack.removeLast();
         }
       } else {
-        pathStack.add(Segment.EMPTY);
-        pathStack.add(Segment.EMPTY);
+//        pathStack.add(Segment.EMPTY);
+//        pathStack.add(Segment.EMPTY);
       }
       // Handle empty path and single slash early
       List<Segment> otherSegments = other.segments();
-      for (Segment candidate : otherSegments) {
+      for (int i = 0; i < otherSegments.size(); i++) {
+        Segment candidate = otherSegments.get(i);
         if (candidate.isDotDot()) {
           if (pathStack.size() <= 2) {
             pathStack.clear();
             pathStack.add(Segment.EMPTY);
             pathStack.add(Segment.EMPTY);
           } else {
-            if (pathStack.getLast().isEmpty()) {
-              pathStack.removeLast();
-            }
+//            if (pathStack.getLast().isEmpty()) {
+//              pathStack.removeLast();
+//            }
             pathStack.removeLast();
+            if (i == otherSegments.size() -1) {
+            pathStack.add(Segment.EMPTY);
+            }
+          }
+        } else if (candidate.isDot()) {
+          if (i == otherSegments.size() -1) {
             pathStack.add(Segment.EMPTY);
           }
-        } else if (candidate.isDot() || candidate.isEmpty()) {
-          if (!pathStack.getLast().isEmpty()) {
-            pathStack.add(Segment.EMPTY);
-          }
+//          if (!pathStack.getLast().isEmpty()) {
+//            pathStack.add(Segment.EMPTY);
+//          }
+        } else if (candidate.isEmpty()) {
+          pathStack.add(Segment.EMPTY);
         } else {
-          if (pathStack.getLast().isEmpty()) {
+          if (pathStack.size() > 1 && pathStack.getLast().isEmpty()) {
             pathStack.removeLast();
           }
           pathStack.add(candidate);
