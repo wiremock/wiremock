@@ -30,7 +30,7 @@ class AuthorityParser implements CharSequenceParser<Authority> {
   final String portRegex = "[0-9]+";
 
   final String authorityRegex =
-      "((?<userInfo>"
+      "(?:(?<userInfo>"
           + UserInfoParser.INSTANCE.userInfoRegex
           + ")@)?(?<host>"
           + HostParser.INSTANCE.hostRegex

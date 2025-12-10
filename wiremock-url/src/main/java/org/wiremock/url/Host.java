@@ -19,8 +19,6 @@ import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
@@ -37,12 +35,11 @@ class HostParser implements CharSequenceParser<Host> {
 
   static final HostParser INSTANCE = new HostParser();
 
-  final String octet = "(([1-2][0-9][0-9])|([0-9][0-9])|([0-9]))";
-  final String ipv4Address = "(?<ipv4Address>" + octet + "(\\." + octet + "){3})";
-  final String ipv6Address = "(\\[(?<ipv6Address>[^]]+)])";
-  final String registeredName = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + ")*";
-  final String hostRegex =
-      "(" + ipv6Address + "|" + ipv4Address + "|(?<registeredName>" + registeredName + "))";
+  final String ipv6Address = "(?<ipv6Address>[0-9A-Fa-f:.]+)";
+  final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
+  final String ipLiteral = "\\[(?:"+ipv6Address+ "|" + ipvFuture + ")]";
+  final String registeredName = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
+  final String hostRegex = ipLiteral + "|" + registeredName;
 
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
 
@@ -51,24 +48,14 @@ class HostParser implements CharSequenceParser<Host> {
     String hostStr = stringForm.toString();
     Matcher matcher = hostPattern.matcher(hostStr);
     if (matcher.matches()) {
-      String ipv4Address = matcher.group("ipv4Address");
-      if (ipv4Address != null) {
-        try {
-          var addr = InetAddress.getByName(ipv4Address);
-          if (!(addr instanceof Inet4Address)) {
-            throw new IllegalHost(hostStr);
-          }
-        } catch (UnknownHostException e) {
+      String ipv6Address = matcher.group("ipv6Address");
+      if (ipv6Address != null) {
+        if (!ipv6Address.contains(":")) {
           throw new IllegalHost(hostStr);
         }
-      }
-      String ipv6ddress = matcher.group("ipv6Address");
-      if (ipv6ddress != null) {
         try {
-          var addr = InetAddress.getByName(ipv6ddress);
-          if (!(addr instanceof Inet6Address)) {
-            throw new IllegalHost(hostStr);
-          }
+          //noinspection ResultOfMethodCallIgnored
+          InetAddress.getByName(ipv6Address);
         } catch (UnknownHostException e) {
           throw new IllegalHost(hostStr);
         }

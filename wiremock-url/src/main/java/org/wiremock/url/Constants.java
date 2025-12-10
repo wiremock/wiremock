@@ -20,13 +20,19 @@ import org.intellij.lang.annotations.Language;
 class Constants {
 
   @Language("RegExp")
-  static final String unreserved = "[a-zA-Z0-9\\-._~]";
+  static final String unreserved = "-a-zA-Z0-9\\._~";
+
+  @Language("RegExp")
+  static final String unreservedGroup = "["+unreserved+"]";
 
   @Language("RegExp")
   static final String pctEncoded = "%[0-9A-F]{2}";
 
   @Language("RegExp")
-  static final String subDelims = "[!$&'()*+,;=]";
+  public static final String subDelims = "!\\$&'\\(\\)\\*\\+,;=";
+
+  @Language("RegExp")
+  static final String subDelimsGroup = "[" + subDelims + "]";
 
   @Language("RegExp")
   static final String alwaysIllegal =
