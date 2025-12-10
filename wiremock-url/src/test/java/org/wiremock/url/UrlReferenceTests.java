@@ -46,6 +46,7 @@ public class UrlReferenceTests {
   @ParameterizedTest
   @FieldSource("wiremock_invalid")
   void wiremock_invalid(WhatWGUrlTestCase testCase) {
+    System.out.println(testCase);
     assertThatExceptionOfType(IllegalUrlReference.class)
         .isThrownBy(() -> UrlReference.parse(testCase.input()));
   }

@@ -1,3 +1,1 @@
-[
-{ "input": "http://[::%31]", "base": "http://other.com/", "failure": true }
-]
+[]

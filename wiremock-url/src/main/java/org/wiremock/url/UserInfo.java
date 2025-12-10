@@ -39,7 +39,7 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 
-  final String userInfoRegex = "(" + unreserved + "|" + pctEncoded + "|" + subDelims + "|:)*";
+  final String userInfoRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
 
   private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
 

@@ -34,6 +34,7 @@
 { "input": "http://[::.1.2]", "base": "http://other.com/", "failure": true },
 { "input": "http://[::1.]", "base": "http://other.com/", "failure": true },
 { "input": "http://[::.1]", "base": "http://other.com/", "failure": true },
+{ "input": "http://[::%31]", "base": "http://other.com/", "failure": true },
 { "input": "http://%5B::1]", "base": "http://other.com/", "failure": true },
 { "input": "sc://te@s:t@/", "failure": true },
 { "input": "sc://a\u0000b/", "failure": true },

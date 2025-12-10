@@ -119,17 +119,6 @@ class HostTests {
             .extracting(IllegalHost::getIllegalValue)
             .isEqualTo(invalidIpv6);
       }
-
-      @Test
-      void parses_bracketed_content_as_ipv6() {
-        // The regex accepts any non-empty content inside brackets as IPv6
-        // This is a simple implementation that defers semantic validation to higher layers
-        Host host1 = Host.parse("[   ]");
-        assertThat(host1.toString()).isEqualTo("[   ]");
-
-        Host host2 = Host.parse("[not-an-ipv6]");
-        assertThat(host2.toString()).isEqualTo("[not-an-ipv6]");
-      }
     }
 
     @Nested
