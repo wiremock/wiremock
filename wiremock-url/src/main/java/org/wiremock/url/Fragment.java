@@ -15,7 +15,11 @@
  */
 package org.wiremock.url;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public interface Fragment extends PctEncoded {
+
+  Fragment normalise();
 
   static Fragment parse(CharSequence fragment) throws IllegalFragment {
     return FragmentParser.INSTANCE.parse(fragment);
@@ -56,6 +60,68 @@ class FragmentParser implements CharSequenceParser<Fragment> {
     @Override
     public String decode() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public org.wiremock.url.Fragment normalise() {
+      StringBuilder result = new StringBuilder();
+      boolean changed = false;
+
+      for (int i = 0; i < fragment.length(); i++) {
+        char c = fragment.charAt(i);
+
+        // Preserve already percent-encoded sequences
+        if (c == '%'
+            && i + 2 < fragment.length()
+            && isHexDigit(fragment.charAt(i + 1))
+            && isHexDigit(fragment.charAt(i + 2))) {
+          result.append(c).append(fragment.charAt(i + 1)).append(fragment.charAt(i + 2));
+          i += 2;
+          continue;
+        }
+
+        // Check if character needs encoding per WhatWG fragment percent-encode set
+        if (shouldPercentEncodeInFragment(c)) {
+          // Encode as UTF-8 bytes
+          byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+          for (byte b : bytes) {
+            result.append('%');
+            result.append(String.format("%02X", b & 0xFF));
+          }
+          changed = true;
+        } else {
+          result.append(c);
+        }
+      }
+
+      if (!changed) {
+        return this;
+      } else {
+        return new Fragment(result.toString());
+      }
+    }
+
+    private boolean isHexDigit(char c) {
+      return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+    }
+
+    private boolean shouldPercentEncodeInFragment(char c) {
+      // WhatWG query percent-encode set:
+      // - C0 controls (0x00-0x1F)
+      // - Space (0x20)
+      // - " (0x22)
+      // - ` (0x23)
+      // - < (0x3C)
+      // - > (0x3E)
+      // - Characters > 0x7E (non-ASCII)
+
+      if (c <= 0x1F) return true; // C0 controls
+      if (c == 0x20) return true; // space
+      if (c == '"') return true; // 0x22
+      if (c == '<') return true; // 0x3C
+      if (c == '`') return true; // 0x3C
+      if (c == '>') return true; // 0x3E
+      return c > 0x7E; // non-ASCII
     }
   }
 }

@@ -116,6 +116,11 @@ public class UrlReferenceTests {
                     .map(o -> o.isEmpty() ? "" : "?" + o)
                     .orElse(""))
             .isEqualTo(successTestCase.search());
+        assertThat(
+                Optional.ofNullable(normalised.fragment())
+                    .map(f -> f.isEmpty() ? "" : "#" + f)
+                    .orElse(""))
+            .isEqualTo(successTestCase.hash());
       }
     }
   }
