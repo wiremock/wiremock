@@ -629,6 +629,15 @@ public class MatchesJsonPathPatternTest {
   }
 
   @Test
+  void shouldMatchSuccessfullyWhenExtractedValueIsNull() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("null"));
+    String json = "{\"data\": {\"prop1\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
   void shouldMatchSuccessfullyWhenAllExtractedValuesAreNull() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("null"));
     String json = "{\"data\": {\"prop1\": null, \"prop2\": null, \"prop3\": null}}";
