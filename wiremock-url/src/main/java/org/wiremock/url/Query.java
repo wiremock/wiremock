@@ -17,8 +17,9 @@ package org.wiremock.url;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.alwaysIllegal;
+import static org.wiremock.url.Scheme.specialSchemes;
 
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 public interface Query extends PctEncoded {
@@ -26,7 +27,11 @@ public interface Query extends PctEncoded {
     return QueryParser.INSTANCE.parse(query);
   }
 
-  Query normalise();
+  default Query normalise() {
+    return normalise(Scheme.http);
+  }
+
+  Query normalise(Scheme scheme);
 }
 
 class QueryParser implements CharSequenceParser<Query> {
@@ -70,12 +75,76 @@ class QueryParser implements CharSequenceParser<Query> {
 
     @Override
     public String decode() {
-      throw new UnsupportedOperationException();
+      try {
+        return URLDecoder.decode(query, UTF_8);
+      } catch (IllegalArgumentException e) {
+        return query;
+      }
     }
 
     @Override
-    public org.wiremock.url.Query normalise() {
-      return new Query(URLEncoder.encode(query, UTF_8));
+    public org.wiremock.url.Query normalise(Scheme scheme) {
+      StringBuilder result = new StringBuilder();
+      boolean changed = false;
+
+      boolean specialScheme = specialSchemes.contains(scheme);
+
+      for (int i = 0; i < query.length(); i++) {
+        char c = query.charAt(i);
+
+        // Preserve already percent-encoded sequences
+        if (c == '%'
+            && i + 2 < query.length()
+            && isHexDigit(query.charAt(i + 1))
+            && isHexDigit(query.charAt(i + 2))) {
+          result.append(c).append(query.charAt(i + 1)).append(query.charAt(i + 2));
+          i += 2;
+          continue;
+        }
+
+        // Check if character needs encoding per WhatWG query percent-encode set
+        if (shouldPercentEncodeInQuery(c, specialScheme)) {
+          // Encode as UTF-8 bytes
+          byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+          for (byte b : bytes) {
+            result.append('%');
+            result.append(String.format("%02X", b & 0xFF));
+          }
+          changed = true;
+        } else {
+          result.append(c);
+        }
+      }
+
+      if (!changed) {
+        return this;
+      } else {
+        return new Query(result.toString());
+      }
+    }
+
+    private boolean isHexDigit(char c) {
+      return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+    }
+
+    private boolean shouldPercentEncodeInQuery(char c, boolean specialScheme) {
+      // WhatWG query percent-encode set:
+      // - C0 controls (0x00-0x1F)
+      // - Space (0x20)
+      // - " (0x22)
+      // - # (0x23)
+      // - < (0x3C)
+      // - > (0x3E)
+      // - Characters > 0x7E (non-ASCII)
+
+      if (c <= 0x1F) return true; // C0 controls
+      if (c == 0x20) return true; // space
+      if (c == '"') return true; // 0x22
+      if (c == '#') return true; // 0x23
+      if (c == '<') return true; // 0x3C
+      if (c == '>') return true; // 0x3E
+      if (specialScheme && c == '\'') return true; // 0x27
+      return c > 0x7E; // non-ASCII
     }
   }
 }

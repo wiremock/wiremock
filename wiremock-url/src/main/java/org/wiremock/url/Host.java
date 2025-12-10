@@ -37,7 +37,7 @@ class HostParser implements CharSequenceParser<Host> {
 
   final String ipv6Address = "(?<ipv6Address>[0-9A-Fa-f:.]+)";
   final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
-  final String ipLiteral = "\\[(?:"+ipv6Address+ "|" + ipvFuture + ")]";
+  final String ipLiteral = "\\[(?:" + ipv6Address + "|" + ipvFuture + ")]";
   final String registeredName = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
   final String hostRegex = ipLiteral + "|" + registeredName;
 
