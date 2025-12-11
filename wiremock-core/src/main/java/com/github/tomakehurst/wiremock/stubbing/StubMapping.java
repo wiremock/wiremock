@@ -226,46 +226,7 @@ public final class StubMapping implements StubMappingOrMappings {
 
   @Override
   public String toString() {
-    return "StubMapping["
-        + "id="
-        + id
-        + ", "
-        + "name="
-        + name
-        + ", "
-        + "persistent="
-        + persistent
-        + ", "
-        + "request="
-        + request
-        + ", "
-        + "response="
-        + response
-        + ", "
-        + "priority="
-        + priority
-        + ", "
-        + "scenarioName="
-        + scenarioName
-        + ", "
-        + "requiredScenarioState="
-        + requiredScenarioState
-        + ", "
-        + "newScenarioState="
-        + newScenarioState
-        + ", "
-        + "postServeActions="
-        + postServeActions
-        + ", "
-        + "serveEventListeners="
-        + serveEventListeners
-        + ", "
-        + "metadata="
-        + metadata
-        + ", "
-        + "insertionIndex="
-        + insertionIndex
-        + ']';
+    return Json.write(this);
   }
 
   public static class Builder {
@@ -288,7 +249,6 @@ public final class StubMapping implements StubMappingOrMappings {
     private Metadata metadata;
 
     private long insertionIndex;
-    private boolean isDirty;
 
     public Builder() {}
 
@@ -396,6 +356,7 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public String getRequiredScenarioState() {
       return requiredScenarioState;
     }
@@ -405,6 +366,7 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public String getNewScenarioState() {
       return newScenarioState;
     }
@@ -414,6 +376,7 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public List<PostServeActionDefinition> getPostServeActions() {
       return postServeActions;
     }
@@ -446,10 +409,12 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public long getInsertionIndex() {
       return insertionIndex;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Builder setInsertionIndex(long insertionIndex) {
       this.insertionIndex = insertionIndex;
       return this;
