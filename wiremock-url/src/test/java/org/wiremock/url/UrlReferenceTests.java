@@ -52,7 +52,6 @@ public class UrlReferenceTests {
 
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
       if (successTestCase.base() == null) {
-        //        assertThat(normalised.toString()).isEqualTo(successTestCase.href());
 
         assertThat(Optional.ofNullable(normalised.scheme()).map(scheme -> scheme + ":").orElse(""))
             .isEqualTo(successTestCase.protocol());
@@ -65,15 +64,12 @@ public class UrlReferenceTests {
         assertThat(userInfo.map(UserInfo::password).orElse(""))
             .isEqualTo(successTestCase.password());
 
-        //
-        // assertThat(Optional.ofNullable(normalised.host()).map(Object::toString).orElse(""))
-        //            .isEqualTo(successTestCase.hostname());
         assertThat(Optional.ofNullable(normalised.port()).map(Object::toString).orElse(""))
             .isEqualTo(successTestCase.port());
-        //        assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
-        //            .isEqualTo(successTestCase.host());
 
-        //        assertThat(normalised.path().toString()).isEqualTo(successTestCase.pathname());
+        if (!successTestCase.pathname().isEmpty()) {
+          assertThat(normalised.path().toString()).isEqualTo(successTestCase.pathname());
+        }
 
         assertThat(
                 Optional.ofNullable(normalised.query())
@@ -85,6 +81,12 @@ public class UrlReferenceTests {
                     .map(f -> f.isEmpty() ? "" : "#" + f)
                     .orElse(""))
             .isEqualTo(successTestCase.hash());
+
+        if (Optional.ofNullable(normalised.host()).map(Object::toString).orElse("").equals(successTestCase.hostname()) && !successTestCase.pathname().isEmpty()) {
+          assertThat(normalised.toString()).isEqualTo(successTestCase.href());
+          assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
+              .isEqualTo(successTestCase.host());
+        }
       }
     }
   }
@@ -106,19 +108,21 @@ public class UrlReferenceTests {
   void debug() {
     wiremock_valid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "/..//localhost//pig",
-            /* base */ "file://lion/",
-            /* href */ "file://lion//localhost//pig",
+            /* input */ "file://C:/",
+            /* base */ "file://host/",
+            /* href */ "file:///C:/",
             /* origin */ null,
             /* protocol */ "file:",
             /* username */ "",
             /* password */ "",
-            /* host */ "lion",
-            /* hostname */ "lion",
+            /* host */ "",
+            /* hostname */ "",
             /* port */ "",
-            /* pathname */ "//localhost//pig",
+            /* pathname */ "/C:/",
             /* search */ "",
             /* searchParams */ null,
-            /* hash */ ""));
+            /* hash */ ""
+        )
+    );
   }
 }

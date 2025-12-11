@@ -21,10 +21,13 @@ import static org.wiremock.url.Constants.unreserved;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Host {
+
+  Host normalise();
 
   static Host parse(String hostString) throws IllegalHost {
     return HostParser.INSTANCE.parse(hostString);
@@ -70,6 +73,16 @@ class HostParser implements CharSequenceParser<Host> {
     @Override
     public String toString() {
       return host;
+    }
+
+    @Override
+    public org.wiremock.url.Host normalise() {
+      var lowerCase = host.toLowerCase(Locale.ROOT);
+      if (lowerCase.equals(host)) {
+        return this;
+      } else {
+        return new Host(lowerCase);
+      }
     }
   }
 }

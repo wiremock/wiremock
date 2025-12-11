@@ -118,6 +118,7 @@ class AuthorityParser implements CharSequenceParser<Authority> {
 
     @Override
     public org.wiremock.url.Authority normalise() {
+      var normalisedHost = host.normalise();
       final Optional<Optional<Port>> normalisedPort;
       if (maybePort.isEmpty() || maybePort.get().isPresent()) {
         normalisedPort = maybePort;
@@ -125,17 +126,18 @@ class AuthorityParser implements CharSequenceParser<Authority> {
         normalisedPort = Optional.empty();
       }
       var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-      if (normalisedPort.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+      if (normalisedHost.equals(host) && normalisedPort.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
         return this;
       } else if (normalisedUserInfo == null) {
-        return new HostAndPort(host, normalisedPort.flatMap(identity()).orElse(null));
+        return new HostAndPort(normalisedHost, normalisedPort.flatMap(identity()).orElse(null));
       } else {
-        return new Authority(normalisedUserInfo, host, normalisedPort);
+        return new Authority(normalisedUserInfo, normalisedHost, normalisedPort);
       }
     }
 
     @Override
     public org.wiremock.url.Authority normalise(Scheme canonicalScheme) {
+      var normalisedHost = host.normalise();
       Port port = port();
       var normalisedPort = port == null ? null : port.normalise();
       final Optional<Optional<Port>> normalisedPort2;
@@ -147,12 +149,12 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       }
 
       var normalisedUserInfo = Optional.ofNullable(userInfo).map(UserInfo::normalise).orElse(null);
-      if (normalisedPort2.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+      if (normalisedHost.equals(host) && normalisedPort2.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
         return this;
       } else if (normalisedUserInfo == null) {
-        return new HostAndPort(host, normalisedPort);
+        return new HostAndPort(normalisedHost, normalisedPort);
       } else {
-        return new Authority(normalisedUserInfo, host, normalisedPort2);
+        return new Authority(normalisedUserInfo, normalisedHost, normalisedPort2);
       }
     }
   }
@@ -175,17 +177,24 @@ class AuthorityParser implements CharSequenceParser<Authority> {
 
     @Override
     public org.wiremock.url.HostAndPort normalise() {
+      var normalisedHost = host.normalise();
       var normalisedPort = port == null ? null : port.normalise();
-      return Objects.equals(normalisedPort, port) ? this : new HostAndPort(host, normalisedPort);
+      return normalised(normalisedHost, normalisedPort);
     }
 
     @Override
     public org.wiremock.url.HostAndPort normalise(Scheme canonicalScheme) {
-      if (port != null && Objects.equals(canonicalScheme.defaultPort(), port)) {
-        return new HostAndPort(host, null);
-      } else {
-        return this;
+      var normalisedHost = host.normalise();
+      var normalisedPort = port == null ? null : port.normalise();
+      if (Objects.equals(canonicalScheme.defaultPort(), normalisedPort)) {
+        normalisedPort = null;
       }
+      return normalised(normalisedHost, normalisedPort);
+    }
+
+    private HostAndPort normalised(Host normalisedHost, @Nullable Port normalisedPort) {
+      return normalisedHost.equals(host) && Objects.equals(normalisedPort, port) ? this
+          : new HostAndPort(normalisedHost, normalisedPort);
     }
   }
 }

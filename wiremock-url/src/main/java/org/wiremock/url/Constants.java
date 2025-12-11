@@ -23,7 +23,7 @@ class Constants {
   static final String unreserved = "-a-zA-Z0-9\\._~";
 
   @Language("RegExp")
-  static final String pctEncoded = "%[0-9A-F]{2}";
+  static final String pctEncoded = "%[0-9a-fA-F]{2}";
 
   @Language("RegExp")
   public static final String subDelims = "!\\$&'\\(\\)\\*\\+,;=";
