@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.stream.Collectors.toMap;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -134,5 +135,35 @@ public class StubMappingTest {
     assertThat(
         transformed.getResponse().getHeaders().getHeader("To-Remove").isPresent(), is(false));
     assertThat(transformed.getResponse().getHeaders().getHeader("To-Add").firstValue(), is("yyy"));
+  }
+
+  @Test
+  void stringFormIsJson() {
+    StubMapping stub = get("/foo").withHeader("One", equalTo("1")).willReturn(okJson("{}")).build();
+
+    assertThat(
+        stub.toString(),
+        jsonEquals(
+            """
+            {
+              "id": "${json-unit.any-string}",
+              "request": {
+                "headers": {
+                  "One": {
+                    "equalTo": "1"
+                  }
+                },
+                "method": "GET",
+                "url": "/foo"
+              },
+              "response": {
+                "body": "{}",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "status": 200
+              }
+            }
+            """));
   }
 }
