@@ -154,7 +154,7 @@ public class ImmutableRequest implements Request {
 
   @Override
   public Map<String, Cookie> getCookies() {
-    return null;
+    return Collections.emptyMap();
   }
 
   @Override
