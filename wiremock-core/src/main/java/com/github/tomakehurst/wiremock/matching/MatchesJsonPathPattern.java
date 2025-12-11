@@ -178,7 +178,7 @@ public class MatchesJsonPathPattern extends PathPattern {
       expressionResult = ListOrSingle.of(Json.write(obj));
     } else if (obj instanceof List) {
       final List<String> stringValues =
-          ((List<?>) obj).stream().map(Object::toString).collect(toList());
+          ((List<?>) obj).stream().map(String::valueOf).collect(toList());
       expressionResult = ListOrSingle.of(stringValues);
     } else if (obj instanceof Number || obj instanceof String || obj instanceof Boolean) {
       expressionResult = ListOrSingle.of(String.valueOf(obj));
