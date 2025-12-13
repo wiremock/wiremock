@@ -27,6 +27,8 @@ jetty-alpn-client = { module = "org.eclipse.jetty:jetty-alpn-client" }
 jetty-ee11-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet" }
 jetty-ee11-servlets = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlets" }
 jetty-ee11-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp" }
+jetty-ee11-websockets = { module = "org.eclipse.jetty.ee11.websocket:jetty-ee11-websocket-jakarta-server" }
+
 jetty-client = { module = "org.eclipse.jetty:jetty-client" }
 jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client" }
 jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport" }
@@ -114,6 +116,7 @@ jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
+jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }

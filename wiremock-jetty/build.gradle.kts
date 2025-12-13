@@ -20,6 +20,9 @@ dependencies {
     implementation(libs.jetty.http2.common)
     implementation(libs.jetty.http2.server)
 
+    implementation(libs.jetty.ee11.websockets)
+    implementation(libs.jakarta.websockets)
+
     runtimeOnly(libs.jetty.alpn.java.client)
     runtimeOnly(libs.jetty.alpn.java.server)
     runtimeOnly(libs.jetty.ee11.webapp)
