@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.notNullValue;
+
+import org.junit.jupiter.api.Test;
 
 public class ImmutableRequestTest {
 
