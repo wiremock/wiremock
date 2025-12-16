@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Manages WebSocket message channels. Similar to StubMappings, this class stores and manages
- * MessageChannel instances.
+ * Manages message channels. Similar to StubMappings, this class stores and manages MessageChannel
+ * instances of various types (WebSocket, SSE, etc.).
  */
 public class MessageChannels {
 
@@ -52,9 +52,24 @@ public class MessageChannels {
     return new ArrayList<>(channels.values());
   }
 
+  /** Returns all message channels of the specified type. */
+  public List<MessageChannel> getAllByType(ChannelType type) {
+    return channels.values().stream()
+        .filter(channel -> channel.getType() == type)
+        .collect(Collectors.toList());
+  }
+
   /** Returns all open message channels. */
   public List<MessageChannel> getAllOpen() {
     return channels.values().stream().filter(MessageChannel::isOpen).collect(Collectors.toList());
+  }
+
+  /** Returns all open message channels of the specified type. */
+  public List<MessageChannel> getAllOpenByType(ChannelType type) {
+    return channels.values().stream()
+        .filter(MessageChannel::isOpen)
+        .filter(channel -> channel.getType() == type)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -68,6 +83,27 @@ public class MessageChannels {
       RequestPattern requestPattern, Map<String, RequestMatcherExtension> customMatchers) {
     return channels.values().stream()
         .filter(MessageChannel::isOpen)
+        .filter(
+            channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Finds all message channels of the specified type whose originating request matches the given
+   * request pattern.
+   *
+   * @param type the channel type to filter by
+   * @param requestPattern the pattern to match against
+   * @param customMatchers custom request matchers
+   * @return list of matching message channels
+   */
+  public List<MessageChannel> findByTypeAndRequestPattern(
+      ChannelType type,
+      RequestPattern requestPattern,
+      Map<String, RequestMatcherExtension> customMatchers) {
+    return channels.values().stream()
+        .filter(MessageChannel::isOpen)
+        .filter(channel -> channel.getType() == type)
         .filter(
             channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
         .collect(Collectors.toList());
@@ -92,6 +128,28 @@ public class MessageChannels {
     return matchingChannels.size();
   }
 
+  /**
+   * Sends a message to all channels of the specified type matching the given request pattern.
+   *
+   * @param type the channel type to filter by
+   * @param requestPattern the pattern to match against
+   * @param message the message to send
+   * @param customMatchers custom request matchers
+   * @return the number of channels the message was sent to
+   */
+  public int sendMessageToMatchingByType(
+      ChannelType type,
+      RequestPattern requestPattern,
+      String message,
+      Map<String, RequestMatcherExtension> customMatchers) {
+    List<MessageChannel> matchingChannels =
+        findByTypeAndRequestPattern(type, requestPattern, customMatchers);
+    for (MessageChannel channel : matchingChannels) {
+      channel.sendMessage(message);
+    }
+    return matchingChannels.size();
+  }
+
   /** Clears all message channels, closing them first. */
   public void clear() {
     for (MessageChannel channel : channels.values()) {
@@ -105,9 +163,23 @@ public class MessageChannels {
     return channels.size();
   }
 
+  /** Returns the number of channels of the specified type. */
+  public int sizeByType(ChannelType type) {
+    return (int) channels.values().stream().filter(channel -> channel.getType() == type).count();
+  }
+
   /** Returns the number of open channels. */
   public int openCount() {
     return (int) channels.values().stream().filter(MessageChannel::isOpen).count();
+  }
+
+  /** Returns the number of open channels of the specified type. */
+  public int openCountByType(ChannelType type) {
+    return (int)
+        channels.values().stream()
+            .filter(MessageChannel::isOpen)
+            .filter(channel -> channel.getType() == type)
+            .count();
   }
 }
 

@@ -19,51 +19,28 @@ import com.github.tomakehurst.wiremock.http.Request;
 import java.util.UUID;
 
 /**
- * Represents a WebSocket message channel, storing the HTTP request used to initiate the WebSocket
- * session and a reference to the session itself.
+ * Represents a message channel, storing the HTTP request used to initiate the channel and providing
+ * methods to send messages and manage the channel lifecycle. Different implementations support
+ * different channel types (e.g., WebSocket, Server-Sent Events).
  */
-public class MessageChannel {
+public interface MessageChannel {
 
-  private final UUID id;
-  private final Request request;
-  private final WebSocketSession session;
+  /** Returns the type of this channel. */
+  ChannelType getType();
 
-  public MessageChannel(UUID id, Request request, WebSocketSession session) {
-    this.id = id;
-    this.request = request;
-    this.session = session;
-  }
+  /** Returns the unique identifier for this channel. */
+  UUID getId();
 
-  public MessageChannel(Request request, WebSocketSession session) {
-    this(UUID.randomUUID(), request, session);
-  }
+  /** Returns the HTTP request that was used to initiate this channel. */
+  Request getRequest();
 
-  public UUID getId() {
-    return id;
-  }
+  /** Returns whether this channel is currently open. */
+  boolean isOpen();
 
-  public Request getRequest() {
-    return request;
-  }
+  /** Sends a message through this channel. */
+  void sendMessage(String message);
 
-  public WebSocketSession getSession() {
-    return session;
-  }
-
-  public boolean isOpen() {
-    return session != null && session.isOpen();
-  }
-
-  public void sendMessage(String message) {
-    if (session != null && session.isOpen()) {
-      session.sendMessage(message);
-    }
-  }
-
-  public void close() {
-    if (session != null && session.isOpen()) {
-      session.close();
-    }
-  }
+  /** Closes this channel. */
+  void close();
 }
 

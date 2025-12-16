@@ -300,7 +300,15 @@ class ExtensionsTest {
     }
 
     @Override
-    public SendWebSocketMessageResult sendWebSocketMessage(
+    public SendChannelMessageResult sendChannelMessage(
+        com.github.tomakehurst.wiremock.websocket.ChannelType type,
+        RequestPattern requestPattern,
+        String message) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SendChannelMessageResult sendWebSocketMessage(
         RequestPattern requestPattern, String message) {
       throw new UnsupportedOperationException();
     }

@@ -17,17 +17,17 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Result model for sending a message to WebSocket channels. This is a convenience subclass of
- * {@link SendChannelMessageResult} for backward compatibility.
- *
- * @deprecated Use {@link SendChannelMessageResult} instead
- */
-@Deprecated
-public class SendWebSocketMessageResult extends SendChannelMessageResult {
+/** Result model for sending a message to channels. */
+public class SendChannelMessageResult {
 
-  public SendWebSocketMessageResult(@JsonProperty("channelsMessaged") int channelsMessaged) {
-    super(channelsMessaged);
+  private final int channelsMessaged;
+
+  public SendChannelMessageResult(@JsonProperty("channelsMessaged") int channelsMessaged) {
+    this.channelsMessaged = channelsMessaged;
+  }
+
+  public int getChannelsMessaged() {
+    return channelsMessaged;
   }
 }
 

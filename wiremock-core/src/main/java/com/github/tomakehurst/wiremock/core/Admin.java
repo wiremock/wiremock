@@ -18,8 +18,9 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -120,7 +121,27 @@ public interface Admin {
 
   GetGlobalSettingsResult getGlobalSettings();
 
-  SendWebSocketMessageResult sendWebSocketMessage(RequestPattern requestPattern, String message);
+  /**
+   * Sends a message to all channels of the specified type matching the given request pattern.
+   *
+   * @param type the channel type to target
+   * @param requestPattern the pattern to match against the original upgrade request
+   * @param message the message to send
+   * @return result containing the number of channels messaged
+   */
+  SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, String message);
+
+  /**
+   * Sends a message to all WebSocket channels matching the given request pattern. This is a
+   * convenience method that delegates to {@link #sendChannelMessage(ChannelType, RequestPattern,
+   * String)} with {@link ChannelType#WEBSOCKET}.
+   *
+   * @param requestPattern the pattern to match against the original upgrade request
+   * @param message the message to send
+   * @return result containing the number of channels messaged
+   */
+  SendChannelMessageResult sendWebSocketMessage(RequestPattern requestPattern, String message);
 
   MessageChannels getMessageChannels();
 }

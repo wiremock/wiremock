@@ -45,6 +45,7 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -547,12 +548,18 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public SendWebSocketMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, String message) {
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, String message) {
     String url = urlFor(SendWebSocketMessageTask.class);
-    String body = Json.write(new SendWebSocketMessageRequest(requestPattern, message));
+    String body = Json.write(new SendChannelMessageRequest(type, requestPattern, message));
     String response = postJsonAssertOkAndReturnBody(url, body);
-    return Json.read(response, SendWebSocketMessageResult.class);
+    return Json.read(response, SendChannelMessageResult.class);
+  }
+
+  @Override
+  public SendChannelMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    return sendChannelMessage(ChannelType.WEBSOCKET, requestPattern, message);
   }
 
   @Override

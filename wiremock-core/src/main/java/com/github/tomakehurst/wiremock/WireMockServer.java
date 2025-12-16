@@ -44,6 +44,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import java.util.List;
 import java.util.Set;
@@ -569,7 +570,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public SendWebSocketMessageResult sendWebSocketMessage(
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, String message) {
+    return wireMockApp.sendChannelMessage(type, requestPattern, message);
+  }
+
+  @Override
+  public SendChannelMessageResult sendWebSocketMessage(
       RequestPattern requestPattern, String message) {
     return wireMockApp.sendWebSocketMessage(requestPattern, message);
   }

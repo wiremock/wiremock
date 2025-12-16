@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageRequest;
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
-import com.github.tomakehurst.wiremock.admin.model.SendWebSocketMessageRequest;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
@@ -27,18 +27,17 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-/**
- * Admin task that sends a message to WebSocket channels matching a request pattern.
- */
-public class SendWebSocketMessageTask implements AdminTask {
+/** Admin task that sends a message to channels of a specific type matching a request pattern. */
+public class SendChannelMessageTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    SendWebSocketMessageRequest request =
-        Json.read(serveEvent.getRequest().getBodyAsString(), SendWebSocketMessageRequest.class);
+    SendChannelMessageRequest request =
+        Json.read(serveEvent.getRequest().getBodyAsString(), SendChannelMessageRequest.class);
 
     SendChannelMessageResult result =
-        admin.sendWebSocketMessage(request.getRequestPattern(), request.getMessage());
+        admin.sendChannelMessage(
+            request.getType(), request.getRequestPattern(), request.getMessage());
 
     return ResponseDefinitionBuilder.jsonResponse(result, HTTP_OK);
   }

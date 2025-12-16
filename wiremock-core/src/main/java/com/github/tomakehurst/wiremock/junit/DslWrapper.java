@@ -363,7 +363,15 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public SendWebSocketMessageResult sendWebSocketMessage(
+  public SendChannelMessageResult sendChannelMessage(
+      com.github.tomakehurst.wiremock.websocket.ChannelType type,
+      RequestPattern requestPattern,
+      String message) {
+    return admin.sendChannelMessage(type, requestPattern, message);
+  }
+
+  @Override
+  public SendChannelMessageResult sendWebSocketMessage(
       RequestPattern requestPattern, String message) {
     return admin.sendWebSocketMessage(requestPattern, message);
   }

@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.github.tomakehurst.wiremock.websocket;
 
 /**
- * Result model for sending a message to WebSocket channels. This is a convenience subclass of
- * {@link SendChannelMessageResult} for backward compatibility.
- *
- * @deprecated Use {@link SendChannelMessageResult} instead
+ * Represents the type of a message channel. This allows for different channel implementations (e.g.,
+ * WebSocket, Server-Sent Events) to be managed uniformly.
  */
-@Deprecated
-public class SendWebSocketMessageResult extends SendChannelMessageResult {
+public enum ChannelType {
+  /** WebSocket channel type */
+  WEBSOCKET,
 
-  public SendWebSocketMessageResult(@JsonProperty("channelsMessaged") int channelsMessaged) {
-    super(channelsMessaged);
-  }
+  /** Server-Sent Events channel type (for future use) */
+  SSE
 }
 

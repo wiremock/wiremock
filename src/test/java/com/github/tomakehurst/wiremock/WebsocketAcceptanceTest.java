@@ -21,7 +21,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.admin.model.SendWebSocketMessageResult;
+import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.CloseReason;
@@ -70,9 +70,9 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
       // Send messages via the admin API using request pattern matching
       RequestPattern pattern = newRequestPattern().withUrl("/notifications").build();
-      SendWebSocketMessageResult result1 =
+      SendChannelMessageResult result1 =
           wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
-      SendWebSocketMessageResult result2 =
+      SendChannelMessageResult result2 =
           wireMockServer.sendWebSocketMessage(pattern, "Second message");
 
       assertThat(result1.getChannelsMessaged(), is(1));
@@ -105,7 +105,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
       // Send message to all connections on /broadcast
       RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
-      SendWebSocketMessageResult result =
+      SendChannelMessageResult result =
           wireMockServer.sendWebSocketMessage(pattern, "Broadcast message");
 
       assertThat(result.getChannelsMessaged(), is(2));
@@ -136,7 +136,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
       // Send message only to /channel-a
       RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
-      SendWebSocketMessageResult result =
+      SendChannelMessageResult result =
           wireMockServer.sendWebSocketMessage(patternA, "Message for A");
 
       assertThat(result.getChannelsMessaged(), is(1));
@@ -168,7 +168,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
       // Send message to all /events/* channels using path pattern
       RequestPattern pattern =
           newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
-      SendWebSocketMessageResult result =
+      SendChannelMessageResult result =
           wireMockServer.sendWebSocketMessage(pattern, "Event notification");
 
       assertThat(result.getChannelsMessaged(), is(2));
@@ -197,7 +197,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     // Verify channel is registered
     RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
-    SendWebSocketMessageResult result1 =
+    SendChannelMessageResult result1 =
         wireMockServer.sendWebSocketMessage(pattern, "Before close");
     assertThat(result1.getChannelsMessaged(), is(1));
 
@@ -208,7 +208,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     Thread.sleep(100);
 
     // Verify channel is removed
-    SendWebSocketMessageResult result2 =
+    SendChannelMessageResult result2 =
         wireMockServer.sendWebSocketMessage(pattern, "After close");
     assertThat(result2.getChannelsMessaged(), is(0));
   }

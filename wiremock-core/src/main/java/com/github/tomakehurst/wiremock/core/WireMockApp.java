@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
@@ -705,12 +706,19 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public SendWebSocketMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, String message) {
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, String message) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
-    int count = messageChannels.sendMessageToMatching(requestPattern, message, customMatchers);
-    return new SendWebSocketMessageResult(count);
+    int count =
+        messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
+    return new SendChannelMessageResult(count);
+  }
+
+  @Override
+  public SendChannelMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    return sendChannelMessage(ChannelType.WEBSOCKET, requestPattern, message);
   }
 
   @Override
