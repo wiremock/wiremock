@@ -298,5 +298,16 @@ class ExtensionsTest {
     public GetGlobalSettingsResult getGlobalSettings() {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public SendWebSocketMessageResult sendWebSocketMessage(
+        RequestPattern requestPattern, String message) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

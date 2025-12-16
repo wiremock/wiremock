@@ -37,6 +37,7 @@ dependencies {
   testFixturesApi(libs.hamcrest)
   testFixturesApi(libs.handlebars)
   testFixturesApi(libs.jakarta.servlet.api)
+  testFixturesApi(libs.jakarta.websockets)
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.junit.jupiter.api)
 

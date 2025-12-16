@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
@@ -118,4 +119,8 @@ public interface Admin {
   void removeStubMappings(List<StubMapping> stubMappings);
 
   GetGlobalSettingsResult getGlobalSettings();
+
+  SendWebSocketMessageResult sendWebSocketMessage(RequestPattern requestPattern, String message);
+
+  MessageChannels getMessageChannels();
 }

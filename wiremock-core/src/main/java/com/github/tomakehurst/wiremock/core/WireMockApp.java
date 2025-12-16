@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
@@ -68,6 +69,7 @@ public class WireMockApp implements StubServer, Admin {
   private final List<GlobalSettingsListener> globalSettingsListeners;
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
   private final Map<String, ServeEventListener> serveEventListeners;
+  private final MessageChannels messageChannels;
 
   private Options options;
 
@@ -138,6 +140,7 @@ public class WireMockApp implements StubServer, Admin {
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
+    this.messageChannels = new MessageChannels();
 
     this.container = container;
     extensions.startAll();
@@ -189,6 +192,7 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
+    this.messageChannels = new MessageChannels();
     loadDefaultMappings();
   }
 
@@ -698,5 +702,19 @@ public class WireMockApp implements StubServer, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return extensions.getAllExtensionNames();
+  }
+
+  @Override
+  public SendWebSocketMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    Map<String, RequestMatcherExtension> customMatchers =
+        extensions.ofType(RequestMatcherExtension.class);
+    int count = messageChannels.sendMessageToMatching(requestPattern, message, customMatchers);
+    return new SendWebSocketMessageResult(count);
+  }
+
+  @Override
+  public MessageChannels getMessageChannels() {
+    return messageChannels;
   }
 }

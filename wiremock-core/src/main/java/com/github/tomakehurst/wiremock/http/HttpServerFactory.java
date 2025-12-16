@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 
 @FunctionalInterface
 public interface HttpServerFactory extends Extension {
@@ -29,5 +30,6 @@ public interface HttpServerFactory extends Extension {
   HttpServer buildHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler);
+      StubRequestHandler stubRequestHandler,
+      MessageChannels messageChannels);
 }

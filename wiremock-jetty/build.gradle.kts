@@ -21,6 +21,8 @@ dependencies {
     implementation(libs.jetty.http2.server)
 
     implementation(libs.jetty.ee11.websockets)
+    implementation(libs.jetty.ee11.websocket.jetty.server)
+    implementation(libs.jetty.websocket.jetty.api)
     implementation(libs.jakarta.websockets)
 
     runtimeOnly(libs.jetty.alpn.java.client)

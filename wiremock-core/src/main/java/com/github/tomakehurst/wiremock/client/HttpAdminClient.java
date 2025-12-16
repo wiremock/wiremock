@@ -545,4 +545,19 @@ public class HttpAdminClient implements Admin {
     String portPart = port == NO_PORT_DEFINED ? "" : ":" + port;
     return String.format(ADMIN_URL_PREFIX + pathSuffix, scheme, host, portPart, urlPathPrefix);
   }
+
+  @Override
+  public SendWebSocketMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    String url = urlFor(SendWebSocketMessageTask.class);
+    String body = Json.write(new SendWebSocketMessageRequest(requestPattern, message));
+    String response = postJsonAssertOkAndReturnBody(url, body);
+    return Json.read(response, SendWebSocketMessageResult.class);
+  }
+
+  @Override
+  public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+    throw new UnsupportedOperationException(
+        "MessageChannels are not accessible via the HTTP admin client");
+  }
 }

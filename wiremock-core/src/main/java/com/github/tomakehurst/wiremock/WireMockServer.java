@@ -44,6 +44,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -72,7 +73,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
     httpServer =
         httpServerFactory.buildHttpServer(
-            options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
+            options,
+            wireMockApp.buildAdminRequestHandler(),
+            stubRequestHandler,
+            wireMockApp.getMessageChannels());
 
     notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
 
@@ -562,5 +566,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return wireMockApp.getLoadedExtensionNames();
+  }
+
+  @Override
+  public SendWebSocketMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    return wireMockApp.sendWebSocketMessage(requestPattern, message);
+  }
+
+  @Override
+  public MessageChannels getMessageChannels() {
+    return wireMockApp.getMessageChannels();
   }
 }

@@ -118,6 +118,8 @@ public class AdminRoutes {
     router.add(GET, "/health", new HealthCheckTask());
 
     router.add(GET, "/version", new GetVersionTask());
+
+    router.add(POST, "/websockets/send", new SendWebSocketMessageTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

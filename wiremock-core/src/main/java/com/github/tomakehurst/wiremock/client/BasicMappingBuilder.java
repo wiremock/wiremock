@@ -70,6 +70,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
+  public MappingBuilder willOpenWebsocket(String channelName) {
+    this.responseDefBuilder = ResponseDefinitionBuilder.websocket(channelName);
+    return this;
+  }
+
+  @Override
   public BasicMappingBuilder atPriority(Integer priority) {
     this.priority = priority;
     return this;

@@ -361,4 +361,15 @@ public class DslWrapper implements Admin, Stubbing {
   public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
     return stubbing.findAllNearMissesFor(requestPatternBuilder);
   }
+
+  @Override
+  public SendWebSocketMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    return admin.sendWebSocketMessage(requestPattern, message);
+  }
+
+  @Override
+  public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+    return admin.getMessageChannels();
+  }
 }

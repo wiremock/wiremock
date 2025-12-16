@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import org.eclipse.jetty.server.Server;
@@ -50,6 +51,7 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
+  private MessageChannels messageChannels = new MessageChannels();
   private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach
@@ -94,7 +96,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageChannels);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -106,7 +109,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageChannels);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -118,7 +122,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageChannels);
 
     Field httpConnectorField = JettyHttpServer.class.getDeclaredField("httpConnector");
     httpConnectorField.setAccessible(true);
@@ -138,7 +143,8 @@ public class JettyHttpServerTest {
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().port(currentPort);
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageChannels);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
     assertTrue(exception instanceof FatalStartupException);

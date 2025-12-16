@@ -97,7 +97,11 @@ public class ResponseDefinitionBuilder {
         .build();
   }
 
-  public ResponseDefinitionBuilder but() {
+  public static ResponseDefinitionBuilder websocket(String channelName) {
+    return null;
+  }
+
+    public ResponseDefinitionBuilder but() {
     return this;
   }
 

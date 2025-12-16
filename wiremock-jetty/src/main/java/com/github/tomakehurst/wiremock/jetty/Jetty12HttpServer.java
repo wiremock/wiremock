@@ -39,12 +39,16 @@ import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.servlet.NotMatchedServlet;
 import com.github.tomakehurst.wiremock.jetty.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.jetty.ssl.SslContexts;
+import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import jakarta.servlet.DispatcherType;
 import java.util.*;
 import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee11.servlet.*;
 import org.eclipse.jetty.ee11.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketServletContainerInitializer;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
@@ -68,8 +72,15 @@ public class Jetty12HttpServer extends JettyHttpServer {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
       JettySettings jettySettings,
-      ThreadPool threadPool) {
-    super(options, adminRequestHandler, stubRequestHandler, jettySettings, threadPool);
+      ThreadPool threadPool,
+      MessageChannels messageChannels) {
+    super(
+        options,
+        adminRequestHandler,
+        stubRequestHandler,
+        jettySettings,
+        threadPool,
+        messageChannels);
   }
 
   @Override
@@ -381,6 +392,29 @@ public class Jetty12HttpServer extends JettyHttpServer {
     if (stubCorsEnabled) {
       addCorsFilter(mockServiceContext);
     }
+
+    // Configure WebSocket support using the filter-based approach
+    // This ensures non-WebSocket requests pass through to the normal servlet chain
+    JettyWebSocketServletContainerInitializer.configure(
+        mockServiceContext,
+        (servletContext, container) -> {
+          // Add WebSocket mapping that accepts all WebSocket upgrade requests
+          container.addMapping(
+              "/*",
+              (upgradeRequest, upgradeResponse) -> {
+                // Convert the upgrade request to a WireMock Request and create a snapshot
+                // We need to create a LoggedRequest snapshot because the servlet request
+                // becomes invalid after the WebSocket upgrade completes
+                com.github.tomakehurst.wiremock.http.Request servletRequest =
+                    new WireMockHttpServletRequestAdapter(
+                        upgradeRequest.getHttpServletRequest(), null, false);
+                com.github.tomakehurst.wiremock.http.Request wireMockRequest =
+                    LoggedRequest.createFrom(servletRequest);
+
+                // Create and return the WebSocket endpoint
+                return new WireMockWebSocketEndpoint(messageChannels, wireMockRequest);
+              });
+        });
 
     decorateMockServiceContextAfterConfig(mockServiceContext);
 

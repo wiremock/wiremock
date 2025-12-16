@@ -28,6 +28,8 @@ jetty-ee11-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet" }
 jetty-ee11-servlets = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlets" }
 jetty-ee11-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp" }
 jetty-ee11-websockets = { module = "org.eclipse.jetty.ee11.websocket:jetty-ee11-websocket-jakarta-server" }
+jetty-ee11-websocket-jetty-server = { module = "org.eclipse.jetty.ee11.websocket:jetty-ee11-websocket-jetty-server" }
+jetty-websocket-jetty-api = { module = "org.eclipse.jetty.websocket:jetty-websocket-jetty-api" }
 
 jetty-client = { module = "org.eclipse.jetty:jetty-client" }
 jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client" }
