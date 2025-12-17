@@ -15,23 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
-import jakarta.websocket.ClientEndpointConfig;
-import jakarta.websocket.CloseReason;
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.Endpoint;
-import jakarta.websocket.EndpointConfig;
-import jakarta.websocket.MessageHandler;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
-import org.junit.jupiter.api.Test;
-
-import java.net.URI;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -39,33 +22,34 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import org.junit.jupiter.api.Test;
+
 public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
-  WebSocketContainer websocketClient = ContainerProvider.getWebSocketContainer();
-  WebsocketTestClient testClient = new WebsocketTestClient();
-
   @Test
-  void websocketConnectionCanBeEstablished() throws Exception {
-    NotificationsClientEndpoint endpoint = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
-
-    URI url = URI.create("ws://localhost:" + wireMockServer.port() + "/notifications");
-    try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, url)) {
+  void websocketConnectionCanBeEstablished() {
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/notifications";
+    testClient.withWebsocketSession(url, session -> {
       assertThat(session.isOpen(), is(true));
-      session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-    }
+      return null;
+    });
   }
 
   @Test
   void canSendMessageToWebsocketViaAdminApi() {
+    WebsocketTestClient testClient = new WebsocketTestClient();
     String url = "ws://localhost:" + wireMockServer.port() + "/notifications";
     testClient.withWebsocketSession(url, session -> {
 
       RequestPattern pattern = newRequestPattern().withUrl("/notifications").build();
       SendChannelMessageResult result1 =
-              wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
+          wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
       SendChannelMessageResult result2 =
-              wireMockServer.sendWebSocketMessage(pattern, "Second message");
+          wireMockServer.sendWebSocketMessage(pattern, "Second message");
 
       assertThat(result1.getChannelsMessaged(), is(1));
       assertThat(result2.getChannelsMessaged(), is(1));
@@ -79,149 +63,95 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void canSendMessageToMultipleWebsocketConnections() throws Exception {
-    NotificationsClientEndpoint endpoint1 = new NotificationsClientEndpoint();
-    NotificationsClientEndpoint endpoint2 = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+  void canSendMessageToMultipleWebsocketConnections() {
+    WebsocketTestClient testClient1 = new WebsocketTestClient();
+    WebsocketTestClient testClient2 = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/broadcast";
 
-    URI url = URI.create("ws://localhost:" + wireMockServer.port() + "/broadcast");
-    try (Session session1 = websocketClient.connectToServer(endpoint1, endpointConfig, url);
-        Session session2 = websocketClient.connectToServer(endpoint2, endpointConfig, url)) {
-      // Give the server a moment to register the channels
-      Thread.sleep(100);
+    testClient1.withWebsocketSession(url, session1 ->
+        testClient2.withWebsocketSession(url, session2 -> {
 
-      // Send message to all connections on /broadcast
-      RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
-      SendChannelMessageResult result =
-          wireMockServer.sendWebSocketMessage(pattern, "Broadcast message");
+          RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
+          SendChannelMessageResult result =
+              wireMockServer.sendWebSocketMessage(pattern, "Broadcast message");
 
-      assertThat(result.getChannelsMessaged(), is(2));
+          assertThat(result.getChannelsMessaged(), is(2));
 
-      String message1 = endpoint1.messageQueue.poll(5, SECONDS);
-      String message2 = endpoint2.messageQueue.poll(5, SECONDS);
+          return null;
+        }));
 
-      assertThat(message1, is("Broadcast message"));
-      assertThat(message2, is("Broadcast message"));
-
-      session1.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-      session2.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-    }
+    waitAtMost(5, SECONDS).until(() -> testClient1.getMessages().contains("Broadcast message"));
+    waitAtMost(5, SECONDS).until(() -> testClient2.getMessages().contains("Broadcast message"));
   }
 
   @Test
-  void requestPatternMatchingFiltersWebsocketChannels() throws Exception {
-    NotificationsClientEndpoint endpoint1 = new NotificationsClientEndpoint();
-    NotificationsClientEndpoint endpoint2 = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+  void requestPatternMatchingFiltersWebsocketChannels() {
+    WebsocketTestClient testClientA = new WebsocketTestClient();
+    WebsocketTestClient testClientB = new WebsocketTestClient();
+    String urlA = "ws://localhost:" + wireMockServer.port() + "/channel-a";
+    String urlB = "ws://localhost:" + wireMockServer.port() + "/channel-b";
 
-    URI url1 = URI.create("ws://localhost:" + wireMockServer.port() + "/channel-a");
-    URI url2 = URI.create("ws://localhost:" + wireMockServer.port() + "/channel-b");
-    try (Session session1 = websocketClient.connectToServer(endpoint1, endpointConfig, url1);
-        Session session2 = websocketClient.connectToServer(endpoint2, endpointConfig, url2)) {
-      // Give the server a moment to register the channels
-      Thread.sleep(100);
+    testClientA.withWebsocketSession(urlA, sessionA ->
+        testClientB.withWebsocketSession(urlB, sessionB -> {
 
-      // Send message only to /channel-a
-      RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
-      SendChannelMessageResult result =
-          wireMockServer.sendWebSocketMessage(patternA, "Message for A");
+          RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
+          SendChannelMessageResult result =
+              wireMockServer.sendWebSocketMessage(patternA, "Message for A");
 
-      assertThat(result.getChannelsMessaged(), is(1));
+          assertThat(result.getChannelsMessaged(), is(1));
 
-      String message1 = endpoint1.messageQueue.poll(2, SECONDS);
-      String message2 = endpoint2.messageQueue.poll(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+          return null;
+        }));
 
-      assertThat(message1, is("Message for A"));
-      assertThat(message2, is((String) null)); // endpoint2 should not receive the message
-
-      session1.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-      session2.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-    }
+    waitAtMost(5, SECONDS).until(() -> testClientA.getMessages().contains("Message for A"));
+    // Verify client B did not receive the message
+    assertThat(testClientB.getMessages().isEmpty(), is(true));
   }
 
   @Test
-  void urlPatternMatchingWorksForWebsocketChannels() throws Exception {
-    NotificationsClientEndpoint endpoint1 = new NotificationsClientEndpoint();
-    NotificationsClientEndpoint endpoint2 = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+  void urlPatternMatchingWorksForWebsocketChannels() {
+    WebsocketTestClient testClient1 = new WebsocketTestClient();
+    WebsocketTestClient testClient2 = new WebsocketTestClient();
+    String url1 = "ws://localhost:" + wireMockServer.port() + "/events/user1";
+    String url2 = "ws://localhost:" + wireMockServer.port() + "/events/user2";
 
-    URI url1 = URI.create("ws://localhost:" + wireMockServer.port() + "/events/user1");
-    URI url2 = URI.create("ws://localhost:" + wireMockServer.port() + "/events/user2");
-    try (Session session1 = websocketClient.connectToServer(endpoint1, endpointConfig, url1);
-        Session session2 = websocketClient.connectToServer(endpoint2, endpointConfig, url2)) {
-      // Give the server a moment to register the channels
-      Thread.sleep(100);
+    testClient1.withWebsocketSession(url1, session1 ->
+        testClient2.withWebsocketSession(url2, session2 -> {
 
-      // Send message to all /events/* channels using path pattern
-      RequestPattern pattern =
-          newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
-      SendChannelMessageResult result =
-          wireMockServer.sendWebSocketMessage(pattern, "Event notification");
+          RequestPattern pattern =
+              newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
+          SendChannelMessageResult result =
+              wireMockServer.sendWebSocketMessage(pattern, "Event notification");
 
-      assertThat(result.getChannelsMessaged(), is(2));
+          assertThat(result.getChannelsMessaged(), is(2));
 
-      String message1 = endpoint1.messageQueue.poll(5, SECONDS);
-      String message2 = endpoint2.messageQueue.poll(5, SECONDS);
+          return null;
+        }));
 
-      assertThat(message1, is("Event notification"));
-      assertThat(message2, is("Event notification"));
-
-      session1.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-      session2.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-    }
+    waitAtMost(5, SECONDS).until(() -> testClient1.getMessages().contains("Event notification"));
+    waitAtMost(5, SECONDS).until(() -> testClient2.getMessages().contains("Event notification"));
   }
 
   @Test
   void channelIsRemovedWhenWebsocketCloses() throws Exception {
-    NotificationsClientEndpoint endpoint = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/temp-channel";
 
-    URI url = URI.create("ws://localhost:" + wireMockServer.port() + "/temp-channel");
-    Session session = websocketClient.connectToServer(endpoint, endpointConfig, url);
-
-    // Give the server a moment to register the channel
-    Thread.sleep(100);
-
-    // Verify channel is registered
-    RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
-    SendChannelMessageResult result1 =
-        wireMockServer.sendWebSocketMessage(pattern, "Before close");
-    assertThat(result1.getChannelsMessaged(), is(1));
-
-    // Close the session
-    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
+    testClient.withWebsocketSession(url, session -> {
+      RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
+      SendChannelMessageResult result1 =
+          wireMockServer.sendWebSocketMessage(pattern, "Before close");
+      assertThat(result1.getChannelsMessaged(), is(1));
+      return null;
+    });
 
     // Give the server a moment to process the close
     Thread.sleep(100);
 
     // Verify channel is removed
+    RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
     SendChannelMessageResult result2 =
         wireMockServer.sendWebSocketMessage(pattern, "After close");
     assertThat(result2.getChannelsMessaged(), is(0));
-  }
-
-  public static class NotificationsClientEndpoint extends Endpoint
-      implements MessageHandler.Whole<String> {
-
-    private final LinkedBlockingDeque<String> messageQueue = new LinkedBlockingDeque<>();
-    private final CountDownLatch closeLatch = new CountDownLatch(1);
-
-    @Override
-    public void onClose(Session session, CloseReason closeReason) {
-      closeLatch.countDown();
-    }
-
-    @Override
-    public void onError(Session session, Throwable cause) {}
-
-    @Override
-    public void onOpen(Session session, EndpointConfig config) {
-      session.addMessageHandler(this);
-    }
-
-    @Override
-    public void onMessage(String message) {
-      messageQueue.offer(message);
-    }
   }
 }
