@@ -54,7 +54,7 @@ final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
     @Override
     public PathAndQuery normalise() {
       var normalisedPath = path.normalise();
-      if (normalisedPath.equals(Path.EMPTY)) {
+      if (normalisedPath.isEmpty()) {
         normalisedPath = Path.ROOT;
       }
       var normalisedQuery = query == null ? null : query.normalise();

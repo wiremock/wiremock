@@ -22,7 +22,7 @@ import static org.wiremock.url.Scheme.specialSchemes;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
-public interface Query extends PctEncoded {
+public interface Query extends PercentEncoded {
   static Query parse(CharSequence query) throws IllegalQuery {
     return QueryParser.INSTANCE.parse(query);
   }
@@ -128,22 +128,14 @@ class QueryParser implements CharSequenceParser<Query> {
     }
 
     private boolean shouldPercentEncodeInQuery(char c, boolean specialScheme) {
-      // WhatWG query percent-encode set:
-      // - C0 controls (0x00-0x1F)
-      // - Space (0x20)
-      // - " (0x22)
-      // - # (0x23)
-      // - < (0x3C)
-      // - > (0x3E)
-      // - Characters > 0x7E (non-ASCII)
-
       if (c <= 0x1F) return true; // C0 controls
       if (c == 0x20) return true; // space
       if (c == '"') return true; // 0x22
       if (c == '#') return true; // 0x23
+      // WhatWG URL makes `'` a special case for its magic schemes
+      if (specialScheme && c == '\'') return true; // 0x27
       if (c == '<') return true; // 0x3C
       if (c == '>') return true; // 0x3E
-      if (specialScheme && c == '\'') return true; // 0x27
       return c > 0x7E; // non-ASCII
     }
   }

@@ -136,7 +136,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
       } else {
         if (hierarchicalPart.authority != null) {
-          if (hierarchicalPart.path.equals(Path.ROOT) && query == null && fragment == null) {
+          if (hierarchicalPart.path.isEmpty() && query == null && fragment == null) {
             return new BaseUrlParser.BaseUrl(scheme, hierarchicalPart.authority);
           } else {
             return Url.builder(scheme, hierarchicalPart.authority)

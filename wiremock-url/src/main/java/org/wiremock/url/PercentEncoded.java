@@ -15,6 +15,6 @@
  */
 package org.wiremock.url;
 
-public interface PctEncoded extends CharSequence {
+public interface PercentEncoded extends CharSequence {
   String decode();
 }

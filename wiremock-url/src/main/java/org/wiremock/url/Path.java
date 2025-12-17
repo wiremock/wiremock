@@ -42,6 +42,10 @@ public interface Path {
   Path normalise();
 
   Path resolve(Path other);
+
+  default boolean isEmpty() {
+    return this.equals(Path.EMPTY);
+  }
 }
 
 class PathParser implements CharSequenceParser<Path> {

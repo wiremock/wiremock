@@ -19,7 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URLDecoder;
 
-public interface Segment extends PctEncoded {
+public interface Segment extends PercentEncoded {
   Segment EMPTY = new SegmentImpl("");
   Segment DOT = new SegmentImpl(".");
   Segment DOT_DOT = new SegmentImpl("..");

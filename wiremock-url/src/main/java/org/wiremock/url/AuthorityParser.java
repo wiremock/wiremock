@@ -126,7 +126,9 @@ class AuthorityParser implements CharSequenceParser<Authority> {
         normalisedPort = Optional.empty();
       }
       var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-      if (normalisedHost.equals(host) && normalisedPort.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+      if (normalisedHost.equals(host)
+          && normalisedPort.equals(maybePort)
+          && Objects.equals(normalisedUserInfo, userInfo)) {
         return this;
       } else if (normalisedUserInfo == null) {
         return new HostAndPort(normalisedHost, normalisedPort.flatMap(identity()).orElse(null));
@@ -149,7 +151,9 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       }
 
       var normalisedUserInfo = Optional.ofNullable(userInfo).map(UserInfo::normalise).orElse(null);
-      if (normalisedHost.equals(host) && normalisedPort2.equals(maybePort) && Objects.equals(normalisedUserInfo, userInfo)) {
+      if (normalisedHost.equals(host)
+          && normalisedPort2.equals(maybePort)
+          && Objects.equals(normalisedUserInfo, userInfo)) {
         return this;
       } else if (normalisedUserInfo == null) {
         return new HostAndPort(normalisedHost, normalisedPort);
@@ -193,7 +197,8 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     }
 
     private HostAndPort normalised(Host normalisedHost, @Nullable Port normalisedPort) {
-      return normalisedHost.equals(host) && Objects.equals(normalisedPort, port) ? this
+      return normalisedHost.equals(host) && Objects.equals(normalisedPort, port)
+          ? this
           : new HostAndPort(normalisedHost, normalisedPort);
     }
   }

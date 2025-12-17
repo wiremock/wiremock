@@ -51,7 +51,22 @@ public class UrlReferenceTests {
     }
 
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
-      if (successTestCase.base() == null) {
+      if (successTestCase.base() != null) {
+        Url base = null;
+        try {
+          base = Url.parse(successTestCase.base());
+          assertThat(base.toString()).isEqualTo(successTestCase.base());
+        } catch (IllegalUrl ignored) {
+
+        }
+        if (base != null) {
+          normalised = base.resolve(urlReference);
+        } else {
+          normalised = null;
+        }
+      }
+
+      if (normalised != null) {
 
         assertThat(Optional.ofNullable(normalised.scheme()).map(scheme -> scheme + ":").orElse(""))
             .isEqualTo(successTestCase.protocol());
@@ -82,7 +97,11 @@ public class UrlReferenceTests {
                     .orElse(""))
             .isEqualTo(successTestCase.hash());
 
-        if (Optional.ofNullable(normalised.host()).map(Object::toString).orElse("").equals(successTestCase.hostname()) && !successTestCase.pathname().isEmpty()) {
+        if (Optional.ofNullable(normalised.host())
+                .map(Object::toString)
+                .orElse("")
+                .equals(successTestCase.hostname())
+            && !successTestCase.pathname().isEmpty()) {
           assertThat(normalised.toString()).isEqualTo(successTestCase.href());
           assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
               .isEqualTo(successTestCase.host());
@@ -108,21 +127,19 @@ public class UrlReferenceTests {
   void debug() {
     wiremock_valid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "file://C:/",
-            /* base */ "file://host/",
-            /* href */ "file:///C:/",
-            /* origin */ null,
-            /* protocol */ "file:",
+            /* input */ "#",
+            /* base */ "test:test",
+            /* href */ "test:test#",
+            /* origin */ "null",
+            /* protocol */ "test:",
             /* username */ "",
             /* password */ "",
             /* host */ "",
             /* hostname */ "",
             /* port */ "",
-            /* pathname */ "/C:/",
+            /* pathname */ "test",
             /* search */ "",
             /* searchParams */ null,
-            /* hash */ ""
-        )
-    );
+            /* hash */ ""));
   }
 }

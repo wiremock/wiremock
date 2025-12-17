@@ -55,5 +55,12 @@
 { "input": "intent://test:test", "failure": true },
 { "input": "urn://test:test", "failure": true },
 { "input": "turn://test:test", "failure": true },
-{ "input": "stun://test:test", "failure": true }
+{ "input": "stun://test:test", "failure": true },
+{ "input": "http://example.com/😀", "href": "http://example.com/%3F%3F", "origin": "null", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%3F%3F", "search": "", "hash": "" },
+{ "input": "http://example.com/안녕", "href": "http://example.com/%EC%95%88%EB%85%95", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%EC%95%88%EB%85%95", "search": "", "hash": "" },
+{ "input": "http://example.com/नमस्ते", "href": "http://example.com/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "search": "", "hash": "" },
+{ "input": "http://example.com/こんにちは", "href": "http://example.com/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "search": "", "hash": "" },
+{ "input": "http://example.com/Здравствуйте", "href": "http://example.com/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "search": "", "hash": "" },
+{ "input": "http://example.com/مرحب,ا", "href": "http://example.com/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "search": "", "hash": "" },
+{ "input": "http://example.com/שָׁלוֹ,ם", "href": "http://example.com/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "search": "", "hash": "" }
 ]

@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public interface Fragment extends PctEncoded {
+public interface Fragment extends PercentEncoded {
 
   Fragment normalise();
 

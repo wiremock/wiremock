@@ -62,7 +62,7 @@ class RelativeRefParser implements CharSequenceParser<RelativeRef> {
       Authority normalisedAuthority =
           Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
       Path normalisedPath = path.normalise();
-      if (normalisedPath.equals(Path.EMPTY)) {
+      if (normalisedPath.isEmpty()) {
         normalisedPath = Path.ROOT;
       }
       Query normalisedQuery = query == null ? null : query.normalise();

@@ -28,7 +28,7 @@ public interface BaseUrl extends Url {
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default Path path() {
-    return Path.ROOT;
+    return Path.EMPTY;
   }
 
   @Override
@@ -46,7 +46,7 @@ public interface BaseUrl extends Url {
   }
 
   @Override
-  BaseUrl normalise();
+  Url normalise();
 
   static BaseUrl of(Scheme scheme, Authority authority) {
     return new BaseUrlParser.BaseUrl(scheme, authority);
@@ -88,14 +88,10 @@ class BaseUrlParser implements CharSequenceParser<BaseUrl> {
     }
 
     @Override
-    public BaseUrl normalise() {
+    public Url normalise() {
       Scheme canonicalScheme = scheme.canonical();
       Authority normalisedAuthority = authority.normalise(canonicalScheme);
-      if (scheme.equals(canonicalScheme) && authority.equals(normalisedAuthority)) {
-        return this;
-      } else {
-        return new BaseUrl(canonicalScheme, normalisedAuthority);
-      }
+      return Url.builder(canonicalScheme, normalisedAuthority).build();
     }
   }
 }

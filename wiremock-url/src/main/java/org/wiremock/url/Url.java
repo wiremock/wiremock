@@ -65,6 +65,41 @@ public non-sealed interface Url extends UrlReference {
   @Override
   Url normalise();
 
+  default Url resolve(CharSequence other) {
+    return resolve(parse(other));
+  }
+
+  default Url resolve(UrlReference other) {
+    if (other instanceof Url otherUrl) {
+      return otherUrl.normalise();
+    } else {
+      return this.transform(
+          builder -> {
+            Authority otherAuthority = other.authority();
+            if (otherAuthority != null) {
+              builder.setAuthority(otherAuthority);
+              Path path = other.path().isEmpty() ? Path.ROOT : other.path().normalise();
+              builder.setPath(path);
+              builder.setQuery(other.query());
+            } else {
+              if (other.path().isEmpty()) {
+                if (other.query() != null) {
+                  builder.setQuery(other.query());
+                }
+              } else {
+                if (other.path().isAbsolute()) {
+                  builder.setPath(other.path().normalise());
+                } else {
+                  builder.setPath(path().resolve(other.path()));
+                }
+                builder.setQuery(other.query());
+              }
+            }
+            builder.setFragment(other.fragment());
+          });
+    }
+  }
+
   static Url parse(CharSequence url) throws IllegalUrl {
     return UrlParser.INSTANCE.parse(url);
   }

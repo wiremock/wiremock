@@ -64,7 +64,7 @@ final class UrlParser implements CharSequenceParser<Url> {
       Scheme canonicalScheme = scheme.canonical();
       Authority normalisedAuthority = authority.normalise(canonicalScheme);
       Path normalisedPath = path.normalise();
-      if (normalisedPath.equals(Path.EMPTY)) {
+      if (normalisedPath.isEmpty()) {
         normalisedPath = Path.ROOT;
       }
       Query normalisedQuery = query == null ? null : query.normalise(canonicalScheme);
@@ -76,7 +76,7 @@ final class UrlParser implements CharSequenceParser<Url> {
           && Objects.equals(query, normalisedQuery)
           && Objects.equals(fragment, normalisedFragment)) {
         return this;
-      } else if (normalisedPath.equals(Path.ROOT)
+      } else if (normalisedPath.isEmpty()
           && normalisedQuery == null
           && normalisedFragment == null) {
         return new BaseUrlParser.BaseUrl(canonicalScheme, normalisedAuthority);
@@ -94,7 +94,7 @@ final class UrlParser implements CharSequenceParser<Url> {
 
       private Scheme scheme;
       private Authority authority;
-      private Path path = Path.EMPTY;
+      private Path path = Path.ROOT;
       @Nullable Query query = null;
       @Nullable Fragment fragment = null;
 
@@ -161,7 +161,7 @@ final class UrlParser implements CharSequenceParser<Url> {
 
       @Override
       public org.wiremock.url.Url build() {
-        if (path.equals(Path.ROOT) && query == null && fragment == null) {
+        if (path.isEmpty() && query == null && fragment == null) {
           return new BaseUrlParser.BaseUrl(scheme, authority);
         } else {
           return new Url(scheme, authority, path, query, fragment);
