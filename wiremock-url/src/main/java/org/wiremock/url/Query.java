@@ -131,6 +131,8 @@ class QueryParser implements CharSequenceParser<Query> {
       if (c <= 0x1F) return true; // C0 controls
       if (c == 0x20) return true; // space
       if (c == '"') return true; // 0x22
+      if (c == '{') return true;
+      if (c == '}') return true;
       if (c == '#') return true; // 0x23
       // WhatWG URL makes `'` a special case for its magic schemes
       if (specialScheme && c == '\'') return true; // 0x27

@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.wiremock.url.Authority;
+import org.wiremock.url.BaseUrl;
 import org.wiremock.url.Host;
 import org.wiremock.url.Port;
 import org.wiremock.url.Scheme;
@@ -196,14 +197,12 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
         // wss://origin.example.com:443 -> wss://proxy.example.com:443
         replacements.put(
             fullUrlPattern(originWsScheme, originUrl.host(), originActualPort),
-            Url.builder(proxyWsScheme, Authority.of(proxyUrl.host(), proxyActualPort))
-                .build()
-                .toString());
+            BaseUrl.of(proxyWsScheme, Authority.of(proxyUrl.host(), proxyActualPort)).toString());
 
         // wss://origin.example.com -> wss://proxy.example.com
         replacements.put(
             fullUrlPattern(originWsScheme, originUrl.host()),
-            Url.builder(proxyWsScheme, Authority.of(proxyUrl.host())).build().toString());
+            BaseUrl.of(proxyWsScheme, Authority.of(proxyUrl.host())).toString());
 
         // origin.example.com:443 -> proxy.example.com:443
         replacements.put(

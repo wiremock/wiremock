@@ -18,6 +18,7 @@ dependencies {
   testImplementation(platform(libs.jackson.bom))
   testImplementation(libs.jackson.core)
   testImplementation(libs.jackson.databind)
+  testImplementation(libs.jackson.annotations)
 
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

@@ -76,15 +76,16 @@ public non-sealed interface Url extends UrlReference {
       return this.transform(
           builder -> {
             Authority otherAuthority = other.authority();
+            Query otherQuery = other.query();
             if (otherAuthority != null) {
-              builder.setAuthority(otherAuthority);
+              builder.setAuthority(otherAuthority.normalise());
               Path path = other.path().isEmpty() ? Path.ROOT : other.path().normalise();
               builder.setPath(path);
-              builder.setQuery(other.query());
+              builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
             } else {
               if (other.path().isEmpty()) {
-                if (other.query() != null) {
-                  builder.setQuery(other.query());
+                if (otherQuery != null) {
+                  builder.setQuery(otherQuery.normalise());
                 }
               } else {
                 if (other.path().isAbsolute()) {
@@ -92,10 +93,12 @@ public non-sealed interface Url extends UrlReference {
                 } else {
                   builder.setPath(path().resolve(other.path()));
                 }
-                builder.setQuery(other.query());
+                builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
               }
             }
-            builder.setFragment(other.fragment());
+            Fragment otherFragment = other.fragment();
+            otherFragment = otherFragment == null ? null : otherFragment.normalise();
+            builder.setFragment(otherFragment);
           });
     }
   }

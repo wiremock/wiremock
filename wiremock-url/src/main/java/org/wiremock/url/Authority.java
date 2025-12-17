@@ -51,7 +51,13 @@ public interface Authority {
   }
 
   static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
-    return new AuthorityParser.Authority(userInfo, host, Optional.of(Optional.ofNullable(port)));
+    if (userInfo == null) {
+      return new AuthorityParser.HostAndPort(host, port);
+    } else {
+      var portOptional =
+          port == null ? Optional.<Optional<Port>>empty() : Optional.of(Optional.of(port));
+      return new AuthorityParser.Authority(userInfo, host, portOptional);
+    }
   }
 
   Authority normalise();

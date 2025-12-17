@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -37,6 +38,27 @@ class UrlTests {
       assertThat(url.path()).isEqualTo(urlTest.expectation.path);
       assertThat(url.query()).isEqualTo(urlTest.expectation.query);
       assertThat(url.fragment()).isEqualTo(urlTest.expectation.fragment);
+    }
+
+    @Test
+    void normalise() {
+      String urlString = "http://proxy.example.com";
+      Url parsed = Url.parse(urlString);
+      Url normalised = parsed.normalise();
+      assertThat(normalised).isEqualTo(parsed);
+      assertThat(normalised.toString()).isEqualTo(parsed.toString());
+    }
+
+    @Test
+    void settingPortWorks() {
+      String urlString = "http://example.com";
+
+      Url noPortToStartWith = Url.parse(urlString);
+      assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
+
+      Url stillNoPort = noPortToStartWith.transform(it -> it.setPort(null));
+      assertThat(noPortToStartWith).isEqualTo(stillNoPort);
+      assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
     }
 
     static Stream<UriReferenceParseTestCase> validUrls() {

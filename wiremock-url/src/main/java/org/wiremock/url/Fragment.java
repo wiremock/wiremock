@@ -121,6 +121,8 @@ class FragmentParser implements CharSequenceParser<Fragment> {
       if (c == '<') return true; // 0x3C
       if (c == '`') return true; // 0x3C
       if (c == '>') return true; // 0x3E
+      if (c == '{') return true;
+      if (c == '}') return true;
       return c > 0x7E; // non-ASCII
     }
   }
