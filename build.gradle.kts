@@ -40,6 +40,7 @@ dependencies {
   testFixturesApi(libs.jakarta.websockets)
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.junit.jupiter.api)
+  testFixturesApi(libs.awaitility)
 
   testFixturesImplementation(platform(libs.jetty.bom))
   testFixturesImplementation(libs.jetty.util)
@@ -80,7 +81,6 @@ dependencies {
   testImplementation(libs.archunit)
   testImplementation(libs.archunit.junit5.api)
   testImplementation(libs.assertj.core)
-  testImplementation(libs.awaitility)
   testImplementation(libs.jackson.databind)
   testImplementation(libs.jetty.client)
   testImplementation(libs.jetty.ee11.webapp)

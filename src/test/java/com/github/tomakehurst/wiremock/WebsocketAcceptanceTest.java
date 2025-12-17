@@ -15,14 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.ContainerProvider;
@@ -31,19 +26,23 @@ import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.MessageHandler;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
 import org.junit.jupiter.api.Test;
 
-/**
- * Acceptance tests for WebSocket mocking support. Tests that WebSocket connections can be
- * established and messages can be sent to connected clients via the admin API.
- */
+import java.net.URI;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.waitAtMost;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
   WebSocketContainer websocketClient = ContainerProvider.getWebSocketContainer();
+  WebsocketTestClient testClient = new WebsocketTestClient();
 
   @Test
   void websocketConnectionCanBeEstablished() throws Exception {
@@ -58,37 +57,25 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void canSendMessageToWebsocketViaAdminApi() throws Exception {
-    NotificationsClientEndpoint endpoint = new NotificationsClientEndpoint();
-    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
-    var responses = new ArrayList<String>();
+  void canSendMessageToWebsocketViaAdminApi() {
+    String url = "ws://localhost:" + wireMockServer.port() + "/notifications";
+    testClient.withWebsocketSession(url, session -> {
 
-    URI url = URI.create("ws://localhost:" + wireMockServer.port() + "/notifications");
-    try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, url)) {
-      // Give the server a moment to register the channel
-      Thread.sleep(100);
-
-      // Send messages via the admin API using request pattern matching
       RequestPattern pattern = newRequestPattern().withUrl("/notifications").build();
       SendChannelMessageResult result1 =
-          wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
+              wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
       SendChannelMessageResult result2 =
-          wireMockServer.sendWebSocketMessage(pattern, "Second message");
+              wireMockServer.sendWebSocketMessage(pattern, "Second message");
 
       assertThat(result1.getChannelsMessaged(), is(1));
       assertThat(result2.getChannelsMessaged(), is(1));
 
-      String message = endpoint.messageQueue.poll(5, SECONDS);
-      responses.add(message);
-      message = endpoint.messageQueue.poll(5, SECONDS);
-      responses.add(message);
+      return null;
+    });
 
-      session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Goodbye"));
-    }
-
-    assertThat(responses.size(), is(2));
-    assertThat(responses.get(0), is("Hello WebSocket!"));
-    assertThat(responses.get(1), is("Second message"));
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().size() == 2);
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("Hello WebSocket!"));
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("Second message"));
   }
 
   @Test
