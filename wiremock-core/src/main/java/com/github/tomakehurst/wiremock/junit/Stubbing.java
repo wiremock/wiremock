@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,4 +70,39 @@ public interface Stubbing {
   List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest);
 
   List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder);
+
+  // Message stub mapping methods
+
+  /**
+   * Registers a message stub mapping using a builder.
+   *
+   * @param builder the message stub mapping builder
+   * @return the registered MessageStubMapping
+   */
+  MessageStubMapping messageStubFor(MessageStubMappingBuilder builder);
+
+  /**
+   * Registers a message stub mapping directly.
+   *
+   * @param messageStubMapping the message stub mapping to register
+   * @return the registered MessageStubMapping
+   */
+  MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping);
+
+  /**
+   * Removes a message stub mapping.
+   *
+   * @param id the UUID of the message stub mapping to remove
+   */
+  void removeMessageStub(UUID id);
+
+  /**
+   * Gets all registered message stub mappings.
+   *
+   * @return list of all message stub mappings
+   */
+  List<MessageStubMapping> getMessageStubMappingsList();
+
+  /** Removes all message stub mappings. */
+  void resetMessageStubs();
 }

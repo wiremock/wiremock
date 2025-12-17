@@ -1097,6 +1097,44 @@ public class WireMock {
     return defaultInstance.get().getGlobalSettings();
   }
 
+  // Message stub mapping DSL methods
+
+  /**
+   * Creates a message stub mapping builder for the specified channel pattern.
+   *
+   * @param channelPattern the pattern to match channels against
+   * @return a new MessageStubMappingBuilder
+   */
+  public static MessageStubMappingBuilder messageStubOnChannel(
+      com.github.tomakehurst.wiremock.matching.RequestPattern channelPattern) {
+    return new BasicMessageStubMappingBuilder(channelPattern);
+  }
+
+  /**
+   * Creates a message stub mapping builder for the specified channel pattern builder.
+   *
+   * @param channelPatternBuilder the pattern builder to match channels against
+   * @return a new MessageStubMappingBuilder
+   */
+  public static MessageStubMappingBuilder messageStubOnChannel(
+      com.github.tomakehurst.wiremock.matching.RequestPatternBuilder channelPatternBuilder) {
+    return new BasicMessageStubMappingBuilder(channelPatternBuilder.build());
+  }
+
+  /**
+   * Creates a SendMessageActionBuilder for the specified message. Use this with the DSL to create
+   * message actions.
+   *
+   * <p>Example: {@code sendMessage("hello").onOriginatingChannel()}
+   *
+   * @param message the message to send
+   * @return a new SendMessageActionBuilder
+   */
+  public static com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder
+      sendMessage(String message) {
+    return new com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder(message);
+  }
+
   public enum JsonSchemaVersion {
     V4,
     V6,

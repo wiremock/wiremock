@@ -37,6 +37,44 @@ public class WebsocketTestClient {
 
   private final NotificationCapturingEndpoint endpoint = new NotificationCapturingEndpoint();
 
+  private Session persistentSession;
+
+  public void connect(String url) {
+    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+    URI uri = URI.create(url);
+    try {
+      persistentSession = websocketClient.connectToServer(endpoint, endpointConfig, uri);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean isConnected() {
+    return persistentSession != null && persistentSession.isOpen();
+  }
+
+  public void sendMessage(String message) {
+    if (persistentSession == null || !persistentSession.isOpen()) {
+      throw new IllegalStateException("Not connected. Call connect() first.");
+    }
+    try {
+      persistentSession.getBasicRemote().sendText(message);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void disconnect() {
+    if (persistentSession != null && persistentSession.isOpen()) {
+      try {
+        persistentSession.close();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+    persistentSession = null;
+  }
+
   public <T> T withWebsocketSession(String url, Function<Session, T> work) {
     ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
     URI uri = URI.create(url);

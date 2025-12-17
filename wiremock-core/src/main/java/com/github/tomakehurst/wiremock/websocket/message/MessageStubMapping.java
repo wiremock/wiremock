@@ -22,11 +22,13 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Defines a stub mapping for incoming websocket messages. When a message arrives on a websocket, it
@@ -62,6 +64,39 @@ public class MessageStubMapping {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  /**
+   * Creates a new MessageStubMapping by applying a transformer function to a new Builder.
+   *
+   * @param transformer the function to apply to the builder
+   * @return the built MessageStubMapping
+   */
+  public static MessageStubMapping create(Consumer<Builder> transformer) {
+    final Builder builder = builder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  /**
+   * Creates a new MessageStubMapping by applying a transformer function to a copy of this mapping.
+   *
+   * @param transformer the function to apply to the builder
+   * @return the transformed MessageStubMapping
+   */
+  public MessageStubMapping transform(Consumer<Builder> transformer) {
+    final Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  /**
+   * Creates a Builder initialized with the values from this MessageStubMapping.
+   *
+   * @return a new Builder with this mapping's values
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
   public UUID getId() {
@@ -177,9 +212,18 @@ public class MessageStubMapping {
     private Integer priority;
     private RequestPattern channelPattern;
     private StringValuePattern messagePattern;
-    private java.util.ArrayList<MessageAction> actions = new java.util.ArrayList<>();
+    private ArrayList<MessageAction> actions = new ArrayList<>();
 
     public Builder() {}
+
+    public Builder(MessageStubMapping existing) {
+      this.id = existing.id;
+      this.name = existing.name;
+      this.priority = existing.priority;
+      this.channelPattern = existing.channelPattern;
+      this.messagePattern = existing.messagePattern;
+      this.actions = new ArrayList<>(existing.actions);
+    }
 
     public Builder withId(UUID id) {
       this.id = id;
@@ -207,7 +251,7 @@ public class MessageStubMapping {
     }
 
     public Builder withActions(List<MessageAction> actions) {
-      this.actions = new java.util.ArrayList<>(actions);
+      this.actions = new ArrayList<>(actions);
       return this;
     }
 

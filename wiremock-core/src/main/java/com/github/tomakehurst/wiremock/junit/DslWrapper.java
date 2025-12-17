@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.junit;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -401,5 +402,32 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public MessageStubMappings getMessageStubMappings() {
     return admin.getMessageStubMappings();
+  }
+
+  // Stubbing interface methods for message stubs
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
+    return stubbing.messageStubFor(builder);
+  }
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping) {
+    return stubbing.messageStubFor(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStub(UUID id) {
+    stubbing.removeMessageStub(id);
+  }
+
+  @Override
+  public List<MessageStubMapping> getMessageStubMappingsList() {
+    return stubbing.getMessageStubMappingsList();
+  }
+
+  @Override
+  public void resetMessageStubs() {
+    stubbing.resetMessageStubs();
   }
 }

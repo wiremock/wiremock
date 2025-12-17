@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.messageStubOnChannel;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -368,5 +370,72 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("response1"));
     waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("response2"));
     assertThat(testClient.getMessages().size(), is(2));
+  }
+
+  @Test
+  void messageStubMappingCanBeCreatedUsingDsl() {
+    // Register a message stub using the DSL
+    wireMockServer.messageStubFor(
+        messageStubOnChannel(newRequestPattern().withUrl("/dsl-test"))
+            .withName("DSL stub")
+            .withMessageBody(equalTo("hello"))
+            .willTriggerActions(sendMessage("world").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/dsl-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "hello");
+    assertThat(response, is("world"));
+  }
+
+  @Test
+  void messageStubMappingDslSupportsMultipleActions() {
+    // Register a message stub with multiple actions using the DSL
+    wireMockServer.messageStubFor(
+        messageStubOnChannel(newRequestPattern().withUrl("/dsl-multi"))
+            .withName("DSL multi-action stub")
+            .withMessageBody(equalTo("trigger"))
+            .willTriggerActions(
+                sendMessage("first").onOriginatingChannel(),
+                sendMessage("second").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/dsl-multi";
+
+    testClient.sendMessage(url, "trigger");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("first"));
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("second"));
+    assertThat(testClient.getMessages().size(), is(2));
+  }
+
+  @Test
+  void messageStubMappingDslSupportsBroadcastToMatchingChannels() {
+    // Register a message stub that broadcasts to matching channels using the DSL
+    wireMockServer.messageStubFor(
+        messageStubOnChannel(newRequestPattern().withUrl("/dsl-broadcast"))
+            .withName("DSL broadcast stub")
+            .withMessageBody(equalTo("broadcast"))
+            .willTriggerActions(
+                sendMessage("broadcasted")
+                    .onChannelsMatching(newRequestPattern().withUrl("/dsl-broadcast"))));
+
+    WebsocketTestClient client1 = new WebsocketTestClient();
+    WebsocketTestClient client2 = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/dsl-broadcast";
+
+    // Connect both clients
+    client1.connect(url);
+    client2.connect(url);
+
+    waitAtMost(5, SECONDS).until(() -> client1.isConnected());
+    waitAtMost(5, SECONDS).until(() -> client2.isConnected());
+
+    // Send message from client1
+    client1.sendMessage("broadcast");
+
+    // Both clients should receive the broadcast
+    waitAtMost(5, SECONDS).until(() -> client1.getMessages().contains("broadcasted"));
+    waitAtMost(5, SECONDS).until(() -> client2.getMessages().contains("broadcasted"));
   }
 }
