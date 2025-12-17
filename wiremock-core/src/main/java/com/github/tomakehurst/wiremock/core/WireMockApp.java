@@ -42,6 +42,8 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
@@ -71,6 +73,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
   private final Map<String, ServeEventListener> serveEventListeners;
   private final MessageChannels messageChannels;
+  private final MessageStubMappings messageStubMappings;
 
   private Options options;
 
@@ -142,6 +145,7 @@ public class WireMockApp implements StubServer, Admin {
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
     this.messageChannels = new MessageChannels();
+    this.messageStubMappings = new MessageStubMappings(customMatchers);
 
     this.container = container;
     extensions.startAll();
@@ -194,6 +198,7 @@ public class WireMockApp implements StubServer, Admin {
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
     this.messageChannels = new MessageChannels();
+    this.messageStubMappings = new MessageStubMappings(requestMatchers);
     loadDefaultMappings();
   }
 
@@ -724,5 +729,25 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public MessageChannels getMessageChannels() {
     return messageChannels;
+  }
+
+  @Override
+  public MessageStubMappings getMessageStubMappings() {
+    return messageStubMappings;
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    messageStubMappings.add(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    messageStubMappings.remove(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    messageStubMappings.clear();
   }
 }

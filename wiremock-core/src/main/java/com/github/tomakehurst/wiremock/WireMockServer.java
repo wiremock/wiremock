@@ -46,6 +46,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -77,7 +79,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
             options,
             wireMockApp.buildAdminRequestHandler(),
             stubRequestHandler,
-            wireMockApp.getMessageChannels());
+            wireMockApp.getMessageChannels(),
+            wireMockApp.getMessageStubMappings());
 
     notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
 
@@ -584,5 +587,25 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public MessageChannels getMessageChannels() {
     return wireMockApp.getMessageChannels();
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    wireMockApp.addMessageStubMapping(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    wireMockApp.removeMessageStubMapping(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    wireMockApp.resetMessageStubMappings();
+  }
+
+  @Override
+  public MessageStubMappings getMessageStubMappings() {
+    return wireMockApp.getMessageStubMappings();
   }
 }

@@ -51,4 +51,3 @@ public class JettyWebSocketSession implements WebSocketSession {
     return session;
   }
 }
-

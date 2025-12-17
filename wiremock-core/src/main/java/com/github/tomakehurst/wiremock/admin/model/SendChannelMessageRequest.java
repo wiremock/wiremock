@@ -49,4 +49,3 @@ public class SendChannelMessageRequest {
     return message;
   }
 }
-

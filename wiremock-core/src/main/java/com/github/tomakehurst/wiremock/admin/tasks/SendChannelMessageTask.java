@@ -42,4 +42,3 @@ public class SendChannelMessageTask implements AdminTask {
     return ResponseDefinitionBuilder.jsonResponse(result, HTTP_OK);
   }
 }
-

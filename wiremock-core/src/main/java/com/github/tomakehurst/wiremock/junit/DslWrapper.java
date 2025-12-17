@@ -32,6 +32,10 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.UUID;
 
@@ -364,9 +368,7 @@ public class DslWrapper implements Admin, Stubbing {
 
   @Override
   public SendChannelMessageResult sendChannelMessage(
-      com.github.tomakehurst.wiremock.websocket.ChannelType type,
-      RequestPattern requestPattern,
-      String message) {
+      ChannelType type, RequestPattern requestPattern, String message) {
     return admin.sendChannelMessage(type, requestPattern, message);
   }
 
@@ -377,7 +379,27 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+  public MessageChannels getMessageChannels() {
     return admin.getMessageChannels();
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    admin.addMessageStubMapping(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    admin.removeMessageStubMapping(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    admin.resetMessageStubMappings();
+  }
+
+  @Override
+  public MessageStubMappings getMessageStubMappings() {
+    return admin.getMessageStubMappings();
   }
 }

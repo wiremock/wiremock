@@ -24,8 +24,9 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.jetty.servlet.MultipartRequestConfigElementBuilder;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -55,6 +56,7 @@ public abstract class JettyHttpServer implements HttpServer {
   protected final ServerConnector httpConnector;
   protected final ServerConnector httpsConnector;
   protected final MessageChannels messageChannels;
+  protected final MessageStubMappings messageStubMappings;
 
   protected ScheduledExecutorService scheduledExecutorService;
 
@@ -64,10 +66,12 @@ public abstract class JettyHttpServer implements HttpServer {
       StubRequestHandler stubRequestHandler,
       JettySettings jettySettings,
       ThreadPool threadPool,
-      MessageChannels messageChannels) {
+      MessageChannels messageChannels,
+      MessageStubMappings messageStubMappings) {
     this.options = options;
     this.jettySettings = jettySettings;
     this.messageChannels = messageChannels;
+    this.messageStubMappings = messageStubMappings;
 
     if (!options.getDisableStrictHttpHeaders()
         && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {

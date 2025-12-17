@@ -43,4 +43,3 @@ public interface MessageChannel {
   /** Closes this channel. */
   void close();
 }
-

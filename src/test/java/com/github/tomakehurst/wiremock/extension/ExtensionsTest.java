@@ -317,5 +317,27 @@ class ExtensionsTest {
     public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void addMessageStubMapping(
+        com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping messageStubMapping) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageStubMapping(UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resetMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings
+        getMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

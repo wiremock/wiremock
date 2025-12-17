@@ -19,22 +19,29 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.websocket.WebSocketMessageChannel;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 
 /**
  * WebSocket endpoint that accepts all WebSocket connections and registers them with the
- * MessageChannels.
+ * MessageChannels. When messages are received, they are matched against message stub mappings and
+ * the corresponding actions are executed.
  */
 public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding {
 
   private final MessageChannels messageChannels;
+  private final MessageStubMappings messageStubMappings;
   private final Request upgradeRequest;
   private MessageChannel messageChannel;
   private Session session;
 
-  public WireMockWebSocketEndpoint(MessageChannels messageChannels, Request upgradeRequest) {
+  public WireMockWebSocketEndpoint(
+      MessageChannels messageChannels,
+      MessageStubMappings messageStubMappings,
+      Request upgradeRequest) {
     this.messageChannels = messageChannels;
+    this.messageStubMappings = messageStubMappings;
     this.upgradeRequest = upgradeRequest;
   }
 
@@ -48,8 +55,10 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
 
   @Override
   public void onWebSocketText(String message) {
-    // For now, we don't process incoming messages
-    // This could be extended in the future to support request/response patterns
+    // Process the incoming message against message stub mappings
+    if (messageStubMappings != null && messageChannel != null) {
+      messageStubMappings.processMessage(messageChannel, message, messageChannels);
+    }
   }
 
   @Override
@@ -75,4 +84,3 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
     return messageChannel;
   }
 }
-

@@ -101,7 +101,7 @@ public class ResponseDefinitionBuilder {
     return null;
   }
 
-    public ResponseDefinitionBuilder but() {
+  public ResponseDefinitionBuilder but() {
     return this;
   }
 

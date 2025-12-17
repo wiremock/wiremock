@@ -27,4 +27,3 @@ public interface WebSocketSession {
   /** Closes the WebSocket session. */
   void close();
 }
-

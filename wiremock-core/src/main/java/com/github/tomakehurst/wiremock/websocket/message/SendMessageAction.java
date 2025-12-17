@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.websocket.message;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.websocket.MessageChannel;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * An action that sends a message to one or more channels. The target channels can be specified
+ * either by a request pattern (to match channels by their originating request) or by setting
+ * sendToOriginatingChannel to true to send back to the channel that received the triggering
+ * message.
+ */
+public class SendMessageAction implements MessageAction {
+
+  private final String message;
+  private final RequestPattern targetChannelPattern;
+  private final boolean sendToOriginatingChannel;
+
+  @JsonCreator
+  public SendMessageAction(
+      @JsonProperty("message") String message,
+      @JsonProperty("targetChannelPattern") RequestPattern targetChannelPattern,
+      @JsonProperty("sendToOriginatingChannel") Boolean sendToOriginatingChannel) {
+    this.message = message;
+    this.targetChannelPattern = targetChannelPattern;
+    this.sendToOriginatingChannel =
+        sendToOriginatingChannel != null ? sendToOriginatingChannel : false;
+  }
+
+  /**
+   * Creates an action that sends a message to the originating channel.
+   *
+   * @param message the message to send
+   * @return a new SendMessageAction
+   */
+  public static SendMessageAction toOriginatingChannel(String message) {
+    return new SendMessageAction(message, null, true);
+  }
+
+  /**
+   * Creates an action that sends a message to channels matching a request pattern.
+   *
+   * @param message the message to send
+   * @param targetChannelPattern the pattern to match target channels
+   * @return a new SendMessageAction
+   */
+  public static SendMessageAction toMatchingChannels(
+      String message, RequestPattern targetChannelPattern) {
+    return new SendMessageAction(message, targetChannelPattern, false);
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public RequestPattern getTargetChannelPattern() {
+    return targetChannelPattern;
+  }
+
+  public boolean isSendToOriginatingChannel() {
+    return sendToOriginatingChannel;
+  }
+
+  @Override
+  public void execute(
+      MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
+    if (sendToOriginatingChannel) {
+      originatingChannel.sendMessage(message);
+    } else if (targetChannelPattern != null) {
+      List<MessageChannel> matchingChannels =
+          messageChannels.findByRequestPattern(targetChannelPattern, Collections.emptyMap());
+      for (MessageChannel channel : matchingChannels) {
+        channel.sendMessage(message);
+      }
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    SendMessageAction that = (SendMessageAction) o;
+    return sendToOriginatingChannel == that.sendToOriginatingChannel
+        && Objects.equals(message, that.message)
+        && Objects.equals(targetChannelPattern, that.targetChannelPattern);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(message, targetChannelPattern, sendToOriginatingChannel);
+  }
+
+  @Override
+  public String toString() {
+    return "SendMessageAction{"
+        + "message='"
+        + message
+        + '\''
+        + ", targetChannelPattern="
+        + targetChannelPattern
+        + ", sendToOriginatingChannel="
+        + sendToOriginatingChannel
+        + '}';
+  }
+}

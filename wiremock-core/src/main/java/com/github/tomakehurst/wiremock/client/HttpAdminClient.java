@@ -46,6 +46,9 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -563,8 +566,32 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+  public MessageChannels getMessageChannels() {
     throw new UnsupportedOperationException(
         "MessageChannels are not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    throw new UnsupportedOperationException(
+        "Message stub mappings are not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    throw new UnsupportedOperationException(
+        "Message stub mappings are not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    throw new UnsupportedOperationException(
+        "Message stub mappings are not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public MessageStubMappings getMessageStubMappings() {
+    throw new UnsupportedOperationException(
+        "Message stub mappings are not accessible via the HTTP admin client");
   }
 }

@@ -76,4 +76,3 @@ public class WebSocketMessageChannel implements MessageChannel {
     }
   }
 }
-

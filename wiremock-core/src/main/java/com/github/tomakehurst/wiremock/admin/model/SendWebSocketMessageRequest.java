@@ -41,4 +41,3 @@ public class SendWebSocketMessageRequest {
     return message;
   }
 }
-

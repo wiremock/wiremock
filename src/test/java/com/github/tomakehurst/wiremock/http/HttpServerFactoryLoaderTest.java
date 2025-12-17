@@ -140,7 +140,8 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels) {
+        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels,
+        com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings messageStubMappings) {
       return null;
     }
   }
@@ -151,7 +152,8 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels) {
+        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels,
+        com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings messageStubMappings) {
       return null;
     }
   }
@@ -162,7 +164,8 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels) {
+        com.github.tomakehurst.wiremock.websocket.MessageChannels messageChannels,
+        com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings messageStubMappings) {
       return null;
     }
   }

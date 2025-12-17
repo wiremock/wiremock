@@ -27,9 +27,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-/**
- * Admin task that sends a message to WebSocket channels matching a request pattern.
- */
+/** Admin task that sends a message to WebSocket channels matching a request pattern. */
 public class SendWebSocketMessageTask implements AdminTask {
 
   @Override
@@ -43,4 +41,3 @@ public class SendWebSocketMessageTask implements AdminTask {
     return ResponseDefinitionBuilder.jsonResponse(result, HTTP_OK);
   }
 }
-

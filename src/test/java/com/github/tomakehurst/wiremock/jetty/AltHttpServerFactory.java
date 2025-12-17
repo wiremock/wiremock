@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.server.Handler;
@@ -36,7 +37,8 @@ public class AltHttpServerFactory implements HttpServerFactory {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
-      MessageChannels messageChannels) {
+      MessageChannels messageChannels,
+      MessageStubMappings messageStubMappings) {
 
     final Server jettyServer = new Server(0);
     ConsoleNotifier notifier = new ConsoleNotifier(false);

@@ -30,4 +30,3 @@ public class SendWebSocketMessageResult extends SendChannelMessageResult {
     super(channelsMessaged);
   }
 }
-

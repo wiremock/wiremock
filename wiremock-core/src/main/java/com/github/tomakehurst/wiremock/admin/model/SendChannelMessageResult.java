@@ -30,4 +30,3 @@ public class SendChannelMessageResult {
     return channelsMessaged;
   }
 }
-

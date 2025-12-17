@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.websocket.ChannelType;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -28,6 +26,10 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.ChannelType;
+import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,4 +146,28 @@ public interface Admin {
   SendChannelMessageResult sendWebSocketMessage(RequestPattern requestPattern, String message);
 
   MessageChannels getMessageChannels();
+
+  /**
+   * Adds a message stub mapping that will be matched against incoming messages on channels.
+   *
+   * @param messageStubMapping the message stub mapping to add
+   */
+  void addMessageStubMapping(MessageStubMapping messageStubMapping);
+
+  /**
+   * Removes a message stub mapping by its ID.
+   *
+   * @param id the ID of the message stub mapping to remove
+   */
+  void removeMessageStubMapping(UUID id);
+
+  /** Removes all message stub mappings. */
+  void resetMessageStubMappings();
+
+  /**
+   * Gets the message stub mappings registry.
+   *
+   * @return the message stub mappings
+   */
+  MessageStubMappings getMessageStubMappings();
 }
