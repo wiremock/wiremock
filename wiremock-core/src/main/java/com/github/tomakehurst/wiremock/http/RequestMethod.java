@@ -15,13 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static java.util.Arrays.asList;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+@JsonDeserialize(using = RequestMethodJsonDeserializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
   public static final RequestMethod GET = new RequestMethod("GET");
@@ -33,8 +36,11 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
-  public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
+  public static final RequestMethod GET_OR_HEAD = isOneOf(GET, HEAD);
   public static final RequestMethod QUERY = new RequestMethod("QUERY");
+
+  private static final List<RequestMethod> METHODS_WITH_ENTITY = Arrays.asList(PUT, PATCH, POST, QUERY);
+
   private final String name;
 
   public RequestMethod(String name) {
@@ -42,24 +48,42 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     this.name = name;
   }
 
-  @JsonCreator
   public static RequestMethod fromString(String value) {
     return new RequestMethod(value);
   }
 
+  public static Set<RequestMethod> fromStrings(Set<String> values) {
+    return values.stream().map(RequestMethod::fromString).collect(Collectors.toSet());
+  }
+
+  public static RequestMethod isOneOf(RequestMethod... methods) {
+    return isOneOf(setOf(methods));
+  }
+
+  public static MultiRequestMethodPattern.IsOneOf isOneOf(Set<RequestMethod> methods) {
+    return new MultiRequestMethodPattern.IsOneOf(methods);
+  }
+
+  public static RequestMethod isNoneOf(RequestMethod... methods) {
+    return isNoneOf(setOf(methods));
+  }
+
+  public static RequestMethod isNoneOf(Set<RequestMethod> methods) {
+    return new MultiRequestMethodPattern.IsNoneOf(methods);
+  }
+
+  @SafeVarargs
+  private static <T> Set<T> setOf(T... items) {
+    return Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(items)));
+  }
+
   @JsonValue
-  public String value() {
+  public Object value() {
     return name;
   }
 
-  public boolean isOneOf(RequestMethod... methods) {
-    return asList(methods).contains(this);
-  }
-
   public MatchResult match(RequestMethod method) {
-    boolean getOrHeadMatch =
-        this.equals(GET_OR_HEAD) && (method.equals(GET) || method.equals(HEAD));
-    return MatchResult.of(this.equals(ANY) || this.equals(method) || getOrHeadMatch);
+    return MatchResult.of(this.equals(ANY) || this.equals(method));
   }
 
   @Override
@@ -82,7 +106,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public boolean hasEntity() {
-    return (asList(PUT, PATCH, POST, QUERY).contains(this));
+    return (METHODS_WITH_ENTITY.contains(this));
   }
 
   @Override

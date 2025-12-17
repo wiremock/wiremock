@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -23,11 +25,13 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class ScenarioProcessor {
 
-  void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
+  List<StubMapping> putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
     Map<RequestPattern, List<StubMapping>> stubsGroupedByRequest =
         stubMappings.stream()
             .collect(
@@ -40,23 +44,32 @@ class ScenarioProcessor {
         stubsGroupedByRequest.entrySet().stream()
             .filter(entry -> entry.getValue().size() > 1)
             .collect(
-                Collectors.toMap(
+                toMap(
                     Map.Entry::getKey,
                     Map.Entry::getValue,
                     (entry1, entry2) -> entry1,
                     LinkedHashMap::new));
 
+    final List<StubMapping> stubsInScenario = new LinkedList<>();
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      final List<StubMapping> stubsInScenario = new LinkedList<>(entry.getValue());
-      Collections.reverse(stubsInScenario);
-      putStubsInScenario(scenarioIndex, stubsInScenario);
+      final List<StubMapping> batch = new LinkedList<>(entry.getValue());
+      Collections.reverse(batch);
+
+      stubsInScenario.addAll(putStubsInScenario(scenarioIndex, batch));
     }
+
+    Map<UUID, StubMapping> stubsInScenarioById =
+        stubsInScenario.stream().collect(toMap(StubMapping::getId, Function.identity()));
+
+    return stubMappings.stream()
+        .map(originalStub -> stubsInScenarioById.getOrDefault(originalStub.getId(), originalStub))
+        .toList();
   }
 
-  private void putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
+  private List<StubMapping> putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
     StubMapping firstScenario = stubMappings.get(0);
     String scenarioName =
         "scenario-"
@@ -68,20 +81,23 @@ class ScenarioProcessor {
                         firstScenario.getRequest().getUrl(),
                         firstScenario.getRequest().getUrlPath())));
 
-    int count = 1;
-    for (StubMapping stub : stubMappings) {
-      stub.setScenarioName(scenarioName);
-      if (count == 1) {
-        stub.setRequiredScenarioState(Scenario.STARTED);
-      } else {
-        stub.setRequiredScenarioState(scenarioName + "-" + count);
-      }
-
-      if (count < stubMappings.size()) {
-        stub.setNewScenarioState(scenarioName + "-" + (count + 1));
-      }
-
-      count++;
-    }
+    return IntStream.range(1, stubMappings.size() + 1)
+        .mapToObj(
+            i ->
+                stubMappings
+                    .get(i - 1)
+                    .transform(
+                        stub -> {
+                          stub.setScenarioName(scenarioName);
+                          if (i == 1) {
+                            stub.setRequiredScenarioState(Scenario.STARTED);
+                          } else {
+                            stub.setRequiredScenarioState(scenarioName + "-" + i);
+                          }
+                          if (i < stubMappings.size()) {
+                            stub.setNewScenarioState(scenarioName + "-" + (i + 1));
+                          }
+                        }))
+        .collect(toList());
   }
 }

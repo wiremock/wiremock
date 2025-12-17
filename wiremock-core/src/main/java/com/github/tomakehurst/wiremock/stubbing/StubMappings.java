@@ -24,11 +24,11 @@ public interface StubMappings {
 
   ServeEvent serveFor(ServeEvent request);
 
-  void addMapping(StubMapping mapping);
+  StubMapping addMapping(StubMapping mapping);
 
-  void removeMapping(StubMapping mapping);
+  StubMapping removeMapping(StubMapping mapping);
 
-  void editMapping(StubMapping stubMapping);
+  StubMapping editMapping(StubMapping stubMapping);
 
   void reset();
 

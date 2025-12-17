@@ -40,6 +40,7 @@ dependencies {
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.junit.jupiter.api)
 
+  testFixturesImplementation(platform(libs.jetty.bom))
   testFixturesImplementation(libs.jetty.util)
   testFixturesImplementation(platform(libs.junit.bom))
   testFixturesImplementation(libs.mockito.core)
@@ -50,6 +51,7 @@ dependencies {
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)
   testImplementation(libs.handlebars)
+  testImplementation(libs.commons.lang)
 
   testImplementation(platform(libs.jackson.bom))
   testImplementation(libs.jackson.annotations)

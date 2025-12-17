@@ -37,7 +37,7 @@ dependencies {
 }
 
 tasks.jar {
-    archiveBaseName.set("wiremock-core")
+    archiveBaseName.set("wiremock-httpclient-apache5")
 }
 
 publishing {

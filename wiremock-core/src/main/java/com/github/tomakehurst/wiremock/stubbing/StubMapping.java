@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,70 +18,95 @@ package com.github.tomakehurst.wiremock.stubbing;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDeserializer;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({
   "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
-public class StubMapping {
+public final class StubMapping implements StubMappingOrMappings {
 
   public static final int DEFAULT_PRIORITY = 5;
 
-  private UUID id = UUID.randomUUID();
-  private String name;
-
-  private Boolean persistent;
-
-  private RequestPattern request;
-  private ResponseDefinition response;
-  private Integer priority;
-  private String scenarioName;
-  private String requiredScenarioState;
-  private String newScenarioState;
-
-  private List<PostServeActionDefinition> postServeActions;
-
-  private List<ServeEventListenerDefinition> serveEventListeners;
-
-  private Metadata metadata;
-
-  private long insertionIndex;
-  private boolean isDirty = true;
-
-  public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
-    setRequest(requestPattern);
-    this.response = response;
-  }
-
-  public StubMapping() {
-    // Concession to Jackson
-  }
-
   public static final StubMapping NOT_CONFIGURED =
-      new StubMapping(null, ResponseDefinition.notConfigured());
+      StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
+  private final UUID id;
+  private final String name;
+  private final Boolean persistent;
+  private final RequestPattern request;
+  private final ResponseDefinition response;
+  private final Integer priority;
+  private final String scenarioName;
+  private final String requiredScenarioState;
+  private final String newScenarioState;
+  private final List<PostServeActionDefinition> postServeActions;
+  private final List<ServeEventListenerDefinition> serveEventListeners;
+  private final Metadata metadata;
+  private final long insertionIndex;
 
-  public static StubMapping buildFrom(String mappingSpecJson) {
-    return Json.read(mappingSpecJson, StubMapping.class);
+  @JsonCreator
+  public StubMapping(
+      @JsonProperty("id") UUID id,
+      @JsonProperty("name") String name,
+      @JsonProperty("persistent") Boolean persistent,
+      @JsonProperty("request") RequestPattern request,
+      @JsonProperty("response") ResponseDefinition response,
+      @JsonProperty("priority") Integer priority,
+      @JsonProperty("scenarioName") String scenarioName,
+      @JsonProperty("requiredScenarioState") String requiredScenarioState,
+      @JsonProperty("newScenarioState") String newScenarioState,
+      @JsonProperty("postServeActions")
+          @JsonDeserialize(using = PostServeActionDefinitionListDeserializer.class)
+          List<PostServeActionDefinition> postServeActions,
+      @JsonProperty("serveEventListeners") List<ServeEventListenerDefinition> serveEventListeners,
+      @JsonProperty("metadata") Metadata metadata,
+      @JsonProperty("insertionIndex") @JsonView(Json.PrivateView.class) long insertionIndex) {
+    this.id = id != null ? id : UUID.randomUUID();
+    this.name = name;
+    this.persistent = persistent;
+    this.request = getFirstNonNull(request, RequestPattern.ANYTHING);
+    this.response = getFirstNonNull(response, ResponseDefinition.ok());
+    this.priority = priority;
+    this.scenarioName = scenarioName;
+    this.requiredScenarioState = requiredScenarioState;
+    this.newScenarioState = newScenarioState;
+    this.postServeActions = postServeActions != null ? List.copyOf(postServeActions) : null;
+    this.serveEventListeners =
+        serveEventListeners != null ? List.copyOf(serveEventListeners) : null;
+    this.metadata = metadata;
+    this.insertionIndex = insertionIndex;
   }
 
-  public static String buildJsonStringFor(StubMapping mapping) {
-    return Json.write(mapping);
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public void setId(UUID uuid) {
-    this.id = uuid;
+  public static StubMapping create(Consumer<Builder> transformer) {
+    final Builder builder = builder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public StubMapping transform(Consumer<Builder> transformer) {
+    final Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
   public UUID getId() {
@@ -92,92 +117,48 @@ public class StubMapping {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public boolean shouldBePersisted() {
-    return persistent != null && persistent;
-  }
-
   public Boolean isPersistent() {
     return persistent;
   }
 
-  public void setPersistent(Boolean persistent) {
-    this.persistent = persistent;
-  }
-
   public RequestPattern getRequest() {
-    return getFirstNonNull(request, RequestPattern.ANYTHING);
+    return request;
   }
 
   public ResponseDefinition getResponse() {
-    return getFirstNonNull(response, ResponseDefinition.ok());
-  }
-
-  public void setRequest(RequestPattern request) {
-    this.request = request;
-  }
-
-  public void setResponse(ResponseDefinition response) {
-    this.response = response;
-  }
-
-  @Override
-  public String toString() {
-    return Json.write(this);
-  }
-
-  @JsonView(Json.PrivateView.class)
-  public long getInsertionIndex() {
-    return insertionIndex;
-  }
-
-  public void setInsertionIndex(long insertionIndex) {
-    this.insertionIndex = insertionIndex;
-  }
-
-  @JsonIgnore
-  public boolean isDirty() {
-    return isDirty;
-  }
-
-  @JsonIgnore
-  public void setDirty(boolean isDirty) {
-    this.isDirty = isDirty;
+    return response;
   }
 
   public Integer getPriority() {
     return priority;
   }
 
-  public void setPriority(Integer priority) {
-    this.priority = priority;
-  }
-
   public String getScenarioName() {
     return scenarioName;
-  }
-
-  public void setScenarioName(String scenarioName) {
-    this.scenarioName = scenarioName;
   }
 
   public String getRequiredScenarioState() {
     return requiredScenarioState;
   }
 
-  public void setRequiredScenarioState(String requiredScenarioState) {
-    this.requiredScenarioState = requiredScenarioState;
-  }
-
   public String getNewScenarioState() {
     return newScenarioState;
   }
 
-  public void setNewScenarioState(String newScenarioState) {
-    this.newScenarioState = newScenarioState;
+  public List<PostServeActionDefinition> getPostServeActions() {
+    return postServeActions;
+  }
+
+  public List<ServeEventListenerDefinition> getServeEventListeners() {
+    return serveEventListeners;
+  }
+
+  public Metadata getMetadata() {
+    return metadata;
+  }
+
+  public long getInsertionIndex() {
+    return insertionIndex;
   }
 
   @JsonIgnore
@@ -201,88 +182,34 @@ public class StubMapping {
     return thisPriority - otherPriority;
   }
 
-  public List<PostServeActionDefinition> getPostServeActions() {
-    return postServeActions;
+  public boolean shouldBePersisted() {
+    return persistent != null && persistent;
   }
 
-  public List<ServeEventListenerDefinition> getServeEventListeners() {
-    return serveEventListeners;
+  @Override
+  public List<StubMapping> getMappingOrMappings() {
+    return List.of(this);
   }
 
-  public void setPostServeActions(List<PostServeActionDefinition> postServeActions) {
-    this.postServeActions = postServeActions;
-  }
-
-  @SuppressWarnings("unchecked")
-  @JsonProperty("postServeActions")
-  public void setPostServeActions(Object postServeActions) {
-    if (postServeActions == null) {
-      return;
-    }
-
-    // Ensure backwards compatibility with object/map form
-    if (Map.class.isAssignableFrom(postServeActions.getClass())) {
-      this.postServeActions =
-          ((Map<String, Parameters>) postServeActions)
-              .entrySet().stream()
-                  .map(
-                      entry ->
-                          new PostServeActionDefinition(
-                              entry.getKey(), Parameters.from(entry.getValue())))
-                  .collect(Collectors.toList());
-    } else if (List.class.isAssignableFrom(postServeActions.getClass())) {
-      this.postServeActions =
-          ((List<Map<String, Object>>) postServeActions)
-              .stream()
-                  .map(item -> Json.mapToObject(item, PostServeActionDefinition.class))
-                  .collect(Collectors.toList());
-    }
-  }
-
-  public void setServeEventListenerDefinitions(
-      List<ServeEventListenerDefinition> serveEventListeners) {
-    this.serveEventListeners = serveEventListeners;
-  }
-
-  @SuppressWarnings("unchecked")
-  @JsonProperty("serveEventListeners")
-  public void setServeEventListeners(Object serveEventListeners) {
-    if (serveEventListeners == null) {
-      return;
-    }
-
-    if (List.class.isAssignableFrom(serveEventListeners.getClass())) {
-      this.serveEventListeners =
-          ((List<Map<String, Object>>) serveEventListeners)
-              .stream()
-                  .map(item -> Json.mapToObject(item, ServeEventListenerDefinition.class))
-                  .collect(Collectors.toList());
-    }
-  }
-
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public void setMetadata(Metadata metadata) {
-    this.metadata = metadata;
+  @Override
+  public boolean isMulti() {
+    return false;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     StubMapping that = (StubMapping) o;
-    return isDirty == that.isDirty
-        && Objects.equals(id, that.id)
-        && Objects.equals(request, that.request)
-        && Objects.equals(response, that.response)
+    return Objects.equals(id, that.id)
         && Objects.equals(priority, that.priority)
+        && Objects.equals(metadata, that.metadata)
         && Objects.equals(scenarioName, that.scenarioName)
-        && Objects.equals(requiredScenarioState, that.requiredScenarioState)
+        && Objects.equals(request, that.request)
         && Objects.equals(newScenarioState, that.newScenarioState)
+        && Objects.equals(response, that.response)
+        && Objects.equals(requiredScenarioState, that.requiredScenarioState)
         && Objects.equals(postServeActions, that.postServeActions)
-        && Objects.equals(metadata, that.metadata);
+        && Objects.equals(serveEventListeners, that.serveEventListeners);
   }
 
   @Override
@@ -292,11 +219,211 @@ public class StubMapping {
         request,
         response,
         priority,
-        scenarioName,
         requiredScenarioState,
         newScenarioState,
         postServeActions,
-        metadata,
-        isDirty);
+        serveEventListeners,
+        metadata);
+  }
+
+  @Override
+  public String toString() {
+    return Json.write(this);
+  }
+
+  public static class Builder {
+    private UUID id = UUID.randomUUID();
+    private String name;
+
+    private Boolean persistent;
+
+    private RequestPattern request;
+    private ResponseDefinition response;
+    private Integer priority;
+    private String scenarioName;
+    private String requiredScenarioState;
+    private String newScenarioState;
+
+    private List<PostServeActionDefinition> postServeActions;
+
+    private List<ServeEventListenerDefinition> serveEventListeners;
+
+    private Metadata metadata;
+
+    private long insertionIndex;
+
+    public Builder() {}
+
+    public Builder(StubMapping existing) {
+      this.id = existing.id;
+      this.name = existing.name;
+      this.persistent = existing.persistent;
+      this.request = existing.request;
+      this.response = existing.response;
+      this.priority = existing.priority;
+      this.scenarioName = existing.scenarioName;
+      this.requiredScenarioState = existing.requiredScenarioState;
+      this.newScenarioState = existing.newScenarioState;
+      this.postServeActions =
+          existing.postServeActions != null ? new ArrayList<>(existing.postServeActions) : null;
+      this.serveEventListeners =
+          existing.serveEventListeners != null
+              ? new ArrayList<>(existing.serveEventListeners)
+              : null;
+      this.metadata = existing.metadata;
+      this.insertionIndex = existing.insertionIndex;
+    }
+
+    public StubMapping build() {
+      return new StubMapping(
+          id,
+          name,
+          persistent,
+          request,
+          response,
+          priority,
+          scenarioName,
+          requiredScenarioState,
+          newScenarioState,
+          postServeActions,
+          serveEventListeners,
+          metadata,
+          insertionIndex);
+    }
+
+    public UUID getId() {
+      return id;
+    }
+
+    public Builder setId(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Boolean getPersistent() {
+      return persistent;
+    }
+
+    public Builder setPersistent(Boolean persistent) {
+      this.persistent = persistent;
+      return this;
+    }
+
+    public RequestPattern getRequest() {
+      return request;
+    }
+
+    public Builder setRequest(RequestPattern request) {
+      this.request = request;
+      return this;
+    }
+
+    public Builder request(Consumer<RequestPattern.Builder> transformer) {
+      return setRequest(request.transform(transformer));
+    }
+
+    public ResponseDefinition getResponse() {
+      return response;
+    }
+
+    public Builder setResponse(ResponseDefinition response) {
+      this.response = response;
+      return this;
+    }
+
+    public Builder response(Consumer<ResponseDefinition.Builder> transformer) {
+      return setResponse(response.transform(transformer));
+    }
+
+    public Integer getPriority() {
+      return priority;
+    }
+
+    public Builder setPriority(Integer priority) {
+      this.priority = priority;
+      return this;
+    }
+
+    public String getScenarioName() {
+      return scenarioName;
+    }
+
+    public Builder setScenarioName(String scenarioName) {
+      this.scenarioName = scenarioName;
+      return this;
+    }
+
+    @SuppressWarnings("unused")
+    public String getRequiredScenarioState() {
+      return requiredScenarioState;
+    }
+
+    public Builder setRequiredScenarioState(String requiredScenarioState) {
+      this.requiredScenarioState = requiredScenarioState;
+      return this;
+    }
+
+    @SuppressWarnings("unused")
+    public String getNewScenarioState() {
+      return newScenarioState;
+    }
+
+    public Builder setNewScenarioState(String newScenarioState) {
+      this.newScenarioState = newScenarioState;
+      return this;
+    }
+
+    @SuppressWarnings("unused")
+    public List<PostServeActionDefinition> getPostServeActions() {
+      return postServeActions;
+    }
+
+    public Builder setPostServeActions(List<PostServeActionDefinition> postServeActions) {
+      this.postServeActions = postServeActions;
+      return this;
+    }
+
+    public List<ServeEventListenerDefinition> getServeEventListeners() {
+      return serveEventListeners;
+    }
+
+    public Builder setServeEventListeners(List<ServeEventListenerDefinition> serveEventListeners) {
+      this.serveEventListeners = serveEventListeners;
+      return this;
+    }
+
+    public Metadata getMetadata() {
+      return metadata;
+    }
+
+    public Builder setMetadata(Metadata metadata) {
+      this.metadata = metadata;
+      return this;
+    }
+
+    public Builder metadata(Consumer<Metadata.Builder> transformer) {
+      this.metadata = getFirstNonNull(metadata, new Metadata()).transform(transformer);
+      return this;
+    }
+
+    @SuppressWarnings("unused")
+    public long getInsertionIndex() {
+      return insertionIndex;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public Builder setInsertionIndex(long insertionIndex) {
+      this.insertionIndex = insertionIndex;
+      return this;
+    }
   }
 }

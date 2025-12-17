@@ -48,12 +48,12 @@ public class InMemoryStubMappingStore implements StubMappingStore {
   }
 
   @Override
-  public void add(StubMapping stubMapping) {
-    mappings.add(stubMapping);
+  public StubMapping add(StubMapping stubMapping) {
+    return mappings.add(stubMapping);
   }
 
   @Override
-  public void replace(StubMapping existing, StubMapping updated) {
-    mappings.replace(existing, updated);
+  public StubMapping replace(StubMapping existing, StubMapping updated) {
+    return mappings.replace(existing, updated);
   }
 }

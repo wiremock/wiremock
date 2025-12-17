@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class GlobalSettings {
 
@@ -70,6 +71,16 @@ public class GlobalSettings {
         .extended(extended);
   }
 
+  public GlobalSettings transform(Consumer<Builder> transformer) {
+    final Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  private Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -92,6 +103,15 @@ public class GlobalSettings {
 
     private boolean proxyPassThrough = true;
 
+    public Builder() {}
+
+    public Builder(GlobalSettings existing) {
+      this.fixedDelay = existing.getFixedDelay();
+      this.delayDistribution = existing.getDelayDistribution();
+      this.extended = existing.getExtended();
+      this.proxyPassThrough = existing.getProxyPassThrough();
+    }
+
     public Builder fixedDelay(Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
       return this;
@@ -108,6 +128,42 @@ public class GlobalSettings {
     }
 
     public Builder proxyPassThrough(boolean proxyPassThrough) {
+      this.proxyPassThrough = proxyPassThrough;
+      return this;
+    }
+
+    public Integer getFixedDelay() {
+      return fixedDelay;
+    }
+
+    public DelayDistribution getDelayDistribution() {
+      return delayDistribution;
+    }
+
+    public Parameters getExtended() {
+      return extended;
+    }
+
+    public boolean isProxyPassThrough() {
+      return proxyPassThrough;
+    }
+
+    public Builder setFixedDelay(Integer fixedDelay) {
+      this.fixedDelay = fixedDelay;
+      return this;
+    }
+
+    public Builder setDelayDistribution(DelayDistribution delayDistribution) {
+      this.delayDistribution = delayDistribution;
+      return this;
+    }
+
+    public Builder setExtended(Parameters extended) {
+      this.extended = extended;
+      return this;
+    }
+
+    public Builder setProxyPassThrough(boolean proxyPassThrough) {
       this.proxyPassThrough = proxyPassThrough;
       return this;
     }

@@ -37,7 +37,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -63,7 +65,48 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final ValueMatcher<Request> matcher;
   private final boolean hasInlineCustomMatcher;
 
+  @JsonCreator
   public RequestPattern(
+      @JsonProperty("scheme") String scheme,
+      @JsonProperty("host") StringValuePattern host,
+      @JsonProperty("port") Integer port,
+      @JsonProperty("url") String url,
+      @JsonProperty("clientIp") StringValuePattern clientIp,
+      @JsonProperty("urlPattern") String urlPattern,
+      @JsonProperty("urlPath") String urlPath,
+      @JsonProperty("urlPathPattern") String urlPathPattern,
+      @JsonProperty("urlPathTemplate") String urlPathTemplate,
+      @JsonProperty("method") RequestMethod method,
+      @JsonProperty("headers") Map<String, MultiValuePattern> headers,
+      @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
+      @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+      @JsonProperty("formParameters") Map<String, MultiValuePattern> formParams,
+      @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
+      @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
+      @JsonProperty("bodyPatterns") List<ContentPattern<?>> bodyPatterns,
+      @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition,
+      @JsonProperty("multipartPatterns") List<MultipartValuePattern> multiPattern) {
+
+    this(
+        scheme,
+        host,
+        port,
+        clientIp,
+        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
+        method,
+        headers,
+        pathParams,
+        queryParams,
+        formParams,
+        cookies,
+        basicAuthCredentials,
+        bodyPatterns,
+        customMatcherDefinition,
+        null,
+        multiPattern);
+  }
+
+  RequestPattern(
       final String scheme,
       final StringValuePattern host,
       final Integer port,
@@ -86,15 +129,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.clientIp = clientIp;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
-    this.headers = headers;
-    this.pathParams = pathParams;
-    this.formParams = formParams;
-    this.queryParams = queryParams;
-    this.cookies = cookies;
+    this.headers = headers != null ? ImmutableMap.copyOf(headers) : null;
+    this.pathParams = pathParams != null ? ImmutableMap.copyOf(pathParams) : null;
+    this.formParams = formParams != null ? ImmutableMap.copyOf(formParams) : null;
+    this.queryParams = queryParams != null ? ImmutableMap.copyOf(queryParams) : null;
+    this.cookies = cookies != null ? ImmutableMap.copyOf(cookies) : null;
     this.basicAuthCredentials = basicAuthCredentials;
-    this.bodyPatterns = bodyPatterns;
+    this.bodyPatterns = bodyPatterns != null ? List.copyOf(bodyPatterns) : null;
     this.customMatcherDefinition = customMatcherDefinition;
-    this.multipartPatterns = multiPattern;
+    this.multipartPatterns = multiPattern != null ? List.copyOf(multiPattern) : null;
     this.hasInlineCustomMatcher = customMatcher != null;
 
     this.matcher =
@@ -144,113 +187,22 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         };
   }
 
-  @JsonCreator
-  public RequestPattern(
-      @JsonProperty("scheme") String scheme,
-      @JsonProperty("host") StringValuePattern host,
-      @JsonProperty("port") Integer port,
-      @JsonProperty("url") String url,
-      @JsonProperty("clientIp") StringValuePattern clientIp,
-      @JsonProperty("urlPattern") String urlPattern,
-      @JsonProperty("urlPath") String urlPath,
-      @JsonProperty("urlPathPattern") String urlPathPattern,
-      @JsonProperty("urlPathTemplate") String urlPathTemplate,
-      @JsonProperty("method") RequestMethod method,
-      @JsonProperty("headers") Map<String, MultiValuePattern> headers,
-      @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
-      @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
-      @JsonProperty("formParameters") Map<String, MultiValuePattern> formParams,
-      @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
-      @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
-      @JsonProperty("bodyPatterns") List<ContentPattern<?>> bodyPatterns,
-      @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition,
-      @JsonProperty("multipartPatterns") List<MultipartValuePattern> multiPattern) {
-
-    this(
-        scheme,
-        host,
-        port,
-        clientIp,
-        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
-        method,
-        headers,
-        pathParams,
-        queryParams,
-        formParams,
-        cookies,
-        basicAuthCredentials,
-        bodyPatterns,
-        customMatcherDefinition,
-        null,
-        multiPattern);
-  }
-
   public static final RequestPattern ANYTHING =
-      new RequestPattern(
-          null,
-          null,
-          null,
-          null,
-          anyUrl(),
-          RequestMethod.ANY,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
+      newRequestPattern(RequestMethod.ANY, anyUrl()).build();
 
-  public RequestPattern(ValueMatcher<Request> customMatcher) {
-    this(
-        null,
-        null,
-        null,
-        null,
-        UrlPattern.ANY,
-        RequestMethod.ANY,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        customMatcher,
-        null);
+  public RequestPattern transform(Consumer<Builder> transformer) {
+    final RequestPattern.Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
   }
 
-  public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-    this(
-        null,
-        null,
-        null,
-        null,
-        UrlPattern.ANY,
-        RequestMethod.ANY,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        customMatcherDefinition,
-        null,
-        null);
+  public Builder toBuilder() {
+    return new RequestPattern.Builder(this);
   }
 
   @Override
   public MatchResult match(Request request) {
     return match(request, Collections.emptyMap());
-  }
-
-  public static RequestPattern everything() {
-    return newRequestPattern(RequestMethod.ANY, anyUrl()).build();
   }
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
@@ -612,5 +564,237 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public static Predicate<ServeEvent> withRequestMatching(
       final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
     return serveEvent -> pattern.match(serveEvent.getRequest(), customMatchers).isExactMatch();
+  }
+
+  public static class Builder {
+    private String scheme;
+    private StringValuePattern host;
+    private Integer port;
+    private StringValuePattern clientIp;
+    private UrlPattern url;
+    private RequestMethod method;
+    private Map<String, MultiValuePattern> headers;
+
+    private Map<String, StringValuePattern> pathParams;
+    private Map<String, MultiValuePattern> queryParams;
+    private Map<String, MultiValuePattern> formParams;
+    private Map<String, StringValuePattern> cookies;
+    private BasicCredentials basicAuthCredentials;
+    private List<ContentPattern<?>> bodyPatterns;
+    private List<MultipartValuePattern> multipartPatterns;
+
+    private CustomMatcherDefinition customMatcherDefinition;
+    private ValueMatcher<Request> matcher;
+    private boolean hasInlineCustomMatcher;
+
+    public Builder() {}
+
+    public Builder(RequestPattern existing) {
+      this.scheme = existing.getScheme();
+      this.host = existing.getHost();
+      this.port = existing.getPort();
+      this.clientIp = existing.getClientIp();
+      this.url = existing.getUrlMatcher();
+      this.method = existing.getMethod();
+      this.headers =
+          existing.getHeaders() != null ? new LinkedHashMap<>(existing.getHeaders()) : null;
+      this.pathParams =
+          existing.getPathParameters() != null
+              ? new LinkedHashMap<>(existing.getPathParameters())
+              : null;
+      this.queryParams =
+          existing.getQueryParameters() != null
+              ? new LinkedHashMap<>(existing.getQueryParameters())
+              : null;
+      this.formParams =
+          existing.getFormParameters() != null
+              ? new LinkedHashMap<>(existing.getFormParameters())
+              : null;
+      this.cookies =
+          existing.getCookies() != null ? new LinkedHashMap<>(existing.getCookies()) : null;
+      this.basicAuthCredentials = existing.getBasicAuthCredentials();
+      this.bodyPatterns =
+          existing.getBodyPatterns() != null ? new ArrayList<>(existing.getBodyPatterns()) : null;
+      this.multipartPatterns =
+          existing.getMultipartPatterns() != null
+              ? new ArrayList<>(existing.getMultipartPatterns())
+              : null;
+      this.customMatcherDefinition = existing.getCustomMatcher();
+      this.matcher = existing.getMatcher();
+      this.hasInlineCustomMatcher = existing.hasInlineCustomMatcher();
+    }
+
+    public String getScheme() {
+      return scheme;
+    }
+
+    public StringValuePattern getHost() {
+      return host;
+    }
+
+    public Integer getPort() {
+      return port;
+    }
+
+    public StringValuePattern getClientIp() {
+      return clientIp;
+    }
+
+    public UrlPattern getUrl() {
+      return url;
+    }
+
+    public RequestMethod getMethod() {
+      return method;
+    }
+
+    public Map<String, MultiValuePattern> getHeaders() {
+      return headers;
+    }
+
+    public Map<String, StringValuePattern> getPathParams() {
+      return pathParams;
+    }
+
+    public Map<String, MultiValuePattern> getQueryParams() {
+      return queryParams;
+    }
+
+    public Map<String, MultiValuePattern> getFormParams() {
+      return formParams;
+    }
+
+    public Map<String, StringValuePattern> getCookies() {
+      return cookies;
+    }
+
+    public BasicCredentials getBasicAuthCredentials() {
+      return basicAuthCredentials;
+    }
+
+    public List<ContentPattern<?>> getBodyPatterns() {
+      return bodyPatterns;
+    }
+
+    public List<MultipartValuePattern> getMultipartPatterns() {
+      return multipartPatterns;
+    }
+
+    public CustomMatcherDefinition getCustomMatcherDefinition() {
+      return customMatcherDefinition;
+    }
+
+    public ValueMatcher<Request> getMatcher() {
+      return matcher;
+    }
+
+    public boolean isHasInlineCustomMatcher() {
+      return hasInlineCustomMatcher;
+    }
+
+    public Builder setScheme(String scheme) {
+      this.scheme = scheme;
+      return this;
+    }
+
+    public Builder setHost(StringValuePattern host) {
+      this.host = host;
+      return this;
+    }
+
+    public Builder setPort(Integer port) {
+      this.port = port;
+      return this;
+    }
+
+    public Builder setClientIp(StringValuePattern clientIp) {
+      this.clientIp = clientIp;
+      return this;
+    }
+
+    public Builder setUrl(UrlPattern url) {
+      this.url = url;
+      return this;
+    }
+
+    public Builder setMethod(RequestMethod method) {
+      this.method = method;
+      return this;
+    }
+
+    public Builder setHeaders(Map<String, MultiValuePattern> headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    public Builder setPathParams(Map<String, StringValuePattern> pathParams) {
+      this.pathParams = pathParams;
+      return this;
+    }
+
+    public Builder setQueryParams(Map<String, MultiValuePattern> queryParams) {
+      this.queryParams = queryParams;
+      return this;
+    }
+
+    public Builder setFormParams(Map<String, MultiValuePattern> formParams) {
+      this.formParams = formParams;
+      return this;
+    }
+
+    public Builder setCookies(Map<String, StringValuePattern> cookies) {
+      this.cookies = cookies;
+      return this;
+    }
+
+    public Builder setBasicAuthCredentials(BasicCredentials basicAuthCredentials) {
+      this.basicAuthCredentials = basicAuthCredentials;
+      return this;
+    }
+
+    public Builder setBodyPatterns(List<ContentPattern<?>> bodyPatterns) {
+      this.bodyPatterns = bodyPatterns;
+      return this;
+    }
+
+    public Builder setMultipartPatterns(List<MultipartValuePattern> multipartPatterns) {
+      this.multipartPatterns = multipartPatterns;
+      return this;
+    }
+
+    public Builder setCustomMatcherDefinition(CustomMatcherDefinition customMatcherDefinition) {
+      this.customMatcherDefinition = customMatcherDefinition;
+      return this;
+    }
+
+    public Builder setMatcher(ValueMatcher<Request> matcher) {
+      this.matcher = matcher;
+      return this;
+    }
+
+    public Builder setHasInlineCustomMatcher(boolean hasInlineCustomMatcher) {
+      this.hasInlineCustomMatcher = hasInlineCustomMatcher;
+      return this;
+    }
+
+    public RequestPattern build() {
+      return new RequestPattern(
+          scheme,
+          host,
+          port,
+          clientIp,
+          url,
+          method,
+          headers,
+          pathParams,
+          queryParams,
+          formParams,
+          cookies,
+          basicAuthCredentials,
+          bodyPatterns,
+          customMatcherDefinition,
+          matcher,
+          multipartPatterns);
+    }
   }
 }
