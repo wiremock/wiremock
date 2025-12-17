@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDe
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -81,8 +82,9 @@ public final class StubMapping implements StubMappingOrMappings {
     this.scenarioName = scenarioName;
     this.requiredScenarioState = requiredScenarioState;
     this.newScenarioState = newScenarioState;
-    this.postServeActions = postServeActions;
-    this.serveEventListeners = serveEventListeners;
+    this.postServeActions = postServeActions != null ? List.copyOf(postServeActions) : null;
+    this.serveEventListeners =
+        serveEventListeners != null ? List.copyOf(serveEventListeners) : null;
     this.metadata = metadata;
     this.insertionIndex = insertionIndex;
   }
@@ -262,8 +264,12 @@ public final class StubMapping implements StubMappingOrMappings {
       this.scenarioName = existing.scenarioName;
       this.requiredScenarioState = existing.requiredScenarioState;
       this.newScenarioState = existing.newScenarioState;
-      this.postServeActions = existing.postServeActions;
-      this.serveEventListeners = existing.serveEventListeners;
+      this.postServeActions =
+          existing.postServeActions != null ? new ArrayList<>(existing.postServeActions) : null;
+      this.serveEventListeners =
+          existing.serveEventListeners != null
+              ? new ArrayList<>(existing.serveEventListeners)
+              : null;
       this.metadata = existing.metadata;
       this.insertionIndex = existing.insertionIndex;
     }

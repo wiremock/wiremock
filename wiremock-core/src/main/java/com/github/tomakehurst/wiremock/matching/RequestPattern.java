@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -128,15 +129,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.clientIp = clientIp;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
-    this.headers = headers;
-    this.pathParams = pathParams;
-    this.formParams = formParams;
-    this.queryParams = queryParams;
-    this.cookies = cookies;
+    this.headers = headers != null ? ImmutableMap.copyOf(headers) : null;
+    this.pathParams = pathParams != null ? ImmutableMap.copyOf(pathParams) : null;
+    this.formParams = formParams != null ? ImmutableMap.copyOf(formParams) : null;
+    this.queryParams = queryParams != null ? ImmutableMap.copyOf(queryParams) : null;
+    this.cookies = cookies != null ? ImmutableMap.copyOf(cookies) : null;
     this.basicAuthCredentials = basicAuthCredentials;
-    this.bodyPatterns = bodyPatterns;
+    this.bodyPatterns = bodyPatterns != null ? List.copyOf(bodyPatterns) : null;
     this.customMatcherDefinition = customMatcherDefinition;
-    this.multipartPatterns = multiPattern;
+    this.multipartPatterns = multiPattern != null ? List.copyOf(multiPattern) : null;
     this.hasInlineCustomMatcher = customMatcher != null;
 
     this.matcher =
@@ -595,14 +596,29 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       this.clientIp = existing.getClientIp();
       this.url = existing.getUrlMatcher();
       this.method = existing.getMethod();
-      this.headers = existing.getHeaders();
-      this.pathParams = existing.getPathParameters();
-      this.queryParams = existing.getQueryParameters();
-      this.formParams = existing.getFormParameters();
-      this.cookies = existing.getCookies();
+      this.headers =
+          existing.getHeaders() != null ? new LinkedHashMap<>(existing.getHeaders()) : null;
+      this.pathParams =
+          existing.getPathParameters() != null
+              ? new LinkedHashMap<>(existing.getPathParameters())
+              : null;
+      this.queryParams =
+          existing.getQueryParameters() != null
+              ? new LinkedHashMap<>(existing.getQueryParameters())
+              : null;
+      this.formParams =
+          existing.getFormParameters() != null
+              ? new LinkedHashMap<>(existing.getFormParameters())
+              : null;
+      this.cookies =
+          existing.getCookies() != null ? new LinkedHashMap<>(existing.getCookies()) : null;
       this.basicAuthCredentials = existing.getBasicAuthCredentials();
-      this.bodyPatterns = existing.getBodyPatterns();
-      this.multipartPatterns = existing.getMultipartPatterns();
+      this.bodyPatterns =
+          existing.getBodyPatterns() != null ? new ArrayList<>(existing.getBodyPatterns()) : null;
+      this.multipartPatterns =
+          existing.getMultipartPatterns() != null
+              ? new ArrayList<>(existing.getMultipartPatterns())
+              : null;
       this.customMatcherDefinition = existing.getCustomMatcher();
       this.matcher = existing.getMatcher();
       this.hasInlineCustomMatcher = existing.hasInlineCustomMatcher();
