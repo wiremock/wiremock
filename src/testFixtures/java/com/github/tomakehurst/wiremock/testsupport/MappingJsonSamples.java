@@ -20,78 +20,58 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 public class MappingJsonSamples {
 
   public static final String BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/a/registered/resource\"			\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 401,							\n"
-          + "		\"headers\": {								\n"
-          + "			\"Content-Type\": \"text/plain\"		\n"
-          + "		},											\n"
-          + "		\"body\": \"Not allowed!\"					\n"
-          + "	}												\n"
-          + "}													";
+      """
+          {
+          	"request": {
+          		"method": "GET",
+          		"url": "/a/registered/resource"
+          	},
+          	"response": {
+          		"status": 401,
+          		"headers": {
+          			"Content-Type": "text/plain"
+          		},
+          		"body": "Not allowed!"
+          	}
+          }""";
 
   public static final String STATUS_ONLY_MAPPING_REQUEST =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"PUT\",						\n"
-          + "		\"url\": \"/status/only\"					\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 204								\n"
-          + "	}												\n"
-          + "}													";
+      """
+          {
+          	"request": {
+          		"method": "PUT",
+          		"url": "/status/only"
+          	},
+          	"response": {
+          		"status": 204
+          	}
+          }""";
 
   public static final String STATUS_ONLY_GET_MAPPING_TEMPLATE =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"urlPattern\": \"%s\"						\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 200								\n"
-          + "	}												\n"
-          + "}													";
-
-  public static final String WITH_RESPONSE_BODY =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/with/body\"						\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 200,							\n"
-          + "		\"body\": \"Some content\"					\n"
-          + "	}												\n"
-          + "}													";
-
-  public static final String SPEC_WITH_RESPONSE_BODY =
-      "{                                                  \n"
-          + "   \"request\": {                                  \n"
-          + "      \"url\": \"/with/body\",                     \n"
-          + "       \"method\": \"GET\"                         \n"
-          + "   },                                              \n"
-          + "   \"response\": {                                 \n"
-          + "       \"body\": \"Some content\",                 \n"
-          + "       \"status\": 200                             \n"
-          + "   }                                               \n"
-          + "}                                                  ";
+      """
+          {
+          	"request": {
+          		"method": "GET",
+          		"urlPattern": "%s"
+          	},
+          	"response": {
+          		"status": 200
+          	}
+          }""";
 
   public static final String BASIC_GET =
-      "{ 													\n"
-          + "	\"name\": \"Basic Resource\",					\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/basic/mapping/resource\"		\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 304, 							\n"
-          + "		\"body\": \"Body from mapping file\"		\n"
-          + "	}												\n"
-          + "}													";
+      """
+          {
+          	"name": "Basic Resource",
+          	"request": {
+          		"method": "GET",
+          		"url": "/basic/mapping/resource"
+          	},
+          	"response": {
+          		"status": 304,
+          		"body": "Body from mapping file"
+          	}
+          }""";
 
   public static final String BASIC_POST = BASIC_GET.replace("GET", "POST");
   public static final String BASIC_PUT = BASIC_GET.replace("GET", "PUT");
@@ -104,109 +84,70 @@ public class MappingJsonSamples {
   public static final String BASIC_QUERY = BASIC_GET.replace("GET", "QUERY");
 
   public static final String MAPPING_REQUEST_WITH_EXACT_HEADERS =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/header/dependent\",				\n"
-          + "		\"headers\": {								\n"
-          + "			\"Accept\": {							\n"
-          + "				\"equalTo\": \"text/xml\"			\n"
-          + "			},										\n"
-          + "			\"If-None-Match\": {					\n"
-          + "				\"equalTo\": \"abcd1234\"			\n"
-          + "			}										\n"
-          + "		}											\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 304,							\n"
-          + "		\"headers\": {								\n"
-          + "			\"Content-Type\": \"text/xml\"			\n"
-          + "		}											\n"
-          + "	}												\n"
-          + "}													";
+      """
+          {
+          	"request": {
+          		"method": "GET",
+          		"url": "/header/dependent",
+          		"headers": {
+          			"Accept": {
+          				"equalTo": "text/xml"
+          			},
+          			"If-None-Match": {
+          				"equalTo": "abcd1234"
+          			}
+          		}
+          	},
+          	"response": {
+          		"status": 304,
+          		"headers": {
+          			"Content-Type": "text/xml"
+          		}
+          	}
+          }""";
 
   public static final String MAPPING_REQUEST_WITH_REGEX_HEADERS =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/header/match/dependent\",		\n"
-          + "		\"headers\": {								\n"
-          + "			\"Accept\": {							\n"
-          + "				\"matches\": \"(.*)xml(.*)\"		\n"
-          + "			},										\n"
-          + "			\"If-None-Match\": {					\n"
-          + "				\"matches\": \"([a-z0-9]*)\"		\n"
-          + "			}										\n"
-          + "		}											\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 304,							\n"
-          + "		\"headers\": {								\n"
-          + "			\"Content-Type\": \"text/xml\"			\n"
-          + "		}											\n"
-          + "	}												\n"
-          + "}													";
+      """
+          {
+          	"request": {
+          		"method": "GET",
+          		"url": "/header/match/dependent",
+          		"headers": {
+          			"Accept": {
+          				"matches": "(.*)xml(.*)"
+          			},
+          			"If-None-Match": {
+          				"matches": "([a-z0-9]*)"
+          			}
+          		}
+          	},
+          	"response": {
+          		"status": 304,
+          		"headers": {
+          			"Content-Type": "text/xml"
+          		}
+          	}
+          }""";
 
   public static final String MAPPING_REQUEST_WITH_NEGATIVE_REGEX_HEADERS =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"GET\",						\n"
-          + "		\"url\": \"/header/match/dependent\",		\n"
-          + "		\"headers\": {								\n"
-          + "			\"Accept\": {							\n"
-          + "				\"doesNotMatch\": \"(.*)xml(.*)\"	\n"
-          + "			}										\n"
-          + "		}											\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 200,							\n"
-          + "		\"headers\": {								\n"
-          + "			\"Content-Type\": \"text/xml\"			\n"
-          + "		}											\n"
-          + "	}												\n"
-          + "}													";
-
-  public static final String WITH_REQUEST_HEADERS =
-      "{ 													\n"
-          + "	\"request\": {									\n"
-          + "		\"method\": \"PUT\",						\n"
-          + "		\"url\": \"/header/matches/dependent\",		\n"
-          + "		\"headers\": {								\n"
-          + "			\"Content-Type\": {						\n"
-          + "				\"equalTo\": \"text/xml\"			\n"
-          + "			},										\n"
-          + "			\"Cache-Control\": {					\n"
-          + "				\"contains\": \"private\"			\n"
-          + "			},										\n"
-          + "			\"If-None-Match\": {					\n"
-          + "				\"matches\": \"([a-z0-9]*)\"		\n"
-          + "			},										\n"
-          + "			\"Accept\": {							\n"
-          + "				\"doesNotMatch\": \"(.*)xml(.*)\"	\n"
-          + "			}										\n"
-          + "		}											\n"
-          + "	},												\n"
-          + "	\"response\": {									\n"
-          + "		\"status\": 201								\n"
-          + "	}												\n"
-          + "}													";
-
-  public static final String WITH_BODY_PATTERNS =
-      "{ 														\n"
-          + "	\"request\": {										\n"
-          + "		\"method\": \"PUT\",							\n"
-          + "		\"url\": \"/body/patterns/dependent\",			\n"
-          + "		\"bodyPatterns\": [								\n"
-          + "			{ \"equalTo\": \"the number is 1234\" },	\n"
-          + "			{ \"contains\": \"number\" },				\n"
-          + "			{ \"matches\": \".*[0-9]{4}\" },			\n"
-          + "			{ \"doesNotMatch\": \".*5678.*\"}			\n"
-          + "		]												\n"
-          + "	},													\n"
-          + "	\"response\": {										\n"
-          + "		\"status\": 201									\n"
-          + "	}													\n"
-          + "}														";
+      """
+          {
+          	"request": {
+          		"method": "GET",
+          		"url": "/header/match/dependent",
+          		"headers": {
+          			"Accept": {
+          				"doesNotMatch": "(.*)xml(.*)"
+          			}
+          		}
+          	},
+          	"response": {
+          		"status": 200,
+          		"headers": {
+          			"Content-Type": "text/xml"
+          		}
+          	}
+          }""";
 
   public static final byte[] BINARY_COMPRESSED_CONTENT =
       new byte[] {
@@ -219,61 +160,64 @@ public class MappingJsonSamples {
   public static final String BINARY_COMPRESSED_CONTENT_AS_STRING = "<response>hello</response>";
 
   public static final String MAPPING_REQUEST_FOR_BYTE_BODY =
-      "{ 													                            \n"
-          + "	\"request\": {									                            \n"
-          + "		\"method\": \"GET\",						                            \n"
-          + "		\"url\": \"/byte/resource/from/file\"			                        \n"
-          + "	},												                            \n"
-          + "	\"response\": {									                            \n"
-          + "		\"status\": 200,							                            \n"
-          + "		\"base64Body\": \""
-          + encodeBase64(new byte[] {65, 66, 67})
-          + "\"		\n"
-          + "	}												                            \n"
-          + "}													                            ";
+      """
+        {
+          "request": {
+            "method": "GET",
+            "url": "/byte/resource/from/file"
+          },
+          "response": {
+            "status": 200,
+            "base64Body": "%s"
+          }
+        }"""
+          .formatted(encodeBase64(new byte[] {65, 66, 67}));
 
   public static final String MAPPING_REQUEST_FOR_BINARY_BYTE_BODY =
-      "{ 													                    \n"
-          + "	\"request\": {									                    \n"
-          + "		\"method\": \"GET\",						                    \n"
-          + "		\"url\": \"/bytecompressed/resource/from/file\"			        \n"
-          + "	},												                    \n"
-          + "	\"response\": {									                    \n"
-          + "		\"status\": 200,							                    \n"
-          + "		\"base64Body\": \""
-          + BINARY_COMPRESSED_JSON_STRING
-          + "\"	    \n"
-          + "	}												                    \n"
-          + "}													                    ";
+      """
+        {
+          "request": {
+            "method": "GET",
+            "url": "/bytecompressed/resource/from/file"
+          },
+          "response": {
+            "status": 200,
+            "base64Body": "%s"
+          }
+        }"""
+          .formatted(BINARY_COMPRESSED_JSON_STRING);
 
   public static final String MAPPING_REQUEST_FOR_NON_UTF8 =
-      "{                                                                                                                      \n"
-          + "   \"request\": {                                                                                      \n"
-          + "           \"method\": \"GET\",                                                                \n"
-          + "           \"url\": \"/test/nonutf8/\"                         \n"
-          + "   },                                                                                                                  \n"
-          + "   \"response\": {                                                                                     \n"
-          + "           \"status\": 200,                                                                            \n"
-          + "           \"headers\": {                                                    \n"
-          + "               \"Content-type\": \"text/plain; charset=GB2312\"      \n"
-          + "           },                                                    \n"
-          + "           \"body\": \"国家标准\"                       \n"
-          + "   }                                                                                          \n"
-          + "}\n";
+      """
+          {
+             "request": {
+                     "method": "GET",
+                     "url": "/test/nonutf8/"
+             },
+             "response": {
+                     "status": 200,
+                     "headers": {
+                         "Content-type": "text/plain; charset=GB2312"
+                     },
+                     "body": "国家标准"
+             }
+          }
+          """;
 
   public static final String MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS =
-      "{ 														\n"
-          + "	\"request\": {										\n"
-          + "		\"method\": \"POST\",							\n"
-          + "		\"url\": \"/body/decimals\",	        		\n"
-          + "		\"bodyPatterns\": [								\n"
-          + "			{ \"equalToJson\": {\"float\": 1.2} }   	\n"
-          + "		]												\n"
-          + "	},													\n"
-          + "	\"response\": {										\n"
-          + "		\"status\": 200									\n"
-          + "	}													\n"
-          + "}													";
+      """
+          {
+          	"request": {
+          		"method": "POST",
+          		"url": "/body/decimals",
+          		"bodyPatterns": [
+          			{ "equalToJson": {"float": 1.2} }
+          		]
+          	},
+          	"response": {
+          		"status": 200
+          	}
+          }""";
 
   public static final String MAPPING_REQUEST_JSON_BODY_DECIMALS_TRAILING_ZEROS =
       MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS.replace("1.2", "1.20000000");

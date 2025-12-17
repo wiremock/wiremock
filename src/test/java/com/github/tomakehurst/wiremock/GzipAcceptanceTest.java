@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Thomas Akehurst
+ * Copyright (C) 2015-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,10 +67,7 @@ public class GzipAcceptanceTest {
       wireMockServer.stubFor(post("/gzip-response").willReturn(ok("body text")));
 
       WireMockResponse response =
-          testClient.post(
-              "/gzip-response",
-              new StringEntity(""),
-              withHeader("Accept-Encoding", "gzip,deflate"));
+          testClient.post("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
       assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
 
       byte[] gzippedContent = response.binaryContent();
