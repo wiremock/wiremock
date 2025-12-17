@@ -23,6 +23,7 @@ dependencies {
 
     implementation(libs.jetty.ee11.websocket.jetty.server)
 
+    runtimeOnly(libs.jetty.ee11.websockets)
     runtimeOnly(libs.jetty.alpn.java.client)
     runtimeOnly(libs.jetty.alpn.java.server)
     runtimeOnly(libs.jetty.ee11.webapp)
