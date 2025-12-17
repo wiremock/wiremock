@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.websocket;
 
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.store.MessageChannelStore;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -27,46 +27,49 @@ import java.util.stream.Collectors;
  */
 public class MessageChannels {
 
-  private final Map<UUID, MessageChannel> channels = new ConcurrentHashMap<>();
+  private final MessageChannelStore store;
+
+  public MessageChannels(MessageChannelStore store) {
+    this.store = store;
+  }
 
   /** Adds a new message channel. */
   public void add(MessageChannel channel) {
-    channels.put(channel.getId(), channel);
+    store.add(channel);
   }
 
   /** Removes a message channel by its ID. */
   public void remove(UUID id) {
-    MessageChannel channel = channels.remove(id);
-    if (channel != null) {
-      channel.close();
-    }
+    Optional<MessageChannel> channel = store.get(id);
+    store.remove(id);
+    channel.ifPresent(MessageChannel::close);
   }
 
   /** Gets a message channel by its ID. */
   public Optional<MessageChannel> get(UUID id) {
-    return Optional.ofNullable(channels.get(id));
+    return store.get(id);
   }
 
   /** Returns all message channels. */
   public List<MessageChannel> getAll() {
-    return new ArrayList<>(channels.values());
+    return store.getAll().collect(Collectors.toList());
   }
 
   /** Returns all message channels of the specified type. */
   public List<MessageChannel> getAllByType(ChannelType type) {
-    return channels.values().stream()
+    return store.getAll()
         .filter(channel -> channel.getType() == type)
         .collect(Collectors.toList());
   }
 
   /** Returns all open message channels. */
   public List<MessageChannel> getAllOpen() {
-    return channels.values().stream().filter(MessageChannel::isOpen).collect(Collectors.toList());
+    return store.getAll().filter(MessageChannel::isOpen).collect(Collectors.toList());
   }
 
   /** Returns all open message channels of the specified type. */
   public List<MessageChannel> getAllOpenByType(ChannelType type) {
-    return channels.values().stream()
+    return store.getAll()
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
         .collect(Collectors.toList());
@@ -81,7 +84,7 @@ public class MessageChannels {
    */
   public List<MessageChannel> findByRequestPattern(
       RequestPattern requestPattern, Map<String, RequestMatcherExtension> customMatchers) {
-    return channels.values().stream()
+    return store.getAll()
         .filter(MessageChannel::isOpen)
         .filter(
             channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
@@ -101,7 +104,7 @@ public class MessageChannels {
       ChannelType type,
       RequestPattern requestPattern,
       Map<String, RequestMatcherExtension> customMatchers) {
-    return channels.values().stream()
+    return store.getAll()
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
         .filter(
@@ -152,31 +155,29 @@ public class MessageChannels {
 
   /** Clears all message channels, closing them first. */
   public void clear() {
-    for (MessageChannel channel : channels.values()) {
-      channel.close();
-    }
-    channels.clear();
+    store.getAll().forEach(MessageChannel::close);
+    store.clear();
   }
 
   /** Returns the number of channels. */
   public int size() {
-    return channels.size();
+    return (int) store.getAll().count();
   }
 
   /** Returns the number of channels of the specified type. */
   public int sizeByType(ChannelType type) {
-    return (int) channels.values().stream().filter(channel -> channel.getType() == type).count();
+    return (int) store.getAll().filter(channel -> channel.getType() == type).count();
   }
 
   /** Returns the number of open channels. */
   public int openCount() {
-    return (int) channels.values().stream().filter(MessageChannel::isOpen).count();
+    return (int) store.getAll().filter(MessageChannel::isOpen).count();
   }
 
   /** Returns the number of open channels of the specified type. */
   public int openCountByType(ChannelType type) {
     return (int)
-        channels.values().stream()
+        store.getAll()
             .filter(MessageChannel::isOpen)
             .filter(channel -> channel.getType() == type)
             .count();

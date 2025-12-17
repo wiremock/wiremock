@@ -34,6 +34,8 @@ import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.store.InMemoryMessageChannelStore;
+import com.github.tomakehurst.wiremock.store.InMemoryMessageStubMappingStore;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
@@ -52,8 +54,10 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private MessageChannels messageChannels = new MessageChannels();
-  private MessageStubMappings messageStubMappings = new MessageStubMappings();
+  private MessageChannels messageChannels =
+      new MessageChannels(new InMemoryMessageChannelStore());
+  private MessageStubMappings messageStubMappings =
+      new MessageStubMappings(new InMemoryMessageStubMappingStore(), Collections.emptyMap());
   private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach

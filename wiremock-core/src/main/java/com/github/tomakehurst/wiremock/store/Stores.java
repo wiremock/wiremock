@@ -38,6 +38,10 @@ public interface Stores extends StoresLifecycle {
 
   RecorderStateStore getRecorderStateStore();
 
+  MessageChannelStore getMessageChannelStore();
+
+  MessageStubMappingStore getMessageStubMappingStore();
+
   default BlobStore getMappingsBlobStore() {
     return getBlobStore(MAPPINGS_ROOT);
   }

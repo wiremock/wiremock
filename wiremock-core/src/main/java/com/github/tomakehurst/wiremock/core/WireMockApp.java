@@ -144,8 +144,9 @@ public class WireMockApp implements StubServer, Admin {
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
-    this.messageChannels = new MessageChannels();
-    this.messageStubMappings = new MessageStubMappings(customMatchers);
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings =
+        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
 
     this.container = container;
     extensions.startAll();
@@ -197,8 +198,9 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
-    this.messageChannels = new MessageChannels();
-    this.messageStubMappings = new MessageStubMappings(requestMatchers);
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings =
+        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
     loadDefaultMappings();
   }
 

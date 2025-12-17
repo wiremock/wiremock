@@ -16,16 +16,15 @@
 package com.github.tomakehurst.wiremock.websocket.message;
 
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.store.MessageStubMappingStore;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Manages message stub mappings. When a message arrives on a channel, it is tested against each
@@ -33,54 +32,54 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MessageStubMappings {
 
-  private final Map<UUID, MessageStubMapping> mappings = new ConcurrentHashMap<>();
+  private final MessageStubMappingStore store;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
-  public MessageStubMappings() {
-    this(Collections.emptyMap());
-  }
-
-  public MessageStubMappings(Map<String, RequestMatcherExtension> customMatchers) {
+  public MessageStubMappings(
+      MessageStubMappingStore store, Map<String, RequestMatcherExtension> customMatchers) {
+    this.store = store;
     this.customMatchers = customMatchers;
   }
 
   /** Adds a new message stub mapping. */
   public void add(MessageStubMapping mapping) {
-    mappings.put(mapping.getId(), mapping);
+    store.add(mapping);
   }
 
   /** Removes a message stub mapping by its ID. */
   public void remove(UUID id) {
-    mappings.remove(id);
+    store.remove(id);
   }
 
   /** Gets a message stub mapping by its ID. */
   public Optional<MessageStubMapping> get(UUID id) {
-    return Optional.ofNullable(mappings.get(id));
+    return store.get(id);
   }
 
   /** Returns all message stub mappings. */
   public List<MessageStubMapping> getAll() {
-    return new ArrayList<>(mappings.values());
+    return store.getAll().collect(Collectors.toList());
   }
 
   /** Returns all message stub mappings sorted by priority. */
   public List<MessageStubMapping> getAllSortedByPriority() {
-    List<MessageStubMapping> sorted = new ArrayList<>(mappings.values());
-    sorted.sort(
-        Comparator.comparingInt(
-            m -> m.getPriority() != null ? m.getPriority() : MessageStubMapping.DEFAULT_PRIORITY));
-    return sorted;
+    return store
+        .getAll()
+        .sorted(
+            Comparator.comparingInt(
+                m ->
+                    m.getPriority() != null ? m.getPriority() : MessageStubMapping.DEFAULT_PRIORITY))
+        .collect(Collectors.toList());
   }
 
   /** Clears all message stub mappings. */
   public void clear() {
-    mappings.clear();
+    store.clear();
   }
 
   /** Returns the number of message stub mappings. */
   public int size() {
-    return mappings.size();
+    return (int) store.getAll().count();
   }
 
   /**
