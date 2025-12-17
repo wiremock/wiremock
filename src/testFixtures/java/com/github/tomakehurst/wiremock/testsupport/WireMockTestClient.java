@@ -184,7 +184,6 @@ public class WireMockTestClient {
     return queryWithBody(url, body, "application/json", headers);
   }
 
-  // TODO
   public WireMockResponse queryWithMultiparts(
       String url, Collection<MultipartBody> parts, TestHttpHeader... headers) {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -216,7 +215,6 @@ public class WireMockTestClient {
     return execute(RequestMethod.POST, url, body, bodyMimeType, bodyEncoding, headers);
   }
 
-  // TODO
   public WireMockResponse postWithMultiparts(
       String url, Collection<MultipartBody> parts, TestHttpHeader... headers) {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -235,7 +233,7 @@ public class WireMockTestClient {
     return post(url, new InputStreamEntity(new ByteArrayInputStream(body), -1, DEFAULT_BINARY));
   }
 
-  // TODO
+  // TODO break dependency on `HttpEntity` so we are decoupled from Apache HTTP Client in the API
   public WireMockResponse post(String url, HttpEntity entity, TestHttpHeader... headers) {
     HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
     httpPost.setEntity(entity);
