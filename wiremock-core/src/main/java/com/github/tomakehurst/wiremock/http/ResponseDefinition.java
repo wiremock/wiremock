@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -121,14 +122,15 @@ public class ResponseDefinition {
 
     this.headers = headers;
     this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
-    this.removeProxyRequestHeaders = removeProxyRequestHeaders;
+    this.removeProxyRequestHeaders =
+        removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : null;
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.proxyBaseUrl = proxyBaseUrl == null ? null : proxyBaseUrl.trim();
     this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
     this.fault = fault;
-    this.transformers = transformers;
+    this.transformers = transformers != null ? List.copyOf(transformers) : null;
     this.transformerParameters = transformerParameters;
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
@@ -453,14 +455,18 @@ public class ResponseDefinition {
       this.bodyFileName = original.bodyFileName;
       this.headers = original.headers;
       this.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
-      this.removeProxyRequestHeaders = original.removeProxyRequestHeaders;
+      this.removeProxyRequestHeaders =
+          original.removeProxyRequestHeaders != null
+              ? new ArrayList<>(original.removeProxyRequestHeaders)
+              : null;
       this.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
       this.delayDistribution = original.delayDistribution;
       this.chunkedDribbleDelay = original.chunkedDribbleDelay;
       this.proxyBaseUrl = original.proxyBaseUrl;
       this.proxyUrlPrefixToRemove = original.proxyUrlPrefixToRemove;
       this.fault = original.fault;
-      this.transformers = original.transformers;
+      this.transformers =
+          original.transformers != null ? new ArrayList<>(original.transformers) : null;
       this.transformerParameters = original.transformerParameters;
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;

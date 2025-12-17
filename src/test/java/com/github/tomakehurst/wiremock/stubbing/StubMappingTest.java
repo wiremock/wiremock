@@ -20,13 +20,19 @@ import static java.util.stream.Collectors.toMap;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.ArrayList;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -165,5 +171,127 @@ public class StubMappingTest {
               }
             }
             """));
+  }
+
+  @Test
+  public void postServeActionsListIsImmutable() {
+    var postServeActionDefinitions = new ArrayList<PostServeActionDefinition>();
+    var builder1 = StubMapping.builder();
+    postServeActionDefinitions.add(
+        new PostServeActionDefinition("def-1", Parameters.one("param1", "value1")));
+    builder1.setPostServeActions(postServeActionDefinitions);
+
+    var stub1 = builder1.build();
+    assertThat(stub1.getPostServeActions(), hasSize(1));
+    assertThat(stub1.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+
+    postServeActionDefinitions.clear();
+
+    assertThat(stub1.getPostServeActions(), hasSize(1));
+    assertThat(stub1.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+
+    builder1.getPostServeActions().clear();
+
+    assertThat(stub1.getPostServeActions(), hasSize(1));
+    assertThat(stub1.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            stub1
+                .getPostServeActions()
+                .add(new PostServeActionDefinition("def-2", Parameters.empty())));
+
+    assertThat(stub1.getPostServeActions(), hasSize(1));
+    assertThat(stub1.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+
+    var builder2 = stub1.toBuilder();
+    builder2.getPostServeActions().add(new PostServeActionDefinition("def-2", Parameters.empty()));
+    var stub2 = builder2.build();
+
+    assertThat(stub1.getPostServeActions(), hasSize(1));
+    assertThat(stub1.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+
+    assertThat(stub2.getPostServeActions(), hasSize(2));
+    assertThat(stub2.getPostServeActions().get(0).getName(), is("def-1"));
+    assertThat(
+        stub2.getPostServeActions().get(0).getParameters(), is(Parameters.one("param1", "value1")));
+    assertThat(stub2.getPostServeActions().get(1).getName(), is("def-2"));
+    assertThat(stub2.getPostServeActions().get(1).getParameters(), is(Parameters.empty()));
+  }
+
+  @Test
+  public void serveEventListenersListIsImmutable() {
+    var serveEventListenerDefinitions = new ArrayList<ServeEventListenerDefinition>();
+    var builder1 = StubMapping.builder();
+    serveEventListenerDefinitions.add(
+        new ServeEventListenerDefinition("def-1", Parameters.one("param1", "value1")));
+    builder1.setServeEventListeners(serveEventListenerDefinitions);
+
+    var stub1 = builder1.build();
+    assertThat(stub1.getServeEventListeners(), hasSize(1));
+    assertThat(stub1.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+
+    serveEventListenerDefinitions.clear();
+
+    assertThat(stub1.getServeEventListeners(), hasSize(1));
+    assertThat(stub1.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            stub1
+                .getServeEventListeners()
+                .add(new ServeEventListenerDefinition("def-2", Parameters.empty())));
+
+    assertThat(stub1.getServeEventListeners(), hasSize(1));
+    assertThat(stub1.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+
+    builder1.getServeEventListeners().clear();
+
+    assertThat(stub1.getServeEventListeners(), hasSize(1));
+    assertThat(stub1.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+
+    var builder2 = stub1.toBuilder();
+    builder2
+        .getServeEventListeners()
+        .add(new ServeEventListenerDefinition("def-2", Parameters.empty()));
+    var stub2 = builder2.build();
+
+    assertThat(stub1.getServeEventListeners(), hasSize(1));
+    assertThat(stub1.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub1.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+
+    assertThat(stub2.getServeEventListeners(), hasSize(2));
+    assertThat(stub2.getServeEventListeners().get(0).getName(), is("def-1"));
+    assertThat(
+        stub2.getServeEventListeners().get(0).getParameters(),
+        is(Parameters.one("param1", "value1")));
+    assertThat(stub2.getServeEventListeners().get(1).getName(), is("def-2"));
+    assertThat(stub2.getServeEventListeners().get(1).getParameters(), is(Parameters.empty()));
   }
 }

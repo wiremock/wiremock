@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -157,5 +159,72 @@ public class ResponseDefinitionTest {
 
     assertThat(json, not(containsString("transformers")));
     assertThat(json, not(containsString("transformerParameters")));
+  }
+
+  @Test
+  public void removeProxyRequestHeadersListIsImmutable() {
+    var removeProxyRequestHeaders = new ArrayList<String>();
+    var builder1 = new ResponseDefinition.Builder();
+    removeProxyRequestHeaders.add("header-1");
+    builder1.setRemoveProxyRequestHeaders(removeProxyRequestHeaders);
+
+    var responseDefinition1 = builder1.build();
+    assertThat(responseDefinition1.getRemoveProxyRequestHeaders(), contains("header-1"));
+
+    removeProxyRequestHeaders.clear();
+
+    assertThat(responseDefinition1.getRemoveProxyRequestHeaders(), contains("header-1"));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> responseDefinition1.getRemoveProxyRequestHeaders().add("header-2"));
+
+    assertThat(responseDefinition1.getRemoveProxyRequestHeaders(), contains("header-1"));
+
+    builder1.getRemoveProxyRequestHeaders().clear();
+
+    assertThat(responseDefinition1.getRemoveProxyRequestHeaders(), contains("header-1"));
+
+    var builder2 = responseDefinition1.toBuilder();
+    builder2.getRemoveProxyRequestHeaders().add("header-2");
+    var responseDefinition2 = builder2.build();
+
+    assertThat(responseDefinition1.getRemoveProxyRequestHeaders(), contains("header-1"));
+
+    assertThat(
+        responseDefinition2.getRemoveProxyRequestHeaders(), contains("header-1", "header-2"));
+  }
+
+  @Test
+  public void transformersListIsImmutable() {
+    var transformers = new ArrayList<String>();
+    var builder1 = new ResponseDefinition.Builder();
+    transformers.add("transformer-1");
+    builder1.setTransformers(transformers);
+
+    var responseDefinition1 = builder1.build();
+    assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
+
+    transformers.clear();
+
+    assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> responseDefinition1.getTransformers().add("transformer-2"));
+
+    assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
+
+    builder1.getTransformers().clear();
+
+    assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
+
+    var builder2 = responseDefinition1.toBuilder();
+    builder2.getTransformers().add("transformer-2");
+    var responseDefinition2 = builder2.build();
+
+    assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
+
+    assertThat(responseDefinition2.getTransformers(), contains("transformer-1", "transformer-2"));
   }
 }
