@@ -1,5 +1,3 @@
-
-import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.net.URI
@@ -227,5 +225,5 @@ publishing {
 }
 
 mavenPublishing {
-  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+  publishToMavenCentral(automaticRelease = true)
 }
