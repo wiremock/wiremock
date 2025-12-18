@@ -716,11 +716,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public int countMessageEvents(Predicate<MessageServeEvent> predicate) {
-    return client.countMessages(predicate);
-  }
-
-  @Override
   public void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
     client.verifyThatMessageEvent(predicate);
   }

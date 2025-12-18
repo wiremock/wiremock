@@ -508,11 +508,6 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public int countMessageEvents(Predicate<MessageServeEvent> predicate) {
-    return stubbing.countMessageEvents(predicate);
-  }
-
-  @Override
   public void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
     stubbing.verifyMessageEvent(predicate);
   }

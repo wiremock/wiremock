@@ -1180,26 +1180,6 @@ public class WireMock {
   }
 
   /**
-   * Counts message events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @return the count of matching events
-   */
-  public static int countMessageEvents(Predicate<MessageServeEvent> predicate) {
-    return defaultInstance.get().countMessages(predicate);
-  }
-
-  /**
-   * Counts message events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @return the count of matching events
-   */
-  public int countMessages(Predicate<MessageServeEvent> predicate) {
-    return admin.countMessageEventsMatching(predicate);
-  }
-
-  /**
    * Verifies that at least one message event matches the given predicate.
    *
    * @param predicate the predicate to match events against

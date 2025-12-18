@@ -128,14 +128,6 @@ public interface Stubbing {
   List<MessageServeEvent> findAllMessageEvents(Predicate<MessageServeEvent> predicate);
 
   /**
-   * Counts message events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @return the count of matching events
-   */
-  int countMessageEvents(Predicate<MessageServeEvent> predicate);
-
-  /**
    * Verifies that at least one message event matches the given predicate.
    *
    * @param predicate the predicate to match events against
