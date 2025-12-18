@@ -16,17 +16,17 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public interface MessageJournal {
 
-  int countEventsMatching(Predicate<MessageServeEvent> predicate);
+  int countEventsMatching(MessagePattern pattern);
 
-  List<MessageServeEvent> getEventsMatching(Predicate<MessageServeEvent> predicate);
+  List<MessageServeEvent> getEventsMatching(MessagePattern pattern);
 
   List<MessageServeEvent> getAllMessageServeEvents();
 
@@ -38,13 +38,11 @@ public interface MessageJournal {
 
   void removeEvent(UUID eventId);
 
-  List<MessageServeEvent> removeEventsMatching(Predicate<MessageServeEvent> predicate);
+  List<MessageServeEvent> removeEventsMatching(MessagePattern pattern);
 
   List<MessageServeEvent> removeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern);
 
-  Optional<MessageServeEvent> waitForEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait);
+  Optional<MessageServeEvent> waitForEvent(MessagePattern pattern, Duration maxWait);
 
-  List<MessageServeEvent> waitForEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait);
+  List<MessageServeEvent> waitForEvents(MessagePattern pattern, int count, Duration maxWait);
 }

@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import com.jayway.jsonpath.JsonPathException;
@@ -50,7 +51,6 @@ import com.jayway.jsonpath.spi.cache.NOOPCache;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class WireMockApp implements StubServer, Admin {
@@ -785,13 +785,13 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
-    return messageJournal.countEventsMatching(predicate);
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    return messageJournal.countEventsMatching(pattern);
   }
 
   @Override
-  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
-    return messageJournal.getEventsMatching(predicate);
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    return messageJournal.getEventsMatching(pattern);
   }
 
   @Override
@@ -800,9 +800,8 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public FindMessageServeEventsResult removeMessageServeEventsMatching(
-      Predicate<MessageServeEvent> predicate) {
-    return new FindMessageServeEventsResult(messageJournal.removeEventsMatching(predicate));
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    return new FindMessageServeEventsResult(messageJournal.removeEventsMatching(pattern));
   }
 
   @Override
@@ -818,15 +817,14 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public Optional<MessageServeEvent> waitForMessageEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    return messageJournal.waitForEvent(predicate, maxWait);
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    return messageJournal.waitForEvent(pattern, maxWait);
   }
 
   @Override
   public List<MessageServeEvent> waitForMessageEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
-    return messageJournal.waitForEvents(predicate, count, maxWait);
+      MessagePattern pattern, int count, Duration maxWait) {
+    return messageJournal.waitForEvents(pattern, count, maxWait);
   }
 
   @Override

@@ -15,11 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import java.time.Duration;
 import java.util.List;
@@ -57,18 +60,24 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event1);
     journal.messageReceived(event2);
 
-    assertThat(journal.countEventsMatching(e -> true), is(3));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message1")), is(2));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message2")), is(1));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(3));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message1")).build()),
+        is(2));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message2")).build()),
+        is(1));
   }
 
   @Test
   public void resettingTheJournalClearsAllEntries() {
     MessageJournal journal = new InMemoryMessageJournal(1);
     journal.messageReceived(event1);
-    assertThat(journal.countEventsMatching(e -> true), is(1));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(1));
     journal.reset();
-    assertThat(journal.countEventsMatching(e -> true), is(0));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(0));
   }
 
   @Test
@@ -78,9 +87,15 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event1);
     journal.messageReceived(event2);
 
-    assertThat(journal.countEventsMatching(e -> true), is(2));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message1")), is(1));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message2")), is(1));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(2));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message1")).build()),
+        is(1));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message2")).build()),
+        is(1));
 
     journal.messageReceived(event3);
     assertOnlyLastTwoEventsLeft(journal);
@@ -95,11 +110,13 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event3);
 
     List<MessageServeEvent> matching =
-        journal.getEventsMatching(e -> e.getMessage().startsWith("message"));
+        journal.getEventsMatching(
+            MessagePattern.messagePattern().withBody(matching("message.*")).build());
     assertThat(matching, hasSize(3));
 
     List<MessageServeEvent> matchingOne =
-        journal.getEventsMatching(e -> e.getMessage().equals("message2"));
+        journal.getEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message2")).build());
     assertThat(matchingOne, hasSize(1));
     assertThat(matchingOne.get(0).getMessage(), is("message2"));
   }
@@ -139,7 +156,7 @@ public class InMemoryMessageJournalTest {
 
     journal.removeEvent(event1.getId());
 
-    assertThat(journal.countEventsMatching(e -> true), is(1));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(1));
     assertThat(journal.getMessageServeEvent(event1.getId()).isPresent(), is(false));
     assertThat(journal.getMessageServeEvent(event2.getId()).isPresent(), is(true));
   }
@@ -153,11 +170,12 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event3);
 
     List<MessageServeEvent> removed =
-        journal.removeEventsMatching(e -> e.getMessage().equals("message2"));
+        journal.removeEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message2")).build());
 
     assertThat(removed, hasSize(1));
     assertThat(removed.get(0).getMessage(), is("message2"));
-    assertThat(journal.countEventsMatching(e -> true), is(2));
+    assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(2));
   }
 
   @Test
@@ -167,7 +185,9 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event1);
 
     Optional<MessageServeEvent> found =
-        journal.waitForEvent(e -> e.getMessage().equals("message1"), Duration.ofSeconds(1));
+        journal.waitForEvent(
+            MessagePattern.messagePattern().withBody(equalTo("message1")).build(),
+            Duration.ofSeconds(1));
 
     assertThat(found.isPresent(), is(true));
     assertThat(found.get().getMessage(), is("message1"));
@@ -178,7 +198,9 @@ public class InMemoryMessageJournalTest {
     MessageJournal journal = new InMemoryMessageJournal(null);
 
     Optional<MessageServeEvent> found =
-        journal.waitForEvent(e -> e.getMessage().equals("nonexistent"), Duration.ofMillis(100));
+        journal.waitForEvent(
+            MessagePattern.messagePattern().withBody(equalTo("nonexistent")).build(),
+            Duration.ofMillis(100));
 
     assertThat(found.isPresent(), is(false));
   }
@@ -193,7 +215,9 @@ public class InMemoryMessageJournalTest {
     executor.submit(
         () -> {
           result[0] =
-              journal.waitForEvent(e -> e.getMessage().equals("message1"), Duration.ofSeconds(5));
+              journal.waitForEvent(
+                  MessagePattern.messagePattern().withBody(equalTo("message1")).build(),
+                  Duration.ofSeconds(5));
           latch.countDown();
         });
 
@@ -219,7 +243,8 @@ public class InMemoryMessageJournalTest {
     journal.messageReceived(event1);
     journal.messageReceived(event2);
 
-    List<MessageServeEvent> found = journal.waitForEvents(e -> true, 2, Duration.ofSeconds(1));
+    List<MessageServeEvent> found =
+        journal.waitForEvents(MessagePattern.ANYTHING, 2, Duration.ofSeconds(1));
 
     assertThat(found, hasSize(2));
   }
@@ -230,7 +255,8 @@ public class InMemoryMessageJournalTest {
 
     journal.messageReceived(event1);
 
-    List<MessageServeEvent> found = journal.waitForEvents(e -> true, 5, Duration.ofMillis(100));
+    List<MessageServeEvent> found =
+        journal.waitForEvents(MessagePattern.ANYTHING, 5, Duration.ofMillis(100));
 
     assertThat(found, hasSize(1));
   }
@@ -280,8 +306,17 @@ public class InMemoryMessageJournalTest {
   }
 
   private void assertOnlyLastTwoEventsLeft(MessageJournal journal) {
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message1")), is(0));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message2")), is(1));
-    assertThat(journal.countEventsMatching(e -> e.getMessage().equals("message3")), is(1));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message1")).build()),
+        is(0));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message2")).build()),
+        is(1));
+    assertThat(
+        journal.countEventsMatching(
+            MessagePattern.messagePattern().withBody(equalTo("message3")).build()),
+        is(1));
   }
 }

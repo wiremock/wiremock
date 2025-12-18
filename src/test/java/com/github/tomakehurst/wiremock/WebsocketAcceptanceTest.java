@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.messageStubOnChann
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.websocket.message.MessagePattern.messagePattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,6 +30,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.SendMessageAction;
 import org.junit.jupiter.api.AfterEach;
@@ -519,11 +521,14 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("count-3");
 
     // Wait for all messages to be processed
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 3);
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 3);
 
     // Verify count
     int count =
-        wireMockServer.findAllMessageEvents(e -> e.getMessage().startsWith("count-")).size();
+        wireMockServer
+            .findAllMessageEvents(messagePattern().withBody(matching("count-.*")).build())
+            .size();
     assertThat(count, is(3));
   }
 
@@ -551,10 +556,13 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("find-beta");
 
     // Wait for all messages to be processed
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 2);
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 2);
 
     // Find specific message
-    var events = wireMockServer.findAllMessageEvents(e -> e.getMessage().equals("find-alpha"));
+    var events =
+        wireMockServer.findAllMessageEvents(
+            messagePattern().withBody(equalTo("find-alpha")).build());
     assertThat(events.size(), is(1));
     assertThat(events.get(0).getMessage(), is("find-alpha"));
   }
@@ -603,10 +611,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("verify-one");
     testClient.sendMessage("verify-two");
 
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 2);
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 2);
 
-    wireMockServer.verifyMessageEvent(e -> e.getMessage().equals("verify-one"));
-    wireMockServer.verifyMessageEvent(e -> e.getMessage().startsWith("verify-"));
+    wireMockServer.verifyMessageEvent(messagePattern().withBody(equalTo("verify-one")).build());
+    wireMockServer.verifyMessageEvent(messagePattern().withBody(matching("verify-.*")).build());
   }
 
   @Test
@@ -631,10 +640,13 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("count-verify-2");
     testClient.sendMessage("count-verify-3");
 
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 3);
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 3);
 
-    wireMockServer.verifyMessageEvent(3, e -> e.getMessage().startsWith("count-verify-"));
-    wireMockServer.verifyMessageEvent(1, e -> e.getMessage().equals("count-verify-2"));
+    wireMockServer.verifyMessageEvent(
+        3, messagePattern().withBody(matching("count-verify-.*")).build());
+    wireMockServer.verifyMessageEvent(
+        1, messagePattern().withBody(equalTo("count-verify-2")).build());
   }
 
   @Test
@@ -658,17 +670,17 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("strategy-a");
     testClient.sendMessage("strategy-b");
 
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 2);
+    MessagePattern strategyPattern = messagePattern().withBody(matching("strategy-.*")).build();
+
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 2);
 
     wireMockServer.verifyMessageEvent(
-        com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly(1),
-        e -> e.getMessage().startsWith("strategy-"));
+        com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly(1), strategyPattern);
     wireMockServer.verifyMessageEvent(
-        com.github.tomakehurst.wiremock.client.WireMock.lessThan(5),
-        e -> e.getMessage().startsWith("strategy-"));
+        com.github.tomakehurst.wiremock.client.WireMock.lessThan(5), strategyPattern);
     wireMockServer.verifyMessageEvent(
-        com.github.tomakehurst.wiremock.client.WireMock.exactly(2),
-        e -> e.getMessage().startsWith("strategy-"));
+        com.github.tomakehurst.wiremock.client.WireMock.exactly(2), strategyPattern);
   }
 
   @Test
@@ -677,7 +689,9 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     org.junit.jupiter.api.Assertions.assertThrows(
         com.github.tomakehurst.wiremock.client.VerificationException.class,
-        () -> wireMockServer.verifyMessageEvent(e -> e.getMessage().equals("non-existent")));
+        () ->
+            wireMockServer.verifyMessageEvent(
+                messagePattern().withBody(equalTo("non-existent")).build()));
   }
 
   @Test
@@ -701,10 +715,13 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     testClient.sendMessage("fail-1");
     testClient.sendMessage("fail-2");
 
-    waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 2);
+    waitAtMost(5, SECONDS)
+        .until(() -> wireMockServer.findAllMessageEvents(MessagePattern.ANYTHING).size() >= 2);
 
     org.junit.jupiter.api.Assertions.assertThrows(
         com.github.tomakehurst.wiremock.client.VerificationException.class,
-        () -> wireMockServer.verifyMessageEvent(5, e -> e.getMessage().startsWith("fail-")));
+        () ->
+            wireMockServer.verifyMessageEvent(
+                5, messagePattern().withBody(matching("fail-.*")).build()));
   }
 }

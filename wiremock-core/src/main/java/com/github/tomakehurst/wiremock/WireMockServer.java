@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.time.Duration;
@@ -55,7 +56,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -655,13 +655,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
-    return wireMockApp.countMessageEventsMatching(predicate);
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    return wireMockApp.countMessageEventsMatching(pattern);
   }
 
   @Override
-  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
-    return wireMockApp.findMessageEventsMatching(predicate);
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    return wireMockApp.findMessageEventsMatching(pattern);
   }
 
   @Override
@@ -670,9 +670,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public FindMessageServeEventsResult removeMessageServeEventsMatching(
-      Predicate<MessageServeEvent> predicate) {
-    return wireMockApp.removeMessageServeEventsMatching(predicate);
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    return wireMockApp.removeMessageServeEventsMatching(pattern);
   }
 
   @Override
@@ -687,15 +686,14 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public Optional<MessageServeEvent> waitForMessageEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    return wireMockApp.waitForMessageEvent(predicate, maxWait);
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    return wireMockApp.waitForMessageEvent(pattern, maxWait);
   }
 
   @Override
   public List<MessageServeEvent> waitForMessageEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
-    return wireMockApp.waitForMessageEvents(predicate, count, maxWait);
+      MessagePattern pattern, int count, Duration maxWait) {
+    return wireMockApp.waitForMessageEvents(pattern, count, maxWait);
   }
 
   @Override
@@ -711,23 +709,22 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public List<MessageServeEvent> findAllMessageEvents(Predicate<MessageServeEvent> predicate) {
-    return client.findMessageEvents(predicate);
+  public List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
+    return client.findMessageEvents(pattern);
   }
 
   @Override
-  public void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
-    client.verifyThatMessageEvent(predicate);
+  public void verifyMessageEvent(MessagePattern pattern) {
+    client.verifyThatMessageEvent(pattern);
   }
 
   @Override
-  public void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
-    client.verifyThatMessageEvent(expectedCount, predicate);
+  public void verifyMessageEvent(int expectedCount, MessagePattern pattern) {
+    client.verifyThatMessageEvent(expectedCount, pattern);
   }
 
   @Override
-  public void verifyMessageEvent(
-      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
-    client.verifyThatMessageEvent(expectedCount, predicate);
+  public void verifyMessageEvent(CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    client.verifyThatMessageEvent(expectedCount, pattern);
   }
 }

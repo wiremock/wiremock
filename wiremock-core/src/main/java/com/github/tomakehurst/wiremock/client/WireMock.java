@@ -53,6 +53,7 @@ import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder;
 import com.networknt.schema.SpecVersion;
 import java.io.File;
@@ -60,7 +61,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1103,211 +1103,93 @@ public class WireMock {
 
   // Message stub mapping DSL methods
 
-  /**
-   * Creates a message stub mapping builder for the specified channel pattern.
-   *
-   * @param channelPattern the pattern to match channels against
-   * @return a new MessageStubMappingBuilder
-   */
   public static MessageStubMappingBuilder messageStubOnChannel(
       com.github.tomakehurst.wiremock.matching.RequestPattern channelPattern) {
     return new BasicMessageStubMappingBuilder(channelPattern);
   }
 
-  /**
-   * Creates a message stub mapping builder for the specified channel pattern builder.
-   *
-   * @param channelPatternBuilder the pattern builder to match channels against
-   * @return a new MessageStubMappingBuilder
-   */
   public static MessageStubMappingBuilder messageStubOnChannel(
       com.github.tomakehurst.wiremock.matching.RequestPatternBuilder channelPatternBuilder) {
     return new BasicMessageStubMappingBuilder(channelPatternBuilder.build());
   }
 
-  /**
-   * Creates a SendMessageActionBuilder for the specified message. Use this with the DSL to create
-   * message actions.
-   *
-   * <p>Example: {@code sendMessage("hello").onOriginatingChannel()}
-   *
-   * @param message the message to send
-   * @return a new SendMessageActionBuilder
-   */
   public static SendMessageActionBuilder sendMessage(String message) {
     return new SendMessageActionBuilder(message);
   }
 
   // Message journal verification methods
 
-  /**
-   * Gets all message serve events from the message journal.
-   *
-   * @return list of all message serve events
-   */
   public static List<MessageServeEvent> getAllMessageServeEvents() {
     return defaultInstance.get().getMessageServeEvents();
   }
 
-  /**
-   * Gets all message serve events from the message journal.
-   *
-   * @return list of all message serve events
-   */
   public List<MessageServeEvent> getMessageServeEvents() {
     return admin.getMessageServeEvents().getMessageServeEvents();
   }
 
-  /**
-   * Gets message serve events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @return list of matching events
-   */
-  public static List<MessageServeEvent> findAllMessageEvents(
-      Predicate<MessageServeEvent> predicate) {
-    return defaultInstance.get().findMessageEvents(predicate);
+  public static List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
+    return defaultInstance.get().findMessageEvents(pattern);
   }
 
-  /**
-   * Gets message serve events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @return list of matching events
-   */
-  public List<MessageServeEvent> findMessageEvents(Predicate<MessageServeEvent> predicate) {
-    return admin.findMessageEventsMatching(predicate);
+  public List<MessageServeEvent> findMessageEvents(MessagePattern pattern) {
+    return admin.findMessageEventsMatching(pattern);
   }
 
-  /**
-   * Verifies that at least one message event matches the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if no matching events are found
-   */
-  public static void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
-    defaultInstance.get().verifyThatMessageEvent(predicate);
+  public static void verifyMessageEvent(MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(pattern);
   }
 
-  /**
-   * Verifies that at least one message event matches the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if no matching events are found
-   */
-  public void verifyThatMessageEvent(Predicate<MessageServeEvent> predicate) {
-    verifyThatMessageEvent(moreThanOrExactly(1), predicate);
+  public void verifyThatMessageEvent(MessagePattern pattern) {
+    verifyThatMessageEvent(moreThanOrExactly(1), pattern);
   }
 
-  /**
-   * Verifies that exactly the specified number of message events match the given predicate.
-   *
-   * @param expectedCount the expected number of matching events
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if the count doesn't match
-   */
-  public static void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
-    defaultInstance.get().verifyThatMessageEvent(expectedCount, predicate);
+  public static void verifyMessageEvent(int expectedCount, MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, pattern);
   }
 
-  /**
-   * Verifies that exactly the specified number of message events match the given predicate.
-   *
-   * @param expectedCount the expected number of matching events
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if the count doesn't match
-   */
-  public void verifyThatMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
-    verifyThatMessageEvent(exactly(expectedCount), predicate);
+  public void verifyThatMessageEvent(int expectedCount, MessagePattern pattern) {
+    verifyThatMessageEvent(exactly(expectedCount), pattern);
   }
 
-  /**
-   * Verifies that the number of message events matching the predicate satisfies the count strategy.
-   *
-   * @param expectedCount the count matching strategy
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if the count doesn't match
-   */
   public static void verifyMessageEvent(
-      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
-    defaultInstance.get().verifyThatMessageEvent(expectedCount, predicate);
+      CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, pattern);
   }
 
-  /**
-   * Verifies that the number of message events matching the predicate satisfies the count strategy.
-   *
-   * @param expectedCount the count matching strategy
-   * @param predicate the predicate to match events against
-   * @throws VerificationException if the count doesn't match
-   */
-  public void verifyThatMessageEvent(
-      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
-    int actualCount = admin.countMessageEventsMatching(predicate);
+  public void verifyThatMessageEvent(CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    int actualCount = admin.countMessageEventsMatching(pattern);
     if (!expectedCount.match(actualCount)) {
       throw new VerificationException(
           "Expected "
               + expectedCount
-              + " message events matching predicate but found "
+              + " message events matching pattern but found "
               + actualCount);
     }
   }
 
-  /**
-   * Waits for a message event matching the given predicate to appear in the journal.
-   *
-   * @param predicate the predicate to match events against
-   * @param maxWait the maximum duration to wait
-   * @return the matching event if found within the timeout
-   */
   public static Optional<MessageServeEvent> waitForMessageEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    return defaultInstance.get().waitForMessage(predicate, maxWait);
+      MessagePattern pattern, Duration maxWait) {
+    return defaultInstance.get().waitForMessage(pattern, maxWait);
   }
 
-  /**
-   * Waits for a message event matching the given predicate to appear in the journal.
-   *
-   * @param predicate the predicate to match events against
-   * @param maxWait the maximum duration to wait
-   * @return the matching event if found within the timeout
-   */
-  public Optional<MessageServeEvent> waitForMessage(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    return admin.waitForMessageEvent(predicate, maxWait);
+  public Optional<MessageServeEvent> waitForMessage(MessagePattern pattern, Duration maxWait) {
+    return admin.waitForMessageEvent(pattern, maxWait);
   }
 
-  /**
-   * Waits for a specific number of message events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @param count the number of events to wait for
-   * @param maxWait the maximum duration to wait
-   * @return list of matching events
-   */
   public static List<MessageServeEvent> waitForMessageEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
-    return defaultInstance.get().waitForMessages(predicate, count, maxWait);
+      MessagePattern pattern, int count, Duration maxWait) {
+    return defaultInstance.get().waitForMessages(pattern, count, maxWait);
   }
 
-  /**
-   * Waits for a specific number of message events matching the given predicate.
-   *
-   * @param predicate the predicate to match events against
-   * @param count the number of events to wait for
-   * @param maxWait the maximum duration to wait
-   * @return list of matching events
-   */
   public List<MessageServeEvent> waitForMessages(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
-    return admin.waitForMessageEvents(predicate, count, maxWait);
+      MessagePattern pattern, int count, Duration maxWait) {
+    return admin.waitForMessageEvents(pattern, count, maxWait);
   }
 
-  /** Resets the message journal, removing all events. */
   public static void resetMessageJournal() {
     defaultInstance.get().resetMessages();
   }
 
-  /** Resets the message journal, removing all events. */
   public void resetMessages() {
     admin.resetMessageJournal();
   }

@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.websocket.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
@@ -37,8 +37,7 @@ public class MessageStubMapping {
   private final UUID id;
   private final String name;
   private final Integer priority;
-  private final RequestPattern channelPattern;
-  private final StringValuePattern messagePattern;
+  private final MessagePattern pattern;
   private final List<MessageAction> actions;
 
   @JsonCreator
@@ -52,8 +51,16 @@ public class MessageStubMapping {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.priority = priority;
-    this.channelPattern = channelPattern;
-    this.messagePattern = messagePattern;
+    this.pattern = new MessagePattern(channelPattern, messagePattern);
+    this.actions = actions != null ? actions : Collections.emptyList();
+  }
+
+  private MessageStubMapping(
+      UUID id, String name, Integer priority, MessagePattern pattern, List<MessageAction> actions) {
+    this.id = id != null ? id : UUID.randomUUID();
+    this.name = name;
+    this.priority = priority;
+    this.pattern = pattern;
     this.actions = actions != null ? actions : Collections.emptyList();
   }
 
@@ -90,11 +97,16 @@ public class MessageStubMapping {
   }
 
   public RequestPattern getChannelPattern() {
-    return channelPattern;
+    return pattern.getChannelPattern();
   }
 
   public StringValuePattern getMessagePattern() {
-    return messagePattern;
+    return pattern.getBodyPattern();
+  }
+
+  @JsonIgnore
+  public MessagePattern getPattern() {
+    return pattern;
   }
 
   public List<MessageAction> getActions() {
@@ -106,21 +118,7 @@ public class MessageStubMapping {
       String message,
       Map<String, com.github.tomakehurst.wiremock.matching.RequestMatcherExtension>
           customMatchers) {
-    if (channelPattern != null) {
-      MatchResult channelMatch = channelPattern.match(channel.getRequest(), customMatchers);
-      if (!channelMatch.isExactMatch()) {
-        return false;
-      }
-    }
-
-    if (messagePattern != null) {
-      MatchResult messageMatch = messagePattern.match(message);
-      if (!messageMatch.isExactMatch()) {
-        return false;
-      }
-    }
-
-    return true;
+    return pattern.matches(channel, message, customMatchers);
   }
 
   public void executeActions(
@@ -159,9 +157,9 @@ public class MessageStubMapping {
         + ", priority="
         + priority
         + ", channelPattern="
-        + channelPattern
+        + pattern.getChannelPattern()
         + ", messagePattern="
-        + messagePattern
+        + pattern.getBodyPattern()
         + ", actions="
         + actions
         + '}';
@@ -181,8 +179,8 @@ public class MessageStubMapping {
       this.id = existing.id;
       this.name = existing.name;
       this.priority = existing.priority;
-      this.channelPattern = existing.channelPattern;
-      this.messagePattern = existing.messagePattern;
+      this.channelPattern = existing.pattern.getChannelPattern();
+      this.messagePattern = existing.pattern.getBodyPattern();
       this.actions = new ArrayList<>(existing.actions);
     }
 
@@ -222,7 +220,8 @@ public class MessageStubMapping {
     }
 
     public MessageStubMapping build() {
-      return new MessageStubMapping(id, name, priority, channelPattern, messagePattern, actions);
+      return new MessageStubMapping(
+          id, name, priority, new MessagePattern(channelPattern, messagePattern), actions);
     }
   }
 }

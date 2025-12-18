@@ -16,21 +16,21 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class DisabledMessageJournal implements MessageJournal {
 
   @Override
-  public int countEventsMatching(Predicate<MessageServeEvent> predicate) {
+  public int countEventsMatching(MessagePattern pattern) {
     throw new MessageJournalDisabledException();
   }
 
   @Override
-  public List<MessageServeEvent> getEventsMatching(Predicate<MessageServeEvent> predicate) {
+  public List<MessageServeEvent> getEventsMatching(MessagePattern pattern) {
     throw new MessageJournalDisabledException();
   }
 
@@ -54,7 +54,7 @@ public class DisabledMessageJournal implements MessageJournal {
   public void removeEvent(UUID eventId) {}
 
   @Override
-  public List<MessageServeEvent> removeEventsMatching(Predicate<MessageServeEvent> predicate) {
+  public List<MessageServeEvent> removeEventsMatching(MessagePattern pattern) {
     throw new MessageJournalDisabledException();
   }
 
@@ -65,14 +65,13 @@ public class DisabledMessageJournal implements MessageJournal {
   }
 
   @Override
-  public Optional<MessageServeEvent> waitForEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+  public Optional<MessageServeEvent> waitForEvent(MessagePattern pattern, Duration maxWait) {
     throw new MessageJournalDisabledException();
   }
 
   @Override
   public List<MessageServeEvent> waitForEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+      MessagePattern pattern, int count, Duration maxWait) {
     throw new MessageJournalDisabledException();
   }
 }

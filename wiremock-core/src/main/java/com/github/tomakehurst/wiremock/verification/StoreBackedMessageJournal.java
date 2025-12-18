@@ -19,11 +19,11 @@ import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.MessageJournalStore;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 public class StoreBackedMessageJournal implements MessageJournal {
 
@@ -40,13 +40,13 @@ public class StoreBackedMessageJournal implements MessageJournal {
   }
 
   @Override
-  public int countEventsMatching(Predicate<MessageServeEvent> predicate) {
-    return (int) store.getAll().filter(predicate).count();
+  public int countEventsMatching(MessagePattern pattern) {
+    return (int) store.getAll().filter(pattern::matches).count();
   }
 
   @Override
-  public List<MessageServeEvent> getEventsMatching(Predicate<MessageServeEvent> predicate) {
-    List<MessageServeEvent> events = store.getAll().filter(predicate).collect(toList());
+  public List<MessageServeEvent> getEventsMatching(MessagePattern pattern) {
+    List<MessageServeEvent> events = store.getAll().filter(pattern::matches).collect(toList());
     Collections.reverse(events);
     return events;
   }
@@ -78,8 +78,8 @@ public class StoreBackedMessageJournal implements MessageJournal {
   }
 
   @Override
-  public List<MessageServeEvent> removeEventsMatching(Predicate<MessageServeEvent> predicate) {
-    List<MessageServeEvent> toDelete = store.getAll().filter(predicate).collect(toList());
+  public List<MessageServeEvent> removeEventsMatching(MessagePattern pattern) {
+    List<MessageServeEvent> toDelete = store.getAll().filter(pattern::matches).collect(toList());
     for (MessageServeEvent event : toDelete) {
       store.remove(event.getId());
     }
@@ -93,9 +93,8 @@ public class StoreBackedMessageJournal implements MessageJournal {
   }
 
   @Override
-  public Optional<MessageServeEvent> waitForEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    Optional<MessageServeEvent> existing = store.getAll().filter(predicate).findFirst();
+  public Optional<MessageServeEvent> waitForEvent(MessagePattern pattern, Duration maxWait) {
+    Optional<MessageServeEvent> existing = store.getAll().filter(pattern::matches).findFirst();
     if (existing.isPresent()) {
       return existing;
     }
@@ -105,7 +104,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
 
     store.registerEventListener(
         storeEvent -> {
-          if (storeEvent.getNewValue() != null && predicate.test(storeEvent.getNewValue())) {
+          if (storeEvent.getNewValue() != null && pattern.matches(storeEvent.getNewValue())) {
             result[0] = storeEvent.getNewValue();
             latch.countDown();
           }
@@ -120,17 +119,17 @@ public class StoreBackedMessageJournal implements MessageJournal {
       Thread.currentThread().interrupt();
     }
 
-    return store.getAll().filter(predicate).findFirst();
+    return store.getAll().filter(pattern::matches).findFirst();
   }
 
   @Override
   public List<MessageServeEvent> waitForEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+      MessagePattern pattern, int count, Duration maxWait) {
     long deadline = System.currentTimeMillis() + maxWait.toMillis();
     List<MessageServeEvent> collected = new ArrayList<>();
 
     while (collected.size() < count && System.currentTimeMillis() < deadline) {
-      List<MessageServeEvent> current = store.getAll().filter(predicate).collect(toList());
+      List<MessageServeEvent> current = store.getAll().filter(pattern::matches).collect(toList());
       if (current.size() >= count) {
         return current.subList(0, count);
       }
@@ -140,7 +139,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
         CountDownLatch latch = new CountDownLatch(1);
         store.registerEventListener(
             storeEvent -> {
-              if (storeEvent.getNewValue() != null && predicate.test(storeEvent.getNewValue())) {
+              if (storeEvent.getNewValue() != null && pattern.matches(storeEvent.getNewValue())) {
                 latch.countDown();
               }
             });
@@ -154,7 +153,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
       }
     }
 
-    return store.getAll().filter(predicate).limit(count).collect(toList());
+    return store.getAll().filter(pattern::matches).limit(count).collect(toList());
   }
 
   private void removeOldEntries() {
@@ -165,8 +164,12 @@ public class StoreBackedMessageJournal implements MessageJournal {
     }
   }
 
-  private static Predicate<MessageServeEvent> withStubMetadataMatching(
-      final StringValuePattern metadataPattern) {
-    return (MessageServeEvent event) -> false;
+  private static MessagePattern withStubMetadataMatching(final StringValuePattern metadataPattern) {
+    return new MessagePattern(null, null) {
+      @Override
+      public boolean matches(MessageServeEvent event) {
+        return false;
+      }
+    };
   }
 }

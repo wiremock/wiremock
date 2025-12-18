@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.time.Duration;
@@ -54,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class HttpAdminClient implements Admin {
 
@@ -610,13 +610,13 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+  public int countMessageEventsMatching(MessagePattern pattern) {
     throw new UnsupportedOperationException(
         "Message journal is not accessible via the HTTP admin client");
   }
 
   @Override
-  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
     throw new UnsupportedOperationException(
         "Message journal is not accessible via the HTTP admin client");
   }
@@ -628,8 +628,7 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public FindMessageServeEventsResult removeMessageServeEventsMatching(
-      Predicate<MessageServeEvent> predicate) {
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
     throw new UnsupportedOperationException(
         "Message journal is not accessible via the HTTP admin client");
   }
@@ -648,15 +647,14 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public Optional<MessageServeEvent> waitForMessageEvent(
-      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
     throw new UnsupportedOperationException(
         "Message journal is not accessible via the HTTP admin client");
   }
 
   @Override
   public List<MessageServeEvent> waitForMessageEvents(
-      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+      MessagePattern pattern, int count, Duration maxWait) {
     throw new UnsupportedOperationException(
         "Message journal is not accessible via the HTTP admin client");
   }

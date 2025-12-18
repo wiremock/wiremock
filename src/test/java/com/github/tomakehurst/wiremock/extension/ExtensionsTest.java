@@ -32,10 +32,10 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 class ExtensionsTest {
@@ -352,13 +352,12 @@ class ExtensionsTest {
     }
 
     @Override
-    public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    public int countMessageEventsMatching(MessagePattern pattern) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<MessageServeEvent> findMessageEventsMatching(
-        Predicate<MessageServeEvent> predicate) {
+    public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
       throw new UnsupportedOperationException();
     }
 
@@ -368,8 +367,7 @@ class ExtensionsTest {
     }
 
     @Override
-    public FindMessageServeEventsResult removeMessageServeEventsMatching(
-        Predicate<MessageServeEvent> predicate) {
+    public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
       throw new UnsupportedOperationException();
     }
 
@@ -386,13 +384,13 @@ class ExtensionsTest {
 
     @Override
     public java.util.Optional<MessageServeEvent> waitForMessageEvent(
-        Predicate<MessageServeEvent> predicate, java.time.Duration maxWait) {
+        MessagePattern pattern, java.time.Duration maxWait) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public List<MessageServeEvent> waitForMessageEvents(
-        Predicate<MessageServeEvent> predicate, int count, java.time.Duration maxWait) {
+        MessagePattern pattern, int count, java.time.Duration maxWait) {
       throw new UnsupportedOperationException();
     }
 
