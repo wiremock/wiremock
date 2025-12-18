@@ -46,6 +46,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubImportBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindMessageServeEventsResult;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -54,6 +55,7 @@ import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder;
 import com.networknt.schema.SpecVersion;
 import java.io.File;
@@ -1117,6 +1119,41 @@ public class WireMock {
     return new SendMessageActionBuilder(message);
   }
 
+  public static MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
+    return defaultInstance.get().registerMessageStub(builder);
+  }
+
+  public MessageStubMapping registerMessageStub(MessageStubMappingBuilder builder) {
+    MessageStubMapping mapping = builder.build();
+    admin.addMessageStubMapping(mapping);
+    return mapping;
+  }
+
+  public static MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping) {
+    return defaultInstance.get().registerMessageStub(messageStubMapping);
+  }
+
+  public MessageStubMapping registerMessageStub(MessageStubMapping messageStubMapping) {
+    admin.addMessageStubMapping(messageStubMapping);
+    return messageStubMapping;
+  }
+
+  public static void removeMessageStub(UUID id) {
+    defaultInstance.get().deleteMessageStub(id);
+  }
+
+  public void deleteMessageStub(UUID id) {
+    admin.removeMessageStubMapping(id);
+  }
+
+  public static void resetMessageStubs() {
+    defaultInstance.get().resetAllMessageStubs();
+  }
+
+  public void resetAllMessageStubs() {
+    admin.resetMessageStubMappings();
+  }
+
   // Message journal verification methods
 
   public static List<MessageServeEvent> getAllMessageServeEvents() {
@@ -1208,6 +1245,25 @@ public class WireMock {
 
   public void resetMessages() {
     admin.resetMessageJournal();
+  }
+
+  public static FindMessageServeEventsResult removeMessageServeEventsMatching(
+      MessagePattern pattern) {
+    return defaultInstance.get().removeMessageEvents(pattern);
+  }
+
+  public FindMessageServeEventsResult removeMessageEvents(MessagePattern pattern) {
+    return admin.removeMessageServeEventsMatching(pattern);
+  }
+
+  public static FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return defaultInstance.get().removeMessageEventsForStubsMatchingMetadata(pattern);
+  }
+
+  public FindMessageServeEventsResult removeMessageEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return admin.removeMessageServeEventsForStubsMatchingMetadata(pattern);
   }
 
   public enum JsonSchemaVersion {

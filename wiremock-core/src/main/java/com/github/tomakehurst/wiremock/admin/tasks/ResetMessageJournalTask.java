@@ -29,4 +29,3 @@ public class ResetMessageJournalTask implements AdminTask {
     return ResponseDefinition.okEmptyJson();
   }
 }
-

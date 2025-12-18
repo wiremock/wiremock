@@ -44,4 +44,3 @@ public class GetMessageEventCountTask implements AdminTask {
         .build();
   }
 }
-

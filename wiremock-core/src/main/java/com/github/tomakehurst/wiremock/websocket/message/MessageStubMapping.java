@@ -204,7 +204,7 @@ public class MessageStubMapping {
       return this;
     }
 
-    public Builder withMessagePattern(StringValuePattern messagePattern) {
+    public Builder withBody(StringValuePattern messagePattern) {
       this.messagePattern = messagePattern;
       return this;
     }
@@ -214,7 +214,7 @@ public class MessageStubMapping {
       return this;
     }
 
-    public Builder withAction(MessageAction action) {
+    public Builder triggersAction(MessageAction action) {
       this.actions.add(action);
       return this;
     }

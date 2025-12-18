@@ -126,8 +126,14 @@ public class AdminRoutes {
     router.add(DELETE, "/messages", new ResetMessageJournalTask());
     router.add(POST, "/messages/count", new GetMessageEventCountTask());
     router.add(POST, "/messages/find", new FindMessageEventsTask());
+    router.add(POST, "/messages/remove", new RemoveMessageServeEventsByPatternTask());
+    router.add(POST, "/messages/remove-by-metadata", new RemoveMessageServeEventsByMetadataTask());
     router.add(GET, "/messages/{id}", new GetMessageServeEventTask());
     router.add(DELETE, "/messages/{id}", new RemoveMessageServeEventTask());
+
+    router.add(POST, "/message-mappings", new CreateMessageStubMappingTask());
+    router.add(DELETE, "/message-mappings", new ResetMessageStubMappingsTask());
+    router.add(DELETE, "/message-mappings/{id}", new RemoveMessageStubMappingTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

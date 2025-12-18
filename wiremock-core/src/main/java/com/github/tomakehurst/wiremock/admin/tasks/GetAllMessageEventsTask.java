@@ -39,4 +39,3 @@ public class GetAllMessageEventsTask implements AdminTask {
         .build();
   }
 }
-

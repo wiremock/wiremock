@@ -31,4 +31,3 @@ public class RemoveMessageServeEventTask implements AdminTask {
     return ResponseDefinition.okEmptyJson();
   }
 }
-

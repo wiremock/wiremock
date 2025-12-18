@@ -155,7 +155,8 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers, messageJournal);
+        new MessageStubMappings(
+            stores.getMessageStubMappingStore(), customMatchers, messageJournal);
 
     this.container = container;
     extensions.startAll();
@@ -214,7 +215,8 @@ public class WireMockApp implements StubServer, Admin {
     globalSettingsListeners = Collections.emptyList();
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers, messageJournal);
+        new MessageStubMappings(
+            stores.getMessageStubMappingStore(), requestMatchers, messageJournal);
     loadDefaultMappings();
   }
 

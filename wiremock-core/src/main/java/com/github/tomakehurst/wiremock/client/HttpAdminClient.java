@@ -575,26 +575,27 @@ public class HttpAdminClient implements Admin {
 
   @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
-    throw new UnsupportedOperationException(
-        "Message stub mappings are not accessible via the HTTP admin client");
+    postJsonAssertOkAndReturnBody(
+        urlFor(CreateMessageStubMappingTask.class), Json.write(messageStubMapping));
   }
 
   @Override
   public void removeMessageStubMapping(UUID id) {
-    throw new UnsupportedOperationException(
-        "Message stub mappings are not accessible via the HTTP admin client");
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageStubMappingTask.class),
+        PathParams.single("id", id),
+        Void.class);
   }
 
   @Override
   public void resetMessageStubMappings() {
-    throw new UnsupportedOperationException(
-        "Message stub mappings are not accessible via the HTTP admin client");
+    executeRequest(adminRoutes.requestSpecForTask(ResetMessageStubMappingsTask.class));
   }
 
   @Override
   public MessageStubMappings getMessageStubMappings() {
     throw new UnsupportedOperationException(
-        "Message stub mappings are not accessible via the HTTP admin client");
+        "Message stub mappings listing is not accessible via the HTTP admin client");
   }
 
   @Override
@@ -615,8 +616,7 @@ public class HttpAdminClient implements Admin {
   @Override
   public int countMessageEventsMatching(MessagePattern pattern) {
     String body =
-        postJsonAssertOkAndReturnBody(
-            urlFor(GetMessageEventCountTask.class), Json.write(pattern));
+        postJsonAssertOkAndReturnBody(urlFor(GetMessageEventCountTask.class), Json.write(pattern));
     return MessageVerificationResult.from(body).getCount();
   }
 
@@ -637,15 +637,19 @@ public class HttpAdminClient implements Admin {
 
   @Override
   public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
-    throw new UnsupportedOperationException(
-        "Remove message serve events by pattern is not yet supported via the HTTP admin client");
+    String body =
+        postJsonAssertOkAndReturnBody(
+            urlFor(RemoveMessageServeEventsByPatternTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class);
   }
 
   @Override
   public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
       StringValuePattern pattern) {
-    throw new UnsupportedOperationException(
-        "Remove message serve events by metadata is not yet supported via the HTTP admin client");
+    String body =
+        postJsonAssertOkAndReturnBody(
+            urlFor(RemoveMessageServeEventsByMetadataTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class);
   }
 
   @Override
