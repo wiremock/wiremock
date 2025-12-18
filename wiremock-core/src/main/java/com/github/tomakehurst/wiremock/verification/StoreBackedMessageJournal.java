@@ -1,0 +1,185 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.verification;
+
+import static java.util.stream.Collectors.toList;
+
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.store.MessageJournalStore;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import org.wiremock.annotations.Beta;
+
+/**
+ * Store-backed implementation of MessageJournal. Provides message event storage with support for
+ * waiting on events matching specific criteria.
+ */
+@Beta(justification = "Message Journal API")
+public class StoreBackedMessageJournal implements MessageJournal {
+
+  protected final MessageJournalStore store;
+  private final Integer maxEntries;
+
+  public StoreBackedMessageJournal(Integer maxEntries, MessageJournalStore store) {
+    if (maxEntries != null && maxEntries < 0) {
+      throw new IllegalArgumentException(
+          "Maximum number of entries of journal must be greater than zero");
+    }
+    this.maxEntries = maxEntries;
+    this.store = store;
+  }
+
+  @Override
+  public int countEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return (int) store.getAll().filter(predicate).count();
+  }
+
+  @Override
+  public List<MessageServeEvent> getEventsMatching(Predicate<MessageServeEvent> predicate) {
+    List<MessageServeEvent> events = store.getAll().filter(predicate).collect(toList());
+    Collections.reverse(events);
+    return events;
+  }
+
+  @Override
+  public List<MessageServeEvent> getAllMessageServeEvents() {
+    return store.getAll().collect(toList());
+  }
+
+  @Override
+  public Optional<MessageServeEvent> getMessageServeEvent(UUID id) {
+    return store.get(id);
+  }
+
+  @Override
+  public void reset() {
+    store.clear();
+  }
+
+  @Override
+  public void messageReceived(MessageServeEvent event) {
+    store.add(event);
+    removeOldEntries();
+  }
+
+  @Override
+  public void removeEvent(UUID eventId) {
+    store.remove(eventId);
+  }
+
+  @Override
+  public List<MessageServeEvent> removeEventsMatching(Predicate<MessageServeEvent> predicate) {
+    List<MessageServeEvent> toDelete = store.getAll().filter(predicate).collect(toList());
+    for (MessageServeEvent event : toDelete) {
+      store.remove(event.getId());
+    }
+    return toDelete;
+  }
+
+  @Override
+  public List<MessageServeEvent> removeEventsForStubsMatchingMetadata(
+      StringValuePattern metadataPattern) {
+    return removeEventsMatching(withStubMetadataMatching(metadataPattern));
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    // First check if there's already a matching event
+    Optional<MessageServeEvent> existing = store.getAll().filter(predicate).findFirst();
+    if (existing.isPresent()) {
+      return existing;
+    }
+
+    // Set up a latch to wait for a matching event
+    CountDownLatch latch = new CountDownLatch(1);
+    final MessageServeEvent[] result = new MessageServeEvent[1];
+
+    store.registerEventListener(
+        storeEvent -> {
+          if (storeEvent.getNewValue() != null && predicate.test(storeEvent.getNewValue())) {
+            result[0] = storeEvent.getNewValue();
+            latch.countDown();
+          }
+        });
+
+    try {
+      boolean found = latch.await(maxWait.toMillis(), TimeUnit.MILLISECONDS);
+      if (found) {
+        return Optional.ofNullable(result[0]);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+
+    // Check one more time in case an event arrived just before we started waiting
+    return store.getAll().filter(predicate).findFirst();
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    long deadline = System.currentTimeMillis() + maxWait.toMillis();
+    List<MessageServeEvent> collected = new ArrayList<>();
+
+    while (collected.size() < count && System.currentTimeMillis() < deadline) {
+      List<MessageServeEvent> current = store.getAll().filter(predicate).collect(toList());
+      if (current.size() >= count) {
+        return current.subList(0, count);
+      }
+
+      // Wait a bit before checking again
+      long remaining = deadline - System.currentTimeMillis();
+      if (remaining > 0) {
+        CountDownLatch latch = new CountDownLatch(1);
+        store.registerEventListener(
+            storeEvent -> {
+              if (storeEvent.getNewValue() != null && predicate.test(storeEvent.getNewValue())) {
+                latch.countDown();
+              }
+            });
+
+        try {
+          latch.await(Math.min(remaining, 100), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+    }
+
+    // Return whatever we have collected
+    return store.getAll().filter(predicate).limit(count).collect(toList());
+  }
+
+  private void removeOldEntries() {
+    if (maxEntries != null) {
+      while (store.getAllKeys().count() > maxEntries) {
+        store.removeLast();
+      }
+    }
+  }
+
+  private static Predicate<MessageServeEvent> withStubMetadataMatching(
+      final StringValuePattern metadataPattern) {
+    // MessageStubMapping doesn't currently support metadata, so this always returns false.
+    // This method is provided for API consistency with the request journal.
+    return (MessageServeEvent event) -> false;
+  }
+}

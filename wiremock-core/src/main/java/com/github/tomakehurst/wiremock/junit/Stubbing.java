@@ -23,10 +23,14 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public interface Stubbing {
 
@@ -105,4 +109,77 @@ public interface Stubbing {
 
   /** Removes all message stub mappings. */
   void resetMessageStubs();
+
+  // Message journal verification methods
+
+  /**
+   * Gets all message serve events from the message journal.
+   *
+   * @return list of all message serve events
+   */
+  List<MessageServeEvent> getAllMessageServeEvents();
+
+  /**
+   * Gets message serve events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return list of matching events
+   */
+  List<MessageServeEvent> findAllMessageEvents(Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Counts message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return the count of matching events
+   */
+  int countMessageEvents(Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Verifies that at least one message event matches the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   */
+  void verifyMessageEvent(Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Verifies that exactly the specified number of message events match the given predicate.
+   *
+   * @param expectedCount the expected number of matching events
+   * @param predicate the predicate to match events against
+   */
+  void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Verifies that the number of message events matching the predicate satisfies the count strategy.
+   *
+   * @param expectedCount the count matching strategy
+   * @param predicate the predicate to match events against
+   */
+  void verifyMessageEvent(
+      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Waits for a message event matching the given predicate to appear in the journal.
+   *
+   * @param predicate the predicate to match events against
+   * @param maxWait the maximum duration to wait
+   * @return the matching event if found within the timeout
+   */
+  Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait);
+
+  /**
+   * Waits for a specific number of message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @param count the number of events to wait for
+   * @param maxWait the maximum duration to wait
+   * @return list of matching events
+   */
+  List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait);
+
+  /** Resets the message journal, removing all events. */
+  void resetMessageJournal();
 }

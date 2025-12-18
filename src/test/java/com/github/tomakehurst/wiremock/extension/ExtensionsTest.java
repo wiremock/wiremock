@@ -32,8 +32,10 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 class ExtensionsTest {
@@ -335,8 +337,67 @@ class ExtensionsTest {
     }
 
     @Override
-    public com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings
-        getMessageStubMappings() {
+    public MessageStubMappings getMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GetMessageServeEventsResult getMessageServeEvents() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<MessageServeEvent> findMessageEventsMatching(
+        Predicate<MessageServeEvent> predicate) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageServeEvent(UUID eventId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FindMessageServeEventsResult removeMessageServeEventsMatching(
+        Predicate<MessageServeEvent> predicate) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+        StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resetMessageJournal() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public java.util.Optional<MessageServeEvent> waitForMessageEvent(
+        Predicate<MessageServeEvent> predicate, java.time.Duration maxWait) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<MessageServeEvent> waitForMessageEvents(
+        Predicate<MessageServeEvent> predicate, int count, java.time.Duration maxWait) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MessageJournal getMessageJournal() {
       throw new UnsupportedOperationException();
     }
   }

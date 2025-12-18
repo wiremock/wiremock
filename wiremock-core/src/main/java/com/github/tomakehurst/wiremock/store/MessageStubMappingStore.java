@@ -34,4 +34,3 @@ public interface MessageStubMappingStore {
 
   void clear();
 }
-

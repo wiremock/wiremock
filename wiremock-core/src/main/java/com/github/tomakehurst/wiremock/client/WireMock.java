@@ -49,14 +49,18 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
+import com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder;
 import com.networknt.schema.SpecVersion;
 import java.io.File;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1130,9 +1134,202 @@ public class WireMock {
    * @param message the message to send
    * @return a new SendMessageActionBuilder
    */
-  public static com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder
-      sendMessage(String message) {
-    return new com.github.tomakehurst.wiremock.websocket.message.SendMessageActionBuilder(message);
+  public static SendMessageActionBuilder sendMessage(String message) {
+    return new SendMessageActionBuilder(message);
+  }
+
+  // Message journal verification methods
+
+  /**
+   * Gets all message serve events from the message journal.
+   *
+   * @return list of all message serve events
+   */
+  public static List<MessageServeEvent> getAllMessageServeEvents() {
+    return defaultInstance.get().getMessageServeEvents();
+  }
+
+  /**
+   * Gets all message serve events from the message journal.
+   *
+   * @return list of all message serve events
+   */
+  public List<MessageServeEvent> getMessageServeEvents() {
+    return admin.getMessageServeEvents().getMessageServeEvents();
+  }
+
+  /**
+   * Gets message serve events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return list of matching events
+   */
+  public static List<MessageServeEvent> findAllMessageEvents(
+      Predicate<MessageServeEvent> predicate) {
+    return defaultInstance.get().findMessageEvents(predicate);
+  }
+
+  /**
+   * Gets message serve events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return list of matching events
+   */
+  public List<MessageServeEvent> findMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return admin.findMessageEventsMatching(predicate);
+  }
+
+  /**
+   * Counts message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return the count of matching events
+   */
+  public static int countMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return defaultInstance.get().countMessages(predicate);
+  }
+
+  /**
+   * Counts message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return the count of matching events
+   */
+  public int countMessages(Predicate<MessageServeEvent> predicate) {
+    return admin.countMessageEventsMatching(predicate);
+  }
+
+  /**
+   * Verifies that at least one message event matches the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if no matching events are found
+   */
+  public static void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
+    defaultInstance.get().verifyThatMessageEvent(predicate);
+  }
+
+  /**
+   * Verifies that at least one message event matches the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if no matching events are found
+   */
+  public void verifyThatMessageEvent(Predicate<MessageServeEvent> predicate) {
+    verifyThatMessageEvent(moreThanOrExactly(1), predicate);
+  }
+
+  /**
+   * Verifies that exactly the specified number of message events match the given predicate.
+   *
+   * @param expectedCount the expected number of matching events
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if the count doesn't match
+   */
+  public static void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, predicate);
+  }
+
+  /**
+   * Verifies that exactly the specified number of message events match the given predicate.
+   *
+   * @param expectedCount the expected number of matching events
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if the count doesn't match
+   */
+  public void verifyThatMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
+    verifyThatMessageEvent(exactly(expectedCount), predicate);
+  }
+
+  /**
+   * Verifies that the number of message events matching the predicate satisfies the count strategy.
+   *
+   * @param expectedCount the count matching strategy
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if the count doesn't match
+   */
+  public static void verifyMessageEvent(
+      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, predicate);
+  }
+
+  /**
+   * Verifies that the number of message events matching the predicate satisfies the count strategy.
+   *
+   * @param expectedCount the count matching strategy
+   * @param predicate the predicate to match events against
+   * @throws VerificationException if the count doesn't match
+   */
+  public void verifyThatMessageEvent(
+      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
+    int actualCount = admin.countMessageEventsMatching(predicate);
+    if (!expectedCount.match(actualCount)) {
+      throw new VerificationException(
+          "Expected "
+              + expectedCount
+              + " message events matching predicate but found "
+              + actualCount);
+    }
+  }
+
+  /**
+   * Waits for a message event matching the given predicate to appear in the journal.
+   *
+   * @param predicate the predicate to match events against
+   * @param maxWait the maximum duration to wait
+   * @return the matching event if found within the timeout
+   */
+  public static Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    return defaultInstance.get().waitForMessage(predicate, maxWait);
+  }
+
+  /**
+   * Waits for a message event matching the given predicate to appear in the journal.
+   *
+   * @param predicate the predicate to match events against
+   * @param maxWait the maximum duration to wait
+   * @return the matching event if found within the timeout
+   */
+  public Optional<MessageServeEvent> waitForMessage(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    return admin.waitForMessageEvent(predicate, maxWait);
+  }
+
+  /**
+   * Waits for a specific number of message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @param count the number of events to wait for
+   * @param maxWait the maximum duration to wait
+   * @return list of matching events
+   */
+  public static List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    return defaultInstance.get().waitForMessages(predicate, count, maxWait);
+  }
+
+  /**
+   * Waits for a specific number of message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @param count the number of events to wait for
+   * @param maxWait the maximum duration to wait
+   * @return list of matching events
+   */
+  public List<MessageServeEvent> waitForMessages(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    return admin.waitForMessageEvents(predicate, count, maxWait);
+  }
+
+  /** Resets the message journal, removing all events. */
+  public static void resetMessageJournal() {
+    defaultInstance.get().resetMessages();
+  }
+
+  /** Resets the message journal, removing all events. */
+  public void resetMessages() {
+    admin.resetMessageJournal();
   }
 
   public enum JsonSchemaVersion {

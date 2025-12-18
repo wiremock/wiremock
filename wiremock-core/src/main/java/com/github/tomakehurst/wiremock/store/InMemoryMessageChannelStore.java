@@ -53,4 +53,3 @@ public class InMemoryMessageChannelStore implements MessageChannelStore {
     channels.clear();
   }
 }
-

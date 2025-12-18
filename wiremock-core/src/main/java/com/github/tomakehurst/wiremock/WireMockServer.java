@@ -49,10 +49,13 @@ import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -637,5 +640,99 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public void resetMessageStubs() {
     resetMessageStubMappings();
+  }
+
+  // Message journal methods from Admin interface
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    return wireMockApp.getMessageServeEvents();
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return wireMockApp.getMessageServeEvent(id);
+  }
+
+  @Override
+  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return wireMockApp.countMessageEventsMatching(predicate);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return wireMockApp.findMessageEventsMatching(predicate);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    wireMockApp.removeMessageServeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(
+      Predicate<MessageServeEvent> predicate) {
+    return wireMockApp.removeMessageServeEventsMatching(predicate);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return wireMockApp.removeMessageServeEventsForStubsMatchingMetadata(pattern);
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    wireMockApp.resetMessageJournal();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    return wireMockApp.waitForMessageEvent(predicate, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    return wireMockApp.waitForMessageEvents(predicate, count, maxWait);
+  }
+
+  @Override
+  public MessageJournal getMessageJournal() {
+    return wireMockApp.getMessageJournal();
+  }
+
+  // Message journal methods from Stubbing interface
+
+  @Override
+  public List<MessageServeEvent> getAllMessageServeEvents() {
+    return client.getMessageServeEvents();
+  }
+
+  @Override
+  public List<MessageServeEvent> findAllMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return client.findMessageEvents(predicate);
+  }
+
+  @Override
+  public int countMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return client.countMessages(predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
+    client.verifyThatMessageEvent(predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
+    client.verifyThatMessageEvent(expectedCount, predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(
+      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
+    client.verifyThatMessageEvent(expectedCount, predicate);
   }
 }

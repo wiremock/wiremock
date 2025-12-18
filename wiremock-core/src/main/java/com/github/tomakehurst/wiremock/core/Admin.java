@@ -30,8 +30,11 @@ import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public interface Admin {
 
@@ -170,4 +173,91 @@ public interface Admin {
    * @return the message stub mappings
    */
   MessageStubMappings getMessageStubMappings();
+
+  /**
+   * Gets all message serve events from the message journal.
+   *
+   * @return result containing all message serve events
+   */
+  GetMessageServeEventsResult getMessageServeEvents();
+
+  /**
+   * Gets a specific message serve event by ID.
+   *
+   * @param id the event ID
+   * @return the event if found
+   */
+  SingleMessageServeEventResult getMessageServeEvent(UUID id);
+
+  /**
+   * Counts message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return the count of matching events
+   */
+  int countMessageEventsMatching(Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Gets message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return list of matching events
+   */
+  List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Removes a specific message serve event from the journal.
+   *
+   * @param eventId the ID of the event to remove
+   */
+  void removeMessageServeEvent(UUID eventId);
+
+  /**
+   * Removes all message serve events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @return result containing the removed events
+   */
+  FindMessageServeEventsResult removeMessageServeEventsMatching(
+      Predicate<MessageServeEvent> predicate);
+
+  /**
+   * Removes all message serve events for stubs matching the given metadata pattern.
+   *
+   * @param pattern the pattern to match stub metadata against
+   * @return result containing the removed events
+   */
+  FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern);
+
+  /** Resets the message journal, removing all events. */
+  void resetMessageJournal();
+
+  /**
+   * Waits for a message event matching the given predicate to appear in the journal.
+   *
+   * @param predicate the predicate to match events against
+   * @param maxWait the maximum duration to wait
+   * @return the matching event if found within the timeout
+   */
+  Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait);
+
+  /**
+   * Waits for a specific number of message events matching the given predicate.
+   *
+   * @param predicate the predicate to match events against
+   * @param count the number of events to wait for
+   * @param maxWait the maximum duration to wait
+   * @return list of matching events
+   */
+  List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait);
+
+  /**
+   * Gets the message journal.
+   *
+   * @return the message journal
+   */
+  MessageJournal getMessageJournal();
 }

@@ -53,4 +53,3 @@ public class InMemoryMessageStubMappingStore implements MessageStubMappingStore 
     mappings.clear();
   }
 }
-

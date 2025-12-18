@@ -47,8 +47,10 @@ import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class WireMockApp implements StubServer, Admin {
@@ -62,6 +64,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Scenarios scenarios;
   private final StubMappings stubMappings;
   private final RequestJournal requestJournal;
+  private final MessageJournal messageJournal;
   private final SettingsStore settingsStore;
   private final boolean browserProxyingEnabled;
   private final MappingsLoader defaultMappingsLoader;
@@ -127,6 +130,12 @@ public class WireMockApp implements StubServer, Admin {
                 customMatchers,
                 stores.getRequestJournalStore());
 
+    messageJournal =
+        options.requestJournalDisabled()
+            ? new DisabledMessageJournal()
+            : new StoreBackedMessageJournal(
+                options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
+
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =
         new StoreBackedStubMappings(
@@ -147,6 +156,7 @@ public class WireMockApp implements StubServer, Admin {
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
         new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
+    this.messageStubMappings.setMessageJournal(messageJournal);
 
     this.container = container;
     extensions.startAll();
@@ -178,6 +188,11 @@ public class WireMockApp implements StubServer, Admin {
             ? new DisabledRequestJournal()
             : new StoreBackedRequestJournal(
                 maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
+    messageJournal =
+        requestJournalDisabled
+            ? new DisabledMessageJournal()
+            : new StoreBackedMessageJournal(
+                maxRequestJournalEntries, stores.getMessageJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
 
     serveEventListeners = Collections.emptyMap();
@@ -201,6 +216,7 @@ public class WireMockApp implements StubServer, Admin {
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
         new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
+    this.messageStubMappings.setMessageJournal(messageJournal);
     loadDefaultMappings();
   }
 
@@ -751,5 +767,70 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void resetMessageStubMappings() {
     messageStubMappings.clear();
+  }
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    try {
+      return GetMessageServeEventsResult.messageJournalEnabled(
+          messageJournal.getAllMessageServeEvents());
+    } catch (MessageJournalDisabledException e) {
+      return GetMessageServeEventsResult.messageJournalDisabled();
+    }
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return SingleMessageServeEventResult.fromOptional(messageJournal.getMessageServeEvent(id));
+  }
+
+  @Override
+  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return messageJournal.countEventsMatching(predicate);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return messageJournal.getEventsMatching(predicate);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    messageJournal.removeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(
+      Predicate<MessageServeEvent> predicate) {
+    return new FindMessageServeEventsResult(messageJournal.removeEventsMatching(predicate));
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return new FindMessageServeEventsResult(
+        messageJournal.removeEventsForStubsMatchingMetadata(pattern));
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    messageJournal.reset();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    return messageJournal.waitForEvent(predicate, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    return messageJournal.waitForEvents(predicate, count, maxWait);
+  }
+
+  @Override
+  public MessageJournal getMessageJournal() {
+    return messageJournal;
   }
 }

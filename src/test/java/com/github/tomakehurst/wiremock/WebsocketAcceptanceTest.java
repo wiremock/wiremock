@@ -438,4 +438,146 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     waitAtMost(5, SECONDS).until(() -> client1.getMessages().contains("broadcasted"));
     waitAtMost(5, SECONDS).until(() -> client2.getMessages().contains("broadcasted"));
   }
+
+  // Message Journal tests
+
+  @Test
+  void messageJournalRecordsReceivedMessages() {
+    // Register a message stub
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Journal test stub")
+            .withMessagePattern(equalTo("journal-test"))
+            .withAction(SendMessageAction.toOriginatingChannel("response"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    // Reset the message journal
+    wireMockServer.resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/journal-test";
+
+    testClient.sendMessageAndWaitForResponse(url, "journal-test");
+
+    // Verify the message was recorded in the journal
+    var events = wireMockServer.getAllMessageServeEvents();
+    assertThat(events.size(), is(1));
+
+    var event = events.get(0);
+    assertThat(event.getMessage(), is("journal-test"));
+    assertThat(event.getWasMatched(), is(true));
+    assertThat(event.getStubMapping().getName(), is("Journal test stub"));
+  }
+
+  @Test
+  void messageJournalRecordsUnmatchedMessages() {
+    // Reset the message journal
+    wireMockServer.resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/unmatched-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    testClient.sendMessage("unmatched-message");
+
+    // Wait for the message to be processed
+    waitAtMost(5, SECONDS).until(() -> wireMockServer.getAllMessageServeEvents().size() > 0);
+
+    // Verify the unmatched message was recorded
+    var events = wireMockServer.getAllMessageServeEvents();
+    assertThat(events.size(), is(1));
+
+    var event = events.get(0);
+    assertThat(event.getMessage(), is("unmatched-message"));
+    assertThat(event.getWasMatched(), is(false));
+  }
+
+  @Test
+  void canCountMessageEventsMatchingPredicate() {
+    // Register a message stub
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Count test stub")
+            .withMessagePattern(matching("count-.*"))
+            .withAction(SendMessageAction.toOriginatingChannel("counted"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    // Reset the message journal
+    wireMockServer.resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/count-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+
+    testClient.sendMessage("count-1");
+    testClient.sendMessage("count-2");
+    testClient.sendMessage("count-3");
+
+    // Wait for all messages to be processed
+    waitAtMost(5, SECONDS).until(() -> wireMockServer.countMessageEvents(e -> true) >= 3);
+
+    // Verify count
+    int count = wireMockServer.countMessageEvents(e -> e.getMessage().startsWith("count-"));
+    assertThat(count, is(3));
+  }
+
+  @Test
+  void canFindMessageEventsMatchingPredicate() {
+    // Register a message stub
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Find test stub")
+            .withMessagePattern(matching("find-.*"))
+            .withAction(SendMessageAction.toOriginatingChannel("found"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    // Reset the message journal
+    wireMockServer.resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/find-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+
+    testClient.sendMessage("find-alpha");
+    testClient.sendMessage("find-beta");
+
+    // Wait for all messages to be processed
+    waitAtMost(5, SECONDS).until(() -> wireMockServer.countMessageEvents(e -> true) >= 2);
+
+    // Find specific message
+    var events = wireMockServer.findAllMessageEvents(e -> e.getMessage().equals("find-alpha"));
+    assertThat(events.size(), is(1));
+    assertThat(events.get(0).getMessage(), is("find-alpha"));
+  }
+
+  @Test
+  void canResetMessageJournal() {
+    // Reset the message journal
+    wireMockServer.resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/reset-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    testClient.sendMessage("before-reset");
+
+    // Wait for the message to be processed
+    waitAtMost(5, SECONDS).until(() -> wireMockServer.getAllMessageServeEvents().size() > 0);
+
+    // Reset the journal
+    wireMockServer.resetMessageJournal();
+
+    // Verify journal is empty
+    var events = wireMockServer.getAllMessageServeEvents();
+    assertThat(events.size(), is(0));
+  }
 }

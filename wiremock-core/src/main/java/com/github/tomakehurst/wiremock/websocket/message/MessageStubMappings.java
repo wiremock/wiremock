@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.websocket.message;
 
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.MessageStubMappingStore;
+import com.github.tomakehurst.wiremock.verification.MessageJournal;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import java.util.Comparator;
@@ -34,11 +36,21 @@ public class MessageStubMappings {
 
   private final MessageStubMappingStore store;
   private final Map<String, RequestMatcherExtension> customMatchers;
+  private MessageJournal messageJournal;
 
   public MessageStubMappings(
       MessageStubMappingStore store, Map<String, RequestMatcherExtension> customMatchers) {
     this.store = store;
     this.customMatchers = customMatchers;
+  }
+
+  /**
+   * Sets the message journal for recording message events.
+   *
+   * @param messageJournal the message journal to use
+   */
+  public void setMessageJournal(MessageJournal messageJournal) {
+    this.messageJournal = messageJournal;
   }
 
   /** Adds a new message stub mapping. */
@@ -68,7 +80,9 @@ public class MessageStubMappings {
         .sorted(
             Comparator.comparingInt(
                 m ->
-                    m.getPriority() != null ? m.getPriority() : MessageStubMapping.DEFAULT_PRIORITY))
+                    m.getPriority() != null
+                        ? m.getPriority()
+                        : MessageStubMapping.DEFAULT_PRIORITY))
         .collect(Collectors.toList());
   }
 
@@ -95,8 +109,21 @@ public class MessageStubMappings {
       MessageChannel channel, String message, MessageChannels messageChannels) {
     Optional<MessageStubMapping> matchingStub = findMatchingStub(channel, message);
     if (matchingStub.isPresent()) {
-      matchingStub.get().executeActions(channel, messageChannels, message);
+      MessageStubMapping stub = matchingStub.get();
+      stub.executeActions(channel, messageChannels, message);
+
+      // Record the matched event in the message journal
+      if (messageJournal != null) {
+        MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
+        messageJournal.messageReceived(event);
+      }
       return true;
+    } else {
+      // Record the unmatched event in the message journal
+      if (messageJournal != null) {
+        MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
+        messageJournal.messageReceived(event);
+      }
     }
     return false;
   }

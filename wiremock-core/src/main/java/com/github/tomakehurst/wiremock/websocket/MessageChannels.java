@@ -57,9 +57,7 @@ public class MessageChannels {
 
   /** Returns all message channels of the specified type. */
   public List<MessageChannel> getAllByType(ChannelType type) {
-    return store.getAll()
-        .filter(channel -> channel.getType() == type)
-        .collect(Collectors.toList());
+    return store.getAll().filter(channel -> channel.getType() == type).collect(Collectors.toList());
   }
 
   /** Returns all open message channels. */
@@ -69,7 +67,8 @@ public class MessageChannels {
 
   /** Returns all open message channels of the specified type. */
   public List<MessageChannel> getAllOpenByType(ChannelType type) {
-    return store.getAll()
+    return store
+        .getAll()
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
         .collect(Collectors.toList());
@@ -84,7 +83,8 @@ public class MessageChannels {
    */
   public List<MessageChannel> findByRequestPattern(
       RequestPattern requestPattern, Map<String, RequestMatcherExtension> customMatchers) {
-    return store.getAll()
+    return store
+        .getAll()
         .filter(MessageChannel::isOpen)
         .filter(
             channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
@@ -104,7 +104,8 @@ public class MessageChannels {
       ChannelType type,
       RequestPattern requestPattern,
       Map<String, RequestMatcherExtension> customMatchers) {
-    return store.getAll()
+    return store
+        .getAll()
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
         .filter(
@@ -177,7 +178,8 @@ public class MessageChannels {
   /** Returns the number of open channels of the specified type. */
   public int openCountByType(ChannelType type) {
     return (int)
-        store.getAll()
+        store
+            .getAll()
             .filter(MessageChannel::isOpen)
             .filter(channel -> channel.getType() == type)
             .count();

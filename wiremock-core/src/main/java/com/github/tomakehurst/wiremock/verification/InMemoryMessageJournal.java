@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.websocket.MessageChannel;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
+import com.github.tomakehurst.wiremock.store.InMemoryMessageJournalStore;
 import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageChannelStore {
+/**
+ * In-memory implementation of MessageJournal. Convenience class that uses an
+ * InMemoryMessageJournalStore.
+ */
+@Beta(justification = "Message Journal API")
+public class InMemoryMessageJournal extends StoreBackedMessageJournal {
 
-  Stream<MessageChannel> getAll();
-
-  Optional<MessageChannel> get(UUID id);
-
-  void add(MessageChannel channel);
-
-  void remove(UUID id);
-
-  void clear();
+  public InMemoryMessageJournal(Integer maxEntries) {
+    super(maxEntries, new InMemoryMessageJournalStore());
+  }
 }

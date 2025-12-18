@@ -37,8 +37,11 @@ import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class DslWrapper implements Admin, Stubbing {
 
@@ -429,5 +432,99 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public void resetMessageStubs() {
     stubbing.resetMessageStubs();
+  }
+
+  // Message journal methods from Admin interface
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    return admin.getMessageServeEvents();
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return admin.getMessageServeEvent(id);
+  }
+
+  @Override
+  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return admin.countMessageEventsMatching(predicate);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    return admin.findMessageEventsMatching(predicate);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    admin.removeMessageServeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(
+      Predicate<MessageServeEvent> predicate) {
+    return admin.removeMessageServeEventsMatching(predicate);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return admin.removeMessageServeEventsForStubsMatchingMetadata(pattern);
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    admin.resetMessageJournal();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    return admin.waitForMessageEvent(predicate, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    return admin.waitForMessageEvents(predicate, count, maxWait);
+  }
+
+  @Override
+  public MessageJournal getMessageJournal() {
+    return admin.getMessageJournal();
+  }
+
+  // Message journal methods from Stubbing interface
+
+  @Override
+  public List<MessageServeEvent> getAllMessageServeEvents() {
+    return stubbing.getAllMessageServeEvents();
+  }
+
+  @Override
+  public List<MessageServeEvent> findAllMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return stubbing.findAllMessageEvents(predicate);
+  }
+
+  @Override
+  public int countMessageEvents(Predicate<MessageServeEvent> predicate) {
+    return stubbing.countMessageEvents(predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(Predicate<MessageServeEvent> predicate) {
+    stubbing.verifyMessageEvent(predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(int expectedCount, Predicate<MessageServeEvent> predicate) {
+    stubbing.verifyMessageEvent(expectedCount, predicate);
+  }
+
+  @Override
+  public void verifyMessageEvent(
+      CountMatchingStrategy expectedCount, Predicate<MessageServeEvent> predicate) {
+    stubbing.verifyMessageEvent(expectedCount, predicate);
   }
 }

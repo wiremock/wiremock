@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.admin.model;
 
-import com.github.tomakehurst.wiremock.websocket.MessageChannel;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageChannelStore {
+/** Result containing a single message serve event. */
+@Beta(justification = "Message Journal API")
+public class SingleMessageServeEventResult extends SingleItemResult<MessageServeEvent> {
 
-  Stream<MessageChannel> getAll();
+  @JsonCreator
+  public SingleMessageServeEventResult(MessageServeEvent item) {
+    super(item);
+  }
 
-  Optional<MessageChannel> get(UUID id);
-
-  void add(MessageChannel channel);
-
-  void remove(UUID id);
-
-  void clear();
+  public static SingleMessageServeEventResult fromOptional(Optional<MessageServeEvent> event) {
+    return new SingleMessageServeEventResult(event.orElse(null));
+  }
 }

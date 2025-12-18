@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.websocket.MessageChannel;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
+import com.github.tomakehurst.wiremock.core.ConfigurationException;
 import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageChannelStore {
+/** Exception thrown when message journal operations are attempted but the journal is disabled. */
+@Beta(justification = "Message Journal API")
+public class MessageJournalDisabledException extends ConfigurationException {
 
-  Stream<MessageChannel> getAll();
-
-  Optional<MessageChannel> get(UUID id);
-
-  void add(MessageChannel channel);
-
-  void remove(UUID id);
-
-  void clear();
+  public MessageJournalDisabledException() {
+    super(
+        "The message journal is disabled, so no verification or message searching operations are available");
+  }
 }

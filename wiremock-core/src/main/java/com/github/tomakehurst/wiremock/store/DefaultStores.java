@@ -35,6 +35,7 @@ public class DefaultStores implements Stores {
   private final ScenariosStore scenariosStore;
   private final MessageChannelStore messageChannelStore;
   private final MessageStubMappingStore messageStubMappingStore;
+  private final MessageJournalStore messageJournalStore;
 
   private final Map<String, ObjectStore> objectStores;
 
@@ -47,6 +48,7 @@ public class DefaultStores implements Stores {
     this.scenariosStore = new InMemoryScenariosStore();
     this.messageChannelStore = new InMemoryMessageChannelStore();
     this.messageStubMappingStore = new InMemoryMessageStubMappingStore();
+    this.messageJournalStore = new InMemoryMessageJournalStore();
 
     objectStores = new ConcurrentHashMap<>();
   }
@@ -84,6 +86,11 @@ public class DefaultStores implements Stores {
   @Override
   public MessageStubMappingStore getMessageStubMappingStore() {
     return messageStubMappingStore;
+  }
+
+  @Override
+  public MessageJournalStore getMessageJournalStore() {
+    return messageJournalStore;
   }
 
   @Override

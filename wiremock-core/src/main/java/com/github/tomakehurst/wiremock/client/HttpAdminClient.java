@@ -49,10 +49,12 @@ import com.github.tomakehurst.wiremock.websocket.ChannelType;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class HttpAdminClient implements Admin {
 
@@ -593,5 +595,75 @@ public class HttpAdminClient implements Admin {
   public MessageStubMappings getMessageStubMappings() {
     throw new UnsupportedOperationException(
         "Message stub mappings are not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public int countMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(Predicate<MessageServeEvent> predicate) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(
+      Predicate<MessageServeEvent> predicate) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(
+      Predicate<MessageServeEvent> predicate, Duration maxWait) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      Predicate<MessageServeEvent> predicate, int count, Duration maxWait) {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
+  }
+
+  @Override
+  public MessageJournal getMessageJournal() {
+    throw new UnsupportedOperationException(
+        "Message journal is not accessible via the HTTP admin client");
   }
 }
