@@ -17,12 +17,19 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
+import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
 class UrlTests {
 
@@ -42,7 +49,7 @@ class UrlTests {
 
     @Test
     void normalise() {
-      String urlString = "http://proxy.example.com";
+      String urlString = "http://proxy.example.com/";
       Url parsed = Url.parse(urlString);
       Url normalised = parsed.normalise();
       assertThat(normalised).isEqualTo(parsed);
@@ -59,6 +66,113 @@ class UrlTests {
       Url stillNoPort = noPortToStartWith.transform(it -> it.setPort(null));
       assertThat(noPortToStartWith).isEqualTo(stillNoPort);
       assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
+    }
+
+    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlOrigins =
+        WhatWGUrlTestManagement.whatwg_valid.stream()
+            .filter(
+                t ->
+                    t.origin() != null
+                        && !t.origin().isEmpty()
+                        && !t.origin().equals("null")
+                        && !t.origin().equals("http://!\"$&'()*+,-.;=_`{}~")
+                        && !t.origin().equals("wss://!\"$&'()*+,-.;=_`{}~"))
+            .collect(Collectors.toSet());
+
+    @ParameterizedTest
+    @FieldSource("whatWgUrlOrigins")
+    void whatWgUrlOriginsAreAllBaseUrls(SuccessWhatWGUrlTestCase testCase) {
+      try {
+        String origin = testCase.origin();
+        assert origin != null;
+
+        URI javaUri = URI.create(origin);
+
+        var baseUrl = BaseUrl.parse(origin);
+
+        assertThat(baseUrl.toString()).isEqualTo(origin);
+        assertThat(baseUrl).isEqualTo(UrlReference.parse(origin));
+        assertThat(baseUrl.scheme().toString()).isEqualTo(javaUri.getScheme());
+        assertThat(baseUrl.authority().toString()).isEqualTo(javaUri.getRawAuthority());
+        assertThat(baseUrl.normalise())
+            .isEqualTo(
+                Url.builder(baseUrl.scheme(), baseUrl.authority()).setPath(Path.ROOT).build());
+      } catch (Throwable e) {
+        System.out.println(testCase);
+        throw e;
+      }
+    }
+
+    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlBase =
+        WhatWGUrlTestManagement.whatwg_valid.stream()
+            .filter(
+                t ->
+                    t.base() != null
+                        && !t.base().isEmpty()
+                        && !t.hostname().isEmpty()
+                        && !t.base().equals("sc://ñ"))
+            .collect(Collectors.toSet());
+
+    @ParameterizedTest
+    @FieldSource("whatWgUrlBase")
+    void whatWgUrlBasesAreAllUrls(SuccessWhatWGUrlTestCase testCase) {
+      assert testCase.base() != null;
+      testWhatWgUrl(testCase, testCase.base());
+    }
+
+    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlHref =
+        WhatWGUrlTestManagement.whatwg_valid.stream()
+            .filter(
+                t ->
+                    t.href() != null
+                        && !t.href().isEmpty()
+                        && !t.hostname().isEmpty()
+                        && !t.href().equals("sc://%/")
+                        && !t.href()
+                            .equals(
+                                "wss://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/")
+                        && !t.href().equals("http://!\"$&'()*+,-.;=_`{}~/")
+                        && !t.href().equals("foo://!\"$%&'()*+,-.;=_`{}~/")
+                        && !t.href().equals("wss://!\"$&'()*+,-.;=_`{}~/")
+                        && !t.href()
+                            .equals(
+                                "sc://%01%02%03%04%05%06%07%08%0B%0C%0E%0F%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%7F!\"$%&'()*+,-.;=_`{}~/"))
+            .collect(Collectors.toSet());
+
+    @ParameterizedTest
+    @FieldSource("whatWgUrlHref")
+    void whatWgUrlHrefsAreAllUrls(SuccessWhatWGUrlTestCase testCase) {
+      assert testCase.href() != null;
+      testWhatWgUrl(testCase, testCase.href());
+    }
+
+    private static void testWhatWgUrl(SuccessWhatWGUrlTestCase testCase, String base) {
+      try {
+        var url = Url.parse(base);
+
+        assertThat(url.toString()).isEqualTo(base);
+        assertThat(url).isEqualTo(UrlReference.parse(base));
+        if (url.path().isEmpty()) {
+          assertThat(url.normalise()).isEqualTo(url.transform(b -> b.setPath(Path.ROOT)));
+        }
+
+        URI javaUri = uriOrNull(base);
+
+        if (javaUri != null) {
+          assertThat(url.scheme().toString()).isEqualTo(javaUri.getScheme());
+          Authority authority = url.authority();
+          String javaUriRawAuthority = javaUri.getRawAuthority();
+          if (javaUriRawAuthority == null) {
+            assertThat(authority.toString()).isEmpty();
+            assertThat(authority.hostAndPort()).isEqualTo(HostAndPort.of(Host.parse(""), null));
+          } else {
+            assertThat(authority.toString()).isEqualTo(javaUriRawAuthority);
+          }
+        }
+      } catch (Throwable e) {
+        System.out.println(testCase);
+        throw e;
+      }
     }
 
     static Stream<UriReferenceParseTestCase> validUrls() {
@@ -123,6 +237,14 @@ class UrlTests {
           testCase(
               "https://example.com/a|b?a|b#a|b",
               expectation("https", "example.com", "/a|b", "a|b", "a|b")));
+    }
+  }
+
+  private static @Nullable URI uriOrNull(String origin) {
+    try {
+      return new URI(origin);
+    } catch (URISyntaxException e) {
+      return null;
     }
   }
 

@@ -51,12 +51,18 @@ public interface BaseUrl extends Url {
   static BaseUrl of(Scheme scheme, Authority authority) {
     return new BaseUrlParser.BaseUrl(scheme, authority);
   }
+
+  static BaseUrl parse(String baseUrl) {
+    return BaseUrlParser.INSTANCE.parse(baseUrl);
+  }
 }
 
 class BaseUrlParser implements CharSequenceParser<BaseUrl> {
 
+  static final BaseUrlParser INSTANCE = new BaseUrlParser();
+
   @Override
-  public org.wiremock.url.BaseUrl parse(CharSequence url) throws IllegalUrl {
+  public org.wiremock.url.BaseUrl parse(CharSequence url) throws IllegalBaseUrl {
     try {
       var urlReference = UrlReferenceParser.INSTANCE.parse(url);
       if (urlReference instanceof org.wiremock.url.BaseUrl) {

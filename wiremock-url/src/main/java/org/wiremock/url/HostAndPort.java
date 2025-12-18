@@ -18,6 +18,11 @@ package org.wiremock.url;
 import org.jspecify.annotations.Nullable;
 
 public interface HostAndPort extends Authority {
+
+  static HostAndPort of(Host host, @Nullable Port port) {
+    return new AuthorityParser.HostAndPort(host, port);
+  }
+
   /**
    * {@implSpec} Implementations must ALWAYS return null
    *

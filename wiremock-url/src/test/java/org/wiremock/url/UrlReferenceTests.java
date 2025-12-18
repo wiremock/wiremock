@@ -30,7 +30,7 @@ import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 public class UrlReferenceTests {
 
   @SuppressWarnings("unused")
-  private static final List<WhatWGUrlTestCase> wiremock_valid =
+  private static final List<? extends WhatWGUrlTestCase> wiremock_valid =
       WhatWGUrlTestManagement.wiremock_valid;
 
   @ParameterizedTest
@@ -51,11 +51,11 @@ public class UrlReferenceTests {
     }
 
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
-      if (successTestCase.base() != null) {
+      if (successTestCase.href() != null) {
         Url base = null;
         try {
-          base = Url.parse(successTestCase.base());
-          assertThat(base.toString()).isEqualTo(successTestCase.base());
+          base = Url.parse(successTestCase.href());
+          assertThat(base.toString()).isEqualTo(successTestCase.href());
         } catch (IllegalUrl ignored) {
 
         }
@@ -125,7 +125,7 @@ public class UrlReferenceTests {
   }
 
   @SuppressWarnings("unused")
-  private static final List<WhatWGUrlTestCase> wiremock_invalid =
+  private static final List<? extends WhatWGUrlTestCase> wiremock_invalid =
       WhatWGUrlTestManagement.wiremock_invalid;
 
   @ParameterizedTest
@@ -141,19 +141,19 @@ public class UrlReferenceTests {
   void debug() {
     wiremock_valid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "http://example.com/{}?{}#{}",
+            /* input */ "foo://!\"$%&'()*+,-.;<=>@[\\]^_`{|}~@host/",
             /* base */ null,
-            /* href */ "http://example.com/%7B%7D",
-            /* origin */ "http://example.com",
-            /* protocol */ "http:",
-            /* username */ "",
+            /* href */ "foo://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/",
+            /* origin */ "null",
+            /* protocol */ "foo:",
+            /* username */ "%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~",
             /* password */ "",
-            /* host */ "example.com",
-            /* hostname */ "example.com",
+            /* host */ "host",
+            /* hostname */ "host",
             /* port */ "",
-            /* pathname */ "/%7B%7D",
-            /* search */ "?{}",
+            /* pathname */ "/",
+            /* search */ "",
             /* searchParams */ null,
-            /* hash */ "#{}"));
+            /* hash */ ""));
   }
 }

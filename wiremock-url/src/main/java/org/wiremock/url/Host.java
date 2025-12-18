@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import static org.wiremock.url.Constants.pctEncoded;
+import static org.wiremock.url.Constants.pctEncodedPattern;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
 
@@ -42,6 +43,7 @@ class HostParser implements CharSequenceParser<Host> {
   final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
   final String ipLiteral = "\\[(?:" + ipv6Address + "|" + ipvFuture + ")]";
   final String registeredName = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
+  // all ipv4 addresses are also legal registered names
   final String hostRegex = ipLiteral + "|" + registeredName;
 
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
@@ -77,11 +79,26 @@ class HostParser implements CharSequenceParser<Host> {
 
     @Override
     public org.wiremock.url.Host normalise() {
-      var lowerCase = host.toLowerCase(Locale.ROOT);
-      if (lowerCase.equals(host)) {
+      StringBuilder result = new StringBuilder();
+      Matcher matcher = pctEncodedPattern.matcher(host);
+      int lastEnd = 0;
+
+      while (matcher.find()) {
+        // Lowercase the part before the percent-encoded sequence
+        result.append(host.substring(lastEnd, matcher.start()).toLowerCase(Locale.ROOT));
+        // Uppercase the percent-encoded sequence
+        result.append(matcher.group().toUpperCase(Locale.ROOT));
+        lastEnd = matcher.end();
+      }
+
+      // Lowercase the remaining part
+      result.append(host.substring(lastEnd).toLowerCase(Locale.ROOT));
+
+      String normalised = result.toString();
+      if (normalised.equals(host)) {
         return this;
       } else {
-        return new Host(lowerCase);
+        return new Host(normalised);
       }
     }
   }

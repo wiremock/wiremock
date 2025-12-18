@@ -16,6 +16,7 @@
 package org.wiremock.url.whatwg;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -116,6 +117,6 @@ public record SuccessWhatWGUrlTestCase(
   }
 
   private @NonNull String stringOrNull(@Nullable String value) {
-    return value == null ? "null" : '"' + value + '"';
+    return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(input) + '"';
   }
 }

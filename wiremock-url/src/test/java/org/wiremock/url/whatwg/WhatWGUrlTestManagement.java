@@ -50,7 +50,7 @@ public class WhatWGUrlTestManagement {
 
   private static final String URLTESTDATA_JSON = "urltestdata.json";
 
-  static final List<WhatWGUrlTestCase> testData =
+  static final List<? extends WhatWGUrlTestCase> testData =
       readLocalJson()
           .valueStream()
           .filter(JsonNode::isObject)
@@ -74,84 +74,97 @@ public class WhatWGUrlTestManagement {
     }
   }
 
-  static final List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
-      readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
+  @SuppressWarnings("unchecked")
+  static final List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
+      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
 
-  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_invalid =
-      readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
+  @SuppressWarnings("unchecked")
+  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_invalid =
+      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
 
-  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_valid =
-      readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
+  @SuppressWarnings("unchecked")
+  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_valid =
+      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
 
-  static List<WhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_invalid =
-      readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
+  @SuppressWarnings("unchecked")
+  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_invalid =
+      (List<SuccessWhatWGUrlTestCase>)
+          readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
 
-  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_valid =
-      readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
+  @SuppressWarnings("unchecked")
+  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_valid =
+      (List<? extends FailureWhatWGUrlTestCase>)
+          readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
 
-  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_invalid =
-      readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
+  @SuppressWarnings("unchecked")
+  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_invalid =
+      (List<? extends FailureWhatWGUrlTestCase>)
+          readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
 
-  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_valid =
-      readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
+  @SuppressWarnings("unchecked")
+  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_valid =
+      (List<? extends FailureWhatWGUrlTestCase>)
+          readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
 
-  static List<WhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
-      readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
+  @SuppressWarnings("unchecked")
+  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
+      (List<? extends FailureWhatWGUrlTestCase>)
+          readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
 
-  static List<WhatWGUrlTestCase> rfc3986_valid_java_valid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_valid =
       readResource("rfc3986_valid_java_valid");
 
-  static List<WhatWGUrlTestCase> rfc3986_valid_java_invalid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_invalid =
       readResource("rfc3986_valid_java_invalid");
 
-  static List<WhatWGUrlTestCase> rfc3986_invalid_java_valid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_valid =
       readResource("rfc3986_invalid_java_valid");
 
-  static List<WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
       readResource("rfc3986_invalid_java_invalid");
 
-  static List<WhatWGUrlTestCase> java_valid =
+  static List<? extends WhatWGUrlTestCase> java_valid =
       concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
 
-  static List<WhatWGUrlTestCase> java_invalid =
+  static List<? extends WhatWGUrlTestCase> java_invalid =
       concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
 
-  static List<WhatWGUrlTestCase> whatwg_valid =
+  public static List<? extends SuccessWhatWGUrlTestCase> whatwg_valid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_valid,
           whatwg_valid_rfc3986_valid_wiremock_invalid,
           whatwg_valid_rfc3986_invalid_wiremock_valid,
           whatwg_valid_rfc3986_invalid_wiremock_invalid);
 
-  static List<WhatWGUrlTestCase> whatwg_invalid =
+  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid =
       concat(
           whatwg_invalid_rfc3986_valid_wiremock_valid,
           whatwg_invalid_rfc3986_valid_wiremock_invalid,
           whatwg_invalid_rfc3986_invalid_wiremock_valid,
           whatwg_invalid_rfc3986_invalid_wiremock_invalid);
 
-  static List<WhatWGUrlTestCase> rfc3986_valid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_valid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_valid,
           whatwg_valid_rfc3986_valid_wiremock_invalid,
           whatwg_invalid_rfc3986_valid_wiremock_valid,
           whatwg_invalid_rfc3986_valid_wiremock_invalid);
 
-  static List<WhatWGUrlTestCase> rfc3986_invalid =
+  static List<? extends WhatWGUrlTestCase> rfc3986_invalid =
       concat(
           whatwg_valid_rfc3986_invalid_wiremock_valid,
           whatwg_valid_rfc3986_invalid_wiremock_invalid,
           whatwg_invalid_rfc3986_invalid_wiremock_valid,
           whatwg_invalid_rfc3986_invalid_wiremock_invalid);
 
-  public static List<WhatWGUrlTestCase> wiremock_valid =
+  public static List<? extends WhatWGUrlTestCase> wiremock_valid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_valid,
           whatwg_valid_rfc3986_invalid_wiremock_valid,
           whatwg_invalid_rfc3986_valid_wiremock_valid,
           whatwg_invalid_rfc3986_invalid_wiremock_valid);
 
-  public static List<WhatWGUrlTestCase> wiremock_invalid =
+  public static List<? extends WhatWGUrlTestCase> wiremock_invalid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_invalid,
           whatwg_valid_rfc3986_invalid_wiremock_invalid,
@@ -201,18 +214,13 @@ public class WhatWGUrlTestManagement {
     }
   }
 
-  static List<WhatWGUrlTestCase> readResource(String resourceName) {
+  static List<? extends WhatWGUrlTestCase> readResource(String resourceName) {
     try (var resource = WhatWGUrlTestManagement.class.getResourceAsStream(resourceName + ".json")) {
       if (resource == null) {
         return Collections.emptyList();
       } else {
-        try {
-          var json = objectMapper.readTree(resource);
-          return json.valueStream().map(WhatWGUrlTestManagement::map).toList();
-        } catch (Exception e) {
-          e.printStackTrace();
-          return Collections.emptyList();
-        }
+        var json = objectMapper.readTree(resource);
+        return json.valueStream().map(WhatWGUrlTestManagement::map).toList();
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -237,16 +245,16 @@ public class WhatWGUrlTestManagement {
     }
   }
 
-  static <C extends Collection<T>, T> List<T> concat(Collection<C> lists) {
+  static <C extends Collection<T>, T> List<? extends T> concat(Collection<? extends C> lists) {
     return concat(lists.stream());
   }
 
   @SafeVarargs
-  static <T> List<T> concat(Collection<T>... lists) {
+  static <T> List<? extends T> concat(Collection<? extends T>... lists) {
     return concat(Stream.of(lists));
   }
 
-  static <C extends Collection<T>, T> List<T> concat(Stream<C> lists) {
+  static <C extends Collection<? extends T>, T> List<? extends T> concat(Stream<C> lists) {
     return lists.flatMap(Collection::stream).toList();
   }
 

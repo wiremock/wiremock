@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.intellij.lang.annotations.Language;
+import java.util.regex.Pattern;
 
 class Constants {
 
@@ -24,6 +25,7 @@ class Constants {
 
   @Language("RegExp")
   static final String pctEncoded = "%[0-9a-fA-F]{2}";
+  static final Pattern pctEncodedPattern = Pattern.compile(pctEncoded);
 
   @Language("RegExp")
   public static final String subDelims = "!\\$&'\\(\\)\\*\\+,;=";

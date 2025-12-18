@@ -125,7 +125,7 @@ class WhatWGUrlInvariantTests {
     coversAllCases(java_valid, java_invalid);
   }
 
-  private static final List<WhatWGUrlTestCase> rfc3986_valid =
+  private static final List<? extends WhatWGUrlTestCase> rfc3986_valid =
       WhatWGUrlTestManagement.rfc3986_valid;
 
   @ParameterizedTest
@@ -134,7 +134,7 @@ class WhatWGUrlInvariantTests {
     assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isTrue();
   }
 
-  private static final List<WhatWGUrlTestCase> rfc3986_invalid =
+  private static final List<? extends WhatWGUrlTestCase> rfc3986_invalid =
       WhatWGUrlTestManagement.rfc3986_invalid;
 
   @ParameterizedTest
@@ -143,7 +143,8 @@ class WhatWGUrlInvariantTests {
     assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isFalse();
   }
 
-  private static final List<WhatWGUrlTestCase> whatwg_valid = WhatWGUrlTestManagement.whatwg_valid;
+  private static final List<? extends SuccessWhatWGUrlTestCase> whatwg_valid =
+      WhatWGUrlTestManagement.whatwg_valid;
 
   @ParameterizedTest
   @FieldSource("whatwg_valid")
@@ -151,7 +152,7 @@ class WhatWGUrlInvariantTests {
     assertThat(testCase.success()).isTrue();
   }
 
-  private static final List<WhatWGUrlTestCase> whatwg_invalid =
+  private static final List<? extends FailureWhatWGUrlTestCase> whatwg_invalid =
       WhatWGUrlTestManagement.whatwg_invalid;
 
   @ParameterizedTest
@@ -160,7 +161,8 @@ class WhatWGUrlInvariantTests {
     assertThat(testCase.success()).isFalse();
   }
 
-  private static final List<WhatWGUrlTestCase> java_valid = WhatWGUrlTestManagement.java_valid;
+  private static final List<? extends WhatWGUrlTestCase> java_valid =
+      WhatWGUrlTestManagement.java_valid;
 
   @ParameterizedTest
   @FieldSource("java_valid")
@@ -168,7 +170,8 @@ class WhatWGUrlInvariantTests {
     new URI(testCase.input());
   }
 
-  private static final List<WhatWGUrlTestCase> java_invalid = WhatWGUrlTestManagement.java_invalid;
+  private static final List<? extends WhatWGUrlTestCase> java_invalid =
+      WhatWGUrlTestManagement.java_invalid;
 
   @ParameterizedTest
   @FieldSource("java_invalid")
@@ -176,10 +179,12 @@ class WhatWGUrlInvariantTests {
     assertThatThrownBy(() -> new URI(testCase.input())).isInstanceOf(URISyntaxException.class);
   }
 
-  private static void coversAllCases(List<WhatWGUrlTestCase> valid, List<WhatWGUrlTestCase> invalid)
+  private static void coversAllCases(
+      List<? extends WhatWGUrlTestCase> valid, List<? extends WhatWGUrlTestCase> invalid)
       throws IOException {
     try {
-      assertThat(concat(valid, invalid)).containsAll(testData);
+      var concat = concat(valid, invalid);
+      assertThat((List<WhatWGUrlTestCase>) concat).containsAll((List<WhatWGUrlTestCase>) testData);
     } catch (AssertionError e) {
       sortTestData();
       throw e;

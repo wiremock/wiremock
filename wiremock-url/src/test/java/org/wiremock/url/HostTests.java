@@ -278,6 +278,7 @@ class HostTests {
     }
 
     @Test
+    @SuppressWarnings("AssertBetweenInconvertibleTypes")
     void host_is_not_equal_to_different_type() {
       Host host = Host.parse("example.com");
       assertThat(host).isNotEqualTo("example.com");
