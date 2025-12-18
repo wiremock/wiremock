@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
+@JsonInclude(Include.NON_NULL)
 public class ResponseDefinition {
 
   private final int status;

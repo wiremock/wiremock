@@ -38,6 +38,7 @@ import org.jspecify.annotations.NonNull;
 @JsonIgnoreProperties({
   "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
+@JsonInclude(Include.NON_NULL)
 @JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
 public final class StubMapping implements StubMappingOrMappings {
 

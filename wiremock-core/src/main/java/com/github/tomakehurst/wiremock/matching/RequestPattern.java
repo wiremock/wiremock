@@ -48,6 +48,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import org.jspecify.annotations.NonNull;
 
+@JsonInclude(Include.NON_NULL)
 public class RequestPattern implements NamedValueMatcher<Request> {
 
   private final String scheme;
