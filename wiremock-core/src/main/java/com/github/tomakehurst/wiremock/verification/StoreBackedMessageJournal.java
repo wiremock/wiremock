@@ -24,9 +24,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Message Journal API")
 public class StoreBackedMessageJournal implements MessageJournal {
 
   protected final MessageJournalStore store;

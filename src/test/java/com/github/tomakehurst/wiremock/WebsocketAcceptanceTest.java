@@ -522,7 +522,8 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     waitAtMost(5, SECONDS).until(() -> wireMockServer.findAllMessageEvents(e -> true).size() >= 3);
 
     // Verify count
-    int count = wireMockServer.findAllMessageEvents(e -> e.getMessage().startsWith("count-")).size();
+    int count =
+        wireMockServer.findAllMessageEvents(e -> e.getMessage().startsWith("count-")).size();
     assertThat(count, is(3));
   }
 

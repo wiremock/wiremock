@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.store.InMemoryMessageJournalStore;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Message Journal API")
 public class InMemoryMessageJournal extends StoreBackedMessageJournal {
 
   public InMemoryMessageJournal(Integer maxEntries) {

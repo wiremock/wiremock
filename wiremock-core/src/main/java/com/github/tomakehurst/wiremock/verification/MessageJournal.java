@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Message Journal API")
 public interface MessageJournal {
 
   int countEventsMatching(Predicate<MessageServeEvent> predicate);

@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Message Journal API")
 public class FindMessageServeEventsResult {
 
   private final List<MessageServeEvent> messageServeEvents;

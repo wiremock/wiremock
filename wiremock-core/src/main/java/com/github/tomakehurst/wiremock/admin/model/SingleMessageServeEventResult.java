@@ -18,10 +18,7 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Optional;
-import org.wiremock.annotations.Beta;
 
-/** Result containing a single message serve event. */
-@Beta(justification = "Message Journal API")
 public class SingleMessageServeEventResult extends SingleItemResult<MessageServeEvent> {
 
   @JsonCreator

@@ -27,9 +27,7 @@ import com.google.common.base.Stopwatch;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Message Journal API")
 public class MessageServeEvent {
 
   public enum EventType {
