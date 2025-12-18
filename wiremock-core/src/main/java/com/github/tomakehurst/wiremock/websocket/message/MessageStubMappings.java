@@ -32,15 +32,14 @@ public class MessageStubMappings {
 
   private final MessageStubMappingStore store;
   private final Map<String, RequestMatcherExtension> customMatchers;
-  private MessageJournal messageJournal;
+  private final MessageJournal messageJournal;
 
   public MessageStubMappings(
-      MessageStubMappingStore store, Map<String, RequestMatcherExtension> customMatchers) {
+      MessageStubMappingStore store,
+      Map<String, RequestMatcherExtension> customMatchers,
+      MessageJournal messageJournal) {
     this.store = store;
     this.customMatchers = customMatchers;
-  }
-
-  public void setMessageJournal(MessageJournal messageJournal) {
     this.messageJournal = messageJournal;
   }
 
@@ -87,16 +86,12 @@ public class MessageStubMappings {
       MessageStubMapping stub = matchingStub.get();
       stub.executeActions(channel, messageChannels, message);
 
-      if (messageJournal != null) {
-        MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
-        messageJournal.messageReceived(event);
-      }
+      MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
+      messageJournal.messageReceived(event);
       return true;
     } else {
-      if (messageJournal != null) {
-        MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
-        messageJournal.messageReceived(event);
-      }
+      MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
+      messageJournal.messageReceived(event);
     }
     return false;
   }
