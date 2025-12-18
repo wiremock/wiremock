@@ -121,6 +121,13 @@ public class AdminRoutes {
 
     router.add(POST, "/channels/send", new SendChannelMessageTask());
     router.add(POST, "/websockets/send", new SendWebSocketMessageTask());
+
+    router.add(GET, "/messages", new GetAllMessageEventsTask());
+    router.add(DELETE, "/messages", new ResetMessageJournalTask());
+    router.add(POST, "/messages/count", new GetMessageEventCountTask());
+    router.add(POST, "/messages/find", new FindMessageEventsTask());
+    router.add(GET, "/messages/{id}", new GetMessageServeEventTask());
+    router.add(DELETE, "/messages/{id}", new RemoveMessageServeEventTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

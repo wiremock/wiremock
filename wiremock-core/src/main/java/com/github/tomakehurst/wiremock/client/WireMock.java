@@ -1127,6 +1127,22 @@ public class WireMock {
     return admin.getMessageServeEvents().getMessageServeEvents();
   }
 
+  public static MessageServeEvent getMessageServeEvent(UUID id) {
+    return defaultInstance.get().getMessageServeEventById(id);
+  }
+
+  public MessageServeEvent getMessageServeEventById(UUID id) {
+    return admin.getMessageServeEvent(id).getItem();
+  }
+
+  public static void removeMessageServeEvent(UUID eventId) {
+    defaultInstance.get().deleteMessageServeEvent(eventId);
+  }
+
+  public void deleteMessageServeEvent(UUID eventId) {
+    admin.removeMessageServeEvent(eventId);
+  }
+
   public static List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
     return defaultInstance.get().findMessageEvents(pattern);
   }

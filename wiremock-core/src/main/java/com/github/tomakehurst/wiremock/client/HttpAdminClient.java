@@ -599,64 +599,71 @@ public class HttpAdminClient implements Admin {
 
   @Override
   public GetMessageServeEventsResult getMessageServeEvents() {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageEventsTask.class),
+        GetMessageServeEventsResult.class);
   }
 
   @Override
   public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetMessageServeEventTask.class),
+        PathParams.single("id", id),
+        SingleMessageServeEventResult.class);
   }
 
   @Override
   public int countMessageEventsMatching(MessagePattern pattern) {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    String body =
+        postJsonAssertOkAndReturnBody(
+            urlFor(GetMessageEventCountTask.class), Json.write(pattern));
+    return MessageVerificationResult.from(body).getCount();
   }
 
   @Override
   public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(FindMessageEventsTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class).getMessageServeEvents();
   }
 
   @Override
   public void removeMessageServeEvent(UUID eventId) {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageServeEventTask.class),
+        PathParams.single("id", eventId),
+        Void.class);
   }
 
   @Override
   public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
     throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+        "Remove message serve events by pattern is not yet supported via the HTTP admin client");
   }
 
   @Override
   public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
       StringValuePattern pattern) {
     throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+        "Remove message serve events by metadata is not yet supported via the HTTP admin client");
   }
 
   @Override
   public void resetMessageJournal() {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    executeRequest(adminRoutes.requestSpecForTask(ResetMessageJournalTask.class));
   }
 
   @Override
   public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
     throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+        "Wait for message event is not supported via the HTTP admin client");
   }
 
   @Override
   public List<MessageServeEvent> waitForMessageEvents(
       MessagePattern pattern, int count, Duration maxWait) {
     throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+        "Wait for message events is not supported via the HTTP admin client");
   }
 
   @Override

@@ -27,6 +27,7 @@ import com.google.common.base.Stopwatch;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 public class MessageServeEvent {
 
@@ -235,6 +236,26 @@ public class MessageServeEvent {
         stopwatch);
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static MessageServeEvent create(Consumer<Builder> transformer) {
+    final Builder builder = builder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public MessageServeEvent transform(Consumer<Builder> transformer) {
+    final Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -246,5 +267,97 @@ public class MessageServeEvent {
   @Override
   public int hashCode() {
     return Objects.hash(id);
+  }
+
+  public static class Builder {
+    private UUID id;
+    private EventType eventType;
+    private ChannelType channelType;
+    private UUID channelId;
+    private LoggedRequest channelRequest;
+    private String message;
+    private MessageStubMapping stubMapping;
+    private boolean wasMatched;
+    private Instant timestamp;
+    private Queue<SubEvent> subEvents;
+
+    public Builder() {}
+
+    public Builder(MessageServeEvent existing) {
+      this.id = existing.id;
+      this.eventType = existing.eventType;
+      this.channelType = existing.channelType;
+      this.channelId = existing.channelId;
+      this.channelRequest = existing.channelRequest;
+      this.message = existing.message;
+      this.stubMapping = existing.stubMapping;
+      this.wasMatched = existing.wasMatched;
+      this.timestamp = existing.timestamp;
+      this.subEvents = new ConcurrentLinkedQueue<>(existing.subEvents);
+    }
+
+    public Builder withId(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder withEventType(EventType eventType) {
+      this.eventType = eventType;
+      return this;
+    }
+
+    public Builder withChannelType(ChannelType channelType) {
+      this.channelType = channelType;
+      return this;
+    }
+
+    public Builder withChannelId(UUID channelId) {
+      this.channelId = channelId;
+      return this;
+    }
+
+    public Builder withChannelRequest(LoggedRequest channelRequest) {
+      this.channelRequest = channelRequest;
+      return this;
+    }
+
+    public Builder withMessage(String message) {
+      this.message = message;
+      return this;
+    }
+
+    public Builder withStubMapping(MessageStubMapping stubMapping) {
+      this.stubMapping = stubMapping;
+      return this;
+    }
+
+    public Builder withWasMatched(boolean wasMatched) {
+      this.wasMatched = wasMatched;
+      return this;
+    }
+
+    public Builder withTimestamp(Instant timestamp) {
+      this.timestamp = timestamp;
+      return this;
+    }
+
+    public Builder withSubEvents(Queue<SubEvent> subEvents) {
+      this.subEvents = subEvents;
+      return this;
+    }
+
+    public MessageServeEvent build() {
+      return new MessageServeEvent(
+          id,
+          eventType,
+          channelType,
+          channelId,
+          channelRequest,
+          message,
+          stubMapping,
+          wasMatched,
+          timestamp,
+          subEvents);
+    }
   }
 }
