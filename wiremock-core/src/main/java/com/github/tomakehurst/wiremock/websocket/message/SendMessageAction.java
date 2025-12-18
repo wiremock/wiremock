@@ -24,12 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * An action that sends a message to one or more channels. The target channels can be specified
- * either by a request pattern (to match channels by their originating request) or by setting
- * sendToOriginatingChannel to true to send back to the channel that received the triggering
- * message.
- */
 public class SendMessageAction implements MessageAction {
 
   private final String message;
@@ -47,23 +41,10 @@ public class SendMessageAction implements MessageAction {
         sendToOriginatingChannel != null ? sendToOriginatingChannel : false;
   }
 
-  /**
-   * Creates an action that sends a message to the originating channel.
-   *
-   * @param message the message to send
-   * @return a new SendMessageAction
-   */
   public static SendMessageAction toOriginatingChannel(String message) {
     return new SendMessageAction(message, null, true);
   }
 
-  /**
-   * Creates an action that sends a message to channels matching a request pattern.
-   *
-   * @param message the message to send
-   * @param targetChannelPattern the pattern to match target channels
-   * @return a new SendMessageAction
-   */
   public static SendMessageAction toMatchingChannels(
       String message, RequestPattern targetChannelPattern) {
     return new SendMessageAction(message, targetChannelPattern, false);

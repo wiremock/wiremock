@@ -15,14 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.websocket;
 
-/**
- * Represents the type of a message channel. This allows for different channel implementations
- * (e.g., WebSocket, Server-Sent Events) to be managed uniformly.
- */
 public enum ChannelType {
-  /** WebSocket channel type */
   WEBSOCKET,
-
-  /** Server-Sent Events channel type (for future use) */
   SSE
 }

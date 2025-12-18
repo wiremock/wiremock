@@ -29,18 +29,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.wiremock.annotations.Beta;
 
-/**
- * Represents an event in the message journal, capturing details about a message that was received
- * on a channel or sent via the API, along with any actions that were triggered.
- */
 @Beta(justification = "Message Journal API")
 public class MessageServeEvent {
 
-  /** The type of message event. */
   public enum EventType {
-    /** A message was received on a channel and matched against stubs. */
     RECEIVED,
-    /** A message was sent via the API. */
     SENT
   }
 
@@ -107,7 +100,6 @@ public class MessageServeEvent {
     this.stopwatch = stopwatch;
   }
 
-  /** Creates a new event for a received message that matched a stub. */
   public static MessageServeEvent receivedMatched(
       ChannelType channelType,
       UUID channelId,
@@ -127,14 +119,12 @@ public class MessageServeEvent {
         null);
   }
 
-  /** Creates a new event for a received message that matched a stub, using a MessageChannel. */
   public static MessageServeEvent receivedMatched(
       MessageChannel channel, String message, MessageStubMapping stubMapping) {
     return receivedMatched(
         channel.getType(), channel.getId(), channel.getRequest(), message, stubMapping);
   }
 
-  /** Creates a new event for a received message that did not match any stub. */
   public static MessageServeEvent receivedUnmatched(
       ChannelType channelType, UUID channelId, Request channelRequest, String message) {
     return new MessageServeEvent(
@@ -150,14 +140,10 @@ public class MessageServeEvent {
         null);
   }
 
-  /**
-   * Creates a new event for a received message that did not match any stub, using a MessageChannel.
-   */
   public static MessageServeEvent receivedUnmatched(MessageChannel channel, String message) {
     return receivedUnmatched(channel.getType(), channel.getId(), channel.getRequest(), message);
   }
 
-  /** Creates a new event for a message sent via the API. */
   public static MessageServeEvent sent(
       ChannelType channelType, UUID channelId, Request channelRequest, String message) {
     return new MessageServeEvent(
@@ -173,7 +159,6 @@ public class MessageServeEvent {
         null);
   }
 
-  /** Creates a new event for a message sent via the API, using a MessageChannel. */
   public static MessageServeEvent sent(MessageChannel channel, String message) {
     return sent(channel.getType(), channel.getId(), channel.getRequest(), message);
   }

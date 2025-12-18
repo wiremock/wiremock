@@ -30,11 +30,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-/**
- * Defines a stub mapping for incoming websocket messages. When a message arrives on a websocket, it
- * is tested against each MessageStubMapping in turn until one matches. When a match is found, all
- * configured actions are executed.
- */
 public class MessageStubMapping {
 
   public static final int DEFAULT_PRIORITY = 5;
@@ -66,35 +61,18 @@ public class MessageStubMapping {
     return new Builder();
   }
 
-  /**
-   * Creates a new MessageStubMapping by applying a transformer function to a new Builder.
-   *
-   * @param transformer the function to apply to the builder
-   * @return the built MessageStubMapping
-   */
   public static MessageStubMapping create(Consumer<Builder> transformer) {
     final Builder builder = builder();
     transformer.accept(builder);
     return builder.build();
   }
 
-  /**
-   * Creates a new MessageStubMapping by applying a transformer function to a copy of this mapping.
-   *
-   * @param transformer the function to apply to the builder
-   * @return the transformed MessageStubMapping
-   */
   public MessageStubMapping transform(Consumer<Builder> transformer) {
     final Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
   }
 
-  /**
-   * Creates a Builder initialized with the values from this MessageStubMapping.
-   *
-   * @return a new Builder with this mapping's values
-   */
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -123,20 +101,11 @@ public class MessageStubMapping {
     return actions;
   }
 
-  /**
-   * Tests whether this stub mapping matches the given message on the given channel.
-   *
-   * @param channel the channel on which the message was received
-   * @param message the message content
-   * @param customMatchers custom request matchers for channel pattern matching
-   * @return true if this stub matches the message
-   */
   public boolean matches(
       MessageChannel channel,
       String message,
       Map<String, com.github.tomakehurst.wiremock.matching.RequestMatcherExtension>
           customMatchers) {
-    // Check channel pattern if specified
     if (channelPattern != null) {
       MatchResult channelMatch = channelPattern.match(channel.getRequest(), customMatchers);
       if (!channelMatch.isExactMatch()) {
@@ -144,7 +113,6 @@ public class MessageStubMapping {
       }
     }
 
-    // Check message pattern if specified
     if (messagePattern != null) {
       MatchResult messageMatch = messagePattern.match(message);
       if (!messageMatch.isExactMatch()) {
@@ -155,13 +123,6 @@ public class MessageStubMapping {
     return true;
   }
 
-  /**
-   * Executes all actions configured for this stub mapping.
-   *
-   * @param originatingChannel the channel on which the message was received
-   * @param messageChannels the collection of all message channels
-   * @param incomingMessage the message that triggered this stub
-   */
   public void executeActions(
       MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
     for (MessageAction action : actions) {

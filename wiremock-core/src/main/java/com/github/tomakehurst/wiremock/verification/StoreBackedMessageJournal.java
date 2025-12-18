@@ -26,10 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import org.wiremock.annotations.Beta;
 
-/**
- * Store-backed implementation of MessageJournal. Provides message event storage with support for
- * waiting on events matching specific criteria.
- */
 @Beta(justification = "Message Journal API")
 public class StoreBackedMessageJournal implements MessageJournal {
 
@@ -101,13 +97,11 @@ public class StoreBackedMessageJournal implements MessageJournal {
   @Override
   public Optional<MessageServeEvent> waitForEvent(
       Predicate<MessageServeEvent> predicate, Duration maxWait) {
-    // First check if there's already a matching event
     Optional<MessageServeEvent> existing = store.getAll().filter(predicate).findFirst();
     if (existing.isPresent()) {
       return existing;
     }
 
-    // Set up a latch to wait for a matching event
     CountDownLatch latch = new CountDownLatch(1);
     final MessageServeEvent[] result = new MessageServeEvent[1];
 
@@ -128,7 +122,6 @@ public class StoreBackedMessageJournal implements MessageJournal {
       Thread.currentThread().interrupt();
     }
 
-    // Check one more time in case an event arrived just before we started waiting
     return store.getAll().filter(predicate).findFirst();
   }
 
@@ -144,7 +137,6 @@ public class StoreBackedMessageJournal implements MessageJournal {
         return current.subList(0, count);
       }
 
-      // Wait a bit before checking again
       long remaining = deadline - System.currentTimeMillis();
       if (remaining > 0) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -164,7 +156,6 @@ public class StoreBackedMessageJournal implements MessageJournal {
       }
     }
 
-    // Return whatever we have collected
     return store.getAll().filter(predicate).limit(count).collect(toList());
   }
 
@@ -178,8 +169,6 @@ public class StoreBackedMessageJournal implements MessageJournal {
 
   private static Predicate<MessageServeEvent> withStubMetadataMatching(
       final StringValuePattern metadataPattern) {
-    // MessageStubMapping doesn't currently support metadata, so this always returns false.
-    // This method is provided for API consistency with the request journal.
     return (MessageServeEvent event) -> false;
   }
 }

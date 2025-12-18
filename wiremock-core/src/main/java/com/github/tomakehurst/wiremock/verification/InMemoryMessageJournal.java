@@ -18,10 +18,6 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.store.InMemoryMessageJournalStore;
 import org.wiremock.annotations.Beta;
 
-/**
- * In-memory implementation of MessageJournal. Convenience class that uses an
- * InMemoryMessageJournalStore.
- */
 @Beta(justification = "Message Journal API")
 public class InMemoryMessageJournal extends StoreBackedMessageJournal {
 

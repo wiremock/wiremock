@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.core.ConfigurationException;
 import org.wiremock.annotations.Beta;
 
-/** Exception thrown when message journal operations are attempted but the journal is disabled. */
 @Beta(justification = "Message Journal API")
 public class MessageJournalDisabledException extends ConfigurationException {
 

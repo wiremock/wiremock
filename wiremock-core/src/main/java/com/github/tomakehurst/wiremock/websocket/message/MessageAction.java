@@ -20,21 +20,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.tomakehurst.wiremock.websocket.MessageChannel;
 import com.github.tomakehurst.wiremock.websocket.MessageChannels;
 
-/**
- * Represents an action to be taken when a message stub matches an incoming message. Actions are
- * executed in order when a message stub matches.
- */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = SendMessageAction.class, name = "send")})
 public interface MessageAction {
 
-  /**
-   * Executes this action.
-   *
-   * @param originatingChannel the channel on which the triggering message was received
-   * @param messageChannels the collection of all message channels
-   * @param incomingMessage the message that triggered this action
-   */
   void execute(
       MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage);
 }

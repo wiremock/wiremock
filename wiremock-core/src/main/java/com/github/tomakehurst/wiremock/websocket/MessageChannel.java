@@ -18,28 +18,17 @@ package com.github.tomakehurst.wiremock.websocket;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.UUID;
 
-/**
- * Represents a message channel, storing the HTTP request used to initiate the channel and providing
- * methods to send messages and manage the channel lifecycle. Different implementations support
- * different channel types (e.g., WebSocket, Server-Sent Events).
- */
 public interface MessageChannel {
 
-  /** Returns the type of this channel. */
   ChannelType getType();
 
-  /** Returns the unique identifier for this channel. */
   UUID getId();
 
-  /** Returns the HTTP request that was used to initiate this channel. */
   Request getRequest();
 
-  /** Returns whether this channel is currently open. */
   boolean isOpen();
 
-  /** Sends a message through this channel. */
   void sendMessage(String message);
 
-  /** Closes this channel. */
   void close();
 }

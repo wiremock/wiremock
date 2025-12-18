@@ -23,10 +23,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import org.wiremock.annotations.Beta;
 
-/**
- * A disabled implementation of MessageJournal that throws exceptions for query operations. Used
- * when message journaling is disabled.
- */
 @Beta(justification = "Message Journal API")
 public class DisabledMessageJournal implements MessageJournal {
 

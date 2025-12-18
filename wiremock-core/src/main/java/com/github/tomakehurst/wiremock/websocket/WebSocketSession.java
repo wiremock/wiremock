@@ -15,15 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.websocket;
 
-/** Abstraction for a WebSocket session, allowing different implementations. */
 public interface WebSocketSession {
 
-  /** Returns true if the session is currently open. */
   boolean isOpen();
 
-  /** Sends a text message to the connected client. */
   void sendMessage(String message);
 
-  /** Closes the WebSocket session. */
   void close();
 }

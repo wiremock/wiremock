@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.wiremock.annotations.Beta;
 
-/** Result containing a list of message serve events. */
 @Beta(justification = "Message Journal API")
 public class FindMessageServeEventsResult {
 

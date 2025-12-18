@@ -18,10 +18,6 @@ package com.github.tomakehurst.wiremock.websocket;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.UUID;
 
-/**
- * WebSocket implementation of MessageChannel. Stores the HTTP request used to initiate the
- * WebSocket session and a reference to the session itself.
- */
 public class WebSocketMessageChannel implements MessageChannel {
 
   private final UUID id;
