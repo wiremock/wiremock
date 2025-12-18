@@ -304,6 +304,27 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  public void headersToRemoveFromProxyRequestAreUnchanged() {
+    ResponseDefinition transformedResponseDef =
+        transform(
+            mockRequest().url("/things").header("X-WM-Uri", "http://localhost:8000"),
+            aResponse()
+                .proxiedFrom("{{request.headers.X-WM-Uri}}")
+                .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}")
+                .withRemoveRequestHeader("remove-me"));
+
+    assertThat(transformedResponseDef.getProxyBaseUrl(), is("http://localhost:8000"));
+    assertThat(transformedResponseDef.getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(
+        transformedResponseDef
+            .getAdditionalProxyRequestHeaders()
+            .getHeader("X-Origin-Url")
+            .firstValue(),
+        is("/things"));
+    assertThat(transformedResponseDef.getRemoveProxyRequestHeaders(), contains("remove-me"));
+  }
+
+  @Test
   public void jsonPathValueDefaultsToEmptyString() {
     final ResponseDefinition responseDefinition =
         transform(

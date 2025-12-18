@@ -16,10 +16,13 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.ANYTHING;
 import static java.util.stream.Collectors.toMap;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -32,8 +35,10 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class StubMappingTest {
@@ -131,7 +136,7 @@ public class StubMappingTest {
                         responseBuilder ->
                             responseBuilder.headers(
                                 headersBuilder ->
-                                    headersBuilder.remove("To-Remove").put("To-Add", "yyy"))));
+                                    headersBuilder.remove("To-Remove").add("To-Add", "yyy"))));
 
     assertThat(transformed.getName(), is("Transformed stub"));
     assertThat(transformed.getPriority(), is(8));
@@ -293,5 +298,80 @@ public class StubMappingTest {
         is(Parameters.one("param1", "value1")));
     assertThat(stub2.getServeEventListeners().get(1).getName(), is("def-2"));
     assertThat(stub2.getServeEventListeners().get(1).getParameters(), is(Parameters.empty()));
+  }
+
+  @Test
+  public void postServeActionsCannotBeNull() {
+    var builder = StubMapping.builder();
+    assertThat(builder.getPostServeActions(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setPostServeActions(null));
+    assertThat(builder.getPostServeActions(), empty());
+    assertThat(builder.build().getPostServeActions(), empty());
+    var stub =
+        new StubMapping(
+            UUID.randomUUID(),
+            "whatever",
+            false,
+            ANYTHING,
+            ResponseDefinition.ok(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0);
+    assertThat(stub.getPostServeActions(), empty());
+  }
+
+  @Test
+  public void serveEventListenersCannotBeNull() {
+    var builder = StubMapping.builder();
+    assertThat(builder.getServeEventListeners(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setServeEventListeners(null));
+    assertThat(builder.getServeEventListeners(), empty());
+    assertThat(builder.build().getServeEventListeners(), empty());
+    var stub =
+        new StubMapping(
+            UUID.randomUUID(),
+            "whatever",
+            false,
+            ANYTHING,
+            ResponseDefinition.ok(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0);
+    assertThat(stub.getServeEventListeners(), empty());
+  }
+
+  @Test
+  public void metadataCannotBeNull() {
+    var builder = StubMapping.builder();
+    assertThat(builder.getMetadata(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setMetadata(null));
+    assertThat(builder.getMetadata(), anEmptyMap());
+    assertThat(builder.build().getMetadata(), anEmptyMap());
+    var stub =
+        new StubMapping(
+            UUID.randomUUID(),
+            "whatever",
+            false,
+            ANYTHING,
+            ResponseDefinition.ok(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0);
+    assertThat(stub.getMetadata(), anEmptyMap());
   }
 }

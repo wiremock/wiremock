@@ -226,23 +226,19 @@ public class ServeEvent {
 
   @JsonIgnore
   public List<PostServeActionDefinition> getPostServeActions() {
-    return stubMapping != null && stubMapping.getPostServeActions() != null
-        ? getStubMapping().getPostServeActions()
-        : Collections.emptyList();
+    return stubMapping != null ? getStubMapping().getPostServeActions() : Collections.emptyList();
   }
 
   @JsonIgnore
   public List<ServeEventListenerDefinition> getServeEventListeners() {
-    return stubMapping != null && stubMapping.getServeEventListeners() != null
+    return stubMapping != null
         ? getStubMapping().getServeEventListeners()
         : Collections.emptyList();
   }
 
   @JsonIgnore
   public Parameters getTransformerParameters() {
-    return stubMapping != null
-            && stubMapping.getResponse() != null
-            && stubMapping.getResponse().getTransformerParameters() != null
+    return stubMapping != null && stubMapping.getResponse() != null
         ? stubMapping.getResponse().getTransformerParameters()
         : Parameters.empty();
   }

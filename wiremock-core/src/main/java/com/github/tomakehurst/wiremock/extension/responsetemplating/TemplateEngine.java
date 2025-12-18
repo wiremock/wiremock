@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
@@ -134,8 +133,7 @@ public class TemplateEngine {
 
   public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    final Parameters parameters =
-        getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
+    final Parameters parameters = responseDefinition.getTransformerParameters();
 
     final Map<String, Object> additionalModelData =
         templateModelDataProviders.stream()

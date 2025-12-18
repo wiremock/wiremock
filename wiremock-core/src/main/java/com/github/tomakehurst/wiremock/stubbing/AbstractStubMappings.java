@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Pair.pair;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_MATCH;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
@@ -130,7 +129,7 @@ public abstract class AbstractStubMappings implements StubMappings {
                 request,
                 responseDefinition,
                 filesFileSource,
-                getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
+                responseDefinition.getTransformerParameters())
             : responseDefinition;
 
     return applyV1Transformations(

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
 
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({
@@ -52,9 +54,9 @@ public final class StubMapping implements StubMappingOrMappings {
   private final String scenarioName;
   private final String requiredScenarioState;
   private final String newScenarioState;
-  private final List<PostServeActionDefinition> postServeActions;
-  private final List<ServeEventListenerDefinition> serveEventListeners;
-  private final Metadata metadata;
+  @NonNull private final List<PostServeActionDefinition> postServeActions;
+  @NonNull private final List<ServeEventListenerDefinition> serveEventListeners;
+  @NonNull private final Metadata metadata;
   private final long insertionIndex;
 
   @JsonCreator
@@ -83,10 +85,10 @@ public final class StubMapping implements StubMappingOrMappings {
     this.scenarioName = scenarioName;
     this.requiredScenarioState = requiredScenarioState;
     this.newScenarioState = newScenarioState;
-    this.postServeActions = postServeActions != null ? List.copyOf(postServeActions) : null;
+    this.postServeActions = postServeActions != null ? List.copyOf(postServeActions) : List.of();
     this.serveEventListeners =
-        serveEventListeners != null ? List.copyOf(serveEventListeners) : null;
-    this.metadata = metadata;
+        serveEventListeners != null ? List.copyOf(serveEventListeners) : List.of();
+    this.metadata = metadata != null ? metadata : new Metadata();
     this.insertionIndex = insertionIndex;
   }
 
@@ -146,14 +148,20 @@ public final class StubMapping implements StubMappingOrMappings {
     return newScenarioState;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public List<PostServeActionDefinition> getPostServeActions() {
     return postServeActions;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public List<ServeEventListenerDefinition> getServeEventListeners() {
     return serveEventListeners;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Metadata getMetadata() {
     return metadata;
   }
@@ -245,11 +253,11 @@ public final class StubMapping implements StubMappingOrMappings {
     private String requiredScenarioState;
     private String newScenarioState;
 
-    private List<PostServeActionDefinition> postServeActions;
+    @NonNull private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
 
-    private List<ServeEventListenerDefinition> serveEventListeners;
+    @NonNull private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
 
-    private Metadata metadata;
+    @NonNull private Metadata metadata = new Metadata();
 
     private long insertionIndex;
 
@@ -265,12 +273,8 @@ public final class StubMapping implements StubMappingOrMappings {
       this.scenarioName = existing.scenarioName;
       this.requiredScenarioState = existing.requiredScenarioState;
       this.newScenarioState = existing.newScenarioState;
-      this.postServeActions =
-          existing.postServeActions != null ? new ArrayList<>(existing.postServeActions) : null;
-      this.serveEventListeners =
-          existing.serveEventListeners != null
-              ? new ArrayList<>(existing.serveEventListeners)
-              : null;
+      this.postServeActions.addAll(existing.postServeActions);
+      this.serveEventListeners.addAll(existing.serveEventListeners);
       this.metadata = existing.metadata;
       this.insertionIndex = existing.insertionIndex;
     }
@@ -383,30 +387,36 @@ public final class StubMapping implements StubMappingOrMappings {
       return this;
     }
 
-    @SuppressWarnings("unused")
+    @NonNull
     public List<PostServeActionDefinition> getPostServeActions() {
       return postServeActions;
     }
 
-    public Builder setPostServeActions(List<PostServeActionDefinition> postServeActions) {
+    public Builder setPostServeActions(@NonNull List<PostServeActionDefinition> postServeActions) {
+      Objects.requireNonNull(postServeActions);
       this.postServeActions = postServeActions;
       return this;
     }
 
+    @NonNull
     public List<ServeEventListenerDefinition> getServeEventListeners() {
       return serveEventListeners;
     }
 
-    public Builder setServeEventListeners(List<ServeEventListenerDefinition> serveEventListeners) {
+    public Builder setServeEventListeners(
+        @NonNull List<ServeEventListenerDefinition> serveEventListeners) {
+      Objects.requireNonNull(serveEventListeners);
       this.serveEventListeners = serveEventListeners;
       return this;
     }
 
+    @NonNull
     public Metadata getMetadata() {
       return metadata;
     }
 
-    public Builder setMetadata(Metadata metadata) {
+    public Builder setMetadata(@NonNull Metadata metadata) {
+      Objects.requireNonNull(metadata);
       this.metadata = metadata;
       return this;
     }

@@ -23,6 +23,8 @@ dependencies {
 
     api(libs.xmlunit.core)
 
+    api(libs.jspecify)
+
     implementation(libs.apache.http5.client)
     implementation(libs.handlebars.helpers) {
         exclude(group = "org.mozilla", module = "rhino")
