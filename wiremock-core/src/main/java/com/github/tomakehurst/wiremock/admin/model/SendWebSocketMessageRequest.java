@@ -18,17 +18,18 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 
 /** Request model for sending a message to WebSocket channels. */
 public class SendWebSocketMessageRequest {
 
   private final RequestPattern requestPattern;
-  private final String message;
+  private final MessageDefinition message;
 
   @JsonCreator
   public SendWebSocketMessageRequest(
       @JsonProperty("request") RequestPattern requestPattern,
-      @JsonProperty("message") String message) {
+      @JsonProperty("message") MessageDefinition message) {
     this.requestPattern = requestPattern;
     this.message = message;
   }
@@ -37,7 +38,7 @@ public class SendWebSocketMessageRequest {
     return requestPattern;
   }
 
-  public String getMessage() {
+  public MessageDefinition getMessage() {
     return message;
   }
 }

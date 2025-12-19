@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
@@ -730,7 +731,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, String message) {
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
     int count =
@@ -740,7 +741,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, String message) {
+      RequestPattern requestPattern, MessageDefinition message) {
     return sendChannelMessage(ChannelType.WEBSOCKET, requestPattern, message);
   }
 

@@ -88,7 +88,7 @@ public class MessageChannels {
 
   public int sendMessageToMatching(
       RequestPattern requestPattern,
-      String message,
+      MessageDefinition message,
       Map<String, RequestMatcherExtension> customMatchers) {
     List<MessageChannel> matchingChannels = findByRequestPattern(requestPattern, customMatchers);
     for (MessageChannel channel : matchingChannels) {
@@ -100,7 +100,7 @@ public class MessageChannels {
   public int sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
-      String message,
+      MessageDefinition message,
       Map<String, RequestMatcherExtension> customMatchers) {
     List<MessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);

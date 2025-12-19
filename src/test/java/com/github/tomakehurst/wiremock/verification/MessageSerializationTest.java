@@ -302,7 +302,7 @@ public class MessageSerializationTest {
     assertThat(stub.getActions().size(), is(1));
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
-    assertThat(action.getMessage(), is("broadcast-message"));
+    assertThat(action.getBody(), is("broadcast-message"));
     assertThat(action.isSendToOriginatingChannel(), is(false));
     assertThat(action.getTargetChannelPattern().getUrl(), is("/target-channel"));
   }

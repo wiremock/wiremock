@@ -15,26 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 public class SendMessageActionBuilder {
 
-  private final String message;
+  private final EntityDefinition body;
 
   public SendMessageActionBuilder(String message) {
-    this.message = message;
+    this.body = new StringEntityDefinition(message);
+  }
+
+  public SendMessageActionBuilder(EntityDefinition body) {
+    this.body = body;
   }
 
   public SendMessageAction onOriginatingChannel() {
-    return SendMessageAction.toOriginatingChannel(message);
+    return SendMessageAction.toOriginatingChannel(body);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return SendMessageAction.toMatchingChannels(message, targetChannelPattern);
+    return SendMessageAction.toMatchingChannels(body, targetChannelPattern);
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
-    return SendMessageAction.toMatchingChannels(message, targetChannelPatternBuilder.build());
+    return SendMessageAction.toMatchingChannels(body, targetChannelPatternBuilder.build());
   }
 }

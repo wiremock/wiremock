@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2014-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.message.websocket;
+package com.github.tomakehurst.wiremock.common.entity;
 
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public interface WebSocketSession {
-
-  boolean isOpen();
-
-  void sendMessage(MessageDefinition message);
-
-  void close();
-}
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StringEntityDefinition.class)
+@JsonSubTypes(value = {@Type(StringEntityDefinition.class), @Type(FullEntityDefinition.class)})
+public abstract class EntityDefinition {}

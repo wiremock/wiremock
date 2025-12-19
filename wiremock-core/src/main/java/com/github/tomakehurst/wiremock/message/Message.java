@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.message.websocket;
+package com.github.tomakehurst.wiremock.message;
 
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 
-public interface WebSocketSession {
+public class Message {
 
-  boolean isOpen();
+  private final Entity body;
 
-  void sendMessage(MessageDefinition message);
+  public Message(@JsonProperty("body") Entity body) {
+    this.body = body;
+  }
 
-  void close();
+  public Entity getBody() {
+    return body;
+  }
 }

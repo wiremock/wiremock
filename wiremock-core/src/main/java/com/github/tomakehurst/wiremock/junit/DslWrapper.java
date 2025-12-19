@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
@@ -372,13 +373,13 @@ public class DslWrapper implements Admin, Stubbing {
 
   @Override
   public SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, String message) {
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     return admin.sendChannelMessage(type, requestPattern, message);
   }
 
   @Override
   public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, String message) {
+      RequestPattern requestPattern, MessageDefinition message) {
     return admin.sendWebSocketMessage(requestPattern, message);
   }
 

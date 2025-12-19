@@ -19,19 +19,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 
 /** Request model for sending a message to channels of a specific type. */
 public class SendChannelMessageRequest {
 
   private final ChannelType type;
   private final RequestPattern requestPattern;
-  private final String message;
+  private final MessageDefinition message;
 
   @JsonCreator
   public SendChannelMessageRequest(
       @JsonProperty("type") ChannelType type,
       @JsonProperty("request") RequestPattern requestPattern,
-      @JsonProperty("message") String message) {
+      @JsonProperty("message") MessageDefinition message) {
     this.type = type;
     this.requestPattern = requestPattern;
     this.message = message;
@@ -45,7 +46,7 @@ public class SendChannelMessageRequest {
     return requestPattern;
   }
 
-  public String getMessage() {
+  public MessageDefinition getMessage() {
     return message;
   }
 }

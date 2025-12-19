@@ -15,11 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketSession;
+import java.nio.charset.StandardCharsets;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 
-/** Jetty implementation of WebSocketSession. */
 public class JettyWebSocketSession implements WebSocketSession {
 
   private final Session session;
@@ -34,9 +36,12 @@ public class JettyWebSocketSession implements WebSocketSession {
   }
 
   @Override
-  public void sendMessage(String message) {
+  public void sendMessage(MessageDefinition messageDefinition) {
     if (isOpen()) {
-      session.sendText(message, Callback.NOOP);
+      Message message = messageDefinition.resolve();
+      byte[] data = message.getBody().getData();
+      String text = new String(data, StandardCharsets.UTF_8);
+      session.sendText(text, Callback.NOOP);
     }
   }
 

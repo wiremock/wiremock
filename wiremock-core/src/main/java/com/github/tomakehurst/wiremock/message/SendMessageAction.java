@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Collections;
 import java.util.List;
@@ -24,32 +26,41 @@ import java.util.Objects;
 
 public class SendMessageAction implements MessageAction {
 
-  private final String message;
+  private final EntityDefinition body;
   private final RequestPattern targetChannelPattern;
   private final boolean sendToOriginatingChannel;
 
   @JsonCreator
   public SendMessageAction(
-      @JsonProperty("message") String message,
+      @JsonProperty("body") EntityDefinition body,
       @JsonProperty("targetChannelPattern") RequestPattern targetChannelPattern,
       @JsonProperty("sendToOriginatingChannel") Boolean sendToOriginatingChannel) {
-    this.message = message;
+    this.body = body;
     this.targetChannelPattern = targetChannelPattern;
     this.sendToOriginatingChannel =
         sendToOriginatingChannel != null ? sendToOriginatingChannel : false;
   }
 
-  public static SendMessageAction toOriginatingChannel(String message) {
+  public static SendMessageAction toOriginatingChannel(EntityDefinition message) {
     return new SendMessageAction(message, null, true);
+  }
+
+  public static SendMessageAction toOriginatingChannel(String message) {
+    return toOriginatingChannel(new StringEntityDefinition(message));
+  }
+
+  public static SendMessageAction toMatchingChannels(
+      EntityDefinition message, RequestPattern targetChannelPattern) {
+    return new SendMessageAction(message, targetChannelPattern, false);
   }
 
   public static SendMessageAction toMatchingChannels(
       String message, RequestPattern targetChannelPattern) {
-    return new SendMessageAction(message, targetChannelPattern, false);
+    return toMatchingChannels(new StringEntityDefinition(message), targetChannelPattern);
   }
 
-  public String getMessage() {
-    return message;
+  public EntityDefinition getBody() {
+    return body;
   }
 
   public RequestPattern getTargetChannelPattern() {
@@ -63,13 +74,14 @@ public class SendMessageAction implements MessageAction {
   @Override
   public void execute(
       MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
+    MessageDefinition messageDefinition = new MessageDefinition(body);
     if (sendToOriginatingChannel) {
-      originatingChannel.sendMessage(message);
+      originatingChannel.sendMessage(messageDefinition);
     } else if (targetChannelPattern != null) {
       List<MessageChannel> matchingChannels =
           messageChannels.findByRequestPattern(targetChannelPattern, Collections.emptyMap());
       for (MessageChannel channel : matchingChannels) {
-        channel.sendMessage(message);
+        channel.sendMessage(messageDefinition);
       }
     }
   }
@@ -79,20 +91,20 @@ public class SendMessageAction implements MessageAction {
     if (o == null || getClass() != o.getClass()) return false;
     SendMessageAction that = (SendMessageAction) o;
     return sendToOriginatingChannel == that.sendToOriginatingChannel
-        && Objects.equals(message, that.message)
+        && Objects.equals(body, that.body)
         && Objects.equals(targetChannelPattern, that.targetChannelPattern);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, targetChannelPattern, sendToOriginatingChannel);
+    return Objects.hash(body, targetChannelPattern, sendToOriginatingChannel);
   }
 
   @Override
   public String toString() {
     return "SendMessageAction{"
         + "message='"
-        + message
+        + body
         + '\''
         + ", targetChannelPattern="
         + targetChannelPattern

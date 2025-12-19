@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
@@ -135,18 +136,46 @@ public interface Admin {
    * @return result containing the number of channels messaged
    */
   SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, String message);
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message);
+
+  /**
+   * Sends a message to all channels of the specified type matching the given request pattern.
+   * Convenience method that wraps the string message in a MessageDefinition.
+   *
+   * @param type the channel type to target
+   * @param requestPattern the pattern to match against the original upgrade request
+   * @param message the message to send
+   * @return result containing the number of channels messaged
+   */
+  default SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, String message) {
+    return sendChannelMessage(type, requestPattern, MessageDefinition.fromString(message));
+  }
 
   /**
    * Sends a message to all WebSocket channels matching the given request pattern. This is a
    * convenience method that delegates to {@link #sendChannelMessage(ChannelType, RequestPattern,
-   * String)} with {@link ChannelType#WEBSOCKET}.
+   * MessageDefinition)} with {@link ChannelType#WEBSOCKET}.
    *
    * @param requestPattern the pattern to match against the original upgrade request
    * @param message the message to send
    * @return result containing the number of channels messaged
    */
-  SendChannelMessageResult sendWebSocketMessage(RequestPattern requestPattern, String message);
+  SendChannelMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, MessageDefinition message);
+
+  /**
+   * Sends a message to all WebSocket channels matching the given request pattern. Convenience
+   * method that wraps the string message in a MessageDefinition.
+   *
+   * @param requestPattern the pattern to match against the original upgrade request
+   * @param message the message to send
+   * @return result containing the number of channels messaged
+   */
+  default SendChannelMessageResult sendWebSocketMessage(
+      RequestPattern requestPattern, String message) {
+    return sendWebSocketMessage(requestPattern, MessageDefinition.fromString(message));
+  }
 
   MessageChannels getMessageChannels();
 
