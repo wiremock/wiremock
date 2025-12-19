@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.wiremock.url.HostTests.ParseMethod.IPv4Addresses;
@@ -380,6 +381,48 @@ class HostTests {
       Host parsed = Host.parse(stringForm);
       assertThat(parsed).isEqualTo(original);
       assertThat(parsed.toString()).isEqualTo(stringForm);
+    }
+  }
+
+  @Nested
+  class NormaliseMethod {
+
+    record NormalisationCase(String input, String expected) {}
+
+    static final List<NormalisationCase> normalisationCases =
+        List.of(
+            new NormalisationCase("EXAMPLE.COM", "example.com"),
+            new NormalisationCase("Example.COM", "example.com"),
+            new NormalisationCase("test%2fserver", "test%2Fserver"),
+            new NormalisationCase("EXAMPLE.COM%2fPath%20Test", "example.com%2Fpath%20test"),
+            new NormalisationCase("test%2f%20%3a%3Aserver", "test%2F%20%3A%3Aserver"),
+            new NormalisationCase("[2001:DB8::1]", "[2001:db8::1]"),
+            new NormalisationCase("[FE80::1]", "[fe80::1]"),
+            new NormalisationCase("Test!Server$Example", "test!server$example"),
+            new NormalisationCase("caf%c3%a9.Example.COM", "caf%C3%A9.example.com"),
+            new NormalisationCase("Test-Server_123.Example.COM", "test-server_123.example.com"));
+
+    @ParameterizedTest
+    @FieldSource("normalisationCases")
+    void normalises_host_correctly(NormalisationCase testCase) {
+      Host host = Host.parse(testCase.input());
+      Host normalised = host.normalise();
+      assertThat(normalised.toString()).isEqualTo(testCase.expected());
+      assertThat(normalised).isEqualTo(Host.parse(testCase.expected()));
+
+      Host normalised2 = normalised.normalise();
+      assertThat(normalised).isSameAs(normalised2);
+    }
+
+    static final List<String> alreadyNormalisedHosts =
+        List.of("example.com", "192.168.1.1", "[2001:db8::1]", "test%2Fserver", "");
+
+    @ParameterizedTest
+    @FieldSource("alreadyNormalisedHosts")
+    void returns_same_instance_when_already_normalised(String hostString) {
+      Host host = Host.parse(hostString);
+      Host normalised = host.normalise();
+      assertThat(normalised).isSameAs(host);
     }
   }
 
