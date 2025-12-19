@@ -112,6 +112,14 @@ class HostTests {
             "2001:db8::1]", // missing opening bracket
             "[]", // empty brackets
             "[[::1]]", // double brackets
+            "[123abc]", // hex digits without colons
+            "[ABCDEF]", // hex digits without colons
+            "[0000]", // digits without colons
+            "[:::::]", // only colons, invalid format
+            "[1:2:3:4:5:6:7:8:9]", // too many groups
+            "[gggg::1]", // invalid hex character
+            "[1:2:3:4:5:6:7:8:9:10]", // way too many groups
+            "[12345::1]", // group with too many digits
           })
       void throws_exception_for_invalid_ipv6_addresses(String invalidIpv6) {
         assertThatExceptionOfType(IllegalHost.class)
