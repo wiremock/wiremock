@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
@@ -104,5 +105,17 @@ public class WireMockServerTests {
     int port = wireMockServer.httpsPort();
 
     assertThat(wireMockServer.baseUrl(), is(String.format("https://localhost:%d", port)));
+  }
+
+  @Test
+  public void serverCanBeStartedFluently() {
+    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort()).startServer();
+    try {
+      int port = wireMockServer.port();
+      assertThat(wireMockServer.baseUrl(), is(String.format("http://localhost:%d", port)));
+      assertThat(new WireMockTestClient(port).get("/").statusCode(), is(404));
+    } finally {
+      wireMockServer.stop();
+    }
   }
 }

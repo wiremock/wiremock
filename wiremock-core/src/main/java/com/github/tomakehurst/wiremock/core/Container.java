@@ -21,5 +21,5 @@ public interface Container {
   int port();
 
   /** Shuts down the container, stopping execution of WireMock, gracefully if possible. */
-  Container shutdown();
+  void shutdown();
 }

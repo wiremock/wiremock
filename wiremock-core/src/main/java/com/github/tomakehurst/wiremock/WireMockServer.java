@@ -145,12 +145,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
     stubRequestHandler.addRequestListener(listener);
   }
 
-  public WireMockServer stop() {
+  public void stop() {
     httpServer.stop();
+  }
+
+  public WireMockServer startServer() {
+    start();
     return this;
   }
 
-  public WireMockServer start() {
+  public void start() {
     // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
     Json.getObjectMapper();
     try {
@@ -158,7 +162,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
     } catch (Exception e) {
       throw new FatalStartupException(e);
     }
-    return this;
   }
 
   /**
@@ -167,7 +170,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
    * <p>This method assumes it is being called as the result of an incoming HTTP request.
    */
   @Override
-  public WireMockServer shutdown() {
+  public void shutdown() {
     final WireMockServer server = this;
     Thread shutdownThread =
         new Thread(
@@ -184,7 +187,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
               server.stop();
             });
     shutdownThread.start();
-    return this;
   }
 
   public boolean isHttpEnabled() {
