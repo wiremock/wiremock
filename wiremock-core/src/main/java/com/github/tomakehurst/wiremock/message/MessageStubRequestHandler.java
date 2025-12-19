@@ -45,7 +45,7 @@ public class MessageStubRequestHandler {
     this.messageJournal = messageJournal;
   }
 
-  public boolean processMessage(MessageChannel channel, Message message) {
+  public void processMessage(MessageChannel channel, Message message) {
     Optional<MessageStubMapping> matchingStub =
         messageStubMappings.findMatchingStub(channel, message);
     if (matchingStub.isPresent()) {
@@ -54,12 +54,10 @@ public class MessageStubRequestHandler {
 
       MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
       messageJournal.messageReceived(event);
-      return true;
     } else {
       MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
       messageJournal.messageReceived(event);
     }
-    return false;
   }
 
   private void executeActions(
