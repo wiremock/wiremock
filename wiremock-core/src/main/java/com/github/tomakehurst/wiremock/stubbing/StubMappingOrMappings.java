@@ -16,15 +16,15 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import java.io.IOException;
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StubMapping.class)
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = StubMappingCollection.class),
-  @JsonSubTypes.Type(StubMapping.class)
-})
+@JsonDeserialize(using = StubMappingOrMappingsJsonDeserializer.class)
 public interface StubMappingOrMappings {
 
   @JsonIgnore
@@ -32,4 +32,24 @@ public interface StubMappingOrMappings {
 
   @JsonIgnore
   boolean isMulti();
+}
+
+class StubMappingOrMappingsJsonDeserializer extends StdDeserializer<StubMappingOrMappings> {
+
+  protected StubMappingOrMappingsJsonDeserializer() {
+    super(StubMappingOrMappings.class);
+  }
+
+  @Override
+  public StubMappingOrMappings deserialize(JsonParser parser, DeserializationContext ctxt)
+      throws IOException {
+    JsonNode rootNode = parser.readValueAsTree();
+    Class<? extends StubMappingOrMappings> clazz;
+    if (rootNode.has("mappings")) {
+      clazz = StubMappingCollection.class;
+    } else {
+      clazz = StubMapping.class;
+    }
+    return ctxt.readTreeAsValue(rootNode, clazz);
+  }
 }

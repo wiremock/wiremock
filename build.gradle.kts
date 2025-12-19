@@ -54,6 +54,7 @@ dependencies {
   testImplementation(libs.commons.lang)
 
   testImplementation(platform(libs.jackson.bom))
+  testImplementation(libs.jackson.core)
   testImplementation(libs.jackson.annotations)
 
   testImplementation(libs.jakarta.servlet.api)
