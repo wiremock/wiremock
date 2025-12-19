@@ -15,114 +15,308 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-public class UserInfoTests {
+class UserInfoTests {
 
-  static Stream<String> validUserInfo() {
-    return Stream.of(
-        // Simple usernames
-        "user",
-        "admin",
-        "john",
-        "alice123",
+  @Nested
+  class ParseMethod {
 
-        // Username with password
-        "user:password",
-        "admin:secret123",
-        "john:passw0rd",
+    static final List<String> validUserInfo =
+        List.of(
+            // Simple usernames
+            "user",
+            "admin",
+            "john",
+            "alice123",
 
-        // Unreserved characters (alphanumeric, hyphen, period, underscore, tilde)
-        "user-name",
-        "user.name",
-        "user_name",
-        "user~name",
-        "User123",
-        "test-user_123.name~test",
+            // Username with password
+            "user:password",
+            "admin:secret123",
+            "john:passw0rd",
 
-        // Sub-delimiters (!$&'()*+,;=)
-        "user!name",
-        "user$name",
-        "user&name",
-        "user'name",
-        "user(name)",
-        "user*name",
-        "user+name",
-        "user,name",
-        "user;name",
-        "user=name",
+            // Unreserved characters (alphanumeric, hyphen, period, underscore, tilde)
+            "user-name",
+            "user.name",
+            "user_name",
+            "user~name",
+            "User123",
+            "test-user_123.name~test",
 
-        // Percent-encoded characters
-        "%20", // space
-        "user%20name", // user name
-        "user%40example", // user@example
-        "%C3%A9", // é
-        "caf%C3%A9", // café
+            // Sub-delimiters (!$&'()*+,;=)
+            "user!name",
+            "user$name",
+            "user&name",
+            "user'name",
+            "user(name)",
+            "user*name",
+            "user+name",
+            "user,name",
+            "user;name",
+            "user=name",
 
-        // With colons (common in password-based auth)
-        ":",
-        ":::",
-        "user:",
-        ":password",
-        "user:pass:extra",
+            // Percent-encoded characters
+            "%20", // space
+            "user%20name", // user name
+            "user%40example", // user@example
+            "%C3%A9", // é
+            "caf%C3%A9", // café
 
-        // Complex combinations
-        "john.doe:secret123",
-        "user%20one:p%40ssword",
-        "admin_123:!secret$",
-        "test+user:pass=123",
+            // With colons (common in password-based auth)
+            ":",
+            ":::",
+            "user:",
+            ":password",
+            "user:pass:extra",
 
-        // Empty (valid according to regex)
-        "");
+            // Complex combinations
+            "john.doe:secret123",
+            "user%20one:p%40ssword",
+            "admin_123:!secret$",
+            "test+user:pass=123",
+
+            // Empty (valid according to regex)
+            "");
+
+    @ParameterizedTest
+    @FieldSource("validUserInfo")
+    void parses_valid_userinfo(String userInfoString) {
+      UserInfo userInfo = UserInfo.parse(userInfoString);
+      assertThat(userInfo.toString()).isEqualTo(userInfoString);
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "user name", // unencoded space
+          "user@name", // @ not allowed (must be percent-encoded)
+          "user#name", // # not allowed
+          "user/name", // / not allowed
+          "user?name", // ? not allowed
+          "user[name]", // brackets not allowed
+          "user<name>", // angle brackets not allowed
+          "user\\name", // backslash not allowed
+          "user|name", // pipe not allowed
+          "user\"name", // quote not allowed
+          "%", // incomplete encoding
+          "%2", // incomplete encoding
+          "%GG", // invalid hex
+          "user%ZZname" // invalid hex
+        })
+    void throws_exception_for_invalid_userinfo(String invalidUserInfo) {
+      assertThatExceptionOfType(IllegalUserInfo.class)
+          .isThrownBy(() -> UserInfo.parse(invalidUserInfo))
+          .withMessage("Illegal user info: `" + invalidUserInfo + "`")
+          .extracting(IllegalUserInfo::getIllegalValue)
+          .isEqualTo(invalidUserInfo);
+    }
   }
 
-  static Stream<String> invalidUserInfo() {
-    return Stream.of(
-        // Control characters
-        "\\n",
-        "user\\nname",
-        "user\\tname",
+  @Nested
+  class NormaliseMethod {
 
-        // Invalid characters not in unreserved/sub-delims/pct-encoded
-        "user name", // unencoded space
-        "user@name", // @ not allowed (must be percent-encoded)
-        "user#name", // # not allowed
-        "user/name", // / not allowed
-        "user?name", // ? not allowed
-        "user[name]", // brackets not allowed
-        "user<name>", // angle brackets not allowed
-        "user\\name", // backslash not allowed
-        "user|name", // pipe not allowed
-        "user\"name", // quote not allowed
+    static final List<String> normalisesToNull = List.of("", ":");
 
-        // Invalid percent encoding
-        "%", // incomplete
-        "%2", // incomplete
-        "%GG", // invalid hex
-        "user%ZZname", // invalid hex
-        "user%2", // incomplete at end
-        "user%"); // incomplete at end
+    static final List<String> alreadyNormalised = List.of("user", "user:password");
+
+    @ParameterizedTest
+    @FieldSource("normalisesToNull")
+    void returns_null_for_empty_userinfo(String userInfoString) {
+      UserInfo userInfo = UserInfo.parse(userInfoString);
+      UserInfo normalised = userInfo.normalise();
+      assertThat(normalised).isNull();
+    }
+
+    @Test
+    void removes_empty_password_when_username_is_not_empty() {
+      UserInfo userInfo = UserInfo.parse("user:");
+      UserInfo normalised = userInfo.normalise();
+      assertThat(normalised).isNotNull();
+      assertThat(normalised.toString()).isEqualTo("user");
+      assertThat(normalised.username().toString()).isEqualTo("user");
+      assertThat(normalised.password()).isNull();
+    }
+
+    @ParameterizedTest
+    @FieldSource("alreadyNormalised")
+    void returns_same_instance_when_already_normalised(String userInfoString) {
+      UserInfo userInfo = UserInfo.parse(userInfoString);
+      UserInfo normalised = userInfo.normalise();
+      assertThat(normalised).isSameAs(userInfo);
+    }
+
+    @Test
+    void normalised_userinfo_can_be_normalised_again() {
+      UserInfo userInfo = UserInfo.parse("user:");
+      UserInfo normalised1 = userInfo.normalise();
+      UserInfo normalised2 = normalised1.normalise();
+      assertThat(normalised1).isEqualTo(normalised2);
+      assertThat(normalised2).isSameAs(normalised1);
+    }
   }
 
-  @ParameterizedTest
-  @MethodSource("invalidUserInfo")
-  void throws_exception_for_invalid_userinfo(String invalidUserInfo) {
-    assertThatExceptionOfType(IllegalUserInfo.class)
-        .isThrownBy(() -> UserInfo.parse(invalidUserInfo))
-        .withMessage("Illegal user info: `" + invalidUserInfo + "`")
-        .extracting(IllegalUserInfo::getIllegalValue)
-        .isEqualTo(invalidUserInfo);
+  @Nested
+  class DecodeMethod {
+
+    record DecodeCase(String input, String expected) {}
+
+    static final List<String> userInfoWithoutPercentEncoding =
+        List.of("", "user", "user:password", "admin:secret123", "john.doe:pass");
+
+    static final List<DecodeCase> decodeCases =
+        List.of(
+            new DecodeCase("user%20name", "user name"),
+            new DecodeCase("user%40example", "user@example"),
+            new DecodeCase("caf%C3%A9", "café"),
+            new DecodeCase("user:pass%20word", "user:pass word"),
+            new DecodeCase("user%20one:p%40ssword", "user one:p@ssword"),
+            new DecodeCase("%C3%A9:%C3%A9", "é:é"),
+            new DecodeCase("user%2Fname:pass", "user/name:pass"),
+            new DecodeCase("test:pass%3Aword", "test:pass:word"));
+
+    @ParameterizedTest
+    @FieldSource("userInfoWithoutPercentEncoding")
+    void returns_same_string_for_userinfo_without_percent_encoding(String userInfoString) {
+      UserInfo userInfo = UserInfo.parse(userInfoString);
+      assertThat(userInfo.decode()).isEqualTo(userInfoString);
+    }
+
+    @ParameterizedTest
+    @FieldSource("decodeCases")
+    void decodes_percent_encoded_userinfo_correctly(DecodeCase testCase) {
+      UserInfo userInfo = UserInfo.parse(testCase.input());
+      assertThat(userInfo.decode()).isEqualTo(testCase.expected());
+    }
+  }
+
+  @Nested
+  class Equality {
+
+    record EqualityCase(String userInfo1, String userInfo2, boolean shouldBeEqual) {}
+
+    static final List<EqualityCase> equalityCases =
+        List.of(
+            new EqualityCase("user:password", "user:password", true),
+            new EqualityCase("user1:password", "user2:password", false),
+            new EqualityCase("user:password1", "user:password2", false),
+            new EqualityCase("user:password", "USER:PASSWORD", false));
+
+    @ParameterizedTest
+    @FieldSource("equalityCases")
+    void equality_comparison(EqualityCase testCase) {
+      UserInfo userInfo1 = UserInfo.parse(testCase.userInfo1());
+      UserInfo userInfo2 = UserInfo.parse(testCase.userInfo2());
+      if (testCase.shouldBeEqual()) {
+        assertThat(userInfo1).isEqualTo(userInfo2);
+      } else {
+        assertThat(userInfo1).isNotEqualTo(userInfo2);
+      }
+    }
+
+    @Test
+    void userinfo_is_equal_to_itself() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      assertThat(userInfo).isEqualTo(userInfo);
+    }
+
+    @Test
+    void userinfo_is_not_equal_to_null() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      assertThat(userInfo).isNotEqualTo(null);
+    }
+
+    @Test
+    @SuppressWarnings("AssertBetweenInconvertibleTypes")
+    void userinfo_is_not_equal_to_different_type() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      assertThat(userInfo).isNotEqualTo("user:password");
+    }
+  }
+
+  @Nested
+  class HashCode {
+
+    @Test
+    void equal_userinfo_have_same_hash_code() {
+      UserInfo userInfo1 = UserInfo.parse("user:password");
+      UserInfo userInfo2 = UserInfo.parse("user:password");
+      assertThat(userInfo1.hashCode()).isEqualTo(userInfo2.hashCode());
+    }
+
+    @Test
+    void hash_code_is_consistent() {
+      UserInfo userInfo = UserInfo.parse("admin:secret123");
+      int hashCode1 = userInfo.hashCode();
+      int hashCode2 = userInfo.hashCode();
+      assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+  }
+
+  @Nested
+  class ToStringMethod {
+
+    static final List<String> toStringTestCases =
+        List.of("user:password", "User:Password", "user%20name:pass%20word", "john.doe:secret123");
+
+    @ParameterizedTest
+    @FieldSource("toStringTestCases")
+    void to_string_returns_original_userinfo(String userInfoString) {
+      UserInfo userInfo = UserInfo.parse(userInfoString);
+      assertThat(userInfo.toString()).isEqualTo(userInfoString);
+    }
+
+    @ParameterizedTest
+    @FieldSource("toStringTestCases")
+    void to_string_result_can_be_parsed_back(String userInfoString) {
+      UserInfo original = UserInfo.parse(userInfoString);
+      String stringForm = original.toString();
+      UserInfo parsed = UserInfo.parse(stringForm);
+      assertThat(parsed).isEqualTo(original);
+      assertThat(parsed.toString()).isEqualTo(stringForm);
+    }
+  }
+
+  @Nested
+  class UsernameAndPassword {
+
+    record ExtractionCase(String input, String expectedUsername, String expectedPassword) {}
+
+    static final List<ExtractionCase> extractionCases =
+        List.of(
+            new ExtractionCase("john:secret", "john", "secret"),
+            new ExtractionCase("john", "john", null),
+            new ExtractionCase("john:", "john", ""),
+            new ExtractionCase(":password", "", "password"),
+            new ExtractionCase("user:pass:word:123", "user", "pass:word:123"));
+
+    @ParameterizedTest
+    @FieldSource("extractionCases")
+    void extracts_username_and_password_correctly(ExtractionCase testCase) {
+      UserInfo userInfo = UserInfo.parse(testCase.input());
+      assertThat(userInfo.username().toString()).isEqualTo(testCase.expectedUsername());
+      if (testCase.expectedPassword() == null) {
+        assertThat(userInfo.password()).isNull();
+      } else {
+        assertThat(userInfo.password()).isNotNull();
+        assertThat(userInfo.password().toString()).isEqualTo(testCase.expectedPassword());
+      }
+    }
   }
 
   @TestFactory
   Stream<DynamicTest> invariants() {
     return CharSequenceParserInvariantTests.generateInvariantTests(
-        UserInfoParser.INSTANCE, validUserInfo().toList());
+        UserInfoParser.INSTANCE, ParseMethod.validUserInfo);
   }
 }

@@ -22,7 +22,7 @@ import static org.wiremock.url.Constants.unreserved;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-public interface UserInfo {
+public interface UserInfo extends PercentEncoded {
 
   static UserInfo parse(String userInfoString) {
     return UserInfoParser.INSTANCE.parse(userInfoString);
