@@ -76,7 +76,13 @@ public class UrlReferenceTests {
 
         assertThat(userInfo.map(it -> it.username().toString()).orElse(""))
             .isEqualTo(successTestCase.username());
-        assertThat(userInfo.map(UserInfo::password).orElse(""))
+        assertThat(
+                userInfo
+                    .map(it -> {
+                      Password password = it.password();
+                      return password == null ? "" : password.toString();
+                    })
+                    .orElse(""))
             .isEqualTo(successTestCase.password());
 
         assertThat(Optional.ofNullable(normalised.port()).map(Object::toString).orElse(""))
@@ -154,7 +160,6 @@ public class UrlReferenceTests {
             /* pathname */ "/",
             /* search */ "",
             /* searchParams */ null,
-            /* hash */ ""
-        ));
+            /* hash */ ""));
   }
 }

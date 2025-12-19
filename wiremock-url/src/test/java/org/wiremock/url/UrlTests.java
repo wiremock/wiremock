@@ -131,12 +131,21 @@ class UrlTests {
                         && !t.href()
                             .equals(
                                 "wss://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/")
-                        && !t.href().equals("http://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href().equals("foo://!\"$%&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href().equals("wss://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href().equals("foo://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
-                        && !t.href().equals("foo://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
-                        && !t.href().equals("wss://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
+                        && !t.href()
+                            .equals("http://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
+                        && !t.href()
+                            .equals("foo://!\"$%&'()*+,-.;=_`{}~/") // host contains `{` and `}`
+                        && !t.href()
+                            .equals("wss://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
+                        && !t.href()
+                            .equals(
+                                "foo://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
+                        && !t.href()
+                            .equals(
+                                "foo://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
+                        && !t.href()
+                            .equals(
+                                "wss://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
                         && !t.href()
                             .equals(
                                 "sc://%01%02%03%04%05%06%07%08%0B%0C%0E%0F%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%7F!\"$%&'()*+,-.;=_`{}~/"))
