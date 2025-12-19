@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.message.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import java.util.UUID;
 
 public class WebSocketMessageChannel implements MessageChannel {
@@ -62,7 +62,7 @@ public class WebSocketMessageChannel implements MessageChannel {
   }
 
   @Override
-  public void sendMessage(MessageDefinition message) {
+  public void sendMessage(Message message) {
     if (session != null && session.isOpen()) {
       session.sendMessage(message);
     }

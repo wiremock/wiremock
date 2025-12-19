@@ -32,19 +32,14 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
     setupServer(
         new WireMockConfiguration()
             .httpServerFactory(
-                (options,
-                    adminRequestHandler,
-                    stubRequestHandler,
-                    messageChannels,
-                    messageStubMappings) ->
+                (options, adminRequestHandler, stubRequestHandler, messageStubRequestHandler) ->
                     new Jetty12HttpServer(
                         options,
                         adminRequestHandler,
                         stubRequestHandler,
                         JettySettings.Builder.aJettySettings().build(),
                         new InstrumentedQueuedThreadPool(options.containerThreads()),
-                        messageChannels,
-                        messageStubMappings)));
+                        messageStubRequestHandler)));
   }
 
   @Test

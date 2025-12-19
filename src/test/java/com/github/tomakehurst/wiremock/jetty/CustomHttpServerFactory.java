@@ -20,8 +20,7 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 
 public class CustomHttpServerFactory implements HttpServerFactory {
 
@@ -35,9 +34,8 @@ public class CustomHttpServerFactory implements HttpServerFactory {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
-      MessageChannels messageChannels,
-      MessageStubMappings messageStubMappings) {
+      MessageStubRequestHandler messageStubRequestHandler) {
     return new CustomHttpServer(
-        options, adminRequestHandler, stubRequestHandler, messageChannels, messageStubMappings);
+        options, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
   }
 }

@@ -27,8 +27,7 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StaticExtensionLoader;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -142,8 +141,7 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        MessageChannels messageChannels,
-        MessageStubMappings messageStubMappings) {
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }
@@ -154,8 +152,7 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        MessageChannels messageChannels,
-        MessageStubMappings messageStubMappings) {
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }
@@ -166,8 +163,7 @@ public class HttpServerFactoryLoaderTest {
         Options options,
         AdminRequestHandler adminRequestHandler,
         StubRequestHandler stubRequestHandler,
-        MessageChannels messageChannels,
-        MessageStubMappings messageStubMappings) {
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }

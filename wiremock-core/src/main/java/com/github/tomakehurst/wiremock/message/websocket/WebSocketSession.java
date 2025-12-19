@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.message.websocket;
 
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.Message;
 
 public interface WebSocketSession {
 
   boolean isOpen();
 
-  void sendMessage(MessageDefinition message);
+  void sendMessage(Message message);
 
   void close();
 }

@@ -85,8 +85,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
             options,
             wireMockApp.buildAdminRequestHandler(),
             stubRequestHandler,
-            wireMockApp.getMessageChannels(),
-            wireMockApp.getMessageStubMappings());
+            wireMockApp.buildMessageStubRequestHandler());
 
     notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
 

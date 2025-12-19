@@ -20,8 +20,7 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 
 public class DirectCallHttpServerFactory implements HttpServerFactory {
   private DirectCallHttpServer lastBuilt;
@@ -31,8 +30,7 @@ public class DirectCallHttpServerFactory implements HttpServerFactory {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
-      MessageChannels messageChannels,
-      MessageStubMappings messageStubMappings) {
+      MessageStubRequestHandler messageStubRequestHandler) {
     lastBuilt = new DirectCallHttpServer(options, adminRequestHandler, stubRequestHandler);
     return lastBuilt;
   }

@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.InMemoryMessageChannelStore;
 import com.github.tomakehurst.wiremock.store.InMemoryMessageStubMappingStore;
@@ -57,10 +58,8 @@ public class JettyHttpServerTest {
   private StubRequestHandler stubRequestHandler;
   private MessageChannels messageChannels = new MessageChannels(new InMemoryMessageChannelStore());
   private MessageStubMappings messageStubMappings =
-      new MessageStubMappings(
-          new InMemoryMessageStubMappingStore(),
-          Collections.emptyMap(),
-          new InMemoryMessageJournal(null));
+      new MessageStubMappings(new InMemoryMessageStubMappingStore(), Collections.emptyMap());
+  private MessageStubRequestHandler messageStubRequestHandler;
   private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach
@@ -90,6 +89,9 @@ public class JettyHttpServerTest {
             false,
             NO_TRUNCATION,
             new PlainTextStubNotMatchedRenderer(Extensions.NONE));
+    messageStubRequestHandler =
+        new MessageStubRequestHandler(
+            messageStubMappings, messageChannels, new InMemoryMessageJournal(null));
   }
 
   @Test
@@ -106,11 +108,7 @@ public class JettyHttpServerTest {
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
             serverFactory.buildHttpServer(
-                config,
-                adminRequestHandler,
-                stubRequestHandler,
-                messageChannels,
-                messageStubMappings);
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -123,11 +121,7 @@ public class JettyHttpServerTest {
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
             serverFactory.buildHttpServer(
-                config,
-                adminRequestHandler,
-                stubRequestHandler,
-                messageChannels,
-                messageStubMappings);
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -140,11 +134,7 @@ public class JettyHttpServerTest {
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
             serverFactory.buildHttpServer(
-                config,
-                adminRequestHandler,
-                stubRequestHandler,
-                messageChannels,
-                messageStubMappings);
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     Field httpConnectorField = JettyHttpServer.class.getDeclaredField("httpConnector");
     httpConnectorField.setAccessible(true);
@@ -165,11 +155,7 @@ public class JettyHttpServerTest {
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
             serverFactory.buildHttpServer(
-                config,
-                adminRequestHandler,
-                stubRequestHandler,
-                messageChannels,
-                messageStubMappings);
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
     assertTrue(exception instanceof FatalStartupException);

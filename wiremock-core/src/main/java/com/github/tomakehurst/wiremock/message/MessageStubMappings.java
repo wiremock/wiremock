@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.MessageStubMappingStore;
-import com.github.tomakehurst.wiremock.verification.MessageJournal;
-import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +28,11 @@ public class MessageStubMappings {
 
   private final MessageStubMappingStore store;
   private final Map<String, RequestMatcherExtension> customMatchers;
-  private final MessageJournal messageJournal;
 
   public MessageStubMappings(
-      MessageStubMappingStore store,
-      Map<String, RequestMatcherExtension> customMatchers,
-      MessageJournal messageJournal) {
+      MessageStubMappingStore store, Map<String, RequestMatcherExtension> customMatchers) {
     this.store = store;
     this.customMatchers = customMatchers;
-    this.messageJournal = messageJournal;
   }
 
   public void add(MessageStubMapping mapping) {
@@ -75,23 +69,6 @@ public class MessageStubMappings {
 
   public int size() {
     return (int) store.getAll().count();
-  }
-
-  public boolean processMessage(
-      MessageChannel channel, String message, MessageChannels messageChannels) {
-    Optional<MessageStubMapping> matchingStub = findMatchingStub(channel, message);
-    if (matchingStub.isPresent()) {
-      MessageStubMapping stub = matchingStub.get();
-      stub.executeActions(channel, messageChannels, message);
-
-      MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
-      messageJournal.messageReceived(event);
-      return true;
-    } else {
-      MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
-      messageJournal.messageReceived(event);
-    }
-    return false;
   }
 
   public Optional<MessageStubMapping> findMatchingStub(MessageChannel channel, String message) {

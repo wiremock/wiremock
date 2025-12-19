@@ -40,8 +40,7 @@ import com.github.tomakehurst.wiremock.jetty.servlet.NotMatchedServlet;
 import com.github.tomakehurst.wiremock.jetty.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.jetty.ssl.SslContexts;
 import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.DispatcherType;
 import java.util.*;
@@ -74,16 +73,14 @@ public class Jetty12HttpServer extends JettyHttpServer {
       StubRequestHandler stubRequestHandler,
       JettySettings jettySettings,
       ThreadPool threadPool,
-      MessageChannels messageChannels,
-      MessageStubMappings messageStubMappings) {
+      MessageStubRequestHandler messageStubRequestHandler) {
     super(
         options,
         adminRequestHandler,
         stubRequestHandler,
         jettySettings,
         threadPool,
-        messageChannels,
-        messageStubMappings);
+        messageStubRequestHandler);
   }
 
   @Override
@@ -415,8 +412,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
                     LoggedRequest.createFrom(servletRequest);
 
                 // Create and return the WebSocket endpoint
-                return new WireMockWebSocketEndpoint(
-                    messageChannels, messageStubMappings, wireMockRequest);
+                return new WireMockWebSocketEndpoint(messageStubRequestHandler, wireMockRequest);
               });
         });
 

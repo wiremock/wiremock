@@ -28,7 +28,7 @@ public interface MessageChannel {
 
   boolean isOpen();
 
-  void sendMessage(MessageDefinition message);
+  void sendMessage(Message message);
 
   void close();
 }

@@ -17,15 +17,8 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
-import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 public class MessageDefinition {
 
@@ -42,21 +35,5 @@ public class MessageDefinition {
 
   public EntityDefinition getBody() {
     return body;
-  }
-
-  public Message resolve() {
-    Entity entity = resolveEntity(body);
-    return new Message(entity);
-  }
-
-  private static Entity resolveEntity(EntityDefinition definition) {
-    if (definition instanceof StringEntityDefinition) {
-      String value = ((StringEntityDefinition) definition).getValue();
-      byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
-    }
-    throw new UnsupportedOperationException(
-        "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
   }
 }

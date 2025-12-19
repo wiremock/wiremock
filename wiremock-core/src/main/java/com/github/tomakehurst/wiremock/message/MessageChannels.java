@@ -88,9 +88,10 @@ public class MessageChannels {
 
   public int sendMessageToMatching(
       RequestPattern requestPattern,
-      MessageDefinition message,
+      MessageDefinition messageDefinition,
       Map<String, RequestMatcherExtension> customMatchers) {
     List<MessageChannel> matchingChannels = findByRequestPattern(requestPattern, customMatchers);
+    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition);
     for (MessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
@@ -100,10 +101,11 @@ public class MessageChannels {
   public int sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
-      MessageDefinition message,
+      MessageDefinition messageDefinition,
       Map<String, RequestMatcherExtension> customMatchers) {
     List<MessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);
+    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition);
     for (MessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }

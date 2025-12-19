@@ -75,13 +75,14 @@ public class SendMessageAction implements MessageAction {
   public void execute(
       MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
     MessageDefinition messageDefinition = new MessageDefinition(body);
+    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition);
     if (sendToOriginatingChannel) {
-      originatingChannel.sendMessage(messageDefinition);
+      originatingChannel.sendMessage(message);
     } else if (targetChannelPattern != null) {
       List<MessageChannel> matchingChannels =
           messageChannels.findByRequestPattern(targetChannelPattern, Collections.emptyMap());
       for (MessageChannel channel : matchingChannels) {
-        channel.sendMessage(messageDefinition);
+        channel.sendMessage(message);
       }
     }
   }
@@ -103,7 +104,7 @@ public class SendMessageAction implements MessageAction {
   @Override
   public String toString() {
     return "SendMessageAction{"
-        + "message='"
+        + "body='"
         + body
         + '\''
         + ", targetChannelPattern="

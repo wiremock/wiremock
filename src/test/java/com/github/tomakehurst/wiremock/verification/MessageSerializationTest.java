@@ -66,7 +66,7 @@ public class MessageSerializationTest {
               "actions": [
                 {
                   "type": "send",
-                  "message": "world",
+                  "body": "world",
                   "sendToOriginatingChannel": true
                 }
               ]
@@ -91,7 +91,7 @@ public class MessageSerializationTest {
           "actions": [
             {
               "type": "send",
-              "message": "response",
+              "body": "response",
               "sendToOriginatingChannel": true
             }
           ]
@@ -173,7 +173,7 @@ public class MessageSerializationTest {
                 "actions": [
                   {
                     "type": "send",
-                    "message": "response",
+                    "body": "response",
                     "sendToOriginatingChannel": true
                   }
                 ]
@@ -259,7 +259,7 @@ public class MessageSerializationTest {
               "actions": [
                 {
                   "type": "send",
-                  "message": "broadcasted",
+                  "body": "broadcasted",
                   "targetChannelPattern": {
                     "url": "/target",
                     "method": "ANY"
@@ -286,7 +286,7 @@ public class MessageSerializationTest {
           "actions": [
             {
               "type": "send",
-              "message": "broadcast-message",
+              "body": "broadcast-message",
               "targetChannelPattern": {
                 "url": "/target-channel"
               },
@@ -302,7 +302,7 @@ public class MessageSerializationTest {
     assertThat(stub.getActions().size(), is(1));
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
-    assertThat(action.getBody(), is("broadcast-message"));
+    assertThat(action.getBody().getData(), is("broadcast-message"));
     assertThat(action.isSendToOriginatingChannel(), is(false));
     assertThat(action.getTargetChannelPattern().getUrl(), is("/target-channel"));
   }

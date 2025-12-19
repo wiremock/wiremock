@@ -17,31 +17,21 @@ package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketMessageChannel;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 
-/**
- * WebSocket endpoint that accepts all WebSocket connections and registers them with the
- * MessageChannels. When messages are received, they are matched against message stub mappings and
- * the corresponding actions are executed.
- */
 public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding {
 
-  private final MessageChannels messageChannels;
-  private final MessageStubMappings messageStubMappings;
+  private final MessageStubRequestHandler messageStubRequestHandler;
   private final Request upgradeRequest;
   private MessageChannel messageChannel;
   private Session session;
 
   public WireMockWebSocketEndpoint(
-      MessageChannels messageChannels,
-      MessageStubMappings messageStubMappings,
-      Request upgradeRequest) {
-    this.messageChannels = messageChannels;
-    this.messageStubMappings = messageStubMappings;
+      MessageStubRequestHandler messageStubRequestHandler, Request upgradeRequest) {
+    this.messageStubRequestHandler = messageStubRequestHandler;
     this.upgradeRequest = upgradeRequest;
   }
 
@@ -50,35 +40,30 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
     this.session = session;
     JettyWebSocketSession webSocketSession = new JettyWebSocketSession(session);
     this.messageChannel = new WebSocketMessageChannel(upgradeRequest, webSocketSession);
-    messageChannels.add(messageChannel);
+    messageStubRequestHandler.getMessageChannels().add(messageChannel);
   }
 
   @Override
   public void onWebSocketText(String message) {
-    // Process the incoming message against message stub mappings
-    if (messageStubMappings != null && messageChannel != null) {
-      messageStubMappings.processMessage(messageChannel, message, messageChannels);
+    if (messageStubRequestHandler != null && messageChannel != null) {
+      messageStubRequestHandler.processMessage(messageChannel, message);
     }
   }
 
   @Override
   public void onWebSocketBinary(java.nio.ByteBuffer payload, Callback callback) {
-    // For now, we don't process incoming binary messages
     callback.succeed();
   }
 
   @Override
   public void onWebSocketClose(int statusCode, String reason) {
     if (messageChannel != null) {
-      messageChannels.remove(messageChannel.getId());
+      messageStubRequestHandler.getMessageChannels().remove(messageChannel.getId());
     }
   }
 
   @Override
-  public void onWebSocketError(Throwable cause) {
-    // Log the error but keep the channel registered
-    // The channel will be cleaned up when it's closed
-  }
+  public void onWebSocketError(Throwable cause) {}
 
   public MessageChannel getMessageChannel() {
     return messageChannel;

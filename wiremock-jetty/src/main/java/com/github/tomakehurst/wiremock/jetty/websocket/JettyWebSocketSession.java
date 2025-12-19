@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketSession;
 import java.nio.charset.StandardCharsets;
 import org.eclipse.jetty.websocket.api.Callback;
@@ -36,9 +35,8 @@ public class JettyWebSocketSession implements WebSocketSession {
   }
 
   @Override
-  public void sendMessage(MessageDefinition messageDefinition) {
+  public void sendMessage(Message message) {
     if (isOpen()) {
-      Message message = messageDefinition.resolve();
       byte[] data = message.getBody().getData();
       String text = new String(data, StandardCharsets.UTF_8);
       session.sendText(text, Callback.NOOP);

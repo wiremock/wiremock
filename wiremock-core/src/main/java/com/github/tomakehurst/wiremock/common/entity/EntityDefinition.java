@@ -21,4 +21,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StringEntityDefinition.class)
 @JsonSubTypes(value = {@Type(StringEntityDefinition.class), @Type(FullEntityDefinition.class)})
-public abstract class EntityDefinition {}
+public abstract class EntityDefinition {
+
+  public abstract EncodingType getEncoding();
+
+  public abstract FormatType getFormat();
+
+  public abstract CompressionType getCompression();
+
+  public abstract Object getData();
+}

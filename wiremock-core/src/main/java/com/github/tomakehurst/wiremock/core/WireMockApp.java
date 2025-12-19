@@ -39,6 +39,7 @@ import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
@@ -156,8 +157,7 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
-        new MessageStubMappings(
-            stores.getMessageStubMappingStore(), customMatchers, messageJournal);
+        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
 
     this.container = container;
     extensions.startAll();
@@ -216,8 +216,7 @@ public class WireMockApp implements StubServer, Admin {
     globalSettingsListeners = Collections.emptyList();
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
     this.messageStubMappings =
-        new MessageStubMappings(
-            stores.getMessageStubMappingStore(), requestMatchers, messageJournal);
+        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
     loadDefaultMappings();
   }
 
@@ -280,6 +279,10 @@ public class WireMockApp implements StubServer, Admin {
         options.getStubRequestLoggingDisabled(),
         options.getDataTruncationSettings(),
         options.getNotMatchedRendererFactory().apply(extensions));
+  }
+
+  public MessageStubRequestHandler buildMessageStubRequestHandler() {
+    return new MessageStubRequestHandler(messageStubMappings, messageChannels, messageJournal);
   }
 
   private List<RequestFilter> getAdminRequestFilters() {

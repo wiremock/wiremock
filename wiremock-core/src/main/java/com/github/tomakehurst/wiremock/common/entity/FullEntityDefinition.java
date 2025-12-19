@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Json;
+import java.util.Objects;
 
 public class FullEntityDefinition extends EntityDefinition {
   private final EncodingType encoding;
@@ -70,5 +72,27 @@ public class FullEntityDefinition extends EntityDefinition {
 
   public Object getData() {
     return data;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    FullEntityDefinition that = (FullEntityDefinition) o;
+    return Objects.equals(encoding, that.encoding)
+        && Objects.equals(format, that.format)
+        && Objects.equals(compression, that.compression)
+        && Objects.equals(dataStore, that.dataStore)
+        && Objects.equals(dataRef, that.dataRef)
+        && Objects.equals(data, that.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(encoding, format, compression, dataStore, dataRef, data);
+  }
+
+  @Override
+  public String toString() {
+    return Json.write(this);
   }
 }
