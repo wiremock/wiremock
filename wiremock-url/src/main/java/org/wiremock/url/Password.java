@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 
 public interface Password extends PercentEncoded {
 
-  Password normalise();
-
   static Password parse(CharSequence password) throws IllegalPassword {
     return PasswordParser.INSTANCE.parse(password);
   }
@@ -53,13 +51,6 @@ class PasswordParser implements CharSequenceParser<Password> {
     @Override
     public String toString() {
       return password;
-    }
-
-    @Override
-    public org.wiremock.url.Password normalise() {
-      // Password normalization follows the same pattern as other components
-      // For now, no special normalization is needed beyond what PercentEncoded provides
-      return this;
     }
   }
 }

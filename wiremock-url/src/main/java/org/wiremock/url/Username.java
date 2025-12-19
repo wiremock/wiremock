@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 
 public interface Username extends PercentEncoded {
 
-  Username normalise();
-
   static Username parse(CharSequence username) throws IllegalUsername {
     return UsernameParser.INSTANCE.parse(username);
   }
@@ -53,13 +51,6 @@ class UsernameParser implements CharSequenceParser<Username> {
     @Override
     public String toString() {
       return username;
-    }
-
-    @Override
-    public org.wiremock.url.Username normalise() {
-      // Username normalization follows the same pattern as other components
-      // For now, no special normalization is needed beyond what PercentEncoded provides
-      return this;
     }
   }
 }

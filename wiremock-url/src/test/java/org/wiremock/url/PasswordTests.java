@@ -119,54 +119,6 @@ class PasswordTests {
   }
 
   @Nested
-  class NormaliseMethod {
-
-    record NormalisationCase(String input, String expected) {}
-
-    static final List<NormalisationCase> normalisationCases =
-        List.of(
-            // For now, no special normalization beyond what PercentEncoded provides
-            // These test cases verify the current behavior
-            new NormalisationCase("password", "password"),
-            new NormalisationCase("secret123", "secret123"),
-            new NormalisationCase("pass-word", "pass-word"));
-
-    static final List<String> alreadyNormalisedPasswords =
-        List.of(
-            "",
-            "password",
-            "secret",
-            "pass-word",
-            "pass.word",
-            "pass_word",
-            "pass~word",
-            "Pass123",
-            "pass:word",
-            "pass%20word",
-            "caf%C3%A9");
-
-    @ParameterizedTest
-    @FieldSource("normalisationCases")
-    void normalises_password_correctly(NormalisationCase testCase) {
-      Password password = Password.parse(testCase.input());
-      Password normalised = password.normalise();
-      assertThat(normalised.toString()).isEqualTo(testCase.expected());
-      assertThat(normalised).isEqualTo(Password.parse(testCase.expected()));
-
-      Password normalised2 = normalised.normalise();
-      assertThat(normalised).isSameAs(normalised2);
-    }
-
-    @ParameterizedTest
-    @FieldSource("alreadyNormalisedPasswords")
-    void returns_same_instance_when_already_normalised(String passwordString) {
-      Password password = Password.parse(passwordString);
-      Password normalised = password.normalise();
-      assertThat(normalised).isSameAs(password);
-    }
-  }
-
-  @Nested
   class DecodeMethod {
 
     record DecodeCase(String input, String expected) {}

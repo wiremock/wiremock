@@ -114,53 +114,6 @@ class UsernameTests {
   }
 
   @Nested
-  class NormaliseMethod {
-
-    record NormalisationCase(String input, String expected) {}
-
-    static final List<NormalisationCase> normalisationCases =
-        List.of(
-            // For now, no special normalization beyond what PercentEncoded provides
-            // These test cases verify the current behavior
-            new NormalisationCase("user", "user"),
-            new NormalisationCase("admin123", "admin123"),
-            new NormalisationCase("user-name", "user-name"));
-
-    static final List<String> alreadyNormalisedUsernames =
-        List.of(
-            "",
-            "user",
-            "admin",
-            "user-name",
-            "user.name",
-            "user_name",
-            "user~name",
-            "User123",
-            "user%20name",
-            "caf%C3%A9");
-
-    @ParameterizedTest
-    @FieldSource("normalisationCases")
-    void normalises_username_correctly(NormalisationCase testCase) {
-      Username username = Username.parse(testCase.input());
-      Username normalised = username.normalise();
-      assertThat(normalised.toString()).isEqualTo(testCase.expected());
-      assertThat(normalised).isEqualTo(Username.parse(testCase.expected()));
-
-      Username normalised2 = normalised.normalise();
-      assertThat(normalised).isSameAs(normalised2);
-    }
-
-    @ParameterizedTest
-    @FieldSource("alreadyNormalisedUsernames")
-    void returns_same_instance_when_already_normalised(String usernameString) {
-      Username username = Username.parse(usernameString);
-      Username normalised = username.normalise();
-      assertThat(normalised).isSameAs(username);
-    }
-  }
-
-  @Nested
   class DecodeMethod {
 
     record DecodeCase(String input, String expected) {}
