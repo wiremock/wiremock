@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "org.wiremock"
-version = "4.0.0-beta.23"
+version = "4.0.0-beta.24"
 
 repositories {
   mavenCentral()
