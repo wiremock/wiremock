@@ -27,7 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.FixedDelayDistribution;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.util.ArrayList;
@@ -226,5 +229,135 @@ public class ResponseDefinitionTest {
     assertThat(responseDefinition1.getTransformers(), contains("transformer-1"));
 
     assertThat(responseDefinition2.getTransformers(), contains("transformer-1", "transformer-2"));
+  }
+
+  @Test
+  public void headersCannotBeNull() {
+    var builder = new ResponseDefinition.Builder();
+    assertThat(builder.getHeaders(), notNullValue());
+    assertThat(builder.getHeaders().size(), is(0));
+    assertThrows(NullPointerException.class, () -> builder.setHeaders(null));
+    assertThat(builder.getHeaders(), notNullValue());
+    assertThat(builder.getHeaders().size(), is(0));
+    assertThat(builder.build().getHeaders(), notNullValue());
+    assertThat(builder.build().getHeaders().size(), is(0));
+    var responseDefinition =
+        new ResponseDefinition(
+            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(responseDefinition.getHeaders(), notNullValue());
+    assertThat(responseDefinition.getHeaders().size(), is(0));
+  }
+
+  @Test
+  public void additionalProxyRequestHeadersCannotBeNull() {
+    var builder = new ResponseDefinition.Builder();
+    assertThat(builder.getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(builder.getAdditionalProxyRequestHeaders().size(), is(0));
+    assertThrows(NullPointerException.class, () -> builder.setAdditionalProxyRequestHeaders(null));
+    assertThat(builder.getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(builder.getAdditionalProxyRequestHeaders().size(), is(0));
+    assertThat(builder.build().getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(builder.build().getAdditionalProxyRequestHeaders().size(), is(0));
+    var responseDefinition =
+        new ResponseDefinition(
+            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(responseDefinition.getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(responseDefinition.getAdditionalProxyRequestHeaders().size(), is(0));
+  }
+
+  @Test
+  public void removeProxyRequestHeadersCannotBeNull() {
+    var builder = new ResponseDefinition.Builder();
+    assertThat(builder.getRemoveProxyRequestHeaders(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setRemoveProxyRequestHeaders(null));
+    assertThat(builder.getRemoveProxyRequestHeaders(), empty());
+    assertThat(builder.build().getRemoveProxyRequestHeaders(), empty());
+    var responseDefinition =
+        new ResponseDefinition(
+            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(responseDefinition.getRemoveProxyRequestHeaders(), empty());
+  }
+
+  @Test
+  public void transformersCannotBeNull() {
+    var builder = new ResponseDefinition.Builder();
+    assertThat(builder.getTransformers(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setTransformers(null));
+    assertThat(builder.getTransformers(), notNullValue());
+    assertThat(builder.getTransformers().size(), is(0));
+    assertThat(builder.build().getTransformers(), empty());
+    var responseDefinition =
+        new ResponseDefinition(
+            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(responseDefinition.getTransformers(), empty());
+  }
+
+  @Test
+  public void transformerParametersCannotBeNull() {
+    var builder = new ResponseDefinition.Builder();
+    assertThat(builder.getTransformerParameters(), notNullValue());
+    assertThat(builder.getTransformerParameters().size(), is(0));
+    assertThrows(NullPointerException.class, () -> builder.setTransformerParameters(null));
+    assertThat(builder.getTransformerParameters(), notNullValue());
+    assertThat(builder.getTransformerParameters().size(), is(0));
+    assertThat(builder.build().getTransformerParameters(), notNullValue());
+    assertThat(builder.build().getTransformerParameters().size(), is(0));
+    var responseDefinition =
+        new ResponseDefinition(
+            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(responseDefinition.getTransformerParameters(), notNullValue());
+    assertThat(responseDefinition.getTransformerParameters().size(), is(0));
+  }
+
+  @Test
+  public void builderCopiesExistingValues() {
+    var responseDefinition =
+        new ResponseDefinition(
+            200,
+            "my status message",
+            new Body("my body"),
+            "my body file name",
+            new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2")),
+            new HttpHeaders(httpHeader("additional-header-1", "h1v1", "h1v2")),
+            List.of("remove-header-1", "h1v1", "h1v2"),
+            1000,
+            new FixedDelayDistribution(2000),
+            new ChunkedDribbleDelay(3, 200),
+            "http://example.com",
+            "my-prefix",
+            Fault.EMPTY_RESPONSE,
+            List.of("my-transformer"),
+            Parameters.one("p-1", "p1v1"),
+            "https://browser.example.com",
+            true);
+
+    var copy = responseDefinition.toBuilder().build();
+    assertThat(copy, is(responseDefinition));
+    assertThat(copy.getStatus(), is(200));
+    assertThat(copy.getStatusMessage(), is("my status message"));
+    assertThat(copy.getBody(), is("my body"));
+    assertThat(copy.getBodyFileName(), is("my body file name"));
+    assertThat(copy.getHeaders(), is(new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2"))));
+    assertThat(
+        copy.getAdditionalProxyRequestHeaders(),
+        is(new HttpHeaders(httpHeader("additional-header-1", "h1v1", "h1v2"))));
+    assertThat(copy.getRemoveProxyRequestHeaders(), is(List.of("remove-header-1", "h1v1", "h1v2")));
+    assertThat(copy.getFixedDelayMilliseconds(), is(1000));
+    assertThat(copy.getDelayDistribution(), instanceOf(FixedDelayDistribution.class));
+    assertThat(copy.getDelayDistribution().sampleMillis(), is(2000L));
+    assertThat(copy.getChunkedDribbleDelay().getNumberOfChunks(), is(3));
+    assertThat(copy.getChunkedDribbleDelay().getTotalDuration(), is(200));
+    assertThat(copy.getProxyBaseUrl(), is("http://example.com"));
+    assertThat(copy.getProxyUrlPrefixToRemove(), is("my-prefix"));
+    assertThat(copy.getFault(), is(Fault.EMPTY_RESPONSE));
+    assertThat(copy.getTransformers(), is(List.of("my-transformer")));
+    assertThat(copy.getTransformerParameters(), is(Parameters.one("p-1", "p1v1")));
+    assertThat(copy.getBrowserProxyUrl(), is("https://browser.example.com"));
+    assertThat(copy.wasConfigured(), is(true));
   }
 }

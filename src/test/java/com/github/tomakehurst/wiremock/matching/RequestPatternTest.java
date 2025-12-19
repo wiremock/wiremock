@@ -39,10 +39,13 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.QUERY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -746,6 +749,7 @@ class RequestPatternTest {
   public void pathParamsMapIsImmutable() {
     var pathParams = new HashMap<String, StringValuePattern>();
     var builder1 = new RequestPattern.Builder();
+    builder1.setUrl(urlPathTemplate("/{key-1}"));
     pathParams.put("key-1", equalTo("value-1"));
     builder1.setPathParams(pathParams);
 
@@ -1014,6 +1018,131 @@ class RequestPatternTest {
         contains(
             aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build(),
             aMultipart("part-2").build()));
+  }
+
+  @Test
+  public void headersCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getHeaders(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setHeaders(null));
+    assertThat(builder.getHeaders(), anEmptyMap());
+    assertThat(builder.build().getHeaders(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getHeaders(), anEmptyMap());
+  }
+
+  @Test
+  public void pathParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getPathParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setPathParams(null));
+    assertThat(builder.getPathParams(), anEmptyMap());
+    assertThat(builder.build().getPathParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getPathParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void queryParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getQueryParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setQueryParams(null));
+    assertThat(builder.getQueryParams(), anEmptyMap());
+    assertThat(builder.build().getQueryParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getQueryParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void formParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getFormParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setFormParams(null));
+    assertThat(builder.getFormParams(), anEmptyMap());
+    assertThat(builder.build().getFormParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getFormParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void cookiesCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getCookies(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setCookies(null));
+    assertThat(builder.getCookies(), anEmptyMap());
+    assertThat(builder.build().getCookies(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getCookies(), anEmptyMap());
+  }
+
+  @Test
+  public void bodyPatternsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getBodyPatterns(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setBodyPatterns(null));
+    assertThat(builder.getBodyPatterns(), empty());
+    assertThat(builder.build().getBodyPatterns(), empty());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getBodyPatterns(), empty());
+  }
+
+  @Test
+  public void multipartPatternsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getMultipartPatterns(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setMultipartPatterns(null));
+    assertThat(builder.getMultipartPatterns(), empty());
+    assertThat(builder.build().getMultipartPatterns(), empty());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getMultipartPatterns(), empty());
+  }
+
+  @ParameterizedTest
+  @MethodSource("emptyUrlPatterns")
+  public void emptyUrlPatternsAreIncludedInJson(UrlPattern urlPattern, String urlJsonFieldName) {
+    var pattern = new RequestPattern.Builder().setUrl(urlPattern).build();
+    assertThat(pattern.getUrlMatcher(), is(urlPattern));
+    assertThat(
+        Json.write(pattern),
+        jsonEquals("{\"method\": \"ANY\", \"" + urlJsonFieldName + "\": \"\"}"));
+  }
+
+  private static Stream<Arguments> emptyUrlPatterns() {
+    return Stream.of(
+        Arguments.of(urlEqualTo(""), "url"),
+        Arguments.of(urlMatching(""), "urlPattern"),
+        Arguments.of(urlPathEqualTo(""), "urlPath"),
+        Arguments.of(urlPathMatching(""), "urlPathPattern"),
+        Arguments.of(urlPathTemplate(""), "urlPathTemplate"));
+  }
+
+  @Test
+  public void emptySchemeIsIncludedInJson() {
+    var pattern = new RequestPattern.Builder().setScheme("").build();
+    assertThat(pattern.getScheme(), is(""));
+    assertThat(Json.write(pattern), jsonEquals("""
+        {"method": "ANY", "scheme": ""}"""));
   }
 
   static Matcher<ContentPattern<?>> valuePattern(

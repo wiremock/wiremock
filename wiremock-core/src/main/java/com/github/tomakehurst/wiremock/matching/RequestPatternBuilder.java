@@ -17,53 +17,39 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.github.tomakehurst.wiremock.matching.RequestPattern.Builder;
 
+@SuppressWarnings("UnusedReturnValue")
 public class RequestPatternBuilder {
 
-  private String scheme;
-  private StringValuePattern hostPattern;
-  private Integer port;
-  private StringValuePattern clientIpPattern;
-  private UrlPattern url = UrlPattern.ANY;
-  private RequestMethod method = RequestMethod.ANY;
-  private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
-  private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
+  private final RequestPattern.Builder builder;
 
-  private Map<String, MultiValuePattern> formParams = new LinkedHashMap<>();
-  private Map<String, StringValuePattern> pathParams = new LinkedHashMap<>();
-  private List<ContentPattern<?>> bodyPatterns = new ArrayList<>();
-  private Map<String, StringValuePattern> cookies = new LinkedHashMap<>();
-  private BasicCredentials basicCredentials;
-  private List<MultipartValuePattern> multiparts = new LinkedList<>();
-
-  private ValueMatcher<Request> customMatcher;
-
-  private CustomMatcherDefinition customMatcherDefinition;
-
-  public RequestPatternBuilder() {}
+  public RequestPatternBuilder() {
+    this(new RequestPattern.Builder());
+  }
 
   public RequestPatternBuilder(ValueMatcher<Request> customMatcher) {
-    this.customMatcher = customMatcher;
+    this();
+    builder.setInlineCustomMatcher(customMatcher);
   }
 
   public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
-    this.method = method;
-    this.url = url;
+    this();
+    builder.setMethod(method);
+    builder.setUrl(url);
   }
 
   public RequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
-    this.customMatcherDefinition =
-        new CustomMatcherDefinition(customRequestMatcherName, parameters);
+    this();
+    builder.setCustomMatcherDefinition(
+        new CustomMatcherDefinition(customRequestMatcherName, parameters));
+  }
+
+  private RequestPatternBuilder(Builder builder) {
+    this.builder = builder;
   }
 
   public static RequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {
@@ -96,40 +82,7 @@ public class RequestPatternBuilder {
    */
   @Deprecated
   public static RequestPatternBuilder like(RequestPattern requestPattern) {
-    RequestPatternBuilder builder = new RequestPatternBuilder();
-    builder.scheme = requestPattern.getScheme();
-    builder.hostPattern = requestPattern.getHost();
-    builder.port = requestPattern.getPort();
-    builder.clientIpPattern = requestPattern.getClientIp();
-    builder.url = requestPattern.getUrlMatcher();
-    builder.method = requestPattern.getMethod();
-    if (requestPattern.getHeaders() != null) {
-      builder.headers = requestPattern.getHeaders();
-    }
-    if (requestPattern.getPathParameters() != null) {
-      builder.pathParams = requestPattern.getPathParameters();
-    }
-    if (requestPattern.getQueryParameters() != null) {
-      builder.queryParams = requestPattern.getQueryParameters();
-    }
-    if (requestPattern.getFormParameters() != null) {
-      builder.formParams = requestPattern.getFormParameters();
-    }
-    if (requestPattern.getCookies() != null) {
-      builder.cookies = requestPattern.getCookies();
-    }
-    if (requestPattern.getBodyPatterns() != null) {
-      builder.bodyPatterns = requestPattern.getBodyPatterns();
-    }
-    if (requestPattern.hasInlineCustomMatcher()) {
-      builder.customMatcher = requestPattern.getMatcher();
-    }
-    if (requestPattern.getMultipartPatterns() != null) {
-      builder.multiparts = requestPattern.getMultipartPatterns();
-    }
-    builder.basicCredentials = requestPattern.getBasicAuthCredentials();
-    builder.customMatcherDefinition = requestPattern.getCustomMatcher();
-    return builder;
+    return new RequestPatternBuilder(requestPattern.toBuilder());
   }
 
   /**
@@ -142,103 +95,103 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder withScheme(String scheme) {
-    this.scheme = scheme;
+    builder.setScheme(scheme);
     return this;
   }
 
   public RequestPatternBuilder withHost(StringValuePattern hostPattern) {
-    this.hostPattern = hostPattern;
+    builder.setHost(hostPattern);
     return this;
   }
 
   public RequestPatternBuilder withPort(int port) {
-    this.port = port;
+    builder.setPort(port);
     return this;
   }
 
   public RequestPatternBuilder withClientIp(StringValuePattern clientIpPattern) {
-    this.clientIpPattern = clientIpPattern;
+    builder.setClientIp(clientIpPattern);
     return this;
   }
 
   public RequestPatternBuilder withUrl(String url) {
-    this.url = WireMock.urlEqualTo(url);
+    builder.setUrl(WireMock.urlEqualTo(url));
     return this;
   }
 
   public RequestPatternBuilder withUrl(UrlPattern urlPattern) {
-    this.url = urlPattern;
+    builder.setUrl(urlPattern);
     return this;
   }
 
   public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
-    headers.put(key, MultiValuePattern.of(valuePattern));
+    builder.getHeaders().put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
   public RequestPatternBuilder withHeader(String key, MultiValuePattern multiValuePattern) {
-    headers.put(key, multiValuePattern);
+    builder.getHeaders().put(key, multiValuePattern);
     return this;
   }
 
   public RequestPatternBuilder withoutHeader(String key) {
-    headers.put(key, MultiValuePattern.absent());
+    builder.getHeaders().put(key, MultiValuePattern.absent());
     return this;
   }
 
   public RequestPatternBuilder withPathParam(String key, StringValuePattern valuePattern) {
-    pathParams.put(key, valuePattern);
+    builder.getPathParams().put(key, valuePattern);
     return this;
   }
 
   public RequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
-    queryParams.put(key, MultiValuePattern.of(valuePattern));
+    builder.getQueryParams().put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
   public RequestPatternBuilder withQueryParam(String key, MultiValuePattern multiValuePattern) {
-    queryParams.put(key, multiValuePattern);
+    builder.getQueryParams().put(key, multiValuePattern);
     return this;
   }
 
   public RequestPatternBuilder withFormParam(String key, StringValuePattern valuePattern) {
-    formParams.put(key, MultiValuePattern.of(valuePattern));
+    builder.getFormParams().put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
 
   public RequestPatternBuilder withFormParam(String key, MultiValuePattern multiValuePattern) {
-    formParams.put(key, multiValuePattern);
+    builder.getFormParams().put(key, multiValuePattern);
     return this;
   }
 
   public RequestPatternBuilder withoutFormParam(String key) {
-    formParams.put(key, MultiValuePattern.absent());
+    builder.getFormParams().put(key, MultiValuePattern.absent());
     return this;
   }
 
   public RequestPatternBuilder withoutQueryParam(String key) {
-    queryParams.put(key, MultiValuePattern.absent());
+    builder.getQueryParams().put(key, MultiValuePattern.absent());
     return this;
   }
 
   public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
-    cookies.put(key, valuePattern);
+    builder.getCookies().put(key, valuePattern);
     return this;
   }
 
   public RequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
-    this.basicCredentials = basicCredentials;
+    builder.setBasicAuthCredentials(basicCredentials);
     return this;
   }
 
   public RequestPatternBuilder withRequestBody(ContentPattern valuePattern) {
-    this.bodyPatterns.add(valuePattern);
+    builder.getBodyPatterns().add(valuePattern);
     return this;
   }
 
   public RequestPatternBuilder withRequestBodyPart(MultipartValuePattern multiPattern) {
     if (multiPattern != null) {
-      multiparts.add(multiPattern);
+      builder.getMultipartPatterns().add(multiPattern);
     }
     return this;
   }
@@ -256,7 +209,7 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder andMatching(ValueMatcher<Request> customMatcher) {
-    this.customMatcher = customMatcher;
+    builder.setInlineCustomMatcher(customMatcher);
     return this;
   }
 
@@ -269,48 +222,26 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder andMatching(CustomMatcherDefinition matcherDefinition) {
-    this.customMatcherDefinition = matcherDefinition;
+    builder.setCustomMatcherDefinition(matcherDefinition);
     return this;
   }
 
   public RequestPatternBuilder clearQueryParams() {
-    queryParams.clear();
+    builder.getQueryParams().clear();
     return this;
   }
 
   public RequestPatternBuilder clearFormParams() {
-    formParams.clear();
+    builder.getFormParams().clear();
     return this;
   }
 
   public RequestPatternBuilder clearBodyPatterns() {
-    bodyPatterns.clear();
+    builder.getBodyPatterns().clear();
     return this;
   }
 
   public RequestPattern build() {
-    if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
-      throw new InvalidInputException(
-          Errors.single(
-              19, "URL path parameters specified without a path template as the URL matcher"));
-    }
-
-    return new RequestPattern(
-        scheme,
-        hostPattern,
-        port,
-        clientIpPattern,
-        url,
-        method,
-        headers.isEmpty() ? null : headers,
-        pathParams.isEmpty() ? null : pathParams,
-        queryParams.isEmpty() ? null : queryParams,
-        formParams.isEmpty() ? null : formParams,
-        cookies.isEmpty() ? null : cookies,
-        basicCredentials,
-        bodyPatterns.isEmpty() ? null : bodyPatterns,
-        customMatcherDefinition,
-        customMatcher,
-        multiparts.isEmpty() ? null : multiparts);
+    return builder.build();
   }
 }

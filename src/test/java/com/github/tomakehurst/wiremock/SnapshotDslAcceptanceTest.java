@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -98,7 +99,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.size(), is(3));
 
     assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/one"));
-    assertThat(returnedMappings.get(2).getRequest().getHeaders(), nullValue());
+    assertThat(returnedMappings.get(2).getRequest().getHeaders(), anEmptyMap());
     assertThat(returnedMappings.get(2).getRequest().getMethod(), is(RequestMethod.GET));
     assertThat(
         returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(),

@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -69,8 +68,7 @@ public class ResponseTemplateTransformer
     try {
       final Request request = serveEvent.getRequest();
       final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-      final Parameters parameters =
-          getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
+      final Parameters parameters = responseDefinition.getTransformerParameters();
 
       ResponseDefinitionBuilder newResponseDefBuilder =
           ResponseDefinitionBuilder.like(responseDefinition);
@@ -104,7 +102,7 @@ public class ResponseTemplateTransformer
         }
       }
 
-      if (responseDefinition.getHeaders() != null) {
+      {
         List<HttpHeader> newResponseHeaders =
             responseDefinition.getHeaders().all().stream()
                 .map(
@@ -136,7 +134,7 @@ public class ResponseTemplateTransformer
         ResponseDefinitionBuilder.ProxyResponseDefinitionBuilder newProxyResponseDefBuilder =
             newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
 
-        if (responseDefinition.getAdditionalProxyRequestHeaders() != null) {
+        {
           List<HttpHeader> newResponseHeaders =
               responseDefinition.getAdditionalProxyRequestHeaders().all().stream()
                   .map(
@@ -154,17 +152,8 @@ public class ResponseTemplateTransformer
                         return new HttpHeader(header.key(), valueListBuilder);
                       })
                   .collect(Collectors.toList());
-          HttpHeaders proxyHttpHeaders = new HttpHeaders(newResponseHeaders);
-          for (String key : proxyHttpHeaders.keys()) {
-            newProxyResponseDefBuilder.withAdditionalRequestHeader(
-                key, proxyHttpHeaders.getHeader(key).firstValue());
-          }
-        }
-
-        if (responseDefinition.getRemoveProxyRequestHeaders() != null) {
-          for (String key : responseDefinition.getRemoveProxyRequestHeaders()) {
-            newProxyResponseDefBuilder.withRemoveRequestHeader(key);
-          }
+          newProxyResponseDefBuilder.withAdditionalRequestHeaders(
+              new HttpHeaders(newResponseHeaders));
         }
 
         return newProxyResponseDefBuilder.build();
