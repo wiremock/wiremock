@@ -22,8 +22,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +42,30 @@ public class InMemoryMessageJournalTest {
 
   private MessageServeEvent event1, event2, event3;
 
+  private static Message message(String text) {
+    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
+  }
+
   @BeforeEach
   public void createTestEvents() {
     event1 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET, UUID.randomUUID(), mockRequest().url("/channel1"), "message1");
+            ChannelType.WEBSOCKET,
+            UUID.randomUUID(),
+            mockRequest().url("/channel1"),
+            message("message1"));
     event2 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET, UUID.randomUUID(), mockRequest().url("/channel2"), "message2");
+            ChannelType.WEBSOCKET,
+            UUID.randomUUID(),
+            mockRequest().url("/channel2"),
+            message("message2"));
     event3 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET, UUID.randomUUID(), mockRequest().url("/channel3"), "message3");
+            ChannelType.WEBSOCKET,
+            UUID.randomUUID(),
+            mockRequest().url("/channel3"),
+            message("message3"));
   }
 
   @Test
@@ -118,7 +134,7 @@ public class InMemoryMessageJournalTest {
         journal.getEventsMatching(
             MessagePattern.messagePattern().withBody(equalTo("message2")).build());
     assertThat(matchingOne, hasSize(1));
-    assertThat(matchingOne.get(0).getMessage(), is("message2"));
+    assertThat(matchingOne.get(0).getMessage().getBodyAsString(), is("message2"));
   }
 
   @Test
@@ -174,7 +190,7 @@ public class InMemoryMessageJournalTest {
             MessagePattern.messagePattern().withBody(equalTo("message2")).build());
 
     assertThat(removed, hasSize(1));
-    assertThat(removed.get(0).getMessage(), is("message2"));
+    assertThat(removed.get(0).getMessage().getBodyAsString(), is("message2"));
     assertThat(journal.countEventsMatching(MessagePattern.ANYTHING), is(2));
   }
 
@@ -190,7 +206,7 @@ public class InMemoryMessageJournalTest {
             Duration.ofSeconds(1));
 
     assertThat(found.isPresent(), is(true));
-    assertThat(found.get().getMessage(), is("message1"));
+    assertThat(found.get().getMessage().getBodyAsString(), is("message1"));
   }
 
   @Test
@@ -233,7 +249,7 @@ public class InMemoryMessageJournalTest {
 
     assertThat(completed, is(true));
     assertThat(result[0].isPresent(), is(true));
-    assertThat(result[0].get().getMessage(), is("message1"));
+    assertThat(result[0].get().getMessage().getBodyAsString(), is("message1"));
   }
 
   @Test
@@ -270,7 +286,7 @@ public class InMemoryMessageJournalTest {
             ChannelType.WEBSOCKET,
             UUID.randomUUID(),
             mockRequest().url("/channel"),
-            "test message",
+            message("test message"),
             stub);
 
     assertThat(matchedEvent.getWasMatched(), is(true));
@@ -291,7 +307,7 @@ public class InMemoryMessageJournalTest {
             ChannelType.WEBSOCKET,
             UUID.randomUUID(),
             mockRequest().url("/channel"),
-            "sent message");
+            message("sent message"));
 
     assertThat(sentEvent.isSent(), is(true));
     assertThat(sentEvent.isReceived(), is(false));

@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketMessageChannel;
 import org.eclipse.jetty.websocket.api.Callback;
@@ -44,8 +46,10 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
   }
 
   @Override
-  public void onWebSocketText(String message) {
+  public void onWebSocketText(String text) {
     if (messageStubRequestHandler != null && messageChannel != null) {
+      Message message =
+          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
       messageStubRequestHandler.processMessage(messageChannel, message);
     }
   }

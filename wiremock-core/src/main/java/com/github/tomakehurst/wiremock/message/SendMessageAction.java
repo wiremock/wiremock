@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 public class SendMessageAction implements MessageAction {
@@ -69,22 +67,6 @@ public class SendMessageAction implements MessageAction {
 
   public boolean isSendToOriginatingChannel() {
     return sendToOriginatingChannel;
-  }
-
-  @Override
-  public void execute(
-      MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
-    MessageDefinition messageDefinition = new MessageDefinition(body);
-    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition);
-    if (sendToOriginatingChannel) {
-      originatingChannel.sendMessage(message);
-    } else if (targetChannelPattern != null) {
-      List<MessageChannel> matchingChannels =
-          messageChannels.findByRequestPattern(targetChannelPattern, Collections.emptyMap());
-      for (MessageChannel channel : matchingChannels) {
-        channel.sendMessage(message);
-      }
-    }
   }
 
   @Override

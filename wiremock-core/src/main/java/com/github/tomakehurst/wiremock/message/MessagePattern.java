@@ -73,12 +73,16 @@ public class MessagePattern {
   }
 
   public boolean matches(
-      MessageChannel channel, String message, Map<String, RequestMatcherExtension> customMatchers) {
+      MessageChannel channel,
+      Message message,
+      Map<String, RequestMatcherExtension> customMatchers) {
     return matches(channel.getRequest(), message, customMatchers);
   }
 
   public boolean matches(
-      Request channelRequest, String message, Map<String, RequestMatcherExtension> customMatchers) {
+      Request channelRequest,
+      Message message,
+      Map<String, RequestMatcherExtension> customMatchers) {
     if (channelPattern != null) {
       MatchResult channelMatch = channelPattern.match(channelRequest, customMatchers);
       if (!channelMatch.isExactMatch()) {
@@ -87,7 +91,8 @@ public class MessagePattern {
     }
 
     if (bodyPattern != null) {
-      MatchResult messageMatch = bodyPattern.match(message);
+      String messageBody = message != null ? message.getBodyAsString() : null;
+      MatchResult messageMatch = bodyPattern.match(messageBody);
       if (!messageMatch.isExactMatch()) {
         return false;
       }

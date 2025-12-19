@@ -71,7 +71,7 @@ public class MessageStubMappings {
     return (int) store.getAll().count();
   }
 
-  public Optional<MessageStubMapping> findMatchingStub(MessageChannel channel, String message) {
+  public Optional<MessageStubMapping> findMatchingStub(MessageChannel channel, Message message) {
     return getAllSortedByPriority().stream()
         .filter(stub -> stub.matches(channel, message, customMatchers))
         .findFirst();

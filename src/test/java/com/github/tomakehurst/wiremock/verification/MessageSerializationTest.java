@@ -27,12 +27,19 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class MessageSerializationTest {
+
+  private static Message message(String text) {
+    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
+  }
 
   @Test
   void messageStubMappingSerializesToJson() {
@@ -144,7 +151,7 @@ public class MessageSerializationTest {
             .withEventType(MessageServeEvent.EventType.RECEIVED)
             .withChannelType(ChannelType.WEBSOCKET)
             .withChannelId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
-            .withMessage("test message")
+            .withMessage(message("test message"))
             .withStubMapping(stub)
             .withWasMatched(true)
             .withTimestamp(java.time.Instant.parse("2025-01-15T10:30:00Z"))
@@ -203,7 +210,7 @@ public class MessageSerializationTest {
     assertThat(event.getEventType(), is(MessageServeEvent.EventType.RECEIVED));
     assertThat(event.getChannelType(), is(ChannelType.WEBSOCKET));
     assertThat(event.getChannelId().toString(), is("11111111-2222-3333-4444-555555555555"));
-    assertThat(event.getMessage(), is("hello world"));
+    assertThat(event.getMessage().getBodyAsString(), is("hello world"));
     assertThat(event.getWasMatched(), is(false));
     assertThat(event.getTimestamp(), notNullValue());
   }
@@ -215,7 +222,7 @@ public class MessageSerializationTest {
             ChannelType.WEBSOCKET,
             UUID.fromString("99999999-8888-7777-6666-555555555555"),
             mockRequest().url("/unmatched-channel"),
-            "unmatched message");
+            message("unmatched message"));
 
     String json = Json.write(original);
     MessageServeEvent deserialized = Json.read(json, MessageServeEvent.class);
@@ -223,7 +230,7 @@ public class MessageSerializationTest {
     assertThat(deserialized.getId(), is(original.getId()));
     assertThat(deserialized.getEventType(), is(MessageServeEvent.EventType.RECEIVED));
     assertThat(deserialized.getChannelType(), is(ChannelType.WEBSOCKET));
-    assertThat(deserialized.getMessage(), is("unmatched message"));
+    assertThat(deserialized.getMessage().getBodyAsString(), is("unmatched message"));
     assertThat(deserialized.getWasMatched(), is(false));
   }
 
@@ -315,7 +322,7 @@ public class MessageSerializationTest {
             .withEventType(MessageServeEvent.EventType.SENT)
             .withChannelType(ChannelType.WEBSOCKET)
             .withChannelId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
-            .withMessage("sent message")
+            .withMessage(message("sent message"))
             .withWasMatched(true)
             .withTimestamp(java.time.Instant.parse("2025-01-15T12:00:00Z"))
             .build();
@@ -358,6 +365,6 @@ public class MessageSerializationTest {
     assertThat(event.getEventType(), is(MessageServeEvent.EventType.SENT));
     assertThat(event.isSent(), is(true));
     assertThat(event.isReceived(), is(false));
-    assertThat(event.getMessage(), is("outgoing message"));
+    assertThat(event.getMessage().getBodyAsString(), is("outgoing message"));
   }
 }

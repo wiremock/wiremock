@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -45,7 +46,7 @@ public class MessageServeEvent {
   private final ChannelType channelType;
   private final UUID channelId;
   private final LoggedRequest channelRequest;
-  private final String message;
+  private final Message message;
   private final MessageStubMapping stubMapping;
   private final boolean wasMatched;
   private final Instant timestamp;
@@ -59,7 +60,7 @@ public class MessageServeEvent {
       @JsonProperty("channelType") ChannelType channelType,
       @JsonProperty("channelId") UUID channelId,
       @JsonProperty("channelRequest") LoggedRequest channelRequest,
-      @JsonProperty("message") String message,
+      @JsonProperty("message") Message message,
       @JsonProperty("stubMapping") MessageStubMapping stubMapping,
       @JsonProperty("wasMatched") boolean wasMatched,
       @JsonProperty("timestamp") Instant timestamp,
@@ -84,7 +85,7 @@ public class MessageServeEvent {
       ChannelType channelType,
       UUID channelId,
       LoggedRequest channelRequest,
-      String message,
+      Message message,
       MessageStubMapping stubMapping,
       boolean wasMatched,
       Instant timestamp,
@@ -107,7 +108,7 @@ public class MessageServeEvent {
       ChannelType channelType,
       UUID channelId,
       Request channelRequest,
-      String message,
+      Message message,
       MessageStubMapping stubMapping) {
     return new MessageServeEvent(
         UUID.randomUUID(),
@@ -123,13 +124,13 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent receivedMatched(
-      MessageChannel channel, String message, MessageStubMapping stubMapping) {
+      MessageChannel channel, Message message, MessageStubMapping stubMapping) {
     return receivedMatched(
         channel.getType(), channel.getId(), channel.getRequest(), message, stubMapping);
   }
 
   public static MessageServeEvent receivedUnmatched(
-      ChannelType channelType, UUID channelId, Request channelRequest, String message) {
+      ChannelType channelType, UUID channelId, Request channelRequest, Message message) {
     return new MessageServeEvent(
         UUID.randomUUID(),
         EventType.RECEIVED,
@@ -143,12 +144,12 @@ public class MessageServeEvent {
         null);
   }
 
-  public static MessageServeEvent receivedUnmatched(MessageChannel channel, String message) {
+  public static MessageServeEvent receivedUnmatched(MessageChannel channel, Message message) {
     return receivedUnmatched(channel.getType(), channel.getId(), channel.getRequest(), message);
   }
 
   public static MessageServeEvent sent(
-      ChannelType channelType, UUID channelId, Request channelRequest, String message) {
+      ChannelType channelType, UUID channelId, Request channelRequest, Message message) {
     return new MessageServeEvent(
         UUID.randomUUID(),
         EventType.SENT,
@@ -162,7 +163,7 @@ public class MessageServeEvent {
         null);
   }
 
-  public static MessageServeEvent sent(MessageChannel channel, String message) {
+  public static MessageServeEvent sent(MessageChannel channel, Message message) {
     return sent(channel.getType(), channel.getId(), channel.getRequest(), message);
   }
 
@@ -186,7 +187,7 @@ public class MessageServeEvent {
     return channelRequest;
   }
 
-  public String getMessage() {
+  public Message getMessage() {
     return message;
   }
 
@@ -279,7 +280,7 @@ public class MessageServeEvent {
     private ChannelType channelType;
     private UUID channelId;
     private LoggedRequest channelRequest;
-    private String message;
+    private Message message;
     private MessageStubMapping stubMapping;
     private boolean wasMatched;
     private Instant timestamp;
@@ -325,7 +326,7 @@ public class MessageServeEvent {
       return this;
     }
 
-    public Builder withMessage(String message) {
+    public Builder withMessage(Message message) {
       this.message = message;
       return this;
     }

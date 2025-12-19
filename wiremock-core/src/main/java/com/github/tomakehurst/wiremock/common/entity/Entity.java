@@ -22,6 +22,9 @@ import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Limit;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 public class Entity {
 
@@ -76,5 +79,30 @@ public class Entity {
 
   public InputStreamSource getStreamSource() {
     return streamSource;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Entity entity = (Entity) o;
+    return Objects.equals(encoding, entity.encoding)
+        && Objects.equals(format, entity.format)
+        && Objects.equals(compression, entity.compression)
+        && Arrays.equals(getData(), entity.getData());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(encoding, format, compression);
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", Entity.class.getSimpleName() + "[", "]")
+        .add("encoding=" + encoding)
+        .add("format=" + format)
+        .add("compression=" + compression)
+        .add("streamSource=" + streamSource)
+        .toString();
   }
 }

@@ -26,6 +26,8 @@ import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class MessageStubRequestHandler {
@@ -43,12 +45,12 @@ public class MessageStubRequestHandler {
     this.messageJournal = messageJournal;
   }
 
-  public boolean processMessage(MessageChannel channel, String message) {
+  public boolean processMessage(MessageChannel channel, Message message) {
     Optional<MessageStubMapping> matchingStub =
         messageStubMappings.findMatchingStub(channel, message);
     if (matchingStub.isPresent()) {
       MessageStubMapping stub = matchingStub.get();
-      stub.executeActions(channel, messageChannels, message);
+      executeActions(stub, channel, message);
 
       MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
       messageJournal.messageReceived(event);
@@ -58,6 +60,36 @@ public class MessageStubRequestHandler {
       messageJournal.messageReceived(event);
     }
     return false;
+  }
+
+  private void executeActions(
+      MessageStubMapping stub, MessageChannel originatingChannel, Message incomingMessage) {
+    for (MessageAction action : stub.getActions()) {
+      executeAction(action, originatingChannel, incomingMessage);
+    }
+  }
+
+  private void executeAction(
+      MessageAction action, MessageChannel originatingChannel, Message incomingMessage) {
+    if (action instanceof SendMessageAction) {
+      executeSendMessageAction((SendMessageAction) action, originatingChannel);
+    }
+  }
+
+  private void executeSendMessageAction(
+      SendMessageAction action, MessageChannel originatingChannel) {
+    MessageDefinition messageDefinition = new MessageDefinition(action.getBody());
+    Message message = resolveToMessage(messageDefinition);
+    if (action.isSendToOriginatingChannel()) {
+      originatingChannel.sendMessage(message);
+    } else if (action.getTargetChannelPattern() != null) {
+      List<MessageChannel> matchingChannels =
+          messageChannels.findByRequestPattern(
+              action.getTargetChannelPattern(), Collections.emptyMap());
+      for (MessageChannel channel : matchingChannels) {
+        channel.sendMessage(message);
+      }
+    }
   }
 
   public Message resolveMessageDefinition(MessageDefinition messageDefinition) {

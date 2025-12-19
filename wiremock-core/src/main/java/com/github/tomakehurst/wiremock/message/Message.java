@@ -15,18 +15,79 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
+@JsonDeserialize(using = Message.MessageDeserializer.class)
 public class Message {
 
   private final Entity body;
 
-  public Message(@JsonProperty("body") Entity body) {
+  public Message(Entity body) {
     this.body = body;
   }
 
+  @JsonIgnore
   public Entity getBody() {
     return body;
+  }
+
+  @JsonValue
+  public String getBodyAsString() {
+    if (body == null) {
+      return null;
+    }
+    byte[] data = body.getData();
+    return data != null ? new String(data, StandardCharsets.UTF_8) : null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    if (o instanceof String) {
+      return Objects.equals(getBodyAsString(), o);
+    }
+    if (getClass() != o.getClass()) return false;
+    Message message = (Message) o;
+    return Objects.equals(body, message.body);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getBodyAsString());
+  }
+
+  @Override
+  public String toString() {
+    return getBodyAsString();
+  }
+
+  static class MessageDeserializer extends JsonDeserializer<Message> {
+    @Override
+    public Message deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+      String text = p.getValueAsString();
+      if (text == null) {
+        return new Message(null);
+      }
+      byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
+      Entity entity =
+          new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
+      return new Message(entity);
+    }
   }
 }

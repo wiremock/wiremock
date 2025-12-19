@@ -117,17 +117,10 @@ public class MessageStubMapping {
 
   public boolean matches(
       MessageChannel channel,
-      String message,
+      Message message,
       Map<String, com.github.tomakehurst.wiremock.matching.RequestMatcherExtension>
           customMatchers) {
     return pattern.matches(channel, message, customMatchers);
-  }
-
-  public void executeActions(
-      MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage) {
-    for (MessageAction action : actions) {
-      action.execute(originatingChannel, messageChannels, incomingMessage);
-    }
   }
 
   public int comparePriorityWith(MessageStubMapping other) {

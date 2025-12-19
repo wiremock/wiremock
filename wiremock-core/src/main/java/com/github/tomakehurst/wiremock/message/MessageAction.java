@@ -20,8 +20,4 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = SendMessageAction.class, name = "send")})
-public interface MessageAction {
-
-  void execute(
-      MessageChannel originatingChannel, MessageChannels messageChannels, String incomingMessage);
-}
+public interface MessageAction {}
