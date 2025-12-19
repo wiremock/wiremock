@@ -15,12 +15,14 @@
  */
 package org.wiremock.url;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ROOT;
+import static org.wiremock.url.Constants.combine;
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.pctEncodedPattern;
+import static org.wiremock.url.Constants.subDelimCharSet;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
+import static org.wiremock.url.Constants.unreservedCharSet;
 import static org.wiremock.url.Strings.transform;
 
 import java.net.InetAddress;
@@ -77,37 +79,12 @@ class HostParser implements PercentEncodedCharSequenceParser<Host> {
     }
   }
 
+  private static final boolean[] hostCharSet = combine(unreservedCharSet, subDelimCharSet);
+
   @Override
   public Host encode(String unencoded) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < unencoded.length(); i++) {
-      char c = unencoded.charAt(i);
-      if (isUnreserved(c) || isSubDelim(c)) {
-        result.append(c);
-      } else {
-        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
-        for (byte b : bytes) {
-          result.append('%');
-          result.append(String.format("%02X", b & 0xFF));
-        }
-      }
-    }
-    return new Host(result.toString());
-  }
-
-  private boolean isUnreserved(char c) {
-    return (c >= 'A' && c <= 'Z')
-        || (c >= 'a' && c <= 'z')
-        || (c >= '0' && c <= '9')
-        || c == '-'
-        || c == '.'
-        || c == '_'
-        || c == '~';
-  }
-
-  private boolean isSubDelim(char c) {
-    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
-        || c == '+' || c == ',' || c == ';' || c == '=';
+    var result = Constants.encode(unencoded, hostCharSet);
+    return new Host(result);
   }
 
   record Host(String host) implements org.wiremock.url.Host {

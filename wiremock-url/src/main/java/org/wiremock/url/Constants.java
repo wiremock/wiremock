@@ -111,16 +111,12 @@ class Constants {
       }
 
       // Check if character needs encoding per WhatWG fragment percent-encode set
-      if (c >= charactersThatDoNotNeedEncoding.length || !charactersThatDoNotNeedEncoding[c]) {
-        // Encode as UTF-8 bytes
-        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
-        for (byte b : bytes) {
-          result.append('%');
-          result.append(String.format("%02X", b & 0xFF));
-        }
-        changed = true;
-      } else {
+      if (c < charactersThatDoNotNeedEncoding.length && charactersThatDoNotNeedEncoding[c]) {
         result.append(c);
+      } else {
+        // Encode as UTF-8 bytes
+        appendPercentEncoded(c, result);
+        changed = true;
       }
     }
 
@@ -133,6 +129,27 @@ class Constants {
 
   private static boolean isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+  }
+
+  static String encode(String unencoded, boolean[] charactersThatDoNotNeedEncoding) {
+    StringBuilder result = new StringBuilder();
+    var unencodedChats = unencoded.toCharArray();
+    for (char c : unencodedChats) {
+      if (c < charactersThatDoNotNeedEncoding.length && charactersThatDoNotNeedEncoding[c]) {
+        result.append(c);
+      } else {
+        appendPercentEncoded(c, result);
+      }
+    }
+    return result.toString();
+  }
+
+  private static void appendPercentEncoded(char c, StringBuilder result) {
+    byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+    for (byte b : bytes) {
+      result.append('%');
+      result.append(String.format("%02X", b & 0xFF));
+    }
   }
 
   private Constants() {

@@ -15,11 +15,12 @@
  */
 package org.wiremock.url;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.alwaysIllegal;
 import static org.wiremock.url.Constants.combine;
 import static org.wiremock.url.Constants.include;
 import static org.wiremock.url.Constants.pcharCharSet;
+import static org.wiremock.url.Constants.subDelimCharSet;
+import static org.wiremock.url.Constants.unreservedCharSet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,37 +75,12 @@ class PathParser implements PercentEncodedCharSequenceParser<Path> {
     }
   }
 
+  private static final boolean[] pathCharSet =
+      combine(unreservedCharSet, subDelimCharSet, include(':', '@', '/'));
+
   @Override
   public Path encode(String unencoded) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < unencoded.length(); i++) {
-      char c = unencoded.charAt(i);
-      if (isUnreserved(c) || isSubDelim(c) || c == ':' || c == '@' || c == '/') {
-        result.append(c);
-      } else {
-        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
-        for (byte b : bytes) {
-          result.append('%');
-          result.append(String.format("%02X", b & 0xFF));
-        }
-      }
-    }
-    return parse(result.toString());
-  }
-
-  private boolean isUnreserved(char c) {
-    return (c >= 'A' && c <= 'Z')
-        || (c >= 'a' && c <= 'z')
-        || (c >= '0' && c <= '9')
-        || c == '-'
-        || c == '.'
-        || c == '_'
-        || c == '~';
-  }
-
-  private boolean isSubDelim(char c) {
-    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
-        || c == '+' || c == ',' || c == ';' || c == '=';
+    return parse(Constants.encode(unencoded, pathCharSet));
   }
 
   record Path(String path, List<Segment> segments) implements org.wiremock.url.Path {
