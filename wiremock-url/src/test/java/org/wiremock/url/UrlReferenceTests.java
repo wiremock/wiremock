@@ -73,17 +73,11 @@ public class UrlReferenceTests {
 
         Optional<Authority> authority = Optional.ofNullable(normalised.authority());
         Optional<UserInfo> userInfo = authority.flatMap(a -> Optional.ofNullable(a.userInfo()));
+        Optional<Username> username = userInfo.map(UserInfo::username);
+        Optional<Password> password = userInfo.flatMap(a -> Optional.ofNullable(a.password()));
 
-        assertThat(userInfo.map(it -> it.username().toString()).orElse(""))
-            .isEqualTo(successTestCase.username());
-        assertThat(
-                userInfo
-                    .map(it -> {
-                      Password password = it.password();
-                      return password == null ? "" : password.toString();
-                    })
-                    .orElse(""))
-            .isEqualTo(successTestCase.password());
+        assertThat(username.map(Object::toString).orElse("")).isEqualTo(successTestCase.username());
+        assertThat(password.map(Object::toString).orElse("")).isEqualTo(successTestCase.password());
 
         assertThat(Optional.ofNullable(normalised.port()).map(Object::toString).orElse(""))
             .isEqualTo(successTestCase.port());

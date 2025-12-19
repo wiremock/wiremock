@@ -183,8 +183,9 @@ class WhatWGUrlInvariantTests {
       List<? extends WhatWGUrlTestCase> valid, List<? extends WhatWGUrlTestCase> invalid)
       throws IOException {
     try {
-      var concat = concat(valid, invalid);
-      assertThat((List<WhatWGUrlTestCase>) concat).containsAll((List<WhatWGUrlTestCase>) testData);
+      @SuppressWarnings("unchecked")
+      var concat = (List<WhatWGUrlTestCase>) concat(valid, invalid);
+      assertThat(concat).containsAll(testData);
     } catch (AssertionError e) {
       sortTestData();
       throw e;

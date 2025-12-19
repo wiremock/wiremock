@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,13 +50,29 @@ public class WhatWGUrlTestManagement {
           "https://raw.githubusercontent.com/web-platform-tests/wpt/refs/heads/master/url/resources/urltestdata.json");
 
   private static final String URLTESTDATA_JSON = "urltestdata.json";
+  private static final String ADDITIONAL_TESTS_JSON = "additional_tests.json";
 
-  static final List<? extends WhatWGUrlTestCase> testData =
+  static final List<? extends WhatWGUrlTestCase> remoteData =
       readLocalJson()
           .valueStream()
           .filter(JsonNode::isObject)
           .map(WhatWGUrlTestManagement::map)
           .toList();
+
+  static final List<? extends WhatWGUrlTestCase> additionalTests;
+
+  static {
+    try (var additionalTestResource =
+        WhatWGUrlTestManagement.class.getResourceAsStream(ADDITIONAL_TESTS_JSON)) {
+      additionalTests =
+          objectMapper.readValue(
+              additionalTestResource, new TypeReference<List<SuccessWhatWGUrlTestCase>>() {});
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  static final List<? extends WhatWGUrlTestCase> testData = concat(remoteData, additionalTests);
 
   private static WhatWGUrlTestCase map(JsonNode o) {
     try {
@@ -361,6 +378,7 @@ public class WhatWGUrlTestManagement {
 }
 
 class OneObjectPerLinePrettyPrinter extends DefaultPrettyPrinter {
+
   public OneObjectPerLinePrettyPrinter() {
     super();
     _arrayIndenter = new DefaultIndenter("", "");
