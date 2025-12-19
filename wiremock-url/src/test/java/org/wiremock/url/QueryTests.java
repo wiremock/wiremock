@@ -15,132 +15,341 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-public class QueryTests {
+class QueryTests {
 
-  static Stream<String> validQuery() {
-    return Stream.of(
-        // Empty and simple queries
-        "",
-        "q=search",
-        "key=value",
-        "name=John",
-        "id=123",
+  @Nested
+  class ParseMethod {
 
-        // Multiple parameters
-        "q=search&page=1",
-        "name=John&age=30&city=NYC",
-        "a=1&b=2&c=3",
+    static final List<String> validQueries =
+        List.of(
+            // Empty and simple queries
+            "",
+            "q=search",
+            "key=value",
+            "name=John",
+            "id=123",
 
-        // Unreserved characters (alphanumeric, hyphen, period, underscore, tilde)
-        "query-name=value",
-        "query.name=value",
-        "query_name=value",
-        "query~name=value",
-        "Query123=Value456",
-        "test-param_123.name~test=result",
+            // Multiple parameters
+            "q=search&page=1",
+            "name=John&age=30&city=NYC",
+            "a=1&b=2&c=3",
 
-        // Sub-delimiters (!$&'()*+,;=)
-        "query!name=value",
-        "query$name=value",
-        "key&key2=value",
-        "query'name=value",
-        "query(name)=value",
-        "query*name=value",
-        "query+name=value",
-        "query,name=value",
-        "query;name=value",
-        "key=val=ue",
+            // Unreserved characters (alphanumeric, hyphen, period, underscore, tilde)
+            "query-name=value",
+            "query.name=value",
+            "query_name=value",
+            "query~name=value",
+            "Query123=Value456",
+            "test-param_123.name~test=result",
 
-        // Colon and at-sign
-        "time=12:30:00",
-        "email=user@example.com",
-        "url=http://example.com",
-        "path=/api/v1/users",
+            // Sub-delimiters (!$&'()*+,;=)
+            "query!name=value",
+            "query$name=value",
+            "key&key2=value",
+            "query'name=value",
+            "query(name)=value",
+            "query*name=value",
+            "query+name=value",
+            "query,name=value",
+            "query;name=value",
+            "key=val=ue",
 
-        // Forward slash and question mark
-        "path=/path/to/resource",
-        "query=what?when?where",
-        "url=/search?q=test",
-        "nested=a=b?c=d",
+            // Colon and at-sign
+            "time=12:30:00",
+            "email=user@example.com",
+            "url=http://example.com",
+            "path=/api/v1/users",
 
-        // Percent-encoded characters
-        "%20=value", // space key
-        "query=%20", // space value
-        "q=search%20term", // search term
-        "path=%2Fapi%2Fv1", // /api/v1
-        "name=%C3%A9ric", // éric
-        "caf%C3%A9=coffee", // café=coffee
-        "percent=%25", // %
+            // Forward slash and question mark
+            "path=/path/to/resource",
+            "query=what?when?where",
+            "url=/search?q=test",
+            "nested=a=b?c=d",
 
-        // Empty values
-        "key=",
-        "key1=&key2=",
-        "=value",
-        "=",
+            // Percent-encoded characters
+            "%20=value", // space key
+            "query=%20", // space value
+            "q=search%20term", // search term
+            "path=%2Fapi%2Fv1", // /api/v1
+            "name=%C3%A9ric", // éric
+            "caf%C3%A9=coffee", // café=coffee
+            "percent=%25", // %
 
-        // Characters that extend beyond RFC 3986
-        "key={value}",
-        "data=[1,2,3]",
-        "path=<value>",
-        "pipe=val|ue",
-        "back=val\\ue",
-        "caret=val^ue",
-        "grave=val`ue",
+            // Empty values
+            "key=",
+            "key1=&key2=",
+            "=value",
+            "=",
 
-        // Spaces and special characters (permissive)
-        "q=search term", // unencoded space
-        "na[me]=value", // brackets
-        "key=<value>", // angle brackets
+            // Characters that extend beyond RFC 3986
+            "key={value}",
+            "data=[1,2,3]",
+            "path=<value>",
+            "pipe=val|ue",
+            "back=val\\ue",
+            "caret=val^ue",
+            "grave=val`ue",
 
-        // Complex combinations
-        "q=test&page=1&limit=10",
-        "filter=name:John&sort=date:desc",
-        "url=http://example.com:8080/path?q=test",
-        "data=%7B%22key%22:%22value%22%7D", // {"key":"value"}
-        "callback=jQuery.ajax&_=1234567890",
+            // Spaces and special characters (permissive)
+            "q=search term", // unencoded space
+            "na[me]=value", // brackets
+            "key=<value>", // angle brackets
 
-        // No separators
-        "justtext",
-        "noseparators123",
+            // Complex combinations
+            "q=test&page=1&limit=10",
+            "filter=name:John&sort=date:desc",
+            "url=http://example.com:8080/path?q=test",
+            "data=%7B%22key%22:%22value%22%7D", // {"key":"value"}
+            "callback=jQuery.ajax&_=1234567890",
 
-        // Edge cases
-        "?nested=question",
-        "key=value&&&",
-        "===",
-        "&&&",
+            // No separators
+            "justtext",
+            "noseparators123",
 
-        // Invalid percent encoding (still accepted - permissive parser)
-        "q=%", // incomplete
-        "key=%2", // incomplete
-        "val=%GG", // invalid hex
-        "query=%ZZvalue"); // invalid hex
+            // Edge cases
+            "?nested=question",
+            "key=value&&&",
+            "===",
+            "&&&",
+
+            // Invalid percent encoding (still accepted - permissive parser)
+            "q=%", // incomplete
+            "key=%2", // incomplete
+            "val=%GG", // invalid hex
+            "query=%ZZvalue"); // invalid hex
+
+    @ParameterizedTest
+    @FieldSource("validQueries")
+    void parses_valid_queries(String queryString) {
+      Query query = Query.parse(queryString);
+      assertThat(query.toString()).isEqualTo(queryString);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"key=val#ue", "query#fragment", "#", "test#test"})
+    void throws_exception_for_queries_with_hash(String invalidQuery) {
+      assertThatExceptionOfType(IllegalQuery.class)
+          .isThrownBy(() -> Query.parse(invalidQuery))
+          .withMessage("Illegal query: `" + invalidQuery + "`")
+          .extracting(IllegalQuery::getIllegalValue)
+          .isEqualTo(invalidQuery);
+    }
   }
 
-  static Stream<String> invalidQueries() {
-    return Stream.of("key=val#ue");
+  @Nested
+  class NormaliseMethod {
+
+    record NormalisationCase(String input, String expected, Scheme scheme) {}
+
+    static final List<NormalisationCase> normalisationCases =
+        List.of(
+            // Characters that need encoding (non-special scheme)
+            new NormalisationCase("q=search term", "q=search%20term", Scheme.http),
+            new NormalisationCase("key=value test", "key=value%20test", Scheme.https),
+            new NormalisationCase("q=test\"quote", "q=test%22quote", Scheme.http),
+            new NormalisationCase("data={value}", "data=%7Bvalue%7D", Scheme.http),
+            new NormalisationCase("q=test<tag>", "q=test%3Ctag%3E", Scheme.http),
+            new NormalisationCase("name=café", "name=caf%C3%A9", Scheme.http),
+            new NormalisationCase("key=}value{", "key=%7Dvalue%7B", Scheme.http),
+
+            // Single quote handling - special scheme
+            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.http),
+            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.https),
+            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.ws),
+
+            // Single quote handling - non-special scheme
+            new NormalisationCase("q=test'quote", "q=test'quote", Scheme.parse("custom")),
+            new NormalisationCase("q=test'quote", "q=test'quote", Scheme.parse("myscheme")));
+
+    static final List<String> alreadyNormalisedQueries =
+        List.of(
+            "",
+            "q=search",
+            "key=value",
+            "a=1&b=2",
+            "query-name=value",
+            "time=12:30:00",
+            "path=/api/v1",
+            "q=search%20term",
+            "name=%C3%A9ric");
+
+    @ParameterizedTest
+    @FieldSource("normalisationCases")
+    void normalises_query_correctly(NormalisationCase testCase) {
+      Query query = Query.parse(testCase.input());
+      Query normalised = query.normalise(testCase.scheme());
+      assertThat(normalised.toString()).isEqualTo(testCase.expected());
+      assertThat(normalised).isEqualTo(Query.parse(testCase.expected()));
+
+      Query normalised2 = normalised.normalise(testCase.scheme());
+      assertThat(normalised).isSameAs(normalised2);
+    }
+
+    @ParameterizedTest
+    @FieldSource("alreadyNormalisedQueries")
+    void returns_same_instance_when_already_normalised(String queryString) {
+      Query query = Query.parse(queryString);
+      Query normalised = query.normalise();
+      assertThat(normalised).isSameAs(query);
+    }
+
+    @Test
+    void normalise_without_scheme_uses_http_default() {
+      Query query = Query.parse("q=test'quote");
+      Query normalised = query.normalise();
+      // http is special scheme, so single quote should be encoded
+      assertThat(normalised.toString()).isEqualTo("q=test%27quote");
+    }
   }
 
-  @ParameterizedTest
-  @MethodSource("invalidQueries")
-  void throws_exception_for_invalid_userinfo(String invalidQuery) {
-    assertThatExceptionOfType(IllegalQuery.class)
-        .isThrownBy(() -> Query.parse(invalidQuery))
-        .withMessage("Illegal query: `" + invalidQuery + "`")
-        .extracting(IllegalQuery::getIllegalValue)
-        .isEqualTo(invalidQuery);
+  @Nested
+  class DecodeMethod {
+
+    record DecodeCase(String input, String expected) {}
+
+    static final List<String> queriesWithoutPercentEncoding =
+        List.of("", "q=search", "key=value", "a=1&b=2", "time=12:30:00", "path=/api/v1");
+
+    static final List<DecodeCase> decodeCases =
+        List.of(
+            new DecodeCase("q=search%20term", "q=search term"),
+            new DecodeCase("name=%C3%A9ric", "name=éric"),
+            new DecodeCase("caf%C3%A9=coffee", "café=coffee"),
+            new DecodeCase("percent=%25", "percent=%"),
+            new DecodeCase("path=%2Fapi%2Fv1", "path=/api/v1"),
+            new DecodeCase("data=%7B%22key%22:%22value%22%7D", "data={\"key\":\"value\"}"),
+            new DecodeCase("query=%20", "query= "),
+            new DecodeCase("%20=value", " =value"),
+            new DecodeCase("q=hello%20world%21", "q=hello world!"));
+
+    @ParameterizedTest
+    @FieldSource("queriesWithoutPercentEncoding")
+    void returns_same_string_for_query_without_percent_encoding(String queryString) {
+      Query query = Query.parse(queryString);
+      assertThat(query.decode()).isEqualTo(queryString);
+    }
+
+    @ParameterizedTest
+    @FieldSource("decodeCases")
+    void decodes_percent_encoded_query_correctly(DecodeCase testCase) {
+      Query query = Query.parse(testCase.input());
+      assertThat(query.decode()).isEqualTo(testCase.expected());
+    }
+  }
+
+  @Nested
+  class Equality {
+
+    @Test
+    void queries_with_same_value_are_equal() {
+      Query query1 = Query.parse("q=search");
+      Query query2 = Query.parse("q=search");
+      assertThat(query1).isEqualTo(query2);
+    }
+
+    @Test
+    void queries_with_different_values_are_not_equal() {
+      Query query1 = Query.parse("q=search1");
+      Query query2 = Query.parse("q=search2");
+      assertThat(query1).isNotEqualTo(query2);
+    }
+
+    @Test
+    void queries_with_different_case_are_not_equal() {
+      Query query1 = Query.parse("q=search");
+      Query query2 = Query.parse("Q=SEARCH");
+      assertThat(query1).isNotEqualTo(query2);
+    }
+
+    @Test
+    void query_is_equal_to_itself() {
+      Query query = Query.parse("q=search");
+      assertThat(query).isEqualTo(query);
+    }
+
+    @Test
+    void query_is_not_equal_to_null() {
+      Query query = Query.parse("q=search");
+      assertThat(query).isNotEqualTo(null);
+    }
+
+    @Test
+    @SuppressWarnings("AssertBetweenInconvertibleTypes")
+    void query_is_not_equal_to_different_type() {
+      Query query = Query.parse("q=search");
+      assertThat(query).isNotEqualTo("q=search");
+    }
+  }
+
+  @Nested
+  class HashCode {
+
+    @Test
+    void equal_queries_have_same_hash_code() {
+      Query query1 = Query.parse("q=search");
+      Query query2 = Query.parse("q=search");
+      assertThat(query1.hashCode()).isEqualTo(query2.hashCode());
+    }
+
+    @Test
+    void hash_code_is_consistent() {
+      Query query = Query.parse("q=search&page=1");
+      int hashCode1 = query.hashCode();
+      int hashCode2 = query.hashCode();
+      assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+  }
+
+  @Nested
+  class ToStringMethod {
+
+    @Test
+    void to_string_returns_original_query() {
+      String queryString = "q=search&page=1";
+      Query query = Query.parse(queryString);
+      assertThat(query.toString()).isEqualTo(queryString);
+    }
+
+    @Test
+    void to_string_preserves_case() {
+      String queryString = "Query=Search";
+      Query query = Query.parse(queryString);
+      assertThat(query.toString()).isEqualTo(queryString);
+    }
+
+    @Test
+    void to_string_preserves_percent_encoding() {
+      String encoded = "q=search%20term";
+      Query query = Query.parse(encoded);
+      assertThat(query.toString()).isEqualTo(encoded);
+    }
+
+    @Test
+    void to_string_result_can_be_parsed_back() {
+      Query original = Query.parse("q=test&page=1&limit=10");
+      String stringForm = original.toString();
+      Query parsed = Query.parse(stringForm);
+      assertThat(parsed).isEqualTo(original);
+      assertThat(parsed.toString()).isEqualTo(stringForm);
+    }
   }
 
   @TestFactory
   Stream<DynamicTest> invariants() {
     return CharSequenceParserInvariantTests.generateInvariantTests(
-        QueryParser.INSTANCE, validQuery().toList());
+        QueryParser.INSTANCE, ParseMethod.validQueries);
   }
 }
