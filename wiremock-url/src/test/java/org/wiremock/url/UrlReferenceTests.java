@@ -74,7 +74,7 @@ public class UrlReferenceTests {
         Optional<Authority> authority = Optional.ofNullable(normalised.authority());
         Optional<UserInfo> userInfo = authority.flatMap(a -> Optional.ofNullable(a.userInfo()));
 
-        assertThat(userInfo.map(UserInfo::username).orElse(""))
+        assertThat(userInfo.map(it -> it.username().toString()).orElse(""))
             .isEqualTo(successTestCase.username());
         assertThat(userInfo.map(UserInfo::password).orElse(""))
             .isEqualTo(successTestCase.password());
@@ -141,12 +141,12 @@ public class UrlReferenceTests {
   void debug() {
     wiremock_valid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "foo://!\"$%&'()*+,-.;<=>@[\\]^_`{|}~@host/",
+            /* input */ "foo://1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=:@host/",
             /* base */ null,
-            /* href */ "foo://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/",
-            /* origin */ "null",
+            /* href */ "foo://1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=@host/",
+            /* origin */ "foo://host",
             /* protocol */ "foo:",
-            /* username */ "%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~",
+            /* username */ "1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=",
             /* password */ "",
             /* host */ "host",
             /* hostname */ "host",
@@ -154,6 +154,7 @@ public class UrlReferenceTests {
             /* pathname */ "/",
             /* search */ "",
             /* searchParams */ null,
-            /* hash */ ""));
+            /* hash */ ""
+        ));
   }
 }

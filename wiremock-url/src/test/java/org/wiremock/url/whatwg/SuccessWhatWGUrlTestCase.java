@@ -112,11 +112,11 @@ public record SuccessWhatWGUrlTestCase(
         + "\n)";
   }
 
-  private @NonNull String appendParameter(String name, String value) {
+  private static @NonNull String appendParameter(String name, String value) {
     return "\n  /* " + name + " */ " + stringOrNull(value);
   }
 
-  private @NonNull String stringOrNull(@Nullable String value) {
-    return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(input) + '"';
+  private static @NonNull String stringOrNull(@Nullable String value) {
+    return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(value) + '"';
   }
 }
