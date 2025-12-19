@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import java.util.regex.Pattern;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface Fragment extends PercentEncoded {
@@ -79,6 +81,71 @@ class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
       return fragment;
     }
 
+    private static final boolean[] unreserved = combine(
+        includeRange('a', 'z'),
+        includeRange('A', 'Z'),
+        includeRange('0', '9'),
+        include('-', '.', '_', '~')
+    );
+
+    private static final boolean[] subDelimCharSet = include('!', '\\', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=');
+
+    private static final boolean[] pcharCharset = combine(
+        unreserved,
+        subDelimCharSet,
+        include(':', '@')
+    );
+
+    private static final boolean[] fragmentCharSet = combine(
+        pcharCharset,
+        include('/', '?')
+    );
+
+    private static boolean[] combine(boolean[] one, boolean[]... charSets) {
+      int length = one.length;
+      for (boolean[] charSet : charSets) {
+        length = Math.max(length, charSet.length);
+      }
+      boolean[] result = new boolean[length];
+      System.arraycopy(one, 0, result, 0, one.length);
+      for (boolean[] charSet : charSets) {
+        for (int i = 0; i < charSet.length; i++) {
+          result[i] = result[i] || charSet[i];
+        }
+      }
+      return result;
+    }
+
+    private static boolean[] include(String chars) {
+      return include(new boolean[128], chars.toCharArray());
+    }
+
+    private static boolean[] include(char... chars) {
+      return include(new boolean[128], chars);
+    }
+
+    private static boolean[] include(boolean[] charSet, String chars) {
+      return include(charSet, chars.toCharArray());
+    }
+
+    private static boolean[] include(boolean[] charSet, char[] chars) {
+      for (char aChar : chars) {
+        charSet[aChar] = true;
+      }
+      return charSet;
+    }
+
+    private static boolean[] includeRange(char start, char end) {
+      return include(new boolean[128], start, end);
+    }
+
+    private static boolean[] include(boolean[] charSet, char start, char end) {
+      for (int i = start; i <= end; i++) {
+        charSet[i] = true;
+      }
+      return charSet;
+    }
+
     @Override
     public org.wiremock.url.Fragment normalise() {
       StringBuilder result = new StringBuilder();
@@ -123,24 +190,7 @@ class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
     }
 
     private boolean shouldPercentEncodeInFragment(char c) {
-      // WhatWG query percent-encode set:
-      // - C0 controls (0x00-0x1F)
-      // - Space (0x20)
-      // - " (0x22)
-      // - ` (0x23)
-      // - < (0x3C)
-      // - > (0x3E)
-      // - Characters > 0x7E (non-ASCII)
-
-      if (c <= 0x1F) return true; // C0 controls
-      if (c == 0x20) return true; // space
-      if (c == '"') return true; // 0x22
-      if (c == '<') return true; // 0x3C
-      if (c == '`') return true; // 0x3C
-      if (c == '>') return true; // 0x3E
-      if (c == '{') return true;
-      if (c == '}') return true;
-      return c > 0x7E; // non-ASCII
+      return c >= fragmentCharSet.length || !fragmentCharSet[c];
     }
   }
 }
