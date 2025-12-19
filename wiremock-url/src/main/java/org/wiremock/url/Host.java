@@ -15,18 +15,19 @@
  */
 package org.wiremock.url;
 
+import static java.util.Locale.ROOT;
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.pctEncodedPattern;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
+import static org.wiremock.url.Strings.transform;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface Host {
+public interface Host extends PercentEncoded {
 
   Host normalise();
 
@@ -79,22 +80,13 @@ class HostParser implements CharSequenceParser<Host> {
 
     @Override
     public org.wiremock.url.Host normalise() {
-      StringBuilder result = new StringBuilder();
-      Matcher matcher = pctEncodedPattern.matcher(host);
-      int lastEnd = 0;
 
-      while (matcher.find()) {
-        // Lowercase the part before the percent-encoded sequence
-        result.append(host.substring(lastEnd, matcher.start()).toLowerCase(Locale.ROOT));
-        // Uppercase the percent-encoded sequence
-        result.append(matcher.group().toUpperCase(Locale.ROOT));
-        lastEnd = matcher.end();
-      }
-
-      // Lowercase the remaining part
-      result.append(host.substring(lastEnd).toLowerCase(Locale.ROOT));
-
-      String normalised = result.toString();
+      String normalised =
+          transform(
+              host,
+              pctEncodedPattern,
+              matched -> matched.toUpperCase(ROOT),
+              unmatched -> unmatched.toLowerCase(ROOT));
       if (normalised.equals(host)) {
         return this;
       } else {

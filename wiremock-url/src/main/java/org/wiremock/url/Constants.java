@@ -27,6 +27,7 @@ class Constants {
   static final String pctEncoded = "%[0-9a-fA-F]{2}";
 
   static final Pattern pctEncodedPattern = Pattern.compile(pctEncoded);
+  static final Pattern multiplePctEncodedPattern = Pattern.compile("(?:" + pctEncoded + ")+");
 
   @Language("RegExp")
   public static final String subDelims = "!\\$&'\\(\\)\\*\\+,;=";

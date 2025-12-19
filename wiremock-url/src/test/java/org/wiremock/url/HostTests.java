@@ -435,6 +435,47 @@ class HostTests {
   }
 
   @Nested
+  class DecodeMethod {
+
+    record DecodeCase(String input, String expected) {}
+
+    static final List<String> hostsWithoutPercentEncoding =
+        List.of(
+            "example.com",
+            "192.168.1.1",
+            "[2001:db8::1]",
+            "",
+            "test-server_123.example.com",
+            "test!server$example");
+
+    static final List<DecodeCase> decodeCases =
+        List.of(
+            new DecodeCase("test%20server", "test server"),
+            new DecodeCase("test%20%21server", "test !server"),
+            new DecodeCase("caf%C3%A9.example.com", "café.example.com"),
+            new DecodeCase("%2F", "/"),
+            new DecodeCase("example.com%2Fpath", "example.com/path"),
+            new DecodeCase("test%2fserver", "test/server"),
+            new DecodeCase("%C3%A9", "é"),
+            new DecodeCase("hello%20world%21", "hello world!"),
+            new DecodeCase("test%3A%2F%2Fserver", "test://server"));
+
+    @ParameterizedTest
+    @FieldSource("hostsWithoutPercentEncoding")
+    void returns_same_string_for_host_without_percent_encoding(String hostString) {
+      Host host = Host.parse(hostString);
+      assertThat(host.decode()).isEqualTo(hostString);
+    }
+
+    @ParameterizedTest
+    @FieldSource("decodeCases")
+    void decodes_percent_encoded_host_correctly(DecodeCase testCase) {
+      Host host = Host.parse(testCase.input());
+      assertThat(host.decode()).isEqualTo(testCase.expected());
+    }
+  }
+
+  @Nested
   class EdgeCases {
 
     @Test

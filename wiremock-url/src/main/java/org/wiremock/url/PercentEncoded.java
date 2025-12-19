@@ -15,6 +15,43 @@
  */
 package org.wiremock.url;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.wiremock.url.Constants.multiplePctEncodedPattern;
+
+import java.io.ByteArrayOutputStream;
+
 public interface PercentEncoded extends CharSequence {
-  String decode();
+
+  default String decode() {
+    return Strings.transform(
+        toString(), multiplePctEncodedPattern, PercentEncoded::decodeCharacters);
+  }
+
+  @Override
+  default int length() {
+    return toString().length();
+  }
+
+  @Override
+  default CharSequence subSequence(int start, int end) {
+    return toString().subSequence(start, end);
+  }
+
+  @Override
+  default char charAt(int index) {
+    return toString().charAt(index);
+  }
+
+  private static String decodeCharacters(String percentEncodings) {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+    for (int i = 0; i < percentEncodings.length(); ) {
+      String hexString = percentEncodings.substring(i + 1, i + 3);
+      int byteValue = Integer.parseInt(hexString, 16);
+      bytes.write(byteValue);
+      i += 3;
+    }
+
+    return bytes.toString(UTF_8);
+  }
 }

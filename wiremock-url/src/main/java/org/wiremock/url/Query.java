@@ -19,7 +19,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.alwaysIllegal;
 import static org.wiremock.url.Scheme.specialSchemes;
 
-import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 public interface Query extends PercentEncoded {
@@ -54,32 +53,8 @@ class QueryParser implements CharSequenceParser<Query> {
   record Query(String query) implements org.wiremock.url.Query {
 
     @Override
-    public int length() {
-      return query.length();
-    }
-
-    @Override
-    public char charAt(int index) {
-      return query.charAt(index);
-    }
-
-    @Override
-    public CharSequence subSequence(int start, int end) {
-      return query.subSequence(start, end);
-    }
-
-    @Override
     public String toString() {
       return query;
-    }
-
-    @Override
-    public String decode() {
-      try {
-        return URLDecoder.decode(query, UTF_8);
-      } catch (IllegalArgumentException e) {
-        return query;
-      }
     }
 
     @Override

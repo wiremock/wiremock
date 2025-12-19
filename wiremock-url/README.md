@@ -25,4 +25,4 @@ For all normalisable types, `instance.normalise().equals(instance.normalise().no
 
 In general, `UrlReference.parse(urlReference.toString()).equals(instance)` should be true. There are
 a few cases where this is impossible - notably, the `toString()` of a `PathAndQuery` starting with
-`//` will be parsed to a `RelativeRef`
+`//` will be parsed to a `RelativeRef`.
