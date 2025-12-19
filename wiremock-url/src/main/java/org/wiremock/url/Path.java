@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.intellij.lang.annotations.Language;
 
-public interface Path {
+public interface Path extends PercentEncoded {
 
   Path EMPTY = PathParser.INSTANCE.parse("");
   Path ROOT = PathParser.INSTANCE.parse("/");

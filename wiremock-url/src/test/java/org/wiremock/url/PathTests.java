@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -260,5 +261,41 @@ public class PathTests {
   @Test
   void resolvePathSingle() {
     resolvePath(entry("", "/b/c/d;p"));
+  }
+
+  @Nested
+  class DecodeMethod {
+
+    record DecodeCase(String input, String expected) {}
+
+    static final List<String> pathsWithoutPercentEncoding =
+        List.of("", "/", "/path", "/path/to/resource", "relative/path", "/user:pass@host");
+
+    static final List<DecodeCase> decodeCases =
+        List.of(
+            new DecodeCase("/%20", "/ "),
+            new DecodeCase("/path%20name", "/path name"),
+            new DecodeCase("/path%2Fname", "/path/name"),
+            new DecodeCase("/%C3%A9", "/é"),
+            new DecodeCase("/caf%C3%A9", "/café"),
+            new DecodeCase("/100%25complete", "/100%complete"),
+            new DecodeCase("/path%20with%20spaces/and-dashes", "/path with spaces/and-dashes"),
+            new DecodeCase("/user%40example.com", "/user@example.com"),
+            new DecodeCase("/hello%20world", "/hello world"),
+            new DecodeCase("/test%3Avalue", "/test:value"));
+
+    @ParameterizedTest
+    @FieldSource("pathsWithoutPercentEncoding")
+    void returns_same_string_for_path_without_percent_encoding(String pathString) {
+      Path path = Path.parse(pathString);
+      assertThat(path.decode()).isEqualTo(pathString);
+    }
+
+    @ParameterizedTest
+    @FieldSource("decodeCases")
+    void decodes_percent_encoded_path_correctly(DecodeCase testCase) {
+      Path path = Path.parse(testCase.input());
+      assertThat(path.decode()).isEqualTo(testCase.expected());
+    }
   }
 }
