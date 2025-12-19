@@ -1,5 +1,8 @@
 # Agent Rules
 
+## Running the build
+Always use `./gradlew` to run the build. This ensures that the correct version of Gradle is used and all plugins are applied.
+
 ## Messaging/WebSocket Code
 
 The following packages contain messaging/websocket functionality:

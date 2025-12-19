@@ -43,7 +43,7 @@ public class InMemoryMessageJournalTest {
   private MessageServeEvent event1, event2, event3;
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
+    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
   }
 
   @BeforeEach

@@ -36,17 +36,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
+import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -445,8 +448,8 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     client1.connect(url);
     client2.connect(url);
 
-    waitAtMost(5, SECONDS).until(() -> client1.isConnected());
-    waitAtMost(5, SECONDS).until(() -> client2.isConnected());
+    waitAtMost(5, SECONDS).until(client1::isConnected);
+    waitAtMost(5, SECONDS).until(client2::isConnected);
 
     // Send message from client1
     client1.sendMessage("broadcast");
@@ -496,11 +499,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/unmatched-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
     testClient.sendMessage("unmatched-message");
 
     // Wait for the message to be processed
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() > 0);
+    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
 
     // Verify the unmatched message was recorded
     var events = getAllMessageServeEvents();
@@ -529,7 +532,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/count-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("count-1");
     testClient.sendMessage("count-2");
@@ -562,7 +565,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/find-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("find-alpha");
     testClient.sendMessage("find-beta");
@@ -585,11 +588,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/reset-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
     testClient.sendMessage("before-reset");
 
     // Wait for the message to be processed
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() > 0);
+    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
 
     // Reset the journal
     resetMessageJournal();
@@ -615,7 +618,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/verify-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("verify-one");
     testClient.sendMessage("verify-two");
@@ -642,7 +645,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/verify-count-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("count-verify-1");
     testClient.sendMessage("count-verify-2");
@@ -670,7 +673,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/verify-strategy-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("strategy-a");
     testClient.sendMessage("strategy-b");
@@ -709,7 +712,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/verify-fail-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("fail-1");
     testClient.sendMessage("fail-2");
@@ -737,11 +740,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/get-single-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("get-single-event");
 
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 1);
+    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
 
     MessageServeEvent event = getAllMessageServeEvents().get(0);
     MessageServeEvent retrievedEvent = getMessageServeEvent(event.getId());
@@ -766,7 +769,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/remove-single-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("remove-single-1");
     testClient.sendMessage("remove-single-2");
@@ -797,7 +800,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/remove-pattern-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("remove-pattern-1");
     testClient.sendMessage("remove-pattern-2");
@@ -832,11 +835,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     String url = "ws://localhost:" + wireMockServer.port() + "/metadata-test";
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(() -> testClient.isConnected());
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
 
     testClient.sendMessage("metadata-a");
 
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 1);
+    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
 
     assertThat(getAllMessageServeEvents().size(), is(1));
 
@@ -847,5 +850,97 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(result.getMessageServeEvents().size(), is(0));
     assertThat(getAllMessageServeEvents().size(), is(1));
+  }
+
+  // FullEntityDefinition resolution tests
+
+  @Test
+  void fullEntityDefinitionWithStringDataResolvesToString() {
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(null, null, null, null, null, "hello world");
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("String data stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/string-data-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
+    assertThat(response, is("hello world"));
+  }
+
+  @Test
+  void fullEntityDefinitionWithObjectDataSerializesToJson() {
+    Map<String, Object> objectData = Map.of("name", "John", "age", 30);
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(null, null, null, null, null, objectData);
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Object data stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/object-data-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
+    assertThat(response, jsonEquals("{\"name\":\"John\",\"age\":30}"));
+  }
+
+  @Test
+  void fullEntityDefinitionWithDataStoreResolvesFromStore() {
+    wireMockServer
+        .getOptions()
+        .getStores()
+        .getObjectStore("testStore")
+        .put("testKey", "stored value");
+
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(null, null, null, "testStore", "testKey", null);
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Store data stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/store-data-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
+    assertThat(response, is("stored value"));
+  }
+
+  @Test
+  void fullEntityDefinitionWithDataStoreResolvesObjectFromStoreAsJson() {
+    Map<String, Object> storedObject = Map.of("key", "value", "number", 42);
+    wireMockServer
+        .getOptions()
+        .getStores()
+        .getObjectStore("objectStore")
+        .put("objectKey", storedObject);
+
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(null, null, null, "objectStore", "objectKey", null);
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Store object data stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/store-object-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
+    assertThat(response, jsonEquals("{\"number\":42,\"key\":\"value\"}"));
   }
 }

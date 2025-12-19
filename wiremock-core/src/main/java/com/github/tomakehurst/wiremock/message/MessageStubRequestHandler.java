@@ -16,12 +16,15 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.io.ByteArrayInputStream;
@@ -35,14 +38,17 @@ public class MessageStubRequestHandler {
   private final MessageStubMappings messageStubMappings;
   private final MessageChannels messageChannels;
   private final MessageJournal messageJournal;
+  private final Stores stores;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
-      MessageJournal messageJournal) {
+      MessageJournal messageJournal,
+      Stores stores) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
+    this.stores = stores;
   }
 
   public void processMessage(MessageChannel channel, Message message) {
@@ -94,20 +100,66 @@ public class MessageStubRequestHandler {
     return resolveToMessage(messageDefinition);
   }
 
-  public static Message resolveToMessage(MessageDefinition messageDefinition) {
-    Entity entity = resolveEntity(messageDefinition.getBody());
+  public Message resolveToMessage(MessageDefinition messageDefinition) {
+    Entity entity = resolveEntity(messageDefinition.getBody(), stores);
     return new Message(entity);
   }
 
-  private static Entity resolveEntity(EntityDefinition definition) {
+  public static Message resolveToMessage(MessageDefinition messageDefinition, Stores stores) {
+    Entity entity = resolveEntity(messageDefinition.getBody(), stores);
+    return new Message(entity);
+  }
+
+  private static Entity resolveEntity(EntityDefinition definition, Stores stores) {
     if (definition instanceof StringEntityDefinition) {
       String value = ((StringEntityDefinition) definition).getValue();
       byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : new byte[0];
       InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
       return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
     }
+
+    if (definition instanceof FullEntityDefinition) {
+      FullEntityDefinition fullDef = (FullEntityDefinition) definition;
+      String resolvedData = resolveFullEntityData(fullDef, stores);
+      byte[] bytes =
+          resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];
+      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
+      return new Entity(
+          fullDef.getEncoding(), fullDef.getFormat(), fullDef.getCompression(), streamSource);
+    }
+
     throw new UnsupportedOperationException(
         "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
+  }
+
+  private static String resolveFullEntityData(FullEntityDefinition definition, Stores stores) {
+    Object data = definition.getData();
+
+    if (data instanceof String) {
+      return (String) data;
+    }
+
+    if (data != null) {
+      return Json.write(data);
+    }
+
+    String dataStore = definition.getDataStore();
+    String dataRef = definition.getDataRef();
+    if (dataStore != null && dataRef != null && stores != null) {
+      return stores
+          .getObjectStore(dataStore)
+          .get(dataRef)
+          .map(
+              value -> {
+                if (value instanceof String) {
+                  return (String) value;
+                }
+                return Json.write(value);
+              })
+          .orElse(null);
+    }
+
+    return null;
   }
 
   public MessageStubMappings getMessageStubMappings() {

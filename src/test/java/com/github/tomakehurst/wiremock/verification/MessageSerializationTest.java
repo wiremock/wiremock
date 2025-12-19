@@ -22,23 +22,29 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.EncodingType;
+import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class MessageSerializationTest {
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
+    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
   }
 
   @Test
@@ -366,5 +372,184 @@ public class MessageSerializationTest {
     assertThat(event.isSent(), is(true));
     assertThat(event.isReceived(), is(false));
     assertThat(event.getMessage().getBodyAsString(), is("outgoing message"));
+  }
+
+  // FullEntityDefinition serialisation tests
+
+  @Test
+  void fullEntityDefinitionWithStringDataSerializesToJson() {
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(
+            EncodingType.TEXT, FormatType.JSON, CompressionType.NONE, null, null, "hello world");
+
+    String json = Json.write(entityDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "encoding": "text",
+              "format": "json",
+              "compression": "none",
+              "data": "hello world"
+            }
+            """));
+  }
+
+  @Test
+  void fullEntityDefinitionWithObjectDataSerializesToJson() {
+    Map<String, Object> objectData = Map.of("name", "John", "age", 30);
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(
+            EncodingType.TEXT, FormatType.JSON, CompressionType.NONE, null, null, objectData);
+
+    String json = Json.write(entityDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "encoding": "text",
+              "format": "json",
+              "compression": "none",
+              "data": {
+                "name": "John",
+                "age": 30
+              }
+            }
+            """));
+  }
+
+  @Test
+  void fullEntityDefinitionWithDataStoreRefSerializesToJson() {
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(
+            EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null);
+
+    String json = Json.write(entityDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "encoding": "text",
+              "format": "text",
+              "compression": "none",
+              "dataStore": "myStore",
+              "dataRef": "myKey"
+            }
+            """));
+  }
+
+  @Test
+  void fullEntityDefinitionWithDataStoreRoundTripsViaMessageStubMapping() {
+    FullEntityDefinition original =
+        new FullEntityDefinition(
+            EncodingType.TEXT, FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null);
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Round trip stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(original))
+            .build();
+
+    String json = Json.write(stub);
+    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
+
+    SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
+    assertThat(action.getBody(), instanceOf(FullEntityDefinition.class));
+    assertThat(action.getBody(), is(original));
+  }
+
+  @Test
+  void messageStubMappingWithFullEntityDefinitionSerializesCorrectly() {
+    FullEntityDefinition entityDef =
+        new FullEntityDefinition(
+            EncodingType.TEXT,
+            FormatType.JSON,
+            CompressionType.NONE,
+            null,
+            null,
+            Map.of("key", "value"));
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withId(UUID.fromString("cccccccc-dddd-eeee-ffff-000000000000"))
+            .withName("Full entity stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .build();
+
+    String json = Json.write(stub);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "id": "cccccccc-dddd-eeee-ffff-000000000000",
+              "name": "Full entity stub",
+              "messagePattern": {
+                "equalTo": "trigger"
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "body": {
+                    "encoding": "text",
+                    "format": "json",
+                    "compression": "none",
+                    "data": {
+                      "key": "value"
+                    }
+                  },
+                  "sendToOriginatingChannel": true
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void messageStubMappingWithFullEntityDefinitionDeserializesCorrectly() {
+    String json =
+        """
+        {
+          "name": "Full entity deserialized",
+          "messagePattern": {
+            "equalTo": "trigger"
+          },
+          "actions": [
+            {
+              "type": "send",
+              "body": {
+                "encoding": "text",
+                "format": "json",
+                "compression": "none",
+                "dataStore": "testStore",
+                "dataRef": "testKey"
+              },
+              "sendToOriginatingChannel": true
+            }
+          ]
+        }
+        """;
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    assertThat(stub.getName(), is("Full entity deserialized"));
+    assertThat(stub.getActions().size(), is(1));
+
+    SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
+    assertThat(action.getBody(), is(notNullValue()));
+    assertThat(action.getBody() instanceof FullEntityDefinition, is(true));
+
+    FullEntityDefinition entityDef = (FullEntityDefinition) action.getBody();
+    assertThat(entityDef.getDataStore(), is("testStore"));
+    assertThat(entityDef.getDataRef(), is("testKey"));
   }
 }

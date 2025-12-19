@@ -91,7 +91,7 @@ public class JettyHttpServerTest {
             new PlainTextStubNotMatchedRenderer(Extensions.NONE));
     messageStubRequestHandler =
         new MessageStubRequestHandler(
-            messageStubMappings, messageChannels, new InMemoryMessageJournal(null));
+            messageStubMappings, messageChannels, new InMemoryMessageJournal(null), null);
   }
 
   @Test

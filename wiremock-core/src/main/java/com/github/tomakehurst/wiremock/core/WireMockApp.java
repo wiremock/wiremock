@@ -282,7 +282,8 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   public MessageStubRequestHandler buildMessageStubRequestHandler() {
-    return new MessageStubRequestHandler(messageStubMappings, messageChannels, messageJournal);
+    return new MessageStubRequestHandler(
+        messageStubMappings, messageChannels, messageJournal, stores);
   }
 
   private List<RequestFilter> getAdminRequestFilters() {

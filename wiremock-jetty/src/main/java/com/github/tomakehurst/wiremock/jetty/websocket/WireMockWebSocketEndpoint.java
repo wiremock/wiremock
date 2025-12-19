@@ -49,7 +49,7 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
   public void onWebSocketText(String text) {
     if (messageStubRequestHandler != null && messageChannel != null) {
       Message message =
-          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text));
+          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
       messageStubRequestHandler.processMessage(messageChannel, message);
     }
   }
