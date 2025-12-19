@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties({
   "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
+@JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
 public final class StubMapping implements StubMappingOrMappings {
 
   public static final int DEFAULT_PRIORITY = 5;
