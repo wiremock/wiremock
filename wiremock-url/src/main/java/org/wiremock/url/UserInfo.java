@@ -30,7 +30,7 @@ public interface UserInfo {
 
   @Nullable UserInfo normalise();
 
-  String username();
+  Username username();
 
   @Nullable String password();
 }
@@ -48,7 +48,7 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     String userInfoStr = stringForm.toString();
     if (userInfoPattern.matcher(stringForm).matches()) {
       var components = userInfoStr.split(":", 2);
-      var username = components[0];
+      var username = new UsernameParser.Username(components[0]);
       final String password;
       if (components.length == 2) {
         password = components[1];
@@ -61,7 +61,7 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     }
   }
 
-  record UserInfo(String userInfo, @Override String username, @Override @Nullable String password)
+  record UserInfo(String userInfo, @Override Username username, @Override @Nullable String password)
       implements org.wiremock.url.UserInfo {
 
     @Override
@@ -72,7 +72,7 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     @Override
     public org.wiremock.url.@Nullable UserInfo normalise() {
       if (!username.isEmpty() && password != null && password.isEmpty()) {
-        return new UserInfo(username, username, null);
+        return new UserInfo(username.toString(), username, null);
       } else if (username.isEmpty() && (password == null || password.isEmpty())) {
         return null;
       } else {
