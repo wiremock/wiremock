@@ -39,6 +39,10 @@ public interface Path extends PercentEncoded {
     return PathParser.INSTANCE.parse(path);
   }
 
+  static Path encode(String unencoded) {
+    return PathParser.INSTANCE.encode(unencoded);
+  }
+
   Path normalise();
 
   Path resolve(Path other);
@@ -48,7 +52,7 @@ public interface Path extends PercentEncoded {
   }
 }
 
-class PathParser implements CharSequenceParser<Path> {
+class PathParser implements PercentEncodedCharSequenceParser<Path> {
 
   static final PathParser INSTANCE = new PathParser();
 
@@ -65,6 +69,39 @@ class PathParser implements CharSequenceParser<Path> {
     } else {
       throw new IllegalPath(pathStr);
     }
+  }
+
+  @Override
+  public Path encode(String unencoded) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < unencoded.length(); i++) {
+      char c = unencoded.charAt(i);
+      if (isUnreserved(c) || isSubDelim(c) || c == ':' || c == '@' || c == '/') {
+        result.append(c);
+      } else {
+        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+        for (byte b : bytes) {
+          result.append('%');
+          result.append(String.format("%02X", b & 0xFF));
+        }
+      }
+    }
+    return parse(result.toString());
+  }
+
+  private boolean isUnreserved(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <= '9')
+        || c == '-'
+        || c == '.'
+        || c == '_'
+        || c == '~';
+  }
+
+  private boolean isSubDelim(char c) {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
+        || c == '+' || c == ',' || c == ';' || c == '=';
   }
 
   record Path(String path, List<Segment> segments) implements org.wiremock.url.Path {

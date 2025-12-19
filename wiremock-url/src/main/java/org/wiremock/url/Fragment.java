@@ -24,15 +24,52 @@ public interface Fragment extends PercentEncoded {
   static Fragment parse(CharSequence fragment) throws IllegalFragment {
     return FragmentParser.INSTANCE.parse(fragment);
   }
+
+  static Fragment encode(String unencoded) {
+    return FragmentParser.INSTANCE.encode(unencoded);
+  }
 }
 
-class FragmentParser implements CharSequenceParser<Fragment> {
+class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
 
   static final FragmentParser INSTANCE = new FragmentParser();
 
   @Override
   public Fragment parse(CharSequence stringForm) {
     return new Fragment(stringForm.toString());
+  }
+
+  @Override
+  public Fragment encode(String unencoded) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < unencoded.length(); i++) {
+      char c = unencoded.charAt(i);
+      if (isUnreserved(c) || isSubDelim(c) || c == ':' || c == '@' || c == '/' || c == '?') {
+        result.append(c);
+      } else {
+        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+        for (byte b : bytes) {
+          result.append('%');
+          result.append(String.format("%02X", b & 0xFF));
+        }
+      }
+    }
+    return new Fragment(result.toString());
+  }
+
+  private boolean isUnreserved(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <= '9')
+        || c == '-'
+        || c == '.'
+        || c == '_'
+        || c == '~';
+  }
+
+  private boolean isSubDelim(char c) {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
+        || c == '+' || c == ',' || c == ';' || c == '=';
   }
 
   record Fragment(String fragment) implements org.wiremock.url.Fragment {

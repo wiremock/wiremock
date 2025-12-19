@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
@@ -28,6 +29,10 @@ public interface UserInfo extends PercentEncoded {
     return UserInfoParser.INSTANCE.parse(userInfoString);
   }
 
+  static UserInfo encode(String unencoded) {
+    return UserInfoParser.INSTANCE.encode(unencoded);
+  }
+
   @Nullable UserInfo normalise();
 
   Username username();
@@ -35,7 +40,7 @@ public interface UserInfo extends PercentEncoded {
   @Nullable Password password();
 }
 
-class UserInfoParser implements CharSequenceParser<UserInfo> {
+class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 
@@ -59,6 +64,40 @@ class UserInfoParser implements CharSequenceParser<UserInfo> {
     } else {
       throw new IllegalUserInfo(userInfoStr);
     }
+  }
+
+  @Override
+  public UserInfo encode(String unencoded) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < unencoded.length(); i++) {
+      char c = unencoded.charAt(i);
+      if (isUnreserved(c) || isSubDelim(c) || c == ':') {
+        result.append(c);
+      } else {
+        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+        for (byte b : bytes) {
+          result.append('%');
+          result.append(String.format("%02X", b & 0xFF));
+        }
+      }
+    }
+    String encoded = result.toString();
+    return parse(encoded);
+  }
+
+  private boolean isUnreserved(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <= '9')
+        || c == '-'
+        || c == '.'
+        || c == '_'
+        || c == '~';
+  }
+
+  private boolean isSubDelim(char c) {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
+        || c == '+' || c == ',' || c == ';' || c == '=';
   }
 
   record UserInfo(

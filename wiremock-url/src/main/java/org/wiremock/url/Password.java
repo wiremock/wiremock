@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.pctEncoded;
 import static org.wiremock.url.Constants.subDelims;
 import static org.wiremock.url.Constants.unreserved;
@@ -26,9 +27,13 @@ public interface Password extends PercentEncoded {
   static Password parse(CharSequence password) throws IllegalPassword {
     return PasswordParser.INSTANCE.parse(password);
   }
+
+  static Password encode(String unencoded) {
+    return PasswordParser.INSTANCE.encode(unencoded);
+  }
 }
 
-class PasswordParser implements CharSequenceParser<Password> {
+class PasswordParser implements PercentEncodedCharSequenceParser<Password> {
 
   static final PasswordParser INSTANCE = new PasswordParser();
 
@@ -44,6 +49,39 @@ class PasswordParser implements CharSequenceParser<Password> {
     } else {
       throw new IllegalPassword(passwordStr);
     }
+  }
+
+  @Override
+  public Password encode(String unencoded) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < unencoded.length(); i++) {
+      char c = unencoded.charAt(i);
+      if (isUnreserved(c) || isSubDelim(c) || c == ':') {
+        result.append(c);
+      } else {
+        byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+        for (byte b : bytes) {
+          result.append('%');
+          result.append(String.format("%02X", b & 0xFF));
+        }
+      }
+    }
+    return new Password(result.toString());
+  }
+
+  private boolean isUnreserved(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <= '9')
+        || c == '-'
+        || c == '.'
+        || c == '_'
+        || c == '~';
+  }
+
+  private boolean isSubDelim(char c) {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*'
+        || c == '+' || c == ',' || c == ';' || c == '=';
   }
 
   record Password(String password) implements org.wiremock.url.Password {
