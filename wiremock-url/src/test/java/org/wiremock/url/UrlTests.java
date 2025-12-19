@@ -38,7 +38,7 @@ class UrlTests {
 
     @ParameterizedTest
     @MethodSource("validUrls")
-    void parses_valid_url(UriReferenceParseTestCase urlTest) {
+    void parses_valid_url(UrlReferenceParseTestCase urlTest) {
       UrlReference url = UrlReference.parse(urlTest.stringForm);
       assertThat(url.isUrl()).isTrue();
       assertThat(url.scheme()).isEqualTo(urlTest.expectation.scheme);
@@ -57,7 +57,7 @@ class UrlTests {
     }
 
     @Test
-    void settingPortWorks() {
+    void settingPortToNullChangesNothing() {
       String urlString = "http://example.com";
 
       Url noPortToStartWith = Url.parse(urlString);
@@ -187,7 +187,7 @@ class UrlTests {
       }
     }
 
-    static Stream<UriReferenceParseTestCase> validUrls() {
+    static Stream<UrlReferenceParseTestCase> validUrls() {
       return Stream.of(
           testCase(
               "https://user:password@www.example.com:8080/foo/bar?a=b#somefragment",
@@ -260,12 +260,12 @@ class UrlTests {
     }
   }
 
-  static UriReferenceParseTestCase testCase(
-      String stringForm, UriReferenceExpectation expectation) {
-    return new UriReferenceParseTestCase(stringForm, expectation);
+  static UrlReferenceParseTestCase testCase(
+      String stringForm, UrlReferenceExpectation expectation) {
+    return new UrlReferenceParseTestCase(stringForm, expectation);
   }
 
-  static UriReferenceExpectation expectation(
+  static UrlReferenceExpectation expectation(
       @Nullable String schemeStr,
       @Nullable String authorityStr,
       String pathStr,
@@ -276,12 +276,12 @@ class UrlTests {
     Path path = Path.parse(pathStr);
     Query query = queryStr == null ? null : Query.parse(queryStr);
     Fragment fragment = fragmentStr == null ? null : Fragment.parse(fragmentStr);
-    return new UriReferenceExpectation(scheme, authority, path, query, fragment);
+    return new UrlReferenceExpectation(scheme, authority, path, query, fragment);
   }
 
-  record UriReferenceParseTestCase(String stringForm, UriReferenceExpectation expectation) {}
+  record UrlReferenceParseTestCase(String stringForm, UrlReferenceExpectation expectation) {}
 
-  record UriReferenceExpectation(
+  record UrlReferenceExpectation(
       @Nullable Scheme scheme,
       @Nullable Authority authority,
       @Nullable Path path,
