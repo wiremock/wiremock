@@ -13,18 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.websocket;
+package com.github.tomakehurst.wiremock.message.websocket;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import java.util.UUID;
-
-public interface MessageChannel {
-
-  ChannelType getType();
-
-  UUID getId();
-
-  Request getRequest();
+public interface WebSocketSession {
 
   boolean isOpen();
 

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.websocket;
+package com.github.tomakehurst.wiremock.message.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageChannel;
 import java.util.UUID;
 
 public class WebSocketMessageChannel implements MessageChannel {

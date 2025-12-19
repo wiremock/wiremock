@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.websocket.MessageChannel;
+import com.github.tomakehurst.wiremock.message.MessageChannel;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;

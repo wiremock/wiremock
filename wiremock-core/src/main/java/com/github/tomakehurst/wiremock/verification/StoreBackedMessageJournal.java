@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.verification;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.store.MessageJournalStore;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;

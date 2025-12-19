@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindMessageServeEventsResult;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
 
 public class RemoveMessageServeEventsByPatternTask implements AdminTask {
 

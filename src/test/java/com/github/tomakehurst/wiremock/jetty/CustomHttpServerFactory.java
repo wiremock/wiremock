@@ -20,8 +20,8 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 
 public class CustomHttpServerFactory implements HttpServerFactory {
 

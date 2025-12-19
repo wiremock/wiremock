@@ -34,7 +34,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.websocket.message.MessagePattern.messagePattern;
+import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,11 +42,11 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.websocket.message.SendMessageAction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

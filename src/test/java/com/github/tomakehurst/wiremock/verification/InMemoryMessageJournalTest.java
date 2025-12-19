@@ -21,9 +21,9 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import com.github.tomakehurst.wiremock.websocket.ChannelType;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;

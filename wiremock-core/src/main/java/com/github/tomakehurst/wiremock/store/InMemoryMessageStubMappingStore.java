@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

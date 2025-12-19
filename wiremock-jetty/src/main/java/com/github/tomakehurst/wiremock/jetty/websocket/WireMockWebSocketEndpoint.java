@@ -16,10 +16,10 @@
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.websocket.MessageChannel;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
-import com.github.tomakehurst.wiremock.websocket.WebSocketMessageChannel;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageChannel;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.websocket.WebSocketMessageChannel;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 

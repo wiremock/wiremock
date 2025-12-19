@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
-import com.github.tomakehurst.wiremock.websocket.WebSocketSession;
+import com.github.tomakehurst.wiremock.message.websocket.WebSocketSession;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;

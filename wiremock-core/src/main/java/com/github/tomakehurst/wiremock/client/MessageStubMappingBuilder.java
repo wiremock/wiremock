@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessageAction;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageAction;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.util.UUID;
 
 /** Builder interface for creating message stub mappings using a fluent DSL. */

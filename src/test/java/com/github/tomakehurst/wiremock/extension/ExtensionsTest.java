@@ -25,6 +25,11 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -32,8 +37,6 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.github.tomakehurst.wiremock.websocket.message.MessagePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -303,9 +306,7 @@ class ExtensionsTest {
 
     @Override
     public SendChannelMessageResult sendChannelMessage(
-        com.github.tomakehurst.wiremock.websocket.ChannelType type,
-        RequestPattern requestPattern,
-        String message) {
+        ChannelType type, RequestPattern requestPattern, String message) {
       throw new UnsupportedOperationException();
     }
 
@@ -316,13 +317,12 @@ class ExtensionsTest {
     }
 
     @Override
-    public com.github.tomakehurst.wiremock.websocket.MessageChannels getMessageChannels() {
+    public MessageChannels getMessageChannels() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addMessageStubMapping(
-        com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping messageStubMapping) {
+    public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
       throw new UnsupportedOperationException();
     }
 

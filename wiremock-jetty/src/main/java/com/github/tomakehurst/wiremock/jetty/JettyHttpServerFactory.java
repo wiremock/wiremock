@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.websocket.MessageChannels;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class JettyHttpServerFactory implements HttpServerFactory, DefaultFactory {

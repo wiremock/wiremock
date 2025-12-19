@@ -26,9 +26,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.websocket.ChannelType;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.websocket.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 

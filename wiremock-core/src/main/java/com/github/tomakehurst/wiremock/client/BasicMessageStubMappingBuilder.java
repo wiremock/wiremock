@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.websocket.message.MessageAction;
-import com.github.tomakehurst.wiremock.websocket.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageAction;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
