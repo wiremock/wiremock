@@ -90,11 +90,7 @@ public class RemoteMappingsLoader {
 
   private String getMimeType(StubMapping mapping) {
     HttpHeaders responseHeaders = mapping.getResponse().getHeaders();
-    if (responseHeaders != null) {
-      ContentTypeHeader contentTypeHeader = responseHeaders.getContentTypeHeader();
-      return contentTypeHeader != null ? contentTypeHeader.mimeTypePart() : null;
-    }
-
-    return null;
+    ContentTypeHeader contentTypeHeader = responseHeaders.getContentTypeHeader();
+    return contentTypeHeader != null ? contentTypeHeader.mimeTypePart() : null;
   }
 }

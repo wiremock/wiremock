@@ -1,5 +1,5 @@
 [versions]
-jetty = "12.1.4"
+jetty = "12.1.5"
 jackson = "2.20.1"
 xmlUnit = "2.11.0"
 jsonUnit = "5.1.0"
@@ -7,11 +7,10 @@ junitJupiter = "5.14.1"
 handlebars = "4.5.0"
 slf4j = "2.0.17"
 hamcrest = "3.0"
-mockito = "5.20.0"
+mockito = "5.21.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.1"
-vanniktech-maven-publish = "0.35.0"
 
 [libraries]
 # Jetty dependencies
@@ -106,6 +105,7 @@ jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
 commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
+commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.20.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.18" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
@@ -120,12 +120,12 @@ jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess"
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
 jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
 
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
+
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven-publish" }
-vanniktech-maven-publish-base = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktech-maven-publish" }
 spotless = { id = "com.diffplug.spotless", version = "8.1.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
-sonarqube = { id = "org.sonarqube", version = "7.1.0.6387" }
+sonarqube = { id = "org.sonarqube", version = "7.2.2.6593" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }

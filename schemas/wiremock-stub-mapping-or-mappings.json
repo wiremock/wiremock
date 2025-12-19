@@ -159,6 +159,16 @@
         "$ref" : "#/definitions/has-exactly-multivalue-pattern"
       }, {
         "$ref" : "#/definitions/includes-multivalue-pattern"
+      }, {
+        "$ref" : "#/definitions/equal-to-number-pattern"
+      }, {
+        "$ref" : "#/definitions/greater-than-number-pattern"
+      }, {
+        "$ref" : "#/definitions/greater-than-equal-number-pattern"
+      }, {
+        "$ref" : "#/definitions/less-than-number-pattern"
+      }, {
+        "$ref" : "#/definitions/less-than-equal-number-pattern"
       } ]
     },
     "dateTimeExpression" : {
@@ -297,6 +307,16 @@
       },
       "required" : [ "equalToJson" ]
     },
+    "equal-to-number-pattern" : {
+      "title" : "Number equals",
+      "type" : "object",
+      "properties" : {
+        "equalToNumber" : {
+          "type" : "number"
+        }
+      },
+      "required" : [ "equalToNumber" ]
+    },
     "equal-to-pattern" : {
       "title" : "String equals",
       "type" : "object",
@@ -336,6 +356,26 @@
         }
       },
       "required" : [ "equalToXml" ]
+    },
+    "greater-than-equal-number-pattern" : {
+      "title" : "Number greater than or equal",
+      "type" : "object",
+      "properties" : {
+        "greaterThanEqualNumber" : {
+          "type" : "number"
+        }
+      },
+      "required" : [ "greaterThanEqualNumber" ]
+    },
+    "greater-than-number-pattern" : {
+      "title" : "Number greater than",
+      "type" : "object",
+      "properties" : {
+        "greaterThanNumber" : {
+          "type" : "number"
+        }
+      },
+      "required" : [ "greaterThanNumber" ]
     },
     "has-exactly-multivalue-pattern" : {
       "title" : "Has exactly multi value matcher",
@@ -425,6 +465,26 @@
         }
       },
       "required" : [ "includes" ]
+    },
+    "less-than-equal-number-pattern" : {
+      "title" : "Number less than or equal",
+      "type" : "object",
+      "properties" : {
+        "lessThanEqualNumber" : {
+          "type" : "number"
+        }
+      },
+      "required" : [ "lessThanEqualNumber" ]
+    },
+    "less-than-number-pattern" : {
+      "title" : "Number less than",
+      "type" : "object",
+      "properties" : {
+        "lessThanNumber" : {
+          "type" : "number"
+        }
+      },
+      "required" : [ "lessThanNumber" ]
     },
     "logged-request" : {
       "type" : "object",

@@ -180,9 +180,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       }
     }
 
-    if (responseDefinition.getHeaders() != null) {
-      httpHeaders.addAll(responseDefinition.getHeaders().all());
-    }
+    httpHeaders.addAll(responseDefinition.getHeaders().all());
 
     return new HttpHeaders(httpHeaders);
   }
@@ -192,9 +190,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       ResponseDefinition response,
       Request originalRequest) {
     List<String> removeProxyRequestHeaders =
-        response.getRemoveProxyRequestHeaders() == null
-            ? Collections.emptyList()
-            : response.getRemoveProxyRequestHeaders().stream().map(String::toLowerCase).toList();
+        response.getRemoveProxyRequestHeaders().stream().map(String::toLowerCase).toList();
     for (String key : originalRequest.getAllHeaderKeys()) {
       String lowerCaseKey = key.toLowerCase();
       if (removeProxyRequestHeaders.contains(lowerCaseKey)) {
@@ -213,7 +209,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       }
     }
 
-    if (response.getAdditionalProxyRequestHeaders() != null) {
+    {
       for (String key : response.getAdditionalProxyRequestHeaders().keys()) {
         requestBuilder.withHeader(
             key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());

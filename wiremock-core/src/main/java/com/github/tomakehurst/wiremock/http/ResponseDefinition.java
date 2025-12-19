@@ -23,6 +23,7 @@ import static java.net.HttpURLConnection.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -30,27 +31,30 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
 
+@JsonInclude(Include.NON_NULL)
 public class ResponseDefinition {
 
   private final int status;
   private final String statusMessage;
   private final Body body;
   private final String bodyFileName;
-  private final HttpHeaders headers;
-  private final HttpHeaders additionalProxyRequestHeaders;
-  private final List<String> removeProxyRequestHeaders;
+  @NonNull private final HttpHeaders headers;
+  @NonNull private final HttpHeaders additionalProxyRequestHeaders;
+  @NonNull private final List<String> removeProxyRequestHeaders;
   private final Integer fixedDelayMilliseconds;
   private final DelayDistribution delayDistribution;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String proxyBaseUrl;
   private final String proxyUrlPrefixToRemove;
   private final Fault fault;
-  private final List<String> transformers;
-  private final Parameters transformerParameters;
+  @NonNull private final List<String> transformers;
+  @NonNull private final Parameters transformerParameters;
 
   private final String browserProxyUrl;
   private final Boolean wasConfigured;
@@ -119,17 +123,20 @@ public class ResponseDefinition {
     this.body = body;
     this.bodyFileName = bodyFileName;
 
-    this.headers = headers;
-    this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
-    this.removeProxyRequestHeaders = removeProxyRequestHeaders;
+    this.headers = headers != null ? headers : new HttpHeaders();
+    this.additionalProxyRequestHeaders =
+        additionalProxyRequestHeaders != null ? additionalProxyRequestHeaders : new HttpHeaders();
+    this.removeProxyRequestHeaders =
+        removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : List.of();
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.proxyBaseUrl = proxyBaseUrl == null ? null : proxyBaseUrl.trim();
     this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
     this.fault = fault;
-    this.transformers = transformers;
-    this.transformerParameters = transformerParameters;
+    this.transformers = transformers != null ? List.copyOf(transformers) : List.of();
+    this.transformerParameters =
+        transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
   }
@@ -240,14 +247,20 @@ public class ResponseDefinition {
     return new Builder(this);
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public HttpHeaders getHeaders() {
     return headers;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public HttpHeaders getAdditionalProxyRequestHeaders() {
     return additionalProxyRequestHeaders;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public List<String> getRemoveProxyRequestHeaders() {
     return removeProxyRequestHeaders;
   }
@@ -360,17 +373,19 @@ public class ResponseDefinition {
   }
 
   @JsonInclude(NON_EMPTY)
+  @NonNull
   public List<String> getTransformers() {
     return transformers;
   }
 
   @JsonInclude(NON_EMPTY)
+  @NonNull
   public Parameters getTransformerParameters() {
     return transformerParameters;
   }
 
   public boolean hasTransformer(Extension transformer) {
-    return transformers != null && transformers.contains(transformer.getName());
+    return transformers.contains(transformer.getName());
   }
 
   @Override
@@ -424,22 +439,23 @@ public class ResponseDefinition {
     return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     private int status = 200;
     private String statusMessage;
     private Body body = Body.none();
     private String bodyFileName;
-    private HttpHeaders headers;
-    private HttpHeaders additionalProxyRequestHeaders;
-    private List<String> removeProxyRequestHeaders;
+    @NonNull private HttpHeaders headers = new HttpHeaders();
+    @NonNull private HttpHeaders additionalProxyRequestHeaders = new HttpHeaders();
+    @NonNull private List<String> removeProxyRequestHeaders = new ArrayList<>();
     private Integer fixedDelayMilliseconds;
     private DelayDistribution delayDistribution;
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String proxyBaseUrl;
     private String proxyUrlPrefixToRemove;
     private Fault fault;
-    private List<String> transformers;
-    private Parameters transformerParameters;
+    @NonNull private List<String> transformers = new ArrayList<>();
+    @NonNull private Parameters transformerParameters = Parameters.empty();
     private String browserProxyUrl;
     private Boolean wasConfigured = true;
     private Request originalRequest;
@@ -453,14 +469,14 @@ public class ResponseDefinition {
       this.bodyFileName = original.bodyFileName;
       this.headers = original.headers;
       this.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
-      this.removeProxyRequestHeaders = original.removeProxyRequestHeaders;
+      this.removeProxyRequestHeaders.addAll(original.removeProxyRequestHeaders);
       this.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
       this.delayDistribution = original.delayDistribution;
       this.chunkedDribbleDelay = original.chunkedDribbleDelay;
       this.proxyBaseUrl = original.proxyBaseUrl;
       this.proxyUrlPrefixToRemove = original.proxyUrlPrefixToRemove;
       this.fault = original.fault;
-      this.transformers = original.transformers;
+      this.transformers.addAll(original.transformers);
       this.transformerParameters = original.transformerParameters;
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;
@@ -482,14 +498,17 @@ public class ResponseDefinition {
       return bodyFileName;
     }
 
+    @NonNull
     public HttpHeaders getHeaders() {
       return headers;
     }
 
+    @NonNull
     public HttpHeaders getAdditionalProxyRequestHeaders() {
       return additionalProxyRequestHeaders;
     }
 
+    @NonNull
     public List<String> getRemoveProxyRequestHeaders() {
       return removeProxyRequestHeaders;
     }
@@ -518,10 +537,12 @@ public class ResponseDefinition {
       return fault;
     }
 
+    @NonNull
     public List<String> getTransformers() {
       return transformers;
     }
 
+    @NonNull
     public Parameters getTransformerParameters() {
       return transformerParameters;
     }
@@ -558,7 +579,8 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setHeaders(HttpHeaders headers) {
+    public Builder setHeaders(@NonNull HttpHeaders headers) {
+      Objects.requireNonNull(headers);
       this.headers = headers;
       return this;
     }
@@ -568,12 +590,15 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setAdditionalProxyRequestHeaders(HttpHeaders additionalProxyRequestHeaders) {
+    public Builder setAdditionalProxyRequestHeaders(
+        @NonNull HttpHeaders additionalProxyRequestHeaders) {
+      Objects.requireNonNull(additionalProxyRequestHeaders);
       this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
       return this;
     }
 
-    public Builder setRemoveProxyRequestHeaders(List<String> removeProxyRequestHeaders) {
+    public Builder setRemoveProxyRequestHeaders(@NonNull List<String> removeProxyRequestHeaders) {
+      Objects.requireNonNull(removeProxyRequestHeaders);
       this.removeProxyRequestHeaders = removeProxyRequestHeaders;
       return this;
     }
@@ -608,12 +633,14 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setTransformers(List<String> transformers) {
+    public Builder setTransformers(@NonNull List<String> transformers) {
+      Objects.requireNonNull(transformers);
       this.transformers = transformers;
       return this;
     }
 
-    public Builder setTransformerParameters(Parameters transformerParameters) {
+    public Builder setTransformerParameters(@NonNull Parameters transformerParameters) {
+      Objects.requireNonNull(transformerParameters);
       this.transformerParameters = transformerParameters;
       return this;
     }

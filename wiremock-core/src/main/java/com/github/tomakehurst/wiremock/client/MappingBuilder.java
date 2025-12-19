@@ -101,7 +101,5 @@ public interface MappingBuilder {
 
   MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 
-  MappingBuilder willOpenWebsocket(String channelName);
-
   StubMapping build();
 }

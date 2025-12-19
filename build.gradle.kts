@@ -53,8 +53,10 @@ dependencies {
   testImplementation(libs.apache.http5.core)
   testImplementation(libs.guava)
   testImplementation(libs.handlebars)
+  testImplementation(libs.commons.lang)
 
   testImplementation(platform(libs.jackson.bom))
+  testImplementation(libs.jackson.core)
   testImplementation(libs.jackson.annotations)
 
   testImplementation(libs.jakarta.servlet.api)

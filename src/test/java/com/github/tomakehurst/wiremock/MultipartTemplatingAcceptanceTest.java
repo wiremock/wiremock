@@ -26,8 +26,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -235,16 +233,15 @@ public class MultipartTemplatingAcceptanceTest {
             + boundary
             + "--\r\n";
 
-    HttpEntity entity =
-        new StringEntity(rfc2387Body, ContentType.create("multipart/related", "UTF-8"));
-
     TestHttpHeader[] headers =
         new TestHttpHeader[] {
           new TestHttpHeader("Authorization", "Bearer token"),
           new TestHttpHeader("Content-Type", "multipart/related; boundary=" + boundary)
         };
 
-    WireMockResponse response = client.post("/templated?uploadType=multipart", entity, headers);
+    WireMockResponse response =
+        client.postWithBody(
+            "/templated?uploadType=multipart", rfc2387Body, "multipart/related", headers);
 
     assertThat(response.content(), is(expectBody));
     assertThat(response.statusCode(), is(404));

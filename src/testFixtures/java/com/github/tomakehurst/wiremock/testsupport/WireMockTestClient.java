@@ -17,23 +17,22 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
-import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.QUERY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
-import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.MimeType;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
@@ -42,34 +41,28 @@ import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 
+@SuppressWarnings("HttpUrlsUsage")
 public class WireMockTestClient {
 
   private static final String LOCAL_WIREMOCK_ROOT = "http://%s:%d%s";
-  private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings";
-  private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL = "http://%s:%d/__admin/mappings/%s";
-  private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL =
-      "http://%s:%d/__admin/mappings/reset";
   private static final String LOCAL_WIREMOCK_SNAPSHOT_PATH = "/__admin/recordings/snapshot";
 
-  private int port;
-  private String address;
+  private final int port;
+  private final String address;
 
   private final CloseableHttpClient client;
 
@@ -92,33 +85,17 @@ public class WireMockTestClient {
     return String.format(LOCAL_WIREMOCK_ROOT, address, port, path);
   }
 
-  private String newMappingUrl() {
-    return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, address, port);
-  }
-
-  private String editMappingUrl(UUID stubId) {
-    return String.format(LOCAL_WIREMOCK_EDIT_RESPONSE_URL, address, port, stubId);
-  }
-
-  private String resetDefaultMappingsUrl() {
-    return String.format(LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL, address, port);
-  }
-
   public WireMockResponse get(String url, TestHttpHeader... headers) {
-    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
-    HttpUriRequest httpRequest = new HttpGet(actualUrl);
-    return executeMethodAndConvertExceptions(httpRequest, headers);
+    return execute(RequestMethod.GET, url, null, null, null, headers);
   }
 
   public WireMockResponse head(String url, TestHttpHeader... headers) {
-    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
-    HttpUriRequest httpUriRequest = new HttpHead(actualUrl);
-    return executeMethodAndConvertExceptions(httpUriRequest, headers);
+    return execute(RequestMethod.HEAD, url, null, null, null, headers);
   }
 
   public WireMockResponse getWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    return requestWithBody("GET", url, body, contentType, headers);
+    return execute(RequestMethod.GET, url, body, contentType, null, headers);
   }
 
   public WireMockResponse getViaProxy(String url) {
@@ -168,54 +145,43 @@ public class WireMockTestClient {
   }
 
   public WireMockResponse put(String url, TestHttpHeader... headers) {
-    HttpUriRequest httpRequest = new HttpPut(mockServiceUrlFor(url));
-    return executeMethodAndConvertExceptions(httpRequest, headers);
+    return execute(RequestMethod.PUT, url, null, null, null, headers);
   }
 
   public WireMockResponse putWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    HttpPut httpPut = new HttpPut(mockServiceUrlFor(url));
-    return requestWithBody(httpPut, body, contentType, headers);
+    return execute(RequestMethod.PUT, url, body, contentType, null, headers);
   }
 
   public WireMockResponse patchWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    HttpPatch httpPatch = new HttpPatch(mockServiceUrlFor(url));
-    return requestWithBody(httpPatch, body, contentType, headers);
+    return execute(RequestMethod.PATCH, url, body, contentType, null, headers);
   }
 
-  private WireMockResponse requestWithBody(
-      ClassicHttpRequest request, String body, String contentType, TestHttpHeader... headers) {
-    request.setEntity(new StringEntity(body, ContentType.create(contentType, "utf-8")));
-    return executeMethodAndConvertExceptions(request, headers);
+  public WireMockResponse post(String url, TestHttpHeader... headers) {
+    return execute(RequestMethod.POST, url, null, null, null, headers);
+  }
+
+  public WireMockResponse postWithBody(String url, String body, TestHttpHeader... headers) {
+    return execute(RequestMethod.POST, url, body, null, null, headers);
   }
 
   public WireMockResponse query(String url, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery =
-        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
-    return executeMethodAndConvertExceptions(httpQuery);
-  }
-
-  public WireMockResponse query(String url, HttpEntity entity, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery =
-        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
-    httpQuery.setEntity(entity);
-    return executeMethodAndConvertExceptions(httpQuery, headers);
+    return execute(QUERY, url, null, null, null, headers);
   }
 
   public WireMockResponse queryWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    HttpUriRequest httpQuery =
-        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
-    return requestWithBody(httpQuery, body, contentType, headers);
+    return execute(QUERY, url, body, contentType, null, headers);
   }
 
   public WireMockResponse queryXml(String url, String body, TestHttpHeader... headers) {
-    return queryWithBody(url, body, APPLICATION_XML.getMimeType(), headers);
+    return queryWithBody(url, body, "application/xml", headers);
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public WireMockResponse queryJson(String url, String body, TestHttpHeader... headers) {
-    return queryWithBody(url, body, APPLICATION_JSON.getMimeType(), headers);
+    return queryWithBody(url, body, "application/json", headers);
   }
 
   public WireMockResponse queryWithMultiparts(
@@ -228,12 +194,25 @@ public class WireMockTestClient {
       }
     }
 
-    return query(url, builder.build(), headers);
+    HttpEntity entity = builder.build();
+    HttpUriRequest httpQuery =
+        new HttpUriRequestBase(QUERY.toString(), URI.create(mockServiceUrlFor(url)));
+    httpQuery.setEntity(entity);
+    return executeMethodAndConvertExceptions(httpQuery, headers);
   }
 
   public WireMockResponse postWithBody(
-      String url, String body, String bodyMimeType, String bodyEncoding) {
-    return post(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
+      String url, String body, String bodyMimeType, TestHttpHeader... headers) {
+    return execute(RequestMethod.POST, url, body, bodyMimeType, null, headers);
+  }
+
+  public WireMockResponse postWithBody(
+      String url,
+      String body,
+      String bodyMimeType,
+      String bodyEncoding,
+      TestHttpHeader... headers) {
+    return execute(RequestMethod.POST, url, body, bodyMimeType, bodyEncoding, headers);
   }
 
   public WireMockResponse postWithMultiparts(
@@ -249,10 +228,12 @@ public class WireMockTestClient {
     return post(url, builder.build(), headers);
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public WireMockResponse postWithChunkedBody(String url, byte[] body) {
     return post(url, new InputStreamEntity(new ByteArrayInputStream(body), -1, DEFAULT_BINARY));
   }
 
+  // TODO break dependency on `HttpEntity` so we are decoupled from Apache HTTP Client in the API
   public WireMockResponse post(String url, HttpEntity entity, TestHttpHeader... headers) {
     HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
     httpPost.setEntity(entity);
@@ -260,60 +241,44 @@ public class WireMockTestClient {
   }
 
   public WireMockResponse postJson(String url, String body, TestHttpHeader... headers) {
-    HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
-    httpPost.setEntity(new StringEntity(body, APPLICATION_JSON));
-    return executeMethodAndConvertExceptions(httpPost, headers);
+    return postWithBody(url, body, headers);
   }
 
   public WireMockResponse putJson(String url, String body, TestHttpHeader... headers) {
-    return putWithBody(url, body, APPLICATION_JSON.getMimeType(), headers);
+    return putWithBody(url, body, MimeType.JSON.toString(), headers);
   }
 
   public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
-    HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
-    httpPost.setEntity(new StringEntity(body, APPLICATION_XML));
-    return executeMethodAndConvertExceptions(httpPost, headers);
+    return execute(POST, url, body, "application/xml", null, headers);
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public WireMockResponse patchWithBody(
       String url, String body, String bodyMimeType, String bodyEncoding) {
-    return patch(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
-  }
-
-  public WireMockResponse patch(String url, HttpEntity entity) {
-    HttpPatch httpPatch = new HttpPatch(mockServiceUrlFor(url));
-    httpPatch.setEntity(entity);
-    return executeMethodAndConvertExceptions(httpPatch);
+    return execute(PATCH, url, body, bodyMimeType, bodyEncoding);
   }
 
   public WireMockResponse delete(String url) {
-    HttpDelete httpDelete = new HttpDelete(mockServiceUrlFor(url));
-    return executeMethodAndConvertExceptions(httpDelete);
+    return execute(DELETE, url, null, null, null);
   }
 
   public WireMockResponse deleteWithBody(
       String url, String body, String contentType, TestHttpHeader... headers) {
-    return requestWithBody("DELETE", url, body, contentType, headers);
+    return execute(DELETE, url, body, contentType, null, headers);
   }
 
   public WireMockResponse options(String url, TestHttpHeader... headers) {
-    HttpOptions httpOptions = new HttpOptions(mockServiceUrlFor(url));
-    return executeMethodAndConvertExceptions(httpOptions, headers);
-  }
-
-  private WireMockResponse requestWithBody(
-      String method, String url, String body, String contentType, TestHttpHeader[] headers) {
-    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
-    ClassicHttpRequest httpRequest = ClassicRequestBuilder.create(method).setUri(actualUrl).build();
-    return requestWithBody(httpRequest, body, contentType, headers);
+    return execute(OPTIONS, url, null, null, null, headers);
   }
 
   public void addResponse(String responseSpecJson) {
-    addResponse(responseSpecJson, "utf-8");
+    addResponse(responseSpecJson, "UTF-8");
   }
 
   public void addResponse(String responseSpecJson, String charset) {
-    int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson, charset);
+    int status =
+        postWithBody("/__admin/mappings", responseSpecJson, MimeType.JSON.toString(), charset)
+            .statusCode();
     if (status != HTTP_CREATED) {
       throw new RuntimeException("Returned status code was " + status);
     }
@@ -321,14 +286,16 @@ public class WireMockTestClient {
 
   public void editMapping(String mappingSpecJson) {
     StubMapping stubMapping = Json.read(mappingSpecJson, StubMapping.class);
-    int status = putJsonAndReturnStatus(editMappingUrl(stubMapping.getId()), mappingSpecJson);
+    WireMockResponse wireMockResponse =
+        putJson("/__admin/mappings/" + stubMapping.getId(), mappingSpecJson);
+    int status = wireMockResponse.statusCode();
     if (status != HTTP_OK) {
       throw new RuntimeException("Returned status code was " + status);
     }
   }
 
   public void resetDefaultMappings() {
-    int status = postEmptyBodyAndReturnStatus(resetDefaultMappingsUrl());
+    int status = post("/__admin/mappings/reset").statusCode();
     if (status != HTTP_OK) {
       throw new RuntimeException("Returned status code was " + status);
     }
@@ -342,59 +309,44 @@ public class WireMockTestClient {
     return response.content();
   }
 
-  private int postJsonAndReturnStatus(String url, String json) {
-    return postJsonAndReturnStatus(url, json, "utf-8");
+  private WireMockResponse execute(
+      RequestMethod method,
+      String url,
+      String body,
+      String contentType,
+      String charset,
+      TestHttpHeader... headers) {
+    return execute(method.getName(), url, body, contentType, charset, headers);
   }
 
-  private int postJsonAndReturnStatus(String url, String json, String charset) {
-    HttpPost post = new HttpPost(url);
-    try {
-      if (json != null) {
-        post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
-      }
-      ClassicHttpResponse httpResponse = client.execute(post);
-      return httpResponse.getCode();
-    } catch (RuntimeException re) {
-      throw re;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+  private WireMockResponse execute(
+      String method,
+      String url,
+      String body,
+      String contentType,
+      String charset,
+      TestHttpHeader... headers) {
+    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
+    ClassicHttpRequest httpRequest = new HttpUriRequestBase(method, URI.create(actualUrl));
+    if (body != null) {
+      ContentType type =
+          contentType != null ? ContentType.create(contentType) : ContentType.APPLICATION_JSON;
+      Charset charsetEnc = charset == null ? UTF_8 : Charset.forName(charset);
+      StringEntity entity = new StringEntity(body, type.withCharset(charsetEnc));
+      httpRequest.setEntity(entity);
     }
-  }
-
-  private int putJsonAndReturnStatus(String url, String json) {
-    return putJsonAndReturnStatus(url, json, "utf-8");
-  }
-
-  private int putJsonAndReturnStatus(String url, String json, String charset) {
-    HttpPut post = new HttpPut(url);
-    try {
-      if (json != null) {
-        post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
-      }
-      ClassicHttpResponse httpResponse = client.execute(post);
-      return httpResponse.getCode();
-    } catch (RuntimeException re) {
-      throw re;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private int postEmptyBodyAndReturnStatus(String url) {
-    return postJsonAndReturnStatus(url, null);
+    return executeMethodAndConvertExceptions(httpRequest, headers);
   }
 
   private WireMockResponse executeMethodAndConvertExceptions(
       ClassicHttpRequest httpRequest, TestHttpHeader... headers) {
-    try {
-      for (TestHttpHeader header : headers) {
-        httpRequest.addHeader(header.getName(), header.getValue());
-      }
-      try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
-        return new WireMockResponse(httpResponse);
-      }
+    for (TestHttpHeader header : headers) {
+      httpRequest.addHeader(header.getName(), header.getValue());
+    }
+    try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
+      return new WireMockResponse(httpResponse);
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      return throwUnchecked(ioe, null);
     }
   }
 
@@ -408,27 +360,21 @@ public class WireMockTestClient {
     HttpHost target = new HttpHost("localhost", port);
     localContext.resetAuthExchange(target, basicAuth);
 
-    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-      HttpGet httpget = new HttpGet(url);
-      CloseableHttpResponse response = httpClient.execute(target, httpget, localContext);
+    HttpGet httpget = new HttpGet(url);
+    try (CloseableHttpResponse response = client.execute(target, httpget, localContext)) {
       return new WireMockResponse(response);
     } catch (IOException e) {
-      return throwUnchecked(e, WireMockResponse.class);
+      return throwUnchecked(e, null);
     }
   }
 
   public WireMockResponse request(final String methodName, String url, TestHttpHeader... headers) {
-    HttpUriRequest httpRequest =
-        new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
-    return executeMethodAndConvertExceptions(httpRequest, headers);
+    return execute(methodName, url, null, null, null, headers);
   }
 
   public WireMockResponse request(
       final String methodName, String url, String body, TestHttpHeader... headers) {
-    HttpUriRequest httpRequest =
-        new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
-    httpRequest.setEntity(new StringEntity(body));
-    return executeMethodAndConvertExceptions(httpRequest, headers);
+    return execute(methodName, url, body, null, null, headers);
   }
 
   private static CloseableHttpClient httpClient() {

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -24,6 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +44,7 @@ class ScenarioProcessor {
         stubsGroupedByRequest.entrySet().stream()
             .filter(entry -> entry.getValue().size() > 1)
             .collect(
-                Collectors.toMap(
+                toMap(
                     Map.Entry::getKey,
                     Map.Entry::getValue,
                     (entry1, entry2) -> entry1,
@@ -59,14 +61,12 @@ class ScenarioProcessor {
       stubsInScenario.addAll(putStubsInScenario(scenarioIndex, batch));
     }
 
+    Map<UUID, StubMapping> stubsInScenarioById =
+        stubsInScenario.stream().collect(toMap(StubMapping::getId, Function.identity()));
+
     return stubMappings.stream()
-        .map(
-            originalStub ->
-                stubsInScenario.stream()
-                    .filter(stubMapping -> stubMapping.getId().equals(originalStub.getId()))
-                    .findFirst()
-                    .orElse(originalStub))
-        .collect(toList());
+        .map(originalStub -> stubsInScenarioById.getOrDefault(originalStub.getId(), originalStub))
+        .toList();
   }
 
   private List<StubMapping> putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {

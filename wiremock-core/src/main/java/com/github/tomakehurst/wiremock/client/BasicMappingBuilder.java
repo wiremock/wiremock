@@ -47,9 +47,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
-  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
-  private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
-  private Metadata metadata;
+  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+  private final List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
+  private Metadata metadata = new Metadata();
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
     requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
@@ -66,12 +66,6 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   @Override
   public BasicMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
     this.responseDefBuilder = responseDefBuilder;
-    return this;
-  }
-
-  @Override
-  public MappingBuilder willOpenWebsocket(String channelName) {
-    this.responseDefBuilder = ResponseDefinitionBuilder.websocket(channelName);
     return this;
   }
 
@@ -323,8 +317,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         .setId(id)
         .setName(name)
         .setPersistent(isPersistent)
-        .setPostServeActions(postServeActions.isEmpty() ? null : postServeActions)
-        .setServeEventListeners(serveEventListeners.isEmpty() ? null : serveEventListeners)
+        .setPostServeActions(postServeActions)
+        .setServeEventListeners(serveEventListeners)
         .setMetadata(metadata)
         .build();
   }

@@ -26,8 +26,12 @@ import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
@@ -37,11 +41,14 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.jspecify.annotations.NonNull;
 
+@JsonInclude(Include.NON_NULL)
 public class RequestPattern implements NamedValueMatcher<Request> {
 
   private final String scheme;
@@ -50,19 +57,19 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final StringValuePattern clientIp;
   private final UrlPattern url;
   private final RequestMethod method;
-  private final Map<String, MultiValuePattern> headers;
+  @NonNull private final Map<String, MultiValuePattern> headers;
 
-  private final Map<String, StringValuePattern> pathParams;
-  private final Map<String, MultiValuePattern> queryParams;
-  private final Map<String, MultiValuePattern> formParams;
-  private final Map<String, StringValuePattern> cookies;
+  @NonNull private final Map<String, StringValuePattern> pathParams;
+  @NonNull private final Map<String, MultiValuePattern> queryParams;
+  @NonNull private final Map<String, MultiValuePattern> formParams;
+  @NonNull private final Map<String, StringValuePattern> cookies;
   private final BasicCredentials basicAuthCredentials;
-  private final List<ContentPattern<?>> bodyPatterns;
-  private final List<MultipartValuePattern> multipartPatterns;
+  @NonNull private final List<ContentPattern<?>> bodyPatterns;
+  @NonNull private final List<MultipartValuePattern> multipartPatterns;
 
   private final CustomMatcherDefinition customMatcherDefinition;
   private final ValueMatcher<Request> matcher;
-  private final boolean hasInlineCustomMatcher;
+  private final ValueMatcher<Request> inlineCustomMatcher;
 
   @JsonCreator
   public RequestPattern(
@@ -128,16 +135,16 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.clientIp = clientIp;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
-    this.headers = headers;
-    this.pathParams = pathParams;
-    this.formParams = formParams;
-    this.queryParams = queryParams;
-    this.cookies = cookies;
+    this.headers = headers != null ? ImmutableMap.copyOf(headers) : Map.of();
+    this.pathParams = pathParams != null ? ImmutableMap.copyOf(pathParams) : Map.of();
+    this.formParams = formParams != null ? ImmutableMap.copyOf(formParams) : Map.of();
+    this.queryParams = queryParams != null ? ImmutableMap.copyOf(queryParams) : Map.of();
+    this.cookies = cookies != null ? ImmutableMap.copyOf(cookies) : Map.of();
     this.basicAuthCredentials = basicAuthCredentials;
-    this.bodyPatterns = bodyPatterns;
+    this.bodyPatterns = bodyPatterns != null ? List.copyOf(bodyPatterns) : List.of();
     this.customMatcherDefinition = customMatcherDefinition;
-    this.multipartPatterns = multiPattern;
-    this.hasInlineCustomMatcher = customMatcher != null;
+    this.multipartPatterns = multiPattern != null ? List.copyOf(multiPattern) : List.of();
+    this.inlineCustomMatcher = customMatcher;
 
     this.matcher =
         new RequestMatcher() {
@@ -171,7 +178,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
             matchResult =
                 new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
-            if (!matchResult.isExactMatch() || !hasInlineCustomMatcher) {
+            if (!matchResult.isExactMatch() || customMatcher == null) {
               return matchResult;
             }
 
@@ -221,7 +228,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   private MatchResult allCookiesMatch(final Request request) {
-    if (cookies != null && !cookies.isEmpty()) {
+    if (!cookies.isEmpty()) {
       return MatchResult.aggregate(
           cookies.entrySet().stream()
               .map(
@@ -292,7 +299,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   private MatchResult allQueryParamsMatch(final Request request) {
-    if (queryParams != null && !queryParams.isEmpty()) {
+    if (!queryParams.isEmpty()) {
       return MatchResult.aggregate(
           queryParams.entrySet().stream()
               .map(
@@ -307,7 +314,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   private MatchResult allFormParamsMatch(final Request request) {
-    if (formParams != null && !formParams.isEmpty()) {
+    if (!formParams.isEmpty()) {
       return MatchResult.aggregate(
           formParams.entrySet().stream()
               .map(
@@ -322,9 +329,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   private MatchResult allPathParamsMatch(final Request request) {
-    if (url.getClass().equals(UrlPathTemplatePattern.class)
-        && pathParams != null
-        && !pathParams.isEmpty()) {
+    if (url.getClass().equals(UrlPathTemplatePattern.class) && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
       if (!pathTemplate.matches(request.getUrl())) {
@@ -343,7 +348,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private MatchResult allBodyPatternsMatch(final Request request) {
-    if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
+    if (!bodyPatterns.isEmpty() && request.getBody() != null) {
       return MatchResult.aggregate(
           bodyPatterns.stream()
               .map(
@@ -364,7 +369,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   private MatchResult allMultipartPatternsMatch(final Request request) {
-    if (multipartPatterns != null && !multipartPatterns.isEmpty()) {
+    if (!multipartPatterns.isEmpty()) {
       if (!request.isMultipart()) {
         return MatchResult.noMatch();
       }
@@ -433,6 +438,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return method;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Map<String, MultiValuePattern> getHeaders() {
     return headers;
   }
@@ -441,22 +448,32 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return basicAuthCredentials;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Map<String, StringValuePattern> getPathParameters() {
     return pathParams;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Map<String, MultiValuePattern> getQueryParameters() {
     return queryParams;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Map<String, MultiValuePattern> getFormParameters() {
     return formParams;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public Map<String, StringValuePattern> getCookies() {
     return cookies;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public List<ContentPattern<?>> getBodyPatterns() {
     return bodyPatterns;
   }
@@ -465,13 +482,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return customMatcherDefinition;
   }
 
+  @JsonInclude(Include.NON_EMPTY)
+  @NonNull
   public List<MultipartValuePattern> getMultipartPatterns() {
     return multipartPatterns;
   }
 
   @JsonIgnore
-  public ValueMatcher<Request> getMatcher() {
-    return matcher;
+  public ValueMatcher<Request> getInlineCustomMatcher() {
+    return inlineCustomMatcher;
   }
 
   @Override
@@ -485,7 +504,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public boolean hasInlineCustomMatcher() {
-    return hasInlineCustomMatcher;
+    return inlineCustomMatcher != null;
   }
 
   public boolean hasNamedCustomMatcher() {
@@ -501,8 +520,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     RequestPattern that = (RequestPattern) o;
-    return hasInlineCustomMatcher == that.hasInlineCustomMatcher
-        && Objects.equals(scheme, that.scheme)
+    return Objects.equals(scheme, that.scheme)
         && Objects.equals(host, that.host)
         && Objects.equals(port, that.port)
         && Objects.equals(clientIp, that.clientIp)
@@ -517,7 +535,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && Objects.equals(bodyPatterns, that.bodyPatterns)
         && Objects.equals(multipartPatterns, that.multipartPatterns)
         && Objects.equals(customMatcherDefinition, that.customMatcherDefinition)
-        && Objects.equals(matcher, that.matcher);
+        && Objects.equals(inlineCustomMatcher, that.inlineCustomMatcher);
   }
 
   @Override
@@ -538,8 +556,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         bodyPatterns,
         multipartPatterns,
         customMatcherDefinition,
-        matcher,
-        hasInlineCustomMatcher);
+        inlineCustomMatcher);
   }
 
   @Override
@@ -565,6 +582,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return serveEvent -> pattern.match(serveEvent.getRequest(), customMatchers).isExactMatch();
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     private String scheme;
     private StringValuePattern host;
@@ -572,19 +590,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private StringValuePattern clientIp;
     private UrlPattern url;
     private RequestMethod method;
-    private Map<String, MultiValuePattern> headers;
+    @NonNull private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
 
-    private Map<String, StringValuePattern> pathParams;
-    private Map<String, MultiValuePattern> queryParams;
-    private Map<String, MultiValuePattern> formParams;
-    private Map<String, StringValuePattern> cookies;
+    @NonNull private Map<String, StringValuePattern> pathParams = new LinkedHashMap<>();
+    @NonNull private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
+    @NonNull private Map<String, MultiValuePattern> formParams = new LinkedHashMap<>();
+    @NonNull private Map<String, StringValuePattern> cookies = new LinkedHashMap<>();
     private BasicCredentials basicAuthCredentials;
-    private List<ContentPattern<?>> bodyPatterns;
-    private List<MultipartValuePattern> multipartPatterns;
+    @NonNull private List<ContentPattern<?>> bodyPatterns = new ArrayList<>();
+    @NonNull private List<MultipartValuePattern> multipartPatterns = new ArrayList<>();
 
     private CustomMatcherDefinition customMatcherDefinition;
-    private ValueMatcher<Request> matcher;
-    private boolean hasInlineCustomMatcher;
+    private ValueMatcher<Request> inlineCustomMatcher;
 
     public Builder() {}
 
@@ -595,17 +612,16 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       this.clientIp = existing.getClientIp();
       this.url = existing.getUrlMatcher();
       this.method = existing.getMethod();
-      this.headers = existing.getHeaders();
-      this.pathParams = existing.getPathParameters();
-      this.queryParams = existing.getQueryParameters();
-      this.formParams = existing.getFormParameters();
-      this.cookies = existing.getCookies();
+      this.headers.putAll(existing.getHeaders());
+      this.pathParams.putAll(existing.getPathParameters());
+      this.queryParams.putAll(existing.getQueryParameters());
+      this.formParams.putAll(existing.getFormParameters());
+      this.cookies.putAll(existing.getCookies());
       this.basicAuthCredentials = existing.getBasicAuthCredentials();
-      this.bodyPatterns = existing.getBodyPatterns();
-      this.multipartPatterns = existing.getMultipartPatterns();
+      this.bodyPatterns.addAll(existing.getBodyPatterns());
+      this.multipartPatterns.addAll(existing.getMultipartPatterns());
       this.customMatcherDefinition = existing.getCustomMatcher();
-      this.matcher = existing.getMatcher();
-      this.hasInlineCustomMatcher = existing.hasInlineCustomMatcher();
+      this.inlineCustomMatcher = existing.getInlineCustomMatcher();
     }
 
     public String getScheme() {
@@ -632,22 +648,27 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return method;
     }
 
+    @NonNull
     public Map<String, MultiValuePattern> getHeaders() {
       return headers;
     }
 
+    @NonNull
     public Map<String, StringValuePattern> getPathParams() {
       return pathParams;
     }
 
+    @NonNull
     public Map<String, MultiValuePattern> getQueryParams() {
       return queryParams;
     }
 
+    @NonNull
     public Map<String, MultiValuePattern> getFormParams() {
       return formParams;
     }
 
+    @NonNull
     public Map<String, StringValuePattern> getCookies() {
       return cookies;
     }
@@ -656,10 +677,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return basicAuthCredentials;
     }
 
+    @NonNull
     public List<ContentPattern<?>> getBodyPatterns() {
       return bodyPatterns;
     }
 
+    @NonNull
     public List<MultipartValuePattern> getMultipartPatterns() {
       return multipartPatterns;
     }
@@ -668,12 +691,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return customMatcherDefinition;
     }
 
-    public ValueMatcher<Request> getMatcher() {
-      return matcher;
-    }
-
-    public boolean isHasInlineCustomMatcher() {
-      return hasInlineCustomMatcher;
+    public ValueMatcher<Request> getInlineCustomMatcher() {
+      return inlineCustomMatcher;
     }
 
     public Builder setScheme(String scheme) {
@@ -706,27 +725,32 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return this;
     }
 
-    public Builder setHeaders(Map<String, MultiValuePattern> headers) {
+    public Builder setHeaders(@NonNull Map<String, MultiValuePattern> headers) {
+      Objects.requireNonNull(headers);
       this.headers = headers;
       return this;
     }
 
-    public Builder setPathParams(Map<String, StringValuePattern> pathParams) {
+    public Builder setPathParams(@NonNull Map<String, StringValuePattern> pathParams) {
+      Objects.requireNonNull(pathParams);
       this.pathParams = pathParams;
       return this;
     }
 
-    public Builder setQueryParams(Map<String, MultiValuePattern> queryParams) {
+    public Builder setQueryParams(@NonNull Map<String, MultiValuePattern> queryParams) {
+      Objects.requireNonNull(queryParams);
       this.queryParams = queryParams;
       return this;
     }
 
-    public Builder setFormParams(Map<String, MultiValuePattern> formParams) {
+    public Builder setFormParams(@NonNull Map<String, MultiValuePattern> formParams) {
+      Objects.requireNonNull(formParams);
       this.formParams = formParams;
       return this;
     }
 
-    public Builder setCookies(Map<String, StringValuePattern> cookies) {
+    public Builder setCookies(@NonNull Map<String, StringValuePattern> cookies) {
+      Objects.requireNonNull(cookies);
       this.cookies = cookies;
       return this;
     }
@@ -736,12 +760,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return this;
     }
 
-    public Builder setBodyPatterns(List<ContentPattern<?>> bodyPatterns) {
+    public Builder setBodyPatterns(@NonNull List<ContentPattern<?>> bodyPatterns) {
+      Objects.requireNonNull(bodyPatterns);
       this.bodyPatterns = bodyPatterns;
       return this;
     }
 
-    public Builder setMultipartPatterns(List<MultipartValuePattern> multipartPatterns) {
+    public Builder setMultipartPatterns(@NonNull List<MultipartValuePattern> multipartPatterns) {
+      Objects.requireNonNull(multipartPatterns);
       this.multipartPatterns = multipartPatterns;
       return this;
     }
@@ -751,17 +777,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return this;
     }
 
-    public Builder setMatcher(ValueMatcher<Request> matcher) {
-      this.matcher = matcher;
-      return this;
-    }
-
-    public Builder setHasInlineCustomMatcher(boolean hasInlineCustomMatcher) {
-      this.hasInlineCustomMatcher = hasInlineCustomMatcher;
+    public Builder setInlineCustomMatcher(ValueMatcher<Request> matcher) {
+      this.inlineCustomMatcher = matcher;
       return this;
     }
 
     public RequestPattern build() {
+      if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
+        throw new InvalidInputException(
+            Errors.single(
+                19, "URL path parameters specified without a path template as the URL matcher"));
+      }
+
       return new RequestPattern(
           scheme,
           host,
@@ -777,7 +804,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           basicAuthCredentials,
           bodyPatterns,
           customMatcherDefinition,
-          matcher,
+          inlineCustomMatcher,
           multipartPatterns);
     }
   }

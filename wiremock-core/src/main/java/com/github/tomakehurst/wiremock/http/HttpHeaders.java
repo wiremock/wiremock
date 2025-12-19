@@ -21,7 +21,9 @@ import static java.util.Arrays.asList;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -51,6 +53,10 @@ public class HttpHeaders {
 
   public HttpHeaders(HttpHeaders headers) {
     this(headers.all());
+  }
+
+  private HttpHeaders(Multimap<CaseInsensitiveKey, String> headers) {
+    this.headers = ImmutableMultimap.copyOf(headers);
   }
 
   public static HttpHeaders noHeaders() {
@@ -141,26 +147,75 @@ public class HttpHeaders {
     return new CaseInsensitiveKey(key);
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
-    private Map<CaseInsensitiveKey, HttpHeader> headers = new LinkedHashMap<>();
+    private final ListMultimap<CaseInsensitiveKey, String> headers =
+        MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
     public Builder() {}
 
     public Builder(HttpHeaders httpHeaders) {
-      httpHeaders.all().forEach(h -> headers.put(new CaseInsensitiveKey(h.key()), h));
+      headers.putAll(httpHeaders.headers);
     }
 
-    public Builder setAll(Map<CaseInsensitiveKey, HttpHeader> headers) {
-      this.headers = headers;
+    public Builder setAll(HttpHeader... headers) {
+      return setAll(List.of(headers));
+    }
+
+    public Builder setAll(Iterable<HttpHeader> headers) {
+      removeAll();
+      for (HttpHeader header : headers) {
+        add(header.caseInsensitiveKey(), header.values());
+      }
       return this;
     }
 
-    public Builder put(String key, String... values) {
-      return put(new CaseInsensitiveKey(key), values);
+    public Builder addAll(HttpHeader... headers) {
+      return addAll(List.of(headers));
     }
 
-    public Builder put(CaseInsensitiveKey key, String... values) {
-      headers.put(key, new HttpHeader(key, List.of(values)));
+    public Builder addAll(Iterable<HttpHeader> headers) {
+      for (HttpHeader header : headers) {
+        add(header.caseInsensitiveKey(), header.values());
+      }
+      return this;
+    }
+
+    public Builder set(String key, String... values) {
+      return set(new CaseInsensitiveKey(key), values);
+    }
+
+    public Builder set(CaseInsensitiveKey key, String... values) {
+      set(key, List.of(values));
+      return this;
+    }
+
+    public Builder set(String key, Iterable<String> values) {
+      return set(new CaseInsensitiveKey(key), values);
+    }
+
+    public Builder set(CaseInsensitiveKey key, Iterable<String> values) {
+      headers.replaceValues(key, values);
+      return this;
+    }
+
+    public Builder add(String key, String... values) {
+      add(new CaseInsensitiveKey(key), values);
+      return this;
+    }
+
+    public Builder add(CaseInsensitiveKey key, String... values) {
+      add(key, List.of(values));
+      return this;
+    }
+
+    public Builder add(String key, Iterable<String> values) {
+      add(new CaseInsensitiveKey(key), values);
+      return this;
+    }
+
+    public Builder add(CaseInsensitiveKey key, Iterable<String> values) {
+      headers.putAll(key, values);
       return this;
     }
 
@@ -169,7 +224,7 @@ public class HttpHeaders {
     }
 
     public Builder remove(CaseInsensitiveKey key) {
-      headers.remove(key);
+      headers.removeAll(key);
       return this;
     }
 
@@ -178,11 +233,11 @@ public class HttpHeaders {
       return this;
     }
 
-    public HttpHeader get(String key) {
+    public List<String> get(String key) {
       return get(new CaseInsensitiveKey(key));
     }
 
-    public HttpHeader get(CaseInsensitiveKey key) {
+    public List<String> get(CaseInsensitiveKey key) {
       return headers.get(key);
     }
 
@@ -191,7 +246,7 @@ public class HttpHeaders {
     }
 
     public HttpHeaders build() {
-      return new HttpHeaders(headers.values());
+      return new HttpHeaders(headers);
     }
   }
 }

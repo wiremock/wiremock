@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -50,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -139,7 +137,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/something-async", new StringEntity("", TEXT_PLAIN));
+    client.post("/something-async");
 
     waitForRequestToTargetServer();
 
@@ -198,7 +196,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    WireMockResponse response = client.post("/request-id", new StringEntity("", TEXT_PLAIN));
+    WireMockResponse response = client.post("/request-id");
     String requestId = response.content();
 
     waitForRequestToTargetServer();
@@ -225,7 +223,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/helpers", new StringEntity("", TEXT_PLAIN));
+    client.post("/helpers");
 
     waitForRequestToTargetServer();
 
@@ -278,7 +276,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/hook", new StringEntity("", TEXT_PLAIN));
+    client.post("/hook");
 
     waitForRequestToTargetServer();
 
@@ -307,11 +305,12 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     client.postJson(
         "/templating",
-        "{\n"
-            + "  \"callbackPath\": \"/callback/123\",\n"
-            + "  \"method\": \"POST\",\n"
-            + "  \"name\": \"Tom\"\n"
-            + "}");
+        """
+        {
+          "callbackPath": "/callback/123",
+          "method": "POST",
+          "name": "Tom"
+        }""");
 
     waitForRequestToTargetServer();
 
@@ -361,11 +360,12 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     client.postJson(
         "/templating",
-        "{\n"
-            + "  \"callbackPath\": \"/callback/123\",\n"
-            + "  \"method\": \"POST\",\n"
-            + "  \"name\": \"Tom\"\n"
-            + "}");
+        """
+        {
+          "callbackPath": "/callback/123",
+          "method": "POST",
+          "name": "Tom"
+        }""");
 
     waitForRequestToTargetServer();
 
@@ -396,7 +396,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+    client.post("/delayed");
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
@@ -438,7 +438,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+    client.post("/delayed");
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
@@ -466,7 +466,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                         .withHeader("X-Multi", "one", "two")
                         .withBody("{ \"result\": \"SUCCESS\" }")));
 
-    client.post("/webhook", new StringEntity("", TEXT_PLAIN));
+    client.post("/webhook");
 
     printAllInfoNotifications();
 
@@ -505,7 +505,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                     .withHeader("Content-Type", "application/json")
                     .withBody(body)));
 
-    client.post("/trigger-webhook", new StringEntity("", TEXT_PLAIN));
+    client.post("/trigger-webhook");
 
     waitForRequestToTargetServer();
 

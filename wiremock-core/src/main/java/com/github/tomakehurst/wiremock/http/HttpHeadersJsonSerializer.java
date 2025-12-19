@@ -39,4 +39,9 @@ public class HttpHeadersJsonSerializer extends JsonSerializer<HttpHeaders> {
     }
     jgen.writeEndObject();
   }
+
+  @Override
+  public boolean isEmpty(SerializerProvider provider, HttpHeaders value) {
+    return value.size() == 0;
+  }
 }

@@ -181,6 +181,26 @@ public class WireMock {
     return new EqualToPattern(value);
   }
 
+  public static StringValuePattern equalToNumber(Number value) {
+    return new EqualToNumberPattern(value);
+  }
+
+  public static StringValuePattern greaterThanNumber(Number value) {
+    return new GreaterThanNumberPattern(value);
+  }
+
+  public static StringValuePattern greaterThanEqualNumber(Number value) {
+    return new GreaterThanEqualNumberPattern(value);
+  }
+
+  public static StringValuePattern lessThanNumber(Number value) {
+    return new LessThanNumberPattern(value);
+  }
+
+  public static StringValuePattern lessThanEqualNumber(Number value) {
+    return new LessThanEqualNumberPattern(value);
+  }
+
   public static BinaryEqualToPattern binaryEqualTo(byte[] content) {
     return new BinaryEqualToPattern(content);
   }

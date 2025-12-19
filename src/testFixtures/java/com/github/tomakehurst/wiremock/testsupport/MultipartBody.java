@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import org.apache.hc.client5.http.entity.mime.AbstractContentBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
+// TODO break dependency on `AbstractContentBody` so we are decoupled from Apache HTTP Client in the
+// API
 public class MultipartBody extends AbstractContentBody {
   private final String name;
   private final byte[] body;

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -28,7 +29,19 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import org.xmlunit.diff.ComparisonType;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
@@ -36,6 +49,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
       Map.ofEntries(
           Map.entry("equalTo", EqualToPattern.class),
+          Map.entry("equalToNumber", EqualToNumberPattern.class),
           Map.entry("equalToJson", EqualToJsonPattern.class),
           Map.entry("matchesJsonPath", MatchesJsonPathPattern.class),
           Map.entry("matchesJsonSchema", MatchesJsonSchemaPattern.class),
@@ -53,7 +67,123 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           Map.entry("absent", AbsentPattern.class),
           Map.entry("and", LogicalAnd.class),
           Map.entry("or", LogicalOr.class),
-          Map.entry("matchesPathTemplate", PathTemplatePattern.class));
+          Map.entry("matchesPathTemplate", PathTemplatePattern.class),
+          Map.entry("greaterThanNumber", GreaterThanNumberPattern.class),
+          Map.entry("greaterThanEqualNumber", GreaterThanEqualNumberPattern.class),
+          Map.entry("lessThanNumber", LessThanNumberPattern.class),
+          Map.entry("lessThanEqualNumber", LessThanEqualNumberPattern.class));
+
+  private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
+    List<Map.Entry<String, JsonNode>> list = getListFromNode(rootNode);
+    return list.stream()
+        .filter(input -> PATTERNS.containsKey(input.getKey()))
+        .findFirst()
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  private static EqualToXmlPattern.NamespaceAwareness deserializeNamespaceAwareness(
+      JsonNode rootNode) {
+    String namespaceAwarenessString =
+        fromNullableTextNode(rootNode.findValue("namespaceAwareness"));
+    return namespaceAwarenessString == null
+        ? null
+        : EqualToXmlPattern.NamespaceAwareness.valueOf(namespaceAwarenessString);
+  }
+
+  private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
+    Map<String, String> map = new LinkedHashMap<>();
+    for (Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields();
+        fields.hasNext(); ) {
+      Map.Entry<String, JsonNode> field = fields.next();
+      map.put(field.getKey(), field.getValue().textValue());
+    }
+
+    return map;
+  }
+
+  private static Boolean fromNullable(JsonNode node) {
+    return node == null ? null : node.asBoolean();
+  }
+
+  private static String fromNullableTextNode(JsonNode node) {
+    return node == null ? null : node.asText();
+  }
+
+  private static Set<ComparisonType> comparisonTypeSetFromArray(JsonNode node) {
+    if (node == null || !node.isArray()) {
+      return null;
+    }
+
+    Set<ComparisonType> comparisonTypes = new LinkedHashSet<>();
+    for (JsonNode itemNode : node) {
+      comparisonTypes.add(ComparisonType.valueOf(itemNode.textValue()));
+    }
+
+    return comparisonTypes;
+  }
+
+  private static Constructor<? extends StringValuePattern> findConstructor(
+      Class<? extends StringValuePattern> clazz) {
+    return findConstructor(clazz, String.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Constructor<? extends StringValuePattern> findConstructor(
+      Class<? extends StringValuePattern> clazz, Class<?> parameterType) {
+    Optional<Constructor<?>> optionalConstructor =
+        Arrays.stream(clazz.getDeclaredConstructors())
+            .filter(
+                input ->
+                    input.getParameterTypes().length == 1
+                        && input.getGenericParameterTypes()[0].equals(parameterType))
+            .findFirst();
+
+    if (optionalConstructor.isEmpty()) {
+      throw new IllegalStateException(
+          "Constructor for "
+              + clazz.getSimpleName()
+              + " must have a single "
+              + parameterType.getSimpleName().toLowerCase()
+              + " argument constructor");
+    }
+
+    return (Constructor<? extends StringValuePattern>) optionalConstructor.get();
+  }
+
+  @SuppressWarnings("OptionalGetWithoutIsPresent") // exceptions are handled in main try-catch
+  private static String getSingleArgumentConstructorJsonPropertyName(
+      Constructor<? extends StringValuePattern> constructor) {
+    try {
+      Parameter parameter = Arrays.stream(constructor.getParameters()).findFirst().get();
+      return Arrays.stream(parameter.getAnnotationsByType(JsonProperty.class))
+          .findFirst()
+          .get()
+          .value();
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "Constructor for "
+              + constructor.getDeclaringClass().getSimpleName()
+              + " must have a single argument constructor with @JsonProperty annotation");
+    }
+  }
+
+  private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode)
+      throws JsonMappingException {
+    for (Map.Entry<String, JsonNode> node : getListFromNode(rootNode)) {
+      Class<? extends StringValuePattern> patternClass = PATTERNS.get(node.getKey());
+      if (patternClass != null) {
+        return patternClass;
+      }
+    }
+
+    throw new JsonMappingException(rootNode + " is not a valid match operation");
+  }
+
+  private static List<Map.Entry<String, JsonNode>> getListFromNode(JsonNode rootNode) {
+    List<Map.Entry<String, JsonNode>> list = new LinkedList<>();
+    rootNode.fields().forEachRemaining(list::add);
+    return list;
+  }
 
   @Override
   public StringValuePattern deserialize(JsonParser parser, DeserializationContext context)
@@ -82,6 +212,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
       final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
       String matcherName = mainFieldEntry.getKey();
       return deserialiseDateTimePattern(rootNode, matcherName);
+    } else if (AbstractNumberPattern.class.isAssignableFrom(patternClass)) {
+      return deserializeNumberPattern(rootNode, patternClass);
     } else if (patternClass.equals(LogicalAnd.class)) {
       return deserializeAnd(rootNode);
     } else if (patternClass.equals(LogicalOr.class)) {
@@ -102,14 +234,6 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     } catch (Exception e) {
       return throwUnchecked(e, StringValuePattern.class);
     }
-  }
-
-  private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
-    List<Map.Entry<String, JsonNode>> list = getListFromNode(rootNode);
-    return list.stream()
-        .filter(input -> PATTERNS.containsKey(input.getKey()))
-        .findFirst()
-        .orElseThrow(NoSuchElementException::new);
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
@@ -199,15 +323,6 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         exemptedComparisons,
         ignoreOrderOfSameNode,
         namespaceAwareness);
-  }
-
-  private static EqualToXmlPattern.NamespaceAwareness deserializeNamespaceAwareness(
-      JsonNode rootNode) {
-    String namespaceAwarenessString =
-        fromNullableTextNode(rootNode.findValue("namespaceAwareness"));
-    return namespaceAwarenessString == null
-        ? null
-        : EqualToXmlPattern.NamespaceAwareness.valueOf(namespaceAwarenessString);
   }
 
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
@@ -306,6 +421,26 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     }
   }
 
+  private static StringValuePattern deserializeNumberPattern(
+      JsonNode rootNode, Class<? extends StringValuePattern> patternClass)
+      throws JsonMappingException {
+    Constructor<? extends StringValuePattern> constructor =
+        findConstructor(patternClass, Number.class);
+    String propertyName = getSingleArgumentConstructorJsonPropertyName(constructor);
+    if (!rootNode.hasNonNull(propertyName)) {
+      throw new JsonMappingException(propertyName + " has to be a numeric value");
+    }
+    try {
+      Number propertyValue = Double.parseDouble(rootNode.get(propertyName).asText());
+      return constructor.newInstance(propertyValue);
+    } catch (NumberFormatException
+        | InstantiationException
+        | IllegalAccessException
+        | InvocationTargetException e) {
+      throw new JsonMappingException(propertyName + " has to be a numeric value");
+    }
+  }
+
   private LogicalAnd deserializeAnd(JsonNode node) throws JsonMappingException {
     JsonNode operandsNode = node.get("and");
     if (!operandsNode.isArray()) {
@@ -350,76 +485,5 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     } catch (IOException e) {
       return throwUnchecked(e, NotPattern.class);
     }
-  }
-
-  private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
-    Map<String, String> map = new LinkedHashMap<>();
-    for (Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields();
-        fields.hasNext(); ) {
-      Map.Entry<String, JsonNode> field = fields.next();
-      map.put(field.getKey(), field.getValue().textValue());
-    }
-
-    return map;
-  }
-
-  private static Boolean fromNullable(JsonNode node) {
-    return node == null ? null : node.asBoolean();
-  }
-
-  private static String fromNullableTextNode(JsonNode node) {
-    return node == null ? null : node.asText();
-  }
-
-  private static Set<ComparisonType> comparisonTypeSetFromArray(JsonNode node) {
-    if (node == null || !node.isArray()) {
-      return null;
-    }
-
-    Set<ComparisonType> comparisonTypes = new LinkedHashSet<>();
-    for (JsonNode itemNode : node) {
-      comparisonTypes.add(ComparisonType.valueOf(itemNode.textValue()));
-    }
-
-    return comparisonTypes;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Constructor<? extends StringValuePattern> findConstructor(
-      Class<? extends StringValuePattern> clazz) {
-    Optional<Constructor<?>> optionalConstructor =
-        Arrays.stream(clazz.getDeclaredConstructors())
-            .filter(
-                input ->
-                    input.getParameterTypes().length == 1
-                        && input.getGenericParameterTypes()[0].equals(String.class))
-            .findFirst();
-
-    if (optionalConstructor.isEmpty()) {
-      throw new IllegalStateException(
-          "Constructor for "
-              + clazz.getSimpleName()
-              + " must have a single string argument constructor");
-    }
-
-    return (Constructor<? extends StringValuePattern>) optionalConstructor.get();
-  }
-
-  private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode)
-      throws JsonMappingException {
-    for (Map.Entry<String, JsonNode> node : getListFromNode(rootNode)) {
-      Class<? extends StringValuePattern> patternClass = PATTERNS.get(node.getKey());
-      if (patternClass != null) {
-        return patternClass;
-      }
-    }
-
-    throw new JsonMappingException(rootNode + " is not a valid match operation");
-  }
-
-  private static List<Map.Entry<String, JsonNode>> getListFromNode(JsonNode rootNode) {
-    List<Map.Entry<String, JsonNode>> list = new LinkedList<>();
-    rootNode.fields().forEachRemaining(list::add);
-    return list;
   }
 }

@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMul
 import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -55,7 +54,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -447,8 +445,7 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(testClient.get("/stateful").content(), is("Initial"));
     assertThat(testClient.get("/stateful").content(), is("Final"));
 
-    WireMockResponse response =
-        testClient.post("/__admin/scenarios/reset", new StringEntity("", TEXT_PLAIN));
+    WireMockResponse response = testClient.post("/__admin/scenarios/reset");
 
     assertThat(response.content(), is("{}"));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));

@@ -167,14 +167,14 @@ public class Diff {
   private void addInlineCustomMatcherSectionIfPresent(List<DiffLine<?>> diffLineList) {
     if (requestPattern.hasInlineCustomMatcher()) {
       InlineCustomMatcherLine customMatcherLine =
-          new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
+          new InlineCustomMatcherLine(requestPattern.getInlineCustomMatcher(), request);
       diffLineList.addAll(toDiffDescriptionLines(customMatcherLine));
     }
   }
 
   private void addMultipartSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     List<MultipartValuePattern> multipartPatterns = requestPattern.getMultipartPatterns();
-    if (multipartPatterns != null && !multipartPatterns.isEmpty()) {
+    if (!multipartPatterns.isEmpty()) {
 
       for (MultipartValuePattern pattern : multipartPatterns) {
         if (!request.isMultipart()) {
@@ -205,7 +205,7 @@ public class Diff {
 
   private void addCookiesSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     Map<String, StringValuePattern> cookiesPattern = requestPattern.getCookies();
-    if (cookiesPattern != null) {
+    {
       Map<String, Cookie> cookies = getFirstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : cookiesPattern.entrySet()) {
         String key = entry.getKey();
@@ -229,7 +229,7 @@ public class Diff {
 
   private void addFormParametersSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     final Map<String, MultiValuePattern> formParameters = requestPattern.getFormParameters();
-    if (formParameters != null) {
+    {
       Map<String, FormParameter> requestFormParameters = request.formParameters();
 
       for (Map.Entry<String, MultiValuePattern> entry : formParameters.entrySet()) {
@@ -255,7 +255,7 @@ public class Diff {
 
   private void addQueryParametersSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     final Map<String, MultiValuePattern> queryParameters = requestPattern.getQueryParameters();
-    if (queryParameters != null) {
+    {
       Map<String, QueryParameter> requestQueryParams = Urls.splitQueryFromUrl(request.getUrl());
 
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
@@ -283,7 +283,6 @@ public class Diff {
       UrlPattern urlPattern, DiffLine<String> urlSection, List<DiffLine<?>> diffLineList) {
     final Map<String, StringValuePattern> pathParameters = requestPattern.getPathParameters();
     if (urlPattern instanceof UrlPathTemplatePattern
-        && pathParameters != null
         && !pathParameters.isEmpty()
         && urlSection.isExactMatch()) {
       final UrlPathTemplatePattern urlPathTemplatePattern =

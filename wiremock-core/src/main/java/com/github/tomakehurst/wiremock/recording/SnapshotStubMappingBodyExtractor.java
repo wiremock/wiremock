@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -45,9 +44,7 @@ class SnapshotStubMappingBodyExtractor {
         ContentTypes.determineFileExtension(
             getFirstNonNull(
                 stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()),
-            responseHeaders != null
-                ? responseHeaders.getContentTypeHeader()
-                : ContentTypeHeader.absent(),
+            responseHeaders.getContentTypeHeader(),
             body);
 
     FilenameMaker filenameMaker = new FilenameMaker("default", extension);

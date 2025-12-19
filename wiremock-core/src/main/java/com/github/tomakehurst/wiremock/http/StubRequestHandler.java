@@ -94,7 +94,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
         notMatchedRenderer.execute(admin, serveEvent, PathParams.empty());
     final HttpHeaders headers = responseDefinition.getHeaders();
     final String contentTypeHeader =
-        headers != null && headers.getHeader(ContentTypeHeader.KEY).isPresent()
+        headers.getHeader(ContentTypeHeader.KEY).isPresent()
             ? headers.getContentTypeHeader().firstValue()
             : null;
 
