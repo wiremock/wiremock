@@ -17,6 +17,9 @@ package org.wiremock.url;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.alwaysIllegal;
+import static org.wiremock.url.Constants.combine;
+import static org.wiremock.url.Constants.include;
+import static org.wiremock.url.Constants.pcharCharSet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -236,69 +239,11 @@ class PathParser implements PercentEncodedCharSequenceParser<Path> {
       return result.normalise();
     }
 
+    private static final boolean[] pathCharSet = combine(pcharCharSet, include('/'));
+
     private String encode(String unencoded) {
-      StringBuilder result = new StringBuilder();
-      boolean changed = false;
-
-      for (int i = 0; i < unencoded.length(); i++) {
-        char c = unencoded.charAt(i);
-
-        // Preserve already percent-encoded sequences
-        if (c == '%'
-            && i + 2 < unencoded.length()
-            && isHexDigit(unencoded.charAt(i + 1))
-            && isHexDigit(unencoded.charAt(i + 2))) {
-          result.append(c).append(unencoded.charAt(i + 1)).append(unencoded.charAt(i + 2));
-          i += 2;
-          continue;
-        }
-
-        // Check if character needs encoding per WhatWG unencoded percent-encode set
-        if (shouldPercentEncodeInUnencoded(c)) {
-          // Encode as UTF-8 bytes
-          byte[] bytes = String.valueOf(c).getBytes(UTF_8);
-          for (byte b : bytes) {
-            result.append('%');
-            result.append(String.format("%02X", b & 0xFF));
-          }
-          changed = true;
-        } else {
-          result.append(c);
-        }
-      }
-
-      if (!changed) {
-        return unencoded;
-      } else {
-        return result.toString();
-      }
-    }
-
-    private boolean isHexDigit(char c) {
-      return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
-    }
-
-    private boolean shouldPercentEncodeInUnencoded(char c) {
-      // WhatWG unencoded percent-encode set:
-      // - C0 controls (0x00-0x1F)
-      // - Space (0x20)
-      // - " (0x22)
-      // - # (0x23)
-      // - < (0x3C)
-      // - > (0x3E)
-      // - Characters > 0x7E (non-ASCII)
-
-      if (c <= 0x1F) return true; // C0 controls
-      if (c == 0x20) return true; // space
-      if (c == '"') return true; // 0x22
-      if (c == '<') return true; // 0x3C
-      if (c == '>') return true; // 0x3E
-      if (c == '^') return true;
-      if (c == '`') return true;
-      if (c == '{') return true;
-      if (c == '}') return true;
-
-      return c > 0x7E; // non-ASCII
+      String result = Constants.normalise(unencoded, pathCharSet);
+      return result != null ? result : unencoded;
     }
   }
 }

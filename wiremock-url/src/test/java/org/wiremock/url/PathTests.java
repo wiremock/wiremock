@@ -167,7 +167,7 @@ public class PathTests {
           entry("/foo/bar/../ton", "/foo/ton"),
           entry("//a//../..//foo", "///foo"),
           entry("/﻿/foo", "/%EF%BB%BF/foo"),
-          entry("/foo%2Â©zbar", "/foo%2%C3%82%C2%A9zbar"),
+          entry("/foo%2Â©zbar", "/foo%252%C3%82%C2%A9zbar"),
           entry("/你好你好", "/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD"),
           entry("/‮/foo/‭/bar", "/%E2%80%AE/foo/%E2%80%AD/bar"),
           entry("/\"quoted\"", "/%22quoted%22"),
@@ -175,7 +175,7 @@ public class PathTests {
           entry("/‥/foo", "/%E2%80%A5/foo"),
           entry(
               "/ !\"$%&'()*+,-./:;<=>@[\\]^_`{|}~",
-              "/%20!%22$%&'()*+,-./:;%3C=%3E@[\\]%5E_%60%7B|%7D~"),
+              "/%20!%22$%25&'()*+,-./:;%3C=%3E@%5B\\%5D%5E_%60%7B%7C%7D~"),
           entry("/�", "/%EF%BF%BD"),
           entry("/foo/../../..", "/"),
           entry("/foo/%2e./%2e%2e/.%2e/%2e.bar", "/%2e.bar"),

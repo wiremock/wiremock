@@ -15,9 +15,10 @@
  */
 package org.wiremock.url;
 
-import java.util.regex.Pattern;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.wiremock.url.Constants.combine;
+import static org.wiremock.url.Constants.include;
+import static org.wiremock.url.Constants.pcharCharSet;
 
 public interface Fragment extends PercentEncoded {
 
@@ -81,116 +82,18 @@ class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
       return fragment;
     }
 
-    private static final boolean[] unreserved = combine(
-        includeRange('a', 'z'),
-        includeRange('A', 'Z'),
-        includeRange('0', '9'),
-        include('-', '.', '_', '~')
-    );
-
-    private static final boolean[] subDelimCharSet = include('!', '\\', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=');
-
-    private static final boolean[] pcharCharset = combine(
-        unreserved,
-        subDelimCharSet,
-        include(':', '@')
-    );
-
-    private static final boolean[] fragmentCharSet = combine(
-        pcharCharset,
-        include('/', '?')
-    );
-
-    private static boolean[] combine(boolean[] one, boolean[]... charSets) {
-      int length = one.length;
-      for (boolean[] charSet : charSets) {
-        length = Math.max(length, charSet.length);
-      }
-      boolean[] result = new boolean[length];
-      System.arraycopy(one, 0, result, 0, one.length);
-      for (boolean[] charSet : charSets) {
-        for (int i = 0; i < charSet.length; i++) {
-          result[i] = result[i] || charSet[i];
-        }
-      }
-      return result;
-    }
-
-    private static boolean[] include(String chars) {
-      return include(new boolean[128], chars.toCharArray());
-    }
-
-    private static boolean[] include(char... chars) {
-      return include(new boolean[128], chars);
-    }
-
-    private static boolean[] include(boolean[] charSet, String chars) {
-      return include(charSet, chars.toCharArray());
-    }
-
-    private static boolean[] include(boolean[] charSet, char[] chars) {
-      for (char aChar : chars) {
-        charSet[aChar] = true;
-      }
-      return charSet;
-    }
-
-    private static boolean[] includeRange(char start, char end) {
-      return include(new boolean[128], start, end);
-    }
-
-    private static boolean[] include(boolean[] charSet, char start, char end) {
-      for (int i = start; i <= end; i++) {
-        charSet[i] = true;
-      }
-      return charSet;
-    }
+    private static final boolean[] fragmentCharSet = combine(pcharCharSet, include('/', '?'));
 
     @Override
     public org.wiremock.url.Fragment normalise() {
-      StringBuilder result = new StringBuilder();
-      boolean changed = false;
 
-      for (int i = 0; i < fragment.length(); i++) {
-        char c = fragment.charAt(i);
+      String result = Constants.normalise(fragment, fragmentCharSet);
 
-        // Preserve already percent-encoded sequences
-        if (c == '%'
-            && i + 2 < fragment.length()
-            && isHexDigit(fragment.charAt(i + 1))
-            && isHexDigit(fragment.charAt(i + 2))) {
-          result.append(c).append(fragment.charAt(i + 1)).append(fragment.charAt(i + 2));
-          i += 2;
-          continue;
-        }
-
-        // Check if character needs encoding per WhatWG fragment percent-encode set
-        if (shouldPercentEncodeInFragment(c)) {
-          // Encode as UTF-8 bytes
-          byte[] bytes = String.valueOf(c).getBytes(UTF_8);
-          for (byte b : bytes) {
-            result.append('%');
-            result.append(String.format("%02X", b & 0xFF));
-          }
-          changed = true;
-        } else {
-          result.append(c);
-        }
-      }
-
-      if (!changed) {
+      if (result == null) {
         return this;
       } else {
-        return new Fragment(result.toString());
+        return new Fragment(result);
       }
-    }
-
-    private boolean isHexDigit(char c) {
-      return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
-    }
-
-    private boolean shouldPercentEncodeInFragment(char c) {
-      return c >= fragmentCharSet.length || !fragmentCharSet[c];
     }
   }
 }
