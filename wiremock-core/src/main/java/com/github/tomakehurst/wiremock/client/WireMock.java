@@ -1125,18 +1125,16 @@ public class WireMock {
 
   // Message stub mapping DSL methods
 
-  public static MessageStubMappingBuilder messageStubOnChannel(
-      com.github.tomakehurst.wiremock.matching.RequestPattern channelPattern) {
-    return new BasicMessageStubMappingBuilder(channelPattern);
+  public static MessageStubMapping.Builder message() {
+    return MessageStubMapping.builder();
   }
 
-  public static MessageStubMappingBuilder messageStubOnChannel(
-      com.github.tomakehurst.wiremock.matching.RequestPatternBuilder channelPatternBuilder) {
-    return new BasicMessageStubMappingBuilder(channelPatternBuilder.build());
+  public static SendMessageActionBuilder sendMessage() {
+    return new SendMessageActionBuilder();
   }
 
   public static SendMessageActionBuilder sendMessage(String message) {
-    return new SendMessageActionBuilder(message);
+    return new SendMessageActionBuilder().withBody(message);
   }
 
   public static MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {

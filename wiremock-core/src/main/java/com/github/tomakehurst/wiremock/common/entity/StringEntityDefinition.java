@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Objects;
 
+@JsonDeserialize(as = StringEntityDefinition.class)
 public class StringEntityDefinition extends EntityDefinition {
   private final String value;
 

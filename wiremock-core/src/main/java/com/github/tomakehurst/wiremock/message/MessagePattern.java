@@ -15,7 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -29,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+@JsonInclude(NON_EMPTY)
 public class MessagePattern {
 
   public static final MessagePattern ANYTHING = new MessagePattern(null, null);
@@ -39,7 +44,7 @@ public class MessagePattern {
   @JsonCreator
   public MessagePattern(
       @JsonProperty("channelPattern") RequestPattern channelPattern,
-      @JsonProperty("messagePattern") StringValuePattern bodyPattern) {
+      @JsonProperty("body") StringValuePattern bodyPattern) {
     this.channelPattern = channelPattern;
     this.bodyPattern = bodyPattern;
   }
@@ -64,10 +69,12 @@ public class MessagePattern {
     return new Builder(this);
   }
 
+  @JsonIgnore
   public RequestPattern getChannelPattern() {
     return channelPattern;
   }
 
+  @JsonProperty("body")
   public StringValuePattern getBodyPattern() {
     return bodyPattern;
   }

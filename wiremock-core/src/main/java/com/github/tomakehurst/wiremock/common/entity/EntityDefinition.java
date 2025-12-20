@@ -16,11 +16,14 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StringEntityDefinition.class)
-@JsonSubTypes(value = {@Type(StringEntityDefinition.class), @Type(FullEntityDefinition.class)})
+@JsonDeserialize(using = EntityDefinitionDeserializer.class)
+@JsonSubTypes(
+    value = {
+      @JsonSubTypes.Type(StringEntityDefinition.class),
+      @JsonSubTypes.Type(FullEntityDefinition.class)
+    })
 public abstract class EntityDefinition {
 
   public abstract EncodingType getEncoding();

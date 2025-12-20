@@ -15,32 +15,48 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition.aMessage;
+
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 public class SendMessageActionBuilder {
 
-  private final EntityDefinition body;
+  private FullEntityDefinition.Builder fullEntityBuilder = aMessage();
 
-  public SendMessageActionBuilder(String message) {
-    this.body = new StringEntityDefinition(message);
+  public SendMessageActionBuilder() {}
+
+  public SendMessageActionBuilder withBody(String message) {
+    this.fullEntityBuilder.withBody(message);
+    return this;
   }
 
-  public SendMessageActionBuilder(EntityDefinition body) {
-    this.body = body;
+  public SendMessageActionBuilder withBody(Object data) {
+    fullEntityBuilder.withBody(data);
+    return this;
+  }
+
+  public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
+    fullEntityBuilder.withDataStore(storeName);
+    fullEntityBuilder.withDataRef(key);
+    return this;
+  }
+
+  private EntityDefinition resolveBody() {
+    return fullEntityBuilder.build();
   }
 
   public SendMessageAction onOriginatingChannel() {
-    return SendMessageAction.toOriginatingChannel(body);
+    return SendMessageAction.toOriginatingChannel(resolveBody());
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return SendMessageAction.toMatchingChannels(body, targetChannelPattern);
+    return SendMessageAction.toMatchingChannels(resolveBody(), targetChannelPattern);
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
-    return SendMessageAction.toMatchingChannels(body, targetChannelPatternBuilder.build());
+    return SendMessageAction.toMatchingChannels(resolveBody(), targetChannelPatternBuilder.build());
   }
 }

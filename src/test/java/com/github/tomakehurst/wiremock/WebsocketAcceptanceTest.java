@@ -22,8 +22,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServe
 import static com.github.tomakehurst.wiremock.client.WireMock.getMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.messageStubOnChannel;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsForStubsMatchingMetadata;
@@ -42,7 +42,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
-import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
@@ -239,12 +238,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void messageStubMappingWithChannelPatternMatchesSpecificChannels() {
-    // Register a message stub that only matches messages on specific channels
     RequestPattern channelPattern = newRequestPattern().withUrl("/vip-channel").build();
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("VIP stub")
-            .withChannelPattern(channelPattern)
+            .onChannelFromRequestMatching(channelPattern)
             .withBody(equalTo("request"))
             .triggersAction(SendMessageAction.toOriginatingChannel("VIP response"))
             .build();
@@ -396,9 +394,9 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   void messageStubMappingCanBeCreatedUsingDsl() {
     // Register a message stub using the DSL
     messageStubFor(
-        messageStubOnChannel(newRequestPattern().withUrl("/dsl-test"))
+        message()
             .withName("DSL stub")
-            .withMessageBody(equalTo("hello"))
+            .withBody(equalTo("hello"))
             .willTriggerActions(sendMessage("world").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
@@ -412,9 +410,10 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   void messageStubMappingDslSupportsMultipleActions() {
     // Register a message stub with multiple actions using the DSL
     messageStubFor(
-        messageStubOnChannel(newRequestPattern().withUrl("/dsl-multi"))
+        message()
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/dsl-multi"))
             .withName("DSL multi-action stub")
-            .withMessageBody(equalTo("trigger"))
+            .withBody(equalTo("trigger"))
             .willTriggerActions(
                 sendMessage("first").onOriginatingChannel(),
                 sendMessage("second").onOriginatingChannel()));
@@ -433,9 +432,10 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   void messageStubMappingDslSupportsBroadcastToMatchingChannels() {
     // Register a message stub that broadcasts to matching channels using the DSL
     messageStubFor(
-        messageStubOnChannel(newRequestPattern().withUrl("/dsl-broadcast"))
+        message()
+            .onChannelFromRequestMatching("/dsl-broadcast")
             .withName("DSL broadcast stub")
-            .withMessageBody(equalTo("broadcast"))
+            .withBody(equalTo("broadcast"))
             .willTriggerActions(
                 sendMessage("broadcasted")
                     .onChannelsMatching(newRequestPattern().withUrl("/dsl-broadcast"))));
@@ -856,13 +856,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void fullEntityDefinitionWithStringDataResolvesToString() {
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(null, null, null, null, null, "hello world");
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("String data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .triggersAction(sendMessage().withBody("hello world").onOriginatingChannel())
             .build();
     wireMockServer.addMessageStubMapping(stub);
 
@@ -876,13 +874,11 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   @Test
   void fullEntityDefinitionWithObjectDataSerializesToJson() {
     Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(null, null, null, null, null, objectData);
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("Object data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .triggersAction(sendMessage().withBody(objectData).onOriginatingChannel())
             .build();
     wireMockServer.addMessageStubMapping(stub);
 
@@ -901,13 +897,12 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
         .getObjectStore("testStore")
         .put("testKey", "stored value");
 
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(null, null, null, "testStore", "testKey", null);
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("Store data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .triggersAction(
+                sendMessage().withBodyFromStore("testStore", "testKey").onOriginatingChannel())
             .build();
     wireMockServer.addMessageStubMapping(stub);
 
@@ -927,13 +922,12 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
         .getObjectStore("objectStore")
         .put("objectKey", storedObject);
 
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(null, null, null, "objectStore", "objectKey", null);
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("Store object data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
+            .triggersAction(
+                sendMessage().withBodyFromStore("objectStore", "objectKey").onOriginatingChannel())
             .build();
     wireMockServer.addMessageStubMapping(stub);
 

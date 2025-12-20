@@ -17,11 +17,19 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static java.util.Arrays.asList;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.util.Objects;
 
+@JsonDeserialize(as = FullEntityDefinition.class)
 public class FullEntityDefinition extends EntityDefinition {
+
+  public static final EncodingType DEFAULT_ENCODING = EncodingType.TEXT;
+  public static final FormatType DEFAULT_FORMAT = FormatType.JSON;
+  public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
+
   private final EncodingType encoding;
   private final FormatType format;
   private final CompressionType compression;
@@ -33,31 +41,33 @@ public class FullEntityDefinition extends EntityDefinition {
       @JsonProperty("encoding") EncodingType encoding,
       @JsonProperty("format") FormatType format,
       @JsonProperty("compression") CompressionType compression,
-      @JsonProperty("dataStore") String dataStore, // validate and needs to be templatable
-      @JsonProperty("dataRef") String dataRef, // needs to be templatable
+      @JsonProperty("dataStore") String dataStore,
+      @JsonProperty("dataRef") String dataRef,
       @JsonProperty("data") Object data) {
-    // default the encoding to text if not specified or not valid
-    this.encoding = asList(EncodingType.values()).contains(encoding) ? encoding : EncodingType.TEXT;
-    // default the format to text if not specified or not valid
-    this.format = asList(FormatType.values()).contains(format) ? format : FormatType.TEXT;
-    // default the compression to none if not specified or not valid
+    this.encoding = asList(EncodingType.values()).contains(encoding) ? encoding : DEFAULT_ENCODING;
+    this.format = asList(FormatType.values()).contains(format) ? format : DEFAULT_FORMAT;
     this.compression =
-        asList(CompressionType.values()).contains(compression) ? compression : CompressionType.NONE;
+        asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
     this.dataRef = dataRef;
     this.data = data;
-
-    // TODO: do we want to override the format based on what we know we have parsed?
   }
 
+  public static Builder aMessage() {
+    return new Builder();
+  }
+
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultEncodingFilter.class)
   public EncodingType getEncoding() {
     return encoding;
   }
 
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultFormatFilter.class)
   public FormatType getFormat() {
     return format;
   }
 
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
   public CompressionType getCompression() {
     return compression;
   }
@@ -94,5 +104,69 @@ public class FullEntityDefinition extends EntityDefinition {
   @Override
   public String toString() {
     return Json.write(this);
+  }
+
+  public static class DefaultEncodingFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_ENCODING.equals(obj);
+    }
+  }
+
+  public static class DefaultFormatFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_FORMAT.equals(obj);
+    }
+  }
+
+  public static class DefaultCompressionFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_COMPRESSION.equals(obj);
+    }
+  }
+
+  public static class Builder {
+    private EncodingType encoding;
+    private FormatType format;
+    private CompressionType compression;
+    private String dataStore;
+    private String dataRef;
+    private Object data;
+
+    public Builder withEncoding(EncodingType encoding) {
+      this.encoding = encoding;
+      return this;
+    }
+
+    public Builder withFormat(FormatType format) {
+      this.format = format;
+      return this;
+    }
+
+    public Builder withCompression(CompressionType compression) {
+      this.compression = compression;
+      return this;
+    }
+
+    public Builder withDataStore(String dataStore) {
+      this.dataStore = dataStore;
+      return this;
+    }
+
+    public Builder withDataRef(String dataRef) {
+      this.dataRef = dataRef;
+      return this;
+    }
+
+    public Builder withBody(Object data) {
+      this.data = data;
+      return this;
+    }
+
+    public FullEntityDefinition build() {
+      return new FullEntityDefinition(encoding, format, compression, dataStore, dataRef, data);
+    }
   }
 }

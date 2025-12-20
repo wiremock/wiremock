@@ -16,14 +16,17 @@
 package com.github.tomakehurst.wiremock.message;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +51,21 @@ public class MessageStubMapping {
       @JsonProperty("name") String name,
       @JsonProperty("priority") Integer priority,
       @JsonProperty("channelPattern") RequestPattern channelPattern,
-      @JsonProperty("messagePattern") StringValuePattern messagePattern,
+      @JsonProperty("messagePattern") MessagePattern messagePattern,
       @JsonProperty("actions") List<MessageAction> actions) {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.priority = priority;
-    this.pattern = new MessagePattern(channelPattern, messagePattern);
+    // Merge channelPattern with messagePattern if both are provided
+    if (messagePattern != null && channelPattern != null) {
+      this.pattern = new MessagePattern(channelPattern, messagePattern.getBodyPattern());
+    } else if (messagePattern != null) {
+      this.pattern = messagePattern;
+    } else if (channelPattern != null) {
+      this.pattern = new MessagePattern(channelPattern, null);
+    } else {
+      this.pattern = MessagePattern.ANYTHING;
+    }
     this.actions = actions != null ? actions : Collections.emptyList();
   }
 
@@ -102,12 +114,7 @@ public class MessageStubMapping {
     return pattern.getChannelPattern();
   }
 
-  public StringValuePattern getMessagePattern() {
-    return pattern.getBodyPattern();
-  }
-
-  @JsonIgnore
-  public MessagePattern getPattern() {
+  public MessagePattern getMessagePattern() {
     return pattern;
   }
 
@@ -194,7 +201,16 @@ public class MessageStubMapping {
       return this;
     }
 
-    public Builder withChannelPattern(RequestPattern channelPattern) {
+    public Builder onChannelFromRequestMatching(String urlPath) {
+      return onChannelFromRequestMatching(newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    }
+
+    public Builder onChannelFromRequestMatching(RequestPatternBuilder channelPatternBuilder) {
+      this.channelPattern = channelPatternBuilder.build();
+      return this;
+    }
+
+    public Builder onChannelFromRequestMatching(RequestPattern channelPattern) {
       this.channelPattern = channelPattern;
       return this;
     }
@@ -207,6 +223,11 @@ public class MessageStubMapping {
     public Builder withActions(List<MessageAction> actions) {
       this.actions = new ArrayList<>(actions);
       return this;
+    }
+
+    public MessageStubMapping willTriggerActions(MessageAction... actions) {
+      this.actions.addAll(Arrays.asList(actions));
+      return build();
     }
 
     public Builder triggersAction(MessageAction action) {

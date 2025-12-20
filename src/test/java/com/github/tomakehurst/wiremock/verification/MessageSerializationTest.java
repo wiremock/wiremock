@@ -54,7 +54,7 @@ public class MessageSerializationTest {
             .withId(UUID.fromString("d8e8fca2-dc0f-11db-8314-0800200c9a66"))
             .withName("Test message stub")
             .withPriority(3)
-            .withChannelPattern(newRequestPattern().withUrl("/test-channel").build())
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/test-channel").build())
             .withBody(equalTo("hello"))
             .triggersAction(SendMessageAction.toOriginatingChannel("world"))
             .build();
@@ -74,7 +74,9 @@ public class MessageSerializationTest {
                 "method": "ANY"
               },
               "messagePattern": {
-                "equalTo": "hello"
+                "body": {
+                  "equalTo": "hello"
+                }
               },
               "actions": [
                 {
@@ -99,7 +101,9 @@ public class MessageSerializationTest {
             "url": "/my-channel"
           },
           "messagePattern": {
-            "matches": "hello.*"
+            "body": {
+              "matches": "hello.*"
+            }
           },
           "actions": [
             {
@@ -127,7 +131,7 @@ public class MessageSerializationTest {
     MessageStubMapping original =
         MessageStubMapping.builder()
             .withName("Round trip stub")
-            .withChannelPattern(newRequestPattern().withUrl("/round-trip").build())
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/round-trip").build())
             .withBody(matching("test-.*"))
             .triggersAction(SendMessageAction.toOriginatingChannel("response"))
             .build();
@@ -181,7 +185,9 @@ public class MessageSerializationTest {
                 "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "name": "Matched stub",
                 "messagePattern": {
-                  "equalTo": "test"
+                  "body": {
+                    "equalTo": "test"
+                  }
                 },
                 "actions": [
                   {
@@ -246,7 +252,7 @@ public class MessageSerializationTest {
         MessageStubMapping.builder()
             .withId(UUID.fromString("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"))
             .withName("Broadcast stub")
-            .withChannelPattern(newRequestPattern().withUrl("/source").build())
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/source").build())
             .withBody(equalTo("broadcast"))
             .triggersAction(
                 SendMessageAction.toMatchingChannels(
@@ -267,7 +273,9 @@ public class MessageSerializationTest {
                 "method": "ANY"
               },
               "messagePattern": {
-                "equalTo": "broadcast"
+                "body": {
+                  "equalTo": "broadcast"
+                }
               },
               "actions": [
                 {
@@ -294,7 +302,9 @@ public class MessageSerializationTest {
             "url": "/source"
           },
           "messagePattern": {
-            "equalTo": "trigger"
+            "body": {
+              "equalTo": "trigger"
+            }
           },
           "actions": [
             {
@@ -384,14 +394,12 @@ public class MessageSerializationTest {
 
     String json = Json.write(entityDef);
 
+    // Default values (encoding=text, format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
             """
             {
-              "encoding": "text",
-              "format": "json",
-              "compression": "none",
               "data": "hello world"
             }
             """));
@@ -406,14 +414,12 @@ public class MessageSerializationTest {
 
     String json = Json.write(entityDef);
 
+    // Default values (encoding=text, format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
             """
             {
-              "encoding": "text",
-              "format": "json",
-              "compression": "none",
               "data": {
                 "name": "John",
                 "age": 30
@@ -424,20 +430,21 @@ public class MessageSerializationTest {
 
   @Test
   void fullEntityDefinitionWithDataStoreRefSerializesToJson() {
+    // Using non-default format (TEXT instead of JSON) to test that it is serialized
     FullEntityDefinition entityDef =
         new FullEntityDefinition(
             EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null);
 
     String json = Json.write(entityDef);
 
+    // encoding=text and compression=none are defaults, so not serialized
+    // format=text is NOT the default (json is), so it IS serialized
     assertThat(
         json,
         jsonEquals(
             """
             {
-              "encoding": "text",
               "format": "text",
-              "compression": "none",
               "dataStore": "myStore",
               "dataRef": "myKey"
             }
@@ -486,6 +493,7 @@ public class MessageSerializationTest {
 
     String json = Json.write(stub);
 
+    // Default values (encoding=text, format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
@@ -494,15 +502,14 @@ public class MessageSerializationTest {
               "id": "cccccccc-dddd-eeee-ffff-000000000000",
               "name": "Full entity stub",
               "messagePattern": {
-                "equalTo": "trigger"
+                "body": {
+                  "equalTo": "trigger"
+                }
               },
               "actions": [
                 {
                   "type": "send",
                   "body": {
-                    "encoding": "text",
-                    "format": "json",
-                    "compression": "none",
                     "data": {
                       "key": "value"
                     }
@@ -521,15 +528,14 @@ public class MessageSerializationTest {
         {
           "name": "Full entity deserialized",
           "messagePattern": {
-            "equalTo": "trigger"
+            "body": {
+              "equalTo": "trigger"
+            }
           },
           "actions": [
             {
               "type": "send",
               "body": {
-                "encoding": "text",
-                "format": "json",
-                "compression": "none",
                 "dataStore": "testStore",
                 "dataRef": "testKey"
               },
