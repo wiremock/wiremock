@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "ClassCanBeRecord"})
 final class AuthorityValue implements Authority {
 
   private final @Nullable UserInfo userInfo;
@@ -30,8 +30,8 @@ final class AuthorityValue implements Authority {
 
   AuthorityValue(@Nullable UserInfo userInfo, Host host, Optional<Optional<Port>> maybePort) {
     this.userInfo = userInfo;
-    this.host = host;
-    this.maybePort = maybePort;
+    this.host = Objects.requireNonNull(host);
+    this.maybePort = Objects.requireNonNull(maybePort);
   }
 
   @Override
@@ -62,7 +62,7 @@ final class AuthorityValue implements Authority {
 
   @Override
   public HostAndPort hostAndPort() {
-    return new AuthorityParser.HostAndPort(host, port());
+    return new HostAndPortValue(host, port());
   }
 
   @Override
@@ -72,8 +72,7 @@ final class AuthorityValue implements Authority {
     if (newPort.equals(maybePort)) {
       return this;
     } else {
-      return new AuthorityValue(
-          userInfo, host, newPort);
+      return new AuthorityValue(userInfo, host, newPort);
     }
   }
 
@@ -92,8 +91,7 @@ final class AuthorityValue implements Authority {
         && Objects.equals(normalisedUserInfo, userInfo)) {
       return this;
     } else if (normalisedUserInfo == null) {
-      return new AuthorityParser.HostAndPort(
-          normalisedHost, normalisedPort.flatMap(identity()).orElse(null));
+      return new HostAndPortValue(normalisedHost, normalisedPort.flatMap(identity()).orElse(null));
     } else {
       return new AuthorityValue(normalisedUserInfo, normalisedHost, normalisedPort);
     }
@@ -118,7 +116,7 @@ final class AuthorityValue implements Authority {
         && Objects.equals(normalisedUserInfo, userInfo)) {
       return this;
     } else if (normalisedUserInfo == null) {
-      return new AuthorityParser.HostAndPort(normalisedHost, normalisedPort);
+      return new HostAndPortValue(normalisedHost, normalisedPort);
     } else {
       return new AuthorityValue(normalisedUserInfo, normalisedHost, normalisedPort2);
     }
@@ -135,20 +133,13 @@ final class AuthorityValue implements Authority {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (!(obj instanceof Authority that)) {
-      return false;
-    }
-    return Objects.equals(this.userInfo(), that.userInfo())
-        && Objects.equals(this.host(), that.host())
-        && Objects.equals(this.maybePort(), that.maybePort());
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public boolean equals(Object other) {
+    return Authority.equals(this, other);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userInfo, host, maybePort);
+    return Authority.hashCode(this);
   }
 }

@@ -17,7 +17,6 @@ package org.wiremock.url;
 
 import static java.util.function.Function.identity;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,12 +57,22 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       var host = HostParser.INSTANCE.parse(hostString);
       Optional<Optional<Port>> maybePort = extractPort(matcher);
       if (userInfo == null && !(maybePort.isPresent() && maybePort.get().isEmpty())) {
-        return new HostAndPort(host, maybePort.flatMap(identity()).orElse(null));
+        return new HostAndPortValue(host, maybePort.flatMap(identity()).orElse(null));
       } else {
         return new AuthorityValue(userInfo, host, maybePort);
       }
     } catch (IllegalUrlPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
+    }
+  }
+
+  Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
+    if (userInfo == null) {
+      return new HostAndPortValue(host, port);
+    } else {
+      var portOptional =
+          port == null ? Optional.<Optional<Port>>empty() : Optional.of(Optional.of(port));
+      return new AuthorityValue(userInfo, host, portOptional);
     }
   }
 
@@ -76,55 +85,6 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       Optional<Port> port =
           portString == null ? Optional.empty() : Optional.of(Port.parse(portString));
       return Optional.of(port);
-    }
-  }
-
-  record HostAndPort(@Override Host host, @Nullable @Override Port port)
-      implements org.wiremock.url.HostAndPort {
-    @Override
-    public String toString() {
-      if (port != null) {
-        return host + ":" + port;
-      } else {
-        return host.toString();
-      }
-    }
-
-    @Override
-    public Optional<Optional<Port>> maybePort() {
-      return port != null ? Optional.of(Optional.of(port)) : Optional.empty();
-    }
-
-    @Override
-    public org.wiremock.url.HostAndPort withPort(@Nullable Port port) {
-      if (Objects.equals(port, this.port)) {
-        return this;
-      } else {
-        return new HostAndPort(host, port);
-      }
-    }
-
-    @Override
-    public org.wiremock.url.HostAndPort normalise() {
-      var normalisedHost = host.normalise();
-      var normalisedPort = port == null ? null : port.normalise();
-      return normalised(normalisedHost, normalisedPort);
-    }
-
-    @Override
-    public org.wiremock.url.HostAndPort normalise(Scheme canonicalScheme) {
-      var normalisedHost = host.normalise();
-      var normalisedPort = port == null ? null : port.normalise();
-      if (Objects.equals(canonicalScheme.defaultPort(), normalisedPort)) {
-        normalisedPort = null;
-      }
-      return normalised(normalisedHost, normalisedPort);
-    }
-
-    private HostAndPort normalised(Host normalisedHost, @Nullable Port normalisedPort) {
-      return normalisedHost.equals(host) && Objects.equals(normalisedPort, port)
-          ? this
-          : new HostAndPort(normalisedHost, normalisedPort);
     }
   }
 }

@@ -21,87 +21,119 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class AuthorityTests {
 
-  static Stream<AuthorityParseTestCase> validAuthorities() {
-    return Stream.of(
-        testCase(
-            "user:password@www.example.com:8080",
-            expectation("user:password", "www.example.com", "8080")),
-        testCase("user:pass@example.com:21", expectation("user:pass", "example.com", "21")),
-        testCase("example.com:00080", expectation(null, "example.com", "00080")),
-        testCase("example.com", expectation(null, "example.com", null)),
-        testCase("[::1]", expectation(null, "[::1]", null)),
-        testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
-        testCase("[v7.fe80::1234]", expectation(null, "[v7.fe80::1234]", null)),
-        testCase("%61", expectation(null, "%61", null)),
-        testCase("localhost", expectation(null, "localhost", null)),
-        testCase("example.com", expectation(null, "example.com", null)),
-        testCase("www.example.com", expectation(null, "www.example.com", null)),
-        testCase("192.168.1.1", expectation(null, "192.168.1.1", null)),
-        testCase("10.0.0.1", expectation(null, "10.0.0.1", null)),
-        testCase("127.0.0.1", expectation(null, "127.0.0.1", null)),
-        testCase("[::1]", expectation(null, "[::1]", null)),
-        testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
-        testCase("test-server", expectation(null, "test-server", null)),
-        testCase("test_server", expectation(null, "test_server", null)),
-        testCase("server123", expectation(null, "server123", null)),
-        testCase("a", expectation(null, "a", null)),
-        testCase("a.b.c.d.e", expectation(null, "a.b.c.d.e", null)),
-        testCase("test%20server", expectation(null, "test%20server", null)),
-        testCase("caf%C3%A9.com", expectation(null, "caf%C3%A9.com", null)),
-        testCase("me@localhost", expectation("me", "localhost", null)),
-        testCase("me@example.com", expectation("me", "example.com", null)),
-        testCase("me@www.example.com", expectation("me", "www.example.com", null)),
-        testCase("me@192.168.1.1", expectation("me", "192.168.1.1", null)),
-        testCase("me@10.0.0.1", expectation("me", "10.0.0.1", null)),
-        testCase("me@127.0.0.1", expectation("me", "127.0.0.1", null)),
-        testCase("me@[::1]", expectation("me", "[::1]", null)),
-        testCase("me@[2001:db8::1]", expectation("me", "[2001:db8::1]", null)),
-        testCase("me@test-server", expectation("me", "test-server", null)),
-        testCase("me@test_server", expectation("me", "test_server", null)),
-        testCase("me@server123", expectation("me", "server123", null)),
-        testCase("me@a", expectation("me", "a", null)),
-        testCase("me@a.b.c.d.e", expectation("me", "a.b.c.d.e", null)),
-        testCase("me@test%20server", expectation("me", "test%20server", null)),
-        testCase("me@caf%C3%A9.com", expectation("me", "caf%C3%A9.com", null)),
-        testCase("localhost:8080", expectation(null, "localhost", "8080")),
-        testCase("example.com:8080", expectation(null, "example.com", "8080")),
-        testCase("www.example.com:8080", expectation(null, "www.example.com", "8080")),
-        testCase("192.168.1.1:8080", expectation(null, "192.168.1.1", "8080")),
-        testCase("10.0.0.1:8080", expectation(null, "10.0.0.1", "8080")),
-        testCase("127.0.0.1:8080", expectation(null, "127.0.0.1", "8080")),
-        testCase("[::1]:8080", expectation(null, "[::1]", "8080")),
-        testCase("[2001:db8::1]:8080", expectation(null, "[2001:db8::1]", "8080")),
-        testCase("test-server:8080", expectation(null, "test-server", "8080")),
-        testCase("test_server:8080", expectation(null, "test_server", "8080")),
-        testCase("server123:8080", expectation(null, "server123", "8080")),
-        testCase("a:8080", expectation(null, "a", "8080")),
-        testCase("a.b.c.d.e:8080", expectation(null, "a.b.c.d.e", "8080")),
-        testCase("test%20server:8080", expectation(null, "test%20server", "8080")),
-        testCase("caf%C3%A9.com:8080", expectation(null, "caf%C3%A9.com", "8080")),
-        testCase("me@localhost:8080", expectation("me", "localhost", "8080")),
-        testCase("me@example.com:8080", expectation("me", "example.com", "8080")),
-        testCase("me@www.example.com:8080", expectation("me", "www.example.com", "8080")),
-        testCase("me@192.168.1.1:8080", expectation("me", "192.168.1.1", "8080")),
-        testCase("me@10.0.0.1:8080", expectation("me", "10.0.0.1", "8080")),
-        testCase("me@127.0.0.1:8080", expectation("me", "127.0.0.1", "8080")),
-        testCase("me@[::1]:8080", expectation("me", "[::1]", "8080")),
-        testCase("me@[2001:db8::1]:8080", expectation("me", "[2001:db8::1]", "8080")),
-        testCase("me@test-server:8080", expectation("me", "test-server", "8080")),
-        testCase("me@test_server:8080", expectation("me", "test_server", "8080")),
-        testCase("me@server123:8080", expectation("me", "server123", "8080")),
-        testCase("me@a:8080", expectation("me", "a", "8080")),
-        testCase("me@a.b.c.d.e:8080", expectation("me", "a.b.c.d.e", "8080")),
-        testCase("me@test%20server:8080", expectation("me", "test%20server", "8080")),
-        testCase("me@caf%C3%A9.com:8080", expectation("me", "caf%C3%A9.com", "8080")));
+  static List<AuthorityParseTestCase> validHostAndPorts =
+      List.of(
+          testCase("example.com:00080", expectation(null, "example.com", "00080")),
+          testCase("example.com", expectation(null, "example.com", null)),
+          testCase("[::1]", expectation(null, "[::1]", null)),
+          testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
+          testCase("[v7.fe80::1234]", expectation(null, "[v7.fe80::1234]", null)),
+          testCase("%61", expectation(null, "%61", null)),
+          testCase("localhost", expectation(null, "localhost", null)),
+          testCase("example.com", expectation(null, "example.com", null)),
+          testCase("www.example.com", expectation(null, "www.example.com", null)),
+          testCase("192.168.1.1", expectation(null, "192.168.1.1", null)),
+          testCase("10.0.0.1", expectation(null, "10.0.0.1", null)),
+          testCase("127.0.0.1", expectation(null, "127.0.0.1", null)),
+          testCase("[::1]", expectation(null, "[::1]", null)),
+          testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
+          testCase("test-server", expectation(null, "test-server", null)),
+          testCase("test_server", expectation(null, "test_server", null)),
+          testCase("server123", expectation(null, "server123", null)),
+          testCase("a", expectation(null, "a", null)),
+          testCase("a.b.c.d.e", expectation(null, "a.b.c.d.e", null)),
+          testCase("test%20server", expectation(null, "test%20server", null)),
+          testCase("caf%C3%A9.com", expectation(null, "caf%C3%A9.com", null)),
+          testCase("localhost:8080", expectation(null, "localhost", "8080")),
+          testCase("example.com:8080", expectation(null, "example.com", "8080")),
+          testCase("www.example.com:8080", expectation(null, "www.example.com", "8080")),
+          testCase("192.168.1.1:8080", expectation(null, "192.168.1.1", "8080")),
+          testCase("10.0.0.1:8080", expectation(null, "10.0.0.1", "8080")),
+          testCase("127.0.0.1:8080", expectation(null, "127.0.0.1", "8080")),
+          testCase("[::1]:8080", expectation(null, "[::1]", "8080")),
+          testCase("[2001:db8::1]:8080", expectation(null, "[2001:db8::1]", "8080")),
+          testCase("test-server:8080", expectation(null, "test-server", "8080")),
+          testCase("test_server:8080", expectation(null, "test_server", "8080")),
+          testCase("server123:8080", expectation(null, "server123", "8080")),
+          testCase("a:8080", expectation(null, "a", "8080")),
+          testCase("a.b.c.d.e:8080", expectation(null, "a.b.c.d.e", "8080")),
+          testCase("test%20server:8080", expectation(null, "test%20server", "8080")),
+          testCase("caf%C3%A9.com:8080", expectation(null, "caf%C3%A9.com", "8080")));
+
+  static List<AuthorityParseTestCase> validAuthorities =
+      Stream.concat(
+              validHostAndPorts.stream(),
+              Stream.of(
+                  testCase(
+                      "user:password@www.example.com:8080",
+                      expectation("user:password", "www.example.com", "8080")),
+                  testCase(
+                      "user:pass@example.com:21", expectation("user:pass", "example.com", "21")),
+                  testCase("me@localhost", expectation("me", "localhost", null)),
+                  testCase("me@example.com", expectation("me", "example.com", null)),
+                  testCase("me@www.example.com", expectation("me", "www.example.com", null)),
+                  testCase("me@192.168.1.1", expectation("me", "192.168.1.1", null)),
+                  testCase("me@10.0.0.1", expectation("me", "10.0.0.1", null)),
+                  testCase("me@127.0.0.1", expectation("me", "127.0.0.1", null)),
+                  testCase("me@[::1]", expectation("me", "[::1]", null)),
+                  testCase("me@[2001:db8::1]", expectation("me", "[2001:db8::1]", null)),
+                  testCase("me@test-server", expectation("me", "test-server", null)),
+                  testCase("me@test_server", expectation("me", "test_server", null)),
+                  testCase("me@server123", expectation("me", "server123", null)),
+                  testCase("me@a", expectation("me", "a", null)),
+                  testCase("me@a.b.c.d.e", expectation("me", "a.b.c.d.e", null)),
+                  testCase("me@test%20server", expectation("me", "test%20server", null)),
+                  testCase("me@caf%C3%A9.com", expectation("me", "caf%C3%A9.com", null)),
+                  testCase("me@localhost:8080", expectation("me", "localhost", "8080")),
+                  testCase("me@example.com:8080", expectation("me", "example.com", "8080")),
+                  testCase("me@www.example.com:8080", expectation("me", "www.example.com", "8080")),
+                  testCase("me@192.168.1.1:8080", expectation("me", "192.168.1.1", "8080")),
+                  testCase("me@10.0.0.1:8080", expectation("me", "10.0.0.1", "8080")),
+                  testCase("me@127.0.0.1:8080", expectation("me", "127.0.0.1", "8080")),
+                  testCase("me@[::1]:8080", expectation("me", "[::1]", "8080")),
+                  testCase("me@[2001:db8::1]:8080", expectation("me", "[2001:db8::1]", "8080")),
+                  testCase("me@test-server:8080", expectation("me", "test-server", "8080")),
+                  testCase("me@test_server:8080", expectation("me", "test_server", "8080")),
+                  testCase("me@server123:8080", expectation("me", "server123", "8080")),
+                  testCase("me@a:8080", expectation("me", "a", "8080")),
+                  testCase("me@a.b.c.d.e:8080", expectation("me", "a.b.c.d.e", "8080")),
+                  testCase("me@test%20server:8080", expectation("me", "test%20server", "8080")),
+                  testCase("me@caf%C3%A9.com:8080", expectation("me", "caf%C3%A9.com", "8080"))))
+          .toList();
+
+  @TestFactory
+  Stream<DynamicTest> invariants() {
+    List<String> authorities =
+        validAuthorities.stream()
+            .map(authorityParseTestCase -> authorityParseTestCase.stringForm)
+            .toList();
+    return CharSequenceParserInvariantTests.generateInvariantTests(
+        AuthorityParser.INSTANCE, authorities);
+  }
+
+  @ParameterizedTest
+  @FieldSource("validAuthorities")
+  void parses_valid_authority(AuthorityParseTestCase urlTest) {
+    Authority authority = Authority.parse(urlTest.stringForm);
+    assertThat(authority.userInfo()).isEqualTo(urlTest.expectation.userInfo);
+    assertThat(authority.host()).isEqualTo(urlTest.expectation.host);
+    assertThat(authority.port()).isEqualTo(urlTest.expectation.port);
+  }
+
+  @ParameterizedTest
+  @FieldSource("validHostAndPorts")
+  void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
+    Authority authority = Authority.parse(urlTest.stringForm);
+    assertThat(authority.userInfo()).isEqualTo(urlTest.expectation.userInfo);
+    assertThat(authority.host()).isEqualTo(urlTest.expectation.host);
+    assertThat(authority.port()).isEqualTo(urlTest.expectation.port);
   }
 
   record AuthorityChangeTestCase(Authority original, Authority expected) {}
@@ -110,17 +142,17 @@ public class AuthorityTests {
     return new AuthorityChangeTestCase(Authority.parse(original), Authority.parse(expected));
   }
 
-  private static final List<AuthorityChangeTestCase> withoutPortTestCases = List.of(
-      changeTest("example.com:80", "example.com"),
-      changeTest("user@example.com:80", "user@example.com"),
-      changeTest("example.com:", "example.com"),
-      changeTest("user@example.com:", "user@example.com")
-  );
+  private static final List<AuthorityChangeTestCase> withoutPortTestCases =
+      List.of(
+          changeTest("example.com:80", "example.com"),
+          changeTest("user@example.com:80", "user@example.com"),
+          changeTest("example.com:", "example.com"),
+          changeTest("user@example.com:", "user@example.com"));
 
-  private static final List<AuthorityChangeTestCase> unchangedWithoutPortTestCases = List.of(
-      changeTest("example.com", "example.com"),
-      changeTest("user@example.com", "user@example.com")
-  );
+  private static final List<AuthorityChangeTestCase> unchangedWithoutPortTestCases =
+      List.of(
+          changeTest("example.com", "example.com"),
+          changeTest("user@example.com", "user@example.com"));
 
   @ParameterizedTest()
   @FieldSource("withoutPortTestCases")
@@ -146,14 +178,14 @@ public class AuthorityTests {
     assertThat(testCase.original.withPort(null)).isSameAs(testCase.original);
   }
 
-  private static final List<AuthorityChangeTestCase> withPortChangesPortTestCases = List.of(
-      changeTest("example.com", "example.com:8080"),
-      changeTest("user@example.com", "user@example.com:8080"),
-      changeTest("example.com:", "example.com:8080"),
-      changeTest("user@example.com:", "user@example.com:8080"),
-      changeTest("example.com:80", "example.com:8080"),
-      changeTest("user@example.com:80", "user@example.com:8080")
-  );
+  private static final List<AuthorityChangeTestCase> withPortChangesPortTestCases =
+      List.of(
+          changeTest("example.com", "example.com:8080"),
+          changeTest("user@example.com", "user@example.com:8080"),
+          changeTest("example.com:", "example.com:8080"),
+          changeTest("user@example.com:", "user@example.com:8080"),
+          changeTest("example.com:80", "example.com:8080"),
+          changeTest("user@example.com:80", "user@example.com:8080"));
 
   @ParameterizedTest
   @FieldSource("withPortChangesPortTestCases")
@@ -162,32 +194,14 @@ public class AuthorityTests {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-      "example.com:8080",
-      "user@example.com:8080",
-  })
+  @ValueSource(
+      strings = {
+        "example.com:8080",
+        "user@example.com:8080",
+      })
   void withPortDoesNothingIfNoChangeInPort(String original) {
     var authority = Authority.parse(original);
     assertThat(authority.withPort(Port.of(8080))).isSameAs(authority);
-  }
-
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    List<String> validAuthorities =
-        validAuthorities()
-            .map(authorityParseTestCase -> authorityParseTestCase.stringForm)
-            .toList();
-    return CharSequenceParserInvariantTests.generateInvariantTests(
-        AuthorityParser.INSTANCE, validAuthorities);
-  }
-
-  @ParameterizedTest
-  @MethodSource("validAuthorities")
-  void parses_valid_url(AuthorityParseTestCase urlTest) {
-    Authority authority = Authority.parse(urlTest.stringForm);
-    assertThat(authority.userInfo()).isEqualTo(urlTest.expectation.userInfo);
-    assertThat(authority.host()).isEqualTo(urlTest.expectation.host);
-    assertThat(authority.port()).isEqualTo(urlTest.expectation.port);
   }
 
   static AuthorityParseTestCase testCase(String stringForm, AuthorityExpectation expectation) {

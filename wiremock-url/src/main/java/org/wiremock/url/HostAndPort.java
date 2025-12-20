@@ -24,16 +24,11 @@ public interface HostAndPort extends Authority {
   }
 
   static HostAndPort of(Host host, @Nullable Port port) {
-    return new AuthorityParser.HostAndPort(host, port);
+    return new HostAndPortValue(host, port);
   }
 
   static HostAndPort parse(String hostAndPortStr) {
-    var authority = Authority.parse(hostAndPortStr);
-    if (authority instanceof HostAndPort) {
-      return (HostAndPort) authority;
-    } else {
-      throw new IllegalHostAndPort(hostAndPortStr);
-    }
+    return HostAndPortParser.INSTANCE.parse(hostAndPortStr);
   }
 
   /**
@@ -49,6 +44,12 @@ public interface HostAndPort extends Authority {
     return null;
   }
 
+  /**
+   * {@implSpec} Implementations must ALWAYS return this
+   *
+   * @deprecated This always returns this so you have no reason to ever call it
+   * @return this
+   */
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   default HostAndPort hostAndPort() {

@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
@@ -28,14 +29,14 @@ public interface Authority {
 
   /*
    * An Authority can legitimately be any of:
-   * - `example.com` - host, no port
-   * - `example.com:80` - host with port
-   * - `example.com:` - host, empty port
+   * - `example.com` - no port
+   * - `example.com:` - empty port
+   * - `example.com:80` - with port
    *
-   * This method allows distinguishing between the first and third cases:
+   * This method allows distinguishing between the first and second cases:
    * - `Optional.empty()` - no port
-   * - `Optional.of(Optional.of(port))` - with port
    * - `Optional.of(Optional.empty())` - empty port
+   * - `Optional.of(Optional.of(port))` - with port
    */
   Optional<Optional<Port>> maybePort();
 
@@ -68,12 +69,24 @@ public interface Authority {
   }
 
   static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
-    if (userInfo == null) {
-      return new AuthorityParser.HostAndPort(host, port);
-    } else {
-      var portOptional =
-          port == null ? Optional.<Optional<Port>>empty() : Optional.of(Optional.of(port));
-      return new AuthorityValue(userInfo, host, portOptional);
+    return AuthorityParser.INSTANCE.of(userInfo, host, port);
+  }
+
+  static boolean equals(Authority one, Object o) {
+    if (one == o) {
+      return true;
     }
+
+    if (!(o instanceof Authority other)) {
+      return false;
+    }
+
+    return Objects.equals(one.userInfo(), other.userInfo())
+        && Objects.equals(one.host(), other.host())
+        && Objects.equals(one.maybePort(), other.maybePort());
+  }
+
+  static int hashCode(Authority authority) {
+    return Objects.hash(authority.userInfo(), authority.host(), authority.maybePort());
   }
 }
