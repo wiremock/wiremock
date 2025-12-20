@@ -82,8 +82,7 @@ public class MessageStubRequestHandler {
 
   private void executeSendMessageAction(
       SendMessageAction action, MessageChannel originatingChannel) {
-    MessageDefinition messageDefinition = new MessageDefinition(action.getBody());
-    Message message = resolveToMessage(messageDefinition);
+    Message message = resolveToMessage(action.getMessage());
     if (action.isSendToOriginatingChannel()) {
       originatingChannel.sendMessage(message);
     } else if (action.getTargetChannelPattern() != null) {

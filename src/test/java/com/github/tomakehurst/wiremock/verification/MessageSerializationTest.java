@@ -69,19 +69,23 @@ public class MessageSerializationTest {
               "id": "d8e8fca2-dc0f-11db-8314-0800200c9a66",
               "name": "Test message stub",
               "priority": 3,
-              "channelPattern": {
-                "url": "/test-channel",
-                "method": "ANY"
-              },
-              "messagePattern": {
-                "body": {
-                  "equalTo": "hello"
+              "trigger": {
+                "channelPattern": {
+                  "url": "/test-channel",
+                  "method": "ANY"
+                },
+                "messagePattern": {
+                  "body": {
+                    "equalTo": "hello"
+                  }
                 }
               },
               "actions": [
                 {
                   "type": "send",
-                  "body": "world",
+                  "message": {
+                    "body": "world"
+                  },
                   "sendToOriginatingChannel": true
                 }
               ]
@@ -97,18 +101,22 @@ public class MessageSerializationTest {
           "id": "d8e8fca2-dc0f-11db-8314-0800200c9a66",
           "name": "Deserialized stub",
           "priority": 5,
-          "channelPattern": {
-            "url": "/my-channel"
-          },
-          "messagePattern": {
-            "body": {
-              "matches": "hello.*"
+          "trigger": {
+            "channelPattern": {
+              "url": "/my-channel"
+            },
+            "messagePattern": {
+              "body": {
+                "matches": "hello.*"
+              }
             }
           },
           "actions": [
             {
               "type": "send",
-              "body": "response",
+              "message": {
+                "body": "response"
+              },
               "sendToOriginatingChannel": true
             }
           ]
@@ -184,15 +192,19 @@ public class MessageSerializationTest {
               "stubMapping": {
                 "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "name": "Matched stub",
-                "messagePattern": {
-                  "body": {
-                    "equalTo": "test"
+                "trigger": {
+                  "messagePattern": {
+                    "body": {
+                      "equalTo": "test"
+                    }
                   }
                 },
                 "actions": [
                   {
                     "type": "send",
-                    "body": "response",
+                    "message": {
+                      "body": "response"
+                    },
                     "sendToOriginatingChannel": true
                   }
                 ]
@@ -268,19 +280,23 @@ public class MessageSerializationTest {
             {
               "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
               "name": "Broadcast stub",
-              "channelPattern": {
-                "url": "/source",
-                "method": "ANY"
-              },
-              "messagePattern": {
-                "body": {
-                  "equalTo": "broadcast"
+              "trigger": {
+                "channelPattern": {
+                  "url": "/source",
+                  "method": "ANY"
+                },
+                "messagePattern": {
+                  "body": {
+                    "equalTo": "broadcast"
+                  }
                 }
               },
               "actions": [
                 {
                   "type": "send",
-                  "body": "broadcasted",
+                  "message": {
+                    "body": "broadcasted"
+                  },
                   "targetChannelPattern": {
                     "url": "/target",
                     "method": "ANY"
@@ -298,18 +314,22 @@ public class MessageSerializationTest {
         """
         {
           "name": "Broadcast deserialized",
-          "channelPattern": {
-            "url": "/source"
-          },
-          "messagePattern": {
-            "body": {
-              "equalTo": "trigger"
+          "trigger": {
+            "channelPattern": {
+              "url": "/source"
+            },
+            "messagePattern": {
+              "body": {
+                "equalTo": "trigger"
+              }
             }
           },
           "actions": [
             {
               "type": "send",
-              "body": "broadcast-message",
+              "message": {
+                "body": "broadcast-message"
+              },
               "targetChannelPattern": {
                 "url": "/target-channel"
               },
@@ -501,17 +521,21 @@ public class MessageSerializationTest {
             {
               "id": "cccccccc-dddd-eeee-ffff-000000000000",
               "name": "Full entity stub",
-              "messagePattern": {
-                "body": {
-                  "equalTo": "trigger"
+              "trigger": {
+                "messagePattern": {
+                  "body": {
+                    "equalTo": "trigger"
+                  }
                 }
               },
               "actions": [
                 {
                   "type": "send",
-                  "body": {
-                    "data": {
-                      "key": "value"
+                  "message": {
+                    "body": {
+                      "data": {
+                        "key": "value"
+                      }
                     }
                   },
                   "sendToOriginatingChannel": true
@@ -527,17 +551,21 @@ public class MessageSerializationTest {
         """
         {
           "name": "Full entity deserialized",
-          "messagePattern": {
-            "body": {
-              "equalTo": "trigger"
+          "trigger": {
+            "messagePattern": {
+              "body": {
+                "equalTo": "trigger"
+              }
             }
           },
           "actions": [
             {
               "type": "send",
-              "body": {
-                "dataStore": "testStore",
-                "dataRef": "testKey"
+              "message": {
+                "body": {
+                  "dataStore": "testStore",
+                  "dataRef": "testKey"
+                }
               },
               "sendToOriginatingChannel": true
             }

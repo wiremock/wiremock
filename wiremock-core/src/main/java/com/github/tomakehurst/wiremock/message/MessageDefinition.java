@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
+import java.util.Objects;
 
 public class MessageDefinition {
 
@@ -35,5 +36,18 @@ public class MessageDefinition {
 
   public EntityDefinition getBody() {
     return body;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    MessageDefinition that = (MessageDefinition) o;
+    return Objects.equals(body, that.body);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(body);
   }
 }
