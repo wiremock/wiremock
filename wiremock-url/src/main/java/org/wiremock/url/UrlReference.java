@@ -29,12 +29,10 @@ public sealed interface UrlReference permits RelativeRef, Url {
 
   @Nullable Fragment fragment();
 
-  @SuppressWarnings("unused")
   boolean isRelativeRef();
 
   boolean isUrl();
 
-  @SuppressWarnings("unused")
   default @Nullable UserInfo userInfo() {
     Authority authority = authority();
     return authority != null ? authority.userInfo() : null;

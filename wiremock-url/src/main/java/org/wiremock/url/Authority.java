@@ -26,6 +26,19 @@ public interface Authority {
 
   @Nullable Port port();
 
+  /*
+   * An Authority can legitimately be any of:
+   * - `example.com` - host, no port
+   * - `example.com:80` - host with port
+   * - `example.com:` - host, empty port
+   *
+   * This method allows distinguishing between the first and third cases:
+   * - `Optional.empty()` - no port
+   * - `Optional.of(Optional.of(port))` - with port
+   * - `Optional.of(Optional.empty())` - empty port
+   */
+  Optional<Optional<Port>> maybePort();
+
   HostAndPort hostAndPort();
 
   Authority withPort(@Nullable Port port);
@@ -33,6 +46,10 @@ public interface Authority {
   default Authority withoutPort() {
     return withPort(null);
   }
+
+  Authority normalise();
+
+  Authority normalise(Scheme canonicalScheme);
 
   static Authority parse(String authorityStr) throws IllegalAuthority {
     return AuthorityParser.INSTANCE.parse(authorityStr);
@@ -56,11 +73,7 @@ public interface Authority {
     } else {
       var portOptional =
           port == null ? Optional.<Optional<Port>>empty() : Optional.of(Optional.of(port));
-      return new AuthorityParser.Authority(userInfo, host, portOptional);
+      return new AuthorityValue(userInfo, host, portOptional);
     }
   }
-
-  Authority normalise();
-
-  Authority normalise(Scheme canonicalScheme);
 }

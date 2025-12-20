@@ -33,7 +33,6 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>An implementation's toString should return the String used when it was created.
  */
-@SuppressWarnings("unused")
 public interface Scheme {
 
   Scheme http = register("http", Port.of(80));

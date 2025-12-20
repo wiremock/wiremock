@@ -21,9 +21,12 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class AuthorityTests {
 
@@ -99,6 +102,73 @@ public class AuthorityTests {
         testCase("me@a.b.c.d.e:8080", expectation("me", "a.b.c.d.e", "8080")),
         testCase("me@test%20server:8080", expectation("me", "test%20server", "8080")),
         testCase("me@caf%C3%A9.com:8080", expectation("me", "caf%C3%A9.com", "8080")));
+  }
+
+  record AuthorityChangeTestCase(Authority original, Authority expected) {}
+
+  private static AuthorityChangeTestCase changeTest(String original, String expected) {
+    return new AuthorityChangeTestCase(Authority.parse(original), Authority.parse(expected));
+  }
+
+  private static final List<AuthorityChangeTestCase> withoutPortTestCases = List.of(
+      changeTest("example.com:80", "example.com"),
+      changeTest("user@example.com:80", "user@example.com"),
+      changeTest("example.com:", "example.com"),
+      changeTest("user@example.com:", "user@example.com")
+  );
+
+  private static final List<AuthorityChangeTestCase> unchangedWithoutPortTestCases = List.of(
+      changeTest("example.com", "example.com"),
+      changeTest("user@example.com", "user@example.com")
+  );
+
+  @ParameterizedTest()
+  @FieldSource("withoutPortTestCases")
+  void withoutPortRemovesPort(AuthorityChangeTestCase testCase) {
+    assertThat(testCase.original.withoutPort()).isEqualTo(testCase.expected);
+  }
+
+  @ParameterizedTest()
+  @FieldSource("unchangedWithoutPortTestCases")
+  void withoutPortDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
+    assertThat(testCase.original.withoutPort()).isSameAs(testCase.original);
+  }
+
+  @ParameterizedTest()
+  @FieldSource("withoutPortTestCases")
+  void withPortNullRemovesPort(AuthorityChangeTestCase testCase) {
+    assertThat(testCase.original.withPort(null)).isEqualTo(testCase.expected);
+  }
+
+  @ParameterizedTest()
+  @FieldSource("unchangedWithoutPortTestCases")
+  void withPortNullDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
+    assertThat(testCase.original.withPort(null)).isSameAs(testCase.original);
+  }
+
+  private static final List<AuthorityChangeTestCase> withPortChangesPortTestCases = List.of(
+      changeTest("example.com", "example.com:8080"),
+      changeTest("user@example.com", "user@example.com:8080"),
+      changeTest("example.com:", "example.com:8080"),
+      changeTest("user@example.com:", "user@example.com:8080"),
+      changeTest("example.com:80", "example.com:8080"),
+      changeTest("user@example.com:80", "user@example.com:8080")
+  );
+
+  @ParameterizedTest
+  @FieldSource("withPortChangesPortTestCases")
+  void withPortChangesPort(AuthorityChangeTestCase testCase) {
+    assertThat(testCase.original.withPort(Port.of(8080))).isEqualTo(testCase.expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "example.com:8080",
+      "user@example.com:8080",
+  })
+  void withPortDoesNothingIfNoChangeInPort(String original) {
+    var authority = Authority.parse(original);
+    assertThat(authority.withPort(Port.of(8080))).isSameAs(authority);
   }
 
   @TestFactory

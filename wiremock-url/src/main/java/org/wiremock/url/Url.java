@@ -18,7 +18,6 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("unused")
 public non-sealed interface Url extends UrlReference {
 
   @Override

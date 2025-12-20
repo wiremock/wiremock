@@ -19,8 +19,21 @@ import org.jspecify.annotations.Nullable;
 
 public interface HostAndPort extends Authority {
 
+  static HostAndPort of(Host host) {
+    return of(host, null);
+  }
+
   static HostAndPort of(Host host, @Nullable Port port) {
     return new AuthorityParser.HostAndPort(host, port);
+  }
+
+  static HostAndPort parse(String hostAndPortStr) {
+    var authority = Authority.parse(hostAndPortStr);
+    if (authority instanceof HostAndPort) {
+      return (HostAndPort) authority;
+    } else {
+      throw new IllegalHostAndPort(hostAndPortStr);
+    }
   }
 
   /**
