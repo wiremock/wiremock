@@ -64,6 +64,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "id": "d8e8fca2-dc0f-11db-8314-0800200c9a66",
@@ -96,6 +97,7 @@ public class MessageSerializationTest {
   @Test
   void messageStubMappingDeserializesFromJson() {
     String json =
+        // language=JSON
         """
         {
           "id": "d8e8fca2-dc0f-11db-8314-0800200c9a66",
@@ -180,6 +182,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "id": "eeeeeeee-ffff-0000-1111-222222222222",
@@ -216,6 +219,7 @@ public class MessageSerializationTest {
   @Test
   void messageServeEventDeserializesFromJson() {
     String json =
+        // language=JSON
         """
         {
           "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
@@ -276,6 +280,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
@@ -368,6 +373,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "id": "22222222-3333-4444-5555-666666666666",
@@ -418,6 +424,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "data": "hello world"
@@ -438,6 +445,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "data": {
@@ -462,6 +470,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "format": "text",
@@ -517,6 +526,7 @@ public class MessageSerializationTest {
     assertThat(
         json,
         jsonEquals(
+            // language=JSON
             """
             {
               "id": "cccccccc-dddd-eeee-ffff-000000000000",
@@ -548,6 +558,7 @@ public class MessageSerializationTest {
   @Test
   void messageStubMappingWithFullEntityDefinitionDeserializesCorrectly() {
     String json =
+        // language=JSON
         """
         {
           "name": "Full entity deserialized",
