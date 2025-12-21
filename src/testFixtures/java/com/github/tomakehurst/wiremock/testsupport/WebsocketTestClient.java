@@ -156,19 +156,30 @@ public class WebsocketTestClient {
     return endpoint.messages.stream().filter(predicate).findFirst().get();
   }
 
-  public static class NotificationCapturingEndpoint extends Endpoint
-      implements MessageHandler.Whole<String> {
+  public List<byte[]> getBinaryMessages() {
+    return endpoint.binaryMessages;
+  }
+
+  public void clearBinaryMessages() {
+    endpoint.binaryMessages.clear();
+  }
+
+  public static class NotificationCapturingEndpoint extends Endpoint {
 
     public final List<String> messages = new LinkedList<>();
+    public final List<byte[]> binaryMessages = new LinkedList<>();
 
     @Override
     public void onOpen(Session session, EndpointConfig config) {
-      session.addMessageHandler(this);
-    }
-
-    @Override
-    public void onMessage(String message) {
-      messages.add(message);
+      session.addMessageHandler(String.class, (MessageHandler.Whole<String>) messages::add);
+      session.addMessageHandler(
+          ByteBuffer.class,
+          (MessageHandler.Whole<ByteBuffer>)
+              buffer -> {
+                byte[] data = new byte[buffer.remaining()];
+                buffer.get(data);
+                binaryMessages.add(data);
+              });
     }
   }
 }

@@ -43,6 +43,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
+import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
@@ -963,5 +964,32 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("binary matched!"));
     assertThat(testClient.getMessages().contains("binary matched!"), is(true));
+  }
+
+  @Test
+  void binaryMessageCanBeSentAsResponse() {
+    byte[] responseBytes = new byte[] {0x0A, 0x0B, 0x0C, 0x0D, 0x0E};
+
+    BinaryEntityDefinition binaryBody =
+        BinaryEntityDefinition.aBinaryMessage().withBody(responseBytes).build();
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Binary response stub")
+            .withBody(equalTo("send-binary"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/binary-response-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendMessage("send-binary");
+
+    waitAtMost(5, SECONDS).until(() -> !testClient.getBinaryMessages().isEmpty());
+    assertThat(testClient.getBinaryMessages().get(0), is(responseBytes));
   }
 }

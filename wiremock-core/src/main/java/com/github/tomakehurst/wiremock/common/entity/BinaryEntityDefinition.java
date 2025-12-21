@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static java.util.Arrays.asList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,10 +36,12 @@ public class BinaryEntityDefinition extends EntityDefinition {
   private final String data;
 
   public BinaryEntityDefinition(
+      @JsonProperty("encoding") EncodingType ignored,
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
       @JsonProperty("dataRef") String dataRef,
       @JsonProperty("data") String data) {
+    // encoding is accepted for deserialization but ignored (always BINARY)
     this.compression =
         asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
@@ -56,6 +59,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
   }
 
   @Override
+  @JsonIgnore
   public FormatType getFormat() {
     return FormatType.BASE64;
   }
@@ -78,6 +82,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
     return data;
   }
 
+  @JsonIgnore
   public byte[] getDataAsBytes() {
     if (data == null) {
       return null;
@@ -144,7 +149,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
     }
 
     public BinaryEntityDefinition build() {
-      return new BinaryEntityDefinition(compression, dataStore, dataRef, data);
+      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data);
     }
   }
 }

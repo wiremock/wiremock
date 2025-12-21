@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -27,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
@@ -590,5 +592,156 @@ public class MessageSerializationTest {
     TextEntityDefinition entityDef = (TextEntityDefinition) action.getBody();
     assertThat(entityDef.getDataStore(), is("testStore"));
     assertThat(entityDef.getDataRef(), is("testKey"));
+  }
+
+  // BinaryEntityDefinition serialisation tests
+
+  @Test
+  void messageStubMappingWithBinaryMatchingAndBinaryResponseSerializesCorrectly() {
+    byte[] matchBytes = new byte[] {0x01, 0x02, 0x03};
+    byte[] responseBytes = new byte[] {0x0A, 0x0B, 0x0C, 0x0D};
+
+    String matchBase64 = java.util.Base64.getEncoder().encodeToString(matchBytes);
+    String responseBase64 = java.util.Base64.getEncoder().encodeToString(responseBytes);
+
+    BinaryEntityDefinition binaryBody =
+        BinaryEntityDefinition.aBinaryMessage().withBody(responseBytes).build();
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .withName("Binary stub")
+            .withBody(binaryEqualTo(matchBytes))
+            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
+            .build();
+
+    String json = Json.write(stub);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+              "name": "Binary stub",
+              "trigger": {
+                "type": "message",
+                "messagePattern": {
+                  "body": {
+                    "binaryEqualTo": "%s"
+                  }
+                }
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": {
+                      "encoding": "binary",
+                      "data": "%s"
+                    }
+                  },
+                  "sendToOriginatingChannel": true
+                }
+              ]
+            }
+            """
+                .formatted(matchBase64, responseBase64)));
+  }
+
+  @Test
+  void messageStubMappingWithBinaryMatchingAndBinaryResponseDeserializesCorrectly() {
+    byte[] matchBytes = new byte[] {0x01, 0x02, 0x03};
+    byte[] responseBytes = new byte[] {0x0A, 0x0B, 0x0C, 0x0D};
+
+    String matchBase64 = java.util.Base64.getEncoder().encodeToString(matchBytes);
+    String responseBase64 = java.util.Base64.getEncoder().encodeToString(responseBytes);
+
+    String json =
+        // language=JSON
+        """
+        {
+          "name": "Binary deserialized",
+          "trigger": {
+            "messagePattern": {
+              "body": {
+                "binaryEqualTo": "%s"
+              }
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": {
+                  "encoding": "binary",
+                  "data": "%s"
+                }
+              },
+              "sendToOriginatingChannel": true
+            }
+          ]
+        }
+        """
+            .formatted(matchBase64, responseBase64);
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    assertThat(stub.getName(), is("Binary deserialized"));
+    assertThat(stub.getActions().size(), is(1));
+
+    SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
+    assertThat(action.getBody(), is(notNullValue()));
+    assertThat(action.getBody() instanceof BinaryEntityDefinition, is(true));
+
+    BinaryEntityDefinition entityDef = (BinaryEntityDefinition) action.getBody();
+    assertThat(entityDef.getData(), is(responseBase64));
+    assertThat(entityDef.getDataAsBytes(), is(responseBytes));
+  }
+
+  @Test
+  void binaryEntityDefinitionSerializesToJson() {
+    byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
+    String base64Data = java.util.Base64.getEncoder().encodeToString(data);
+
+    BinaryEntityDefinition entityDef =
+        BinaryEntityDefinition.aBinaryMessage().withBody(data).build();
+
+    String json = Json.write(entityDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "encoding": "binary",
+              "data": "%s"
+            }
+            """
+                .formatted(base64Data)));
+  }
+
+  @Test
+  void binaryEntityDefinitionRoundTripsViaMessageStubMapping() {
+    byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
+
+    BinaryEntityDefinition original =
+        BinaryEntityDefinition.aBinaryMessage().withBody(data).build();
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Binary round trip stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(original))
+            .build();
+
+    String json = Json.write(stub);
+    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
+
+    SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
+    assertThat(action.getBody(), instanceOf(BinaryEntityDefinition.class));
+    assertThat(action.getBody(), is(original));
   }
 }
