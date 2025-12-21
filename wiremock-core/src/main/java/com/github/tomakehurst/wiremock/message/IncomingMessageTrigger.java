@@ -24,9 +24,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Objects;
 
 @JsonInclude(NON_EMPTY)
@@ -58,26 +57,20 @@ public class IncomingMessageTrigger implements MessageTrigger {
     return messagePattern != null ? messagePattern.getBodyPattern() : null;
   }
 
-  public boolean matches(
-      MessageChannel channel,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    return matches(channel.getRequest(), message, customMatchers);
+  public boolean matches(MessageChannel channel, Message message) {
+    return matches(channel.getRequest(), message);
   }
 
-  public boolean matches(
-      Request channelRequest,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
+  public boolean matches(Request channelRequest, Message message) {
     if (channelPattern != null) {
-      MatchResult channelMatch = channelPattern.match(channelRequest, customMatchers);
+      MatchResult channelMatch = channelPattern.match(channelRequest, Collections.emptyMap());
       if (!channelMatch.isExactMatch()) {
         return false;
       }
     }
 
     if (messagePattern != null) {
-      return messagePattern.matches(channelRequest, message, customMatchers);
+      return messagePattern.matches(channelRequest, message);
     }
 
     return true;

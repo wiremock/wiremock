@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -116,13 +115,9 @@ public class MessageStubMapping {
     return actions;
   }
 
-  public boolean matches(
-      MessageChannel channel,
-      Message message,
-      Map<String, com.github.tomakehurst.wiremock.matching.RequestMatcherExtension>
-          customMatchers) {
+  public boolean matches(MessageChannel channel, Message message) {
     if (trigger instanceof IncomingMessageTrigger) {
-      return ((IncomingMessageTrigger) trigger).matches(channel, message, customMatchers);
+      return ((IncomingMessageTrigger) trigger).matches(channel, message);
     }
     return false;
   }

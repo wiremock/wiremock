@@ -25,12 +25,10 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -80,20 +78,14 @@ public class MessagePattern {
     return bodyPattern;
   }
 
-  public boolean matches(
-      MessageChannel channel,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    return matches(channel.getRequest(), message, customMatchers);
+  public boolean matches(MessageChannel channel, Message message) {
+    return matches(channel.getRequest(), message);
   }
 
   @SuppressWarnings("unchecked")
-  public boolean matches(
-      Request channelRequest,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
+  public boolean matches(Request channelRequest, Message message) {
     if (channelPattern != null) {
-      MatchResult channelMatch = channelPattern.match(channelRequest, customMatchers);
+      MatchResult channelMatch = channelPattern.match(channelRequest, Collections.emptyMap());
       if (!channelMatch.isExactMatch()) {
         return false;
       }
@@ -116,13 +108,8 @@ public class MessagePattern {
     return true;
   }
 
-  public boolean matches(
-      MessageServeEvent event, Map<String, RequestMatcherExtension> customMatchers) {
-    return matches(event.getChannelRequest(), event.getMessage(), customMatchers);
-  }
-
   public boolean matches(MessageServeEvent event) {
-    return matches(event, Collections.emptyMap());
+    return matches(event.getChannelRequest(), event.getMessage());
   }
 
   @Override

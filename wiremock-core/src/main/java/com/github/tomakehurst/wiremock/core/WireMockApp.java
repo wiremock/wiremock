@@ -138,8 +138,7 @@ public class WireMockApp implements StubServer, Admin {
                 options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
 
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
+    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
@@ -206,8 +205,7 @@ public class WireMockApp implements StubServer, Admin {
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
 
     this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
+    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(

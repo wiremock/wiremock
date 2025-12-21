@@ -58,7 +58,7 @@ public class JettyHttpServerTest {
   private StubRequestHandler stubRequestHandler;
   private MessageChannels messageChannels = new MessageChannels(new InMemoryMessageChannelStore());
   private MessageStubMappings messageStubMappings =
-      new MessageStubMappings(new InMemoryMessageStubMappingStore(), Collections.emptyMap());
+      new MessageStubMappings(new InMemoryMessageStubMappingStore());
   private MessageStubRequestHandler messageStubRequestHandler;
   private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 

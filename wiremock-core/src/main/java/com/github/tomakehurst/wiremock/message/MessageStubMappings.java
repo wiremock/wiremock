@@ -15,11 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.MessageStubMappingStore;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,12 +25,9 @@ import java.util.stream.Collectors;
 public class MessageStubMappings {
 
   private final MessageStubMappingStore store;
-  private final Map<String, RequestMatcherExtension> customMatchers;
 
-  public MessageStubMappings(
-      MessageStubMappingStore store, Map<String, RequestMatcherExtension> customMatchers) {
+  public MessageStubMappings(MessageStubMappingStore store) {
     this.store = store;
-    this.customMatchers = customMatchers;
   }
 
   public void add(MessageStubMapping mapping) {
@@ -73,7 +68,7 @@ public class MessageStubMappings {
 
   public Optional<MessageStubMapping> findMatchingStub(MessageChannel channel, Message message) {
     return getAllSortedByPriority().stream()
-        .filter(stub -> stub.matches(channel, message, customMatchers))
+        .filter(stub -> stub.matches(channel, message))
         .findFirst();
   }
 }
