@@ -33,6 +33,8 @@ import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.HttpRequestTrigger;
+import com.github.tomakehurst.wiremock.message.HttpStubTrigger;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
@@ -743,5 +745,217 @@ public class MessageSerializationTest {
     SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
     assertThat(action.getBody(), instanceOf(BinaryEntityDefinition.class));
     assertThat(action.getBody(), is(original));
+  }
+
+  // HttpStubTrigger serialization tests
+
+  @Test
+  void messageStubMappingWithHttpStubTriggerSerializesToJson() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .withName("HTTP stub triggered message")
+            .triggeredByHttpStub("11111111-2222-3333-4444-555555555555")
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "triggered message", newRequestPattern().withUrl("/ws-channel").build()))
+            .build();
+
+    String json = Json.write(stub);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+              "name": "HTTP stub triggered message",
+              "trigger": {
+                "type": "http-stub",
+                "stubId": "11111111-2222-3333-4444-555555555555"
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": "triggered message"
+                  },
+                  "targetChannelPattern": {
+                    "url": "/ws-channel",
+                    "method": "ANY"
+                  },
+                  "sendToOriginatingChannel": false
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void messageStubMappingWithHttpStubTriggerDeserializesFromJson() {
+    String json =
+        // language=JSON
+        """
+        {
+          "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+          "name": "Deserialized HTTP stub trigger",
+          "trigger": {
+            "type": "http-stub",
+            "stubId": "22222222-3333-4444-5555-666666666666"
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": "response"
+              },
+              "targetChannelPattern": {
+                "url": "/target"
+              },
+              "sendToOriginatingChannel": false
+            }
+          ]
+        }
+        """;
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    assertThat(stub.getId().toString(), is("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"));
+    assertThat(stub.getName(), is("Deserialized HTTP stub trigger"));
+    assertThat(stub.getTrigger(), instanceOf(HttpStubTrigger.class));
+    HttpStubTrigger trigger = (HttpStubTrigger) stub.getTrigger();
+    assertThat(trigger.getStubId().toString(), is("22222222-3333-4444-5555-666666666666"));
+    assertThat(stub.getActions().size(), is(1));
+  }
+
+  @Test
+  void messageStubMappingWithHttpStubTriggerRoundTrips() {
+    MessageStubMapping original =
+        MessageStubMapping.builder()
+            .withName("Round trip HTTP stub trigger")
+            .triggeredByHttpStub(UUID.fromString("33333333-4444-5555-6666-777777777777"))
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "round trip message", newRequestPattern().withUrl("/round-trip").build()))
+            .build();
+
+    String json = Json.write(original);
+    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
+
+    assertThat(deserialized.getId(), is(original.getId()));
+    assertThat(deserialized.getName(), is(original.getName()));
+    assertThat(deserialized.getTrigger(), instanceOf(HttpStubTrigger.class));
+    HttpStubTrigger trigger = (HttpStubTrigger) deserialized.getTrigger();
+    assertThat(trigger.getStubId().toString(), is("33333333-4444-5555-6666-777777777777"));
+  }
+
+  // HttpRequestTrigger serialization tests
+
+  @Test
+  void messageStubMappingWithHttpRequestTriggerSerializesToJson() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withId(UUID.fromString("cccccccc-dddd-eeee-ffff-000000000000"))
+            .withName("HTTP request triggered message")
+            .triggeredByHttpRequest(newRequestPattern().withUrl("/api/trigger").build())
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "request triggered", newRequestPattern().withUrl("/ws-notify").build()))
+            .build();
+
+    String json = Json.write(stub);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "id": "cccccccc-dddd-eeee-ffff-000000000000",
+              "name": "HTTP request triggered message",
+              "trigger": {
+                "type": "http-request",
+                "requestPattern": {
+                  "url": "/api/trigger",
+                  "method": "ANY"
+                }
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": "request triggered"
+                  },
+                  "targetChannelPattern": {
+                    "url": "/ws-notify",
+                    "method": "ANY"
+                  },
+                  "sendToOriginatingChannel": false
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void messageStubMappingWithHttpRequestTriggerDeserializesFromJson() {
+    String json =
+        // language=JSON
+        """
+        {
+          "id": "dddddddd-eeee-ffff-0000-111111111111",
+          "name": "Deserialized HTTP request trigger",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": {
+              "url": "/api/events",
+              "method": "POST"
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": "event received"
+              },
+              "targetChannelPattern": {
+                "url": "/events-channel"
+              },
+              "sendToOriginatingChannel": false
+            }
+          ]
+        }
+        """;
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    assertThat(stub.getId().toString(), is("dddddddd-eeee-ffff-0000-111111111111"));
+    assertThat(stub.getName(), is("Deserialized HTTP request trigger"));
+    assertThat(stub.getTrigger(), instanceOf(HttpRequestTrigger.class));
+    HttpRequestTrigger trigger = (HttpRequestTrigger) stub.getTrigger();
+    assertThat(trigger.getRequestPattern().getUrl(), is("/api/events"));
+    assertThat(stub.getActions().size(), is(1));
+  }
+
+  @Test
+  void messageStubMappingWithHttpRequestTriggerRoundTrips() {
+    MessageStubMapping original =
+        MessageStubMapping.builder()
+            .withName("Round trip HTTP request trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl("/api/round-trip").build())
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "round trip", newRequestPattern().withUrl("/ws-round-trip").build()))
+            .build();
+
+    String json = Json.write(original);
+    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
+
+    assertThat(deserialized.getId(), is(original.getId()));
+    assertThat(deserialized.getName(), is(original.getName()));
+    assertThat(deserialized.getTrigger(), instanceOf(HttpRequestTrigger.class));
+    HttpRequestTrigger trigger = (HttpRequestTrigger) deserialized.getTrigger();
+    assertThat(trigger.getRequestPattern().getUrl(), is("/api/round-trip"));
   }
 }

@@ -168,6 +168,7 @@ public class MessageStubMapping {
     private Integer priority;
     private RequestPattern channelPattern;
     private ContentPattern<?> bodyPattern;
+    private MessageTrigger explicitTrigger;
     private ArrayList<MessageAction> actions = new ArrayList<>();
 
     public Builder() {}
@@ -181,6 +182,8 @@ public class MessageStubMapping {
         if (incomingTrigger.getMessagePattern() != null) {
           this.bodyPattern = incomingTrigger.getMessagePattern().getBodyPattern();
         }
+      } else {
+        this.explicitTrigger = existing.trigger;
       }
       this.actions = new ArrayList<>(existing.actions);
     }
@@ -219,6 +222,26 @@ public class MessageStubMapping {
       return this;
     }
 
+    public Builder triggeredByHttpStub(UUID stubId) {
+      this.explicitTrigger = HttpStubTrigger.forStubId(stubId);
+      return this;
+    }
+
+    public Builder triggeredByHttpStub(String stubId) {
+      this.explicitTrigger = HttpStubTrigger.forStubId(stubId);
+      return this;
+    }
+
+    public Builder triggeredByHttpRequest(RequestPattern requestPattern) {
+      this.explicitTrigger = HttpRequestTrigger.forRequestPattern(requestPattern);
+      return this;
+    }
+
+    public Builder triggeredByHttpRequest(RequestPatternBuilder requestPatternBuilder) {
+      this.explicitTrigger = HttpRequestTrigger.forRequestPattern(requestPatternBuilder.build());
+      return this;
+    }
+
     public Builder withActions(List<MessageAction> actions) {
       this.actions = new ArrayList<>(actions);
       return this;
@@ -235,9 +258,14 @@ public class MessageStubMapping {
     }
 
     public MessageStubMapping build() {
-      MessagePattern messagePattern =
-          bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
-      IncomingMessageTrigger trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
+      MessageTrigger trigger;
+      if (explicitTrigger != null) {
+        trigger = explicitTrigger;
+      } else {
+        MessagePattern messagePattern =
+            bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
+        trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
+      }
       return new MessageStubMapping(id, name, priority, trigger, actions);
     }
   }

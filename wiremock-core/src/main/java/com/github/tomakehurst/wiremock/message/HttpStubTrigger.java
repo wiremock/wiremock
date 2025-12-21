@@ -1,0 +1,73 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.message;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.Objects;
+import java.util.UUID;
+
+@JsonInclude(NON_EMPTY)
+public class HttpStubTrigger implements MessageTrigger {
+
+  private final UUID stubId;
+
+  @JsonCreator
+  public HttpStubTrigger(@JsonProperty("stubId") UUID stubId) {
+    this.stubId = stubId;
+  }
+
+  public static HttpStubTrigger forStubId(UUID stubId) {
+    return new HttpStubTrigger(stubId);
+  }
+
+  public static HttpStubTrigger forStubId(String stubId) {
+    return new HttpStubTrigger(UUID.fromString(stubId));
+  }
+
+  public UUID getStubId() {
+    return stubId;
+  }
+
+  public boolean matches(ServeEvent serveEvent) {
+    if (serveEvent == null || serveEvent.getStubMapping() == null) {
+      return false;
+    }
+    return stubId.equals(serveEvent.getStubMapping().getId());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    HttpStubTrigger that = (HttpStubTrigger) o;
+    return Objects.equals(stubId, that.stubId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(stubId);
+  }
+
+  @Override
+  public String toString() {
+    return "HttpStubTrigger{" + "stubId=" + stubId + '}';
+  }
+}

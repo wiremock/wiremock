@@ -22,7 +22,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     use = JsonTypeInfo.Id.NAME,
     property = "type",
     defaultImpl = IncomingMessageTrigger.class)
-@JsonSubTypes({@JsonSubTypes.Type(value = IncomingMessageTrigger.class, name = "message")})
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = IncomingMessageTrigger.class, name = "message"),
+  @JsonSubTypes.Type(value = HttpStubTrigger.class, name = "http-stub"),
+  @JsonSubTypes.Type(value = HttpRequestTrigger.class, name = "http-request")
+})
 public interface MessageTrigger {
 
   MessageTrigger ANYTHING = IncomingMessageTrigger.ANYTHING;

@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
@@ -122,8 +123,6 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
 
-    serveEventListeners = extensions.ofType(ServeEventListener.class);
-
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
@@ -137,6 +136,19 @@ public class WireMockApp implements StubServer, Admin {
             ? new DisabledMessageJournal()
             : new StoreBackedMessageJournal(
                 options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
+
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings =
+        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
+
+    HttpStubServeEventListener httpStubListener =
+        new HttpStubServeEventListener(
+            messageStubMappings, messageChannels, stores, customMatchers);
+    Map<String, ServeEventListener> extensionListeners =
+        extensions.ofType(ServeEventListener.class);
+    Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
+    combinedListeners.put(httpStubListener.getName(), httpStubListener);
+    serveEventListeners = Collections.unmodifiableMap(combinedListeners);
 
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =
@@ -155,9 +167,6 @@ public class WireMockApp implements StubServer, Admin {
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), customMatchers);
 
     this.container = container;
     extensions.startAll();
@@ -196,7 +205,14 @@ public class WireMockApp implements StubServer, Admin {
                 maxRequestJournalEntries, stores.getMessageJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
 
-    serveEventListeners = Collections.emptyMap();
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings =
+        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
+
+    HttpStubServeEventListener httpStubListener =
+        new HttpStubServeEventListener(
+            messageStubMappings, messageChannels, stores, requestMatchers);
+    serveEventListeners = Map.of(httpStubListener.getName(), httpStubListener);
 
     stubMappings =
         new StoreBackedStubMappings(
@@ -214,9 +230,6 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings =
-        new MessageStubMappings(stores.getMessageStubMappingStore(), requestMatchers);
     loadDefaultMappings();
   }
 

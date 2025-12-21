@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAllMessageEvents;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServeEvents;
 import static com.github.tomakehurst.wiremock.client.WireMock.getMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
@@ -26,12 +28,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsForStubsMatchingMetadata;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -51,6 +56,7 @@ import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -991,5 +997,138 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     waitAtMost(5, SECONDS).until(() -> !testClient.getBinaryMessages().isEmpty());
     assertThat(testClient.getBinaryMessages().get(0), is(responseBytes));
+  }
+
+  // HTTP stub trigger tests
+
+  @Test
+  void messageStubTriggeredByHttpStubSendsMessageToWebsocketChannel() {
+    // Create an HTTP stub
+    stubFor(
+        get(urlPathEqualTo("/api/trigger-event"))
+            .withId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
+            .willReturn(aResponse().withStatus(200).withBody("OK")));
+
+    // Create a message stub that triggers when the HTTP stub is served
+    MessageStubMapping messageStub =
+        MessageStubMapping.builder()
+            .withName("HTTP stub triggered message")
+            .triggeredByHttpStub("11111111-2222-3333-4444-555555555555")
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "event triggered",
+                    newRequestPattern().withUrl(urlPathEqualTo("/ws-events")).build()))
+            .build();
+    wireMockServer.addMessageStubMapping(messageStub);
+
+    // Connect a WebSocket client
+    WebsocketTestClient wsClient = new WebsocketTestClient();
+    String wsUrl = "ws://localhost:" + wireMockServer.port() + "/ws-events";
+    wsClient.connect(wsUrl);
+    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+
+    // Make an HTTP request that matches the stub
+    testClient.get("/api/trigger-event");
+
+    // Verify the WebSocket client received the message
+    waitAtMost(5, SECONDS).until(() -> wsClient.getMessages().contains("event triggered"));
+  }
+
+  @Test
+  void messageStubTriggeredByHttpRequestPatternSendsMessageToWebsocketChannel() {
+    // Create a message stub that triggers on any HTTP request matching a pattern
+    MessageStubMapping messageStub =
+        MessageStubMapping.builder()
+            .withName("HTTP request pattern triggered message")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathMatching("/api/notify/.*")))
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "notification received",
+                    newRequestPattern().withUrl(urlPathEqualTo("/ws-notifications")).build()))
+            .build();
+    wireMockServer.addMessageStubMapping(messageStub);
+
+    // Create an HTTP stub for the endpoint (so the request doesn't fail)
+    stubFor(
+        get(urlPathMatching("/api/notify/.*"))
+            .willReturn(aResponse().withStatus(200).withBody("Notified")));
+
+    // Connect a WebSocket client
+    WebsocketTestClient wsClient = new WebsocketTestClient();
+    String wsUrl = "ws://localhost:" + wireMockServer.port() + "/ws-notifications";
+    wsClient.connect(wsUrl);
+    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+
+    // Make an HTTP request that matches the pattern
+    testClient.get("/api/notify/user123");
+
+    // Verify the WebSocket client received the message
+    waitAtMost(5, SECONDS).until(() -> wsClient.getMessages().contains("notification received"));
+  }
+
+  @Test
+  void messageStubTriggeredByHttpRequestPatternWorksWithoutMatchingHttpStub() {
+    // Create a message stub that triggers on any HTTP request matching a pattern
+    // Note: No HTTP stub is created for this endpoint
+    MessageStubMapping messageStub =
+        MessageStubMapping.builder()
+            .withName("HTTP request pattern triggered without stub")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/api/no-stub")))
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "request received",
+                    newRequestPattern().withUrl(urlPathEqualTo("/ws-no-stub")).build()))
+            .build();
+    wireMockServer.addMessageStubMapping(messageStub);
+
+    // Connect a WebSocket client
+    WebsocketTestClient wsClient = new WebsocketTestClient();
+    String wsUrl = "ws://localhost:" + wireMockServer.port() + "/ws-no-stub";
+    wsClient.connect(wsUrl);
+    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+
+    // Make an HTTP request (will return 404 since no stub, but message should still be sent)
+    testClient.get("/api/no-stub");
+
+    // Verify the WebSocket client received the message
+    waitAtMost(5, SECONDS).until(() -> wsClient.getMessages().contains("request received"));
+  }
+
+  @Test
+  void multipleWebsocketClientsReceiveMessageWhenHttpStubIsTriggered() {
+    // Create an HTTP stub
+    stubFor(
+        post(urlPathEqualTo("/api/broadcast"))
+            .withId(UUID.fromString("22222222-3333-4444-5555-666666666666"))
+            .willReturn(aResponse().withStatus(200).withBody("Broadcast sent")));
+
+    // Create a message stub that broadcasts to all matching channels
+    MessageStubMapping messageStub =
+        MessageStubMapping.builder()
+            .withName("Broadcast on HTTP stub")
+            .triggeredByHttpStub("22222222-3333-4444-5555-666666666666")
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "broadcast message",
+                    newRequestPattern().withUrl(urlPathMatching("/ws-broadcast.*")).build()))
+            .build();
+    wireMockServer.addMessageStubMapping(messageStub);
+
+    // Connect multiple WebSocket clients
+    WebsocketTestClient wsClient1 = new WebsocketTestClient();
+    WebsocketTestClient wsClient2 = new WebsocketTestClient();
+    String wsUrl1 = "ws://localhost:" + wireMockServer.port() + "/ws-broadcast-1";
+    String wsUrl2 = "ws://localhost:" + wireMockServer.port() + "/ws-broadcast-2";
+    wsClient1.connect(wsUrl1);
+    wsClient2.connect(wsUrl2);
+    waitAtMost(5, SECONDS).until(wsClient1::isConnected);
+    waitAtMost(5, SECONDS).until(wsClient2::isConnected);
+
+    // Make an HTTP request that triggers the broadcast
+    testClient.postWithBody("/api/broadcast", "trigger", "text/plain");
+
+    // Verify both WebSocket clients received the message
+    waitAtMost(5, SECONDS).until(() -> wsClient1.getMessages().contains("broadcast message"));
+    waitAtMost(5, SECONDS).until(() -> wsClient2.getMessages().contains("broadcast message"));
   }
 }
