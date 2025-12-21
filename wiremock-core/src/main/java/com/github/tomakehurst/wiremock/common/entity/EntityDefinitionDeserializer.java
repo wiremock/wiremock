@@ -35,8 +35,18 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
     Class<? extends EntityDefinition> targetClass;
     if (node.isTextual()) {
       targetClass = StringEntityDefinition.class;
+    } else if (node.isObject()) {
+      JsonNode encodingNode = node.get("encoding");
+      if (encodingNode != null
+          && encodingNode.isTextual()
+          && EncodingType.BINARY.value().equals(encodingNode.textValue())) {
+        targetClass = BinaryEntityDefinition.class;
+      } else {
+        // Default to TextEntityDefinition for text encoding or when encoding is not specified
+        targetClass = TextEntityDefinition.class;
+      }
     } else {
-      targetClass = FullEntityDefinition.class;
+      targetClass = TextEntityDefinition.class;
     }
 
     return ctxt.readTreeAsValue(node, targetClass);

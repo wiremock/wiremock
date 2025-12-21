@@ -28,9 +28,8 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
@@ -413,17 +412,16 @@ public class MessageSerializationTest {
     assertThat(event.getMessage().getBodyAsString(), is("outgoing message"));
   }
 
-  // FullEntityDefinition serialisation tests
+  // TextEntityDefinition serialisation tests
 
   @Test
-  void fullEntityDefinitionWithStringDataSerializesToJson() {
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(
-            EncodingType.TEXT, FormatType.JSON, CompressionType.NONE, null, null, "hello world");
+  void textEntityDefinitionWithStringDataSerializesToJson() {
+    TextEntityDefinition entityDef =
+        new TextEntityDefinition(FormatType.JSON, CompressionType.NONE, null, null, "hello world");
 
     String json = Json.write(entityDef);
 
-    // Default values (encoding=text, format=json, compression=none) should not be serialized
+    // Default values (format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
@@ -436,15 +434,14 @@ public class MessageSerializationTest {
   }
 
   @Test
-  void fullEntityDefinitionWithObjectDataSerializesToJson() {
+  void textEntityDefinitionWithObjectDataSerializesToJson() {
     Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(
-            EncodingType.TEXT, FormatType.JSON, CompressionType.NONE, null, null, objectData);
+    TextEntityDefinition entityDef =
+        new TextEntityDefinition(FormatType.JSON, CompressionType.NONE, null, null, objectData);
 
     String json = Json.write(entityDef);
 
-    // Default values (encoding=text, format=json, compression=none) should not be serialized
+    // Default values (format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
@@ -460,15 +457,14 @@ public class MessageSerializationTest {
   }
 
   @Test
-  void fullEntityDefinitionWithDataStoreRefSerializesToJson() {
+  void textEntityDefinitionWithDataStoreRefSerializesToJson() {
     // Using non-default format (TEXT instead of JSON) to test that it is serialized
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(
-            EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null);
+    TextEntityDefinition entityDef =
+        new TextEntityDefinition(FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null);
 
     String json = Json.write(entityDef);
 
-    // encoding=text and compression=none are defaults, so not serialized
+    // compression=none is default, so not serialized
     // format=text is NOT the default (json is), so it IS serialized
     assertThat(
         json,
@@ -484,10 +480,9 @@ public class MessageSerializationTest {
   }
 
   @Test
-  void fullEntityDefinitionWithDataStoreRoundTripsViaMessageStubMapping() {
-    FullEntityDefinition original =
-        new FullEntityDefinition(
-            EncodingType.TEXT, FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null);
+  void textEntityDefinitionWithDataStoreRoundTripsViaMessageStubMapping() {
+    TextEntityDefinition original =
+        new TextEntityDefinition(FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null);
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -500,32 +495,27 @@ public class MessageSerializationTest {
     MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
 
     SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
-    assertThat(action.getBody(), instanceOf(FullEntityDefinition.class));
+    assertThat(action.getBody(), instanceOf(TextEntityDefinition.class));
     assertThat(action.getBody(), is(original));
   }
 
   @Test
-  void messageStubMappingWithFullEntityDefinitionSerializesCorrectly() {
-    FullEntityDefinition entityDef =
-        new FullEntityDefinition(
-            EncodingType.TEXT,
-            FormatType.JSON,
-            CompressionType.NONE,
-            null,
-            null,
-            Map.of("key", "value"));
+  void messageStubMappingWithTextEntityDefinitionSerializesCorrectly() {
+    TextEntityDefinition entityDef =
+        new TextEntityDefinition(
+            FormatType.JSON, CompressionType.NONE, null, null, Map.of("key", "value"));
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withId(UUID.fromString("cccccccc-dddd-eeee-ffff-000000000000"))
-            .withName("Full entity stub")
+            .withName("Text entity stub")
             .withBody(equalTo("trigger"))
             .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
             .build();
 
     String json = Json.write(stub);
 
-    // Default values (encoding=text, format=json, compression=none) should not be serialized
+    // Default values (format=json, compression=none) should not be serialized
     assertThat(
         json,
         jsonEquals(
@@ -533,7 +523,7 @@ public class MessageSerializationTest {
             """
             {
               "id": "cccccccc-dddd-eeee-ffff-000000000000",
-              "name": "Full entity stub",
+              "name": "Text entity stub",
               "trigger": {
                 "type": "message",
                 "messagePattern": {
@@ -560,12 +550,12 @@ public class MessageSerializationTest {
   }
 
   @Test
-  void messageStubMappingWithFullEntityDefinitionDeserializesCorrectly() {
+  void messageStubMappingWithTextEntityDefinitionDeserializesCorrectly() {
     String json =
         // language=JSON
         """
         {
-          "name": "Full entity deserialized",
+          "name": "Text entity deserialized",
           "trigger": {
             "messagePattern": {
               "body": {
@@ -590,14 +580,14 @@ public class MessageSerializationTest {
 
     MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
 
-    assertThat(stub.getName(), is("Full entity deserialized"));
+    assertThat(stub.getName(), is("Text entity deserialized"));
     assertThat(stub.getActions().size(), is(1));
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof FullEntityDefinition, is(true));
+    assertThat(action.getBody() instanceof TextEntityDefinition, is(true));
 
-    FullEntityDefinition entityDef = (FullEntityDefinition) action.getBody();
+    TextEntityDefinition entityDef = (TextEntityDefinition) action.getBody();
     assertThat(entityDef.getDataStore(), is("testStore"));
     assertThat(entityDef.getDataRef(), is("testKey"));
   }

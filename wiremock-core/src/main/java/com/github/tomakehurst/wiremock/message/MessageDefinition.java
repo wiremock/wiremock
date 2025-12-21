@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import java.util.Objects;
@@ -32,6 +33,10 @@ public class MessageDefinition {
 
   public static MessageDefinition fromString(String message) {
     return new MessageDefinition(new StringEntityDefinition(message));
+  }
+
+  public static MessageDefinition fromBytes(byte[] data) {
+    return new MessageDefinition(BinaryEntityDefinition.aBinaryMessage().withBody(data).build());
   }
 
   public EntityDefinition getBody() {

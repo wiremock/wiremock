@@ -56,6 +56,13 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
 
   @Override
   public void onWebSocketBinary(java.nio.ByteBuffer payload, Callback callback) {
+    if (messageStubRequestHandler != null && messageChannel != null) {
+      byte[] data = new byte[payload.remaining()];
+      payload.get(data);
+      Message message =
+          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromBytes(data), null);
+      messageStubRequestHandler.processMessage(messageChannel, message);
+    }
     callback.succeed();
   }
 

@@ -21,31 +21,24 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
+import java.util.Base64;
 import java.util.Objects;
 
-@JsonDeserialize(as = FullEntityDefinition.class)
-public class FullEntityDefinition extends EntityDefinition {
+@JsonDeserialize(as = BinaryEntityDefinition.class)
+public class BinaryEntityDefinition extends EntityDefinition {
 
-  public static final EncodingType DEFAULT_ENCODING = EncodingType.TEXT;
-  public static final FormatType DEFAULT_FORMAT = FormatType.JSON;
   public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
 
-  private final EncodingType encoding;
-  private final FormatType format;
   private final CompressionType compression;
   private final String dataStore;
   private final String dataRef;
-  private final Object data;
+  private final String data;
 
-  public FullEntityDefinition(
-      @JsonProperty("encoding") EncodingType encoding,
-      @JsonProperty("format") FormatType format,
+  public BinaryEntityDefinition(
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
       @JsonProperty("dataRef") String dataRef,
-      @JsonProperty("data") Object data) {
-    this.encoding = asList(EncodingType.values()).contains(encoding) ? encoding : DEFAULT_ENCODING;
-    this.format = asList(FormatType.values()).contains(format) ? format : DEFAULT_FORMAT;
+      @JsonProperty("data") String data) {
     this.compression =
         asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
@@ -53,18 +46,18 @@ public class FullEntityDefinition extends EntityDefinition {
     this.data = data;
   }
 
-  public static Builder aMessage() {
+  public static Builder aBinaryMessage() {
     return new Builder();
   }
 
-  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultEncodingFilter.class)
+  @Override
   public EncodingType getEncoding() {
-    return encoding;
+    return EncodingType.BINARY;
   }
 
-  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultFormatFilter.class)
+  @Override
   public FormatType getFormat() {
-    return format;
+    return FormatType.BASE64;
   }
 
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
@@ -80,17 +73,23 @@ public class FullEntityDefinition extends EntityDefinition {
     return dataRef;
   }
 
-  public Object getData() {
+  @Override
+  public String getData() {
     return data;
+  }
+
+  public byte[] getDataAsBytes() {
+    if (data == null) {
+      return null;
+    }
+    return Base64.getDecoder().decode(data);
   }
 
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
-    FullEntityDefinition that = (FullEntityDefinition) o;
-    return Objects.equals(encoding, that.encoding)
-        && Objects.equals(format, that.format)
-        && Objects.equals(compression, that.compression)
+    BinaryEntityDefinition that = (BinaryEntityDefinition) o;
+    return Objects.equals(compression, that.compression)
         && Objects.equals(dataStore, that.dataStore)
         && Objects.equals(dataRef, that.dataRef)
         && Objects.equals(data, that.data);
@@ -98,26 +97,12 @@ public class FullEntityDefinition extends EntityDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(encoding, format, compression, dataStore, dataRef, data);
+    return Objects.hash(compression, dataStore, dataRef, data);
   }
 
   @Override
   public String toString() {
     return Json.write(this);
-  }
-
-  public static class DefaultEncodingFilter {
-    @Override
-    public boolean equals(Object obj) {
-      return DEFAULT_ENCODING.equals(obj);
-    }
-  }
-
-  public static class DefaultFormatFilter {
-    @Override
-    public boolean equals(Object obj) {
-      return DEFAULT_FORMAT.equals(obj);
-    }
   }
 
   public static class DefaultCompressionFilter {
@@ -128,22 +113,10 @@ public class FullEntityDefinition extends EntityDefinition {
   }
 
   public static class Builder {
-    private EncodingType encoding;
-    private FormatType format;
     private CompressionType compression;
     private String dataStore;
     private String dataRef;
-    private Object data;
-
-    public Builder withEncoding(EncodingType encoding) {
-      this.encoding = encoding;
-      return this;
-    }
-
-    public Builder withFormat(FormatType format) {
-      this.format = format;
-      return this;
-    }
+    private String data;
 
     public Builder withCompression(CompressionType compression) {
       this.compression = compression;
@@ -160,13 +133,18 @@ public class FullEntityDefinition extends EntityDefinition {
       return this;
     }
 
-    public Builder withBody(Object data) {
-      this.data = data;
+    public Builder withBody(byte[] data) {
+      this.data = data != null ? Base64.getEncoder().encodeToString(data) : null;
       return this;
     }
 
-    public FullEntityDefinition build() {
-      return new FullEntityDefinition(encoding, format, compression, dataStore, dataRef, data);
+    public Builder withBodyBase64(String base64Data) {
+      this.data = base64Data;
+      return this;
+    }
+
+    public BinaryEntityDefinition build() {
+      return new BinaryEntityDefinition(compression, dataStore, dataRef, data);
     }
   }
 }

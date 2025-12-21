@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAllMessageEvents;
@@ -852,10 +853,10 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     assertThat(getAllMessageServeEvents().size(), is(1));
   }
 
-  // FullEntityDefinition resolution tests
+  // TextEntityDefinition resolution tests
 
   @Test
-  void fullEntityDefinitionWithStringDataResolvesToString() {
+  void textEntityDefinitionWithStringDataResolvesToString() {
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("String data stub")
@@ -872,7 +873,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void fullEntityDefinitionWithObjectDataSerializesToJson() {
+  void textEntityDefinitionWithObjectDataSerializesToJson() {
     Map<String, Object> objectData = Map.of("name", "John", "age", 30);
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -890,7 +891,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void fullEntityDefinitionWithDataStoreResolvesFromStore() {
+  void textEntityDefinitionWithDataStoreResolvesFromStore() {
     wireMockServer
         .getOptions()
         .getStores()
@@ -914,7 +915,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void fullEntityDefinitionWithDataStoreResolvesObjectFromStoreAsJson() {
+  void textEntityDefinitionWithDataStoreResolvesObjectFromStoreAsJson() {
     Map<String, Object> storedObject = Map.of("key", "value", "number", 42);
     wireMockServer
         .getOptions()
@@ -936,5 +937,31 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
 
     String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
     assertThat(response, jsonEquals("{\"number\":42,\"key\":\"value\"}"));
+  }
+
+  // Binary message matching tests
+
+  @Test
+  void binaryEqualToCanBeUsedToMatchMessageBody() {
+    byte[] expectedBytes = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Binary matching stub")
+            .withBody(binaryEqualTo(expectedBytes))
+            .triggersAction(SendMessageAction.toOriginatingChannel("binary matched!"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/binary-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendBinaryMessage(expectedBytes);
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("binary matched!"));
+    assertThat(testClient.getMessages().contains("binary matched!"), is(true));
   }
 }

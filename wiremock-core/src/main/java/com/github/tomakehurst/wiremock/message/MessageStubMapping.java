@@ -23,9 +23,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -167,7 +167,7 @@ public class MessageStubMapping {
     private String name;
     private Integer priority;
     private RequestPattern channelPattern;
-    private StringValuePattern bodyPattern;
+    private ContentPattern<?> bodyPattern;
     private ArrayList<MessageAction> actions = new ArrayList<>();
 
     public Builder() {}
@@ -176,10 +176,11 @@ public class MessageStubMapping {
       this.id = existing.id;
       this.name = existing.name;
       this.priority = existing.priority;
-      if (existing.trigger instanceof IncomingMessageTrigger) {
-        IncomingMessageTrigger incomingTrigger = (IncomingMessageTrigger) existing.trigger;
+      if (existing.trigger instanceof IncomingMessageTrigger incomingTrigger) {
         this.channelPattern = incomingTrigger.getChannelPattern();
-        this.bodyPattern = incomingTrigger.getBodyPattern();
+        if (incomingTrigger.getMessagePattern() != null) {
+          this.bodyPattern = incomingTrigger.getMessagePattern().getBodyPattern();
+        }
       }
       this.actions = new ArrayList<>(existing.actions);
     }
@@ -213,7 +214,7 @@ public class MessageStubMapping {
       return this;
     }
 
-    public Builder withBody(StringValuePattern bodyPattern) {
+    public Builder withBody(ContentPattern<?> bodyPattern) {
       this.bodyPattern = bodyPattern;
       return this;
     }

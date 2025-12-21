@@ -17,13 +17,14 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
@@ -117,21 +118,29 @@ public class MessageStubRequestHandler {
       return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
     }
 
-    if (definition instanceof FullEntityDefinition) {
-      FullEntityDefinition fullDef = (FullEntityDefinition) definition;
-      String resolvedData = resolveFullEntityData(fullDef, stores);
+    if (definition instanceof BinaryEntityDefinition) {
+      BinaryEntityDefinition binaryDef = (BinaryEntityDefinition) definition;
+      byte[] bytes = resolveBinaryEntityData(binaryDef, stores);
+      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
+      return new Entity(
+          EncodingType.BINARY, FormatType.BASE64, binaryDef.getCompression(), streamSource);
+    }
+
+    if (definition instanceof TextEntityDefinition) {
+      TextEntityDefinition textDef = (TextEntityDefinition) definition;
+      String resolvedData = resolveTextEntityData(textDef, stores);
       byte[] bytes =
           resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];
       InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
       return new Entity(
-          fullDef.getEncoding(), fullDef.getFormat(), fullDef.getCompression(), streamSource);
+          EncodingType.TEXT, textDef.getFormat(), textDef.getCompression(), streamSource);
     }
 
     throw new UnsupportedOperationException(
         "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
   }
 
-  private static String resolveFullEntityData(FullEntityDefinition definition, Stores stores) {
+  private static String resolveTextEntityData(TextEntityDefinition definition, Stores stores) {
     Object data = definition.getData();
 
     if (data instanceof String) {
@@ -159,6 +168,34 @@ public class MessageStubRequestHandler {
     }
 
     return null;
+  }
+
+  private static byte[] resolveBinaryEntityData(BinaryEntityDefinition definition, Stores stores) {
+    byte[] data = definition.getDataAsBytes();
+    if (data != null) {
+      return data;
+    }
+
+    String dataStore = definition.getDataStore();
+    String dataRef = definition.getDataRef();
+    if (dataStore != null && dataRef != null && stores != null) {
+      return stores
+          .getObjectStore(dataStore)
+          .get(dataRef)
+          .map(
+              value -> {
+                if (value instanceof byte[]) {
+                  return (byte[]) value;
+                }
+                if (value instanceof String) {
+                  return java.util.Base64.getDecoder().decode((String) value);
+                }
+                return new byte[0];
+              })
+          .orElse(new byte[0]);
+    }
+
+    return new byte[0];
   }
 
   public MessageStubMappings getMessageStubMappings() {

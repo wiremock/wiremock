@@ -18,7 +18,10 @@ package com.github.tomakehurst.wiremock.message;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = IncomingMessageTrigger.class)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type",
+    defaultImpl = IncomingMessageTrigger.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = IncomingMessageTrigger.class, name = "message")})
 public interface MessageTrigger {
 

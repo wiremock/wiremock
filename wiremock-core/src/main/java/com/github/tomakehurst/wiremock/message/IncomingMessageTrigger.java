@@ -22,10 +22,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.Map;
 import java.util.Objects;
 
@@ -54,7 +54,7 @@ public class IncomingMessageTrigger implements MessageTrigger {
   }
 
   @JsonIgnore
-  public StringValuePattern getBodyPattern() {
+  public ContentPattern<?> getBodyPattern() {
     return messagePattern != null ? messagePattern.getBodyPattern() : null;
   }
 
@@ -97,4 +97,3 @@ public class IncomingMessageTrigger implements MessageTrigger {
     return Objects.hash(channelPattern, messagePattern);
   }
 }
-

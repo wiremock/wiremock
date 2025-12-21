@@ -22,7 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonSubTypes(
     value = {
       @JsonSubTypes.Type(StringEntityDefinition.class),
-      @JsonSubTypes.Type(FullEntityDefinition.class)
+      @JsonSubTypes.Type(TextEntityDefinition.class),
+      @JsonSubTypes.Type(BinaryEntityDefinition.class)
     })
 public abstract class EntityDefinition {
 

@@ -26,6 +26,7 @@ public class FormatType {
   public static final FormatType XML = new FormatType("xml");
   public static final FormatType YAML = new FormatType("yaml");
   public static final FormatType CSV = new FormatType("csv");
+  public static final FormatType BASE64 = new FormatType("base64");
 
   private final String type;
 
@@ -64,6 +65,6 @@ public class FormatType {
   }
 
   public static FormatType[] values() {
-    return new FormatType[] {JSON, HTML, TEXT, XML, YAML, CSV};
+    return new FormatType[] {JSON, HTML, TEXT, XML, YAML, CSV, BASE64};
   }
 }

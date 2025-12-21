@@ -15,37 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition.aMessage;
+import static com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition.aTextMessage;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.FullEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 public class SendMessageActionBuilder {
 
-  private FullEntityDefinition.Builder fullEntityBuilder = aMessage();
+  private TextEntityDefinition.Builder textEntityBuilder = aTextMessage();
 
   public SendMessageActionBuilder() {}
 
   public SendMessageActionBuilder withBody(String message) {
-    this.fullEntityBuilder.withBody(message);
+    this.textEntityBuilder.withBody(message);
     return this;
   }
 
   public SendMessageActionBuilder withBody(Object data) {
-    fullEntityBuilder.withBody(data);
+    textEntityBuilder.withBody(data);
     return this;
   }
 
   public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
-    fullEntityBuilder.withDataStore(storeName);
-    fullEntityBuilder.withDataRef(key);
+    textEntityBuilder.withDataStore(storeName);
+    textEntityBuilder.withDataRef(key);
     return this;
   }
 
   private EntityDefinition resolveBody() {
-    return fullEntityBuilder.build();
+    return textEntityBuilder.build();
   }
 
   public SendMessageAction onOriginatingChannel() {

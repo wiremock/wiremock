@@ -45,6 +45,14 @@ public class Message {
     return body;
   }
 
+  @JsonIgnore
+  public byte[] getBodyAsBytes() {
+    if (body == null) {
+      return null;
+    }
+    return body.getData();
+  }
+
   @JsonValue
   public String getBodyAsString() {
     if (body == null) {
@@ -52,6 +60,11 @@ public class Message {
     }
     byte[] data = body.getData();
     return data != null ? new String(data, StandardCharsets.UTF_8) : null;
+  }
+
+  @JsonIgnore
+  public boolean isBinary() {
+    return body != null && EncodingType.BINARY.equals(body.getEncoding());
   }
 
   @Override

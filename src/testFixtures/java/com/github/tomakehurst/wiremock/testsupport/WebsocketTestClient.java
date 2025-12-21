@@ -26,6 +26,7 @@ import jakarta.websocket.MessageHandler;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
@@ -59,6 +60,17 @@ public class WebsocketTestClient {
     }
     try {
       persistentSession.getBasicRemote().sendText(message);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void sendBinaryMessage(byte[] data) {
+    if (persistentSession == null || !persistentSession.isOpen()) {
+      throw new IllegalStateException("Not connected. Call connect() first.");
+    }
+    try {
+      persistentSession.getBasicRemote().sendBinary(ByteBuffer.wrap(data));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

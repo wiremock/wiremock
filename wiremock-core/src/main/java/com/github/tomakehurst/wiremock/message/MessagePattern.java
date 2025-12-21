@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -39,12 +40,12 @@ public class MessagePattern {
   public static final MessagePattern ANYTHING = new MessagePattern(null, null);
 
   private final RequestPattern channelPattern;
-  private final StringValuePattern bodyPattern;
+  private final ContentPattern<?> bodyPattern;
 
   @JsonCreator
   public MessagePattern(
       @JsonProperty("channelPattern") RequestPattern channelPattern,
-      @JsonProperty("body") StringValuePattern bodyPattern) {
+      @JsonProperty("body") ContentPattern<?> bodyPattern) {
     this.channelPattern = channelPattern;
     this.bodyPattern = bodyPattern;
   }
@@ -75,7 +76,7 @@ public class MessagePattern {
   }
 
   @JsonProperty("body")
-  public StringValuePattern getBodyPattern() {
+  public ContentPattern<?> getBodyPattern() {
     return bodyPattern;
   }
 
@@ -86,6 +87,7 @@ public class MessagePattern {
     return matches(channel.getRequest(), message, customMatchers);
   }
 
+  @SuppressWarnings("unchecked")
   public boolean matches(
       Request channelRequest,
       Message message,
@@ -98,8 +100,14 @@ public class MessagePattern {
     }
 
     if (bodyPattern != null) {
-      String messageBody = message != null ? message.getBodyAsString() : null;
-      MatchResult messageMatch = bodyPattern.match(messageBody);
+      MatchResult messageMatch;
+      if (bodyPattern instanceof StringValuePattern) {
+        String messageBody = message != null ? message.getBodyAsString() : null;
+        messageMatch = ((StringValuePattern) bodyPattern).match(messageBody);
+      } else {
+        byte[] messageBody = message != null ? message.getBodyAsBytes() : null;
+        messageMatch = ((ContentPattern<byte[]>) bodyPattern).match(messageBody);
+      }
       if (!messageMatch.isExactMatch()) {
         return false;
       }
@@ -138,13 +146,13 @@ public class MessagePattern {
 
   public static class Builder {
     private RequestPattern channelPattern;
-    private StringValuePattern messagePattern;
+    private ContentPattern<?> bodyPattern;
 
     public Builder() {}
 
     public Builder(MessagePattern existing) {
       this.channelPattern = existing.channelPattern;
-      this.messagePattern = existing.bodyPattern;
+      this.bodyPattern = existing.bodyPattern;
     }
 
     public RequestPattern getChannelPattern() {
@@ -160,21 +168,21 @@ public class MessagePattern {
       return setChannelPattern(channelPattern);
     }
 
-    public StringValuePattern getBodyPattern() {
-      return messagePattern;
+    public ContentPattern<?> getBodyPattern() {
+      return bodyPattern;
     }
 
-    public Builder setBodyPattern(StringValuePattern messagePattern) {
-      this.messagePattern = messagePattern;
+    public Builder setBodyPattern(ContentPattern<?> bodyPattern) {
+      this.bodyPattern = bodyPattern;
       return this;
     }
 
-    public Builder withBody(StringValuePattern messagePattern) {
-      return setBodyPattern(messagePattern);
+    public Builder withBody(ContentPattern<?> bodyPattern) {
+      return setBodyPattern(bodyPattern);
     }
 
     public MessagePattern build() {
-      return new MessagePattern(channelPattern, messagePattern);
+      return new MessagePattern(channelPattern, bodyPattern);
     }
   }
 }
