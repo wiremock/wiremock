@@ -56,7 +56,7 @@ public class MessageStubMapping {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.priority = priority;
-    this.trigger = trigger != null ? trigger : MessageTrigger.ANYTHING;
+    this.trigger = trigger != null ? trigger : IncomingMessageTrigger.ANYTHING;
     this.actions = actions != null ? actions : Collections.emptyList();
   }
 
@@ -98,12 +98,18 @@ public class MessageStubMapping {
 
   @JsonIgnore
   public RequestPattern getChannelPattern() {
-    return trigger.getChannelPattern();
+    if (trigger instanceof IncomingMessageTrigger) {
+      return ((IncomingMessageTrigger) trigger).getChannelPattern();
+    }
+    return null;
   }
 
   @JsonIgnore
   public MessagePattern getMessagePattern() {
-    return trigger.getMessagePattern();
+    if (trigger instanceof IncomingMessageTrigger) {
+      return ((IncomingMessageTrigger) trigger).getMessagePattern();
+    }
+    return null;
   }
 
   public List<MessageAction> getActions() {
@@ -115,7 +121,10 @@ public class MessageStubMapping {
       Message message,
       Map<String, com.github.tomakehurst.wiremock.matching.RequestMatcherExtension>
           customMatchers) {
-    return trigger.matches(channel, message, customMatchers);
+    if (trigger instanceof IncomingMessageTrigger) {
+      return ((IncomingMessageTrigger) trigger).matches(channel, message, customMatchers);
+    }
+    return false;
   }
 
   public int comparePriorityWith(MessageStubMapping other) {
@@ -167,8 +176,11 @@ public class MessageStubMapping {
       this.id = existing.id;
       this.name = existing.name;
       this.priority = existing.priority;
-      this.channelPattern = existing.trigger.getChannelPattern();
-      this.bodyPattern = existing.trigger.getBodyPattern();
+      if (existing.trigger instanceof IncomingMessageTrigger) {
+        IncomingMessageTrigger incomingTrigger = (IncomingMessageTrigger) existing.trigger;
+        this.channelPattern = incomingTrigger.getChannelPattern();
+        this.bodyPattern = incomingTrigger.getBodyPattern();
+      }
       this.actions = new ArrayList<>(existing.actions);
     }
 
@@ -224,7 +236,7 @@ public class MessageStubMapping {
     public MessageStubMapping build() {
       MessagePattern messagePattern =
           bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
-      MessageTrigger trigger = new MessageTrigger(channelPattern, messagePattern);
+      IncomingMessageTrigger trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
       return new MessageStubMapping(id, name, priority, trigger, actions);
     }
   }

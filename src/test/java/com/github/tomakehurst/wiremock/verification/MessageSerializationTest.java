@@ -71,6 +71,7 @@ public class MessageSerializationTest {
               "name": "Test message stub",
               "priority": 3,
               "trigger": {
+                "type": "message",
                 "channelPattern": {
                   "url": "/test-channel",
                   "method": "ANY"
@@ -196,6 +197,7 @@ public class MessageSerializationTest {
                 "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "name": "Matched stub",
                 "trigger": {
+                  "type": "message",
                   "messagePattern": {
                     "body": {
                       "equalTo": "test"
@@ -286,6 +288,7 @@ public class MessageSerializationTest {
               "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
               "name": "Broadcast stub",
               "trigger": {
+                "type": "message",
                 "channelPattern": {
                   "url": "/source",
                   "method": "ANY"
@@ -532,6 +535,7 @@ public class MessageSerializationTest {
               "id": "cccccccc-dddd-eeee-ffff-000000000000",
               "name": "Full entity stub",
               "trigger": {
+                "type": "message",
                 "messagePattern": {
                   "body": {
                     "equalTo": "trigger"

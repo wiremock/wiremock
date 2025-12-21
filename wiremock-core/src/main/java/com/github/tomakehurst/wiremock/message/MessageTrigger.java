@@ -15,85 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import java.util.Map;
-import java.util.Objects;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = IncomingMessageTrigger.class)
+@JsonSubTypes({@JsonSubTypes.Type(value = IncomingMessageTrigger.class, name = "message")})
+public interface MessageTrigger {
 
-@JsonInclude(NON_EMPTY)
-public class MessageTrigger {
-
-  public static final MessageTrigger ANYTHING = new MessageTrigger(null, null);
-
-  private final RequestPattern channelPattern;
-  private final MessagePattern messagePattern;
-
-  @JsonCreator
-  public MessageTrigger(
-      @JsonProperty("channelPattern") RequestPattern channelPattern,
-      @JsonProperty("messagePattern") MessagePattern messagePattern) {
-    this.channelPattern = channelPattern;
-    this.messagePattern = messagePattern;
-  }
-
-  public RequestPattern getChannelPattern() {
-    return channelPattern;
-  }
-
-  public MessagePattern getMessagePattern() {
-    return messagePattern != null ? messagePattern : MessagePattern.ANYTHING;
-  }
-
-  @JsonIgnore
-  public StringValuePattern getBodyPattern() {
-    return messagePattern != null ? messagePattern.getBodyPattern() : null;
-  }
-
-  public boolean matches(
-      MessageChannel channel,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    return matches(channel.getRequest(), message, customMatchers);
-  }
-
-  public boolean matches(
-      Request channelRequest,
-      Message message,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    if (channelPattern != null) {
-      MatchResult channelMatch = channelPattern.match(channelRequest, customMatchers);
-      if (!channelMatch.isExactMatch()) {
-        return false;
-      }
-    }
-
-    if (messagePattern != null) {
-      return messagePattern.matches(channelRequest, message, customMatchers);
-    }
-
-    return true;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    MessageTrigger that = (MessageTrigger) o;
-    return Objects.equals(channelPattern, that.channelPattern)
-        && Objects.equals(messagePattern, that.messagePattern);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(channelPattern, messagePattern);
-  }
+  MessageTrigger ANYTHING = IncomingMessageTrigger.ANYTHING;
 }
