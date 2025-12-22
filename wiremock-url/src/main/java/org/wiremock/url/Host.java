@@ -47,12 +47,12 @@ class HostParser implements PercentEncodedCharSequenceParser<Host> {
 
   static final HostParser INSTANCE = new HostParser();
 
-  final String ipv6Address = "(?<ipv6Address>[0-9A-Fa-f:.]+)";
-  final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
-  final String ipLiteral = "\\[(?:" + ipv6Address + "|" + ipvFuture + ")]";
-  final String registeredName = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
+  static final String ipv6Address = "(?<ipv6Address>[0-9A-Fa-f:.]+)";
+  static final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
+  static final String ipLiteral = "\\[(?:" + ipv6Address + "|" + ipvFuture + ")]";
+  static final String registeredName = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
   // all ipv4 addresses are also legal registered names
-  final String hostRegex = ipLiteral + "|" + registeredName;
+  static final String hostRegex = ipLiteral + "|" + registeredName;
 
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
 

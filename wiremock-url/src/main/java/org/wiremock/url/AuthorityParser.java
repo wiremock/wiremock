@@ -15,6 +15,9 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.HostParser.hostRegex;
+import static org.wiremock.url.UserInfoParser.userInfoRegex;
+
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,16 +27,12 @@ class AuthorityParser implements CharSequenceParser<Authority> {
 
   public static final AuthorityParser INSTANCE = new AuthorityParser();
 
-  final String portRegex = "[0-9]+";
-
-  final String authorityRegex =
+  static final String authorityRegex =
       "(?:(?<userInfo>"
-          + UserInfoParser.INSTANCE.userInfoRegex
+          + userInfoRegex
           + ")@)?(?<host>"
-          + HostParser.INSTANCE.hostRegex
-          + ")(?<colonAndPort>:(?<port>"
-          + portRegex
-          + ")?)?";
+          + hostRegex
+          + ")(?<colonAndPort>:(?<port>[0-9]+)?)?";
 
   private final Pattern authorityPattern = Pattern.compile("^" + authorityRegex + "$");
 

@@ -44,7 +44,7 @@ class QueryParser implements PercentEncodedCharSequenceParser<Query> {
 
   static final QueryParser INSTANCE = new QueryParser();
 
-  final String queryRegex = "[^#" + alwaysIllegal + "]*";
+  static final String queryRegex = "[^#" + alwaysIllegal + "]*";
   private final Pattern queryPattern = Pattern.compile("^" + queryRegex + "$");
 
   @Override

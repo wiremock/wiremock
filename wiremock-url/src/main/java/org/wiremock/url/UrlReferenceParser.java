@@ -15,7 +15,11 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.AuthorityParser.authorityRegex;
 import static org.wiremock.url.Constants.alwaysIllegal;
+import static org.wiremock.url.PathParser.pathRegex;
+import static org.wiremock.url.QueryParser.queryRegex;
+import static org.wiremock.url.SchemeParser.schemeRegex;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -71,21 +75,19 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
   }
 
   @Language("RegExp")
-  private final String scheme = "(?<scheme>" + SchemeParser.INSTANCE.schemeRegex + ")";
+  private final String scheme = "(?<scheme>" + schemeRegex + ")";
 
   @Language("RegExp")
-  private final String authority = "(?<authority>" + AuthorityParser.INSTANCE.authorityRegex + ")";
+  private final String authority = "(?<authority>" + authorityRegex + ")";
 
   @Language("RegExp")
-  private final String path = "(?<path>|/" + PathParser.INSTANCE.pathRegex + ")";
+  private final String path = "(?<path>|/" + pathRegex + ")";
 
   @Language("RegExp")
-  private final String query = "(?<query>" + QueryParser.INSTANCE.queryRegex + ")";
-
-  private final String fragmentRegex = "[^" + alwaysIllegal + "]*";
+  private final String query = "(?<query>" + queryRegex + ")";
 
   @Language("RegExp")
-  private final String fragment = "(?<fragment>" + fragmentRegex + ")";
+  private final String fragment = "(?<fragment>[^" + alwaysIllegal + "]*)";
 
   private final Pattern regex =
       Pattern.compile(

@@ -60,7 +60,7 @@ class PathParser implements PercentEncodedCharSequenceParser<Path> {
 
   static final PathParser INSTANCE = new PathParser();
 
-  final String pathRegex = "[^#?" + alwaysIllegal + "]*";
+  static final String pathRegex = "[^#?" + alwaysIllegal + "]*";
   private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
 
   @Override

@@ -47,7 +47,7 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 
-  final String userInfoRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
+  static final String userInfoRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
 
   private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
 
