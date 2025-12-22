@@ -40,8 +40,9 @@ final class HostAndPortValue implements HostAndPort {
   }
 
   @Override
-  public Optional<Optional<Port>> maybePort() {
-    return port != null ? Optional.of(Optional.of(port)) : Optional.empty();
+  public @Nullable Optional<Port> maybePort() {
+    //noinspection OptionalAssignedToNull
+    return port != null ? Optional.of(port) : null;
   }
 
   @Override

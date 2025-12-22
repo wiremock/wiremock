@@ -34,11 +34,11 @@ public interface Authority {
    * - `example.com:80` - with port
    *
    * This method allows distinguishing between the first and second cases:
-   * - `Optional.empty()` - no port
-   * - `Optional.of(Optional.empty())` - empty port
-   * - `Optional.of(Optional.of(port))` - with port
+   * - `null` - no port
+   * - `Optional.empty()` - empty port
+   * - `Optional.of(port)` - with port
    */
-  Optional<Optional<Port>> maybePort();
+  @Nullable Optional<Port> maybePort();
 
   HostAndPort hostAndPort();
 

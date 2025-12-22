@@ -15,8 +15,6 @@
  */
 package org.wiremock.url;
 
-import static java.util.function.Function.identity;
-
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,9 +53,11 @@ class AuthorityParser implements CharSequenceParser<Authority> {
       var userInfo = userInfoString == null ? null : UserInfoParser.INSTANCE.parse(userInfoString);
       var hostString = matcher.group("host");
       var host = HostParser.INSTANCE.parse(hostString);
-      Optional<Optional<Port>> maybePort = extractPort(matcher);
-      if (userInfo == null && !(maybePort.isPresent() && maybePort.get().isEmpty())) {
-        return new HostAndPortValue(host, maybePort.flatMap(identity()).orElse(null));
+      Optional<Port> maybePort = extractPort(matcher);
+      //noinspection OptionalAssignedToNull
+      if (userInfo == null && (maybePort == null || maybePort.isPresent())) {
+        //noinspection OptionalAssignedToNull
+        return new HostAndPortValue(host, maybePort != null ? maybePort.orElse(null) : null);
       } else {
         return new AuthorityValue(userInfo, host, maybePort);
       }
@@ -70,21 +70,19 @@ class AuthorityParser implements CharSequenceParser<Authority> {
     if (userInfo == null) {
       return new HostAndPortValue(host, port);
     } else {
-      var portOptional =
-          port == null ? Optional.<Optional<Port>>empty() : Optional.of(Optional.of(port));
+      var portOptional = port != null ? Optional.of(port) : Optional.<Port>empty();
       return new AuthorityValue(userInfo, host, portOptional);
     }
   }
 
-  private static Optional<Optional<Port>> extractPort(Matcher matcher) {
+  private static @Nullable Optional<Port> extractPort(Matcher matcher) {
     String colonAndPort = matcher.group("colonAndPort");
     if (colonAndPort == null) {
-      return Optional.empty();
+      //noinspection OptionalAssignedToNull
+      return null;
     } else {
       String portString = matcher.group("port");
-      Optional<Port> port =
-          portString == null ? Optional.empty() : Optional.of(Port.parse(portString));
-      return Optional.of(port);
+      return portString != null ? Optional.of(Port.parse(portString)) : Optional.empty();
     }
   }
 }

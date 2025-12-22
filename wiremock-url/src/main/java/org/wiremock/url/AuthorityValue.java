@@ -15,8 +15,6 @@
  */
 package org.wiremock.url;
 
-import static java.util.function.Function.identity;
-
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
@@ -26,21 +24,23 @@ final class AuthorityValue implements Authority {
 
   private final @Nullable UserInfo userInfo;
   private final Host host;
-  private final Optional<Optional<Port>> maybePort;
+  private final @Nullable Optional<Port> maybePort;
 
-  AuthorityValue(@Nullable UserInfo userInfo, Host host, Optional<Optional<Port>> maybePort) {
+  AuthorityValue(@Nullable UserInfo userInfo, Host host, @Nullable Optional<Port> maybePort) {
     this.userInfo = userInfo;
     this.host = Objects.requireNonNull(host);
-    this.maybePort = Objects.requireNonNull(maybePort);
+    this.maybePort = maybePort;
   }
 
   @Override
   public @Nullable Port port() {
-    return maybePort.flatMap(p -> p).orElse(null);
+    //noinspection OptionalAssignedToNull
+    return maybePort != null ? maybePort.orElse(null) : null;
   }
 
   @Override
-  public Optional<Optional<Port>> maybePort() {
+  @Nullable
+  public Optional<Port> maybePort() {
     return maybePort;
   }
 
@@ -52,11 +52,11 @@ final class AuthorityValue implements Authority {
     }
     result.append(host);
 
-    maybePort.ifPresent(
-        port -> {
-          result.append(':');
-          port.ifPresent(result::append);
-        });
+    //noinspection OptionalAssignedToNull
+    if (maybePort != null) {
+      result.append(':');
+      maybePort.ifPresent(result::append);
+    }
     return result.toString();
   }
 
@@ -67,9 +67,9 @@ final class AuthorityValue implements Authority {
 
   @Override
   public Authority withPort(@Nullable Port port) {
-    Optional<Optional<Port>> newPort =
-        port != null ? Optional.of(Optional.of(port)) : Optional.empty();
-    if (newPort.equals(maybePort)) {
+    @SuppressWarnings("OptionalAssignedToNull")
+    Optional<Port> newPort = port != null ? Optional.of(port) : null;
+    if (Objects.equals(newPort, maybePort)) {
       return this;
     } else {
       return new AuthorityValue(userInfo, host, newPort);
@@ -79,46 +79,50 @@ final class AuthorityValue implements Authority {
   @Override
   public Authority normalise() {
     var normalisedHost = host.normalise();
-    final Optional<Optional<Port>> normalisedPort;
-    if (maybePort.isEmpty() || maybePort.get().isPresent()) {
-      normalisedPort = maybePort;
+    final Optional<Port> optionalNormalisedPort;
+    if (maybePort != null && maybePort.isPresent()) {
+      var normalisedPort = maybePort.get().normalise();
+      optionalNormalisedPort = Optional.of(normalisedPort);
     } else {
-      normalisedPort = Optional.empty();
+      //noinspection OptionalAssignedToNull
+      optionalNormalisedPort = null;
     }
     var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-    if (normalisedHost.equals(host)
-        && normalisedPort.equals(maybePort)
-        && Objects.equals(normalisedUserInfo, userInfo)) {
-      return this;
-    } else if (normalisedUserInfo == null) {
-      return new HostAndPortValue(normalisedHost, normalisedPort.flatMap(identity()).orElse(null));
-    } else {
-      return new AuthorityValue(normalisedUserInfo, normalisedHost, normalisedPort);
-    }
+    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
   }
 
   @Override
   public Authority normalise(Scheme canonicalScheme) {
     var normalisedHost = host.normalise();
     Port port = port();
-    var normalisedPort = port == null ? null : port.normalise();
-    final Optional<Optional<Port>> normalisedPort2;
+    var normalisedPort = port != null ? port.normalise() : null;
+    final Optional<Port> optionalPort;
     if (normalisedPort == null || Objects.equals(normalisedPort, canonicalScheme.defaultPort())) {
-      normalisedPort = null;
-      normalisedPort2 = Optional.empty();
+      //noinspection OptionalAssignedToNull
+      optionalPort = null;
     } else {
-      normalisedPort2 = Optional.of(Optional.of(normalisedPort));
+      optionalPort = Optional.of(normalisedPort);
     }
 
     var normalisedUserInfo = Optional.ofNullable(userInfo).map(UserInfo::normalise).orElse(null);
-    if (normalisedHost.equals(host)
-        && normalisedPort2.equals(maybePort)
-        && Objects.equals(normalisedUserInfo, userInfo)) {
+    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalPort);
+  }
+
+  private Authority buildNormalisedAuthority(
+      @Nullable UserInfo normalisedUserInfo,
+      Host normalisedHost,
+      @Nullable Optional<Port> optionalNormalisedPort) {
+    if (Objects.equals(normalisedUserInfo, userInfo)
+        && normalisedHost.equals(host)
+        && Objects.equals(optionalNormalisedPort, maybePort)) {
       return this;
     } else if (normalisedUserInfo == null) {
+      @SuppressWarnings("OptionalAssignedToNull")
+      var normalisedPort =
+          optionalNormalisedPort != null ? optionalNormalisedPort.orElse(null) : null;
       return new HostAndPortValue(normalisedHost, normalisedPort);
     } else {
-      return new AuthorityValue(normalisedUserInfo, normalisedHost, normalisedPort2);
+      return new AuthorityValue(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
     }
   }
 
