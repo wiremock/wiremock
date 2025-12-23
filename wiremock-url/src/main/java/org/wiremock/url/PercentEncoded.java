@@ -20,26 +20,19 @@ import static org.wiremock.url.Constants.multiplePctEncodedPattern;
 
 import java.io.ByteArrayOutputStream;
 
-public interface PercentEncoded extends CharSequence {
+public interface PercentEncoded {
 
   default String decode() {
     return Strings.transform(
         toString(), multiplePctEncodedPattern, PercentEncoded::decodeCharacters);
   }
 
-  @Override
   default int length() {
     return toString().length();
   }
 
-  @Override
-  default CharSequence subSequence(int start, int end) {
-    return toString().subSequence(start, end);
-  }
-
-  @Override
-  default char charAt(int index) {
-    return toString().charAt(index);
+  default boolean isEmpty() {
+    return toString().isEmpty();
   }
 
   private static String decodeCharacters(String percentEncodings) {

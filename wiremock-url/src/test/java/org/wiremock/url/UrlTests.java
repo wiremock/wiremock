@@ -57,6 +57,15 @@ class UrlTests {
     }
 
     @Test
+    void resolveRelative() {
+      Url base = Url.parse("http://example.com");
+      Url resolved = base.resolve(Path.parse("foo"));
+      assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
+      assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
+    }
+
+    @Test
     void settingPortToNullChangesNothing() {
       String urlString = "http://example.com";
 

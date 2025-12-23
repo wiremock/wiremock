@@ -69,6 +69,10 @@ public non-sealed interface Url extends UrlReference {
     return resolve(parse(other));
   }
 
+  default Url resolve(Path other) {
+    return this.transform(builder -> builder.setPath(getPath().resolve(other)));
+  }
+
   default Url resolve(UrlReference other) {
     if (other instanceof Url otherUrl) {
       return otherUrl.normalise();
