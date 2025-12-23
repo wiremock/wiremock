@@ -1,0 +1,225 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.wiremock.url;
+
+import static org.wiremock.url.Constants.alwaysIllegal;
+import static org.wiremock.url.Constants.combine;
+import static org.wiremock.url.Constants.include;
+import static org.wiremock.url.Constants.pcharCharSet;
+import static org.wiremock.url.Constants.subDelimCharSet;
+import static org.wiremock.url.Constants.unreservedCharSet;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.intellij.lang.annotations.Language;
+
+public interface Path extends PercentEncoded {
+
+  Path EMPTY = PathParser.INSTANCE.parse("");
+  Path ROOT = PathParser.INSTANCE.parse("/");
+
+  boolean isAbsolute();
+
+  List<Segment> segments();
+
+  static Path parse(CharSequence path) throws IllegalPath {
+    return PathParser.INSTANCE.parse(path);
+  }
+
+  static Path encode(String unencoded) {
+    return PathParser.INSTANCE.encode(unencoded);
+  }
+
+  Path normalise();
+
+  Path resolve(Path other);
+
+  default boolean isEmpty() {
+    return this.equals(Path.EMPTY);
+  }
+}
+
+class PathParser implements PercentEncodedCharSequenceParser<Path> {
+
+  static final PathParser INSTANCE = new PathParser();
+
+  static final String pathRegex = "[^#?" + alwaysIllegal + "]*";
+  private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
+
+  @Override
+  public Path parse(CharSequence stringForm) {
+    String pathStr = stringForm.toString();
+    if (pathPattern.matcher(pathStr).matches()) {
+      var segments =
+          Arrays.stream(pathStr.split("/", -1)).map(s -> (Segment) new SegmentImpl(s)).toList();
+      return new Path(pathStr, segments);
+    } else {
+      throw new IllegalPath(pathStr);
+    }
+  }
+
+  private static final boolean[] pathCharSet =
+      combine(unreservedCharSet, subDelimCharSet, include(':', '@', '/'));
+
+  @Override
+  public Path encode(String unencoded) {
+    return parse(Constants.encode(unencoded, pathCharSet));
+  }
+
+  record Path(String path, List<Segment> segments) implements org.wiremock.url.Path {
+
+    @Override
+    public String toString() {
+      return path;
+    }
+
+    @Override
+    public boolean isAbsolute() {
+      return !path.isEmpty() && path.charAt(0) == '/';
+    }
+
+    /**
+     * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4">RFC 3986 5.2.4.
+     *     Remove Dot Segments</a>
+     */
+    @Override
+    public org.wiremock.url.Path normalise() {
+      if (this.equals(ROOT) || this.equals(EMPTY)) {
+        return this;
+      }
+      var inputBuffer = new StringBuilder(path);
+      var outputBuffer = new StringBuilder();
+      while (!inputBuffer.isEmpty()) {
+        // A. If the input buffer begins with a prefix of "../" or "./", then remove that prefix
+        // from the input buffer
+        if (remove(inputBuffer, "^..?/")) {
+          continue;
+        }
+
+        // B. if the input buffer begins with a prefix of "/./" or "/.", where "." is a complete
+        // path segment, then replace that prefix with "/" in the input buffer
+        if (replace(inputBuffer, "^/.(/|$)", "/")) {
+          continue;
+        }
+
+        // C. if the input buffer begins with a prefix of "/../" or "/..", where ".." is a complete
+        // path segment, then replace that prefix with "/" in the input buffer and remove the last
+        // segment and its preceding "/" (if any) from the output buffer
+        if (replace(inputBuffer, "^/..(/|$)", "/")) {
+          var lastSegment = outputBuffer.lastIndexOf("/");
+          if (lastSegment >= 0) {
+            outputBuffer.replace(lastSegment, outputBuffer.length(), "");
+          }
+          continue;
+        }
+
+        // D. if the input buffer consists only of "." or "..", then remove that from the input
+        // buffer
+        if (remove(inputBuffer, "^..?$")) {
+          continue;
+        }
+
+        // E. move the first path segment in the input buffer to the end of the output buffer,
+        // including the initial "/" character (if any) and any subsequent characters up to, but not
+        // including, the next "/" character or the end of the input buffer.
+        int endOfFirstSegment = getEndOfFirstSegment(inputBuffer);
+        outputBuffer.append(inputBuffer, 0, endOfFirstSegment);
+        inputBuffer.replace(0, endOfFirstSegment, "");
+      }
+      var outStr = encode(outputBuffer.toString());
+      if (outStr.equals(path)) {
+        return this;
+      } else if (outStr.equals(ROOT.toString())) {
+        return ROOT;
+      } else {
+        return PathParser.INSTANCE.parse(outStr);
+      }
+    }
+
+    private static int getEndOfFirstSegment(StringBuilder inputBuffer) {
+      final int indexOfSlashAtEndOfFirstSegment;
+      if (inputBuffer.charAt(0) == '/') {
+        indexOfSlashAtEndOfFirstSegment = inputBuffer.indexOf("/", 1);
+      } else {
+        indexOfSlashAtEndOfFirstSegment = inputBuffer.indexOf("/");
+      }
+      if (indexOfSlashAtEndOfFirstSegment == -1) {
+        return inputBuffer.length();
+      }
+      return indexOfSlashAtEndOfFirstSegment;
+    }
+
+    /*
+     * The character `.` does not have its usual regex meaning here. For ease of comparison with
+     * the spec it is a placeholder, replaced with the pattern `(?:\.|%2[Ee])` that matches both a
+     * literal `.` and the percent encoded form of `.`, either `%2E` or `%2e`.
+     */
+    private static boolean remove(StringBuilder original, @Language("RegExp") String pattern) {
+      return replace(original, pattern, "");
+    }
+
+    @Language("RegExp")
+    @SuppressWarnings("RegExpUnnecessaryNonCapturingGroup")
+    private static final String DOT = "(?:\\.|%2[Ee])";
+
+    private static final Map<String, Pattern> CACHE = new ConcurrentHashMap<>();
+
+    /*
+     * The character `.` does not have its usual regex meaning here. For ease of comparison with
+     * the spec it is a placeholder, replaced with the pattern `(?:\.|%2[Ee])` that matches both a
+     * literal `.` and the percent encoded form of `.`, either `%2E` or `%2e`.
+     */
+    private static boolean replace(
+        StringBuilder original, @Language("RegExp") String pattern, String replacement) {
+      Pattern p =
+          CACHE.computeIfAbsent(
+              pattern,
+              regex -> Pattern.compile(regex.replaceAll("\\.", Matcher.quoteReplacement(DOT))));
+      Matcher matcher = p.matcher(original);
+      boolean matches = matcher.find();
+      if (matches) {
+        original.replace(matcher.start(), matcher.end(), replacement);
+      }
+      return matches;
+    }
+
+    @Override
+    public org.wiremock.url.Path resolve(org.wiremock.url.Path other) {
+      final org.wiremock.url.Path result;
+      if (other.toString().isEmpty()) {
+        result = this;
+      } else if (other.isAbsolute()) {
+        result = other;
+      } else if (this.path.endsWith("/")) {
+        result = PathParser.INSTANCE.parse(this.path + other);
+      } else {
+        result = PathParser.INSTANCE.parse(this.path + "/../" + other);
+      }
+      return result.normalise();
+    }
+
+    private static final boolean[] pathCharSet = combine(pcharCharSet, include('/'));
+
+    private String encode(String unencoded) {
+      String result = Constants.normalise(unencoded, pathCharSet);
+      return result != null ? result : unencoded;
+    }
+  }
+}
