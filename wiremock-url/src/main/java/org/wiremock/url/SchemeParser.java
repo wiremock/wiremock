@@ -16,7 +16,6 @@
 package org.wiremock.url;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -35,17 +34,17 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
     }
     String canonicalSchemeString = schemeString.toLowerCase();
     return knownSchemes.computeIfAbsent(
-        canonicalSchemeString, (key) -> new Scheme(key, null, defaultPort));
+        canonicalSchemeString, (key) -> new SchemeValue(key, null, defaultPort));
   }
 
   @Override
   public Scheme parse(CharSequence scheme) throws IllegalScheme {
     String schemeString = scheme.toString();
     Scheme canonicalScheme = getCanonicalScheme(schemeString);
-    if (canonicalScheme.scheme.equals(schemeString)) {
+    if (canonicalScheme.toString().equals(schemeString)) {
       return canonicalScheme;
     } else {
-      return new Scheme(schemeString, canonicalScheme, null);
+      return new SchemeValue(schemeString, canonicalScheme, null);
     }
   }
 
@@ -57,56 +56,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
     } else if (!schemeRegex.matcher(schemeString).matches()) {
       throw new IllegalScheme(schemeString);
     } else {
-      return new Scheme(canonicalSchemeString, null, null);
-    }
-  }
-
-  static final class Scheme implements org.wiremock.url.Scheme {
-
-    private final String scheme;
-
-    @Nullable private final Scheme canonical;
-
-    @Nullable private final Port defaultPort;
-
-    Scheme(String scheme, @Nullable Scheme canonical, @Nullable Port defaultPort) {
-      this.scheme = scheme;
-      this.canonical = canonical;
-      this.defaultPort = defaultPort;
-    }
-
-    @Override
-    public org.wiremock.url.Scheme canonical() {
-      return Objects.requireNonNullElse(canonical, this);
-    }
-
-    @Override
-    public @Nullable Port defaultPort() {
-      if (defaultPort != null) {
-        return defaultPort;
-      } else if (canonical != null) {
-        return canonical.defaultPort();
-      } else {
-        return null;
-      }
-    }
-
-    @Override
-    public String toString() {
-      return scheme;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof org.wiremock.url.Scheme other)) {
-        return false;
-      }
-      return Objects.equals(this.scheme, other.toString());
-    }
-
-    @Override
-    public int hashCode() {
-      return scheme.hashCode();
+      return new SchemeValue(canonicalSchemeString, null, null);
     }
   }
 }

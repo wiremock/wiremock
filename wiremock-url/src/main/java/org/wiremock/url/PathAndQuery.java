@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 public interface PathAndQuery extends RelativeRef {
 
-  PathAndQuery EMPTY = new PathAndQueryParser.PathAndQuery(Path.EMPTY, null);
+  PathAndQuery EMPTY = new PathAndQueryValue(Path.EMPTY, null);
 
   /**
    * {@implSpec} Implementations must ALWAYS return null
@@ -51,6 +51,6 @@ public interface PathAndQuery extends RelativeRef {
   PathAndQuery normalise();
 
   static PathAndQuery parse(CharSequence pathAndQuery) throws IllegalPathAndQuery {
-    throw new IllegalPathAndQuery(pathAndQuery.toString());
+    return PathAndQueryParser.INSTANCE.parse(pathAndQuery);
   }
 }

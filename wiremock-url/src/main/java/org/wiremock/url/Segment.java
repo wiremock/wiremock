@@ -16,14 +16,7 @@
 package org.wiremock.url;
 
 public interface Segment extends PercentEncoded {
-  Segment EMPTY = new SegmentImpl("");
-  Segment DOT = new SegmentImpl(".");
-  Segment DOT_DOT = new SegmentImpl("..");
-}
-
-record SegmentImpl(String stringForm) implements Segment {
-  @Override
-  public String toString() {
-    return stringForm;
-  }
+  Segment EMPTY = new SegmentValue("");
+  Segment DOT = new SegmentValue(".");
+  Segment DOT_DOT = new SegmentValue("..");
 }

@@ -15,50 +15,47 @@
  */
 package org.wiremock.url;
 
-import static java.util.Locale.ROOT;
-import static org.wiremock.url.Constants.pctEncodedPattern;
-import static org.wiremock.url.Strings.transform;
+import static org.wiremock.url.Scheme.specialSchemes;
 
 import java.util.Objects;
 
-final class HostValue implements Host {
+final class QueryValue implements Query {
 
-  private final String host;
+  private final String query;
 
-  HostValue(String host) {
-    this.host = host;
+  QueryValue(String query) {
+    this.query = query;
   }
 
   @Override
   public String toString() {
-    return host;
+    return query;
   }
 
   @Override
-  public Host normalise() {
+  public Query normalise(Scheme scheme) {
+    boolean[] charactersThatDoNotNeedEncoding =
+        specialSchemes.contains(scheme)
+            ? QueryParser.specialSchemeQueryCharSet
+            : QueryParser.queryCharSet;
+    String result = Constants.normalise(query, charactersThatDoNotNeedEncoding);
 
-    String normalised =
-        transform(
-            host,
-            pctEncodedPattern,
-            matched -> matched.toUpperCase(ROOT),
-            unmatched -> unmatched.toLowerCase(ROOT));
-    if (normalised.equals(host)) {
+    if (result == null) {
       return this;
     } else {
-      return new HostValue(normalised);
+      return new QueryValue(result);
     }
   }
 
-  public String host() {
-    return host;
+  public String query() {
+    return query;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
-    } else if (obj instanceof Host that) {
+    } else if (obj instanceof Query that) {
       return Objects.equals(this.toString(), that.toString());
     } else {
       return false;
@@ -67,6 +64,6 @@ final class HostValue implements Host {
 
   @Override
   public int hashCode() {
-    return Objects.hash(host);
+    return Objects.hash(query);
   }
 }

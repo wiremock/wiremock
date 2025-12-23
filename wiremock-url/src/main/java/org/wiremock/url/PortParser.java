@@ -24,19 +24,19 @@ final class PortParser implements CharSequenceParser<Port> {
 
   static final int MAX_PORT = 65_535;
 
-  private final Map<Integer, Port> portsByInt = new ConcurrentHashMap<>();
+  private final Map<Integer, PortValue> portsByInt = new ConcurrentHashMap<>();
 
-  Port of(int port) throws IllegalPort {
+  PortValue of(int port) throws IllegalPort {
     return portsByInt.computeIfAbsent(
         port,
         (p) -> {
           validate(p);
-          return new Port(p, String.valueOf(p));
+          return new PortValue(p, String.valueOf(p));
         });
   }
 
   @Override
-  public org.wiremock.url.Port parse(CharSequence stringForm) {
+  public Port parse(CharSequence stringForm) {
     String s = stringForm.toString();
     try {
       if (s.startsWith("+")) {
@@ -48,7 +48,7 @@ final class PortParser implements CharSequenceParser<Port> {
         return of(port);
       } else {
         validate(port);
-        return new Port(port, s);
+        return new PortValue(port, s);
       }
 
     } catch (NumberFormatException e) {
@@ -59,36 +59,6 @@ final class PortParser implements CharSequenceParser<Port> {
   private static void validate(int port) {
     if (port < 0) {
       throw new IllegalPort(port);
-    }
-  }
-
-  record Port(@Override int port, String portString) implements org.wiremock.url.Port {
-
-    @Override
-    public String toString() {
-      return portString;
-    }
-
-    @Override
-    public org.wiremock.url.Port normalise() {
-      if (portString.equals(String.valueOf(port))) {
-        return this;
-      } else {
-        return PortParser.INSTANCE.of(port);
-      }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof org.wiremock.url.Port other)) {
-        return false;
-      }
-      return toString().equals(other.toString());
-    }
-
-    @Override
-    public int hashCode() {
-      return portString.hashCode();
     }
   }
 }

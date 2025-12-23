@@ -56,14 +56,14 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
     String userInfoStr = stringForm.toString();
     if (userInfoPattern.matcher(stringForm).matches()) {
       var components = userInfoStr.split(":", 2);
-      var username = new UsernameParser.Username(components[0]);
+      var username = new UsernameValue(components[0]);
       final Password password;
       if (components.length == 2) {
         password = new PasswordValue(components[1]);
       } else {
         password = null;
       }
-      return new UserInfo(userInfoStr, username, password);
+      return new UserInfoValue(userInfoStr, username, password);
     } else {
       throw new IllegalUserInfo(userInfoStr);
     }
@@ -76,27 +76,5 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
   public UserInfo encode(String unencoded) {
     String encoded = Constants.encode(unencoded, userInfoCharSet);
     return parse(encoded);
-  }
-
-  record UserInfo(
-      String userInfo, @Override Username username, @Override @Nullable Password password)
-      implements org.wiremock.url.UserInfo {
-
-    @Override
-    public String toString() {
-      return userInfo;
-    }
-
-    @Override
-    public org.wiremock.url.@Nullable UserInfo normalise() {
-      if (!username.toString().isEmpty() && password != null && password.toString().isEmpty()) {
-        return new UserInfo(username.toString(), username, null);
-      } else if (username.toString().isEmpty()
-          && (password == null || password.toString().isEmpty())) {
-        return null;
-      } else {
-        return this;
-      }
-    }
   }
 }

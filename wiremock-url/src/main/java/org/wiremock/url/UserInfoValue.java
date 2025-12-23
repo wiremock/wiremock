@@ -15,50 +15,53 @@
  */
 package org.wiremock.url;
 
-import static java.util.Locale.ROOT;
-import static org.wiremock.url.Constants.pctEncodedPattern;
-import static org.wiremock.url.Strings.transform;
-
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
-final class HostValue implements Host {
+final class UserInfoValue implements UserInfo {
 
-  private final String host;
+  private final String userInfo;
+  private final Username username;
+  private final @Nullable Password password;
 
-  HostValue(String host) {
-    this.host = host;
+  UserInfoValue(String userInfo, Username username, @Nullable Password password) {
+    this.userInfo = userInfo;
+    this.username = username;
+    this.password = password;
   }
 
   @Override
   public String toString() {
-    return host;
+    return userInfo;
   }
 
   @Override
-  public Host normalise() {
-
-    String normalised =
-        transform(
-            host,
-            pctEncodedPattern,
-            matched -> matched.toUpperCase(ROOT),
-            unmatched -> unmatched.toLowerCase(ROOT));
-    if (normalised.equals(host)) {
-      return this;
+  public @Nullable UserInfoValue normalise() {
+    if (!username.toString().isEmpty() && password != null && password.toString().isEmpty()) {
+      return new UserInfoValue(username.toString(), username, null);
+    } else if (username.toString().isEmpty()
+        && (password == null || password.toString().isEmpty())) {
+      return null;
     } else {
-      return new HostValue(normalised);
+      return this;
     }
   }
 
-  public String host() {
-    return host;
+  @Override
+  public Username username() {
+    return username;
+  }
+
+  @Override
+  public @Nullable Password password() {
+    return password;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
-    } else if (obj instanceof Host that) {
+    } else if (obj instanceof UserInfo that) {
       return Objects.equals(this.toString(), that.toString());
     } else {
       return false;
@@ -67,6 +70,6 @@ final class HostValue implements Host {
 
   @Override
   public int hashCode() {
-    return Objects.hash(host);
+    return Objects.hash(userInfo);
   }
 }

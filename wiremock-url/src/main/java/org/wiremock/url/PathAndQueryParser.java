@@ -15,54 +15,21 @@
  */
 package org.wiremock.url;
 
-import java.util.Objects;
-import org.jspecify.annotations.Nullable;
-
 final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
 
+  static final PathAndQueryParser INSTANCE = new PathAndQueryParser();
+
   @Override
-  public org.wiremock.url.PathAndQuery parse(CharSequence stringForm) {
+  public PathAndQuery parse(CharSequence stringForm) {
     try {
       var urlReference = UrlReferenceParser.INSTANCE.parse(stringForm);
-      if (urlReference instanceof org.wiremock.url.PathAndQuery) {
-        return (org.wiremock.url.PathAndQuery) urlReference;
+      if (urlReference instanceof PathAndQuery) {
+        return (PathAndQuery) urlReference;
       } else {
         throw new IllegalPathAndQuery(stringForm.toString());
       }
     } catch (IllegalUrlPart illegalUrlPart) {
       throw new IllegalPathAndQuery(stringForm.toString(), illegalUrlPart);
-    }
-  }
-
-  record PathAndQuery(Path path, @Nullable Query query) implements org.wiremock.url.PathAndQuery {
-
-    @Override
-    public boolean equals(Object obj) {
-      return UrlReferenceParser.equals(this, obj);
-    }
-
-    @Override
-    public int hashCode() {
-      return UrlReferenceParser.hashCode(this);
-    }
-
-    @Override
-    public String toString() {
-      return UrlReferenceParser.toString(this);
-    }
-
-    @Override
-    public PathAndQuery normalise() {
-      var normalisedPath = path.normalise();
-      if (normalisedPath.isEmpty()) {
-        normalisedPath = Path.ROOT;
-      }
-      var normalisedQuery = query == null ? null : query.normalise();
-      if (normalisedPath.equals(path) && Objects.equals(normalisedQuery, query)) {
-        return this;
-      } else {
-        return new PathAndQuery(normalisedPath, normalisedQuery);
-      }
     }
   }
 }

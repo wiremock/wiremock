@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Strings {
+final class Strings {
 
   static String transform(
       String original, Pattern pattern, Function<String, String> transformMatched) {
@@ -47,5 +47,9 @@ class Strings {
     result.append(transformUnmatched.apply(original.substring(lastEnd)));
 
     return result.toString();
+  }
+
+  private Strings() {
+    throw new UnsupportedOperationException("Not instantiable");
   }
 }

@@ -15,15 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.combine;
-import static org.wiremock.url.Constants.pctEncoded;
-import static org.wiremock.url.Constants.subDelimCharSet;
-import static org.wiremock.url.Constants.subDelims;
-import static org.wiremock.url.Constants.unreserved;
-import static org.wiremock.url.Constants.unreservedCharSet;
-
-import java.util.regex.Pattern;
-
 public interface Username extends PercentEncoded {
 
   static Username parse(CharSequence username) throws IllegalUsername {
@@ -32,40 +23,5 @@ public interface Username extends PercentEncoded {
 
   static Username encode(String unencoded) {
     return UsernameParser.INSTANCE.encode(unencoded);
-  }
-}
-
-class UsernameParser implements PercentEncodedCharSequenceParser<Username> {
-
-  static final UsernameParser INSTANCE = new UsernameParser();
-
-  final String usernameRegex = "(?:[" + unreserved + subDelims + "]|" + pctEncoded + ")*";
-
-  private final Pattern usernamePattern = Pattern.compile("^" + usernameRegex + "$");
-
-  @Override
-  public Username parse(CharSequence stringForm) throws IllegalUsername {
-    String usernameStr = stringForm.toString();
-    if (usernamePattern.matcher(usernameStr).matches()) {
-      return new Username(usernameStr);
-    } else {
-      throw new IllegalUsername(usernameStr);
-    }
-  }
-
-  private static final boolean[] usernameCharSet = combine(unreservedCharSet, subDelimCharSet);
-
-  @Override
-  public Username encode(String unencoded) {
-    String encoded = Constants.encode(unencoded, usernameCharSet);
-    return new Username(encoded);
-  }
-
-  record Username(String username) implements org.wiremock.url.Username {
-
-    @Override
-    public String toString() {
-      return username;
-    }
   }
 }

@@ -44,6 +44,6 @@ public non-sealed interface RelativeRef extends UrlReference {
   RelativeRef normalise();
 
   static RelativeRef parse(CharSequence relativeRef) throws IllegalRelativeRef {
-    throw new IllegalRelativeRef(relativeRef.toString());
+    return RelativeRefParser.INSTANCE.parse(relativeRef);
   }
 }

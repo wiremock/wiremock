@@ -48,11 +48,11 @@ public non-sealed interface Url extends UrlReference {
   }
 
   default PathAndQuery pathAndQuery() {
-    return new PathAndQueryParser.PathAndQuery(path(), query());
+    return new PathAndQueryValue(path(), query());
   }
 
   default Builder thaw() {
-    return new UrlParser.Url.Builder(this);
+    return new UrlValue.Builder(this);
   }
 
   default Url transform(Consumer<Url.Builder> consumer) {
@@ -107,7 +107,7 @@ public non-sealed interface Url extends UrlReference {
   }
 
   static Builder builder(Scheme scheme, Authority authority) {
-    return new UrlParser.Url.Builder(scheme, authority);
+    return new UrlValue.Builder(scheme, authority);
   }
 
   interface Builder {

@@ -15,50 +15,26 @@
  */
 package org.wiremock.url;
 
-import static java.util.Locale.ROOT;
-import static org.wiremock.url.Constants.pctEncodedPattern;
-import static org.wiremock.url.Strings.transform;
-
 import java.util.Objects;
 
-final class HostValue implements Host {
+final class UsernameValue implements Username {
 
-  private final String host;
+  private final String username;
 
-  HostValue(String host) {
-    this.host = host;
+  UsernameValue(String username) {
+    this.username = username;
   }
 
   @Override
   public String toString() {
-    return host;
-  }
-
-  @Override
-  public Host normalise() {
-
-    String normalised =
-        transform(
-            host,
-            pctEncodedPattern,
-            matched -> matched.toUpperCase(ROOT),
-            unmatched -> unmatched.toLowerCase(ROOT));
-    if (normalised.equals(host)) {
-      return this;
-    } else {
-      return new HostValue(normalised);
-    }
-  }
-
-  public String host() {
-    return host;
+    return username;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
-    } else if (obj instanceof Host that) {
+    } else if (obj instanceof Username that) {
       return Objects.equals(this.toString(), that.toString());
     } else {
       return false;
@@ -67,6 +43,6 @@ final class HostValue implements Host {
 
   @Override
   public int hashCode() {
-    return Objects.hash(host);
+    return Objects.hash(username);
   }
 }

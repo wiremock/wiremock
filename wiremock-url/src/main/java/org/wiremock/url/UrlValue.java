@@ -1,0 +1,193 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.wiremock.url;
+
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
+
+final class UrlValue implements Url {
+
+  private final Scheme scheme;
+  private final Authority authority;
+  private final Path path;
+  private final @Nullable Query query;
+  private final @Nullable Fragment fragment;
+
+  UrlValue(
+      Scheme scheme,
+      Authority authority,
+      Path path,
+      @Nullable Query query,
+      @Nullable Fragment fragment) {
+    this.scheme = scheme;
+    this.authority = authority;
+    this.path = path;
+    this.query = query;
+    this.fragment = fragment;
+  }
+
+  @Override
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public boolean equals(Object obj) {
+    return UrlReferenceParser.equals(this, obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return UrlReferenceParser.hashCode(this);
+  }
+
+  @Override
+  public String toString() {
+    return UrlReferenceParser.toString(this);
+  }
+
+  @Override
+  public Url normalise() {
+    Scheme canonicalScheme = scheme.canonical();
+    Authority normalisedAuthority = authority.normalise(canonicalScheme);
+    Path normalisedPath = path.normalise();
+    if (normalisedPath.isEmpty()) {
+      normalisedPath = Path.ROOT;
+    }
+    Query normalisedQuery = query == null ? null : query.normalise(canonicalScheme);
+    Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
+
+    if (scheme.equals(canonicalScheme)
+        && authority.equals(normalisedAuthority)
+        && path.equals(normalisedPath)
+        && Objects.equals(query, normalisedQuery)
+        && Objects.equals(fragment, normalisedFragment)) {
+      return this;
+    } else if (normalisedPath instanceof HostAndPort
+        && normalisedPath.isEmpty()
+        && normalisedQuery == null
+        && normalisedFragment == null) {
+      return new OriginValue(canonicalScheme, (HostAndPort) normalisedAuthority);
+    } else {
+      return new UrlValue(
+          canonicalScheme,
+          normalisedAuthority,
+          normalisedPath,
+          normalisedQuery,
+          normalisedFragment);
+    }
+  }
+
+  @Override
+  public Scheme scheme() {
+    return scheme;
+  }
+
+  @Override
+  public Authority authority() {
+    return authority;
+  }
+
+  @Override
+  public Path path() {
+    return path;
+  }
+
+  @Override
+  public @Nullable Query query() {
+    return query;
+  }
+
+  @Override
+  public @Nullable Fragment fragment() {
+    return fragment;
+  }
+
+  static class Builder implements Url.Builder {
+
+    private Scheme scheme;
+    private Authority authority;
+    private Path path = Path.ROOT;
+    @Nullable Query query = null;
+    @Nullable Fragment fragment = null;
+
+    Builder(Scheme scheme, Authority authority) {
+      this.scheme = scheme;
+      this.authority = authority;
+    }
+
+    Builder(Url url) {
+      this.scheme = url.scheme();
+      this.authority = url.authority();
+      this.path = url.path();
+      this.query = url.query();
+      this.fragment = url.fragment();
+    }
+
+    @Override
+    public Builder setScheme(Scheme scheme) {
+      this.scheme = scheme;
+      return this;
+    }
+
+    @Override
+    public Builder setAuthority(Authority authority) {
+      this.authority = authority;
+      return this;
+    }
+
+    @Override
+    public Builder setUserInfo(@Nullable UserInfo userInfo) {
+      this.authority = Authority.of(userInfo, authority.host(), authority.port());
+      return this;
+    }
+
+    @Override
+    public Builder setHost(Host host) {
+      this.authority = Authority.of(authority.userInfo(), host, authority.port());
+      return this;
+    }
+
+    @Override
+    public Builder setPort(@Nullable Port port) {
+      this.authority = Authority.of(authority.userInfo(), authority.host(), port);
+      return this;
+    }
+
+    @Override
+    public Builder setPath(Path path) {
+      this.path = path;
+      return this;
+    }
+
+    @Override
+    public Builder setQuery(@Nullable Query query) {
+      this.query = query;
+      return this;
+    }
+
+    @Override
+    public Builder setFragment(@Nullable Fragment fragment) {
+      this.fragment = fragment;
+      return this;
+    }
+
+    @Override
+    public Url build() {
+      if (authority instanceof HostAndPort && path.isEmpty() && query == null && fragment == null) {
+        return new OriginValue(scheme, (HostAndPort) authority);
+      } else {
+        return new UrlValue(scheme, authority, path, query, fragment);
+      }
+    }
+  }
+}

@@ -130,9 +130,9 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
         if (hierarchicalPart.authority == null
             && fragment == null
             && (hierarchicalPart.path.isAbsolute())) {
-          return new PathAndQueryParser.PathAndQuery(hierarchicalPart.path, query);
+          return new PathAndQueryValue(hierarchicalPart.path, query);
         } else {
-          return new RelativeRefParser.RelativeRef(
+          return new RelativeRefValue(
               hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
         }
 
