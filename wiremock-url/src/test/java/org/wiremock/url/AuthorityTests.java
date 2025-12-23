@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -127,6 +128,29 @@ public class AuthorityTests {
     assertThat(authority.userInfo()).isNull();
     assertThat(authority.host()).isEqualTo(urlTest.expectation.host);
     assertThat(authority.port()).isEqualTo(urlTest.expectation.port);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        " ", // space
+        "example.com:abc", // non-numeric port
+        "example.com:-80", // negative port
+        "user name@example.com", // unencoded space in userinfo
+        "user@ex ample.com", // space in host
+        "example.com:8080:9090", // multiple ports
+        "[::1", // unclosed IPv6 bracket
+        "::1]", // IPv6 without opening bracket
+        "user@@example.com", // double @
+        "user#name@example.com", // invalid char in userinfo
+        "example?.com", // invalid char in host
+      })
+  void throws_exception_for_illegal_authority(String illegalAuthority) {
+    assertThatExceptionOfType(IllegalAuthority.class)
+        .isThrownBy(() -> Authority.parse(illegalAuthority))
+        .withMessage("Illegal authority: `" + illegalAuthority + "`")
+        .extracting(IllegalAuthority::getIllegalValue)
+        .isEqualTo(illegalAuthority);
   }
 
   record AuthorityChangeTestCase(Authority original, Authority expected) {}
@@ -385,6 +409,152 @@ public class AuthorityTests {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
       Authority authority = Authority.parse("example.com:8080");
       assertThat(hostAndPort.hashCode()).isEqualTo(authority.hashCode());
+    }
+  }
+
+  @Nested
+  class AuthorityOfMethods {
+
+    @Test
+    void of_with_host_only() {
+      Host host = Host.parse("example.com");
+      Authority authority = Authority.of(host);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isNull();
+      assertThat(authority.userInfo()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("example.com"));
+    }
+
+    @Test
+    void of_with_host_and_port() {
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      Authority authority = Authority.of(host, port);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isEqualTo(port);
+      assertThat(authority.userInfo()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("example.com:8080"));
+    }
+
+    @Test
+    void of_with_host_and_null_port() {
+      Host host = Host.parse("example.com");
+      Authority authority = Authority.of(host, null);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isNull();
+      assertThat(authority.userInfo()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("example.com"));
+    }
+
+    @Test
+    void of_with_userInfo_and_host() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      Host host = Host.parse("example.com");
+      Authority authority = Authority.of(userInfo, host);
+      assertThat(authority.userInfo()).isEqualTo(userInfo);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("user:password@example.com:"));
+    }
+
+    @Test
+    void of_with_null_userInfo_and_host() {
+      Host host = Host.parse("example.com");
+      Authority authority = Authority.of(null, host);
+      assertThat(authority.userInfo()).isNull();
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("example.com"));
+    }
+
+    @Test
+    void of_with_all_components() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      Authority authority = Authority.of(userInfo, host, port);
+      assertThat(authority.userInfo()).isEqualTo(userInfo);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isEqualTo(port);
+      assertThat(authority).isEqualTo(Authority.parse("user:password@example.com:8080"));
+    }
+
+    @Test
+    void of_with_all_components_and_null_port() {
+      UserInfo userInfo = UserInfo.parse("user:password");
+      Host host = Host.parse("example.com");
+      Authority authority = Authority.of(userInfo, host, null);
+      assertThat(authority.userInfo()).isEqualTo(userInfo);
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isNull();
+      assertThat(authority).isEqualTo(Authority.parse("user:password@example.com:"));
+    }
+
+    @Test
+    void of_with_all_components_and_null_userInfo() {
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      Authority authority = Authority.of(null, host, port);
+      assertThat(authority.userInfo()).isNull();
+      assertThat(authority.host()).isEqualTo(host);
+      assertThat(authority.port()).isEqualTo(port);
+      assertThat(authority).isEqualTo(Authority.parse("example.com:8080"));
+    }
+
+    @Test
+    void of_returns_hostAndPort_when_no_userInfo() {
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      Authority authority = Authority.of(null, host, port);
+      assertThat(authority).isInstanceOf(HostAndPort.class);
+    }
+  }
+
+  @Nested
+  class HostAndPortOfMethods {
+
+    @Test
+    void of_with_host_only() {
+      Host host = Host.parse("example.com");
+      HostAndPort hostAndPort = HostAndPort.of(host);
+      assertThat(hostAndPort.host()).isEqualTo(host);
+      assertThat(hostAndPort.port()).isNull();
+      //noinspection removal
+      assertThat(hostAndPort.userInfo()).isNull();
+      assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com"));
+    }
+
+    @Test
+    void of_with_host_and_port() {
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      HostAndPort hostAndPort = HostAndPort.of(host, port);
+      assertThat(hostAndPort.host()).isEqualTo(host);
+      assertThat(hostAndPort.port()).isEqualTo(port);
+      //noinspection removal
+      assertThat(hostAndPort.userInfo()).isNull();
+      assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com:8080"));
+    }
+
+    @Test
+    void of_with_host_and_null_port() {
+      Host host = Host.parse("example.com");
+      HostAndPort hostAndPort = HostAndPort.of(host, null);
+      assertThat(hostAndPort.host()).isEqualTo(host);
+      assertThat(hostAndPort.port()).isNull();
+      //noinspection removal
+      assertThat(hostAndPort.userInfo()).isNull();
+      assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com"));
+    }
+
+    @Test
+    void of_equals_authority_of_with_same_components() {
+      Host host = Host.parse("example.com");
+      Port port = Port.of(8080);
+      HostAndPort hostAndPort = HostAndPort.of(host, port);
+      Authority authority = Authority.of(host, port);
+      assertThat(hostAndPort).isEqualTo(authority);
+      assertThat(authority).isEqualTo(hostAndPort);
     }
   }
 }
