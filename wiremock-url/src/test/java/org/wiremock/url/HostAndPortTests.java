@@ -15,11 +15,19 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.wiremock.url.AuthorityTests.validHostAndPorts;
 
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.AuthorityTests.AuthorityParseTestCase;
 
 class HostAndPortTests {
 
@@ -58,5 +66,37 @@ class HostAndPortTests {
   void withPortDoesNothingIfNoChangeInPort() {
     var hostAndPort = HostAndPort.parse("example.com:8080");
     assertThat(hostAndPort.withPort(Port.of(8080))).isSameAs(hostAndPort);
+  }
+
+  @TestFactory
+  Stream<DynamicTest> invariants() {
+    List<String> authorities =
+        validHostAndPorts.stream().map(AuthorityParseTestCase::stringForm).toList();
+    return CharSequenceParserInvariantTests.generateInvariantTests(
+        HostAndPortParser.INSTANCE, authorities);
+  }
+
+  private static final List<AuthorityParseTestCase> validHostAndPorts =
+      AuthorityTests.validHostAndPorts;
+
+  @ParameterizedTest
+  @FieldSource("validHostAndPorts")
+  void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
+    HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm());
+    //noinspection removal
+    assertThat(hostAndPort.userInfo()).isNull();
+    assertThat(hostAndPort.host()).isEqualTo(urlTest.expectation().host());
+    assertThat(hostAndPort.port()).isEqualTo(urlTest.expectation().port());
+  }
+
+  private static final List<AuthorityParseTestCase> invalidHostAndPorts =
+      AuthorityTests.validAuthoritiesWithUserInfo;
+
+  @ParameterizedTest
+  @FieldSource("invalidHostAndPorts")
+  void rejects_invalid_host_and_port(AuthorityParseTestCase urlTest) {
+    assertThatThrownBy(() -> HostAndPort.parse(urlTest.stringForm()))
+        .isInstanceOf(IllegalHostAndPort.class)
+        .hasMessage("Illegal host and port: `" + urlTest.stringForm() + "`");
   }
 }
