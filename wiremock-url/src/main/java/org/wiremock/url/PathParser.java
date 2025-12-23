@@ -15,9 +15,12 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.*;
+import static org.wiremock.url.Constants.alwaysIllegal;
+import static org.wiremock.url.Constants.combine;
+import static org.wiremock.url.Constants.include;
+import static org.wiremock.url.Constants.subDelimCharSet;
+import static org.wiremock.url.Constants.unreservedCharSet;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 final class PathParser implements PercentEncodedCharSequenceParser<Path> {
@@ -31,9 +34,7 @@ final class PathParser implements PercentEncodedCharSequenceParser<Path> {
   public Path parse(CharSequence stringForm) {
     String pathStr = stringForm.toString();
     if (pathPattern.matcher(pathStr).matches()) {
-      var segments =
-          Arrays.stream(pathStr.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
-      return new PathValue(pathStr, segments);
+      return new PathValue(pathStr);
     } else {
       throw new IllegalPath(pathStr);
     }

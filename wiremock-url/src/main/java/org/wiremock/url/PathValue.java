@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.intellij.lang.annotations.Language;
+import org.jspecify.annotations.Nullable;
 
 final class PathValue implements Path {
 
@@ -159,11 +161,9 @@ final class PathValue implements Path {
 
   private static final boolean[] pathCharSet = combine(pcharCharSet, include('/'));
   private final String path;
-  private final List<Segment> segments;
 
-  PathValue(String path, List<Segment> segments) {
+  PathValue(String path) {
     this.path = path;
-    this.segments = segments;
   }
 
   private String encode(String unencoded) {
@@ -175,8 +175,14 @@ final class PathValue implements Path {
     return path;
   }
 
+  private volatile @Nullable List<Segment> segments = null;
+
   @Override
   public List<Segment> getSegments() {
+    if (segments == null) {
+      segments = Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
+    }
+    //noinspection DataFlowIssue
     return segments;
   }
 
