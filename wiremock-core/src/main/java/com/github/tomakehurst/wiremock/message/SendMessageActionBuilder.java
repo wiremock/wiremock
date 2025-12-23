@@ -44,6 +44,11 @@ public class SendMessageActionBuilder {
     return this;
   }
 
+  public SendMessageActionBuilder withBodyFromFile(String filePath) {
+    textEntityBuilder.withFilePath(filePath);
+    return this;
+  }
+
   private EntityDefinition resolveBody() {
     return textEntityBuilder.build();
   }

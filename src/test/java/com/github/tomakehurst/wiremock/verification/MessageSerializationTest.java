@@ -421,7 +421,8 @@ public class MessageSerializationTest {
   @Test
   void textEntityDefinitionWithStringDataSerializesToJson() {
     TextEntityDefinition entityDef =
-        new TextEntityDefinition(FormatType.JSON, CompressionType.NONE, null, null, "hello world");
+        new TextEntityDefinition(
+            FormatType.JSON, CompressionType.NONE, null, null, "hello world", null);
 
     String json = Json.write(entityDef);
 
@@ -441,7 +442,8 @@ public class MessageSerializationTest {
   void textEntityDefinitionWithObjectDataSerializesToJson() {
     Map<String, Object> objectData = Map.of("name", "John", "age", 30);
     TextEntityDefinition entityDef =
-        new TextEntityDefinition(FormatType.JSON, CompressionType.NONE, null, null, objectData);
+        new TextEntityDefinition(
+            FormatType.JSON, CompressionType.NONE, null, null, objectData, null);
 
     String json = Json.write(entityDef);
 
@@ -464,7 +466,8 @@ public class MessageSerializationTest {
   void textEntityDefinitionWithDataStoreRefSerializesToJson() {
     // Using non-default format (TEXT instead of JSON) to test that it is serialized
     TextEntityDefinition entityDef =
-        new TextEntityDefinition(FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null);
+        new TextEntityDefinition(
+            FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null, null);
 
     String json = Json.write(entityDef);
 
@@ -486,7 +489,8 @@ public class MessageSerializationTest {
   @Test
   void textEntityDefinitionWithDataStoreRoundTripsViaMessageStubMapping() {
     TextEntityDefinition original =
-        new TextEntityDefinition(FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null);
+        new TextEntityDefinition(
+            FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null, null);
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -507,7 +511,7 @@ public class MessageSerializationTest {
   void messageStubMappingWithTextEntityDefinitionSerializesCorrectly() {
     TextEntityDefinition entityDef =
         new TextEntityDefinition(
-            FormatType.JSON, CompressionType.NONE, null, null, Map.of("key", "value"));
+            FormatType.JSON, CompressionType.NONE, null, null, Map.of("key", "value"), null);
 
     MessageStubMapping stub =
         MessageStubMapping.builder()

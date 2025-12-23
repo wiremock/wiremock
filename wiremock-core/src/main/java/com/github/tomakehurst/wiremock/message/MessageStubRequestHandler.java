@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static java.util.Base64.*;
+
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
@@ -25,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
@@ -33,8 +37,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Base64.*;
 
 public class MessageStubRequestHandler {
 
@@ -153,6 +155,12 @@ public class MessageStubRequestHandler {
       return Json.write(data);
     }
 
+    String filePath = definition.getFilePath();
+    if (filePath != null && stores != null) {
+      BlobStore filesBlobStore = stores.getFilesBlobStore();
+      return filesBlobStore.get(filePath).map(Strings::stringFromBytes).orElse(null);
+    }
+
     String dataStore = definition.getDataStore();
     String dataRef = definition.getDataRef();
     if (dataStore != null && dataRef != null && stores != null) {
@@ -176,6 +184,12 @@ public class MessageStubRequestHandler {
     byte[] data = definition.getDataAsBytes();
     if (data != null) {
       return data;
+    }
+
+    String filePath = definition.getFilePath();
+    if (filePath != null && stores != null) {
+      BlobStore filesBlobStore = stores.getFilesBlobStore();
+      return filesBlobStore.get(filePath).orElse(new byte[0]);
     }
 
     String dataStore = definition.getDataStore();

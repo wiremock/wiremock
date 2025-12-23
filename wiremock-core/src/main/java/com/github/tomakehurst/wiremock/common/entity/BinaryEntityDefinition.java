@@ -34,19 +34,22 @@ public class BinaryEntityDefinition extends EntityDefinition {
   private final String dataStore;
   private final String dataRef;
   private final String data;
+  private final String filePath;
 
   public BinaryEntityDefinition(
       @JsonProperty("encoding") EncodingType ignored,
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
       @JsonProperty("dataRef") String dataRef,
-      @JsonProperty("data") String data) {
+      @JsonProperty("data") String data,
+      @JsonProperty("filePath") String filePath) {
     // encoding is accepted for deserialization but ignored (always BINARY)
     this.compression =
         asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
     this.dataRef = dataRef;
     this.data = data;
+    this.filePath = filePath;
   }
 
   public static Builder aBinaryMessage() {
@@ -90,6 +93,10 @@ public class BinaryEntityDefinition extends EntityDefinition {
     return Base64.getDecoder().decode(data);
   }
 
+  public String getFilePath() {
+    return filePath;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
@@ -97,12 +104,13 @@ public class BinaryEntityDefinition extends EntityDefinition {
     return Objects.equals(compression, that.compression)
         && Objects.equals(dataStore, that.dataStore)
         && Objects.equals(dataRef, that.dataRef)
-        && Objects.equals(data, that.data);
+        && Objects.equals(data, that.data)
+        && Objects.equals(filePath, that.filePath);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(compression, dataStore, dataRef, data);
+    return Objects.hash(compression, dataStore, dataRef, data, filePath);
   }
 
   @Override
@@ -122,6 +130,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
     private String dataStore;
     private String dataRef;
     private String data;
+    private String filePath;
 
     public Builder withCompression(CompressionType compression) {
       this.compression = compression;
@@ -148,8 +157,13 @@ public class BinaryEntityDefinition extends EntityDefinition {
       return this;
     }
 
+    public Builder withFilePath(String filePath) {
+      this.filePath = filePath;
+      return this;
+    }
+
     public BinaryEntityDefinition build() {
-      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data);
+      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
     }
   }
 }

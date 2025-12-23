@@ -39,8 +39,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
+import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.aBinaryMessage;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
+import static java.nio.file.Files.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.awaitility.Awaitility.waitAtMost;
@@ -55,6 +58,7 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -976,8 +980,7 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   void binaryMessageCanBeSentAsResponse() {
     byte[] responseBytes = new byte[] {0x0A, 0x0B, 0x0C, 0x0D, 0x0E};
 
-    BinaryEntityDefinition binaryBody =
-        BinaryEntityDefinition.aBinaryMessage().withBody(responseBytes).build();
+    BinaryEntityDefinition binaryBody = aBinaryMessage().withBody(responseBytes).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -1002,13 +1005,14 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
   @Test
   void binaryMessageFromDataStoreCanBeSentAsResponse() {
     byte[] storedBytes = new byte[] {0x10, 0x20, 0x30, 0x40, 0x50};
-    wireMockServer.getOptions().getStores().getObjectStore("binaryStore").put("binaryKey", storedBytes);
+    wireMockServer
+        .getOptions()
+        .getStores()
+        .getObjectStore("binaryStore")
+        .put("binaryKey", storedBytes);
 
     BinaryEntityDefinition binaryBody =
-        BinaryEntityDefinition.aBinaryMessage()
-            .withDataStore("binaryStore")
-            .withDataRef("binaryKey")
-            .build();
+        aBinaryMessage().withDataStore("binaryStore").withDataRef("binaryKey").build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -1161,5 +1165,55 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     // Verify both WebSocket clients received the message
     waitAtMost(5, SECONDS).until(() -> wsClient1.getMessages().contains("broadcast message"));
     waitAtMost(5, SECONDS).until(() -> wsClient2.getMessages().contains("broadcast message"));
+  }
+
+  // File-based entity definition tests
+
+  @Test
+  void textEntityDefinitionWithFilePathResolvesFromFilesStore() throws Exception {
+    wireMockServer.stop();
+    File tempRoot = setupTempFileRoot();
+    setupServer(wireMockConfig().withRootDirectory(tempRoot.getAbsolutePath()));
+
+    File messageFile = new File(tempRoot, "__files/message-body.txt");
+    writeString(messageFile.toPath(), "Hello from file!");
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("File body stub")
+            .withBody(equalTo("trigger"))
+            .triggersAction(
+                sendMessage().withBodyFromFile("message-body.txt").onOriginatingChannel())
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/file-body-test";
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
+    assertThat(response, is("Hello from file!"));
+  }
+
+  @Test
+  void binaryEntityDefinitionWithFilePathResolvesFromFilesStore() throws Exception {
+    File tempRoot = setupServerWithTempFileRoot();
+
+    byte[] binaryContent = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
+    File binaryFile = new File(tempRoot, "__files/binary-body.bin");
+    write(binaryFile.toPath(), binaryContent);
+
+    messageStubFor(
+        message()
+            .withName("DSL broadcast stub")
+            .withBody(equalTo("trigger"))
+            .willTriggerActions(
+                SendMessageAction.toOriginatingChannel(
+                    aBinaryMessage().withFilePath("binary-body.bin").build())));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/binary-file-body-test";
+
+    byte[] response = testClient.sendMessageAndWaitForBinaryResponse(url, "trigger");
+    assertThat(response, is(binaryContent));
   }
 }

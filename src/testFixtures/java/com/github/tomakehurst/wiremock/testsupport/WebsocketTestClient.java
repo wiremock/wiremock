@@ -143,6 +143,22 @@ public class WebsocketTestClient {
     }
   }
 
+  public byte[] sendMessageAndWaitForBinaryResponse(String url, String message) {
+    ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+    URI uri = URI.create(url);
+    try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, uri)) {
+      Thread.sleep(100);
+      int binaryMessageCountBefore = endpoint.binaryMessages.size();
+      session.getBasicRemote().sendText(message);
+      await()
+          .atMost(5, SECONDS)
+          .until(() -> endpoint.binaryMessages.size() > binaryMessageCountBefore);
+      return endpoint.binaryMessages.get(binaryMessageCountBefore);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public List<String> getMessages() {
     return endpoint.messages;
   }
