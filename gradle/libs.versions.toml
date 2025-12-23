@@ -34,6 +34,8 @@ jetty-http = { module = "org.eclipse.jetty:jetty-http" }
 jetty-io = { module = "org.eclipse.jetty:jetty-io" }
 jetty-util = { module = "org.eclipse.jetty:jetty-util" }
 
+# Apache Commons dependencies
+apache-commons-text = { module = "org.apache.commons:commons-text", version = "1.15.0" }
 # Jackson dependencies
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
