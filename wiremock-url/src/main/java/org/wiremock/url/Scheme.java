@@ -49,12 +49,12 @@ public interface Scheme {
       Set.of(
           Scheme.http, Scheme.https, Scheme.ws, Scheme.wss, Scheme.file, Scheme.ftp, Scheme.sftp);
 
-  Scheme getCanonical();
+  Scheme normalise();
 
   @Nullable Port getDefaultPort();
 
-  default boolean isCanonical() {
-    return getCanonical().equals(this);
+  default boolean isNormalForm() {
+    return normalise().equals(this);
   }
 
   /**

@@ -57,16 +57,16 @@ final class UrlValue implements Url {
 
   @Override
   public Url normalise() {
-    Scheme canonicalScheme = scheme.getCanonical();
-    Authority normalisedAuthority = authority.normalise(canonicalScheme);
+    Scheme normalisedScheme = scheme.normalise();
+    Authority normalisedAuthority = authority.normalise(normalisedScheme);
     Path normalisedPath = path.normalise();
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
     }
-    Query normalisedQuery = query == null ? null : query.normalise(canonicalScheme);
+    Query normalisedQuery = query == null ? null : query.normalise(normalisedScheme);
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 
-    if (scheme.equals(canonicalScheme)
+    if (scheme.equals(normalisedScheme)
         && authority.equals(normalisedAuthority)
         && path.equals(normalisedPath)
         && Objects.equals(query, normalisedQuery)
@@ -74,7 +74,7 @@ final class UrlValue implements Url {
       return this;
     } else {
       return new UrlValue(
-          canonicalScheme,
+          normalisedScheme,
           normalisedAuthority,
           normalisedPath,
           normalisedQuery,
@@ -178,7 +178,7 @@ final class UrlValue implements Url {
 
     @Override
     public Url build() {
-      if (scheme.isCanonical()
+      if (scheme.isNormalForm()
           && authority instanceof HostAndPort
           && (authority.getPort() == null
               || (authority.getPort().isNormalForm()

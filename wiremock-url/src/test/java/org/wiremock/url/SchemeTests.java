@@ -156,42 +156,42 @@ class SchemeTests {
     void http_scheme_has_port_80() {
       assertThat(Scheme.http.toString()).isEqualTo("http");
       assertThat(Scheme.http.getDefaultPort()).isEqualTo(Port.of(80));
-      assertThat(Scheme.http.isCanonical()).isTrue();
+      assertThat(Scheme.http.isNormalForm()).isTrue();
     }
 
     @Test
     void https_scheme_has_port_443() {
       assertThat(Scheme.https.toString()).isEqualTo("https");
       assertThat(Scheme.https.getDefaultPort()).isEqualTo(Port.of(443));
-      assertThat(Scheme.https.isCanonical()).isTrue();
+      assertThat(Scheme.https.isNormalForm()).isTrue();
     }
 
     @Test
     void ftp_scheme_has_port_21() {
       assertThat(Scheme.ftp.toString()).isEqualTo("ftp");
       assertThat(Scheme.ftp.getDefaultPort()).isEqualTo(Port.of(21));
-      assertThat(Scheme.ftp.isCanonical()).isTrue();
+      assertThat(Scheme.ftp.isNormalForm()).isTrue();
     }
 
     @Test
     void ssh_scheme_has_port_22() {
       assertThat(Scheme.ssh.toString()).isEqualTo("ssh");
       assertThat(Scheme.ssh.getDefaultPort()).isEqualTo(Port.of(22));
-      assertThat(Scheme.ssh.isCanonical()).isTrue();
+      assertThat(Scheme.ssh.isNormalForm()).isTrue();
     }
 
     @Test
     void file_scheme_has_no_default_port() {
       assertThat(Scheme.file.toString()).isEqualTo("file");
       assertThat(Scheme.file.getDefaultPort()).isNull();
-      assertThat(Scheme.file.isCanonical()).isTrue();
+      assertThat(Scheme.file.isNormalForm()).isTrue();
     }
 
     @Test
     void mailto_scheme_has_no_default_port() {
       assertThat(Scheme.mailto.toString()).isEqualTo("mailto");
       assertThat(Scheme.mailto.getDefaultPort()).isNull();
-      assertThat(Scheme.mailto.isCanonical()).isTrue();
+      assertThat(Scheme.mailto.isNormalForm()).isTrue();
     }
 
     @Test
@@ -213,39 +213,39 @@ class SchemeTests {
     @Test
     void lowercase_scheme_is_its_own_canonical() {
       Scheme scheme = Scheme.parse("http");
-      assertThat(scheme.getCanonical()).isSameAs(scheme);
-      assertThat(scheme.isCanonical()).isTrue();
+      assertThat(scheme.normalise()).isSameAs(scheme);
+      assertThat(scheme.isNormalForm()).isTrue();
     }
 
     @Test
     void uppercase_scheme_has_lowercase_canonical() {
       Scheme uppercase = Scheme.parse("HTTP");
       Scheme lowercase = Scheme.parse("http");
-      assertThat(uppercase.getCanonical()).isSameAs(lowercase);
-      assertThat(uppercase.isCanonical()).isFalse();
+      assertThat(uppercase.normalise()).isSameAs(lowercase);
+      assertThat(uppercase.isNormalForm()).isFalse();
     }
 
     @Test
     void mixed_case_scheme_has_lowercase_canonical() {
       Scheme mixedCase = Scheme.parse("HtTp");
       Scheme lowercase = Scheme.parse("http");
-      assertThat(mixedCase.getCanonical()).isSameAs(lowercase);
-      assertThat(mixedCase.isCanonical()).isFalse();
+      assertThat(mixedCase.normalise()).isSameAs(lowercase);
+      assertThat(mixedCase.isNormalForm()).isFalse();
     }
 
     @Test
     void custom_lowercase_scheme_is_canonical() {
       Scheme scheme = Scheme.parse("canon1");
-      assertThat(scheme.getCanonical()).isEqualTo(scheme);
-      assertThat(scheme.isCanonical()).isTrue();
+      assertThat(scheme.normalise()).isEqualTo(scheme);
+      assertThat(scheme.isNormalForm()).isTrue();
     }
 
     @Test
     void custom_uppercase_scheme_references_lowercase_canonical() {
       Scheme uppercase = Scheme.parse("CANON2");
       Scheme lowercase = Scheme.parse("canon2");
-      assertThat(uppercase.getCanonical()).isEqualTo(lowercase);
-      assertThat(uppercase.isCanonical()).isFalse();
+      assertThat(uppercase.normalise()).isEqualTo(lowercase);
+      assertThat(uppercase.isNormalForm()).isFalse();
     }
   }
 
@@ -406,7 +406,7 @@ class SchemeTests {
       Scheme lowercase = Scheme.parse("cache2");
       Scheme uppercase = Scheme.parse("CACHE2");
       assertThat(lowercase).isNotEqualTo(uppercase);
-      assertThat(uppercase.getCanonical()).isEqualTo(lowercase);
+      assertThat(uppercase.normalise()).isEqualTo(lowercase);
     }
   }
 

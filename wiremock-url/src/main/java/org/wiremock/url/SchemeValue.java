@@ -22,27 +22,27 @@ final class SchemeValue implements Scheme {
 
   private final String scheme;
 
-  @Nullable private final Scheme canonical;
+  @Nullable private final Scheme normalForm;
 
   @Nullable private final Port defaultPort;
 
-  SchemeValue(String scheme, @Nullable Scheme canonical, @Nullable Port defaultPort) {
+  SchemeValue(String scheme, @Nullable Scheme normalForm, @Nullable Port defaultPort) {
     this.scheme = scheme;
-    this.canonical = canonical;
+    this.normalForm = normalForm;
     this.defaultPort = defaultPort;
   }
 
   @Override
-  public Scheme getCanonical() {
-    return Objects.requireNonNullElse(canonical, this);
+  public Scheme normalise() {
+    return Objects.requireNonNullElse(normalForm, this);
   }
 
   @Override
   public @Nullable Port getDefaultPort() {
     if (defaultPort != null) {
       return defaultPort;
-    } else if (canonical != null) {
-      return canonical.getDefaultPort();
+    } else if (normalForm != null) {
+      return normalForm.getDefaultPort();
     } else {
       return null;
     }
