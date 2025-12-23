@@ -72,11 +72,6 @@ final class UrlValue implements Url {
         && Objects.equals(query, normalisedQuery)
         && Objects.equals(fragment, normalisedFragment)) {
       return this;
-    } else if (normalisedPath instanceof HostAndPort
-        && normalisedPath.isEmpty()
-        && normalisedQuery == null
-        && normalisedFragment == null) {
-      return new OriginValue(canonicalScheme, (HostAndPort) normalisedAuthority);
     } else {
       return new UrlValue(
           canonicalScheme,
@@ -183,7 +178,14 @@ final class UrlValue implements Url {
 
     @Override
     public Url build() {
-      if (authority instanceof HostAndPort && path.isEmpty() && query == null && fragment == null) {
+      if (scheme.isCanonical()
+          && authority instanceof HostAndPort
+          && (authority.getPort() == null
+              || (authority.getPort().isNormalForm()
+                  && authority.getPort() != scheme.getDefaultPort()))
+          && path.isEmpty()
+          && query == null
+          && fragment == null) {
         return new OriginValue(scheme, (HostAndPort) authority);
       } else {
         return new UrlValue(scheme, authority, path, query, fragment);

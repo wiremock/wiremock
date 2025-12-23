@@ -31,7 +31,7 @@ final class PortParser implements CharSequenceParser<Port> {
         port,
         (p) -> {
           validate(p);
-          return new PortValue(p, String.valueOf(p));
+          return new PortValue(p, String.valueOf(p), true);
         });
   }
 
@@ -44,11 +44,12 @@ final class PortParser implements CharSequenceParser<Port> {
       }
       int port = Integer.parseInt(s);
       String canonical = String.valueOf(port);
-      if (s.equals(canonical) && port < MAX_PORT) {
+      boolean isNormalForm = s.equals(canonical);
+      if (isNormalForm && port < MAX_PORT) {
         return of(port);
       } else {
         validate(port);
-        return new PortValue(port, s);
+        return new PortValue(port, s, isNormalForm);
       }
 
     } catch (NumberFormatException e) {

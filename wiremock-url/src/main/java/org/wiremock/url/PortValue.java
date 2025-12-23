@@ -19,10 +19,12 @@ final class PortValue implements Port {
 
   private final int port;
   private final String portString;
+  private final boolean isNormalForm;
 
-  PortValue(int port, String portString) {
+  PortValue(int port, String portString, boolean isNormalForm) {
     this.port = port;
     this.portString = portString;
+    this.isNormalForm = isNormalForm;
   }
 
   @Override
@@ -55,5 +57,10 @@ final class PortValue implements Port {
   @Override
   public int getIntValue() {
     return port;
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    return isNormalForm;
   }
 }

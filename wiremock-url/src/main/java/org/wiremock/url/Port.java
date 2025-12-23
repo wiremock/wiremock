@@ -40,6 +40,8 @@ public interface Port {
 
   int getIntValue();
 
+  boolean isNormalForm();
+
   /**
    * Returns a Port with the canonical (normalized) string representation of this port number,
    * without any leading zeros.

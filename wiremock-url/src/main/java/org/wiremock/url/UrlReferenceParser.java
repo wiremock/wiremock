@@ -138,18 +138,11 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
 
       } else {
         if (hierarchicalPart.authority != null) {
-          if (hierarchicalPart.authority instanceof HostAndPort
-              && hierarchicalPart.path.isEmpty()
-              && query == null
-              && fragment == null) {
-            return new OriginValue(scheme, (HostAndPort) hierarchicalPart.authority);
-          } else {
-            return Url.builder(scheme, hierarchicalPart.authority)
-                .setPath(hierarchicalPart.path)
-                .setQuery(query)
-                .setFragment(fragment)
-                .build();
-          }
+          return Url.builder(scheme, hierarchicalPart.authority)
+              .setPath(hierarchicalPart.path)
+              .setQuery(query)
+              .setFragment(fragment)
+              .build();
         } else {
           // not handling URIs yet
           throw new IllegalUrl(string);

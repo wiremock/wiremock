@@ -68,6 +68,15 @@ class UrlTests {
       assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
     }
 
+    @Test
+    void normalisingOriginWithEmptyPathReturnsOrigin() {
+      // Parse a URL that needs normalisation (uppercase scheme) with empty path
+      String urlString = "HTTP://example.com:80";
+      Url parsed = Url.parse(urlString);
+
+      assertThat(parsed).isNotInstanceOf(Origin.class);
+    }
+
     private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlOrigins =
         WhatWGUrlTestManagement.whatwg_valid.stream()
             .filter(

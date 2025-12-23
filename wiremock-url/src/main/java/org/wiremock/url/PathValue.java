@@ -180,7 +180,8 @@ final class PathValue implements Path {
   @Override
   public List<Segment> getSegments() {
     if (segments == null) {
-      segments = Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
+      segments =
+          Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
     }
     //noinspection DataFlowIssue
     return segments;

@@ -44,7 +44,8 @@ public non-sealed interface Url extends UrlReference {
   }
 
   default Origin origin() {
-    return Origin.of(getScheme(), getAuthority().getHostAndPort());
+    Scheme canonicalScheme = getScheme().getCanonical();
+    return Origin.of(canonicalScheme, getAuthority().getHostAndPort().normalise(canonicalScheme));
   }
 
   default PathAndQuery getPathAndQuery() {
