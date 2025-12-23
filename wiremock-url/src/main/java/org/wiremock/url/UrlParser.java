@@ -79,7 +79,7 @@ final class UrlParser implements CharSequenceParser<Url> {
       } else if (normalisedPath.isEmpty()
           && normalisedQuery == null
           && normalisedFragment == null) {
-        return new BaseUrlParser.BaseUrl(canonicalScheme, normalisedAuthority);
+        return new BaseUrlValue(canonicalScheme, normalisedAuthority);
       } else {
         return new Url(
             canonicalScheme,
@@ -162,7 +162,7 @@ final class UrlParser implements CharSequenceParser<Url> {
       @Override
       public org.wiremock.url.Url build() {
         if (path.isEmpty() && query == null && fragment == null) {
-          return new BaseUrlParser.BaseUrl(scheme, authority);
+          return new BaseUrlValue(scheme, authority);
         } else {
           return new Url(scheme, authority, path, query, fragment);
         }
