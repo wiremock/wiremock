@@ -26,12 +26,12 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
+import org.wiremock.url.Url;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
@@ -227,7 +227,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     } else if (hostHeaderValue != null) {
       requestBuilder.withHeader(key, hostHeaderValue);
     } else if (response.getProxyBaseUrl() != null) {
-      requestBuilder.withHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
+      Url url = Url.parse(response.getProxyBaseUrl());
+      requestBuilder.withHeader(key, url.authority().hostAndPort().toString());
     }
   }
 
