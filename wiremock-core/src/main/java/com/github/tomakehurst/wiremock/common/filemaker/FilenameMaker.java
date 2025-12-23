@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import org.wiremock.url.Path;
 
 public class FilenameMaker {
   public static final String DEFAULT_FILENAME_TEMPLATE =
@@ -63,8 +64,8 @@ public class FilenameMaker {
     return sanitise(parsedFilename);
   }
 
-  public String sanitizeUrl(String url) {
-    String startingPath = url.replace("/", "_");
+  public String sanitizeUrl(Path url) {
+    String startingPath = url.toString().replace("/", "_");
     String pathWithoutWhitespace = WHITESPACE.matcher(startingPath).replaceAll("-");
     String normalizedPath = Normalizer.normalize(pathWithoutWhitespace, Normalizer.Form.NFD);
     String slug = sanitise(normalizedPath).replaceAll("^[_]*", "").replaceAll("[_]*$", "");
