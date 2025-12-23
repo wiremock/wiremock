@@ -999,6 +999,37 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.getBinaryMessages().get(0), is(responseBytes));
   }
 
+  @Test
+  void binaryMessageFromDataStoreCanBeSentAsResponse() {
+    byte[] storedBytes = new byte[] {0x10, 0x20, 0x30, 0x40, 0x50};
+    wireMockServer.getOptions().getStores().getObjectStore("binaryStore").put("binaryKey", storedBytes);
+
+    BinaryEntityDefinition binaryBody =
+        BinaryEntityDefinition.aBinaryMessage()
+            .withDataStore("binaryStore")
+            .withDataRef("binaryKey")
+            .build();
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Binary from store stub")
+            .withBody(equalTo("send-stored-binary"))
+            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = "ws://localhost:" + wireMockServer.port() + "/binary-store-test";
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendMessage("send-stored-binary");
+
+    waitAtMost(5, SECONDS).until(() -> !testClient.getBinaryMessages().isEmpty());
+    assertThat(testClient.getBinaryMessages().get(0), is(storedBytes));
+  }
+
   // HTTP stub trigger tests
 
   @Test

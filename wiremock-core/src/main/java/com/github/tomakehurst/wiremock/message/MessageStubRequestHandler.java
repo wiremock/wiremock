@@ -34,6 +34,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Base64.*;
+
 public class MessageStubRequestHandler {
 
   private final MessageStubMappings messageStubMappings;
@@ -188,7 +190,7 @@ public class MessageStubRequestHandler {
                   return (byte[]) value;
                 }
                 if (value instanceof String) {
-                  return java.util.Base64.getDecoder().decode((String) value);
+                  return getDecoder().decode((String) value);
                 }
                 return new byte[0];
               })
