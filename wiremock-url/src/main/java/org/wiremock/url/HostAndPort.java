@@ -60,5 +60,7 @@ public interface HostAndPort extends Authority {
   @Override
   HostAndPort withPort(@Nullable Port port);
 
+  HostAndPort normalise();
+
   HostAndPort normalise(Scheme canonicalScheme);
 }
