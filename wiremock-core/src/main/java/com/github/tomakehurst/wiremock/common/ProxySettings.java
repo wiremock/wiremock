@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
+import static org.wiremock.url.Scheme.http;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.IllegalUri;
+import org.wiremock.url.Password;
 
 public class ProxySettings {
 
@@ -39,30 +41,30 @@ public class ProxySettings {
 
   public static ProxySettings fromString(String config) {
     try {
-      URL proxyUrl;
+      AbsoluteUrl proxyUrl;
       try {
-        proxyUrl = new URL(config);
-      } catch (MalformedURLException e) {
+        proxyUrl = AbsoluteUrl.parse(config);
+      } catch (IllegalUri e) {
         config = "http://" + config;
-        proxyUrl = new URL(config);
+        proxyUrl = AbsoluteUrl.parse(config);
       }
-      if (!"http".equals(proxyUrl.getProtocol())) {
+      if (!proxyUrl.getScheme().equals(http)) {
         throw new IllegalArgumentException(
             "Proxy via does not support any other protocol than http");
       }
       checkParameter(!proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
       ProxySettings proxySettings =
           new ProxySettings(
-              proxyUrl.getHost(), proxyUrl.getPort() == -1 ? DEFAULT_PORT : proxyUrl.getPort());
-      if (isNotEmpty(proxyUrl.getUserInfo())) {
-        String[] userInfoArray = proxyUrl.getUserInfo().split(":");
-        proxySettings.setUsername(userInfoArray[0]);
-        if (userInfoArray.length > 1) {
-          proxySettings.setPassword(userInfoArray[1]);
+              proxyUrl.getHost().toString(), proxyUrl.getResolvedPort().getIntValue());
+      if (proxyUrl.getUserInfo() != null) {
+        proxySettings.setUsername(proxyUrl.getUserInfo().getUsername().toString());
+        Password password = proxyUrl.getUserInfo().getPassword();
+        if (password != null) {
+          proxySettings.setPassword(password.toString());
         }
       }
       return proxySettings;
-    } catch (MalformedURLException e) {
+    } catch (IllegalUri e) {
       throw new IllegalArgumentException(
           String.format("Proxy via Url %s was not recognized", config), e);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
+import static com.github.tomakehurst.wiremock.common.Urls.getQueryParameter;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -39,6 +39,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
@@ -47,7 +49,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final HttpServletRequest request;
   private final Lazy<String> url;
   private final Lazy<byte[]> body;
-  private final Lazy<Map<String, QueryParameter>> query;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
   private final Lazy<Collection<Part>> multiParts;
@@ -63,7 +64,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     this.url = Lazy.lazy(this::adaptUrl);
-    this.query = Lazy.lazy(() -> splitQuery(request.getQueryString()));
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.body = Lazy.lazy(this::adaptBody);
@@ -90,9 +90,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return withQueryStringIfPresent(url);
   }
 
+  private volatile PathAndQuery pathAndQuery = null;
+
+  @Override
+  public PathAndQuery getPathAndQuery() {
+    if (pathAndQuery == null) {
+      String urlString = getUrl();
+      pathAndQuery = urlString != null ? PathAndQuery.parse(urlString) : null;
+    }
+    return pathAndQuery;
+  }
+
   @Override
   public String getAbsoluteUrl() {
     return withQueryStringIfPresent(request.getRequestURL().toString());
+  }
+
+  private volatile AbsoluteUrl typedAbsoluteUrl = null;
+
+  @Override
+  public AbsoluteUrl getTypedAbsoluteUrl() {
+    if (typedAbsoluteUrl == null) {
+      typedAbsoluteUrl = AbsoluteUrl.parse(getAbsoluteUrl());
+    }
+    return typedAbsoluteUrl;
   }
 
   private String withQueryStringIfPresent(String url) {
@@ -255,8 +276,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    Map<String, QueryParameter> queryParams = query.get();
-    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getQueryParameter(getPathAndQuery().getQueryOrEmpty(), key);
   }
 
   @Override

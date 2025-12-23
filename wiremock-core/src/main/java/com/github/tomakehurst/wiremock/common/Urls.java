@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,89 +15,63 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableListMultimap.Builder;
-import com.google.common.collect.Maps;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.text.ParsePosition;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.Query;
+import org.wiremock.url.QueryParamValue;
+import org.wiremock.url.Url;
 
 public class Urls {
 
   private Urls() {}
 
   public static Map<String, QueryParameter> splitQueryFromUrl(String url) {
-    String queryPart =
-        url.contains("?") && !url.endsWith("?") ? url.substring(url.indexOf('?') + 1) : null;
-
-    return splitQuery(queryPart);
+    return toQueryParameterMap(Url.parse(url).getQueryOrEmpty());
   }
 
-  // Only call this method if you already have a URI. If you have a String, call
-  // `splitQueryFromUrl(String)`
-  public static Map<String, QueryParameter> splitQuery(URI uri) {
-    if (uri == null) {
+  public static Map<String, QueryParameter> toQueryParameterMap(Query query) {
+    if (query.isEmpty()) {
       return Collections.emptyMap();
     }
 
-    return splitQuery(uri.getRawQuery());
+    return query.asMap().entrySet().stream()
+        .map(
+            e -> {
+              var key = e.getKey().decode();
+              var values = toStrings(e.getValue());
+              return Map.entry(key, new QueryParameter(key, values));
+            })
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
-  public static Map<String, QueryParameter> splitQuery(String query) {
-    if (query == null) {
-      return Collections.emptyMap();
-    }
-
-    List<String> pairs = Arrays.stream(query.split("&")).collect(Collectors.toList());
-    Builder<String, String> builder = ImmutableListMultimap.builder();
-    for (String queryElement : pairs) {
-      int firstEqualsIndex = queryElement.indexOf('=');
-      if (firstEqualsIndex == -1) {
-        builder.putAll(decode(queryElement), "");
-      } else {
-        String key = decode(queryElement.substring(0, firstEqualsIndex));
-        String value = decode(queryElement.substring(firstEqualsIndex + 1));
-        builder.putAll(key, value);
-      }
-    }
-
-    return Maps.transformEntries(
-        builder.build().asMap(), (key, values) -> new QueryParameter(key, new ArrayList<>(values)));
+  public static @NonNull QueryParameter getQueryParameter(Query query, String key) {
+    List<@Nullable QueryParamValue> values = query.get(key);
+    return new QueryParameter(key, toStrings(values));
   }
 
-  public static String getPath(String url) {
-    return url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
+  public static @NonNull List<String> toStrings(List<@Nullable QueryParamValue> values) {
+    return values.stream().map(value -> value != null ? value.decode() : "").toList();
   }
 
-  public static String getPathAndQuery(String url) {
-    return isAbsolute(url) ? url.substring(ordinalIndexOf(url, "/", 3)) : url;
-  }
-
-  private static boolean isAbsolute(String url) {
-    return url.matches("^https?:\\/\\/.*");
-  }
-
-  public static List<String> getPathSegments(String path) {
-    return List.of(path.split("/"));
-  }
-
-  public static String urlToPathParts(URI uri) {
+  public static String urlToPathParts(Url uri) {
     List<String> uriPathNodes =
-        Arrays.stream(uri.getPath().split("/"))
+        uri.getPath().getSegments().stream()
             .filter(s -> !s.isEmpty())
-            .collect(Collectors.toUnmodifiableList());
+            .map(Object::toString)
+            .toList();
     int nodeCount = uriPathNodes.size();
 
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
@@ -127,27 +101,5 @@ public class Urls {
     } catch (DateTimeParseException e) {
       return false;
     }
-  }
-
-  public static URL safelyCreateURL(String url) {
-    try {
-      return new URL(clean(url));
-    } catch (MalformedURLException e) {
-      return throwUnchecked(e, URL.class);
-    }
-  }
-
-  // Workaround for a Jetty bug that appends "null" onto the end of the URL
-
-  private static String clean(String url) {
-    return url.matches(".*:[0-9]+null$") ? url.substring(0, url.length() - 4) : url;
-  }
-
-  public static int getPort(URL url) {
-    if (url.getPort() == -1) {
-      return url.getProtocol().equals("https") ? 443 : 80;
-    }
-
-    return url.getPort();
   }
 }

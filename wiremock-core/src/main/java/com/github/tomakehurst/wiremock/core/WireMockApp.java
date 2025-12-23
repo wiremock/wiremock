@@ -56,11 +56,13 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.wiremock.url.Segment;
 
 public class WireMockApp implements StubServer, Admin {
 
   public static final String FILES_ROOT = "__files";
-  public static final String ADMIN_CONTEXT_ROOT = "/__admin";
+  public static final Segment ADMIN_CONTEXT_ROOT_SEGMENT = Segment.parse("__admin");
+  public static final String ADMIN_CONTEXT_ROOT = "/" + ADMIN_CONTEXT_ROOT_SEGMENT;
   public static final String MAPPINGS_ROOT = "mappings";
   public static final String MESSAGE_MAPPINGS_ROOT = "message-mappings";
   private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);

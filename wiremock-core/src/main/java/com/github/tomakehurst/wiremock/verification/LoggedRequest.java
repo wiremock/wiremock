@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,38 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
-import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
+import static com.github.tomakehurst.wiremock.common.Urls.getQueryParameter;
+import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameterMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Lazy;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
-import com.github.tomakehurst.wiremock.http.*;
-import java.net.URL;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -42,8 +60,8 @@ public class LoggedRequest implements Request {
   private final String scheme;
   private final String host;
   private final int port;
-  private final String url;
-  private final String absoluteUrl;
+  private final PathAndQuery pathAndQuery;
+  private final AbsoluteUrl absoluteUrl;
   private final String clientIp;
   private final RequestMethod method;
   private final HttpHeaders headers;
@@ -66,8 +84,8 @@ public class LoggedRequest implements Request {
         request.getScheme(),
         request.getHost(),
         request.getPort(),
-        request.getUrl(),
-        request.getAbsoluteUrl(),
+        request.getPathAndQuery(),
+        request.getTypedAbsoluteUrl(),
         request.getMethod(),
         request.getClientIp(),
         request.getHeaders(),
@@ -100,8 +118,8 @@ public class LoggedRequest implements Request {
         null,
         null,
         null,
-        url,
-        absoluteUrl,
+        url != null ? PathAndQuery.parse(url) : null,
+        absoluteUrl != null ? AbsoluteUrl.parse(absoluteUrl) : null,
         method,
         clientIp,
         headers,
@@ -120,8 +138,8 @@ public class LoggedRequest implements Request {
       String scheme,
       String host,
       Integer port,
-      String url,
-      String absoluteUrl,
+      PathAndQuery pathAndQuery,
+      AbsoluteUrl absoluteUrl,
       RequestMethod method,
       String clientIp,
       HttpHeaders headers,
@@ -134,18 +152,17 @@ public class LoggedRequest implements Request {
       String protocol,
       Map<String, FormParameter> formParameters) {
     this.id = id;
-    this.url = url;
+    this.pathAndQuery = pathAndQuery;
 
     this.absoluteUrl = absoluteUrl;
-    if (absoluteUrl == null) {
+    if (this.absoluteUrl == null) {
       this.scheme = scheme;
       this.host = host;
       this.port = port != null ? port : -1;
     } else {
-      URL fullUrl = safelyCreateURL(absoluteUrl);
-      this.scheme = fullUrl.getProtocol();
-      this.host = fullUrl.getHost();
-      this.port = Urls.getPort(fullUrl);
+      this.scheme = this.absoluteUrl.getScheme().toString();
+      this.host = this.absoluteUrl.getHost().toString();
+      this.port = this.absoluteUrl.getResolvedPort().getIntValue();
     }
 
     this.clientIp = clientIp;
@@ -154,7 +171,10 @@ public class LoggedRequest implements Request {
     this.headers = headers;
     this.pathParams = pathParams;
     this.cookies = cookies;
-    this.queryParams = url != null ? splitQueryFromUrl(url) : Collections.emptyMap();
+    this.queryParams =
+        this.pathAndQuery != null
+            ? toQueryParameterMap(this.pathAndQuery.getQueryOrEmpty())
+            : Collections.emptyMap();
     this.formParameters = formParameters;
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
@@ -172,11 +192,21 @@ public class LoggedRequest implements Request {
 
   @Override
   public String getUrl() {
-    return url;
+    return pathAndQuery.toString();
+  }
+
+  @Override
+  public PathAndQuery getPathAndQuery() {
+    return pathAndQuery;
   }
 
   @Override
   public String getAbsoluteUrl() {
+    return absoluteUrl != null ? absoluteUrl.toString() : null;
+  }
+
+  @Override
+  public AbsoluteUrl getTypedAbsoluteUrl() {
     return absoluteUrl;
   }
 
@@ -278,7 +308,7 @@ public class LoggedRequest implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getQueryParameter(getPathAndQuery().getQueryOrEmpty(), key);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
-import com.github.tomakehurst.wiremock.common.Urls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +24,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.wiremock.url.Path;
+import org.wiremock.url.PathAndQuery;
 
 public class PathTemplate {
   static final Pattern SPECIAL_SYMBOL_REGEX =
@@ -74,11 +75,15 @@ public class PathTemplate {
   }
 
   public boolean matches(String url) {
-    return parser.matches(Urls.getPath(url));
+    return parser.matches(PathAndQuery.parse(url).getPath().toString());
   }
 
   public PathParams parse(String url) {
-    return parser.parse(Urls.getPath(url));
+    return parser.parse(Path.parse(url));
+  }
+
+  public PathParams parse(Path url) {
+    return parser.parse(url);
   }
 
   public String render(PathParams pathParams) {
@@ -130,8 +135,8 @@ class Parser {
     return matcher.matches();
   }
 
-  PathParams parse(String url) {
-    Matcher matcher = templatePattern.matcher(url);
+  PathParams parse(Path url) {
+    Matcher matcher = templatePattern.matcher(url.toString());
     if (!matcher.matches()) {
       throw new IllegalArgumentException(format("'%s' is not a matching URL", url));
     }

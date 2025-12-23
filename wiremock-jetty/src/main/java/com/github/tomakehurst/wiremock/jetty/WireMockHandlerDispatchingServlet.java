@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,7 +326,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       HttpServletResponse httpServletResponse,
       Request request)
       throws ServletException, IOException {
-    String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getUrl();
+    String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getPathAndQuery();
     RequestDispatcher dispatcher =
         httpServletRequest.getRequestDispatcher(decode(forwardUrl, UTF_8));
     dispatcher.forward(httpServletRequest, httpServletResponse);

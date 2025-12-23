@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,42 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
-
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.wiremock.url.Path;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Segment;
 
 public class TemplatedUrlPath extends LinkedHashMap<String, String> implements Iterable<String> {
 
-  private final String originalPath;
+  private final Path originalPath;
 
-  public TemplatedUrlPath(String url, PathParams pathParams) {
-    this.originalPath = Urls.getPath(url);
+  public TemplatedUrlPath(PathAndQuery url, PathParams pathParams) {
+    this.originalPath = url.getPath();
     addAllPathSegments();
     putAll(pathParams);
   }
 
   private void addAllPathSegments() {
-    final List<String> pathSegments = Urls.getPathSegments(originalPath);
+    final List<Segment> pathSegments = originalPath.getSegments();
     int i = 0;
-    for (String pathNode : pathSegments) {
-      if (isNotEmpty(pathNode)) {
+    for (Segment pathNode : pathSegments) {
+      if (!pathNode.isEmpty()) {
         String key = String.valueOf(i++);
-        put(key, pathNode);
+        put(key, pathNode.toString());
       }
     }
   }
 
   @Override
   public String toString() {
-    return originalPath;
+    return originalPath.toString();
   }
 
   @Override
   public Iterator<String> iterator() {
-    return Urls.getPathSegments(originalPath).iterator();
+    return originalPath.getSegments().stream().map(Object::toString).iterator();
   }
 }

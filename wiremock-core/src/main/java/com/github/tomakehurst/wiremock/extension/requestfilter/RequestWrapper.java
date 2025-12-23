@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class RequestWrapper implements Request {
 
@@ -94,6 +96,16 @@ public class RequestWrapper implements Request {
     return absoluteUrl.substring(relativeStartIndex);
   }
 
+  private volatile PathAndQuery pathAndQuery = null;
+
+  @Override
+  public PathAndQuery getPathAndQuery() {
+    if (pathAndQuery == null) {
+      pathAndQuery = PathAndQuery.parse(getUrl());
+    }
+    return pathAndQuery;
+  }
+
   @Override
   public String getAbsoluteUrl() {
     if (absoluteUrlTransformer != null) {
@@ -101,6 +113,16 @@ public class RequestWrapper implements Request {
     }
 
     return delegate.getAbsoluteUrl();
+  }
+
+  private volatile AbsoluteUrl typedAbsoluteUrl = null;
+
+  @Override
+  public AbsoluteUrl getTypedAbsoluteUrl() {
+    if (typedAbsoluteUrl == null) {
+      typedAbsoluteUrl = AbsoluteUrl.parse(getAbsoluteUrl());
+    }
+    return typedAbsoluteUrl;
   }
 
   @Override
