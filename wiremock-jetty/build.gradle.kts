@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     api(project(":wiremock-core"))
+    api(project(":wiremock-url"))
 
     api(libs.jakarta.servlet.api)
 

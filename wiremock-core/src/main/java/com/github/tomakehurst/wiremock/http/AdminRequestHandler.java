@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT_SEGMENT;
+import static org.wiremock.url.Scheme.https;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
@@ -29,8 +30,8 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import java.net.URI;
 import java.util.List;
+import org.wiremock.url.Path;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
 
@@ -59,7 +60,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
   public ServeEvent handleRequest(ServeEvent initialServeEvent) {
     final Request request = initialServeEvent.getRequest();
 
-    final boolean isRequestHttps = URI.create(request.getAbsoluteUrl()).getScheme().equals("https");
+    final boolean isRequestHttps = request.getTypedAbsoluteUrl().getScheme().equals(https);
 
     if (requireHttps && !isRequestHttps) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
@@ -68,12 +69,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     }
 
     if (!authenticator.authenticate(request)) {
-      notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
+      notifier()
+          .info(
+              "Authentication failed for " + request.getMethod() + " " + request.getPathAndQuery());
       return initialServeEvent.withResponseDefinition(ResponseDefinition.notAuthorised());
     }
 
     notifier().info("Admin request received:\n" + formatRequest(request));
-    String path = Urls.getPath(withoutAdminRoot(request.getUrl()));
+    Path path = withoutAdminRoot(request.getPathAndQuery().getPath());
 
     try {
       AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);
@@ -101,7 +104,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     }
   }
 
-  private static String withoutAdminRoot(String url) {
-    return url.replace(ADMIN_CONTEXT_ROOT, "");
+  private static Path withoutAdminRoot(Path url) {
+    return Path.of(
+        url.getSegments().stream()
+            .filter(segment -> !segment.equals(ADMIN_CONTEXT_ROOT_SEGMENT))
+            .toList());
   }
 }

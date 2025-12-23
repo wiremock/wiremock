@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class RequestIdDecorator implements Request {
 
@@ -44,8 +46,17 @@ public class RequestIdDecorator implements Request {
   }
 
   @Override
+  public PathAndQuery getPathAndQuery() {
+    return request.getPathAndQuery();
+  }
+
+  @Override
   public String getAbsoluteUrl() {
     return request.getAbsoluteUrl();
+  }
+
+  public AbsoluteUrl getTypedAbsoluteUrl() {
+    return request.getTypedAbsoluteUrl();
   }
 
   @Override

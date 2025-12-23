@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class UrlsTest {
@@ -72,30 +68,6 @@ public class UrlsTest {
   public void doesNotAttemptToDoubleDecodeSplitQueryString() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/thing?q=a%25b");
     assertThat(query.get("q").firstValue(), is("a%b"));
-  }
-
-  @Test
-  public void returnsEmptyStringForEmptyUrlPathParts() {
-    assertThat(Urls.urlToPathParts(URI.create("/")), is(""));
-    assertThat(Urls.urlToPathParts(URI.create("http://www.wiremock.org/")), is(""));
-  }
-
-  @Test
-  public void returnsNonDelimitedStringForUrlWithOnePathPart() {
-    String pathParts = Urls.urlToPathParts(URI.create("/foo?param=value"));
-    assertThat(pathParts, is("foo"));
-  }
-
-  @Test
-  public void returnsDelimitedStringForUrlWithTwoPathParts() {
-    String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/?param=value"));
-    assertThat(pathParts, is("foo-bar"));
-  }
-
-  @Test
-  public void returnsNonDelimitedStringForUrlWithMoreThanTwoPathParts() {
-    String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/zoo/wire/mock?param=value"));
-    assertThat(pathParts, is("foo-bar-zoo-wire-mock"));
   }
 
   @Test
@@ -159,39 +131,5 @@ public class UrlsTest {
   @Test
   public void getsThePathFromAUrlWithJustAQuery() {
     assertThat(Urls.getPath("?q=a"), is(""));
-  }
-
-  @Test
-  void getsThePathAndQueryFromAbsoluteHttpUrl() {
-    assertThat(
-        Urls.getPathAndQuery("http://example.com/things?q=boo&limit=5"),
-        is("/things?q=boo&limit=5"));
-  }
-
-  @Test
-  void getsThePathAndQueryFromAbsoluteHttpsUrl() {
-    assertThat(
-        Urls.getPathAndQuery("https://example.com/things?q=boo&limit=5"),
-        is("/things?q=boo&limit=5"));
-  }
-
-  @Test
-  void getsThePathAndQueryFromRelativeUrl() {
-    assertThat(Urls.getPathAndQuery("/things?q=boo&limit=5"), is("/things?q=boo&limit=5"));
-  }
-
-  @Test
-  public void decodesInvalidIsoOffsetDateTimeLikeString() {
-    var dateAsString = "2023-02-30T10:00:00+01:00";
-    params = Urls.splitQueryFromUrl("/date?date=" + dateAsString);
-    Assertions.assertEquals(
-        URLDecoder.decode(dateAsString, StandardCharsets.UTF_8), params.get("date").firstValue());
-  }
-
-  @Test
-  public void doesNotDecodeValidIsoOffsetDateTimeLikeString() {
-    var dateAsString = "2023-02-28T10:00:00+01:00";
-    params = Urls.splitQueryFromUrl("/date?date=" + dateAsString);
-    Assertions.assertEquals(dateAsString, params.get("date").firstValue());
   }
 }

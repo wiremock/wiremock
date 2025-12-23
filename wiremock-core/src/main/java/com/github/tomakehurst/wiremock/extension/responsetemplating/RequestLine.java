@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,20 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.PercentEncoded;
+import org.wiremock.url.QueryParamKey;
+import org.wiremock.url.QueryParamValue;
 
 public class RequestLine {
   private final RequestMethod method;
@@ -32,7 +37,7 @@ public class RequestLine {
   private final String host;
   private final int port;
   private final Map<String, ListOrSingle<String>> query;
-  private final String url;
+  private final PathAndQuery url;
   private final String clientIp;
 
   private final PathParams pathParams;
@@ -42,7 +47,7 @@ public class RequestLine {
       String scheme,
       String host,
       int port,
-      String url,
+      PathAndQuery url,
       String clientIp,
       Map<String, ListOrSingle<String>> query,
       PathParams pathParams) {
@@ -57,10 +62,19 @@ public class RequestLine {
   }
 
   public static RequestLine fromRequest(final Request request) {
-    Map<String, QueryParameter> rawQuery = Urls.splitQueryFromUrl(request.getUrl());
+    Map<QueryParamKey, List<@Nullable QueryParamValue>> query =
+        request.getTypedAbsoluteUrl().getQueryOrEmpty().asMap();
     Map<String, ListOrSingle<String>> adaptedQuery =
-        rawQuery.entrySet().stream()
-            .map(entry -> Map.entry(entry.getKey(), ListOrSingle.of(entry.getValue().values())))
+        query.entrySet().stream()
+            .map(
+                entry ->
+                    Map.entry(
+                        entry.getKey().decode(),
+                        ListOrSingle.of(
+                            entry.getValue().stream()
+                                .filter(Objects::nonNull)
+                                .map(PercentEncoded::decode)
+                                .toList())))
             .collect(
                 Collectors.toMap(
                     Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -70,7 +84,7 @@ public class RequestLine {
         request.getScheme(),
         request.getHost(),
         request.getPort(),
-        request.getUrl(),
+        request.getPathAndQuery(),
         request.getClientIp(),
         adaptedQuery,
         request.getPathParameters());
@@ -88,7 +102,7 @@ public class RequestLine {
     return getPathSegments().toString();
   }
 
-  public String getUrl() {
+  public PathAndQuery getUrl() {
     return url;
   }
 

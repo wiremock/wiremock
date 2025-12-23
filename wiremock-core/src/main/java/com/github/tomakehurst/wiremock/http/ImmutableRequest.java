@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,20 @@ import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.Urls;
-import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Port;
 
 public class ImmutableRequest implements Request {
 
-  private final String absoluteUrl;
+  private final AbsoluteUrl absoluteUrl;
   private final Map<String, QueryParameter> queryParams;
   private final RequestMethod method;
   private final String protocol;
@@ -53,15 +61,15 @@ public class ImmutableRequest implements Request {
       byte[] body,
       boolean multipart,
       boolean browserProxyRequest) {
-    this.absoluteUrl = requireNonNull(absoluteUrl);
-    this.queryParams = Urls.splitQueryFromUrl(absoluteUrl);
+    this.absoluteUrl = AbsoluteUrl.parse(requireNonNull(absoluteUrl));
+    this.queryParams = Urls.toQueryParameterMap(this.absoluteUrl.getQueryOrEmpty());
     this.method = requireNonNull(method);
     this.protocol = protocol;
 
-    final URI uri = URI.create(absoluteUrl);
-    this.scheme = uri.getScheme();
-    this.host = uri.getHost();
-    this.port = uri.getPort();
+    this.scheme = this.absoluteUrl.getScheme().toString();
+    this.host = this.absoluteUrl.getAuthority().getHost().toString();
+    Port maybePort = this.absoluteUrl.getPort();
+    this.port = maybePort != null ? maybePort.getIntValue() : -1;
 
     this.clientIp = clientIp;
     this.headers = headers;
@@ -73,11 +81,21 @@ public class ImmutableRequest implements Request {
 
   @Override
   public String getUrl() {
-    return Urls.getPathAndQuery(absoluteUrl);
+    return absoluteUrl.getPathAndQuery().toString();
+  }
+
+  @Override
+  public PathAndQuery getPathAndQuery() {
+    return absoluteUrl.getPathAndQuery();
   }
 
   @Override
   public String getAbsoluteUrl() {
+    return absoluteUrl.toString();
+  }
+
+  @Override
+  public AbsoluteUrl getTypedAbsoluteUrl() {
     return absoluteUrl;
   }
 

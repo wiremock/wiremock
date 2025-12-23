@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
@@ -157,7 +156,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(weight(portMatches(request), 10.0));
             requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
             requestPartMatchResults.add(
-                weight(RequestPattern.this.url.match(request.getUrl()), 10.0));
+                weight(RequestPattern.this.url.match(request.getPathAndQuery().toString()), 10.0));
             requestPartMatchResults.add(
                 weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
 
@@ -332,11 +331,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     if (url.getClass().equals(UrlPathTemplatePattern.class) && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      if (!pathTemplate.matches(request.getUrl())) {
+      if (!pathTemplate.matches(request.getPathAndQuery().toString())) {
         return MatchResult.noMatch();
       }
 
-      final PathParams requestPathParams = pathTemplate.parse(Urls.getPath(request.getUrl()));
+      final PathParams requestPathParams = pathTemplate.parse(request.getPathAndQuery().getPath());
       return MatchResult.aggregate(
           pathParams.entrySet().stream()
               .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))

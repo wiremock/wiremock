@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class MockRequest implements Request {
 
@@ -162,9 +164,19 @@ public class MockRequest implements Request {
   }
 
   @Override
+  public PathAndQuery getPathAndQuery() {
+    return PathAndQuery.parse(getUrl());
+  }
+
+  @Override
   public String getAbsoluteUrl() {
     String portPart = port == 80 || port == 443 ? "" : ":" + port;
     return getFirstNonNull(absoluteUrl, String.format("%s://%s%s%s", scheme, host, portPart, url));
+  }
+
+  @Override
+  public AbsoluteUrl getTypedAbsoluteUrl() {
+    return AbsoluteUrl.parse(getAbsoluteUrl());
   }
 
   @Override

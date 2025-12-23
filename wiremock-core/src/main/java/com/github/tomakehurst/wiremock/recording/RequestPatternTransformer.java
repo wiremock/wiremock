@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.common.Urls.getPath;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 import java.util.Map;
 import java.util.function.Function;
+import org.wiremock.url.PathAndQuery;
 
 /**
  * Creates a RequestPatternBuilder from a Request's URL, method, body (if present), and optionally
@@ -44,14 +44,15 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
   /** Returns a RequestPatternBuilder matching a given Request */
   @Override
   public RequestPatternBuilder apply(Request request) {
-    var queryParameters = Urls.splitQueryFromUrl(request.getUrl());
+    PathAndQuery pathAndQuery = request.getPathAndQuery();
+    var queryParameters = Urls.toQueryParameterMap(pathAndQuery.getQueryOrEmpty());
     // urlEqualTo is used when there are no query parameters to be as least disruptive to existing
     // behaviour as possible.
     // TODO: could be changed to always use urlPathEqualTo in next major release.
     var urlMatcher =
         queryParameters.isEmpty()
-            ? urlEqualTo(request.getUrl())
-            : urlPathEqualTo(getPath(request.getUrl()));
+            ? urlEqualTo(pathAndQuery.toString())
+            : urlPathEqualTo(pathAndQuery.getPath().toString());
     final RequestPatternBuilder builder =
         new RequestPatternBuilder(request.getMethod(), urlMatcher);
 
