@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.*;
 
-class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
+final class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
 
   static final FragmentParser INSTANCE = new FragmentParser();
 

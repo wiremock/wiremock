@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-class AuthorityParser implements CharSequenceParser<Authority> {
+final class AuthorityParser implements CharSequenceParser<Authority> {
 
   public static final AuthorityParser INSTANCE = new AuthorityParser();
 

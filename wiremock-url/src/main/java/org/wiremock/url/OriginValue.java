@@ -15,9 +15,18 @@
  */
 package org.wiremock.url;
 
-record OriginValue(@Override Scheme scheme, @Override HostAndPort authority) implements Origin {
+final class OriginValue implements Origin {
+
+  private final Scheme scheme;
+  private final HostAndPort authority;
+
+  OriginValue(Scheme scheme, HostAndPort authority) {
+    this.scheme = scheme;
+    this.authority = authority;
+  }
 
   @Override
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public boolean equals(Object obj) {
     return UrlReferenceParser.equals(this, obj);
   }
@@ -37,5 +46,15 @@ record OriginValue(@Override Scheme scheme, @Override HostAndPort authority) imp
     Scheme canonicalScheme = scheme.canonical();
     Authority normalisedAuthority = authority.normalise(canonicalScheme);
     return Url.builder(canonicalScheme, normalisedAuthority).build();
+  }
+
+  @Override
+  public Scheme scheme() {
+    return scheme;
+  }
+
+  @Override
+  public HostAndPort authority() {
+    return authority;
   }
 }

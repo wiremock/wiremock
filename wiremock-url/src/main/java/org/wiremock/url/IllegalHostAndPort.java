@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-public class IllegalHostAndPort extends IllegalUrlPart {
+public class IllegalHostAndPort extends IllegalAuthority {
 
   public IllegalHostAndPort(String hostAndPort) {
     super(hostAndPort, "Illegal host and port: `" + hostAndPort + "`");

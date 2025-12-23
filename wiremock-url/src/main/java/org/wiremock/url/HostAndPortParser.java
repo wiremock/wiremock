@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-class HostAndPortParser implements CharSequenceParser<HostAndPort> {
+final class HostAndPortParser implements CharSequenceParser<HostAndPort> {
 
   static final HostAndPortParser INSTANCE = new HostAndPortParser();
 

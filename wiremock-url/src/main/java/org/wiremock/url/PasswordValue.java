@@ -17,40 +17,24 @@ package org.wiremock.url;
 
 import java.util.Objects;
 
-final class FragmentValue implements Fragment {
+final class PasswordValue implements Password {
 
-  private final String fragment;
+  private final String password;
 
-  FragmentValue(String fragment) {
-    this.fragment = fragment;
+  PasswordValue(String password) {
+    this.password = password;
   }
 
   @Override
   public String toString() {
-    return fragment;
-  }
-
-  @Override
-  public Fragment normalise() {
-
-    String result = Constants.normalise(fragment, FragmentParser.fragmentCharSet);
-
-    if (result == null) {
-      return this;
-    } else {
-      return new FragmentValue(result);
-    }
-  }
-
-  public String fragment() {
-    return fragment;
+    return password;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
-    } else if (obj instanceof Fragment that) {
+    } else if (obj instanceof Password that) {
       return Objects.equals(this.toString(), that.toString());
     } else {
       return false;
@@ -59,6 +43,6 @@ final class FragmentValue implements Fragment {
 
   @Override
   public int hashCode() {
-    return Objects.hash(fragment);
+    return Objects.hash(password);
   }
 }

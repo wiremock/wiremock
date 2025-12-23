@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class HostParser implements PercentEncodedCharSequenceParser<Host> {
+final class HostParser implements PercentEncodedCharSequenceParser<Host> {
 
   static final HostParser INSTANCE = new HostParser();
 

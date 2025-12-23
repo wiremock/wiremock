@@ -15,11 +15,19 @@
  */
 package org.wiremock.url;
 
+import java.util.Objects;
+
 import static java.util.Locale.ROOT;
 import static org.wiremock.url.Constants.pctEncodedPattern;
 import static org.wiremock.url.Strings.transform;
 
-record HostValue(String host) implements Host {
+final class HostValue implements Host {
+
+  private final String host;
+
+  HostValue(String host) {
+    this.host = host;
+  }
 
   @Override
   public String toString() {
@@ -40,5 +48,25 @@ record HostValue(String host) implements Host {
     } else {
       return new HostValue(normalised);
     }
+  }
+
+  public String host() {
+    return host;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof Host that) {
+      return Objects.equals(this.toString(), that.toString());
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(host);
   }
 }

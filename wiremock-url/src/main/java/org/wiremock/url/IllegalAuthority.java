@@ -20,10 +20,22 @@ import org.jspecify.annotations.Nullable;
 public class IllegalAuthority extends IllegalUrlPart {
 
   public IllegalAuthority(String authority) {
-    this(authority, null);
+    this(authority, message(authority));
   }
 
-  public IllegalAuthority(String authority, @Nullable IllegalUrlPart cause) {
-    super(authority, "Illegal authority: `" + authority + "`", cause);
+  public IllegalAuthority(String authority, String message) {
+    this(authority, message, null);
+  }
+
+  public IllegalAuthority(String authority, IllegalUrlPart cause) {
+    this(authority, message(authority), cause);
+  }
+
+  public IllegalAuthority(String authority, String message, @Nullable IllegalUrlPart cause) {
+    super(authority, message, cause);
+  }
+
+  private static String message(String authority) {
+    return "Illegal authority: `" + authority + "`";
   }
 }

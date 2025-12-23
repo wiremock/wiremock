@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 
-class Constants {
+final class Constants {
 
   @Language("RegExp")
   static final String unreserved = "-a-zA-Z0-9\\._~";

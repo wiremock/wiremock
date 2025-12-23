@@ -59,7 +59,7 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
       var username = new UsernameParser.Username(components[0]);
       final Password password;
       if (components.length == 2) {
-        password = new PasswordParser.Password(components[1]);
+        password = new PasswordValue(components[1]);
       } else {
         password = null;
       }

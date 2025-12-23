@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-class OriginParser implements CharSequenceParser<Origin> {
+final class OriginParser implements CharSequenceParser<Origin> {
 
   static final OriginParser INSTANCE = new OriginParser();
 

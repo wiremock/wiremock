@@ -15,16 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.combine;
-import static org.wiremock.url.Constants.include;
-import static org.wiremock.url.Constants.pctEncoded;
-import static org.wiremock.url.Constants.subDelimCharSet;
-import static org.wiremock.url.Constants.subDelims;
-import static org.wiremock.url.Constants.unreserved;
-import static org.wiremock.url.Constants.unreservedCharSet;
-
-import java.util.regex.Pattern;
-
 public interface Password extends PercentEncoded {
 
   static Password parse(CharSequence password) throws IllegalPassword {
@@ -33,41 +23,5 @@ public interface Password extends PercentEncoded {
 
   static Password encode(String unencoded) {
     return PasswordParser.INSTANCE.encode(unencoded);
-  }
-}
-
-class PasswordParser implements PercentEncodedCharSequenceParser<Password> {
-
-  static final PasswordParser INSTANCE = new PasswordParser();
-
-  final String passwordRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
-
-  private final Pattern passwordPattern = Pattern.compile("^" + passwordRegex + "$");
-
-  @Override
-  public Password parse(CharSequence stringForm) throws IllegalPassword {
-    String passwordStr = stringForm.toString();
-    if (passwordPattern.matcher(passwordStr).matches()) {
-      return new Password(passwordStr);
-    } else {
-      throw new IllegalPassword(passwordStr);
-    }
-  }
-
-  private static final boolean[] passwordCharSet =
-      combine(unreservedCharSet, subDelimCharSet, include(':'));
-
-  @Override
-  public Password encode(String unencoded) {
-    var result = Constants.encode(unencoded, passwordCharSet);
-    return new Password(result);
-  }
-
-  record Password(String password) implements org.wiremock.url.Password {
-
-    @Override
-    public String toString() {
-      return password;
-    }
   }
 }
