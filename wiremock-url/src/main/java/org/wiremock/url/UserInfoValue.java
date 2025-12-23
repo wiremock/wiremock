@@ -48,12 +48,12 @@ final class UserInfoValue implements UserInfo {
   }
 
   @Override
-  public Username username() {
+  public Username getUsername() {
     return username;
   }
 
   @Override
-  public @Nullable Password password() {
+  public @Nullable Password getPassword() {
     return password;
   }
 

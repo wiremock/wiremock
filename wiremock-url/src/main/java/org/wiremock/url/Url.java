@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 public non-sealed interface Url extends UrlReference {
 
   @Override
-  Scheme scheme();
+  Scheme getScheme();
 
   @Override
-  Authority authority();
+  Authority getAuthority();
 
   default boolean isRelativeRef() {
     return false;
@@ -35,20 +35,20 @@ public non-sealed interface Url extends UrlReference {
   }
 
   @Override
-  default Host host() {
-    return authority().host();
+  default Host getHost() {
+    return getAuthority().getHost();
   }
 
   default boolean isAbsolute() {
-    return fragment() == null;
+    return getFragment() == null;
   }
 
   default Origin origin() {
-    return Origin.of(scheme(), authority().hostAndPort());
+    return Origin.of(getScheme(), getAuthority().getHostAndPort());
   }
 
-  default PathAndQuery pathAndQuery() {
-    return new PathAndQueryValue(path(), query());
+  default PathAndQuery getPathAndQuery() {
+    return new PathAndQueryValue(getPath(), getQuery());
   }
 
   default Builder thaw() {
@@ -74,28 +74,28 @@ public non-sealed interface Url extends UrlReference {
     } else {
       return this.transform(
           builder -> {
-            Authority otherAuthority = other.authority();
-            Query otherQuery = other.query();
+            Authority otherAuthority = other.getAuthority();
+            Query otherQuery = other.getQuery();
             if (otherAuthority != null) {
               builder.setAuthority(otherAuthority.normalise());
-              Path path = other.path().isEmpty() ? Path.ROOT : other.path().normalise();
+              Path path = other.getPath().isEmpty() ? Path.ROOT : other.getPath().normalise();
               builder.setPath(path);
               builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
             } else {
-              if (other.path().isEmpty()) {
+              if (other.getPath().isEmpty()) {
                 if (otherQuery != null) {
                   builder.setQuery(otherQuery.normalise());
                 }
               } else {
-                if (other.path().isAbsolute()) {
-                  builder.setPath(other.path().normalise());
+                if (other.getPath().isAbsolute()) {
+                  builder.setPath(other.getPath().normalise());
                 } else {
-                  builder.setPath(path().resolve(other.path()));
+                  builder.setPath(getPath().resolve(other.getPath()));
                 }
                 builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
               }
             }
-            Fragment otherFragment = other.fragment();
+            Fragment otherFragment = other.getFragment();
             otherFragment = otherFragment == null ? null : otherFragment.normalise();
             builder.setFragment(otherFragment);
           });

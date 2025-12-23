@@ -37,7 +37,7 @@ class PortTests {
     @ValueSource(ints = {0, 1, 80, 443, 8080, 8443, 9000, 65535, 65536, 70000, 100000})
     void creates_ports_with_various_valid_values(int portNumber) {
       Port port = Port.of(portNumber);
-      assertThat(port.port()).isEqualTo(portNumber);
+      assertThat(port.getIntValue()).isEqualTo(portNumber);
     }
 
     @ParameterizedTest
@@ -75,7 +75,7 @@ class PortTests {
     @MethodSource("validPortStrings")
     void parses_various_valid_port_strings(String portString) {
       Port port = Port.parse(portString);
-      assertThat(port.port()).isEqualTo(Integer.parseInt(portString));
+      assertThat(port.getIntValue()).isEqualTo(Integer.parseInt(portString));
       assertThat(port.toString()).isEqualTo(portString);
     }
 
@@ -147,8 +147,8 @@ class PortTests {
     void ports_with_different_string_representations_are_not_equal() {
       Port portWithLeadingZeros = Port.parse("00080");
       Port portCanonical = Port.of(80);
-      assertThat(portWithLeadingZeros.port()).isEqualTo(80);
-      assertThat(portCanonical.port()).isEqualTo(80);
+      assertThat(portWithLeadingZeros.getIntValue()).isEqualTo(80);
+      assertThat(portCanonical.getIntValue()).isEqualTo(80);
       assertThat(portWithLeadingZeros).isNotEqualTo(portCanonical);
       assertThat(portWithLeadingZeros.toString()).isEqualTo("00080");
       assertThat(portCanonical.toString()).isEqualTo("80");
@@ -284,14 +284,14 @@ class PortTests {
     @ValueSource(strings = {"00080", "0080", "080", "00443", "01", "001", "0001", "00001"})
     void parses_ports_with_leading_zeros(String portString) {
       Port port = Port.parse(portString);
-      assertThat(port.port()).isEqualTo(Integer.parseInt(portString));
+      assertThat(port.getIntValue()).isEqualTo(Integer.parseInt(portString));
       assertThat(port.toString()).isEqualTo(portString);
     }
 
     @Test
     void ports_with_leading_zeros_have_correct_port_number() {
       Port port = Port.parse("00080");
-      assertThat(port.port()).isEqualTo(80);
+      assertThat(port.getIntValue()).isEqualTo(80);
     }
 
     @Test
@@ -330,17 +330,17 @@ class PortTests {
     @Test
     void port_with_many_leading_zeros() {
       Port port = Port.parse("000000080");
-      assertThat(port.port()).isEqualTo(80);
+      assertThat(port.getIntValue()).isEqualTo(80);
       assertThat(port.toString()).isEqualTo("000000080");
     }
 
     @Test
     void leading_zeros_do_not_affect_port_number() {
-      assertThat(Port.parse("00080").port()).isEqualTo(80);
-      assertThat(Port.parse("0080").port()).isEqualTo(80);
-      assertThat(Port.parse("080").port()).isEqualTo(80);
-      assertThat(Port.parse("80").port()).isEqualTo(80);
-      assertThat(Port.of(80).port()).isEqualTo(80);
+      assertThat(Port.parse("00080").getIntValue()).isEqualTo(80);
+      assertThat(Port.parse("0080").getIntValue()).isEqualTo(80);
+      assertThat(Port.parse("080").getIntValue()).isEqualTo(80);
+      assertThat(Port.parse("80").getIntValue()).isEqualTo(80);
+      assertThat(Port.of(80).getIntValue()).isEqualTo(80);
     }
 
     @Test
@@ -382,7 +382,7 @@ class PortTests {
       Port portWithLeadingZeros = Port.parse("00080");
       Port normalised = portWithLeadingZeros.normalise();
       assertThat(normalised.toString()).isEqualTo("80");
-      assertThat(normalised.port()).isEqualTo(80);
+      assertThat(normalised.getIntValue()).isEqualTo(80);
     }
 
     @Test
@@ -400,7 +400,7 @@ class PortTests {
       Port normalised = port.normalise();
       int expectedPort = Integer.parseInt(portString);
       assertThat(normalised.toString()).isEqualTo(String.valueOf(expectedPort));
-      assertThat(normalised.port()).isEqualTo(expectedPort);
+      assertThat(normalised.getIntValue()).isEqualTo(expectedPort);
     }
 
     @Test
@@ -451,8 +451,8 @@ class PortTests {
     void normalise_preserves_port_number() {
       Port port = Port.parse("00443");
       Port normalised = port.normalise();
-      assertThat(port.port()).isEqualTo(normalised.port());
-      assertThat(normalised.port()).isEqualTo(443);
+      assertThat(port.getIntValue()).isEqualTo(normalised.getIntValue());
+      assertThat(normalised.getIntValue()).isEqualTo(443);
     }
 
     @Test
@@ -488,7 +488,7 @@ class PortTests {
       Port port = Port.parse("000000080");
       Port normalised = port.normalise();
       assertThat(normalised.toString()).isEqualTo("80");
-      assertThat(normalised.port()).isEqualTo(80);
+      assertThat(normalised.getIntValue()).isEqualTo(80);
     }
 
     @TestFactory

@@ -39,8 +39,9 @@ public interface HostAndPort extends Authority {
    */
   @Override
   @Nullable
+  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default UserInfo userInfo() {
+  default UserInfo getUserInfo() {
     return null;
   }
 
@@ -52,7 +53,7 @@ public interface HostAndPort extends Authority {
    */
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default HostAndPort hostAndPort() {
+  default HostAndPort getHostAndPort() {
     return this;
   }
 

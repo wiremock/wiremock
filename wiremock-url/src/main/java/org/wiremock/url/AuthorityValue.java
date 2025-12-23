@@ -33,14 +33,14 @@ final class AuthorityValue implements Authority {
   }
 
   @Override
-  public @Nullable Port port() {
+  public @Nullable Port getPort() {
     //noinspection OptionalAssignedToNull
     return maybePort != null ? maybePort.orElse(null) : null;
   }
 
   @Override
   @Nullable
-  public Optional<Port> maybePort() {
+  public Optional<Port> getMaybePort() {
     return maybePort;
   }
 
@@ -61,8 +61,8 @@ final class AuthorityValue implements Authority {
   }
 
   @Override
-  public HostAndPort hostAndPort() {
-    return new HostAndPortValue(host, port());
+  public HostAndPort getHostAndPort() {
+    return new HostAndPortValue(host, getPort());
   }
 
   @Override
@@ -94,10 +94,11 @@ final class AuthorityValue implements Authority {
   @Override
   public Authority normalise(Scheme canonicalScheme) {
     var normalisedHost = host.normalise();
-    Port port = port();
+    Port port = getPort();
     var normalisedPort = port != null ? port.normalise() : null;
     final Optional<Port> optionalPort;
-    if (normalisedPort == null || Objects.equals(normalisedPort, canonicalScheme.defaultPort())) {
+    if (normalisedPort == null
+        || Objects.equals(normalisedPort, canonicalScheme.getDefaultPort())) {
       //noinspection OptionalAssignedToNull
       optionalPort = null;
     } else {
@@ -127,12 +128,12 @@ final class AuthorityValue implements Authority {
   }
 
   @Override
-  public @Nullable UserInfo userInfo() {
+  public @Nullable UserInfo getUserInfo() {
     return userInfo;
   }
 
   @Override
-  public Host host() {
+  public Host getHost() {
     return host;
   }
 

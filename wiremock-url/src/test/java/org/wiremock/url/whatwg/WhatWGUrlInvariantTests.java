@@ -200,7 +200,9 @@ class WhatWGUrlInvariantTests {
   private static boolean hostReachable(Url url) {
     try (Socket socket = new Socket()) {
       //noinspection DataFlowIssue
-      socket.connect(new InetSocketAddress(url.host().toString(), url.resolvedPort().port()), 500);
+      socket.connect(
+          new InetSocketAddress(url.getHost().toString(), url.getResolvedPort().getIntValue()),
+          500);
       return true;
     } catch (IOException e) {
       return false;

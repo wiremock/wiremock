@@ -30,7 +30,7 @@ public interface PathAndQuery extends RelativeRef {
   @Override
   @Nullable
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Authority authority() {
+  default Authority getAuthority() {
     return null;
   }
 
@@ -43,7 +43,7 @@ public interface PathAndQuery extends RelativeRef {
   @Override
   @Nullable
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Fragment fragment() {
+  default Fragment getFragment() {
     return null;
   }
 

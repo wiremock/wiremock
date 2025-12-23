@@ -144,8 +144,8 @@ class UserInfoTests {
       UserInfo normalised = userInfo.normalise();
       assertThat(normalised).isNotNull();
       assertThat(normalised.toString()).isEqualTo("user");
-      assertThat(normalised.username().toString()).isEqualTo("user");
-      assertThat(normalised.password()).isNull();
+      assertThat(normalised.getUsername().toString()).isEqualTo("user");
+      assertThat(normalised.getPassword()).isNull();
     }
 
     @ParameterizedTest
@@ -304,12 +304,12 @@ class UserInfoTests {
     @FieldSource("extractionCases")
     void extracts_username_and_password_correctly(ExtractionCase testCase) {
       UserInfo userInfo = UserInfo.parse(testCase.input());
-      assertThat(userInfo.username().toString()).isEqualTo(testCase.expectedUsername());
+      assertThat(userInfo.getUsername().toString()).isEqualTo(testCase.expectedUsername());
       if (testCase.expectedPassword() == null) {
-        assertThat(userInfo.password()).isNull();
+        assertThat(userInfo.getPassword()).isNull();
       } else {
-        assertThat(userInfo.password()).isNotNull();
-        assertThat(userInfo.password().toString()).isEqualTo(testCase.expectedPassword());
+        assertThat(userInfo.getPassword()).isNotNull();
+        assertThat(userInfo.getPassword().toString()).isEqualTo(testCase.expectedPassword());
       }
     }
   }

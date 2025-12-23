@@ -103,7 +103,7 @@ public class Urls {
 
   public static String urlToPathParts(UrlReference uri) {
     List<String> uriPathNodes =
-        Arrays.stream(uri.path().toString().split("/")).filter(s -> !s.isEmpty()).toList();
+        Arrays.stream(uri.getPath().toString().split("/")).filter(s -> !s.isEmpty()).toList();
     int nodeCount = uriPathNodes.size();
 
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";

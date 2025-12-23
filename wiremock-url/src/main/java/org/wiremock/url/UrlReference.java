@@ -19,39 +19,39 @@ import org.jspecify.annotations.Nullable;
 
 public sealed interface UrlReference permits RelativeRef, Url {
 
-  @Nullable Scheme scheme();
+  @Nullable Scheme getScheme();
 
-  @Nullable Authority authority();
+  @Nullable Authority getAuthority();
 
-  Path path();
+  Path getPath();
 
-  @Nullable Query query();
+  @Nullable Query getQuery();
 
-  @Nullable Fragment fragment();
+  @Nullable Fragment getFragment();
 
   boolean isRelativeRef();
 
   boolean isUrl();
 
-  default @Nullable UserInfo userInfo() {
-    Authority authority = authority();
-    return authority != null ? authority.userInfo() : null;
+  default @Nullable UserInfo getUserInfo() {
+    Authority authority = getAuthority();
+    return authority != null ? authority.getUserInfo() : null;
   }
 
-  default @Nullable Host host() {
-    Authority authority = authority();
-    return authority != null ? authority.host() : null;
+  default @Nullable Host getHost() {
+    Authority authority = getAuthority();
+    return authority != null ? authority.getHost() : null;
   }
 
-  default @Nullable Port port() {
-    Authority authority = authority();
-    return authority != null ? authority.port() : null;
+  default @Nullable Port getPort() {
+    Authority authority = getAuthority();
+    return authority != null ? authority.getPort() : null;
   }
 
-  default @Nullable Port resolvedPort() {
-    Port definedPort = port();
-    Scheme scheme = scheme();
-    return definedPort != null ? definedPort : (scheme != null ? scheme.defaultPort() : null);
+  default @Nullable Port getResolvedPort() {
+    Port definedPort = getPort();
+    Scheme scheme = getScheme();
+    return definedPort != null ? definedPort : (scheme != null ? scheme.getDefaultPort() : null);
   }
 
   UrlReference normalise();

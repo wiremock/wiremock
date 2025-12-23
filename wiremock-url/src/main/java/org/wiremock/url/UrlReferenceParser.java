@@ -40,36 +40,36 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
       return false;
     }
 
-    return Objects.equals(one.scheme(), other.scheme())
-        && Objects.equals(one.authority(), other.authority())
-        && Objects.equals(one.path(), other.path())
-        && Objects.equals(one.query(), other.query())
-        && Objects.equals(one.fragment(), other.fragment());
+    return Objects.equals(one.getScheme(), other.getScheme())
+        && Objects.equals(one.getAuthority(), other.getAuthority())
+        && Objects.equals(one.getPath(), other.getPath())
+        && Objects.equals(one.getQuery(), other.getQuery())
+        && Objects.equals(one.getFragment(), other.getFragment());
   }
 
   static int hashCode(UrlReference urlReference) {
     return Objects.hash(
-        urlReference.scheme(),
-        urlReference.authority(),
-        urlReference.path(),
-        urlReference.query(),
-        urlReference.fragment());
+        urlReference.getScheme(),
+        urlReference.getAuthority(),
+        urlReference.getPath(),
+        urlReference.getQuery(),
+        urlReference.getFragment());
   }
 
   static String toString(UrlReference urlReference) {
     StringBuilder result = new StringBuilder();
-    if (urlReference.scheme() != null) {
-      result.append(urlReference.scheme()).append(":");
+    if (urlReference.getScheme() != null) {
+      result.append(urlReference.getScheme()).append(":");
     }
-    if (urlReference.authority() != null) {
-      result.append("//").append(urlReference.authority());
+    if (urlReference.getAuthority() != null) {
+      result.append("//").append(urlReference.getAuthority());
     }
-    result.append(urlReference.path());
-    if (urlReference.query() != null) {
-      result.append("?").append(urlReference.query());
+    result.append(urlReference.getPath());
+    if (urlReference.getQuery() != null) {
+      result.append("?").append(urlReference.getQuery());
     }
-    if (urlReference.fragment() != null) {
-      result.append("#").append(urlReference.fragment());
+    if (urlReference.getFragment() != null) {
+      result.append("#").append(urlReference.getFragment());
     }
     return result.toString();
   }

@@ -15,15 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.combine;
-import static org.wiremock.url.Constants.include;
-import static org.wiremock.url.Constants.pctEncoded;
-import static org.wiremock.url.Constants.subDelimCharSet;
-import static org.wiremock.url.Constants.subDelims;
-import static org.wiremock.url.Constants.unreserved;
-import static org.wiremock.url.Constants.unreservedCharSet;
-
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 public interface UserInfo extends PercentEncoded {
@@ -38,43 +29,7 @@ public interface UserInfo extends PercentEncoded {
 
   @Nullable UserInfo normalise();
 
-  Username username();
+  Username getUsername();
 
-  @Nullable Password password();
-}
-
-class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
-
-  static final UserInfoParser INSTANCE = new UserInfoParser();
-
-  static final String userInfoRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
-
-  private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
-
-  @Override
-  public UserInfo parse(CharSequence stringForm) {
-    String userInfoStr = stringForm.toString();
-    if (userInfoPattern.matcher(stringForm).matches()) {
-      var components = userInfoStr.split(":", 2);
-      var username = new UsernameValue(components[0]);
-      final Password password;
-      if (components.length == 2) {
-        password = new PasswordValue(components[1]);
-      } else {
-        password = null;
-      }
-      return new UserInfoValue(userInfoStr, username, password);
-    } else {
-      throw new IllegalUserInfo(userInfoStr);
-    }
-  }
-
-  private static final boolean[] userInfoCharSet =
-      combine(unreservedCharSet, subDelimCharSet, include(':'));
-
-  @Override
-  public UserInfo encode(String unencoded) {
-    String encoded = Constants.encode(unencoded, userInfoCharSet);
-    return parse(encoded);
-  }
+  @Nullable Password getPassword();
 }

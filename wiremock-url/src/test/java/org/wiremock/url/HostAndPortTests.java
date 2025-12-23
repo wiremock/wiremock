@@ -84,9 +84,9 @@ class HostAndPortTests {
   void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
     HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm());
     //noinspection removal
-    assertThat(hostAndPort.userInfo()).isNull();
-    assertThat(hostAndPort.host()).isEqualTo(urlTest.expectation().host());
-    assertThat(hostAndPort.port()).isEqualTo(urlTest.expectation().port());
+    assertThat(hostAndPort.getUserInfo()).isNull();
+    assertThat(hostAndPort.getHost()).isEqualTo(urlTest.expectation().host());
+    assertThat(hostAndPort.getPort()).isEqualTo(urlTest.expectation().port());
   }
 
   private static final List<AuthorityParseTestCase> invalidHostAndPorts =
@@ -131,7 +131,7 @@ class HostAndPortTests {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
       Authority normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(normalised.port()).isNull();
+      assertThat(normalised.getPort()).isNull();
     }
 
     @Test
@@ -139,7 +139,7 @@ class HostAndPortTests {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
       Authority normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
-      assertThat(normalised.port()).isEqualTo(Port.of(8080));
+      assertThat(normalised.getPort()).isEqualTo(Port.of(8080));
     }
 
     @Test
@@ -154,7 +154,7 @@ class HostAndPortTests {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:80");
       Authority normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(normalised.port()).isNull();
+      assertThat(normalised.getPort()).isNull();
     }
 
     @Test
@@ -162,7 +162,7 @@ class HostAndPortTests {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:00443");
       Authority normalised = hostAndPort.normalise(Scheme.https);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(normalised.port()).isNull();
+      assertThat(normalised.getPort()).isNull();
     }
 
     @Test

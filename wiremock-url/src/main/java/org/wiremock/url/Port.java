@@ -38,7 +38,7 @@ package org.wiremock.url;
  */
 public interface Port {
 
-  int port();
+  int getIntValue();
 
   /**
    * Returns a Port with the canonical (normalized) string representation of this port number,

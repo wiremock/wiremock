@@ -33,16 +33,16 @@ final class SchemeValue implements Scheme {
   }
 
   @Override
-  public Scheme canonical() {
+  public Scheme getCanonical() {
     return Objects.requireNonNullElse(canonical, this);
   }
 
   @Override
-  public @Nullable Port defaultPort() {
+  public @Nullable Port getDefaultPort() {
     if (defaultPort != null) {
       return defaultPort;
     } else if (canonical != null) {
-      return canonical.defaultPort();
+      return canonical.getDefaultPort();
     } else {
       return null;
     }

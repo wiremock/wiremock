@@ -43,18 +43,18 @@ final class OriginValue implements Origin {
 
   @Override
   public Url normalise() {
-    Scheme canonicalScheme = scheme.canonical();
+    Scheme canonicalScheme = scheme.getCanonical();
     Authority normalisedAuthority = authority.normalise(canonicalScheme);
     return Url.builder(canonicalScheme, normalisedAuthority).build();
   }
 
   @Override
-  public Scheme scheme() {
+  public Scheme getScheme() {
     return scheme;
   }
 
   @Override
-  public HostAndPort authority() {
+  public HostAndPort getAuthority() {
     return authority;
   }
 }

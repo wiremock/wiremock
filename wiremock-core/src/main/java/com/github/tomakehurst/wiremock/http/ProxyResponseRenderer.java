@@ -228,7 +228,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       requestBuilder.withHeader(key, hostHeaderValue);
     } else if (response.getProxyBaseUrl() != null) {
       Url url = Url.parse(response.getProxyBaseUrl());
-      requestBuilder.withHeader(key, url.authority().hostAndPort().toString());
+      requestBuilder.withHeader(key, url.getAuthority().getHostAndPort().toString());
     }
   }
 

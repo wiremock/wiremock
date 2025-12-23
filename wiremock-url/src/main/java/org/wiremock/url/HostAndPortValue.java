@@ -40,7 +40,7 @@ final class HostAndPortValue implements HostAndPort {
   }
 
   @Override
-  public @Nullable Optional<Port> maybePort() {
+  public @Nullable Optional<Port> getMaybePort() {
     //noinspection OptionalAssignedToNull
     return port != null ? Optional.of(port) : null;
   }
@@ -65,7 +65,7 @@ final class HostAndPortValue implements HostAndPort {
   public HostAndPort normalise(Scheme canonicalScheme) {
     var normalisedHost = host.normalise();
     var normalisedPort = port == null ? null : port.normalise();
-    if (Objects.equals(canonicalScheme.defaultPort(), normalisedPort)) {
+    if (Objects.equals(canonicalScheme.getDefaultPort(), normalisedPort)) {
       normalisedPort = null;
     }
     return normalised(normalisedHost, normalisedPort);
@@ -78,12 +78,12 @@ final class HostAndPortValue implements HostAndPort {
   }
 
   @Override
-  public Host host() {
+  public Host getHost() {
     return host;
   }
 
   @Override
-  public @Nullable Port port() {
+  public @Nullable Port getPort() {
     return port;
   }
 

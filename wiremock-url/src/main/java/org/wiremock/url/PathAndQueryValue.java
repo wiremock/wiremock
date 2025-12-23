@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-record PathAndQueryValue(Path path, @Nullable Query query) implements PathAndQuery {
+record PathAndQueryValue(Path getPath, @Nullable Query getQuery) implements PathAndQuery {
 
   @Override
   @SuppressWarnings("EqualsDoesntCheckParameterClass")
@@ -38,12 +38,12 @@ record PathAndQueryValue(Path path, @Nullable Query query) implements PathAndQue
 
   @Override
   public PathAndQuery normalise() {
-    var normalisedPath = path.normalise();
+    var normalisedPath = getPath.normalise();
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
     }
-    var normalisedQuery = query == null ? null : query.normalise();
-    if (normalisedPath.equals(path) && Objects.equals(normalisedQuery, query)) {
+    var normalisedQuery = getQuery == null ? null : getQuery.normalise();
+    if (normalisedPath.equals(getPath) && Objects.equals(normalisedQuery, getQuery)) {
       return this;
     } else {
       return new PathAndQueryValue(normalisedPath, normalisedQuery);

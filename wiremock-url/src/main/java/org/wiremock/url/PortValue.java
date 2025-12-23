@@ -53,7 +53,7 @@ final class PortValue implements Port {
   }
 
   @Override
-  public int port() {
+  public int getIntValue() {
     return port;
   }
 }

@@ -41,10 +41,10 @@ class UrlTests {
     void parses_valid_url(UrlReferenceParseTestCase urlTest) {
       UrlReference url = UrlReference.parse(urlTest.stringForm);
       assertThat(url.isUrl()).isTrue();
-      assertThat(url.scheme()).isEqualTo(urlTest.expectation.scheme);
-      assertThat(url.path()).isEqualTo(urlTest.expectation.path);
-      assertThat(url.query()).isEqualTo(urlTest.expectation.query);
-      assertThat(url.fragment()).isEqualTo(urlTest.expectation.fragment);
+      assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
+      assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);
+      assertThat(url.getQuery()).isEqualTo(urlTest.expectation.query);
+      assertThat(url.getFragment()).isEqualTo(urlTest.expectation.fragment);
     }
 
     @Test
@@ -92,11 +92,11 @@ class UrlTests {
 
         assertThat(origin.toString()).isEqualTo(originExpectation);
         assertThat(origin).isEqualTo(UrlReference.parse(originExpectation));
-        assertThat(origin.scheme().toString()).isEqualTo(javaUri.getScheme());
-        assertThat(origin.authority().toString()).isEqualTo(javaUri.getRawAuthority());
+        assertThat(origin.getScheme().toString()).isEqualTo(javaUri.getScheme());
+        assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
         assertThat(origin)
             .isEqualTo(
-                Url.builder(origin.scheme(), origin.authority()).setPath(Path.EMPTY).build());
+                Url.builder(origin.getScheme(), origin.getAuthority()).setPath(Path.EMPTY).build());
       } catch (Throwable e) {
         System.out.println(testCase);
         throw e;
@@ -164,19 +164,19 @@ class UrlTests {
 
         assertThat(url.toString()).isEqualTo(base);
         assertThat(url).isEqualTo(UrlReference.parse(base));
-        if (url.path().isEmpty()) {
+        if (url.getPath().isEmpty()) {
           assertThat(url.normalise()).isEqualTo(url.transform(b -> b.setPath(Path.ROOT)));
         }
 
         URI javaUri = uriOrNull(base);
 
         if (javaUri != null) {
-          assertThat(url.scheme().toString()).isEqualTo(javaUri.getScheme());
-          Authority authority = url.authority();
+          assertThat(url.getScheme().toString()).isEqualTo(javaUri.getScheme());
+          Authority authority = url.getAuthority();
           String javaUriRawAuthority = javaUri.getRawAuthority();
           if (javaUriRawAuthority == null) {
             assertThat(authority.toString()).isEmpty();
-            assertThat(authority.hostAndPort()).isEqualTo(HostAndPort.of(Host.parse(""), null));
+            assertThat(authority.getHostAndPort()).isEqualTo(HostAndPort.of(Host.parse(""), null));
           } else {
             assertThat(authority.toString()).isEqualTo(javaUriRawAuthority);
           }

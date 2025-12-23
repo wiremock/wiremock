@@ -61,18 +61,18 @@ public class UrlReferenceTests {
 
       if (resolved != null) {
 
-        assertThat(Optional.ofNullable(resolved.scheme()).map(scheme -> scheme + ":").orElse(""))
+        assertThat(Optional.ofNullable(resolved.getScheme()).map(scheme -> scheme + ":").orElse(""))
             .isEqualTo(successTestCase.protocol());
 
-        Optional<Authority> authority = Optional.ofNullable(resolved.authority());
-        Optional<UserInfo> userInfo = authority.flatMap(a -> Optional.ofNullable(a.userInfo()));
-        Optional<Username> username = userInfo.map(UserInfo::username);
-        Optional<Password> password = userInfo.flatMap(a -> Optional.ofNullable(a.password()));
+        Optional<Authority> authority = Optional.ofNullable(resolved.getAuthority());
+        Optional<UserInfo> userInfo = authority.flatMap(a -> Optional.ofNullable(a.getUserInfo()));
+        Optional<Username> username = userInfo.map(UserInfo::getUsername);
+        Optional<Password> password = userInfo.flatMap(a -> Optional.ofNullable(a.getPassword()));
 
         assertThat(username.map(Object::toString).orElse("")).isEqualTo(successTestCase.username());
         assertThat(password.map(Object::toString).orElse("")).isEqualTo(successTestCase.password());
 
-        assertThat(Optional.ofNullable(resolved.port()).map(Object::toString).orElse(""))
+        assertThat(Optional.ofNullable(resolved.getPort()).map(Object::toString).orElse(""))
             .isEqualTo(successTestCase.port());
 
         if (!successTestCase.pathname().isEmpty()
@@ -81,10 +81,11 @@ public class UrlReferenceTests {
                 .pathname()
                 .matches(
                     ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
-            && !(urlReference.authority() != null && urlReference.authority().toString().isEmpty())
-            && !resolved.path().toString().contains("\\")
-            && !urlReference.path().toString().contains("\t")) {
-          assertThat(resolved.path().toString()).isEqualTo(successTestCase.pathname());
+            && !(urlReference.getAuthority() != null
+                && urlReference.getAuthority().toString().isEmpty())
+            && !resolved.getPath().toString().contains("\\")
+            && !urlReference.getPath().toString().contains("\t")) {
+          assertThat(resolved.getPath().toString()).isEqualTo(successTestCase.pathname());
         }
 
         if (!successTestCase.search().contains("{")
@@ -94,7 +95,7 @@ public class UrlReferenceTests {
                     ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
         ) {
           assertThat(
-                  Optional.ofNullable(resolved.query())
+                  Optional.ofNullable(resolved.getQuery())
                       .map(o -> o.isEmpty() ? "" : "?" + o)
                       .orElse(""))
               .isEqualTo(successTestCase.search());
@@ -103,13 +104,13 @@ public class UrlReferenceTests {
             && !successTestCase.hash().contains("{")
             && !successTestCase.hash().contains("#")) {
           assertThat(
-                  Optional.ofNullable(resolved.fragment())
+                  Optional.ofNullable(resolved.getFragment())
                       .map(f -> f.isEmpty() ? "" : "#" + f)
                       .orElse(""))
               .isEqualTo(successTestCase.hash());
         }
 
-        if (Optional.ofNullable(resolved.host())
+        if (Optional.ofNullable(resolved.getHost())
                 .map(Object::toString)
                 .orElse("")
                 .equals(successTestCase.hostname())
@@ -120,9 +121,9 @@ public class UrlReferenceTests {
                 .matches(
                     ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
             && !input.endsWith(" ")
-            && !resolved.path().toString().contains("\\")
+            && !resolved.getPath().toString().contains("\\")
             && !successTestCase.pathname().contains("|")
-            && !urlReference.path().toString().contains("\t")
+            && !urlReference.getPath().toString().contains("\t")
             && !successTestCase.search().contains("{")
             && !successTestCase
                 .search()
@@ -131,7 +132,7 @@ public class UrlReferenceTests {
             && !successTestCase.hash().contains("{")
             && !successTestCase.hash().contains("#")) {
           assertThat(resolved.toString()).isEqualTo(successTestCase.href());
-          assertThat(authority.map(Authority::hostAndPort).map(Object::toString).orElse(""))
+          assertThat(authority.map(Authority::getHostAndPort).map(Object::toString).orElse(""))
               .isEqualTo(successTestCase.host());
         }
       }

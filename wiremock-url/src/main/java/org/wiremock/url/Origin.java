@@ -20,31 +20,31 @@ import org.jspecify.annotations.Nullable;
 public interface Origin extends Url {
 
   @Override
-  HostAndPort authority();
+  HostAndPort getAuthority();
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default PathAndQuery pathAndQuery() {
+  default PathAndQuery getPathAndQuery() {
     return PathAndQuery.EMPTY;
   }
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Path path() {
+  default Path getPath() {
     return Path.EMPTY;
   }
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   @Nullable
-  default Query query() {
+  default Query getQuery() {
     return null;
   }
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   @Nullable
-  default Fragment fragment() {
+  default Fragment getFragment() {
     return null;
   }
 

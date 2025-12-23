@@ -60,10 +60,10 @@ public class ImmutableRequest implements Request {
     this.protocol = protocol;
 
     final Url uri = Url.parse(absoluteUrl);
-    this.scheme = uri.scheme().toString();
-    this.host = uri.authority().host().toString();
-    Port maybePort = uri.authority().port();
-    this.port = maybePort != null ? maybePort.port() : -1;
+    this.scheme = uri.getScheme().toString();
+    this.host = uri.getAuthority().getHost().toString();
+    Port maybePort = uri.getAuthority().getPort();
+    this.port = maybePort != null ? maybePort.getIntValue() : -1;
 
     this.clientIp = clientIp;
     this.headers = headers;

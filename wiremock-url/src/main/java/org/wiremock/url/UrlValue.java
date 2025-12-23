@@ -57,7 +57,7 @@ final class UrlValue implements Url {
 
   @Override
   public Url normalise() {
-    Scheme canonicalScheme = scheme.canonical();
+    Scheme canonicalScheme = scheme.getCanonical();
     Authority normalisedAuthority = authority.normalise(canonicalScheme);
     Path normalisedPath = path.normalise();
     if (normalisedPath.isEmpty()) {
@@ -88,27 +88,27 @@ final class UrlValue implements Url {
   }
 
   @Override
-  public Scheme scheme() {
+  public Scheme getScheme() {
     return scheme;
   }
 
   @Override
-  public Authority authority() {
+  public Authority getAuthority() {
     return authority;
   }
 
   @Override
-  public Path path() {
+  public Path getPath() {
     return path;
   }
 
   @Override
-  public @Nullable Query query() {
+  public @Nullable Query getQuery() {
     return query;
   }
 
   @Override
-  public @Nullable Fragment fragment() {
+  public @Nullable Fragment getFragment() {
     return fragment;
   }
 
@@ -126,11 +126,11 @@ final class UrlValue implements Url {
     }
 
     Builder(Url url) {
-      this.scheme = url.scheme();
-      this.authority = url.authority();
-      this.path = url.path();
-      this.query = url.query();
-      this.fragment = url.fragment();
+      this.scheme = url.getScheme();
+      this.authority = url.getAuthority();
+      this.path = url.getPath();
+      this.query = url.getQuery();
+      this.fragment = url.getFragment();
     }
 
     @Override
@@ -147,19 +147,19 @@ final class UrlValue implements Url {
 
     @Override
     public Builder setUserInfo(@Nullable UserInfo userInfo) {
-      this.authority = Authority.of(userInfo, authority.host(), authority.port());
+      this.authority = Authority.of(userInfo, authority.getHost(), authority.getPort());
       return this;
     }
 
     @Override
     public Builder setHost(Host host) {
-      this.authority = Authority.of(authority.userInfo(), host, authority.port());
+      this.authority = Authority.of(authority.getUserInfo(), host, authority.getPort());
       return this;
     }
 
     @Override
     public Builder setPort(@Nullable Port port) {
-      this.authority = Authority.of(authority.userInfo(), authority.host(), port);
+      this.authority = Authority.of(authority.getUserInfo(), authority.getHost(), port);
       return this;
     }
 

@@ -176,7 +176,7 @@ final class PathValue implements Path {
   }
 
   @Override
-  public List<Segment> segments() {
+  public List<Segment> getSegments() {
     return segments;
   }
 

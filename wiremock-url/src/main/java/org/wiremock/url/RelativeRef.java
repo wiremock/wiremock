@@ -28,7 +28,7 @@ public non-sealed interface RelativeRef extends UrlReference {
   @Override
   @Nullable
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Scheme scheme() {
+  default Scheme getScheme() {
     return null;
   }
 

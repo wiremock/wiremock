@@ -119,14 +119,14 @@ class SchemeTests {
     void registers_custom_scheme_without_default_port() {
       Scheme scheme = Scheme.register("reg1");
       assertThat(scheme.toString()).isEqualTo("reg1");
-      assertThat(scheme.defaultPort()).isNull();
+      assertThat(scheme.getDefaultPort()).isNull();
     }
 
     @Test
     void registers_custom_scheme_with_default_port() {
       Scheme scheme = Scheme.register("reg2", Port.of(9999));
       assertThat(scheme.toString()).isEqualTo("reg2");
-      assertThat(scheme.defaultPort()).isEqualTo(Port.of(9999));
+      assertThat(scheme.getDefaultPort()).isEqualTo(Port.of(9999));
     }
 
     @Test
@@ -155,42 +155,42 @@ class SchemeTests {
     @Test
     void http_scheme_has_port_80() {
       assertThat(Scheme.http.toString()).isEqualTo("http");
-      assertThat(Scheme.http.defaultPort()).isEqualTo(Port.of(80));
+      assertThat(Scheme.http.getDefaultPort()).isEqualTo(Port.of(80));
       assertThat(Scheme.http.isCanonical()).isTrue();
     }
 
     @Test
     void https_scheme_has_port_443() {
       assertThat(Scheme.https.toString()).isEqualTo("https");
-      assertThat(Scheme.https.defaultPort()).isEqualTo(Port.of(443));
+      assertThat(Scheme.https.getDefaultPort()).isEqualTo(Port.of(443));
       assertThat(Scheme.https.isCanonical()).isTrue();
     }
 
     @Test
     void ftp_scheme_has_port_21() {
       assertThat(Scheme.ftp.toString()).isEqualTo("ftp");
-      assertThat(Scheme.ftp.defaultPort()).isEqualTo(Port.of(21));
+      assertThat(Scheme.ftp.getDefaultPort()).isEqualTo(Port.of(21));
       assertThat(Scheme.ftp.isCanonical()).isTrue();
     }
 
     @Test
     void ssh_scheme_has_port_22() {
       assertThat(Scheme.ssh.toString()).isEqualTo("ssh");
-      assertThat(Scheme.ssh.defaultPort()).isEqualTo(Port.of(22));
+      assertThat(Scheme.ssh.getDefaultPort()).isEqualTo(Port.of(22));
       assertThat(Scheme.ssh.isCanonical()).isTrue();
     }
 
     @Test
     void file_scheme_has_no_default_port() {
       assertThat(Scheme.file.toString()).isEqualTo("file");
-      assertThat(Scheme.file.defaultPort()).isNull();
+      assertThat(Scheme.file.getDefaultPort()).isNull();
       assertThat(Scheme.file.isCanonical()).isTrue();
     }
 
     @Test
     void mailto_scheme_has_no_default_port() {
       assertThat(Scheme.mailto.toString()).isEqualTo("mailto");
-      assertThat(Scheme.mailto.defaultPort()).isNull();
+      assertThat(Scheme.mailto.getDefaultPort()).isNull();
       assertThat(Scheme.mailto.isCanonical()).isTrue();
     }
 
@@ -213,7 +213,7 @@ class SchemeTests {
     @Test
     void lowercase_scheme_is_its_own_canonical() {
       Scheme scheme = Scheme.parse("http");
-      assertThat(scheme.canonical()).isSameAs(scheme);
+      assertThat(scheme.getCanonical()).isSameAs(scheme);
       assertThat(scheme.isCanonical()).isTrue();
     }
 
@@ -221,7 +221,7 @@ class SchemeTests {
     void uppercase_scheme_has_lowercase_canonical() {
       Scheme uppercase = Scheme.parse("HTTP");
       Scheme lowercase = Scheme.parse("http");
-      assertThat(uppercase.canonical()).isSameAs(lowercase);
+      assertThat(uppercase.getCanonical()).isSameAs(lowercase);
       assertThat(uppercase.isCanonical()).isFalse();
     }
 
@@ -229,14 +229,14 @@ class SchemeTests {
     void mixed_case_scheme_has_lowercase_canonical() {
       Scheme mixedCase = Scheme.parse("HtTp");
       Scheme lowercase = Scheme.parse("http");
-      assertThat(mixedCase.canonical()).isSameAs(lowercase);
+      assertThat(mixedCase.getCanonical()).isSameAs(lowercase);
       assertThat(mixedCase.isCanonical()).isFalse();
     }
 
     @Test
     void custom_lowercase_scheme_is_canonical() {
       Scheme scheme = Scheme.parse("canon1");
-      assertThat(scheme.canonical()).isEqualTo(scheme);
+      assertThat(scheme.getCanonical()).isEqualTo(scheme);
       assertThat(scheme.isCanonical()).isTrue();
     }
 
@@ -244,7 +244,7 @@ class SchemeTests {
     void custom_uppercase_scheme_references_lowercase_canonical() {
       Scheme uppercase = Scheme.parse("CANON2");
       Scheme lowercase = Scheme.parse("canon2");
-      assertThat(uppercase.canonical()).isEqualTo(lowercase);
+      assertThat(uppercase.getCanonical()).isEqualTo(lowercase);
       assertThat(uppercase.isCanonical()).isFalse();
     }
   }
@@ -255,27 +255,27 @@ class SchemeTests {
     @Test
     void scheme_without_registered_port_returns_null() {
       Scheme scheme = Scheme.parse("port1");
-      assertThat(scheme.defaultPort()).isNull();
+      assertThat(scheme.getDefaultPort()).isNull();
     }
 
     @Test
     void registered_scheme_with_port_returns_port() {
       Scheme scheme = Scheme.register("port2", Port.of(8888));
-      assertThat(scheme.defaultPort()).isEqualTo(Port.of(8888));
+      assertThat(scheme.getDefaultPort()).isEqualTo(Port.of(8888));
     }
 
     @Test
     void non_canonical_scheme_inherits_default_port_from_canonical() {
       Scheme canonical = Scheme.register("port3", Port.of(7777));
       Scheme uppercase = Scheme.parse("PORT3");
-      assertThat(uppercase.defaultPort()).isEqualTo(Port.of(7777));
-      assertThat(uppercase.defaultPort()).isSameAs(canonical.defaultPort());
+      assertThat(uppercase.getDefaultPort()).isEqualTo(Port.of(7777));
+      assertThat(uppercase.getDefaultPort()).isSameAs(canonical.getDefaultPort());
     }
 
     @Test
     void parsing_uppercase_predefined_scheme_gets_default_port() {
       Scheme uppercase = Scheme.parse("HTTP");
-      assertThat(uppercase.defaultPort()).isEqualTo(Port.of(80));
+      assertThat(uppercase.getDefaultPort()).isEqualTo(Port.of(80));
     }
   }
 
@@ -406,7 +406,7 @@ class SchemeTests {
       Scheme lowercase = Scheme.parse("cache2");
       Scheme uppercase = Scheme.parse("CACHE2");
       assertThat(lowercase).isNotEqualTo(uppercase);
-      assertThat(uppercase.canonical()).isEqualTo(lowercase);
+      assertThat(uppercase.getCanonical()).isEqualTo(lowercase);
     }
   }
 

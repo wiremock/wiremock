@@ -24,7 +24,7 @@ public interface Path extends PercentEncoded {
 
   boolean isAbsolute();
 
-  List<Segment> segments();
+  List<Segment> getSegments();
 
   static Path parse(CharSequence path) throws IllegalPath {
     return PathParser.INSTANCE.parse(path);

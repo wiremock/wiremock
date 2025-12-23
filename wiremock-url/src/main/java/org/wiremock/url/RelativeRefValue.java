@@ -75,22 +75,22 @@ final class RelativeRefValue implements RelativeRef {
   }
 
   @Override
-  public @Nullable Authority authority() {
+  public @Nullable Authority getAuthority() {
     return authority;
   }
 
   @Override
-  public Path path() {
+  public Path getPath() {
     return path;
   }
 
   @Override
-  public @Nullable Query query() {
+  public @Nullable Query getQuery() {
     return query;
   }
 
   @Override
-  public @Nullable Fragment fragment() {
+  public @Nullable Fragment getFragment() {
     return fragment;
   }
 }

@@ -21,11 +21,11 @@ import org.jspecify.annotations.Nullable;
 
 public interface Authority {
 
-  @Nullable UserInfo userInfo();
+  @Nullable UserInfo getUserInfo();
 
-  Host host();
+  Host getHost();
 
-  @Nullable Port port();
+  @Nullable Port getPort();
 
   /*
    * An Authority can legitimately be any of:
@@ -38,9 +38,9 @@ public interface Authority {
    * - `Optional.empty()` - empty port
    * - `Optional.of(port)` - with port
    */
-  @Nullable Optional<Port> maybePort();
+  @Nullable Optional<Port> getMaybePort();
 
-  HostAndPort hostAndPort();
+  HostAndPort getHostAndPort();
 
   Authority withPort(@Nullable Port port);
 
@@ -81,12 +81,12 @@ public interface Authority {
       return false;
     }
 
-    return Objects.equals(one.userInfo(), other.userInfo())
-        && Objects.equals(one.host(), other.host())
-        && Objects.equals(one.maybePort(), other.maybePort());
+    return Objects.equals(one.getUserInfo(), other.getUserInfo())
+        && Objects.equals(one.getHost(), other.getHost())
+        && Objects.equals(one.getMaybePort(), other.getMaybePort());
   }
 
   static int hashCode(Authority authority) {
-    return Objects.hash(authority.userInfo(), authority.host(), authority.maybePort());
+    return Objects.hash(authority.getUserInfo(), authority.getHost(), authority.getMaybePort());
   }
 }
