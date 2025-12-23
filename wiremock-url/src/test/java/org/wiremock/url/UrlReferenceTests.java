@@ -180,4 +180,12 @@ public class UrlReferenceTests {
             /* searchParams */ null,
             /* hash */ ""));
   }
+
+  @Test
+  void relativeRefParserThrowsCorrectExceptionType() {
+    // When parsing a URL (not a relative reference), RelativeRef.parse should throw
+    // IllegalRelativeRef, not IllegalOrigin
+    assertThatExceptionOfType(IllegalRelativeRef.class)
+        .isThrownBy(() -> RelativeRef.parse("http://example.com/"));
+  }
 }

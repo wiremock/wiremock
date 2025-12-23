@@ -26,10 +26,10 @@ final class RelativeRefParser implements CharSequenceParser<RelativeRef> {
       if (urlReference instanceof RelativeRef) {
         return (RelativeRef) urlReference;
       } else {
-        throw new IllegalOrigin(stringForm.toString());
+        throw new IllegalRelativeRef(stringForm.toString());
       }
     } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalOrigin(stringForm.toString(), illegalUrlPart);
+      throw new IllegalRelativeRef(stringForm.toString(), illegalUrlPart);
     }
   }
 }

@@ -45,7 +45,7 @@ final class PortParser implements CharSequenceParser<Port> {
       int port = Integer.parseInt(s);
       String canonical = String.valueOf(port);
       boolean isNormalForm = s.equals(canonical);
-      if (isNormalForm && port < MAX_PORT) {
+      if (isNormalForm && port <= MAX_PORT) {
         return of(port);
       } else {
         validate(port);
