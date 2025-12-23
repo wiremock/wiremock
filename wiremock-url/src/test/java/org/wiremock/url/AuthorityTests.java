@@ -557,4 +557,86 @@ public class AuthorityTests {
       assertThat(authority).isEqualTo(hostAndPort);
     }
   }
+
+  @Nested
+  class AuthorityNormalise {
+
+    @Test
+    void normalise_returns_same_instance_when_already_normalised() {
+      Authority authority = Authority.parse("example.com:8080");
+      Authority normalised = authority.normalise();
+      assertThat(normalised).isSameAs(authority);
+    }
+
+    @Test
+    void normalise_normalises_host() {
+      Authority authority = Authority.parse("EXAMPLE.COM:8080");
+      Authority normalised = authority.normalise();
+      assertThat(normalised).isEqualTo(Authority.parse("example.com:8080"));
+      assertThat(normalised).isNotSameAs(authority);
+    }
+
+    @Test
+    void normalise_normalises_userInfo() {
+      Authority authority = Authority.parse("user:@example.com:8080");
+      Authority normalised = authority.normalise();
+      assertThat(normalised).isEqualTo(Authority.parse("user@example.com:8080"));
+      assertThat(normalised).isNotSameAs(authority);
+    }
+
+    @Test
+    void normalise_with_scheme_removes_default_port() {
+      Authority authority = Authority.parse("example.com:80");
+      Authority normalised = authority.normalise(Scheme.http);
+      assertThat(normalised).isEqualTo(Authority.parse("example.com"));
+      assertThat(normalised.port()).isNull();
+    }
+
+    @Test
+    void normalise_with_scheme_keeps_non_default_port() {
+      Authority authority = Authority.parse("example.com:8080");
+      Authority normalised = authority.normalise(Scheme.http);
+      assertThat(normalised).isEqualTo(Authority.parse("example.com:8080"));
+      assertThat(normalised.port()).isEqualTo(Port.of(8080));
+    }
+
+    @Test
+    void normalise_with_scheme_returns_same_instance_when_already_normalised() {
+      Authority authority = Authority.parse("example.com:8080");
+      Authority normalised = authority.normalise(Scheme.http);
+      assertThat(normalised).isSameAs(authority);
+    }
+
+    @Test
+    void normalise_with_scheme_normalises_host_and_removes_default_port() {
+      Authority authority = Authority.parse("EXAMPLE.COM:80");
+      Authority normalised = authority.normalise(Scheme.http);
+      assertThat(normalised).isEqualTo(Authority.parse("example.com"));
+      assertThat(normalised.port()).isNull();
+    }
+
+    @Test
+    void normalise_with_userInfo_and_scheme_removes_default_port() {
+      Authority authority = Authority.parse("user:password@example.com:80");
+      Authority normalised = authority.normalise(Scheme.http);
+      assertThat(normalised).isEqualTo(Authority.parse("user:password@example.com"));
+      assertThat(normalised.port()).isNull();
+    }
+
+    @Test
+    void normalise_with_userInfo_normalises_empty_password() {
+      Authority authority = Authority.parse("user:@example.com");
+      Authority normalised = authority.normalise();
+      assertThat(normalised).isEqualTo(Authority.parse("user@example.com"));
+      assertThat(normalised.userInfo()).isEqualTo(UserInfo.parse("user"));
+    }
+
+    @Test
+    void normalise_returns_hostAndPort_when_userInfo_normalises_to_null() {
+      Authority authority = Authority.parse(":@example.com:8080");
+      Authority normalised = authority.normalise();
+      assertThat(normalised).isInstanceOf(HostAndPort.class);
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
+    }
+  }
 }
