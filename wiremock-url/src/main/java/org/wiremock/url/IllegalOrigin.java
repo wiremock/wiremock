@@ -15,27 +15,15 @@
  */
 package org.wiremock.url;
 
-record BaseUrlValue(@Override Scheme scheme, @Override Authority authority) implements BaseUrl {
+import org.jspecify.annotations.Nullable;
 
-  @Override
-  public boolean equals(Object obj) {
-    return UrlReferenceParser.equals(this, obj);
+public final class IllegalOrigin extends IllegalUrl {
+
+  public IllegalOrigin(String url) {
+    this(url, null);
   }
 
-  @Override
-  public int hashCode() {
-    return UrlReferenceParser.hashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    return UrlReferenceParser.toString(this);
-  }
-
-  @Override
-  public Url normalise() {
-    Scheme canonicalScheme = scheme.canonical();
-    Authority normalisedAuthority = authority.normalise(canonicalScheme);
-    return Url.builder(canonicalScheme, normalisedAuthority).build();
+  public IllegalOrigin(String url, @Nullable IllegalUrlPart cause) {
+    super(url, "Illegal base URL: `" + url + "`", cause);
   }
 }

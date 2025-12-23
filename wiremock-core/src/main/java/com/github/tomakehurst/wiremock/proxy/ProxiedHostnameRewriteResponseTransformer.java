@@ -31,8 +31,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.wiremock.url.Authority;
-import org.wiremock.url.BaseUrl;
 import org.wiremock.url.Host;
+import org.wiremock.url.Path;
 import org.wiremock.url.Port;
 import org.wiremock.url.Scheme;
 import org.wiremock.url.Url;
@@ -166,13 +166,17 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
    */
   private static SubstitutionData getSubstitutionData(ServeEvent serveEvent) {
 
-    Url proxyUrl = Url.parse(serveEvent.getRequest().getAbsoluteUrl()).baseUrl();
+    Url proxyUrl =
+        Url.parse(serveEvent.getRequest().getAbsoluteUrl())
+            .transform(u -> u.setPath(Path.EMPTY).setQuery(null).setFragment(null));
     var proxyDefaultPort = proxyUrl.scheme().defaultPort();
     var proxyPort = proxyUrl.authority().port();
     var proxyActualPort = proxyPort == null ? proxyDefaultPort : proxyPort;
     var proxyWsScheme = getWebSocketScheme(proxyUrl);
 
-    Url originUrl = Url.parse(serveEvent.getResponseDefinition().getProxyBaseUrl()).baseUrl();
+    Url originUrl =
+        Url.parse(serveEvent.getResponseDefinition().getProxyBaseUrl())
+            .transform(u -> u.setPath(Path.EMPTY).setQuery(null).setFragment(null));
     var originDefaultPort = originUrl.scheme().defaultPort();
     var originPort = originUrl.authority().port();
     var originActualPort = originPort == null ? originDefaultPort : originPort;
@@ -197,12 +201,18 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
         // wss://origin.example.com:443 -> wss://proxy.example.com:443
         replacements.put(
             fullUrlPattern(originWsScheme, originUrl.host(), originActualPort),
-            BaseUrl.of(proxyWsScheme, Authority.of(proxyUrl.host(), proxyActualPort)).toString());
+            Url.builder(proxyWsScheme, Authority.of(proxyUrl.host(), proxyActualPort))
+                .setPath(Path.EMPTY)
+                .build()
+                .toString());
 
         // wss://origin.example.com -> wss://proxy.example.com
         replacements.put(
             fullUrlPattern(originWsScheme, originUrl.host()),
-            BaseUrl.of(proxyWsScheme, Authority.of(proxyUrl.host())).toString());
+            Url.builder(proxyWsScheme, Authority.of(proxyUrl.host()))
+                .setPath(Path.EMPTY)
+                .build()
+                .toString());
 
         // origin.example.com:443 -> proxy.example.com:443
         replacements.put(

@@ -43,8 +43,8 @@ public non-sealed interface Url extends UrlReference {
     return fragment() == null;
   }
 
-  default BaseUrl baseUrl() {
-    return BaseUrl.of(scheme(), authority());
+  default Origin origin() {
+    return Origin.of(scheme(), authority().hostAndPort());
   }
 
   default PathAndQuery pathAndQuery() {

@@ -28,10 +28,10 @@ class RelativeRefParser implements CharSequenceParser<RelativeRef> {
       if (urlReference instanceof org.wiremock.url.RelativeRef) {
         return (org.wiremock.url.RelativeRef) urlReference;
       } else {
-        throw new IllegalBaseUrl(stringForm.toString());
+        throw new IllegalOrigin(stringForm.toString());
       }
     } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalBaseUrl(stringForm.toString(), illegalUrlPart);
+      throw new IllegalOrigin(stringForm.toString(), illegalUrlPart);
     }
   }
 

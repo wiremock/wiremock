@@ -17,10 +17,10 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public interface BaseUrl extends Url {
+public interface Origin extends Url {
 
   @Override
-  Authority authority();
+  HostAndPort authority();
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
@@ -51,11 +51,11 @@ public interface BaseUrl extends Url {
   @Override
   Url normalise();
 
-  static BaseUrl of(Scheme scheme, HostAndPort hostAndPort) {
-    return new BaseUrlValue(scheme, hostAndPort);
+  static Origin of(Scheme scheme, HostAndPort hostAndPort) {
+    return new OriginValue(scheme, hostAndPort);
   }
 
-  static BaseUrl parse(String baseUrl) {
-    return BaseUrlParser.INSTANCE.parse(baseUrl);
+  static Origin parse(String origin) {
+    return OriginParser.INSTANCE.parse(origin);
   }
 }

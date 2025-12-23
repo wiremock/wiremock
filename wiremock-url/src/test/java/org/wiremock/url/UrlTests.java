@@ -81,22 +81,22 @@ class UrlTests {
 
     @ParameterizedTest
     @FieldSource("whatWgUrlOrigins")
-    void whatWgUrlOriginsAreAllBaseUrls(SuccessWhatWGUrlTestCase testCase) {
+    void whatWgUrlOriginsAreAllOrigins(SuccessWhatWGUrlTestCase testCase) {
       try {
-        String origin = testCase.origin();
-        assert origin != null;
+        String originExpectation = testCase.origin();
+        assert originExpectation != null;
 
-        URI javaUri = URI.create(origin);
+        URI javaUri = URI.create(originExpectation);
 
-        var baseUrl = BaseUrl.parse(origin);
+        var origin = Origin.parse(originExpectation);
 
-        assertThat(baseUrl.toString()).isEqualTo(origin);
-        assertThat(baseUrl).isEqualTo(UrlReference.parse(origin));
-        assertThat(baseUrl.scheme().toString()).isEqualTo(javaUri.getScheme());
-        assertThat(baseUrl.authority().toString()).isEqualTo(javaUri.getRawAuthority());
-        assertThat(baseUrl.normalise())
+        assertThat(origin.toString()).isEqualTo(originExpectation);
+        assertThat(origin).isEqualTo(UrlReference.parse(originExpectation));
+        assertThat(origin.scheme().toString()).isEqualTo(javaUri.getScheme());
+        assertThat(origin.authority().toString()).isEqualTo(javaUri.getRawAuthority());
+        assertThat(origin)
             .isEqualTo(
-                Url.builder(baseUrl.scheme(), baseUrl.authority()).setPath(Path.ROOT).build());
+                Url.builder(origin.scheme(), origin.authority()).setPath(Path.EMPTY).build());
       } catch (Throwable e) {
         System.out.println(testCase);
         throw e;

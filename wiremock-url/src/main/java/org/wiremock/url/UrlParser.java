@@ -45,6 +45,7 @@ final class UrlParser implements CharSequenceParser<Url> {
       implements org.wiremock.url.Url {
 
     @Override
+    @SuppressWarnings("EqualsDoesntCheckParameterClass")
     public boolean equals(Object obj) {
       return UrlReferenceParser.equals(this, obj);
     }
@@ -76,10 +77,11 @@ final class UrlParser implements CharSequenceParser<Url> {
           && Objects.equals(query, normalisedQuery)
           && Objects.equals(fragment, normalisedFragment)) {
         return this;
-      } else if (normalisedPath.isEmpty()
+      } else if (normalisedPath instanceof HostAndPort
+          && normalisedPath.isEmpty()
           && normalisedQuery == null
           && normalisedFragment == null) {
-        return new BaseUrlValue(canonicalScheme, normalisedAuthority);
+        return new OriginValue(canonicalScheme, (HostAndPort) normalisedAuthority);
       } else {
         return new Url(
             canonicalScheme,
@@ -161,8 +163,11 @@ final class UrlParser implements CharSequenceParser<Url> {
 
       @Override
       public org.wiremock.url.Url build() {
-        if (path.isEmpty() && query == null && fragment == null) {
-          return new BaseUrlValue(scheme, authority);
+        if (authority instanceof HostAndPort
+            && path.isEmpty()
+            && query == null
+            && fragment == null) {
+          return new OriginValue(scheme, (HostAndPort) authority);
         } else {
           return new Url(scheme, authority, path, query, fragment);
         }

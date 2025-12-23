@@ -15,21 +15,21 @@
  */
 package org.wiremock.url;
 
-class BaseUrlParser implements CharSequenceParser<BaseUrl> {
+class OriginParser implements CharSequenceParser<Origin> {
 
-  static final BaseUrlParser INSTANCE = new BaseUrlParser();
+  static final OriginParser INSTANCE = new OriginParser();
 
   @Override
-  public BaseUrl parse(CharSequence url) throws IllegalBaseUrl {
+  public Origin parse(CharSequence url) throws IllegalOrigin {
     try {
       var urlReference = UrlReferenceParser.INSTANCE.parse(url);
-      if (urlReference instanceof BaseUrl) {
-        return (BaseUrl) urlReference;
+      if (urlReference instanceof Origin) {
+        return (Origin) urlReference;
       } else {
-        throw new IllegalBaseUrl(url.toString());
+        throw new IllegalOrigin(url.toString());
       }
     } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalBaseUrl(url.toString(), illegalUrlPart);
+      throw new IllegalOrigin(url.toString(), illegalUrlPart);
     }
   }
 }
