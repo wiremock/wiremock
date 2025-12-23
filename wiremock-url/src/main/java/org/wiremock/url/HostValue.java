@@ -15,15 +15,30 @@
  */
 package org.wiremock.url;
 
-public interface Host extends PercentEncoded {
+import static java.util.Locale.ROOT;
+import static org.wiremock.url.Constants.pctEncodedPattern;
+import static org.wiremock.url.Strings.transform;
 
-  Host normalise();
+record HostValue(String host) implements Host {
 
-  static Host parse(String hostString) throws IllegalHost {
-    return HostParser.INSTANCE.parse(hostString);
+  @Override
+  public String toString() {
+    return host;
   }
 
-  static Host encode(String unencoded) {
-    return HostParser.INSTANCE.encode(unencoded);
+  @Override
+  public Host normalise() {
+
+    String normalised =
+        transform(
+            host,
+            pctEncodedPattern,
+            matched -> matched.toUpperCase(ROOT),
+            unmatched -> unmatched.toLowerCase(ROOT));
+    if (normalised.equals(host)) {
+      return this;
+    } else {
+      return new HostValue(normalised);
+    }
   }
 }
