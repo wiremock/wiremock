@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock;
+package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getLast;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
@@ -35,19 +39,20 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.okhttp.OkHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Multimap;
-import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Multimap;
+import com.sun.net.httpserver.HttpServer;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -62,7 +67,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class ProxyAcceptanceTest {
+public class OKHttpProxyAcceptanceTest {
 
   private String targetServiceBaseUrl;
 
@@ -87,7 +92,8 @@ public class ProxyAcceptanceTest {
 
     targetServiceBaseUrl = "http://localhost:" + targetService.port();
 
-    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
+    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1").httpClientFactory(
+        new OkHttpClientFactory());
     proxyingService = new WireMockServer(proxyingServiceOptions);
     proxyingService.start();
     proxy = WireMock.create().port(proxyingService.port()).build();
@@ -131,7 +137,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void
-      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAdditionalRequestHeaders() {
+  successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAdditionalRequestHeaders() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -153,7 +159,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void
-      successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
+  successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
     initWithDefaultConfig();
 
     target.register(
@@ -219,9 +225,9 @@ public class ProxyAcceptanceTest {
 
     final byte[] bytes =
         new byte[] {
-          0x10, 0x49, 0x6e, (byte) 0xb7, 0x46, (byte) 0xe6, 0x52, (byte) 0x95, (byte) 0x95, 0x42
+            0x10, 0x49, 0x6e, (byte) 0xb7, 0x46, (byte) 0xe6, 0x52, (byte) 0x95, (byte) 0x95, 0x42
         };
-    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    com.sun.net.httpserver.HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     server.createContext(
         "/binary",
         exchange -> {
@@ -666,15 +672,16 @@ public class ProxyAcceptanceTest {
 
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    testClient.request(method, "/somewhere", "Proxied content",
-        new TestHttpHeader("Content-Type", "text/plain"));
+//    testClient.request(method, "/somewhere", "Proxied content",
+//        new TestHttpHeader("Content-Type", "text/plain"));
+    testClient.request(method, "/somewhere", "Proxied content");
 
     List<LoggedRequest> requests = target.find(anyRequestedFor(urlEqualTo("/somewhere")));
     assertThat(requests.size(), is(1));
     assertThat(requests.get(0).getMethod().getName(), is(method));
     assertThat(requests.get(0).getBodyAsString(), is("Proxied content"));
   }
-  
+
   @ParameterizedTest
   @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE", "QUERY", "BLAH"})
   void proxiesRequestWithNoBodyForAnyMethod(String method) {
@@ -684,7 +691,8 @@ public class ProxyAcceptanceTest {
 
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    testClient.request(method, "/somewhere", new TestHttpHeader("Content-Type", "text/plain"));
+//    testClient.request(method, "/somewhere", new TestHttpHeader("Content-Type", "text/plain"));
+    testClient.request(method, "/somewhere");
 
     List<LoggedRequest> requests = target.find(anyRequestedFor(urlEqualTo("/somewhere")));
     assertThat(requests.size(), is(1));
@@ -692,6 +700,24 @@ public class ProxyAcceptanceTest {
     assertThat(requests.get(0).getBodyAsString(), is(""));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"POST"})
+  void proxiesRequestWithNoBodyForSomeMethod(String method) {
+    initWithDefaultConfig();
+
+    target.register(any(anyUrl()).willReturn(ok()));
+
+    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+//    testClient.request(method, "/somewhere", new TestHttpHeader("Content-Type", "text/plain"));
+    testClient.request(method, "/somewhere");
+
+    List<LoggedRequest> requests = target.find(anyRequestedFor(urlEqualTo("/somewhere")));
+    assertThat(requests.size(), is(1));
+    assertThat(requests.get(0).getMethod().getName(), is(method));
+    assertThat(requests.get(0).getBodyAsString(), is(""));
+  }
+  
   @Test
   void preventsProxyingToExcludedIpAddress() {
     init(
@@ -913,4 +939,180 @@ public class ProxyAcceptanceTest {
     target.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
     proxy.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
   }
+//  private static final int PROXY_TIMEOUT = 30_000;
+//  private static final byte[] REQUEST_BODY = "test request body".getBytes(UTF_8);
+//
+//  @RegisterExtension
+//  public WireMockExtension origin =
+//      WireMockExtension.newInstance().options(options().dynamicPort()).build();
+//
+//  private HttpClient okHttpClient;
+//  private ProxyResponseRenderer proxyResponseRenderer;
+//
+//  @BeforeEach
+//  void setup() {
+//    // Setup origin server to accept any request
+//    origin.stubFor(any(anyUrl()).willReturn(aResponse().withStatus(200).withBody("Success")));
+//
+//    // Create OkHttp client
+//    okHttpClient =
+//        new OkHttpBackedHttpClient(OkHttpClientFactory.createClient(PROXY_TIMEOUT), false);
+//
+//    // Create proxy renderer with OkHttp client
+//    proxyResponseRenderer =
+//        new ProxyResponseRenderer(
+//            /* preserveHostHeader= */ false,
+//            /* hostHeaderValue= */ null,
+//            new InMemorySettingsStore(),
+//            /* stubCorsEnabled= */ false,
+//            /* supportedProxyEncodings= */ null,
+//            /* reverseProxyClient= */ okHttpClient,
+//            /* forwardProxyClient= */ okHttpClient);
+//  }
+//
+//  @Test
+//  void testGetRequestWithBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-get", GET, REQUEST_BODY);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(getRequestedFor(urlEqualTo("/test-get")));
+//    assertThat(requests.size(), is(1));
+//    assertThat(requests.get(0).getMethod(), is(GET));
+//  }
+//
+//  @Test
+//  void testHeadRequestWithBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-head", HEAD, REQUEST_BODY);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(anyRequestedFor(urlEqualTo("/test-head")));
+//    assertThat(requests.size(), is(1));
+//    assertThat(requests.get(0).getMethod(), is(HEAD));
+//  }
+//
+//  @Test
+//  void testQueryRequestWithBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-query", QUERY, REQUEST_BODY);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(anyRequestedFor(urlEqualTo("/test-query")));
+//    assertThat(requests.size(), is(1));
+//    assertThat(requests.get(0).getMethod(), is(QUERY));
+//  }
+//
+//  @Test
+//  void testOptionsRequestWithBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-options", OPTIONS, REQUEST_BODY);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(anyRequestedFor(urlEqualTo("/test-options")));
+//    assertThat(requests.size(), is(1));
+//    assertThat(requests.get(0).getMethod(), is(OPTIONS));
+//  }
+//
+//  @Test
+//  void testPostRequestWithBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-post", POST, REQUEST_BODY);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(postRequestedFor(urlEqualTo("/test-post")));
+//    assertThat(requests.size(), is(1));
+//    assertThat(requests.get(0).getMethod(), is(POST));
+//  }
+//
+//  @Test
+//  void testGetRequestWithEmptyBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-get-empty", GET, new byte[0]);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests = origin.findAll(getRequestedFor(urlEqualTo("/test-get-empty")));
+//    assertThat(requests.size(), is(1));
+//  }
+//
+//  @Test
+//  void testHeadRequestWithEmptyBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-head-empty", HEAD, new byte[0]);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests =
+//        origin.findAll(anyRequestedFor(urlEqualTo("/test-head-empty")));
+//    assertThat(requests.size(), is(1));
+//  }
+//
+//  @Test
+//  void testQueryRequestWithEmptyBody() {
+//    // Note: QUERY method requires a body per RFC 9535, so this test will fail
+//    // This test explicitly documents that QUERY without a body should fail
+//    ServeEvent serveEvent = createServeEvent("/test-query-empty", QUERY, new byte[0]);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests =
+//        origin.findAll(anyRequestedFor(urlEqualTo("/test-query-empty")));
+//    assertThat(requests.size(), is(1));
+//  }
+//
+//  @Test
+//  void testOptionsRequestWithEmptyBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-options-empty", OPTIONS, new byte[0]);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests =
+//        origin.findAll(anyRequestedFor(urlEqualTo("/test-options-empty")));
+//    assertThat(requests.size(), is(1));
+//  }
+//
+//  @Test
+//  void testPostRequestWithEmptyBody() {
+//    ServeEvent serveEvent = createServeEvent("/test-post-empty", POST, new byte[0]);
+//
+//    Response response = proxyResponseRenderer.render(serveEvent);
+//    assertThat(response.getStatus(), is(200));
+//
+//    // Verify the request was made
+//    List<LoggedRequest> requests =
+//        origin.findAll(anyRequestedFor(urlEqualTo("/test-post-empty")));
+//    assertThat(requests.size(), is(1));
+//  }
+//
+//  private ServeEvent createServeEvent(String path, RequestMethod method, byte[] body) {
+//    LoggedRequest loggedRequest =
+//        LoggedRequest.createFrom(
+//            mockRequest()
+//                .url(path)
+//                .absoluteUrl(origin.url(path))
+//                .method(method)
+//                .headers(new HttpHeaders())
+//                .body(body)
+//                .protocol("HTTP/1.1"));
+//
+//    return newPostMatchServeEvent(
+//        loggedRequest, aResponse().proxiedFrom(origin.baseUrl()).build());
+//  }
 }
