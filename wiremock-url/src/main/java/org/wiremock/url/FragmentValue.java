@@ -15,15 +15,22 @@
  */
 package org.wiremock.url;
 
-public interface Fragment extends PercentEncoded {
+record FragmentValue(String fragment) implements Fragment {
 
-  Fragment normalise();
-
-  static Fragment parse(CharSequence fragment) throws IllegalFragment {
-    return FragmentParser.INSTANCE.parse(fragment);
+  @Override
+  public String toString() {
+    return fragment;
   }
 
-  static Fragment encode(String unencoded) {
-    return FragmentParser.INSTANCE.encode(unencoded);
+  @Override
+  public Fragment normalise() {
+
+    String result = Constants.normalise(fragment, FragmentParser.fragmentCharSet);
+
+    if (result == null) {
+      return this;
+    } else {
+      return new FragmentValue(result);
+    }
   }
 }
