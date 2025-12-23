@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
@@ -210,4 +212,179 @@ public class AuthorityTests {
   record AuthorityParseTestCase(String stringForm, AuthorityExpectation expectation) {}
 
   record AuthorityExpectation(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {}
+
+  @Nested
+  class AuthorityEquality {
+
+    @Test
+    void authorities_with_same_components_are_equal() {
+      Authority authority1 = Authority.parse("user@example.com:8080");
+      Authority authority2 = Authority.parse("user@example.com:8080");
+      assertThat(authority1).isEqualTo(authority2);
+    }
+
+    @Test
+    void authorities_with_different_hosts_are_not_equal() {
+      Authority authority1 = Authority.parse("user@example.com:8080");
+      Authority authority2 = Authority.parse("user@different.com:8080");
+      assertThat(authority1).isNotEqualTo(authority2);
+    }
+
+    @Test
+    void authorities_with_different_ports_are_not_equal() {
+      Authority authority1 = Authority.parse("example.com:8080");
+      Authority authority2 = Authority.parse("example.com:9090");
+      assertThat(authority1).isNotEqualTo(authority2);
+    }
+
+    @Test
+    void authorities_with_different_userInfo_are_not_equal() {
+      Authority authority1 = Authority.parse("user1@example.com:8080");
+      Authority authority2 = Authority.parse("user2@example.com:8080");
+      assertThat(authority1).isNotEqualTo(authority2);
+    }
+
+    @Test
+    void authority_with_port_and_without_port_are_not_equal() {
+      Authority authority1 = Authority.parse("example.com:8080");
+      Authority authority2 = Authority.parse("example.com");
+      assertThat(authority1).isNotEqualTo(authority2);
+    }
+
+    @Test
+    void authority_with_empty_port_and_without_port_are_not_equal() {
+      Authority authority1 = Authority.parse("example.com:");
+      Authority authority2 = Authority.parse("example.com");
+      assertThat(authority1).isNotEqualTo(authority2);
+    }
+
+    @Test
+    void authority_is_equal_to_itself() {
+      Authority authority = Authority.parse("user@example.com:8080");
+      assertThat(authority).isEqualTo(authority);
+    }
+
+    @Test
+    void authority_is_not_equal_to_null() {
+      Authority authority = Authority.parse("example.com");
+      assertThat(authority).isNotEqualTo(null);
+    }
+
+    @Test
+    void authority_is_not_equal_to_different_type() {
+      Authority authority = Authority.parse("example.com");
+      assertThat(authority).isNotEqualTo("example.com");
+    }
+  }
+
+  @Nested
+  class AuthorityHashCode {
+
+    @Test
+    void equal_authorities_have_same_hash_code() {
+      Authority authority1 = Authority.parse("user@example.com:8080");
+      Authority authority2 = Authority.parse("user@example.com:8080");
+      assertThat(authority1.hashCode()).isEqualTo(authority2.hashCode());
+    }
+
+    @Test
+    void hash_code_is_consistent() {
+      Authority authority = Authority.parse("user@example.com:8080");
+      int hashCode1 = authority.hashCode();
+      int hashCode2 = authority.hashCode();
+      assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+  }
+
+  @Nested
+  class HostAndPortEquality {
+
+    @Test
+    void hostAndPorts_with_same_components_are_equal() {
+      HostAndPort hostAndPort1 = HostAndPort.parse("example.com:8080");
+      HostAndPort hostAndPort2 = HostAndPort.parse("example.com:8080");
+      assertThat(hostAndPort1).isEqualTo(hostAndPort2);
+    }
+
+    @Test
+    void hostAndPorts_with_different_hosts_are_not_equal() {
+      HostAndPort hostAndPort1 = HostAndPort.parse("example.com:8080");
+      HostAndPort hostAndPort2 = HostAndPort.parse("different.com:8080");
+      assertThat(hostAndPort1).isNotEqualTo(hostAndPort2);
+    }
+
+    @Test
+    void hostAndPorts_with_different_ports_are_not_equal() {
+      HostAndPort hostAndPort1 = HostAndPort.parse("example.com:8080");
+      HostAndPort hostAndPort2 = HostAndPort.parse("example.com:9090");
+      assertThat(hostAndPort1).isNotEqualTo(hostAndPort2);
+    }
+
+    @Test
+    void hostAndPort_with_port_and_without_port_are_not_equal() {
+      HostAndPort hostAndPort1 = HostAndPort.parse("example.com:8080");
+      HostAndPort hostAndPort2 = HostAndPort.parse("example.com");
+      assertThat(hostAndPort1).isNotEqualTo(hostAndPort2);
+    }
+
+    @Test
+    void hostAndPort_is_equal_to_itself() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      assertThat(hostAndPort).isEqualTo(hostAndPort);
+    }
+
+    @Test
+    void hostAndPort_is_not_equal_to_null() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com");
+      assertThat(hostAndPort).isNotEqualTo(null);
+    }
+
+    @Test
+    void hostAndPort_is_not_equal_to_different_type() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com");
+      assertThat(hostAndPort).isNotEqualTo("example.com");
+    }
+
+    @Test
+    void hostAndPort_equals_authority_with_same_host_and_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      Authority authority = Authority.parse("example.com:8080");
+      assertThat(hostAndPort).isEqualTo(authority);
+      assertThat(authority).isEqualTo(hostAndPort);
+    }
+
+    @Test
+    void hostAndPort_not_equals_authority_with_userInfo() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      Authority authority = Authority.parse("user@example.com:8080");
+      assertThat(hostAndPort).isNotEqualTo(authority);
+      assertThat(authority).isNotEqualTo(hostAndPort);
+    }
+  }
+
+  @Nested
+  class HostAndPortHashCode {
+
+    @Test
+    void equal_hostAndPorts_have_same_hash_code() {
+      HostAndPort hostAndPort1 = HostAndPort.parse("example.com:8080");
+      HostAndPort hostAndPort2 = HostAndPort.parse("example.com:8080");
+      assertThat(hostAndPort1.hashCode()).isEqualTo(hostAndPort2.hashCode());
+    }
+
+    @Test
+    void hash_code_is_consistent() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      int hashCode1 = hostAndPort.hashCode();
+      int hashCode2 = hostAndPort.hashCode();
+      assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+
+    @Test
+    void hostAndPort_and_authority_with_same_components_have_same_hash_code() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      Authority authority = Authority.parse("example.com:8080");
+      assertThat(hostAndPort.hashCode()).isEqualTo(authority.hashCode());
+    }
+  }
 }
