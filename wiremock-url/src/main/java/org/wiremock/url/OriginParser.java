@@ -22,14 +22,20 @@ final class OriginParser implements CharSequenceParser<Origin> {
   @Override
   public Origin parse(CharSequence url) throws IllegalOrigin {
     try {
-      var urlReference = UrlReferenceParser.INSTANCE.parse(url);
+      var urlReference = UriReferenceParser.INSTANCE.parse(url);
       if (urlReference instanceof Origin) {
         return (Origin) urlReference;
       } else {
         throw new IllegalOrigin(url.toString());
       }
-    } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalOrigin(url.toString(), illegalUrlPart);
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalOrigin(url.toString(), illegalUriPart);
     }
+  }
+
+  Origin of(Scheme scheme, HostAndPort hostAndPort) {
+    var normalisedScheme = scheme.normalise();
+    var normalisedHostAndPort = hostAndPort.normalise(normalisedScheme);
+    return new OriginValue(normalisedScheme, normalisedHostAndPort);
   }
 }

@@ -17,45 +17,47 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public interface Origin extends Url {
+public non-sealed interface Urn extends Uri {
 
-  @Override
-  HostAndPort getAuthority();
+  default boolean isUrl() {
+    return false;
+  }
 
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default PathAndQuery getPathAndQuery() {
-    return PathAndQuery.EMPTY;
+  default boolean isUrn() {
+    return true;
   }
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Path getPath() {
-    return Path.EMPTY;
-  }
-
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  @Nullable
-  default Query getQuery() {
+  default @Nullable Authority getAuthority() {
     return null;
   }
 
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  @Nullable
-  default Fragment getFragment() {
+  default @Nullable UserInfo getUserInfo() {
     return null;
   }
 
   @Override
-  Url normalise();
-
-  static Origin of(Scheme scheme, HostAndPort hostAndPort) {
-    return OriginParser.INSTANCE.of(scheme, hostAndPort);
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default @Nullable Host getHost() {
+    return null;
   }
 
-  static Origin parse(String origin) {
-    return OriginParser.INSTANCE.parse(origin);
+  @Override
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default @Nullable Port getPort() {
+    return null;
+  }
+
+  @Override
+  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  default @Nullable Port getResolvedPort() {
+    return null;
+  }
+
+  static Urn parse(CharSequence urn) throws IllegalUrn {
+    return UrnParser.INSTANCE.parse(urn);
   }
 }

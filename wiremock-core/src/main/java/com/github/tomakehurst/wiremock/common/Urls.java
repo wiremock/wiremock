@@ -32,7 +32,7 @@ import java.text.ParsePosition;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
-import org.wiremock.url.UrlReference;
+import org.wiremock.url.UriReference;
 
 public class Urls {
 
@@ -101,7 +101,7 @@ public class Urls {
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
   }
 
-  public static String urlToPathParts(UrlReference uri) {
+  public static String urlToPathParts(UriReference uri) {
     List<String> uriPathNodes =
         Arrays.stream(uri.getPath().toString().split("/")).filter(s -> !s.isEmpty()).toList();
     int nodeCount = uriPathNodes.size();

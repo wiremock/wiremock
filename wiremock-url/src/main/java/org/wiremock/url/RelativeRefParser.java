@@ -22,14 +22,14 @@ final class RelativeRefParser implements CharSequenceParser<RelativeRef> {
   @Override
   public RelativeRef parse(CharSequence stringForm) {
     try {
-      var urlReference = UrlReferenceParser.INSTANCE.parse(stringForm);
+      var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
       if (urlReference instanceof RelativeRef) {
         return (RelativeRef) urlReference;
       } else {
         throw new IllegalRelativeRef(stringForm.toString());
       }
-    } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalRelativeRef(stringForm.toString(), illegalUrlPart);
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalRelativeRef(stringForm.toString(), illegalUriPart);
     }
   }
 }

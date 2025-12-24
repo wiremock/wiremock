@@ -22,14 +22,14 @@ final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
   @Override
   public PathAndQuery parse(CharSequence stringForm) {
     try {
-      var urlReference = UrlReferenceParser.INSTANCE.parse(stringForm);
+      var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
       if (urlReference instanceof PathAndQuery) {
         return (PathAndQuery) urlReference;
       } else {
         throw new IllegalPathAndQuery(stringForm.toString());
       }
-    } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalPathAndQuery(stringForm.toString(), illegalUrlPart);
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalPathAndQuery(stringForm.toString(), illegalUriPart);
     }
   }
 }

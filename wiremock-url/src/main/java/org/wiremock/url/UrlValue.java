@@ -42,17 +42,17 @@ final class UrlValue implements Url {
   @Override
   @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public boolean equals(Object obj) {
-    return UrlReferenceParser.equals(this, obj);
+    return UriReferenceParser.equals(this, obj);
   }
 
   @Override
   public int hashCode() {
-    return UrlReferenceParser.hashCode(this);
+    return UriReferenceParser.hashCode(this);
   }
 
   @Override
   public String toString() {
-    return UrlReferenceParser.toString(this);
+    return UriReferenceParser.toString(this);
   }
 
   @Override
@@ -73,12 +73,13 @@ final class UrlValue implements Url {
         && Objects.equals(fragment, normalisedFragment)) {
       return this;
     } else {
-      return new UrlValue(
+      return Url.builder(
           normalisedScheme,
-          normalisedAuthority,
-          normalisedPath,
-          normalisedQuery,
-          normalisedFragment);
+          normalisedAuthority)
+          .setPath(normalisedPath)
+          .setQuery(normalisedQuery)
+          .setFragment(normalisedFragment)
+          .build();
     }
   }
 

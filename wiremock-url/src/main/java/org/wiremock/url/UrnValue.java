@@ -15,26 +15,41 @@
  */
 package org.wiremock.url;
 
-import java.util.Objects;
-import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+import java.util.Objects;
 
-final class RelativeRefValue implements RelativeRef {
+class UrnValue implements Urn {
 
-  private final @Nullable Authority authority;
+  private final Scheme scheme;
   private final Path path;
   private final @Nullable Query query;
   private final @Nullable Fragment fragment;
 
-  RelativeRefValue(
-      @Nullable Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    this.authority = authority;
+  UrnValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+    this.scheme = scheme;
     this.path = path;
     this.query = query;
     this.fragment = fragment;
+  }
+
+  @Override
+  public Scheme getScheme() {
+    return scheme;
+  }
+
+  @Override
+  public Path getPath() {
+    return path;
+  }
+
+  @Override
+  public @Nullable Query getQuery() {
+    return query;
+  }
+
+  @Override
+  public @Nullable Fragment getFragment() {
+    return fragment;
   }
 
   @Override
@@ -54,43 +69,23 @@ final class RelativeRefValue implements RelativeRef {
   }
 
   @Override
-  public RelativeRef normalise() {
-    Authority normalisedAuthority =
-        Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
+  public Urn normalise() {
+
+    Scheme normalisedScheme = scheme.normalise();
     Path normalisedPath = path.normalise();
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
     }
-    Query normalisedQuery = query == null ? null : query.normalise();
+    Query normalisedQuery = query == null ? null : query.normalise(normalisedScheme);
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
-    if (Objects.equals(normalisedAuthority, authority)
-        && Objects.equals(normalisedPath, path)
-        && Objects.equals(normalisedQuery, query)
-        && Objects.equals(normalisedFragment, fragment)) {
+
+    if (scheme.equals(normalisedScheme)
+        && path.equals(normalisedPath)
+        && Objects.equals(query, normalisedQuery)
+        && Objects.equals(fragment, normalisedFragment)) {
       return this;
     } else {
-      return new RelativeRefValue(
-          normalisedAuthority, normalisedPath, normalisedQuery, normalisedFragment);
+      return new UrnValue(normalisedScheme, normalisedPath, normalisedQuery, normalisedFragment);
     }
-  }
-
-  @Override
-  public @Nullable Authority getAuthority() {
-    return authority;
-  }
-
-  @Override
-  public Path getPath() {
-    return path;
-  }
-
-  @Override
-  public @Nullable Query getQuery() {
-    return query;
-  }
-
-  @Override
-  public @Nullable Fragment getFragment() {
-    return fragment;
   }
 }

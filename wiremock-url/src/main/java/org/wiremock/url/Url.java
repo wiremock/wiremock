@@ -18,10 +18,7 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface Url extends UrlReference {
-
-  @Override
-  Scheme getScheme();
+public non-sealed interface Url extends Uri {
 
   @Override
   Authority getAuthority();
@@ -34,6 +31,10 @@ public non-sealed interface Url extends UrlReference {
     return true;
   }
 
+  default boolean isUrn() {
+    return false;
+  }
+
   @Override
   default Host getHost() {
     return getAuthority().getHost();
@@ -44,8 +45,7 @@ public non-sealed interface Url extends UrlReference {
   }
 
   default Origin origin() {
-    Scheme normalisedScheme = getScheme().normalise();
-    return Origin.of(normalisedScheme, getAuthority().getHostAndPort().normalise(normalisedScheme));
+    return Origin.of(getScheme(), getAuthority().getHostAndPort());
   }
 
   default PathAndQuery getPathAndQuery() {
@@ -73,7 +73,7 @@ public non-sealed interface Url extends UrlReference {
     return this.transform(builder -> builder.setPath(getPath().resolve(other)));
   }
 
-  default Url resolve(UrlReference other) {
+  default Url resolve(UriReference other) {
     if (other instanceof Url otherUrl) {
       return otherUrl.normalise();
     } else {

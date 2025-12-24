@@ -15,28 +15,21 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.AuthorityParser.authorityRegex;
-import static org.wiremock.url.Constants.alwaysIllegal;
-import static org.wiremock.url.PathParser.pathRegex;
-import static org.wiremock.url.QueryParser.queryRegex;
-import static org.wiremock.url.SchemeParser.schemeRegex;
-
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 
-final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
+final class UriReferenceParser implements CharSequenceParser<UriReference> {
 
-  static final UrlReferenceParser INSTANCE = new UrlReferenceParser();
+  static final UriReferenceParser INSTANCE = new UriReferenceParser();
 
-  static boolean equals(UrlReference one, Object o) {
+  static boolean equals(UriReference one, Object o) {
     if (one == o) {
       return true;
     }
 
-    if (!(o instanceof UrlReference other)) {
+    if (!(o instanceof UriReference other)) {
       return false;
     }
 
@@ -47,7 +40,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
         && Objects.equals(one.getFragment(), other.getFragment());
   }
 
-  static int hashCode(UrlReference urlReference) {
+  static int hashCode(UriReference urlReference) {
     return Objects.hash(
         urlReference.getScheme(),
         urlReference.getAuthority(),
@@ -56,7 +49,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
         urlReference.getFragment());
   }
 
-  static String toString(UrlReference urlReference) {
+  static String toString(UriReference urlReference) {
     StringBuilder result = new StringBuilder();
     if (urlReference.getScheme() != null) {
       result.append(urlReference.getScheme()).append(":");
@@ -74,37 +67,12 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
     return result.toString();
   }
 
-  @Language("RegExp")
-  private final String scheme = "(?<scheme>" + schemeRegex + ")";
-
-  @Language("RegExp")
-  private final String authority = "(?<authority>" + authorityRegex + ")";
-
-  @Language("RegExp")
-  private final String path = "(?<path>|/" + pathRegex + ")";
-
-  @Language("RegExp")
-  private final String query = "(?<query>" + queryRegex + ")";
-
-  @Language("RegExp")
-  private final String fragment = "(?<fragment>[^" + alwaysIllegal + "]*)";
-
   private final Pattern regex =
       Pattern.compile(
-          "^(?:"
-              + scheme
-              + ":)?(?://"
-              + authority
-              + ")?"
-              + path
-              + "(?:\\?"
-              + query
-              + ")?(?:#"
-              + fragment
-              + ")?$");
+          "^(?:(?<scheme>[^:/?#]+):)?(?://(?<authority>[^/?#]*))?(?<path>[^?#]*)(?:\\?(?<query>[^#]*))?(?:#(?<fragment>.*))?");
 
   @Override
-  public UrlReference parse(CharSequence stringForm) {
+  public UriReference parse(CharSequence stringForm) {
     String string = stringForm.toString();
     try {
       var result = regex.matcher(stringForm);
@@ -144,11 +112,10 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
               .setFragment(fragment)
               .build();
         } else {
-          // not handling URIs yet
-          throw new IllegalUrl(string);
+          return new UrnValue(scheme, hierarchicalPart.path, query, fragment);
         }
       }
-    } catch (IllegalUrlPart illegalPart) {
+    } catch (IllegalUriPart illegalPart) {
       throw new IllegalUrl(string, illegalPart);
     }
   }
@@ -166,7 +133,7 @@ final class UrlReferenceParser implements CharSequenceParser<UrlReference> {
     if (authorityStr == null) {
       return null;
     } else {
-      return AuthorityParser.INSTANCE.parse(matcher, authorityStr);
+      return AuthorityParser.INSTANCE.parse(authorityStr);
     }
   }
 

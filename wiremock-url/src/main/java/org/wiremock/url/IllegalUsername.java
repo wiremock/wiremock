@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-public class IllegalUsername extends IllegalUrlPart {
+public class IllegalUsername extends IllegalUriPart {
 
   public IllegalUsername(String username) {
     super(username, "Illegal username: `" + username + "`");

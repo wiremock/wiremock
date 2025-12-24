@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public sealed interface UrlReference permits RelativeRef, Url {
+public sealed interface UriReference permits RelativeRef, Uri {
 
   @Nullable Scheme getScheme();
 
@@ -31,7 +31,11 @@ public sealed interface UrlReference permits RelativeRef, Url {
 
   boolean isRelativeRef();
 
+  boolean isUri();
+
   boolean isUrl();
+
+  boolean isUrn();
 
   default @Nullable UserInfo getUserInfo() {
     Authority authority = getAuthority();
@@ -54,9 +58,9 @@ public sealed interface UrlReference permits RelativeRef, Url {
     return definedPort != null ? definedPort : (scheme != null ? scheme.getDefaultPort() : null);
   }
 
-  UrlReference normalise();
+  UriReference normalise();
 
-  static UrlReference parse(CharSequence urlReference) throws IllegalUrlReference {
-    return UrlReferenceParser.INSTANCE.parse(urlReference);
+  static UriReference parse(CharSequence urlReference) throws IllegalUriReference {
+    return UriReferenceParser.INSTANCE.parse(urlReference);
   }
 }

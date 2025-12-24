@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-public class IllegalPassword extends IllegalUrlPart {
+public class IllegalPassword extends IllegalUriPart {
 
   public IllegalPassword(String password) {
     super(password, "Illegal password: `" + password + "`");

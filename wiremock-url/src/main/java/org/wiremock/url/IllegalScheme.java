@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-public final class IllegalScheme extends IllegalUrlPart {
+public final class IllegalScheme extends IllegalUriPart {
 
   public IllegalScheme(String illegalScheme) {
     super(

@@ -28,7 +28,7 @@ import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
-public class UrlReferenceTests {
+public class UriReferenceTests {
 
   @SuppressWarnings("unused")
   private static final List<? extends WhatWGUrlTestCase> wiremock_valid =
@@ -39,20 +39,20 @@ public class UrlReferenceTests {
   void wiremock_valid(WhatWGUrlTestCase testCase) {
     System.out.println(testCase);
     var input = testCase.input();
-    var urlReference = UrlReference.parse(input);
+    var urlReference = UriReference.parse(input);
     assertThat(urlReference.toString()).isEqualTo(input);
 
-    UrlReference normalised = urlReference.normalise();
+    UriReference normalised = urlReference.normalise();
     assertThat(normalised.normalise()).isSameAs(normalised);
 
     var normalSerialised = normalised.toString();
     if (!(urlReference instanceof PathAndQuery && normalSerialised.startsWith("//"))) {
-      UrlReference reconstituted = UrlReference.parse(normalSerialised);
+      UriReference reconstituted = UriReference.parse(normalSerialised);
       assertThat(reconstituted).isEqualTo(normalised);
     }
 
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
-      UrlReference resolved;
+      UriReference resolved;
       if (successTestCase.base() != null) {
         resolved = resolve(urlReference, successTestCase.base());
       } else {
@@ -139,7 +139,7 @@ public class UrlReferenceTests {
     }
   }
 
-  private static @Nullable Url resolve(UrlReference urlReference, String baseString) {
+  private static @Nullable Url resolve(UriReference urlReference, String baseString) {
     try {
       return Url.parse(baseString).resolve(urlReference);
     } catch (IllegalUrl ignored) {
@@ -156,8 +156,8 @@ public class UrlReferenceTests {
   @FieldSource("wiremock_invalid")
   void wiremock_invalid(WhatWGUrlTestCase testCase) {
     System.out.println(testCase);
-    assertThatExceptionOfType(IllegalUrlReference.class)
-        .isThrownBy(() -> UrlReference.parse(testCase.input()));
+    assertThatExceptionOfType(IllegalUriReference.class)
+        .isThrownBy(() -> UriReference.parse(testCase.input()));
   }
 
   // convenience way to test specific cases
@@ -165,17 +165,17 @@ public class UrlReferenceTests {
   void debug() {
     wiremock_valid(
         new SuccessWhatWGUrlTestCase(
-            /* input */ "foo://1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=:@host/",
-            /* base */ null,
-            /* href */ "foo://1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=@host/",
-            /* origin */ "foo://host",
-            /* protocol */ "foo:",
-            /* username */ "1234567890abcdefghijlmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ-._~!$&'()*+,;=",
+            /* input */ "test",
+            /* base */ "file:///tmp/mock/path",
+            /* href */ "file:///tmp/mock/test",
+            /* origin */ null,
+            /* protocol */ "file:",
+            /* username */ "",
             /* password */ "",
-            /* host */ "host",
-            /* hostname */ "host",
+            /* host */ "",
+            /* hostname */ "",
             /* port */ "",
-            /* pathname */ "/",
+            /* pathname */ "/tmp/mock/test",
             /* search */ "",
             /* searchParams */ null,
             /* hash */ ""));

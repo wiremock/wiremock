@@ -39,7 +39,7 @@ class UrlTests {
     @ParameterizedTest
     @MethodSource("validUrls")
     void parses_valid_url(UrlReferenceParseTestCase urlTest) {
-      UrlReference url = UrlReference.parse(urlTest.stringForm);
+      UriReference url = UriReference.parse(urlTest.stringForm);
       assertThat(url.isUrl()).isTrue();
       assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
       assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);
@@ -109,7 +109,7 @@ class UrlTests {
         var origin = Origin.parse(originExpectation);
 
         assertThat(origin.toString()).isEqualTo(originExpectation);
-        assertThat(origin).isEqualTo(UrlReference.parse(originExpectation));
+        assertThat(origin).isEqualTo(UriReference.parse(originExpectation));
         assertThat(origin.getScheme().toString()).isEqualTo(javaUri.getScheme());
         assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
         assertThat(origin)
@@ -181,7 +181,7 @@ class UrlTests {
         var url = Url.parse(base);
 
         assertThat(url.toString()).isEqualTo(base);
-        assertThat(url).isEqualTo(UrlReference.parse(base));
+        assertThat(url).isEqualTo(UriReference.parse(base));
         if (url.getPath().isEmpty()) {
           assertThat(url.normalise()).isEqualTo(url.transform(b -> b.setPath(Path.ROOT)));
         }

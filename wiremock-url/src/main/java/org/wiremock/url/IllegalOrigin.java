@@ -23,7 +23,7 @@ public final class IllegalOrigin extends IllegalUrl {
     this(url, null);
   }
 
-  public IllegalOrigin(String url, @Nullable IllegalUrlPart cause) {
+  public IllegalOrigin(String url, @Nullable IllegalUriPart cause) {
     super(url, "Illegal base URL: `" + url + "`", cause);
   }
 }

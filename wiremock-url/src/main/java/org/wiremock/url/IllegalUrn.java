@@ -17,17 +17,17 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed class IllegalUrl extends IllegalUri {
+public non-sealed class IllegalUrn extends IllegalUri {
 
-  public IllegalUrl(String url) {
-    this(url, null);
+  public IllegalUrn(String urn) {
+    this(urn, null);
   }
 
-  public IllegalUrl(String url, @Nullable IllegalUriPart cause) {
-    this(url, "Illegal URL: `" + url + "`", cause);
+  public IllegalUrn(String urn, @Nullable IllegalUriPart cause) {
+    this(urn, "Illegal URN: `" + urn + "`", cause);
   }
 
-  public IllegalUrl(String url, String message, @Nullable IllegalUriPart cause) {
-    super(url, message, cause);
+  public IllegalUrn(String urn, String message, @Nullable IllegalUriPart cause) {
+    super(urn, message, cause);
   }
 }

@@ -22,14 +22,14 @@ final class UrlParser implements CharSequenceParser<Url> {
   @Override
   public Url parse(CharSequence url) throws IllegalUrl {
     try {
-      var urlReference = UrlReferenceParser.INSTANCE.parse(url);
+      var urlReference = UriReferenceParser.INSTANCE.parse(url);
       if (urlReference instanceof Url) {
         return (Url) urlReference;
       } else {
         throw new IllegalUrl(url.toString());
       }
-    } catch (IllegalUrlPart illegalUrlPart) {
-      throw new IllegalUrl(url.toString(), illegalUrlPart);
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalUrl(url.toString(), illegalUriPart);
     }
   }
 }

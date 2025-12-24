@@ -15,19 +15,18 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+public sealed interface Uri extends UriReference permits Urn, Url {
 
-public non-sealed class IllegalUrl extends IllegalUri {
+  @Override
+  Scheme getScheme();
 
-  public IllegalUrl(String url) {
-    this(url, null);
+  @Override
+  default boolean isRelativeRef() {
+    return false;
   }
 
-  public IllegalUrl(String url, @Nullable IllegalUriPart cause) {
-    this(url, "Illegal URL: `" + url + "`", cause);
-  }
-
-  public IllegalUrl(String url, String message, @Nullable IllegalUriPart cause) {
-    super(url, message, cause);
+  @Override
+  default boolean isUri() {
+    return true;
   }
 }

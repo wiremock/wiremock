@@ -23,17 +23,17 @@ record PathAndQueryValue(Path getPath, @Nullable Query getQuery) implements Path
   @Override
   @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public boolean equals(Object obj) {
-    return UrlReferenceParser.equals(this, obj);
+    return UriReferenceParser.equals(this, obj);
   }
 
   @Override
   public int hashCode() {
-    return UrlReferenceParser.hashCode(this);
+    return UriReferenceParser.hashCode(this);
   }
 
   @Override
   public String toString() {
-    return UrlReferenceParser.toString(this);
+    return UriReferenceParser.toString(this);
   }
 
   @Override

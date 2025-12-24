@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public class IllegalAuthority extends IllegalUrlPart {
+public class IllegalAuthority extends IllegalUriPart {
 
   public IllegalAuthority(String authority) {
     this(authority, message(authority));
@@ -27,11 +27,11 @@ public class IllegalAuthority extends IllegalUrlPart {
     this(authority, message, null);
   }
 
-  public IllegalAuthority(String authority, IllegalUrlPart cause) {
+  public IllegalAuthority(String authority, IllegalUriPart cause) {
     this(authority, message(authority), cause);
   }
 
-  public IllegalAuthority(String authority, String message, @Nullable IllegalUrlPart cause) {
+  public IllegalAuthority(String authority, String message, @Nullable IllegalUriPart cause) {
     super(authority, message, cause);
   }
 

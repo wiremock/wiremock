@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.wiremock.url.Rfc3986Validator;
+import org.wiremock.url.UriReference;
 import org.wiremock.url.Url;
-import org.wiremock.url.UrlReference;
 
 public class WhatWGUrlTestManagement {
 
@@ -369,7 +369,7 @@ public class WhatWGUrlTestManagement {
   @SuppressWarnings("unused")
   private static boolean shouldBeValid(boolean rfc3986Valid, WhatWGUrlTestCase test) {
     try {
-      UrlReference.parse(test.input());
+      UriReference.parse(test.input());
       return true;
     } catch (Exception e) {
       return false;

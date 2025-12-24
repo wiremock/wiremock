@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.Map;
 import java.util.function.Function;
-import org.wiremock.url.UrlReference;
+import org.wiremock.url.UriReference;
 
 /**
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
@@ -57,7 +57,7 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
     final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
     final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
 
-    UrlReference uri = UrlReference.parse(event.getRequest().getUrl());
+    UriReference uri = UriReference.parse(event.getRequest().getUrl());
     FilenameMaker filenameMaker = new FilenameMaker();
 
     return StubMapping.builder()

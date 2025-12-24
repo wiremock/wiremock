@@ -15,19 +15,21 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+final class UriParser implements CharSequenceParser<Uri> {
 
-public non-sealed class IllegalUrl extends IllegalUri {
+  static final UriParser INSTANCE = new UriParser();
 
-  public IllegalUrl(String url) {
-    this(url, null);
-  }
-
-  public IllegalUrl(String url, @Nullable IllegalUriPart cause) {
-    this(url, "Illegal URL: `" + url + "`", cause);
-  }
-
-  public IllegalUrl(String url, String message, @Nullable IllegalUriPart cause) {
-    super(url, message, cause);
+  @Override
+  public Uri parse(CharSequence uri) throws IllegalUri {
+    try {
+      var uriReference = UriReferenceParser.INSTANCE.parse(uri);
+      if (uriReference instanceof Uri) {
+        return (Uri) uriReference;
+      } else {
+        throw new IllegalUri(uri.toString());
+      }
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalUri(uri.toString(), illegalUriPart);
+    }
   }
 }

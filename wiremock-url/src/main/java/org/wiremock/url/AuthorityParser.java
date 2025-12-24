@@ -60,7 +60,7 @@ final class AuthorityParser implements CharSequenceParser<Authority> {
       } else {
         return new AuthorityValue(userInfo, host, maybePort);
       }
-    } catch (IllegalUrlPart cause) {
+    } catch (IllegalUriPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
     }
   }

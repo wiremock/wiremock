@@ -17,10 +17,11 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract class IllegalUrlReferenceOrPart extends ParseException {
+public sealed abstract class IllegalUrlReferenceOrPart extends ParseException permits
+    IllegalUriPart, IllegalUriReference {
 
   public IllegalUrlReferenceOrPart(
-      String illegalValue, String message, @Nullable IllegalUrlPart cause) {
+      String illegalValue, String message, @Nullable IllegalUriPart cause) {
     super(illegalValue, message, cause);
   }
 }

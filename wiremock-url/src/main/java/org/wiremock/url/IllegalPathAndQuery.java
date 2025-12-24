@@ -23,7 +23,7 @@ public final class IllegalPathAndQuery extends IllegalRelativeRef {
     this(pathAndQuery, null);
   }
 
-  public IllegalPathAndQuery(String pathAndQuery, @Nullable IllegalUrlPart cause) {
+  public IllegalPathAndQuery(String pathAndQuery, @Nullable IllegalUriPart cause) {
     super(pathAndQuery, "Illegal path and query: `" + pathAndQuery + "`", cause);
   }
 }

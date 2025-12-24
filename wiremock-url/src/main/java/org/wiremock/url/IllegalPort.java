@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import static org.wiremock.url.PortParser.MAX_PORT;
 
-public final class IllegalPort extends IllegalUrlPart {
+public final class IllegalPort extends IllegalUriPart {
 
   public IllegalPort(String illegalPortString) {
     super(
