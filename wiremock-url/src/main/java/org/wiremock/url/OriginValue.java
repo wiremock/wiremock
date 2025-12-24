@@ -52,6 +52,11 @@ final class OriginValue implements Origin {
   }
 
   @Override
+  public Uri resolve(UriReference other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public HostAndPort getAuthority() {
     return authority;
   }

@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public sealed interface UriReference permits RelativeRef, Uri {
+public sealed interface UriReference permits Uri, UrlReference {
 
   @Nullable Scheme getScheme();
 
