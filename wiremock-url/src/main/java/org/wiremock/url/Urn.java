@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface Urn extends Uri {
+public non-sealed interface Urn extends Uri, UrnReference {
 
   default boolean isUrl() {
     return false;
@@ -56,6 +56,8 @@ public non-sealed interface Urn extends Uri {
   default @Nullable Port getResolvedPort() {
     return null;
   }
+
+  Urn resolve(UrnReference other);
 
   static Urn parse(CharSequence urn) throws IllegalUrn {
     return UrnParser.INSTANCE.parse(urn);

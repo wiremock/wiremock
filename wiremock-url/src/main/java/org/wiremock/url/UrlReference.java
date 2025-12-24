@@ -15,12 +15,4 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
-
-public abstract sealed class IllegalUriReference extends IllegalUrlReferenceOrPart
-    permits IllegalRelativeRef, IllegalUri {
-
-  public IllegalUriReference(String illegalValue, String message, @Nullable IllegalUriPart cause) {
-    super(illegalValue, message, cause);
-  }
-}
+public sealed interface UrlReference extends UriReference permits RelativeRef, Url {}

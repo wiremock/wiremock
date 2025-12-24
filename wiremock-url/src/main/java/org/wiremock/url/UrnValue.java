@@ -15,8 +15,8 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 class UrnValue implements Urn {
 
@@ -35,6 +35,11 @@ class UrnValue implements Urn {
   @Override
   public Scheme getScheme() {
     return scheme;
+  }
+
+  @Override
+  public Uri resolve(UriReference other) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -87,5 +92,10 @@ class UrnValue implements Urn {
     } else {
       return new UrnValue(normalisedScheme, normalisedPath, normalisedQuery, normalisedFragment);
     }
+  }
+
+  @Override
+  public Urn resolve(UrnReference other) {
+    throw new UnsupportedOperationException();
   }
 }

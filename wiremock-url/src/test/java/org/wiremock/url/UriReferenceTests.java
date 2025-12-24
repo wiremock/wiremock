@@ -39,14 +39,14 @@ public class UriReferenceTests {
   void wiremock_valid(WhatWGUrlTestCase testCase) {
     System.out.println(testCase);
     var input = testCase.input();
-    var urlReference = UriReference.parse(input);
-    assertThat(urlReference.toString()).isEqualTo(input);
+    var uriReference = UriReference.parse(input);
+    assertThat(uriReference.toString()).isEqualTo(input);
 
-    UriReference normalised = urlReference.normalise();
+    UriReference normalised = uriReference.normalise();
     assertThat(normalised.normalise()).isSameAs(normalised);
 
     var normalSerialised = normalised.toString();
-    if (!(urlReference instanceof PathAndQuery && normalSerialised.startsWith("//"))) {
+    if (!(uriReference instanceof PathAndQuery && normalSerialised.startsWith("//"))) {
       UriReference reconstituted = UriReference.parse(normalSerialised);
       assertThat(reconstituted).isEqualTo(normalised);
     }
@@ -54,7 +54,7 @@ public class UriReferenceTests {
     if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase) {
       UriReference resolved;
       if (successTestCase.base() != null) {
-        resolved = resolve(urlReference, successTestCase.base());
+        resolved = resolve(uriReference, successTestCase.base());
       } else {
         resolved = normalised;
       }
@@ -81,10 +81,10 @@ public class UriReferenceTests {
                 .pathname()
                 .matches(
                     ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
-            && !(urlReference.getAuthority() != null
-                && urlReference.getAuthority().toString().isEmpty())
+            && !(uriReference.getAuthority() != null
+                && uriReference.getAuthority().toString().isEmpty())
             && !resolved.getPath().toString().contains("\\")
-            && !urlReference.getPath().toString().contains("\t")) {
+            && !uriReference.getPath().toString().contains("\t")) {
           assertThat(resolved.getPath().toString()).isEqualTo(successTestCase.pathname());
         }
 
@@ -123,7 +123,7 @@ public class UriReferenceTests {
             && !input.endsWith(" ")
             && !resolved.getPath().toString().contains("\\")
             && !successTestCase.pathname().contains("|")
-            && !urlReference.getPath().toString().contains("\t")
+            && !uriReference.getPath().toString().contains("\t")
             && !successTestCase.search().contains("{")
             && !successTestCase
                 .search()
@@ -139,7 +139,7 @@ public class UriReferenceTests {
     }
   }
 
-  private static @Nullable Url resolve(UriReference urlReference, String baseString) {
+  private static @Nullable Uri resolve(UriReference urlReference, String baseString) {
     try {
       return Url.parse(baseString).resolve(urlReference);
     } catch (IllegalUrl ignored) {

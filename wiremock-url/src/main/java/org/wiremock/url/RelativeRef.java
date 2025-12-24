@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface RelativeRef extends UriReference {
+public non-sealed interface RelativeRef extends UrlReference, UrnReference {
 
   /**
    * {@implSpec} Implementations must ALWAYS return null

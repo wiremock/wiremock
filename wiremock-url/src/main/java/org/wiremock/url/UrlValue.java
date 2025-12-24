@@ -73,9 +73,7 @@ final class UrlValue implements Url {
         && Objects.equals(fragment, normalisedFragment)) {
       return this;
     } else {
-      return Url.builder(
-          normalisedScheme,
-          normalisedAuthority)
+      return Url.builder(normalisedScheme, normalisedAuthority)
           .setPath(normalisedPath)
           .setQuery(normalisedQuery)
           .setFragment(normalisedFragment)
@@ -86,6 +84,11 @@ final class UrlValue implements Url {
   @Override
   public Scheme getScheme() {
     return scheme;
+  }
+
+  @Override
+  public Uri resolve(UriReference other) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

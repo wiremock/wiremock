@@ -29,4 +29,6 @@ public sealed interface Uri extends UriReference permits Urn, Url {
   default boolean isUri() {
     return true;
   }
+
+  Uri resolve(UriReference other);
 }

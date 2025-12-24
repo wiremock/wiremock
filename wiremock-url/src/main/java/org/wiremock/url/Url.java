@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface Url extends Uri {
+public non-sealed interface Url extends Uri, UrlReference {
 
   @Override
   Authority getAuthority();
@@ -73,7 +73,7 @@ public non-sealed interface Url extends Uri {
     return this.transform(builder -> builder.setPath(getPath().resolve(other)));
   }
 
-  default Url resolve(UriReference other) {
+  default Url resolve(UrlReference other) {
     if (other instanceof Url otherUrl) {
       return otherUrl.normalise();
     } else {
