@@ -34,4 +34,8 @@ public abstract class EntityDefinition {
   public abstract CompressionType getCompression();
 
   public abstract Object getData();
+
+  public interface Builder<T extends EntityDefinition> {
+    T build();
+  }
 }

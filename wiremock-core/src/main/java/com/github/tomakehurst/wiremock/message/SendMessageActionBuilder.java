@@ -64,4 +64,40 @@ public class SendMessageActionBuilder {
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
     return SendMessageAction.toMatchingChannels(resolveBody(), targetChannelPatternBuilder.build());
   }
+
+  public TargetedSendMessageActionBuilder toOriginatingChannel() {
+    return new TargetedSendMessageActionBuilder(true, null);
+  }
+
+  public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
+    return new TargetedSendMessageActionBuilder(false, targetChannelPattern);
+  }
+
+  public TargetedSendMessageActionBuilder toMatchingChannels(
+      RequestPatternBuilder targetChannelPatternBuilder) {
+    return new TargetedSendMessageActionBuilder(false, targetChannelPatternBuilder.build());
+  }
+
+  public static class TargetedSendMessageActionBuilder {
+    private final boolean sendToOriginatingChannel;
+    private final RequestPattern targetChannelPattern;
+
+    TargetedSendMessageActionBuilder(
+        boolean sendToOriginatingChannel, RequestPattern targetChannelPattern) {
+      this.sendToOriginatingChannel = sendToOriginatingChannel;
+      this.targetChannelPattern = targetChannelPattern;
+    }
+
+    public SendMessageAction withMessage(EntityDefinition body) {
+      if (sendToOriginatingChannel) {
+        return SendMessageAction.toOriginatingChannel(body);
+      } else {
+        return SendMessageAction.toMatchingChannels(body, targetChannelPattern);
+      }
+    }
+
+    public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {
+      return withMessage(bodyBuilder.build());
+    }
+  }
 }

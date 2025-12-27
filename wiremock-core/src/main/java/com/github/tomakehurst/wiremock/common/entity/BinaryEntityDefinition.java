@@ -125,7 +125,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
     }
   }
 
-  public static class Builder {
+  public static class Builder implements EntityDefinition.Builder<BinaryEntityDefinition> {
     private CompressionType compression;
     private String dataStore;
     private String dataRef;
@@ -162,6 +162,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
       return this;
     }
 
+    @Override
     public BinaryEntityDefinition build() {
       return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
     }

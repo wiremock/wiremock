@@ -125,7 +125,7 @@ public class TextEntityDefinition extends EntityDefinition {
     }
   }
 
-  public static class Builder {
+  public static class Builder implements EntityDefinition.Builder<TextEntityDefinition> {
     private FormatType format;
     private CompressionType compression;
     private String dataStore;
@@ -163,6 +163,7 @@ public class TextEntityDefinition extends EntityDefinition {
       return this;
     }
 
+    @Override
     public TextEntityDefinition build() {
       return new TextEntityDefinition(format, compression, dataStore, dataRef, data, filePath);
     }

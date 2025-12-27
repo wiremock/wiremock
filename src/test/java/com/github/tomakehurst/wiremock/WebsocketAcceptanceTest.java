@@ -1207,8 +1207,9 @@ public class WebsocketAcceptanceTest extends AcceptanceTestBase {
             .withName("DSL broadcast stub")
             .withBody(equalTo("trigger"))
             .willTriggerActions(
-                SendMessageAction.toOriginatingChannel(
-                    aBinaryMessage().withFilePath("binary-body.bin").build())));
+                sendMessage()
+                    .toOriginatingChannel()
+                    .withMessage(aBinaryMessage().withFilePath("binary-body.bin"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = "ws://localhost:" + wireMockServer.port() + "/binary-file-body-test";
