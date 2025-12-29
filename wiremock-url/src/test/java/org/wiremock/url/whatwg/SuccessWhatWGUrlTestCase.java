@@ -119,4 +119,13 @@ public record SuccessWhatWGUrlTestCase(
   private static @NonNull String stringOrNull(@Nullable String value) {
     return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(value) + '"';
   }
+
+  public static void withContext(SuccessWhatWGUrlTestCase testCase, Runnable o) {
+    try {
+      o.run();
+    } catch (Throwable e) {
+      System.out.println(testCase);
+      throw e;
+    }
+  }
 }

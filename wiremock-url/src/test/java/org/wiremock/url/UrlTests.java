@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.url.Url.transform;
+import static org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase.withContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -87,43 +88,81 @@ class UrlTests {
       assertThat(parsed).isNotInstanceOf(Origin.class);
     }
 
+    private static final Set<String> whatWgOriginsWeReject =
+        Set.of("http://!\"$&'()*+,-.;=_`{}~", "wss://!\"$&'()*+,-.;=_`{}~");
+
     private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlOrigins =
         WhatWGUrlTestManagement.whatwg_valid.stream()
-            .filter(
-                t ->
-                    t.origin() != null
-                        && !t.origin().isEmpty()
-                        && !t.origin().equals("null")
-                        && !t.origin().equals("http://!\"$&'()*+,-.;=_`{}~")
-                        && !t.origin().equals("wss://!\"$&'()*+,-.;=_`{}~"))
+            .filter(t -> t.origin() != null && !t.origin().isEmpty() && !t.origin().equals("null"))
+            .filter(t -> !whatWgOriginsWeReject.contains(t.origin()))
             .collect(Collectors.toSet());
 
     @ParameterizedTest
     @FieldSource("whatWgUrlOrigins")
-    void whatWgUrlOriginsAreAllOrigins(SuccessWhatWGUrlTestCase testCase) {
-      try {
-        String originExpectation = testCase.origin();
-        assert originExpectation != null;
+    void whatWgUrlOriginsMaintainToString(SuccessWhatWGUrlTestCase testCase) {
+      withContext(
+          testCase,
+          () -> {
+            var origin = getOrigin(testCase);
 
-        URI javaUri = URI.create(originExpectation);
+            assertThat(origin.toString()).isEqualTo(testCase.origin());
+          });
+    }
 
-        var origin = Origin.parse(originExpectation);
+    @ParameterizedTest
+    @FieldSource("whatWgUrlOrigins")
+    void uriReferenceParseWhatWgUrlOriginReturnsEqualValue(SuccessWhatWGUrlTestCase testCase) {
+      withContext(
+          testCase,
+          () -> {
+            var origin = getOrigin(testCase);
 
-        assertThat(origin.toString()).isEqualTo(originExpectation);
-        assertThat(origin).isEqualTo(UriReference.parse(originExpectation));
-        assertThat(origin.getScheme().toString()).isEqualTo(javaUri.getScheme());
-        assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
-        assertThat(origin)
-            .isEqualTo(
+            UriReference uriReference = UriReference.parse(origin.toString());
+            assertThat(uriReference).isInstanceOf(Origin.class);
+            assertThat(origin).isEqualTo(uriReference);
+          });
+    }
+
+    @ParameterizedTest
+    @FieldSource("whatWgUrlOrigins")
+    void whatWgUrlOriginHasSameComponentsAsJavaUri(SuccessWhatWGUrlTestCase testCase) {
+      withContext(
+          testCase,
+          () -> {
+            var origin = getOrigin(testCase);
+
+            URI javaUri = URI.create(origin.toString());
+
+            assertThat(origin.getScheme().toString()).isEqualTo(javaUri.getScheme());
+            assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
+          });
+    }
+
+    @ParameterizedTest
+    @FieldSource("whatWgUrlOrigins")
+    void whatWgUrlOriginIsEqualToBuilt(SuccessWhatWGUrlTestCase testCase) {
+      withContext(
+          testCase,
+          () -> {
+            var origin = getOrigin(testCase);
+
+            UriReference builtUri =
                 UriReference.builder()
                     .setScheme(origin.getScheme())
                     .setAuthority(origin.getAuthority())
                     .setPath(Path.EMPTY)
-                    .build());
-      } catch (Throwable e) {
-        System.out.println(testCase);
-        throw e;
-      }
+                    .build();
+            assertThat(builtUri).isInstanceOf(Origin.class);
+
+            assertThat(origin).isEqualTo(builtUri);
+          });
+    }
+
+    private static Origin getOrigin(SuccessWhatWGUrlTestCase testCase) {
+      String originExpectation = testCase.origin();
+      assert originExpectation != null;
+
+      return Origin.parse(originExpectation);
     }
 
     private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlBase =
@@ -181,33 +220,33 @@ class UrlTests {
       testWhatWgUrl(testCase, testCase.href());
     }
 
-    private static void testWhatWgUrl(SuccessWhatWGUrlTestCase testCase, String base) {
-      try {
-        var url = Url.parse(base);
+    private static void testWhatWgUrl(SuccessWhatWGUrlTestCase testCase, String urlString) {
+      withContext(
+          testCase,
+          () -> {
+            var url = Url.parse(urlString);
 
-        assertThat(url.toString()).isEqualTo(base);
-        assertThat(url).isEqualTo(UriReference.parse(base));
-        if (url.getPath().isEmpty()) {
-          assertThat(url.normalise()).isEqualTo(transform(url, b -> b.setPath(Path.ROOT)));
-        }
+            assertThat(url.toString()).isEqualTo(urlString);
+            assertThat(url).isEqualTo(UriReference.parse(urlString));
+            if (url.getPath().isEmpty()) {
+              assertThat(url.normalise()).isEqualTo(transform(url, b -> b.setPath(Path.ROOT)));
+            }
 
-        URI javaUri = uriOrNull(base);
+            URI javaUri = uriOrNull(urlString);
 
-        if (javaUri != null) {
-          assertThat(url.getScheme().toString()).isEqualTo(javaUri.getScheme());
-          Authority authority = url.getAuthority();
-          String javaUriRawAuthority = javaUri.getRawAuthority();
-          if (javaUriRawAuthority == null) {
-            assertThat(authority.toString()).isEmpty();
-            assertThat(authority.getHostAndPort()).isEqualTo(HostAndPort.of(Host.parse(""), null));
-          } else {
-            assertThat(authority.toString()).isEqualTo(javaUriRawAuthority);
-          }
-        }
-      } catch (Throwable e) {
-        System.out.println(testCase);
-        throw e;
-      }
+            if (javaUri != null) {
+              assertThat(url.getScheme().toString()).isEqualTo(javaUri.getScheme());
+              Authority authority = url.getAuthority();
+              String javaUriRawAuthority = javaUri.getRawAuthority();
+              if (javaUriRawAuthority == null) {
+                assertThat(authority.toString()).isEmpty();
+                assertThat(authority.getHostAndPort())
+                    .isEqualTo(HostAndPort.of(Host.parse(""), null));
+              } else {
+                assertThat(authority.toString()).isEqualTo(javaUriRawAuthority);
+              }
+            }
+          });
     }
 
     static Stream<UrlReferenceParseTestCase> validUrls() {
