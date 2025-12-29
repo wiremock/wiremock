@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.wiremock.url.Url.transform;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +73,7 @@ class UrlTests {
       Url noPortToStartWith = Url.parse(urlString);
       assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
 
-      Url stillNoPort = noPortToStartWith.transform(it -> it.setPort(null));
+      Url stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
       assertThat(noPortToStartWith).isEqualTo(stillNoPort);
       assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
     }
@@ -114,7 +115,11 @@ class UrlTests {
         assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
         assertThat(origin)
             .isEqualTo(
-                Url.builder(origin.getScheme(), origin.getAuthority()).setPath(Path.EMPTY).build());
+                UriReference.builder()
+                    .setScheme(origin.getScheme())
+                    .setAuthority(origin.getAuthority())
+                    .setPath(Path.EMPTY)
+                    .build());
       } catch (Throwable e) {
         System.out.println(testCase);
         throw e;
@@ -183,7 +188,7 @@ class UrlTests {
         assertThat(url.toString()).isEqualTo(base);
         assertThat(url).isEqualTo(UriReference.parse(base));
         if (url.getPath().isEmpty()) {
-          assertThat(url.normalise()).isEqualTo(url.transform(b -> b.setPath(Path.ROOT)));
+          assertThat(url.normalise()).isEqualTo(transform(url, b -> b.setPath(Path.ROOT)));
         }
 
         URI javaUri = uriOrNull(base);

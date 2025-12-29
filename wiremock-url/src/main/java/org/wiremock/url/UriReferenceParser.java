@@ -94,29 +94,15 @@ final class UriReferenceParser implements CharSequenceParser<UriReference> {
       var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
       var hierarchicalPart = extractHierarchicalPart(result);
-      if (scheme == null) {
-        if (hierarchicalPart.authority == null
-            && fragment == null
-            && (hierarchicalPart.path.isAbsolute())) {
-          return new PathAndQueryValue(hierarchicalPart.path, query);
-        } else {
-          return new RelativeRefValue(
-              hierarchicalPart.authority, hierarchicalPart.path, query, fragment);
-        }
-
-      } else {
-        if (hierarchicalPart.authority != null) {
-          return Url.builder(scheme, hierarchicalPart.authority)
-              .setPath(hierarchicalPart.path)
-              .setQuery(query)
-              .setFragment(fragment)
-              .build();
-        } else {
-          return new UrnValue(scheme, hierarchicalPart.path, query, fragment);
-        }
-      }
+      return UriReference.builder()
+          .setScheme(scheme)
+          .setAuthority(hierarchicalPart.authority)
+          .setPath(hierarchicalPart.path)
+          .setQuery(query)
+          .setFragment(fragment)
+          .build();
     } catch (IllegalUriPart illegalPart) {
-      throw new IllegalUrl(string, illegalPart);
+      throw new IllegalUriReference(string, illegalPart);
     }
   }
 

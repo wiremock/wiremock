@@ -60,4 +60,16 @@ public non-sealed interface Urn extends Uri {
   static Urn parse(CharSequence urn) throws IllegalUrn {
     return UrnParser.INSTANCE.parse(urn);
   }
+
+  static Urn of(Scheme scheme, Path path) {
+    return of(scheme, path, null, null);
+  }
+
+  static Urn of(Scheme scheme, Path path, Query query) {
+    return of(scheme, path, query, null);
+  }
+
+  static Urn of(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+    return new UrnValue(scheme, path, query, fragment);
+  }
 }

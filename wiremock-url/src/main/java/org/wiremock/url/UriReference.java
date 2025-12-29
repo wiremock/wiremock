@@ -15,7 +15,9 @@
  */
 package org.wiremock.url;
 
+import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.Uri.Builder;
 
 public sealed interface UriReference permits Uri, UrlReference {
 
@@ -62,5 +64,40 @@ public sealed interface UriReference permits Uri, UrlReference {
 
   static UriReference parse(CharSequence urlReference) throws IllegalUriReference {
     return UriReferenceParser.INSTANCE.parse(urlReference);
+  }
+
+  static Builder builder() {
+    return new UriReferenceBuilder();
+  }
+
+  static Builder builder(UriReference uri) {
+    return new UriReferenceBuilder(uri);
+  }
+
+  static UriReference transform(UriReference uri, Consumer<Builder> consumer) {
+    var builder = builder(uri);
+    consumer.accept(builder);
+    return builder.build();
+  }
+
+  interface Builder {
+
+    Builder setScheme(@Nullable Scheme scheme);
+
+    Builder setAuthority(@Nullable Authority authority);
+
+    Builder setUserInfo(@Nullable UserInfo userInfo);
+
+    Builder setHost(Host host);
+
+    Builder setPort(@Nullable Port port);
+
+    Builder setPath(Path path);
+
+    Builder setQuery(@Nullable Query query);
+
+    Builder setFragment(@Nullable Fragment fragment);
+
+    UriReference build();
   }
 }

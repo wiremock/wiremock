@@ -52,16 +52,6 @@ public non-sealed interface Url extends Uri, UrlReference {
     return new PathAndQueryValue(getPath(), getQuery());
   }
 
-  default Builder thaw() {
-    return new UrlValue.Builder(this);
-  }
-
-  default Url transform(Consumer<Url.Builder> consumer) {
-    Builder builder = this.thaw();
-    consumer.accept(builder);
-    return builder.build();
-  }
-
   @Override
   Url normalise();
 
@@ -70,41 +60,19 @@ public non-sealed interface Url extends Uri, UrlReference {
   }
 
   default Url resolve(Path other) {
-    return this.transform(builder -> builder.setPath(getPath().resolve(other)));
+    return transform(this, builder -> builder.setPath(getPath().resolve(other)));
   }
 
   default Url resolve(UrlReference other) {
-    if (other instanceof Url otherUrl) {
-      return otherUrl.normalise();
-    } else {
-      return this.transform(
-          builder -> {
-            Authority otherAuthority = other.getAuthority();
-            Query otherQuery = other.getQuery();
-            if (otherAuthority != null) {
-              builder.setAuthority(otherAuthority.normalise());
-              Path path = other.getPath().isEmpty() ? Path.ROOT : other.getPath().normalise();
-              builder.setPath(path);
-              builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
-            } else {
-              if (other.getPath().isEmpty()) {
-                if (otherQuery != null) {
-                  builder.setQuery(otherQuery.normalise());
-                }
-              } else {
-                if (other.getPath().isAbsolute()) {
-                  builder.setPath(other.getPath().normalise());
-                } else {
-                  builder.setPath(getPath().resolve(other.getPath()));
-                }
-                builder.setQuery(otherQuery == null ? null : otherQuery.normalise());
-              }
-            }
-            Fragment otherFragment = other.getFragment();
-            otherFragment = otherFragment == null ? null : otherFragment.normalise();
-            builder.setFragment(otherFragment);
-          });
-    }
+    return (Url) resolve((UriReference) other);
+  }
+
+  default Builder thaw() {
+    return builder(this);
+  }
+
+  default Url transform(Consumer<Builder> consumer) {
+    return transform(this, consumer);
   }
 
   static Url parse(CharSequence url) throws IllegalUrl {
@@ -112,7 +80,17 @@ public non-sealed interface Url extends Uri, UrlReference {
   }
 
   static Builder builder(Scheme scheme, Authority authority) {
-    return new UrlValue.Builder(scheme, authority);
+    return new UrlBuilder(scheme, authority);
+  }
+
+  static Builder builder(Url url) {
+    return new UrlBuilder(url);
+  }
+
+  static Url transform(Url uri, Consumer<Builder> consumer) {
+    var builder = builder(uri);
+    consumer.accept(builder);
+    return builder.build();
   }
 
   interface Builder {

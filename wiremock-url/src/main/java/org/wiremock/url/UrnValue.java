@@ -38,11 +38,6 @@ class UrnValue implements Urn {
   }
 
   @Override
-  public Uri resolve(UriReference other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Path getPath() {
     return path;
   }
