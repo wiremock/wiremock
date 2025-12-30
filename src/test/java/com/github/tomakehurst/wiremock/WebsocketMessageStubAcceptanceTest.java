@@ -1,0 +1,275 @@
+/*
+ * Copyright (C) 2025 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.message;
+import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.waitAtMost;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import org.junit.jupiter.api.Test;
+
+public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestBase {
+
+  @Test
+  void messageStubMappingRespondsToOriginatingChannel() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Echo stub")
+            .withBody(equalTo("ping"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("pong"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/echo");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "ping");
+    assertThat(response, is("pong"));
+  }
+
+  @Test
+  void messageStubMappingMatchesWithRegexPattern() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Greeting stub")
+            .withBody(matching("hello.*"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("hi there!"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/greet");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "hello world");
+    assertThat(response, is("hi there!"));
+  }
+
+  @Test
+  void messageStubMappingWithChannelPatternMatchesSpecificChannels() {
+    RequestPattern channelPattern = newRequestPattern().withUrl("/vip-channel").build();
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("VIP stub")
+            .onChannelFromRequestMatching(channelPattern)
+            .withBody(equalTo("request"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("VIP response"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient vipClient = new WebsocketTestClient();
+    WebsocketTestClient regularClient = new WebsocketTestClient();
+    String vipUrl = websocketUrl("/vip-channel");
+    String regularUrl = websocketUrl("/regular-channel");
+
+    String vipResponse = vipClient.sendMessageAndWaitForResponse(vipUrl, "request");
+    assertThat(vipResponse, is("VIP response"));
+
+    regularClient.sendMessage(regularUrl, "request");
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    assertThat(regularClient.getMessages().isEmpty(), is(true));
+  }
+
+  @Test
+  void messageStubMappingPriorityDeterminesMatchOrder() {
+    MessageStubMapping lowPriorityStub =
+        MessageStubMapping.builder()
+            .withName("Low priority stub")
+            .withPriority(10)
+            .withBody(matching(".*"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("low priority"))
+            .build();
+
+    MessageStubMapping highPriorityStub =
+        MessageStubMapping.builder()
+            .withName("High priority stub")
+            .withPriority(1)
+            .withBody(equalTo("test"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("high priority"))
+            .build();
+
+    wireMockServer.addMessageStubMapping(lowPriorityStub);
+    wireMockServer.addMessageStubMapping(highPriorityStub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/priority-test");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "test");
+    assertThat(response, is("high priority"));
+  }
+
+  @Test
+  void messageStubMappingCanSendToMatchingChannels() {
+    RequestPattern targetPattern =
+        newRequestPattern().withUrl(urlPathMatching("/broadcast/.*")).build();
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Broadcast stub")
+            .withBody(equalTo("broadcast"))
+            .triggersAction(
+                SendMessageAction.toMatchingChannels("broadcast message", targetPattern))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient senderClient = new WebsocketTestClient();
+    WebsocketTestClient receiverClient1 = new WebsocketTestClient();
+    WebsocketTestClient receiverClient2 = new WebsocketTestClient();
+    String senderUrl = websocketUrl("/sender");
+    String receiverUrl1 = websocketUrl("/broadcast/user1");
+    String receiverUrl2 = websocketUrl("/broadcast/user2");
+
+    receiverClient1.withWebsocketSession(
+        receiverUrl1,
+        session1 ->
+            receiverClient2.withWebsocketSession(
+                receiverUrl2,
+                session2 -> {
+                  senderClient.sendMessage(senderUrl, "broadcast");
+                  return null;
+                }));
+
+    waitAtMost(5, SECONDS).until(() -> receiverClient1.getMessages().contains("broadcast message"));
+    waitAtMost(5, SECONDS).until(() -> receiverClient2.getMessages().contains("broadcast message"));
+  }
+
+  @Test
+  void messageStubMappingCanBeRemoved() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Removable stub")
+            .withBody(equalTo("test"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/remove-test");
+
+    String response1 = testClient.sendMessageAndWaitForResponse(url, "test");
+    assertThat(response1, is("response"));
+
+    wireMockServer.removeMessageStubMapping(stub.getId());
+    testClient.clearMessages();
+
+    testClient.sendMessage(url, "test");
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    assertThat(testClient.getMessages().isEmpty(), is(true));
+  }
+
+  @Test
+  void messageStubMappingWithMultipleActions() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Multi-action stub")
+            .withBody(equalTo("multi"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response1"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response2"))
+            .build();
+    wireMockServer.addMessageStubMapping(stub);
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/multi-action");
+
+    testClient.sendMessage(url, "multi");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("response1"));
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("response2"));
+    assertThat(testClient.getMessages().size(), is(2));
+  }
+
+  @Test
+  void messageStubMappingCanBeCreatedUsingDsl() {
+    messageStubFor(
+        message()
+            .withName("DSL stub")
+            .withBody(equalTo("hello"))
+            .willTriggerActions(sendMessage("world").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/dsl-test");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "hello");
+    assertThat(response, is("world"));
+  }
+
+  @Test
+  void messageStubMappingDslSupportsMultipleActions() {
+    messageStubFor(
+        message()
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/dsl-multi"))
+            .withName("DSL multi-action stub")
+            .withBody(equalTo("trigger"))
+            .willTriggerActions(
+                sendMessage("first").onOriginatingChannel(),
+                sendMessage("second").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/dsl-multi");
+
+    testClient.sendMessage(url, "trigger");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("first"));
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("second"));
+    assertThat(testClient.getMessages().size(), is(2));
+  }
+
+  @Test
+  void messageStubMappingDslSupportsBroadcastToMatchingChannels() {
+    messageStubFor(
+        message()
+            .onChannelFromRequestMatching("/dsl-broadcast")
+            .withName("DSL broadcast stub")
+            .withBody(equalTo("broadcast"))
+            .willTriggerActions(
+                sendMessage("broadcasted")
+                    .onChannelsMatching(newRequestPattern().withUrl("/dsl-broadcast"))));
+
+    WebsocketTestClient client1 = new WebsocketTestClient();
+    WebsocketTestClient client2 = new WebsocketTestClient();
+    String url = websocketUrl("/dsl-broadcast");
+
+    client1.connect(url);
+    client2.connect(url);
+
+    waitAtMost(5, SECONDS).until(client1::isConnected);
+    waitAtMost(5, SECONDS).until(client2::isConnected);
+
+    client1.sendMessage("broadcast");
+
+    waitAtMost(5, SECONDS).until(() -> client1.getMessages().contains("broadcasted"));
+    waitAtMost(5, SECONDS).until(() -> client2.getMessages().contains("broadcasted"));
+  }
+}
+
