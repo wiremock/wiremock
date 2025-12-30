@@ -55,6 +55,7 @@ public sealed interface Uri extends UriReference permits Urn, Url {
               builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
             } else {
               if (otherPath.isEmpty()) {
+                builder.setPath(getPath().normalise());
                 if (otherQuery != null) {
                   builder.setQuery(otherQuery.normalise());
                 }
@@ -85,6 +86,10 @@ public sealed interface Uri extends UriReference permits Urn, Url {
     var builder = builder(uri);
     consumer.accept(builder);
     return builder.build();
+  }
+
+  static Uri parse(String uriString) {
+    return UriParser.INSTANCE.parse(uriString);
   }
 
   interface Builder {

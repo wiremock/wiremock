@@ -34,6 +34,17 @@ final class OriginParser implements CharSequenceParser<Origin> {
   }
 
   Origin of(Scheme scheme, HostAndPort hostAndPort) {
+    if (!scheme.isNormalForm()) {
+      throw new IllegalOrigin(scheme + "://" + hostAndPort);
+    }
+    if (scheme.isNormalForm() && hostAndPort.isNormalForm(scheme)) {
+      return new OriginValue(scheme, hostAndPort);
+    } else {
+      throw new IllegalOrigin(scheme + "://" + hostAndPort);
+    }
+  }
+
+  Origin normalise(Scheme scheme, HostAndPort hostAndPort) {
     var normalisedScheme = scheme.normalise();
     var normalisedHostAndPort = hostAndPort.normalise(normalisedScheme);
     return new OriginValue(normalisedScheme, normalisedHostAndPort);

@@ -63,4 +63,12 @@ public interface HostAndPort extends Authority {
   HostAndPort normalise();
 
   HostAndPort normalise(Scheme canonicalScheme);
+
+  default boolean isNormalForm(Scheme scheme) {
+    return getHost().isNormalForm() && portIsNormalForm(scheme);
+  }
+
+  private boolean portIsNormalForm(Scheme scheme) {
+    return getPort() == null || (getPort().isNormalForm() && getPort() != scheme.getDefaultPort());
+  }
 }

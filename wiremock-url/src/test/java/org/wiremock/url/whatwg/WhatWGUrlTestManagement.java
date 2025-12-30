@@ -174,6 +174,10 @@ public class WhatWGUrlTestManagement {
           whatwg_invalid_rfc3986_invalid_wiremock_valid,
           whatwg_invalid_rfc3986_invalid_wiremock_invalid);
 
+  public static List<? extends SuccessWhatWGUrlTestCase> whatwg_valid_wiremock_valid =
+      concat(
+          whatwg_valid_rfc3986_valid_wiremock_valid, whatwg_valid_rfc3986_invalid_wiremock_valid);
+
   public static List<? extends WhatWGUrlTestCase> wiremock_valid =
       concat(
           whatwg_valid_rfc3986_valid_wiremock_valid,

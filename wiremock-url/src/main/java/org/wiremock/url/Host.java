@@ -26,4 +26,6 @@ public interface Host extends PercentEncoded {
   static Host encode(String unencoded) {
     return HostParser.INSTANCE.encode(unencoded);
   }
+
+  boolean isNormalForm();
 }

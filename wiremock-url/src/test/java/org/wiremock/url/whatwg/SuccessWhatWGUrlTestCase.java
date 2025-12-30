@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.Uri;
+import org.wiremock.url.UriReference;
 
 // 596 success
 @JsonIgnoreProperties("comment")
@@ -120,12 +122,30 @@ public record SuccessWhatWGUrlTestCase(
     return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(value) + '"';
   }
 
-  public static void withContext(SuccessWhatWGUrlTestCase testCase, Runnable o) {
+  public static void withContext(WhatWGUrlTestCase testCase, Runnable o) {
     try {
       o.run();
     } catch (Throwable e) {
       System.out.println(testCase);
+      var input = UriReference.parse(testCase.input());
+      report("input", input);
+      UriReference resolved;
+      if (testCase instanceof SuccessWhatWGUrlTestCase succesTestCase
+          && succesTestCase.base() != null
+          && !succesTestCase.base().isEmpty()
+          && !succesTestCase.base().equals("sc://ñ")) {
+        var base = Uri.parse(succesTestCase.base());
+        report("base", base);
+        resolved = base.resolve(input);
+      } else {
+        resolved = input.normalise();
+      }
+      report("resolved", resolved);
       throw e;
     }
+  }
+
+  private static void report(String element, UriReference uriReference) {
+    System.out.println(element + ": " + uriReference.getClass() + " `" + uriReference + "`");
   }
 }

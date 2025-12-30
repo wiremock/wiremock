@@ -33,11 +33,32 @@ final class UriReferenceParser implements CharSequenceParser<UriReference> {
       return false;
     }
 
-    return Objects.equals(one.getScheme(), other.getScheme())
+    Class<? extends UriReference> oneClass = one.getClass();
+    Class<? extends UriReference> otherClass = other.getClass();
+    return shareSameSuperTypes(
+            oneClass,
+            otherClass,
+            Origin.class,
+            Url.class,
+            Urn.class,
+            RelativeRef.class,
+            PathAndQuery.class)
+        && Objects.equals(one.getScheme(), other.getScheme())
         && Objects.equals(one.getAuthority(), other.getAuthority())
         && Objects.equals(one.getPath(), other.getPath())
         && Objects.equals(one.getQuery(), other.getQuery())
         && Objects.equals(one.getFragment(), other.getFragment());
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private static boolean shareSameSuperTypes(
+      Class<?> oneClass, Class<?> otherClass, Class<?>... types) {
+    for (Class<?> type : types) {
+      if (oneClass.isAssignableFrom(type) != otherClass.isAssignableFrom(type)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   static int hashCode(UriReference urlReference) {

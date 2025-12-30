@@ -43,7 +43,7 @@ final class Constants {
   static final String subDelims = "!\\$&'\\(\\)\\*\\+,;=";
 
   static final boolean[] subDelimCharSet =
-      include('!', '\\', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=');
+      include('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=');
 
   @Language("RegExp")
   static final String alwaysIllegal =

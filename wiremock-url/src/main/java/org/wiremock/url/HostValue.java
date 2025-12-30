@@ -50,6 +50,11 @@ final class HostValue implements Host {
     }
   }
 
+  @Override
+  public boolean isNormalForm() {
+    return normalise().equals(this);
+  }
+
   public String host() {
     return host;
   }

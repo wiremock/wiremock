@@ -239,5 +239,5 @@
 { "input": "non-special:/\\path", "href": "non-special:/\\path", "origin": "null", "protocol": "non-special:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/\\path", "search": "", "hash": "" },
 { "input": "non-special://host\\a", "failure": true },
 { "input": "non-special://host/a\\b", "href": "non-special://host/a\\b", "origin": "null", "protocol": "non-special:", "username": "", "password": "", "host": "host", "hostname": "host", "port": "", "pathname": "/a\\b", "search": "", "hash": "" },
-{ "input": "http://example.com/{}?{}#{}", "href": "http://example.com/%7B%7D", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%7B%7D", "search": "?{}", "hash": "#{}" }
+{ "input": "http://example.com/{}?{}#{}", "href": "http://example.com/%7B%7D", "origin": "http://example.com", "protocol": "http:", "username": "", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/%7B%7D", "search": "?%7B%7D", "hash": "#%7B%7D" }
 ]

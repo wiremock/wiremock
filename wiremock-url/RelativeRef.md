@@ -1,46 +1,67 @@
 ```mermaid
 
 classDiagram
-direction BT
-class PathAndQuery {
-<<Interface>>
+direction TB
+
+class UriReference {
+  <<Sealed_Interface>>
 
 }
+
+class UrlReference {
+  <<Sealed_Interface>>
+
+}
+
+class Uri {
+  <<Sealed_Interface>>
+
+}
+
 class RelativeRef {
 <<Interface>>
 
 }
-class Uri {
-<<Interface>>
+
+class HttpRequestUrlReference {
+  <<Sealed_Interface>>
 
 }
-class UriReference {
-<<Interface>>
 
-}
 class Url {
 <<Interface>>
 
 }
+
+class Urn {
+  <<Interface>>
+
+}
+
+class PathAndQuery {
+<<Interface>>
+
+}
+
+class AbsoluteUrl {
+<<Interface>>
+
+}
+
 class Origin {
 <<Interface>>
 
 }
-class UrlReference {
-<<Interface>>
 
-}
-class Urn {
-<<Interface>>
-
-}
-
-PathAndQuery  -->  RelativeRef 
-RelativeRef  -->  UrlReference 
-Uri  -->  UriReference 
-Url  -->  Uri 
-Url  -->  UrlReference 
-Origin --> Url
-UrlReference  -->  UriReference 
-Urn  -->  Uri 
+UriReference <|-- UrlReference 
+UriReference <|-- Uri
+UrlReference <|-- RelativeRef
+UrlReference <|-- Url 
+Uri <|-- Url 
+Uri <|-- Urn 
+RelativeRef <|-- PathAndQuery 
+HttpRequestUrlReference <|-- PathAndQuery 
+HttpRequestUrlReference <|-- AbsoluteUrl
+Url <|-- AbsoluteUrl
+AbsoluteUrl <|-- Origin
 ```

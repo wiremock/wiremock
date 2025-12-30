@@ -99,14 +99,12 @@ class UrlBuilder implements Builder {
       @Nullable Query query,
       @Nullable Fragment fragment) {
     if (scheme.isNormalForm()
-        && authority instanceof HostAndPort
-        && (authority.getPort() == null
-            || (authority.getPort().isNormalForm()
-                && authority.getPort() != scheme.getDefaultPort()))
+        && authority instanceof HostAndPort hostAndPort
+        && hostAndPort.isNormalForm(scheme)
         && path.isEmpty()
         && query == null
         && fragment == null) {
-      return Origin.of(scheme, (HostAndPort) authority);
+      return new OriginValue(scheme, hostAndPort);
     } else {
       return new UrlValue(scheme, authority, path, query, fragment);
     }

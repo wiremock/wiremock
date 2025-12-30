@@ -17,7 +17,6 @@ package org.wiremock.url;
 
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
-import org.wiremock.url.Uri.Builder;
 
 public sealed interface UriReference permits Uri, UrlReference {
 
