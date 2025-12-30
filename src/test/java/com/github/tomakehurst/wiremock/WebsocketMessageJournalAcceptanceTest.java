@@ -417,4 +417,3 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     assertThat(getAllMessageServeEvents().size(), is(1));
   }
 }
-

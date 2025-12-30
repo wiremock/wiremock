@@ -27,7 +27,6 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
@@ -54,13 +53,11 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubMappingMatchesWithRegexPattern() {
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Greeting stub")
             .withBody(matching("hello.*"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("hi there!"))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(sendMessage("hi there!").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/greet");
@@ -71,15 +68,12 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubMappingWithChannelPatternMatchesSpecificChannels() {
-    RequestPattern channelPattern = newRequestPattern().withUrl("/vip-channel").build();
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("VIP stub")
-            .onChannelFromRequestMatching(channelPattern)
+            .onChannelFromRequestMatching(newRequestPattern().withUrl("/vip-channel"))
             .withBody(equalTo("request"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("VIP response"))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(sendMessage("VIP response").onOriginatingChannel()));
 
     WebsocketTestClient vipClient = new WebsocketTestClient();
     WebsocketTestClient regularClient = new WebsocketTestClient();
@@ -100,24 +94,19 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubMappingPriorityDeterminesMatchOrder() {
-    MessageStubMapping lowPriorityStub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Low priority stub")
             .withPriority(10)
             .withBody(matching(".*"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("low priority"))
-            .build();
+            .willTriggerActions(sendMessage("low priority").onOriginatingChannel()));
 
-    MessageStubMapping highPriorityStub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("High priority stub")
             .withPriority(1)
             .withBody(equalTo("test"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("high priority"))
-            .build();
-
-    wireMockServer.addMessageStubMapping(lowPriorityStub);
-    wireMockServer.addMessageStubMapping(highPriorityStub);
+            .willTriggerActions(sendMessage("high priority").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/priority-test");
@@ -128,16 +117,14 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubMappingCanSendToMatchingChannels() {
-    RequestPattern targetPattern =
-        newRequestPattern().withUrl(urlPathMatching("/broadcast/.*")).build();
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Broadcast stub")
             .withBody(equalTo("broadcast"))
-            .triggersAction(
-                SendMessageAction.toMatchingChannels("broadcast message", targetPattern))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage("broadcast message")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathMatching("/broadcast/.*")))));
 
     WebsocketTestClient senderClient = new WebsocketTestClient();
     WebsocketTestClient receiverClient1 = new WebsocketTestClient();
@@ -163,12 +150,11 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
   @Test
   void messageStubMappingCanBeRemoved() {
     MessageStubMapping stub =
-        MessageStubMapping.builder()
-            .withName("Removable stub")
-            .withBody(equalTo("test"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("response"))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+        messageStubFor(
+            message()
+                .withName("Removable stub")
+                .withBody(equalTo("test"))
+                .willTriggerActions(sendMessage("response").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/remove-test");
@@ -190,14 +176,13 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubMappingWithMultipleActions() {
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Multi-action stub")
             .withBody(equalTo("multi"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("response1"))
-            .triggersAction(SendMessageAction.toOriginatingChannel("response2"))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage("response1").onOriginatingChannel(),
+                sendMessage("response2").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/multi-action");
@@ -272,4 +257,3 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
     waitAtMost(5, SECONDS).until(() -> client2.getMessages().contains("broadcasted"));
   }
 }
-

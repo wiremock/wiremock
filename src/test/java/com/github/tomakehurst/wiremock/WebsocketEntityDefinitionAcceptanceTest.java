@@ -255,4 +255,3 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     assertThat(response, is(binaryContent));
   }
 }
-

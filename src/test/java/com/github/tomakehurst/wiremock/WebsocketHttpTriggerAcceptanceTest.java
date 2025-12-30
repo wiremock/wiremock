@@ -144,4 +144,3 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
     waitAtMost(5, SECONDS).until(() -> wsClient2.getMessages().contains("broadcast message"));
   }
 }
-

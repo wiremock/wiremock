@@ -30,4 +30,3 @@ public abstract class WebsocketAcceptanceTestBase extends AcceptanceTestBase {
     return "ws://localhost:" + wireMockServer.port() + path;
   }
 }
-

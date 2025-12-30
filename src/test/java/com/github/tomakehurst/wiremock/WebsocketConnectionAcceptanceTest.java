@@ -165,4 +165,3 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     assertThat(result2.getChannelsMessaged(), is(0));
   }
 }
-
