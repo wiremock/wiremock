@@ -91,7 +91,6 @@ public class WebsocketTestClient {
     ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
     URI uri = URI.create(url);
     try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, uri)) {
-      Thread.sleep(100);
       return work.apply(session);
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -121,7 +120,6 @@ public class WebsocketTestClient {
     ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
     URI uri = URI.create(url);
     try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, uri)) {
-      Thread.sleep(100);
       int messageCountBefore = endpoint.messages.size();
       session.getBasicRemote().sendText(message);
       await()
@@ -147,7 +145,6 @@ public class WebsocketTestClient {
     ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
     URI uri = URI.create(url);
     try (Session session = websocketClient.connectToServer(endpoint, endpointConfig, uri)) {
-      Thread.sleep(100);
       int binaryMessageCountBefore = endpoint.binaryMessages.size();
       session.getBasicRemote().sendText(message);
       await()
