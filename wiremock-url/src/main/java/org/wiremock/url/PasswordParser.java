@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-final class PasswordParser implements PercentEncodedCharSequenceParser<Password> {
+final class PasswordParser implements PercentEncodedStringParser<Password> {
 
   static final PasswordParser INSTANCE = new PasswordParser();
 
@@ -28,12 +28,11 @@ final class PasswordParser implements PercentEncodedCharSequenceParser<Password>
   private final Pattern passwordPattern = Pattern.compile("^" + passwordRegex + "$");
 
   @Override
-  public Password parse(CharSequence stringForm) throws IllegalPassword {
-    String passwordStr = stringForm.toString();
-    if (passwordPattern.matcher(passwordStr).matches()) {
-      return new PasswordValue(passwordStr);
+  public Password parse(String stringForm) throws IllegalPassword {
+    if (passwordPattern.matcher(stringForm).matches()) {
+      return new PasswordValue(stringForm);
     } else {
-      throw new IllegalPassword(passwordStr);
+      throw new IllegalPassword(stringForm);
     }
   }
 

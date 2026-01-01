@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-class QueryParser implements PercentEncodedCharSequenceParser<Query> {
+class QueryParser implements PercentEncodedStringParser<Query> {
 
   static final QueryParser INSTANCE = new QueryParser();
 
@@ -27,12 +27,11 @@ class QueryParser implements PercentEncodedCharSequenceParser<Query> {
   private final Pattern queryPattern = Pattern.compile("^" + queryRegex + "$");
 
   @Override
-  public Query parse(CharSequence stringForm) throws IllegalQuery {
-    String queryStr = stringForm.toString();
-    if (queryPattern.matcher(queryStr).matches()) {
-      return new QueryValue(queryStr);
+  public Query parse(String stringForm) throws IllegalQuery {
+    if (queryPattern.matcher(stringForm).matches()) {
+      return new QueryValue(stringForm);
     } else {
-      throw new IllegalQuery(queryStr);
+      throw new IllegalQuery(stringForm);
     }
   }
 

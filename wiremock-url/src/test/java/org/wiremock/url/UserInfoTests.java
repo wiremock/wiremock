@@ -316,7 +316,7 @@ class UserInfoTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         UserInfoParser.INSTANCE, ParseMethod.validUserInfo);
   }
 }

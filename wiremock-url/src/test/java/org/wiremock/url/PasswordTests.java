@@ -251,7 +251,7 @@ class PasswordTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         PasswordParser.INSTANCE, ParseMethod.validPasswords);
   }
 }

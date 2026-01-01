@@ -23,7 +23,7 @@ import static org.wiremock.url.Constants.unreservedCharSet;
 
 import java.util.regex.Pattern;
 
-final class PathParser implements PercentEncodedCharSequenceParser<Path> {
+final class PathParser implements PercentEncodedStringParser<Path> {
 
   static final PathParser INSTANCE = new PathParser();
 
@@ -31,12 +31,11 @@ final class PathParser implements PercentEncodedCharSequenceParser<Path> {
   private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
 
   @Override
-  public Path parse(CharSequence stringForm) {
-    String pathStr = stringForm.toString();
-    if (pathPattern.matcher(pathStr).matches()) {
-      return new PathValue(pathStr);
+  public Path parse(String stringForm) {
+    if (pathPattern.matcher(stringForm).matches()) {
+      return new PathValue(stringForm);
     } else {
-      throw new IllegalPath(pathStr);
+      throw new IllegalPath(stringForm);
     }
   }
 

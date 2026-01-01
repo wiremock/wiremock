@@ -334,7 +334,7 @@ class FragmentTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         FragmentParser.INSTANCE, ParseMethod.validFragments);
   }
 }

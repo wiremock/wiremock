@@ -79,7 +79,7 @@ public non-sealed interface RelativeRef extends UrlReference {
    * @return the parsed relative reference
    * @throws IllegalRelativeRef if the string is not a valid relative reference
    */
-  static RelativeRef parse(CharSequence relativeRef) throws IllegalRelativeRef {
+  static RelativeRef parse(String relativeRef) throws IllegalRelativeRef {
     return RelativeRefParser.INSTANCE.parse(relativeRef);
   }
 }

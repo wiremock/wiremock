@@ -57,7 +57,7 @@ public non-sealed interface Urn extends Uri {
     return null;
   }
 
-  static Urn parse(CharSequence urn) throws IllegalUrn {
+  static Urn parse(String urn) throws IllegalUrn {
     return UrnParser.INSTANCE.parse(urn);
   }
 

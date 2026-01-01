@@ -25,9 +25,9 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 
 /**
- * Reusable test utility for verifying CharSequenceParser invariants.
+ * Reusable test utility for verifying StringParser invariants.
  *
- * <p>This class provides methods to generate dynamic tests that verify any CharSequenceParser
+ * <p>This class provides methods to generate dynamic tests that verify any StringParser
  * implementation maintains the following invariants:
  *
  * <ul>
@@ -42,29 +42,29 @@ import org.junit.jupiter.api.DynamicTest;
  *   @TestFactory
  *   Stream<DynamicTest> parser_invariants() {
  *     List<String> validInputs = List.of("value1", "value2", "value3");
- *     return CharSequenceParserInvariantTests.generateInvariantTests(
+ *     return StringParserInvariantTests.generateInvariantTests(
  *         MyParser.INSTANCE, validInputs);
  *   }
  * }
  * }</pre>
  */
-public class CharSequenceParserInvariantTests {
+public class StringParserInvariantTests {
 
   /**
-   * Generates dynamic tests that verify all CharSequenceParser invariants for the provided valid
+   * Generates dynamic tests that verify all StringParser invariants for the provided valid
    * input strings.
    *
    * <p>This method returns a Stream of DynamicTest that can be used with JUnit's
    * {@code @TestFactory} annotation.
    *
-   * @param parser the CharSequenceParser to test
+   * @param parser the StringParser to test
    * @param validStrings a collection of valid string values that the parser should successfully
    *     parse
    * @param <T> the type returned by the parser
    * @return a Stream of DynamicTest instances
    */
   public static <T> Stream<DynamicTest> generateInvariantTests(
-      CharSequenceParser<T> parser, Collection<String> validStrings) {
+      StringParser<T> parser, Collection<String> validStrings) {
     List<DynamicTest> tests = new ArrayList<>();
 
     // Generate toString preservation tests

@@ -103,7 +103,7 @@ public non-sealed interface Url extends Uri, UrlReference {
    * @return the resolved URL
    * @throws IllegalUrl if the string is not a valid URI reference
    */
-  default Url resolve(CharSequence other) {
+  default Url resolve(String other) {
     return resolve(parse(other));
   }
 
@@ -153,7 +153,7 @@ public non-sealed interface Url extends Uri, UrlReference {
    * @return the parsed URL
    * @throws IllegalUrl if the string is not a valid URL
    */
-  static Url parse(CharSequence url) throws IllegalUrl {
+  static Url parse(String url) throws IllegalUrl {
     return UrlParser.INSTANCE.parse(url);
   }
 

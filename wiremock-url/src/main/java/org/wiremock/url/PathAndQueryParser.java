@@ -15,21 +15,21 @@
  */
 package org.wiremock.url;
 
-final class PathAndQueryParser implements CharSequenceParser<PathAndQuery> {
+final class PathAndQueryParser implements StringParser<PathAndQuery> {
 
   static final PathAndQueryParser INSTANCE = new PathAndQueryParser();
 
   @Override
-  public PathAndQuery parse(CharSequence stringForm) {
+  public PathAndQuery parse(String stringForm) {
     try {
       var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
       if (urlReference instanceof PathAndQuery) {
         return (PathAndQuery) urlReference;
       } else {
-        throw new IllegalPathAndQuery(stringForm.toString());
+        throw new IllegalPathAndQuery(stringForm);
       }
     } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalPathAndQuery(stringForm.toString(), illegalUriPart);
+      throw new IllegalPathAndQuery(stringForm, illegalUriPart);
     }
   }
 }

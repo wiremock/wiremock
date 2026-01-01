@@ -105,7 +105,7 @@ public class AuthorityTests {
         validAuthorities.stream()
             .map(authorityParseTestCase -> authorityParseTestCase.stringForm)
             .toList();
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         AuthorityParser.INSTANCE, authorities);
   }
 

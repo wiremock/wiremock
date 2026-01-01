@@ -535,6 +535,6 @@ class HostTests {
             .flatMap(identity())
             .toList();
 
-    return CharSequenceParserInvariantTests.generateInvariantTests(HostParser.INSTANCE, validHosts);
+    return StringParserInvariantTests.generateInvariantTests(HostParser.INSTANCE, validHosts);
   }
 }

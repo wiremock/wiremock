@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class SchemeParser implements CharSequenceParser<Scheme> {
+final class SchemeParser implements StringParser<Scheme> {
 
   static final SchemeParser INSTANCE = new SchemeParser();
 
@@ -38,8 +38,7 @@ final class SchemeParser implements CharSequenceParser<Scheme> {
   }
 
   @Override
-  public Scheme parse(CharSequence scheme) throws IllegalScheme {
-    String schemeString = scheme.toString();
+  public Scheme parse(String schemeString) throws IllegalScheme {
     Scheme canonicalScheme = getCanonicalScheme(schemeString);
     if (canonicalScheme.toString().equals(schemeString)) {
       return canonicalScheme;

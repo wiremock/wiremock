@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class UriReferenceParser implements CharSequenceParser<UriReference> {
+final class UriReferenceParser implements StringParser<UriReference> {
 
   static final UriReferenceParser INSTANCE = new UriReferenceParser();
 
@@ -93,15 +93,14 @@ final class UriReferenceParser implements CharSequenceParser<UriReference> {
           "^(?:(?<scheme>[^:/?#]+):)?(?://(?<authority>[^/?#]*))?(?<path>[^?#]*)(?:\\?(?<query>[^#]*))?(?:#(?<fragment>.*))?");
 
   @Override
-  public UriReference parse(CharSequence stringForm) {
-    String string = stringForm.toString();
+  public UriReference parse(String stringForm) {
     try {
       var result = regex.matcher(stringForm);
       if (!result.matches()) {
-        if (string.contains(":")) {
-          throw new IllegalUrl(string);
+        if (stringForm.contains(":")) {
+          throw new IllegalUrl(stringForm);
         } else {
-          throw new IllegalRelativeRef(string);
+          throw new IllegalRelativeRef(stringForm);
         }
       }
 
@@ -123,7 +122,7 @@ final class UriReferenceParser implements CharSequenceParser<UriReference> {
           .setFragment(fragment)
           .build();
     } catch (IllegalUriPart illegalPart) {
-      throw new IllegalUriReference(string, illegalPart);
+      throw new IllegalUriReference(stringForm, illegalPart);
     }
   }
 

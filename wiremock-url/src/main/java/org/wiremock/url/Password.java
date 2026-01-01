@@ -38,7 +38,7 @@ public interface Password extends PercentEncoded {
    * @return the parsed password
    * @throws IllegalPassword if the string is not a valid password
    */
-  static Password parse(CharSequence password) throws IllegalPassword {
+  static Password parse(String password) throws IllegalPassword {
     return PasswordParser.INSTANCE.parse(password);
   }
 

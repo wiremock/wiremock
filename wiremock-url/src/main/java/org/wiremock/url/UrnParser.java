@@ -15,21 +15,21 @@
  */
 package org.wiremock.url;
 
-final class UrnParser implements CharSequenceParser<Urn> {
+final class UrnParser implements StringParser<Urn> {
 
   static final UrnParser INSTANCE = new UrnParser();
 
   @Override
-  public Urn parse(CharSequence urn) throws IllegalUrn {
+  public Urn parse(String urn) throws IllegalUrn {
     try {
       var uriReference = UriReferenceParser.INSTANCE.parse(urn);
       if (uriReference instanceof Urn) {
         return (Urn) uriReference;
       } else {
-        throw new IllegalUrn(urn.toString());
+        throw new IllegalUrn(urn);
       }
     } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalUrn(urn.toString(), illegalUriPart);
+      throw new IllegalUrn(urn, illegalUriPart);
     }
   }
 }

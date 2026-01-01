@@ -72,8 +72,8 @@ public interface Scheme {
    * @throws IllegalScheme if the raw scheme is not a legal Scheme, matching {@code
    *     [a-zA-Z][a-zA-Z0-9+\-.]{0,255}}
    */
-  static Scheme parse(CharSequence scheme) throws IllegalScheme {
-    return SchemeParser.INSTANCE.parse(scheme.toString());
+  static Scheme parse(String scheme) throws IllegalScheme {
+    return SchemeParser.INSTANCE.parse(scheme);
   }
 
   /**

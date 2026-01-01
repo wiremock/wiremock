@@ -71,7 +71,7 @@ public interface PathAndQuery extends RelativeRef {
    * @return the parsed path and query
    * @throws IllegalPathAndQuery if the string is not a valid path and query
    */
-  static PathAndQuery parse(CharSequence pathAndQuery) throws IllegalPathAndQuery {
+  static PathAndQuery parse(String pathAndQuery) throws IllegalPathAndQuery {
     return PathAndQueryParser.INSTANCE.parse(pathAndQuery);
   }
 }

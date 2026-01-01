@@ -15,21 +15,21 @@
  */
 package org.wiremock.url;
 
-final class RelativeRefParser implements CharSequenceParser<RelativeRef> {
+final class RelativeRefParser implements StringParser<RelativeRef> {
 
   static final RelativeRefParser INSTANCE = new RelativeRefParser();
 
   @Override
-  public RelativeRef parse(CharSequence stringForm) {
+  public RelativeRef parse(String stringForm) {
     try {
       var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
       if (urlReference instanceof RelativeRef) {
         return (RelativeRef) urlReference;
       } else {
-        throw new IllegalRelativeRef(stringForm.toString());
+        throw new IllegalRelativeRef(stringForm);
       }
     } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalRelativeRef(stringForm.toString(), illegalUriPart);
+      throw new IllegalRelativeRef(stringForm, illegalUriPart);
     }
   }
 }

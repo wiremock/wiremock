@@ -17,13 +17,13 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.*;
 
-final class FragmentParser implements PercentEncodedCharSequenceParser<Fragment> {
+final class FragmentParser implements PercentEncodedStringParser<Fragment> {
 
   static final FragmentParser INSTANCE = new FragmentParser();
 
   @Override
-  public Fragment parse(CharSequence stringForm) {
-    return new FragmentValue(stringForm.toString());
+  public Fragment parse(String stringForm) {
+    return new FragmentValue(stringForm);
   }
 
   static final boolean[] fragmentCharSet = combine(pcharCharSet, include('/', '?'));

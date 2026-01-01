@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
+class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 
@@ -28,10 +28,9 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
   private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
 
   @Override
-  public UserInfo parse(CharSequence stringForm) {
-    String userInfoStr = stringForm.toString();
+  public UserInfo parse(String stringForm) {
     if (userInfoPattern.matcher(stringForm).matches()) {
-      var components = userInfoStr.split(":", 2);
+      var components = stringForm.split(":", 2);
       var username = new UsernameValue(components[0]);
       final Password password;
       if (components.length == 2) {
@@ -39,9 +38,9 @@ class UserInfoParser implements PercentEncodedCharSequenceParser<UserInfo> {
       } else {
         password = null;
       }
-      return new UserInfoValue(userInfoStr, username, password);
+      return new UserInfoValue(stringForm, username, password);
     } else {
-      throw new IllegalUserInfo(userInfoStr);
+      throw new IllegalUserInfo(stringForm);
     }
   }
 

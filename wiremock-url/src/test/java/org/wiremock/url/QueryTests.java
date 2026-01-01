@@ -349,7 +349,7 @@ class QueryTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         QueryParser.INSTANCE, ParseMethod.validQueries);
   }
 }

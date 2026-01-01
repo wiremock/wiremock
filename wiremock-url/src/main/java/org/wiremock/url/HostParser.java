@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class HostParser implements PercentEncodedCharSequenceParser<Host> {
+final class HostParser implements PercentEncodedStringParser<Host> {
 
   static final HostParser INSTANCE = new HostParser();
 
@@ -36,25 +36,24 @@ final class HostParser implements PercentEncodedCharSequenceParser<Host> {
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
 
   @Override
-  public Host parse(CharSequence stringForm) throws IllegalHost {
-    String hostStr = stringForm.toString();
-    Matcher matcher = hostPattern.matcher(hostStr);
+  public Host parse(String stringForm) throws IllegalHost {
+    Matcher matcher = hostPattern.matcher(stringForm);
     if (matcher.matches()) {
       String ipv6Address = matcher.group("ipv6Address");
       if (ipv6Address != null) {
         if (!ipv6Address.contains(":")) {
-          throw new IllegalHost(hostStr);
+          throw new IllegalHost(stringForm);
         }
         try {
           //noinspection ResultOfMethodCallIgnored
           InetAddress.getByName(ipv6Address);
         } catch (UnknownHostException e) {
-          throw new IllegalHost(hostStr);
+          throw new IllegalHost(stringForm);
         }
       }
-      return new HostValue(hostStr);
+      return new HostValue(stringForm);
     } else {
-      throw new IllegalHost(hostStr);
+      throw new IllegalHost(stringForm);
     }
   }
 

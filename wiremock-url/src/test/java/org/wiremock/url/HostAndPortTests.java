@@ -72,7 +72,7 @@ class HostAndPortTests {
   Stream<DynamicTest> invariants() {
     List<String> authorities =
         validHostAndPorts.stream().map(AuthorityParseTestCase::stringForm).toList();
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         HostAndPortParser.INSTANCE, authorities);
   }
 

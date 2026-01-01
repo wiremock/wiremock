@@ -493,7 +493,7 @@ class PortTests {
 
     @TestFactory
     Stream<DynamicTest> port_parser_invariants() {
-      return CharSequenceParserInvariantTests.generateInvariantTests(
+      return StringParserInvariantTests.generateInvariantTests(
           PortParser.INSTANCE, ParseMethod.validPortStrings().toList());
     }
   }

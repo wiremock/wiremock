@@ -34,7 +34,7 @@ public interface Username extends PercentEncoded {
    * @return the parsed username
    * @throws IllegalUsername if the string is not a valid username
    */
-  static Username parse(CharSequence username) throws IllegalUsername {
+  static Username parse(String username) throws IllegalUsername {
     return UsernameParser.INSTANCE.parse(username);
   }
 

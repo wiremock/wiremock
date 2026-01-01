@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-final class PortParser implements CharSequenceParser<Port> {
+final class PortParser implements StringParser<Port> {
 
   static PortParser INSTANCE = new PortParser();
 
@@ -36,24 +36,23 @@ final class PortParser implements CharSequenceParser<Port> {
   }
 
   @Override
-  public Port parse(CharSequence stringForm) {
-    String s = stringForm.toString();
+  public Port parse(String stringForm) {
     try {
-      if (s.startsWith("+")) {
-        throw new IllegalPort(s);
+      if (stringForm.startsWith("+")) {
+        throw new IllegalPort(stringForm);
       }
-      int port = Integer.parseInt(s);
+      int port = Integer.parseInt(stringForm);
       String canonical = String.valueOf(port);
-      boolean isNormalForm = s.equals(canonical);
+      boolean isNormalForm = stringForm.equals(canonical);
       if (isNormalForm && port <= MAX_PORT) {
         return of(port);
       } else {
         validate(port);
-        return new PortValue(port, s, isNormalForm);
+        return new PortValue(port, stringForm, isNormalForm);
       }
 
     } catch (NumberFormatException e) {
-      throw new IllegalPort(s);
+      throw new IllegalPort(stringForm);
     }
   }
 

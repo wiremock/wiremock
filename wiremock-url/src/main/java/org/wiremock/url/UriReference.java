@@ -159,7 +159,7 @@ public sealed interface UriReference permits Uri, UrlReference {
    * @return the parsed URI reference
    * @throws IllegalUriReference if the string is not a valid URI reference
    */
-  static UriReference parse(CharSequence urlReference) throws IllegalUriReference {
+  static UriReference parse(String urlReference) throws IllegalUriReference {
     return UriReferenceParser.INSTANCE.parse(urlReference);
   }
 

@@ -35,7 +35,7 @@ public interface Query extends PercentEncoded {
    * @return the parsed query
    * @throws IllegalQuery if the string is not a valid query
    */
-  static Query parse(CharSequence query) throws IllegalQuery {
+  static Query parse(String query) throws IllegalQuery {
     return QueryParser.INSTANCE.parse(query);
   }
 

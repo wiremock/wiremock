@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-final class UsernameParser implements PercentEncodedCharSequenceParser<Username> {
+final class UsernameParser implements PercentEncodedStringParser<Username> {
 
   static final UsernameParser INSTANCE = new UsernameParser();
 
@@ -28,12 +28,11 @@ final class UsernameParser implements PercentEncodedCharSequenceParser<Username>
   private final Pattern usernamePattern = Pattern.compile("^" + usernameRegex + "$");
 
   @Override
-  public Username parse(CharSequence stringForm) throws IllegalUsername {
-    String usernameStr = stringForm.toString();
-    if (usernamePattern.matcher(usernameStr).matches()) {
-      return new UsernameValue(usernameStr);
+  public Username parse(String stringForm) throws IllegalUsername {
+    if (usernamePattern.matcher(stringForm).matches()) {
+      return new UsernameValue(stringForm);
     } else {
-      throw new IllegalUsername(usernameStr);
+      throw new IllegalUsername(stringForm);
     }
   }
 

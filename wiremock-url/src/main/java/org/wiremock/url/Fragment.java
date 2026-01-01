@@ -43,7 +43,7 @@ public interface Fragment extends PercentEncoded {
    * @return the parsed fragment
    * @throws IllegalFragment if the string is not a valid fragment
    */
-  static Fragment parse(CharSequence fragment) throws IllegalFragment {
+  static Fragment parse(String fragment) throws IllegalFragment {
     return FragmentParser.INSTANCE.parse(fragment);
   }
 

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
-public class PercentEncodedCharSequenceParserInvariantTests {
+public class PercentEncodedStringParserInvariantTests {
 
   @TestFactory
   Stream<DynamicTest> passwordParser() {
@@ -96,7 +96,7 @@ public class PercentEncodedCharSequenceParserInvariantTests {
   }
 
   static <T extends PercentEncoded> Stream<DynamicTest> generateEncodeDecodeInvariantTests(
-      PercentEncodedCharSequenceParser<T> parser, Stream<String> inputs) {
+      PercentEncodedStringParser<T> parser, Stream<String> inputs) {
     return inputs.map(
         input ->
             DynamicTest.dynamicTest(

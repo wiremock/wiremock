@@ -143,7 +143,7 @@ public class PathTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         PathParser.INSTANCE, validPaths().toList());
   }
 

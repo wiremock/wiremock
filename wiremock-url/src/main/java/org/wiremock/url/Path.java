@@ -57,7 +57,7 @@ public interface Path extends PercentEncoded {
    * @return the parsed path
    * @throws IllegalPath if the string is not a valid path
    */
-  static Path parse(CharSequence path) throws IllegalPath {
+  static Path parse(String path) throws IllegalPath {
     return PathParser.INSTANCE.parse(path);
   }
 

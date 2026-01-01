@@ -15,18 +15,17 @@
  */
 package org.wiremock.url;
 
-final class HostAndPortParser implements CharSequenceParser<HostAndPort> {
+final class HostAndPortParser implements StringParser<HostAndPort> {
 
   static final HostAndPortParser INSTANCE = new HostAndPortParser();
 
   @Override
-  public HostAndPort parse(CharSequence stringForm) throws ParseException {
-    String hostAndPortStr = stringForm.toString();
-    var authority = Authority.parse(hostAndPortStr);
+  public HostAndPort parse(String stringForm) throws ParseException {
+    var authority = Authority.parse(stringForm);
     if (authority instanceof HostAndPort) {
       return (HostAndPort) authority;
     } else {
-      throw new IllegalHostAndPort(hostAndPortStr);
+      throw new IllegalHostAndPort(stringForm);
     }
   }
 }

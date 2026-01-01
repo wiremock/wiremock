@@ -246,7 +246,7 @@ class UsernameTests {
 
   @TestFactory
   Stream<DynamicTest> invariants() {
-    return CharSequenceParserInvariantTests.generateInvariantTests(
+    return StringParserInvariantTests.generateInvariantTests(
         UsernameParser.INSTANCE, ParseMethod.validUsernames);
   }
 }

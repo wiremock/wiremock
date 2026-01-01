@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class AuthorityParser implements CharSequenceParser<Authority> {
+final class AuthorityParser implements StringParser<Authority> {
 
   public static final AuthorityParser INSTANCE = new AuthorityParser();
 
@@ -37,12 +37,12 @@ final class AuthorityParser implements CharSequenceParser<Authority> {
   private final Pattern authorityPattern = Pattern.compile("^" + authorityRegex + "$");
 
   @Override
-  public Authority parse(CharSequence stringForm) throws IllegalAuthority {
+  public Authority parse(String stringForm) throws IllegalAuthority {
     var matcher = authorityPattern.matcher(stringForm);
     if (matcher.matches()) {
-      return parse(matcher, stringForm.toString());
+      return parse(matcher, stringForm);
     } else {
-      throw new IllegalAuthority(stringForm.toString());
+      throw new IllegalAuthority(stringForm);
     }
   }
 

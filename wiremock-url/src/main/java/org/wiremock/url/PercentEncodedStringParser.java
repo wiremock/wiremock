@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
-public interface CharSequenceParser<T> {
-  T parse(CharSequence stringForm) throws ParseException;
+public interface PercentEncodedStringParser<T extends PercentEncoded>
+    extends StringParser<T> {
+  T encode(String unencoded);
 }
