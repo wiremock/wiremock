@@ -18,61 +18,177 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a URI reference as defined in <a
+ * href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>.
+ *
+ * <p>A URI reference is either a {@link Uri} or a {@link UrlReference}. URI references are used to
+ * identify resources and can be resolved against a base URL to produce an absolute URL.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
+ */
 public sealed interface UriReference permits Uri, UrlReference {
 
+  /**
+   * Returns the scheme component of this URI, or {@code null} if it is a URI Reference and so there
+   * is no scheme.
+   *
+   * @return the scheme component, or {@code null} if absent
+   */
   @Nullable Scheme getScheme();
 
+  /**
+   * Returns the authority component of this URI reference, or {@code null} if there is no
+   * authority.
+   *
+   * @return the authority component, or {@code null} if absent
+   */
   @Nullable Authority getAuthority();
 
+  /**
+   * Returns the path component of this URI reference.
+   *
+   * @return the path component, never {@code null}
+   */
   Path getPath();
 
+  /**
+   * Returns the query component of this URI reference, or {@code null} if there is no query.
+   *
+   * @return the query component, or {@code null} if absent
+   */
   @Nullable Query getQuery();
 
+  /**
+   * Returns the fragment component of this URI reference, or {@code null} if there is no fragment.
+   *
+   * @return the fragment component, or {@code null} if absent
+   */
   @Nullable Fragment getFragment();
 
+  /**
+   * Returns {@code true} if this is a relative reference (has no scheme).
+   *
+   * @return {@code true} if this is a relative reference
+   */
   boolean isRelativeRef();
 
+  /**
+   * Returns {@code true} if this is a URI (either a URL or URN).
+   *
+   * @return {@code true} if this is a URI
+   */
   boolean isUri();
 
+  /**
+   * Returns {@code true} if this is a URL (has a scheme and authority).
+   *
+   * @return {@code true} if this is a URL
+   */
   boolean isUrl();
 
+  /**
+   * Returns {@code true} if this is a URN (has a scheme but no authority).
+   *
+   * @return {@code true} if this is a URN
+   */
   boolean isUrn();
 
+  /**
+   * Returns the user info component from the authority, or {@code null} if there is no authority or
+   * no user info.
+   *
+   * @return the user info component, or {@code null} if absent
+   */
   default @Nullable UserInfo getUserInfo() {
     Authority authority = getAuthority();
     return authority != null ? authority.getUserInfo() : null;
   }
 
+  /**
+   * Returns the host component from the authority, or {@code null} if there is no authority.
+   *
+   * @return the host component, or {@code null} if absent
+   */
   default @Nullable Host getHost() {
     Authority authority = getAuthority();
     return authority != null ? authority.getHost() : null;
   }
 
+  /**
+   * Returns the port component from the authority, or {@code null} if there is no authority or no
+   * port.
+   *
+   * @return the port component, or {@code null} if absent
+   */
   default @Nullable Port getPort() {
     Authority authority = getAuthority();
     return authority != null ? authority.getPort() : null;
   }
 
+  /**
+   * Returns the resolved port, which is either the explicitly defined port or the default port for
+   * the scheme.
+   *
+   * @return the resolved port, or {@code null} if no port is defined and no default exists for the
+   *     scheme
+   */
   default @Nullable Port getResolvedPort() {
     Port definedPort = getPort();
     Scheme scheme = getScheme();
     return definedPort != null ? definedPort : (scheme != null ? scheme.getDefaultPort() : null);
   }
 
+  /**
+   * Returns a normalized form of this URI reference.
+   *
+   * <p>Normalization includes canonicalizing the scheme to lowercase, normalizing the host,
+   * removing dot segments from the path, and normalizing percent-encoding.
+   *
+   * @return a normalized URI reference
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-6">RFC 3986 Section 6</a>
+   */
   UriReference normalise();
 
+  /**
+   * Parses a string into a URI reference.
+   *
+   * @param urlReference the string to parse
+   * @return the parsed URI reference
+   * @throws IllegalUriReference if the string is not a valid URI reference
+   */
   static UriReference parse(CharSequence urlReference) throws IllegalUriReference {
     return UriReferenceParser.INSTANCE.parse(urlReference);
   }
 
+  /**
+   * Creates a new builder for constructing URI references.
+   *
+   * @return a new builder
+   */
   static Builder builder() {
     return new UriReferenceBuilder();
   }
 
+  /**
+   * Creates a new builder initialized with the values from the given URI reference.
+   *
+   * @param uri the URI reference to copy values from
+   * @return a new builder
+   */
   static Builder builder(UriReference uri) {
     return new UriReferenceBuilder(uri);
   }
 
+  /**
+   * Transforms a URI reference by applying modifications via a builder.
+   *
+   * @param uri the URI reference to transform
+   * @param consumer a function that modifies the builder
+   * @return the transformed URI reference
+   */
   static UriReference transform(UriReference uri, Consumer<Builder> consumer) {
     var builder = builder(uri);
     consumer.accept(builder);

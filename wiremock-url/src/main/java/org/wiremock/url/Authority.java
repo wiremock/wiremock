@@ -19,55 +19,149 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents the authority component of a URI as defined in <a
+ * href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2">RFC 3986 Section 3.2</a>.
+ *
+ * <p>The authority component consists of optional user information, a host, and an optional port.
+ * It typically takes the form {@code [userinfo@]host[:port]}.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2">RFC 3986 Section 3.2</a>
+ */
 public interface Authority {
 
+  /**
+   * Returns the user info component, or {@code null} if there is no user info.
+   *
+   * @return the user info, or {@code null} if absent
+   */
   @Nullable UserInfo getUserInfo();
 
+  /**
+   * Returns the host component.
+   *
+   * @return the host, never {@code null}
+   */
   Host getHost();
 
+  /**
+   * Returns the port component, or {@code null} if there is no port.
+   *
+   * @return the port, or {@code null} if absent
+   */
   @Nullable Port getPort();
 
-  /*
-   * An Authority can legitimately be any of:
-   * - `example.com` - no port
-   * - `example.com:` - empty port
-   * - `example.com:80` - with port
+  /**
+   * Returns an optional representation of the port to distinguish between no port and empty port.
    *
-   * This method allows distinguishing between the first and second cases:
-   * - `null` - no port
-   * - `Optional.empty()` - empty port
-   * - `Optional.of(port)` - with port
+   * <p>An Authority can legitimately be any of:
+   *
+   * <ul>
+   *   <li>{@code example.com} - no port (returns {@code null})
+   *   <li>{@code example.com:} - empty port (returns {@code Optional.empty()})
+   *   <li>{@code example.com:80} - with port (returns {@code Optional.of(port)})
+   * </ul>
+   *
+   * @return {@code null} for no port, {@code Optional.empty()} for empty port, or {@code
+   *     Optional.of(port)} for a port value
    */
   @Nullable Optional<Port> getMaybePort();
 
+  /**
+   * Returns the host and port as a {@link HostAndPort}.
+   *
+   * @return the host and port
+   */
   HostAndPort getHostAndPort();
 
+  /**
+   * Returns a new authority with the specified port.
+   *
+   * @param port the port to set, or {@code null} to remove it
+   * @return a new authority with the updated port
+   */
   Authority withPort(@Nullable Port port);
 
+  /**
+   * Returns a new authority with the port removed.
+   *
+   * @return a new authority without a port
+   */
   default Authority withoutPort() {
     return withPort(null);
   }
 
+  /**
+   * Returns a normalized form of this authority.
+   *
+   * @return a normalized authority
+   */
   Authority normalise();
 
+  /**
+   * Returns a normalized form of this authority using scheme-specific normalization rules.
+   *
+   * <p>The scheme is used to determine if the port should be removed when it matches the default
+   * port for that scheme.
+   *
+   * @param canonicalScheme the canonical scheme to use for normalization
+   * @return a normalized authority
+   */
   Authority normalise(Scheme canonicalScheme);
 
+  /**
+   * Parses a string into an authority.
+   *
+   * @param authorityStr the string to parse
+   * @return the parsed authority
+   * @throws IllegalAuthority if the string is not a valid authority
+   */
   static Authority parse(String authorityStr) throws IllegalAuthority {
     return AuthorityParser.INSTANCE.parse(authorityStr);
   }
 
+  /**
+   * Creates an authority from a host.
+   *
+   * @param host the host
+   * @return the authority
+   */
   static Authority of(Host host) {
     return of(null, host, null);
   }
 
+  /**
+   * Creates an authority from a host and port.
+   *
+   * @param host the host
+   * @param port the port, or {@code null}
+   * @return the authority
+   */
   static Authority of(Host host, @Nullable Port port) {
     return of(null, host, port);
   }
 
+  /**
+   * Creates an authority from user info and host.
+   *
+   * @param userInfo the user info, or {@code null}
+   * @param host the host
+   * @return the authority
+   */
   static Authority of(@Nullable UserInfo userInfo, Host host) {
     return of(userInfo, host, null);
   }
 
+  /**
+   * Creates an authority from user info, host, and port.
+   *
+   * @param userInfo the user info, or {@code null}
+   * @param host the host
+   * @param port the port, or {@code null}
+   * @return the authority
+   */
   static Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
     return AuthorityParser.INSTANCE.of(userInfo, host, port);
   }

@@ -17,16 +17,44 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents an authority component consisting of only a host and optional port, with no user info.
+ *
+ * <p>This is a specialized form of {@link Authority} that is guaranteed to have no user information.
+ * It is commonly used for origins and server identification.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ */
 public interface HostAndPort extends Authority {
 
+  /**
+   * Creates a host and port from a host.
+   *
+   * @param host the host
+   * @return the host and port
+   */
   static HostAndPort of(Host host) {
     return of(host, null);
   }
 
+  /**
+   * Creates a host and port from a host and optional port.
+   *
+   * @param host the host
+   * @param port the port, or {@code null}
+   * @return the host and port
+   */
   static HostAndPort of(Host host, @Nullable Port port) {
     return new HostAndPortValue(host, port);
   }
 
+  /**
+   * Parses a string into a host and port.
+   *
+   * @param hostAndPortStr the string to parse
+   * @return the parsed host and port
+   * @throws IllegalHostAndPort if the string is not a valid host and port
+   */
   static HostAndPort parse(String hostAndPortStr) {
     return HostAndPortParser.INSTANCE.parse(hostAndPortStr);
   }
@@ -57,13 +85,40 @@ public interface HostAndPort extends Authority {
     return this;
   }
 
+  /**
+   * Returns a new host and port with the specified port.
+   *
+   * @param port the port to set, or {@code null} to remove it
+   * @return a new host and port with the updated port
+   */
   @Override
   HostAndPort withPort(@Nullable Port port);
 
+  /**
+   * Returns a normalized form of this host and port.
+   *
+   * @return a normalized host and port
+   */
+  @Override
   HostAndPort normalise();
 
+  /**
+   * Returns a normalized form of this host and port using scheme-specific normalization rules.
+   *
+   * @param canonicalScheme the canonical scheme to use for normalization
+   * @return a normalized host and port
+   */
   HostAndPort normalise(Scheme canonicalScheme);
 
+  /**
+   * Returns {@code true} if this host and port is in normal form for the given scheme.
+   *
+   * <p>A host and port is in normal form if the host is in normal form and the port is either
+   * absent or in normal form and not equal to the default port for the scheme.
+   *
+   * @param scheme the scheme to check against
+   * @return {@code true} if this is in normal form for the scheme
+   */
   default boolean isNormalForm(Scheme scheme) {
     return getHost().isNormalForm() && portIsNormalForm(scheme);
   }

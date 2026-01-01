@@ -15,12 +15,39 @@
  */
 package org.wiremock.url;
 
+/**
+ * Represents the password portion of user information in a URI authority.
+ *
+ * <p>The password is the part after the colon in user information ({@code username:password}).
+ * Passwords may contain percent-encoded characters.
+ *
+ * <p><strong>Security Warning:</strong> Including passwords in URIs is strongly discouraged as they
+ * may be logged, cached, or exposed in various ways. This interface is provided for compatibility
+ * with legacy systems only.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see UserInfo
+ */
 public interface Password extends PercentEncoded {
 
+  /**
+   * Parses a string into a password.
+   *
+   * @param password the string to parse
+   * @return the parsed password
+   * @throws IllegalPassword if the string is not a valid password
+   */
   static Password parse(CharSequence password) throws IllegalPassword {
     return PasswordParser.INSTANCE.parse(password);
   }
 
+  /**
+   * Encodes a string into a valid password with proper percent-encoding.
+   *
+   * @param unencoded the unencoded string
+   * @return the encoded password
+   */
   static Password encode(String unencoded) {
     return PasswordParser.INSTANCE.encode(unencoded);
   }

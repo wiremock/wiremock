@@ -15,8 +15,25 @@
  */
 package org.wiremock.url;
 
+/**
+ * Represents a single segment of a path.
+ *
+ * <p>A path segment is a portion of a path between forward slashes. Special segments include the
+ * empty segment, the dot segment ({@code .}), and the dot-dot segment ({@code ..}) used for
+ * relative path resolution.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see Path
+ */
 public interface Segment extends PercentEncoded {
+
+  /** An empty path segment. */
   Segment EMPTY = new SegmentValue("");
+
+  /** A dot segment ({@code .}) representing the current directory. */
   Segment DOT = new SegmentValue(".");
+
+  /** A dot-dot segment ({@code ..}) representing the parent directory. */
   Segment DOT_DOT = new SegmentValue("..");
 }

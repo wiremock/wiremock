@@ -17,6 +17,18 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a relative reference as defined in <a
+ * href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.2">RFC 3986 Section 4.2</a>.
+ *
+ * <p>A relative reference is a URI reference that does not have a scheme component. It can have an
+ * authority, path, query, and fragment. Relative references are typically resolved against a base
+ * URI to produce another URI.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.2">RFC 3986 Section 4.2</a>
+ */
 public non-sealed interface RelativeRef extends UrlReference {
 
   /**
@@ -32,25 +44,41 @@ public non-sealed interface RelativeRef extends UrlReference {
     return null;
   }
 
+  @Override
   default boolean isRelativeRef() {
     return true;
   }
 
+  @Override
   default boolean isUri() {
     return false;
   }
 
+  @Override
   default boolean isUrl() {
     return false;
   }
 
+  @Override
   default boolean isUrn() {
     return false;
   }
 
+  /**
+   * Returns a normalized form of this relative reference.
+   *
+   * @return a normalized relative reference
+   */
   @Override
   RelativeRef normalise();
 
+  /**
+   * Parses a string into a relative reference.
+   *
+   * @param relativeRef the string to parse
+   * @return the parsed relative reference
+   * @throws IllegalRelativeRef if the string is not a valid relative reference
+   */
   static RelativeRef parse(CharSequence relativeRef) throws IllegalRelativeRef {
     return RelativeRefParser.INSTANCE.parse(relativeRef);
   }

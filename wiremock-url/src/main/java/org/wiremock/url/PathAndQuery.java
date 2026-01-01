@@ -17,8 +17,17 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a path and query component combination, which is a type of relative reference.
+ *
+ * <p>A PathAndQuery consists of a path and an optional query, with no scheme, authority, or
+ * fragment. It is typically used to represent the part of a URL after the authority.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ */
 public interface PathAndQuery extends RelativeRef {
 
+  /** An empty path and query with no components. */
   PathAndQuery EMPTY = new PathAndQueryValue(Path.EMPTY, null);
 
   /**
@@ -47,9 +56,21 @@ public interface PathAndQuery extends RelativeRef {
     return null;
   }
 
+  /**
+   * Returns a normalized form of this path and query.
+   *
+   * @return a normalized path and query
+   */
   @Override
   PathAndQuery normalise();
 
+  /**
+   * Parses a string into a path and query.
+   *
+   * @param pathAndQuery the string to parse
+   * @return the parsed path and query
+   * @throws IllegalPathAndQuery if the string is not a valid path and query
+   */
   static PathAndQuery parse(CharSequence pathAndQuery) throws IllegalPathAndQuery {
     return PathAndQueryParser.INSTANCE.parse(pathAndQuery);
   }

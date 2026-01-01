@@ -1,6 +1,6 @@
 # WireMock URL
 
-A type-safe, immutable URL parsing and manipulation library for Java, designed with lenient parsing
+A type-safe, immutable URL parsing and manipulation library for Java, designed for lenient parsing
 and RFC 3986 compliance.
 
 ## Overview

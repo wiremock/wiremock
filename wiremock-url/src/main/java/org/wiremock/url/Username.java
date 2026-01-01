@@ -15,12 +15,35 @@
  */
 package org.wiremock.url;
 
+/**
+ * Represents the username portion of user information in a URI authority.
+ *
+ * <p>The username is the part before the colon in user information ({@code username:password}).
+ * Usernames may contain percent-encoded characters.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see UserInfo
+ */
 public interface Username extends PercentEncoded {
 
+  /**
+   * Parses a string into a username.
+   *
+   * @param username the string to parse
+   * @return the parsed username
+   * @throws IllegalUsername if the string is not a valid username
+   */
   static Username parse(CharSequence username) throws IllegalUsername {
     return UsernameParser.INSTANCE.parse(username);
   }
 
+  /**
+   * Encodes a string into a valid username with proper percent-encoding.
+   *
+   * @param unencoded the unencoded string
+   * @return the encoded username
+   */
   static Username encode(String unencoded) {
     return UsernameParser.INSTANCE.encode(unencoded);
   }

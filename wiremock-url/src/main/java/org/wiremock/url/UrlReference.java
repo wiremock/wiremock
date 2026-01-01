@@ -15,4 +15,17 @@
  */
 package org.wiremock.url;
 
+/**
+ * Represents a URL reference, which is a subset of URI references.
+ *
+ * <p>A UrlReference is either a {@link Url} or a {@link RelativeRef}. An {@link Url} is guaranteed
+ * to resolve to an {@link Url} if resolved against a UrlReference, whereas it may resolve to an
+ * {@link Urn} if resolved against an {@link UriReference}.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see UriReference
+ * @see Url
+ * @see RelativeRef
+ */
 public sealed interface UrlReference extends UriReference permits RelativeRef, Url {}

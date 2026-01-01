@@ -18,19 +18,40 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a Uniform Resource Locator (URL) as defined in <a
+ * href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>.
+ *
+ * <p>A URL consists of a scheme, authority (host and optional port and user info), path, optional
+ * query, and optional fragment. URLs always have both a scheme and an authority component.
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>
+ */
 public non-sealed interface Url extends Uri, UrlReference {
 
+  /**
+   * Returns the authority component of this URL.
+   *
+   * <p>URLs always have an authority component (unlike relative references and URNs).
+   *
+   * @return the authority component, never {@code null}
+   */
   @Override
   Authority getAuthority();
 
+  @Override
   default boolean isRelativeRef() {
     return false;
   }
 
+  @Override
   default boolean isUrl() {
     return true;
   }
 
+  @Override
   default boolean isUrn() {
     return false;
   }
@@ -40,53 +61,130 @@ public non-sealed interface Url extends Uri, UrlReference {
     return getAuthority().getHost();
   }
 
+  /**
+   * Returns {@code true} if this URL is absolute (has no fragment component).
+   *
+   * @return {@code true} if this URL has no fragment
+   */
   default boolean isAbsolute() {
     return getFragment() == null;
   }
 
+  /**
+   * Returns the origin of this URL, consisting of the scheme, host, and port.
+   *
+   * @return the origin
+   */
   default Origin origin() {
     return Origin.of(getScheme(), getAuthority().getHostAndPort());
   }
 
+  /**
+   * Returns the path and query components combined.
+   *
+   * @return the path and query
+   */
   default PathAndQuery getPathAndQuery() {
     return new PathAndQueryValue(getPath(), getQuery());
   }
 
+  /**
+   * Returns a normalized form of this URL.
+   *
+   * @return a normalized URL
+   */
   @Override
   Url normalise();
 
+  /**
+   * Resolves the given string as a URI reference against this URL.
+   *
+   * @param other the URI reference to resolve
+   * @return the resolved URL
+   * @throws IllegalUrl if the string is not a valid URI reference
+   */
   default Url resolve(CharSequence other) {
     return resolve(parse(other));
   }
 
+  /**
+   * Resolves the given path against this URL.
+   *
+   * @param other the path to resolve
+   * @return the URL with the resolved path
+   */
   default Url resolve(Path other) {
     return transform(this, builder -> builder.setPath(getPath().resolve(other)));
   }
 
+  /**
+   * Resolves the given URL reference against this URL.
+   *
+   * @param other the URL reference to resolve
+   * @return the resolved URL
+   */
   default Url resolve(UrlReference other) {
     return (Url) resolve((UriReference) other);
   }
 
+  /**
+   * Creates a builder initialized with the values from this URL.
+   *
+   * @return a builder
+   */
   default Builder thaw() {
     return builder(this);
   }
 
+  /**
+   * Transforms this URL by applying modifications via a builder.
+   *
+   * @param consumer a function that modifies the builder
+   * @return the transformed URL
+   */
   default Url transform(Consumer<Builder> consumer) {
     return transform(this, consumer);
   }
 
+  /**
+   * Parses a string into a URL.
+   *
+   * @param url the string to parse
+   * @return the parsed URL
+   * @throws IllegalUrl if the string is not a valid URL
+   */
   static Url parse(CharSequence url) throws IllegalUrl {
     return UrlParser.INSTANCE.parse(url);
   }
 
+  /**
+   * Creates a new builder with the given scheme and authority.
+   *
+   * @param scheme the scheme
+   * @param authority the authority
+   * @return a new builder
+   */
   static Builder builder(Scheme scheme, Authority authority) {
     return new UrlBuilder(scheme, authority);
   }
 
+  /**
+   * Creates a builder initialized with the values from the given URL.
+   *
+   * @param url the URL to copy values from
+   * @return a new builder
+   */
   static Builder builder(Url url) {
     return new UrlBuilder(url);
   }
 
+  /**
+   * Transforms a URL by applying modifications via a builder.
+   *
+   * @param uri the URL to transform
+   * @param consumer a function that modifies the builder
+   * @return the transformed URL
+   */
   static Url transform(Url uri, Consumer<Builder> consumer) {
     var builder = builder(uri);
     consumer.accept(builder);
