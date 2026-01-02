@@ -36,4 +36,25 @@ public interface Segment extends PercentEncoded {
 
   /** A dot-dot segment ({@code ..}) representing the parent directory. */
   Segment DOT_DOT = new SegmentValue("..");
+
+  /**
+   * Parses a string into a path segment.
+   *
+   * @param segment the string to parse
+   * @return the parsed segment
+   * @throws IllegalSegment if the string is not a valid segment
+   */
+  static Segment parse(String segment) throws IllegalSegment {
+    return SegmentParser.INSTANCE.parse(segment);
+  }
+
+  /**
+   * Encodes a string into a valid path segment with proper percent-encoding.
+   *
+   * @param unencoded the unencoded string
+   * @return the encoded segment
+   */
+  static Segment encode(String unencoded) {
+    return SegmentParser.INSTANCE.encode(unencoded);
+  }
 }
