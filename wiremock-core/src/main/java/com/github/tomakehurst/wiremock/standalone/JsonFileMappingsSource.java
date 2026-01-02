@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubMappingOrMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -34,12 +37,23 @@ import java.util.stream.Collectors;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
+  public static final String MESSAGE_MAPPINGS_ROOT = "message-mappings";
+
   private final FileSource mappingsFileSource;
+  private final FileSource messageMappingsFileSource;
   private final Map<UUID, StubMappingFileMetadata> fileNameMap;
   private final FilenameMaker filenameMaker;
 
   public JsonFileMappingsSource(FileSource mappingsFileSource, FilenameMaker filenameMaker) {
+    this(mappingsFileSource, null, filenameMaker);
+  }
+
+  public JsonFileMappingsSource(
+      FileSource mappingsFileSource,
+      FileSource messageMappingsFileSource,
+      FilenameMaker filenameMaker) {
     this.mappingsFileSource = mappingsFileSource;
+    this.messageMappingsFileSource = messageMappingsFileSource;
     this.filenameMaker = Objects.requireNonNullElseGet(filenameMaker, FilenameMaker::new);
     fileNameMap = new HashMap<>();
   }
@@ -118,6 +132,31 @@ public class JsonFileMappingsSource implements MappingsSource {
           StubMappingFileMetadata fileMetadata =
               new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
           fileNameMap.put(mapping.getId(), fileMetadata);
+        }
+      } catch (JsonException e) {
+        throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+      } catch (IOException e) {
+        throwUnchecked(e);
+      }
+    }
+  }
+
+  @Override
+  public void loadMessageMappingsInto(MessageStubMappings messageStubMappings) {
+    if (messageMappingsFileSource == null || !messageMappingsFileSource.exists()) {
+      return;
+    }
+
+    List<TextFile> mappingFiles =
+        messageMappingsFileSource.listFilesRecursively().stream()
+            .filter(byFileExtension("json"))
+            .collect(Collectors.toList());
+    for (TextFile mappingFile : mappingFiles) {
+      try {
+        MessageStubMappingOrMappings stubCollection =
+            Json.read(mappingFile.readContents(), MessageStubMappingOrMappings.class);
+        for (MessageStubMapping mapping : stubCollection.getMappingOrMappings()) {
+          messageStubMappings.add(mapping);
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());

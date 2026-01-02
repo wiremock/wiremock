@@ -1,0 +1,13 @@
+{
+  "name": "Single message stub",
+  "id": "11111111-1111-1111-1111-111111111111",
+  "trigger": {
+    "type": "message",
+    "channelPattern": {"urlPath": "/ws/single"}
+  },
+  "actions": [{
+    "sendToOriginatingChannel": true,
+    "type": "send",
+    "message": {"body": {"data": "Hello from single stub"}}
+  }]
+}

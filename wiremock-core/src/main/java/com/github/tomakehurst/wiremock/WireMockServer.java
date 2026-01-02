@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,6 +152,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     wireMockApp.loadMappingsUsing(mappingsLoader);
+  }
+
+  public void loadMessageMappingsUsing(final MappingsLoader mappingsLoader) {
+    wireMockApp.loadMessageMappingsUsing(mappingsLoader);
   }
 
   public void addMockServiceRequestListener(RequestListener listener) {

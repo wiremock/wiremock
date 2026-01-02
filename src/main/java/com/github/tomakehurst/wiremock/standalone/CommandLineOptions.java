@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -433,7 +433,11 @@ public class CommandLineOptions implements Options {
     }
 
     filenameMaker = new FilenameMaker(getFilenameTemplateOption());
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
+    mappingsSource =
+        new JsonFileMappingsSource(
+            fileSource.child(MAPPINGS_ROOT),
+            fileSource.child(JsonFileMappingsSource.MESSAGE_MAPPINGS_ROOT),
+            filenameMaker);
     buildExtensions();
 
     actualHttpPort = null;

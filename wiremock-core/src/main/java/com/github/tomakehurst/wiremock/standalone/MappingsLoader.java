@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public interface MappingsLoader {
 
   void loadMappingsInto(StubMappings stubMappings);
+
+  default void loadMessageMappingsInto(MessageStubMappings messageStubMappings) {
+    // Default implementation does nothing - subclasses can override
+  }
 }

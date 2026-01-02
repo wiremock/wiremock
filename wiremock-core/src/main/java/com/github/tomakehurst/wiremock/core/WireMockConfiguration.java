@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,7 +145,10 @@ public class WireMockConfiguration implements Options {
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource =
-          new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), getFilenameMaker());
+          new JsonFileMappingsSource(
+              filesRoot.child(MAPPINGS_ROOT),
+              filesRoot.child(JsonFileMappingsSource.MESSAGE_MAPPINGS_ROOT),
+              getFilenameMaker());
     }
 
     return mappingsSource;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -323,12 +323,19 @@ public class WireMockApp implements StubServer, Admin {
 
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
-    if (mappingsLoaderExtensions != null)
+    loadMessageMappingsUsing(defaultMappingsLoader);
+    if (mappingsLoaderExtensions != null) {
       mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
+      mappingsLoaderExtensions.values().forEach(e -> loadMessageMappingsUsing(e));
+    }
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     mappingsLoader.loadMappingsInto(stubMappings);
+  }
+
+  public void loadMessageMappingsUsing(final MappingsLoader mappingsLoader) {
+    mappingsLoader.loadMessageMappingsInto(messageStubMappings);
   }
 
   @Override
