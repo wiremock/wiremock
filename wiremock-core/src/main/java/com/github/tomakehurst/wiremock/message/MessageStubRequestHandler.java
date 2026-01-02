@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
@@ -44,16 +45,20 @@ public class MessageStubRequestHandler {
   private final MessageChannels messageChannels;
   private final MessageJournal messageJournal;
   private final Stores stores;
+  private final List<MessageActionTransformer> actionTransformers;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
       MessageJournal messageJournal,
-      Stores stores) {
+      Stores stores,
+      List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
     this.stores = stores;
+    this.actionTransformers =
+        actionTransformers != null ? actionTransformers : Collections.emptyList();
   }
 
   public void processMessage(MessageChannel channel, Message message) {
@@ -73,9 +78,22 @@ public class MessageStubRequestHandler {
 
   private void executeActions(
       MessageStubMapping stub, MessageChannel originatingChannel, Message incomingMessage) {
+    MessageActionContext context =
+        MessageActionContext.forIncomingMessage(stub, originatingChannel, incomingMessage);
     for (MessageAction action : stub.getActions()) {
-      executeAction(action, originatingChannel, incomingMessage);
+      MessageAction transformedAction = applyTransformations(action, context);
+      executeAction(transformedAction, originatingChannel, incomingMessage);
     }
+  }
+
+  private MessageAction applyTransformations(MessageAction action, MessageActionContext context) {
+    MessageAction result = action;
+    for (MessageActionTransformer transformer : actionTransformers) {
+      if (transformer.applyGlobally()) {
+        result = transformer.transform(result, context);
+      }
+    }
+    return result;
   }
 
   private void executeAction(

@@ -1,22 +1,13 @@
 {
-  "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
   "name": "Classpath message stub",
+  "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
   "trigger": {
     "type": "message",
-    "channelPattern": {
-      "urlPath": "/ws/classpath"
-    }
+    "channelPattern": {"urlPath": "/ws/classpath"}
   },
-  "actions": [
-    {
-      "type": "send",
-      "sendToOriginatingChannel": true,
-      "message": {
-        "body": {
-          "data": "Hello from classpath"
-        }
-      }
-    }
-  ]
+  "actions": [{
+    "sendToOriginatingChannel": true,
+    "type": "send",
+    "message": {"body": {"data": "Hello from classpath"}}
+  }]
 }
-

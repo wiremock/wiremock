@@ -142,7 +142,11 @@ public class WireMockApp implements StubServer, Admin {
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
-            messageStubMappings, messageChannels, stores, customMatchers);
+            messageStubMappings,
+            messageChannels,
+            stores,
+            customMatchers,
+            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
     Map<String, ServeEventListener> extensionListeners =
         extensions.ofType(ServeEventListener.class);
     Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
@@ -209,7 +213,11 @@ public class WireMockApp implements StubServer, Admin {
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
-            messageStubMappings, messageChannels, stores, requestMatchers);
+            messageStubMappings,
+            messageChannels,
+            stores,
+            requestMatchers,
+            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
     serveEventListeners = Map.of(httpStubListener.getName(), httpStubListener);
 
     stubMappings =
@@ -294,7 +302,11 @@ public class WireMockApp implements StubServer, Admin {
 
   public MessageStubRequestHandler buildMessageStubRequestHandler() {
     return new MessageStubRequestHandler(
-        messageStubMappings, messageChannels, messageJournal, stores);
+        messageStubMappings,
+        messageChannels,
+        messageJournal,
+        stores,
+        List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
   }
 
   private List<RequestFilter> getAdminRequestFilters() {

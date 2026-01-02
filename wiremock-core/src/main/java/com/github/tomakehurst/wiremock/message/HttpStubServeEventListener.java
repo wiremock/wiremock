@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -30,16 +31,20 @@ public class HttpStubServeEventListener implements ServeEventListener {
   private final MessageChannels messageChannels;
   private final Stores stores;
   private final Map<String, RequestMatcherExtension> customMatchers;
+  private final List<MessageActionTransformer> actionTransformers;
 
   public HttpStubServeEventListener(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
       Stores stores,
-      Map<String, RequestMatcherExtension> customMatchers) {
+      Map<String, RequestMatcherExtension> customMatchers,
+      List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.stores = stores;
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
+    this.actionTransformers =
+        actionTransformers != null ? actionTransformers : Collections.emptyList();
   }
 
   @Override
@@ -60,7 +65,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
 
     List<MessageStubMapping> matchingStubs = findMatchingMessageStubs(serveEvent);
     for (MessageStubMapping stub : matchingStubs) {
-      executeActions(stub);
+      executeActions(stub, serveEvent);
     }
   }
 
@@ -80,10 +85,22 @@ public class HttpStubServeEventListener implements ServeEventListener {
     return false;
   }
 
-  private void executeActions(MessageStubMapping stub) {
+  private void executeActions(MessageStubMapping stub, ServeEvent httpServeEvent) {
+    MessageActionContext context = MessageActionContext.forHttpTrigger(stub, httpServeEvent);
     for (MessageAction action : stub.getActions()) {
-      executeAction(action);
+      MessageAction transformedAction = applyTransformations(action, context);
+      executeAction(transformedAction);
     }
+  }
+
+  private MessageAction applyTransformations(MessageAction action, MessageActionContext context) {
+    MessageAction result = action;
+    for (MessageActionTransformer transformer : actionTransformers) {
+      if (transformer.applyGlobally()) {
+        result = transformer.transform(result, context);
+      }
+    }
+    return result;
   }
 
   private void executeAction(MessageAction action) {
