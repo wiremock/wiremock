@@ -116,6 +116,19 @@ public class MessageMappingsLoaderAcceptanceTest {
     assertThat(stubs.size(), is(0));
   }
 
+  @Test
+  public void messageMappingsLoadedFromClasspath() {
+    buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
+
+    List<MessageStubMapping> stubs = wireMockServer.getMessageStubMappingsList();
+
+    assertThat(stubs.size(), is(1));
+    assertThat(stubs, hasItem(messageStubMappingWithName("Classpath message stub")));
+    assertThat(
+        stubs,
+        hasItem(messageStubMappingWithId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))));
+  }
+
   private static Matcher<MessageStubMapping> messageStubMappingWithName(final String name) {
     return new TypeSafeDiagnosingMatcher<>() {
       @Override
