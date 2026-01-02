@@ -89,7 +89,7 @@ public class MessageStubRequestHandler {
   private MessageAction applyTransformations(MessageAction action, MessageActionContext context) {
     MessageAction result = action;
     for (MessageActionTransformer transformer : actionTransformers) {
-      if (transformer.applyGlobally()) {
+      if (transformer.applyGlobally() || action.hasTransformer(transformer)) {
         result = transformer.transform(result, context);
       }
     }

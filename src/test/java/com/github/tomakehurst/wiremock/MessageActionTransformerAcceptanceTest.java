@@ -46,8 +46,7 @@ public class MessageActionTransformerAcceptanceTest {
   void globalTransformerModifiesMessageAction() {
     wm =
         new WireMockServer(
-            wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer()));
-    wm.start();
+                wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer())).startServer();
 
     wm.addMessageStubMapping(
         message()
@@ -66,12 +65,12 @@ public class MessageActionTransformerAcceptanceTest {
   void multipleTransformersAreAppliedInOrder() {
     wm =
         new WireMockServer(
-            wireMockConfig()
-                .dynamicPort()
-                .extensions(
-                    new PrefixingMessageActionTransformer(),
-                    new SuffixingMessageActionTransformer()));
-    wm.start();
+                wireMockConfig()
+                    .dynamicPort()
+                    .extensions(
+                        new PrefixingMessageActionTransformer(),
+                        new SuffixingMessageActionTransformer()))
+            .startServer();
 
     wm.addMessageStubMapping(
         message()
@@ -90,8 +89,8 @@ public class MessageActionTransformerAcceptanceTest {
   void nonGlobalTransformerIsNotApplied() {
     wm =
         new WireMockServer(
-            wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()));
-    wm.start();
+                wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
+            .startServer();
 
     wm.addMessageStubMapping(
         message()
@@ -110,8 +109,8 @@ public class MessageActionTransformerAcceptanceTest {
   void transformerHasAccessToIncomingMessageContext() {
     wm =
         new WireMockServer(
-            wireMockConfig().dynamicPort().extensions(new EchoingMessageActionTransformer()));
-    wm.start();
+                wireMockConfig().dynamicPort().extensions(new EchoingMessageActionTransformer()))
+            .startServer();
 
     wm.addMessageStubMapping(
         message()
@@ -124,6 +123,27 @@ public class MessageActionTransformerAcceptanceTest {
 
     String response = testClient.sendMessageAndWaitForResponse(url, "my-input");
     assertThat(response, is("Echo: my-input"));
+  }
+
+  @Test
+  void nonGlobalTransformerIsAppliedWhenSpecifiedOnAction() {
+    wm =
+        new WireMockServer(
+                wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
+            .startServer();
+
+    wm.addMessageStubMapping(
+        message()
+            .withName("Selective transformer stub")
+            .withBody(equalTo("apply"))
+            .willTriggerActions(
+                sendMessage("original").withTransformer("non-global").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/selective-transform-test");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "apply");
+    assertThat(response, is("SHOULD NOT SEE THIS"));
   }
 
   private String websocketUrl(String path) {

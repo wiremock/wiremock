@@ -19,12 +19,17 @@ import static com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SendMessageActionBuilder {
 
   private TextEntityDefinition.Builder textEntityBuilder = aTextMessage();
+  private final List<String> transformers = new ArrayList<>();
+  private Parameters transformerParameters = Parameters.empty();
 
   public SendMessageActionBuilder() {}
 
@@ -49,51 +54,89 @@ public class SendMessageActionBuilder {
     return this;
   }
 
+  public SendMessageActionBuilder withTransformer(String transformerName) {
+    this.transformers.add(transformerName);
+    return this;
+  }
+
+  public SendMessageActionBuilder withTransformers(String... transformerNames) {
+    for (String name : transformerNames) {
+      this.transformers.add(name);
+    }
+    return this;
+  }
+
+  public SendMessageActionBuilder withTransformerParameters(Parameters parameters) {
+    this.transformerParameters = parameters;
+    return this;
+  }
+
+  public SendMessageActionBuilder withTransformerParameter(String key, Object value) {
+    this.transformerParameters = this.transformerParameters.merge(Parameters.one(key, value));
+    return this;
+  }
+
   private EntityDefinition resolveBody() {
     return textEntityBuilder.build();
   }
 
   public SendMessageAction onOriginatingChannel() {
-    return SendMessageAction.toOriginatingChannel(resolveBody());
+    return new SendMessageAction(
+        new MessageDefinition(resolveBody()), null, true, transformers, transformerParameters);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return SendMessageAction.toMatchingChannels(resolveBody(), targetChannelPattern);
+    return new SendMessageAction(
+        new MessageDefinition(resolveBody()),
+        targetChannelPattern,
+        false,
+        transformers,
+        transformerParameters);
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
-    return SendMessageAction.toMatchingChannels(resolveBody(), targetChannelPatternBuilder.build());
+    return onChannelsMatching(targetChannelPatternBuilder.build());
   }
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
-    return new TargetedSendMessageActionBuilder(true, null);
+    return new TargetedSendMessageActionBuilder(true, null, transformers, transformerParameters);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
-    return new TargetedSendMessageActionBuilder(false, targetChannelPattern);
+    return new TargetedSendMessageActionBuilder(
+        false, targetChannelPattern, transformers, transformerParameters);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
       RequestPatternBuilder targetChannelPatternBuilder) {
-    return new TargetedSendMessageActionBuilder(false, targetChannelPatternBuilder.build());
+    return new TargetedSendMessageActionBuilder(
+        false, targetChannelPatternBuilder.build(), transformers, transformerParameters);
   }
 
   public static class TargetedSendMessageActionBuilder {
     private final boolean sendToOriginatingChannel;
     private final RequestPattern targetChannelPattern;
+    private final List<String> transformers;
+    private final Parameters transformerParameters;
 
     TargetedSendMessageActionBuilder(
-        boolean sendToOriginatingChannel, RequestPattern targetChannelPattern) {
+        boolean sendToOriginatingChannel,
+        RequestPattern targetChannelPattern,
+        List<String> transformers,
+        Parameters transformerParameters) {
       this.sendToOriginatingChannel = sendToOriginatingChannel;
       this.targetChannelPattern = targetChannelPattern;
+      this.transformers = transformers;
+      this.transformerParameters = transformerParameters;
     }
 
     public SendMessageAction withMessage(EntityDefinition body) {
-      if (sendToOriginatingChannel) {
-        return SendMessageAction.toOriginatingChannel(body);
-      } else {
-        return SendMessageAction.toMatchingChannels(body, targetChannelPattern);
-      }
+      return new SendMessageAction(
+          new MessageDefinition(body),
+          sendToOriginatingChannel ? null : targetChannelPattern,
+          sendToOriginatingChannel,
+          transformers,
+          transformerParameters);
     }
 
     public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {

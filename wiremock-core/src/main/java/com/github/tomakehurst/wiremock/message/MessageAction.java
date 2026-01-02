@@ -17,7 +17,12 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.github.tomakehurst.wiremock.extension.Extension;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = SendMessageAction.class, name = "send")})
-public interface MessageAction {}
+public interface MessageAction {
+  default boolean hasTransformer(Extension transformer) {
+    return false;
+  }
+}
