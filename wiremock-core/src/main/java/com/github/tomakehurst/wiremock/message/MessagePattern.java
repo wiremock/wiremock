@@ -79,7 +79,7 @@ public class MessagePattern {
   }
 
   public boolean matches(MessageChannel channel, Message message) {
-    return matches(channel.getRequest(), message);
+    return matches(channel.getInitiatingRequest(), message);
   }
 
   @SuppressWarnings("unchecked")

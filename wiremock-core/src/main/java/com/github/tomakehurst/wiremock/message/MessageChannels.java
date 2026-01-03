@@ -69,7 +69,7 @@ public class MessageChannels {
         .getAll()
         .filter(MessageChannel::isOpen)
         .filter(
-            channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
+            channel -> requestPattern.match(channel.getInitiatingRequest(), customMatchers).isExactMatch())
         .collect(Collectors.toList());
   }
 
@@ -82,7 +82,7 @@ public class MessageChannels {
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
         .filter(
-            channel -> requestPattern.match(channel.getRequest(), customMatchers).isExactMatch())
+            channel -> requestPattern.match(channel.getInitiatingRequest(), customMatchers).isExactMatch())
         .collect(Collectors.toList());
   }
 

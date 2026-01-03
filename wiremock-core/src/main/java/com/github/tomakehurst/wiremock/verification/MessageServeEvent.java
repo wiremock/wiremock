@@ -126,7 +126,7 @@ public class MessageServeEvent {
   public static MessageServeEvent receivedMatched(
       MessageChannel channel, Message message, MessageStubMapping stubMapping) {
     return receivedMatched(
-        channel.getType(), channel.getId(), channel.getRequest(), message, stubMapping);
+        channel.getType(), channel.getId(), channel.getInitiatingRequest(), message, stubMapping);
   }
 
   public static MessageServeEvent receivedUnmatched(
@@ -145,7 +145,7 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent receivedUnmatched(MessageChannel channel, Message message) {
-    return receivedUnmatched(channel.getType(), channel.getId(), channel.getRequest(), message);
+    return receivedUnmatched(channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
   }
 
   public static MessageServeEvent sent(
@@ -164,7 +164,7 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent sent(MessageChannel channel, Message message) {
-    return sent(channel.getType(), channel.getId(), channel.getRequest(), message);
+    return sent(channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
   }
 
   public UUID getId() {

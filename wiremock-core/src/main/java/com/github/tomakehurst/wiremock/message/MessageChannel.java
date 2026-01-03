@@ -24,7 +24,7 @@ public interface MessageChannel {
 
   UUID getId();
 
-  Request getRequest();
+  Request getInitiatingRequest();
 
   boolean isOpen();
 

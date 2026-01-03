@@ -48,7 +48,7 @@ public class WebSocketMessageChannel implements MessageChannel {
   }
 
   @Override
-  public Request getRequest() {
+  public Request getInitiatingRequest() {
     return request;
   }
 
