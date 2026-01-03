@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
@@ -40,16 +42,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
             .willReturn(aResponse().withStatus(200).withBody("OK")));
 
-    MessageStubMapping messageStub =
-        MessageStubMapping.builder()
+    wireMockServer.messageStubFor(message()
             .withName("HTTP stub triggered message")
             .triggeredByHttpStub("11111111-2222-3333-4444-555555555555")
-            .triggersAction(
-                SendMessageAction.toMatchingChannels(
-                    "event triggered",
-                    newRequestPattern().withUrl(urlPathEqualTo("/ws-events")).build()))
-            .build();
-    wireMockServer.addMessageStubMapping(messageStub);
+            .willTriggerActions(
+                sendMessage("event triggered")
+                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-events")))
+            )
+    );
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-events");
@@ -63,16 +63,15 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternSendsMessageToWebsocketChannel() {
-    MessageStubMapping messageStub =
-        MessageStubMapping.builder()
+    wireMockServer.messageStubFor(message()
             .withName("HTTP request pattern triggered message")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathMatching("/api/notify/.*")))
-            .triggersAction(
-                SendMessageAction.toMatchingChannels(
-                    "notification received",
-                    newRequestPattern().withUrl(urlPathEqualTo("/ws-notifications")).build()))
-            .build();
-    wireMockServer.addMessageStubMapping(messageStub);
+            .willTriggerActions(
+                sendMessage()
+                    .withBody("notification received")
+                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-notifications")))
+            )
+    );
 
     stubFor(
         get(urlPathMatching("/api/notify/.*"))
@@ -90,16 +89,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternWorksWithoutMatchingHttpStub() {
-    MessageStubMapping messageStub =
-        MessageStubMapping.builder()
+    wireMockServer.messageStubFor(message()
             .withName("HTTP request pattern triggered without stub")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/api/no-stub")))
-            .triggersAction(
-                SendMessageAction.toMatchingChannels(
-                    "request received",
-                    newRequestPattern().withUrl(urlPathEqualTo("/ws-no-stub")).build()))
-            .build();
-    wireMockServer.addMessageStubMapping(messageStub);
+            .willTriggerActions(
+                sendMessage("request received")
+                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-no-stub")))
+            )
+    );
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-no-stub");
@@ -118,16 +115,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("22222222-3333-4444-5555-666666666666"))
             .willReturn(aResponse().withStatus(200).withBody("Broadcast sent")));
 
-    MessageStubMapping messageStub =
-        MessageStubMapping.builder()
+    wireMockServer.messageStubFor(message()
             .withName("Broadcast on HTTP stub")
             .triggeredByHttpStub("22222222-3333-4444-5555-666666666666")
-            .triggersAction(
-                SendMessageAction.toMatchingChannels(
-                    "broadcast message",
-                    newRequestPattern().withUrl(urlPathMatching("/ws-broadcast.*")).build()))
-            .build();
-    wireMockServer.addMessageStubMapping(messageStub);
+            .willTriggerActions(
+                    sendMessage("broadcast message")
+                            .onChannelsMatching(newRequestPattern().withUrl(urlPathMatching("/ws-broadcast.*")))
+            )
+    );
 
     WebsocketTestClient wsClient1 = new WebsocketTestClient();
     WebsocketTestClient wsClient2 = new WebsocketTestClient();
