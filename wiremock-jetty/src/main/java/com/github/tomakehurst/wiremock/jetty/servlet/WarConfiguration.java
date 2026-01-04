@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty.servlet;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -105,7 +106,7 @@ public class WarConfiguration implements Options {
   public MappingsLoader mappingsLoader() {
     return new JsonFileMappingsSource(
         filesRoot().child("mappings"),
-        filesRoot().child(JsonFileMappingsSource.MESSAGE_MAPPINGS_ROOT),
+        filesRoot().child(MESSAGE_MAPPINGS_ROOT),
         new FilenameMaker());
   }
 

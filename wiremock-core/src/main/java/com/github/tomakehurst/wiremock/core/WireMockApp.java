@@ -61,6 +61,7 @@ public class WireMockApp implements StubServer, Admin {
   public static final String FILES_ROOT = "__files";
   public static final String ADMIN_CONTEXT_ROOT = "/__admin";
   public static final String MAPPINGS_ROOT = "mappings";
+  public static final String MESSAGE_MAPPINGS_ROOT = "message-mappings";
   private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;

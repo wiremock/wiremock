@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -436,7 +437,7 @@ public class CommandLineOptions implements Options {
     mappingsSource =
         new JsonFileMappingsSource(
             fileSource.child(MAPPINGS_ROOT),
-            fileSource.child(JsonFileMappingsSource.MESSAGE_MAPPINGS_ROOT),
+            fileSource.child(MESSAGE_MAPPINGS_ROOT),
             filenameMaker);
     buildExtensions();
 

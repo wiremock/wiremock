@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -147,7 +148,7 @@ public class WireMockConfiguration implements Options {
       mappingsSource =
           new JsonFileMappingsSource(
               filesRoot.child(MAPPINGS_ROOT),
-              filesRoot.child(JsonFileMappingsSource.MESSAGE_MAPPINGS_ROOT),
+              filesRoot.child(MESSAGE_MAPPINGS_ROOT),
               getFilenameMaker());
     }
 

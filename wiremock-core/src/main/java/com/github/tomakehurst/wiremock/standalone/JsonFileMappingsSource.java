@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
-  public static final String MESSAGE_MAPPINGS_ROOT = "message-mappings";
-
   private final FileSource mappingsFileSource;
   private final FileSource messageMappingsFileSource;
   private final Map<UUID, StubMappingFileMetadata> fileNameMap;
