@@ -76,9 +76,15 @@ public class MessageMappingsLoaderAcceptanceTest {
     assertThat(stubs, hasItem(messageStubMappingWithName("Multi message stub 2")));
     assertThat(stubs, hasItem(messageStubMappingWithName("Multi message stub 3")));
 
-    assertThat(stubs, hasItem(messageStubMappingWithId(UUID.fromString("22222222-2222-2222-2222-222222222222"))));
+    assertThat(
+        stubs,
+        hasItem(messageStubMappingWithId(UUID.fromString("22222222-2222-2222-2222-222222222222"))));
 
-    MessageStubMapping multiStub2 = stubs.stream().filter(stub -> stub.getName().equals("Multi message stub 2")).findFirst().get();
+    MessageStubMapping multiStub2 =
+        stubs.stream()
+            .filter(stub -> stub.getName().equals("Multi message stub 2"))
+            .findFirst()
+            .get();
     assertThat(multiStub2.getId(), is(notNullValue()));
   }
 
