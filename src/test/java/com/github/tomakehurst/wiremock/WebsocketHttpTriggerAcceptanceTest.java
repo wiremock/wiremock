@@ -27,8 +27,6 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 
-import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -42,14 +40,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
             .willReturn(aResponse().withStatus(200).withBody("OK")));
 
-    wireMockServer.messageStubFor(message()
+    wireMockServer.messageStubFor(
+        message()
             .withName("HTTP stub triggered message")
             .triggeredByHttpStub("11111111-2222-3333-4444-555555555555")
             .willTriggerActions(
                 sendMessage("event triggered")
-                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-events")))
-            )
-    );
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/ws-events")))));
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-events");
@@ -63,15 +61,15 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternSendsMessageToWebsocketChannel() {
-    wireMockServer.messageStubFor(message()
+    wireMockServer.messageStubFor(
+        message()
             .withName("HTTP request pattern triggered message")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathMatching("/api/notify/.*")))
             .willTriggerActions(
                 sendMessage()
                     .withBody("notification received")
-                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-notifications")))
-            )
-    );
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/ws-notifications")))));
 
     stubFor(
         get(urlPathMatching("/api/notify/.*"))
@@ -89,14 +87,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternWorksWithoutMatchingHttpStub() {
-    wireMockServer.messageStubFor(message()
+    wireMockServer.messageStubFor(
+        message()
             .withName("HTTP request pattern triggered without stub")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/api/no-stub")))
             .willTriggerActions(
                 sendMessage("request received")
-                    .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/ws-no-stub")))
-            )
-    );
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/ws-no-stub")))));
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-no-stub");
@@ -115,14 +113,14 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("22222222-3333-4444-5555-666666666666"))
             .willReturn(aResponse().withStatus(200).withBody("Broadcast sent")));
 
-    wireMockServer.messageStubFor(message()
+    wireMockServer.messageStubFor(
+        message()
             .withName("Broadcast on HTTP stub")
             .triggeredByHttpStub("22222222-3333-4444-5555-666666666666")
             .willTriggerActions(
-                    sendMessage("broadcast message")
-                            .onChannelsMatching(newRequestPattern().withUrl(urlPathMatching("/ws-broadcast.*")))
-            )
-    );
+                sendMessage("broadcast message")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathMatching("/ws-broadcast.*")))));
 
     WebsocketTestClient wsClient1 = new WebsocketTestClient();
     WebsocketTestClient wsClient2 = new WebsocketTestClient();

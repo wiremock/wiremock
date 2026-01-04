@@ -78,6 +78,7 @@ class ExtensionsTest {
             "e7",
             "e8",
             "response-template",
+            "message-template",
             "webhook",
             "proxied-hostname-rewrite"),
         allExtensions);

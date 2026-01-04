@@ -145,7 +145,8 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent receivedUnmatched(MessageChannel channel, Message message) {
-    return receivedUnmatched(channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
+    return receivedUnmatched(
+        channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
   }
 
   public static MessageServeEvent sent(

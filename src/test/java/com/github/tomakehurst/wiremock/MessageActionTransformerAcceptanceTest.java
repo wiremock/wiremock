@@ -46,7 +46,8 @@ public class MessageActionTransformerAcceptanceTest {
   void globalTransformerModifiesMessageAction() {
     wm =
         new WireMockServer(
-                wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer())).startServer();
+                wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer()))
+            .startServer();
 
     wm.addMessageStubMapping(
         message()
