@@ -28,6 +28,7 @@ dependencies {
   implementation(platform(libs.okhttp.bom))
   implementation(project(":wiremock-httpclient-apache5"))
   implementation(project(":wiremock-httpclient-okhttp"))
+  implementation(project(":wiremock-httpclient-jetty"))
 
   implementation(libs.jopt.simple)
 
