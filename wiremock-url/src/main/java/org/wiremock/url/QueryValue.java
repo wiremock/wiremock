@@ -47,6 +47,16 @@ final class QueryValue implements Query {
     }
   }
 
+  @Override
+  public boolean isNormalForm(Scheme scheme) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    throw new UnsupportedOperationException();
+  }
+
   public String query() {
     return query;
   }

@@ -57,9 +57,9 @@ public interface PathAndQuery extends RelativeRef {
   }
 
   /**
-   * Returns a normalized form of this path and query.
+   * Returns a normalised form of this path and query.
    *
-   * @return a normalized path and query
+   * @return a normalised path and query
    */
   @Override
   PathAndQuery normalise();

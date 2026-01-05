@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
  */
-public sealed interface UriReference permits Uri, UrlReference {
+public sealed interface UriReference extends Normalisable<UriReference> permits Uri, UrlReference {
 
   /**
    * Returns the scheme component of this URI, or {@code null} if it is a URI Reference and so there
@@ -142,15 +142,31 @@ public sealed interface UriReference permits Uri, UrlReference {
   }
 
   /**
-   * Returns a normalized form of this URI reference.
+   * Returns a normalised form of this URI reference.
    *
    * <p>Normalization includes canonicalizing the scheme to lowercase, normalizing the host,
    * removing dot segments from the path, and normalizing percent-encoding.
    *
-   * @return a normalized URI reference
+   * @return a normalised URI reference
    * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-6">RFC 3986 Section 6</a>
    */
+  @Override
   UriReference normalise();
+
+  @Override
+  default boolean isNormalForm() {
+    var scheme = getScheme();
+    var authority = getAuthority();
+    var path = getPath();
+    var query = getQuery();
+    var fragment = getFragment();
+    return (scheme == null || scheme.isNormalForm()) &&
+        (authority == null || (scheme == null ? authority.isNormalForm() : authority.isNormalForm(scheme))) &&
+        path.isNormalForm() &&
+        (query == null || (scheme == null ? query.isNormalForm() : query.isNormalForm(scheme))) &&
+        (fragment == null || fragment.isNormalForm())
+        ;
+  }
 
   /**
    * Parses a string into a URI reference.

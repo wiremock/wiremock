@@ -89,9 +89,9 @@ public non-sealed interface Url extends Uri, UrlReference {
   }
 
   /**
-   * Returns a normalized form of this URL.
+   * Returns a normalised form of this URL.
    *
-   * @return a normalized URL
+   * @return a normalised URL
    */
   @Override
   Url normalise();

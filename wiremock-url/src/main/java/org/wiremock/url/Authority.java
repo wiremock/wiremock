@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2">RFC 3986 Section 3.2</a>
  */
-public interface Authority {
+public interface Authority extends Normalisable<Authority> {
 
   /**
    * Returns the user info component, or {@code null} if there is no user info.
@@ -94,22 +94,42 @@ public interface Authority {
   }
 
   /**
-   * Returns a normalized form of this authority.
-   *
-   * @return a normalized authority
-   */
-  Authority normalise();
-
-  /**
-   * Returns a normalized form of this authority using scheme-specific normalization rules.
+   * Returns a normalised form of this authority using scheme-specific normalization rules.
    *
    * <p>The scheme is used to determine if the port should be removed when it matches the default
    * port for that scheme.
    *
    * @param canonicalScheme the canonical scheme to use for normalization
-   * @return a normalized authority
+   * @return a normalised authority
    */
   Authority normalise(Scheme canonicalScheme);
+
+  @Override
+  default boolean isNormalForm() {
+    Optional<Port> maybePort = getMaybePort();
+    //noinspection OptionalAssignedToNull
+    return (getUserInfo() == null || getUserInfo().isNormalForm()) &&
+        getHost().isNormalForm() &&
+        (maybePort == null || maybePort.isPresent() && maybePort.get().isNormalForm());
+  }
+
+  /**
+   * Tests if this value is already normalised
+   *
+   * @param canonicalScheme the scheme to be in normal form against
+   * @return true if in normal form for this scheme
+   */
+  default boolean isNormalForm(Scheme canonicalScheme) {
+    return (getUserInfo() == null || getUserInfo().isNormalForm()) &&
+        getHost().isNormalForm() &&
+        portIsNormalForm(canonicalScheme);
+  }
+
+  private boolean portIsNormalForm(Scheme scheme) {
+    Optional<Port> maybePort = getMaybePort();
+    //noinspection OptionalAssignedToNull
+    return maybePort == null || maybePort.isPresent() && maybePort.get().isNormalForm() && !maybePort.get().equals(scheme.getDefaultPort());
+  }
 
   /**
    * Parses a string into an authority.

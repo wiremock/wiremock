@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3">RFC 3986 Section 3.3</a>
  */
-public interface Path extends PercentEncoded {
+public interface Path extends PercentEncoded, Normalisable<Path> {
 
   /** An empty path with no segments. */
   Path EMPTY = PathParser.INSTANCE.parse("");
@@ -72,9 +72,9 @@ public interface Path extends PercentEncoded {
   }
 
   /**
-   * Returns a normalized form of this path with dot segments removed.
+   * Returns a normalised form of this path with dot segments removed.
    *
-   * @return a normalized path
+   * @return a normalised path
    * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2">RFC 3986 Section
    *     6.2.2</a>
    */

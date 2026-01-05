@@ -76,7 +76,7 @@ class UrnValue implements Urn {
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
     }
-    Query normalisedQuery = query == null ? null : query.normalise(normalisedScheme);
+    Query normalisedQuery = query == null ? null : query.normalise();
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 
     if (scheme.equals(normalisedScheme)

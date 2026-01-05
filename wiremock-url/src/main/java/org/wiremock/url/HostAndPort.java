@@ -110,20 +110,4 @@ public interface HostAndPort extends Authority {
    */
   HostAndPort normalise(Scheme canonicalScheme);
 
-  /**
-   * Returns {@code true} if this host and port is in normal form for the given scheme.
-   *
-   * <p>A host and port is in normal form if the host is in normal form and the port is either
-   * absent or in normal form and not equal to the default port for the scheme.
-   *
-   * @param scheme the scheme to check against
-   * @return {@code true} if this is in normal form for the scheme
-   */
-  default boolean isNormalForm(Scheme scheme) {
-    return getHost().isNormalForm() && portIsNormalForm(scheme);
-  }
-
-  private boolean portIsNormalForm(Scheme scheme) {
-    return getPort() == null || (getPort().isNormalForm() && getPort() != scheme.getDefaultPort());
-  }
 }

@@ -98,9 +98,9 @@ public interface Origin extends Url {
   }
 
   /**
-   * Returns a normalized form of this origin by setting the path to {@code / }.
+   * Returns a normalised form of this origin by setting the path to {@code / }.
    *
-   * @return a normalized origin (as a URL)
+   * @return a normalised origin (as a URL)
    */
   @Override
   Url normalise();

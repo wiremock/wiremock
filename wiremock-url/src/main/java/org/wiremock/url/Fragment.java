@@ -27,12 +27,12 @@ package org.wiremock.url;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.5">RFC 3986 Section 3.5</a>
  */
-public interface Fragment extends PercentEncoded {
+public interface Fragment extends PercentEncoded, Normalisable<Fragment> {
 
   /**
-   * Returns a normalized form of this fragment.
+   * Returns a normalised form of this fragment.
    *
-   * @return a normalized fragment
+   * @return a normalised fragment
    */
   Fragment normalise();
 

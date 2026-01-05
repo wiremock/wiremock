@@ -97,6 +97,11 @@ final class PathValue implements Path {
     }
   }
 
+  @Override
+  public boolean isNormalForm() {
+    throw new UnsupportedOperationException();
+  }
+
   private static int getEndOfFirstSegment(StringBuilder inputBuffer) {
     final int indexOfSlashAtEndOfFirstSegment;
     if (inputBuffer.charAt(0) == '/') {

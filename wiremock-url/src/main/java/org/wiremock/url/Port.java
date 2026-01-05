@@ -36,14 +36,14 @@ package org.wiremock.url;
  * <p>An implementation's hashCode() is based on the string representation, ensuring consistency
  * with equals.
  */
-public interface Port {
+public interface Port extends Normalisable<Port> {
 
   int getIntValue();
 
   boolean isNormalForm();
 
   /**
-   * Returns a Port with the canonical (normalized) string representation of this port number,
+   * Returns a Port with the canonical (normalised) string representation of this port number,
    * without any leading zeros.
    *
    * <p>For example, {@code Port.parse("00080").normalise()} returns a Port whose {@code toString()}
@@ -53,6 +53,7 @@ public interface Port {
    *
    * @return a Port with the canonical string representation
    */
+  @Override
   Port normalise();
 
   static Port parse(String port) throws IllegalPort {

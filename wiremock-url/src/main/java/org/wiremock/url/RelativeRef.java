@@ -65,9 +65,9 @@ public non-sealed interface RelativeRef extends UrlReference {
   }
 
   /**
-   * Returns a normalized form of this relative reference.
+   * Returns a normalised form of this relative reference.
    *
-   * @return a normalized relative reference
+   * @return a normalised relative reference
    */
   @Override
   RelativeRef normalise();

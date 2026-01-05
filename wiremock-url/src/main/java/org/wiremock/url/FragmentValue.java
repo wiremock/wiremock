@@ -42,6 +42,11 @@ final class FragmentValue implements Fragment {
     }
   }
 
+  @Override
+  public boolean isNormalForm() {
+    throw new UnsupportedOperationException();
+  }
+
   public String fragment() {
     return fragment;
   }

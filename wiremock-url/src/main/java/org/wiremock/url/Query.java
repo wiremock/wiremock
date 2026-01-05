@@ -26,7 +26,7 @@ package org.wiremock.url;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.4">RFC 3986 Section 3.4</a>
  */
-public interface Query extends PercentEncoded {
+public interface Query extends PercentEncoded, Normalisable<Query> {
 
   /**
    * Parses a string into a query.
@@ -54,6 +54,7 @@ public interface Query extends PercentEncoded {
    *
    * @return a normalized query
    */
+  @Override
   default Query normalise() {
     return normalise(Scheme.http);
   }
@@ -65,4 +66,6 @@ public interface Query extends PercentEncoded {
    * @return a normalized query
    */
   Query normalise(Scheme scheme);
+
+  boolean isNormalForm(Scheme scheme);
 }

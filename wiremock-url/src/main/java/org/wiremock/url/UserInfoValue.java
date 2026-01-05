@@ -48,6 +48,11 @@ final class UserInfoValue implements UserInfo {
   }
 
   @Override
+  public boolean isNormalForm() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Username getUsername() {
     return username;
   }

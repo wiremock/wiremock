@@ -27,16 +27,17 @@ package org.wiremock.url;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2">RFC 3986 Section
  *     3.2.2</a>
  */
-public interface Host extends PercentEncoded {
+public interface Host extends PercentEncoded, Normalisable<Host> {
 
   /**
-   * Returns a normalized form of this host.
+   * Returns a normalised form of this host.
    *
    * <p>Normalization includes converting registered names to lowercase and normalizing
    * percent-encoding.
    *
-   * @return a normalized host
+   * @return a normalised host
    */
+  @Override
   Host normalise();
 
   /**

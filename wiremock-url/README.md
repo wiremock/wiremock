@@ -91,7 +91,7 @@ Url url = Url.parse("https://example.com/path?query=value#fragment");
 
 ```java
 Host host = Host.parse("EXAMPLE.COM%2fpath");
-Host normalized = host.normalise();  // Returns "example.com%2Fpath"
+Host normalised = host.normalise();  // Returns "example.com%2Fpath"
 ```
 
 ### Decoding
