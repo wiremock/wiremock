@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
-import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.netty.NettyClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
@@ -523,7 +523,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public HttpClientFactory httpClientFactory() {
-    return new ApacheHttpClientFactory();
+    return new NettyClientFactory();
   }
 
   private boolean specifiesPortNumber() {

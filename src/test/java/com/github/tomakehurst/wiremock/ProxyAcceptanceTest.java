@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.netty.NettyClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -79,15 +81,19 @@ public class ProxyAcceptanceTest {
         new WireMockServer(
             wireMockConfig()
                 .dynamicPort()
-                .dynamicHttpsPort()
                 .bindAddress("127.0.0.1")
-                .stubCorsEnabled(true));
+                .stubCorsEnabled(true)
+                .notifier(new ConsoleNotifier(true)));
     targetService.start();
     target = WireMock.create().host("localhost").port(targetService.port()).build();
 
     targetServiceBaseUrl = "http://localhost:" + targetService.port();
 
-    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
+    proxyingServiceOptions
+        .dynamicPort()
+        .bindAddress("127.0.0.1")
+        .httpClientFactory(new NettyClientFactory())
+        .notifier(new ConsoleNotifier(true));
     proxyingService = new WireMockServer(proxyingServiceOptions);
     proxyingService.start();
     proxy = WireMock.create().port(proxyingService.port()).build();
@@ -477,11 +483,19 @@ public class ProxyAcceptanceTest {
   @Test
   public void canProxyViaAForwardProxy() {
     WireMockServer forwardProxy =
-        new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .notifier(new ConsoleNotifier(true)));
     forwardProxy.start();
     init(wireMockConfig().proxyVia(new ProxySettings("localhost", forwardProxy.port())));
 
     register200StubOnProxyAndTarget("/proxy-via");
+
+    System.out.println("Proxy: " + proxyingService.baseUrl());
+    System.out.println("Forward Proxy: " + forwardProxy.baseUrl());
+    System.out.println("Target: " + targetService.baseUrl());
 
     assertThat(testClient.get("/proxy-via").statusCode(), is(200));
   }

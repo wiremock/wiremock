@@ -11,6 +11,7 @@ mockito = "5.21.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.1"
+reactor-netty = "1.2.3"
 
 [libraries]
 # Jetty dependencies
@@ -49,6 +50,15 @@ guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 # HTTP Client
 apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
 apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
+
+# OkHttp
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+
+# Reactor Netty
+reactor-netty-http = { module = "io.projectreactor.netty:reactor-netty-http", version.ref = "reactor-netty" }
+
+okio = { module = "com.squareup.okio:okio", version = "3.16.4" }
 
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
