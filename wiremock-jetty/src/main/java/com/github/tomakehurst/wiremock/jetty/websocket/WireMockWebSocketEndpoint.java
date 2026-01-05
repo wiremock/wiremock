@@ -29,7 +29,6 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
   private final MessageStubRequestHandler messageStubRequestHandler;
   private final Request upgradeRequest;
   private MessageChannel messageChannel;
-  private Session session;
 
   public WireMockWebSocketEndpoint(
       MessageStubRequestHandler messageStubRequestHandler, Request upgradeRequest) {
@@ -39,7 +38,6 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
 
   @Override
   public void onWebSocketOpen(Session session) {
-    this.session = session;
     JettyWebSocketSession webSocketSession = new JettyWebSocketSession(session);
     this.messageChannel = new WebSocketMessageChannel(upgradeRequest, webSocketSession);
     messageStubRequestHandler.getMessageChannels().add(messageChannel);
@@ -67,14 +65,11 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
   }
 
   @Override
-  public void onWebSocketClose(int statusCode, String reason) {
+  public void onWebSocketClose(int statusCode, String reason, Callback callback) {
     if (messageChannel != null) {
       messageStubRequestHandler.getMessageChannels().remove(messageChannel.getId());
     }
   }
-
-  @Override
-  public void onWebSocketError(Throwable cause) {}
 
   public MessageChannel getMessageChannel() {
     return messageChannel;
