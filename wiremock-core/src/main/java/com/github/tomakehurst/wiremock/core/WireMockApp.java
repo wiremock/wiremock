@@ -775,12 +775,6 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, MessageDefinition message) {
-    return sendChannelMessage(ChannelType.WEBSOCKET, requestPattern, message);
-  }
-
-  @Override
   public MessageChannels getMessageChannels() {
     return messageChannels;
   }

@@ -593,12 +593,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, MessageDefinition message) {
-    return wireMockApp.sendWebSocketMessage(requestPattern, message);
-  }
-
-  @Override
   public MessageChannels getMessageChannels() {
     return wireMockApp.getMessageChannels();
   }

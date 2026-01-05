@@ -556,16 +556,10 @@ public class HttpAdminClient implements Admin {
   @Override
   public SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
-    String url = urlFor(SendWebSocketMessageTask.class);
+    String url = urlFor(SendChannelMessageTask.class);
     String body = Json.write(new SendChannelMessageRequest(type, requestPattern, message));
     String response = postJsonAssertOkAndReturnBody(url, body);
     return Json.read(response, SendChannelMessageResult.class);
-  }
-
-  @Override
-  public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, MessageDefinition message) {
-    return sendChannelMessage(ChannelType.WEBSOCKET, requestPattern, message);
   }
 
   @Override

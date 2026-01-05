@@ -152,31 +152,6 @@ public interface Admin {
     return sendChannelMessage(type, requestPattern, MessageDefinition.fromString(message));
   }
 
-  /**
-   * Sends a message to all WebSocket channels matching the given request pattern. This is a
-   * convenience method that delegates to {@link #sendChannelMessage(ChannelType, RequestPattern,
-   * MessageDefinition)} with {@link ChannelType#WEBSOCKET}.
-   *
-   * @param requestPattern the pattern to match against the original upgrade request
-   * @param message the message to send
-   * @return result containing the number of channels messaged
-   */
-  SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, MessageDefinition message);
-
-  /**
-   * Sends a message to all WebSocket channels matching the given request pattern. Convenience
-   * method that wraps the string message in a MessageDefinition.
-   *
-   * @param requestPattern the pattern to match against the original upgrade request
-   * @param message the message to send
-   * @return result containing the number of channels messaged
-   */
-  default SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, String message) {
-    return sendWebSocketMessage(requestPattern, MessageDefinition.fromString(message));
-  }
-
   MessageChannels getMessageChannels();
 
   /**

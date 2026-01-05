@@ -378,12 +378,6 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public SendChannelMessageResult sendWebSocketMessage(
-      RequestPattern requestPattern, MessageDefinition message) {
-    return admin.sendWebSocketMessage(requestPattern, message);
-  }
-
-  @Override
   public MessageChannels getMessageChannels() {
     return admin.getMessageChannels();
   }

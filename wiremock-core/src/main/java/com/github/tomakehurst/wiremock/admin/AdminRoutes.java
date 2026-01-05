@@ -120,7 +120,6 @@ public class AdminRoutes {
     router.add(GET, "/version", new GetVersionTask());
 
     router.add(POST, "/channels/send", new SendChannelMessageTask());
-    router.add(POST, "/websockets/send", new SendWebSocketMessageTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());
     router.add(DELETE, "/messages", new ResetMessageJournalTask());

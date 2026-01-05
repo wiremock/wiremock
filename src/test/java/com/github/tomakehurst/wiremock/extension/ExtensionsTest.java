@@ -313,12 +313,6 @@ class ExtensionsTest {
     }
 
     @Override
-    public SendChannelMessageResult sendWebSocketMessage(
-        RequestPattern requestPattern, MessageDefinition message) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public MessageChannels getMessageChannels() {
       throw new UnsupportedOperationException();
     }

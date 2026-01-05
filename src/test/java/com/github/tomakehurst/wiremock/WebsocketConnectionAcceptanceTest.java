@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import org.junit.jupiter.api.Test;
 
@@ -50,9 +51,9 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
         session -> {
           RequestPattern pattern = newRequestPattern().withUrl("/notifications").build();
           SendChannelMessageResult result1 =
-              wireMockServer.sendWebSocketMessage(pattern, "Hello WebSocket!");
+              wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Hello WebSocket!");
           SendChannelMessageResult result2 =
-              wireMockServer.sendWebSocketMessage(pattern, "Second message");
+              wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Second message");
 
           assertThat(result1.getChannelsMessaged(), is(1));
           assertThat(result2.getChannelsMessaged(), is(1));
@@ -79,7 +80,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                 session2 -> {
                   RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
                   SendChannelMessageResult result =
-                      wireMockServer.sendWebSocketMessage(pattern, "Broadcast message");
+                      wireMockServer.sendChannelMessage(
+                          ChannelType.WEBSOCKET, pattern, "Broadcast message");
 
                   assertThat(result.getChannelsMessaged(), is(2));
 
@@ -105,7 +107,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                 sessionB -> {
                   RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
                   SendChannelMessageResult result =
-                      wireMockServer.sendWebSocketMessage(patternA, "Message for A");
+                      wireMockServer.sendChannelMessage(
+                          ChannelType.WEBSOCKET, patternA, "Message for A");
 
                   assertThat(result.getChannelsMessaged(), is(1));
 
@@ -132,7 +135,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                   RequestPattern pattern =
                       newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
                   SendChannelMessageResult result =
-                      wireMockServer.sendWebSocketMessage(pattern, "Event notification");
+                      wireMockServer.sendChannelMessage(
+                          ChannelType.WEBSOCKET, pattern, "Event notification");
 
                   assertThat(result.getChannelsMessaged(), is(2));
 
@@ -153,7 +157,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
         session -> {
           RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
           SendChannelMessageResult result1 =
-              wireMockServer.sendWebSocketMessage(pattern, "Before close");
+              wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Before close");
           assertThat(result1.getChannelsMessaged(), is(1));
           return null;
         });
@@ -161,7 +165,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     Thread.sleep(100);
 
     RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
-    SendChannelMessageResult result2 = wireMockServer.sendWebSocketMessage(pattern, "After close");
+    SendChannelMessageResult result2 =
+        wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "After close");
     assertThat(result2.getChannelsMessaged(), is(0));
   }
 }
