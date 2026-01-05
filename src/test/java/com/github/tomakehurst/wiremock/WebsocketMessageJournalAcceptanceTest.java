@@ -81,7 +81,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     assertThat(events.size(), is(1));
 
     var event = events.get(0);
-    assertThat(event.getMessage(), is("journal-test"));
+    assertThat(event.getMessage().getBodyAsString(), is("journal-test"));
     assertThat(event.getWasMatched(), is(true));
     assertThat(event.getStubMapping().getName(), is("Journal test stub"));
   }
@@ -103,7 +103,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     assertThat(events.size(), is(1));
 
     var event = events.get(0);
-    assertThat(event.getMessage(), is("unmatched-message"));
+    assertThat(event.getMessage().getBodyAsString(), is("unmatched-message"));
     assertThat(event.getWasMatched(), is(false));
   }
 
@@ -161,7 +161,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     var events = findAllMessageEvents(messagePattern().withBody(equalTo("find-alpha")).build());
     assertThat(events.size(), is(1));
-    assertThat(events.get(0).getMessage(), is("find-alpha"));
+    assertThat(events.get(0).getMessage().getBodyAsString(), is("find-alpha"));
   }
 
   @Test
@@ -397,7 +397,8 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     assertThat(result.getMessageServeEvents().size(), is(2));
     assertThat(getAllMessageServeEvents().size(), is(1));
-    assertThat(getAllMessageServeEvents().get(0).getMessage(), is("other-message"));
+    assertThat(
+        getAllMessageServeEvents().get(0).getMessage().getBodyAsString(), is("other-message"));
   }
 
   @Test
@@ -502,7 +503,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
             messagePattern().withBody(equalTo("wait-single-test")).build(), Duration.ofSeconds(5));
 
     assertThat(result.isPresent(), is(true));
-    assertThat(result.get().getMessage(), is("wait-single-test"));
+    assertThat(result.get().getMessage().getBodyAsString(), is("wait-single-test"));
   }
 
   @Test

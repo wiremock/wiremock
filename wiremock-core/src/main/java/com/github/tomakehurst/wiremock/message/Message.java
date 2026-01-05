@@ -69,19 +69,14 @@ public class Message {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    if (o instanceof String) {
-      return Objects.equals(getBodyAsString(), o);
-    }
-    if (getClass() != o.getClass()) return false;
+    if (o == null || getClass() != o.getClass()) return false;
     Message message = (Message) o;
     return Objects.equals(body, message.body);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(getBodyAsString());
+    return Objects.hashCode(body);
   }
 
   @Override
