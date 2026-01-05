@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
+import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -61,7 +62,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternSendsMessageToWebsocketChannel() {
-    wireMockServer.messageStubFor(
+    messageStubFor(
         message()
             .withName("HTTP request pattern triggered message")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathMatching("/api/notify/.*")))
@@ -87,7 +88,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void messageStubTriggeredByHttpRequestPatternWorksWithoutMatchingHttpStub() {
-    wireMockServer.messageStubFor(
+    messageStubFor(
         message()
             .withName("HTTP request pattern triggered without stub")
             .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/api/no-stub")))
@@ -113,7 +114,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("22222222-3333-4444-5555-666666666666"))
             .willReturn(aResponse().withStatus(200).withBody("Broadcast sent")));
 
-    wireMockServer.messageStubFor(
+    messageStubFor(
         message()
             .withName("Broadcast on HTTP stub")
             .triggeredByHttpStub("22222222-3333-4444-5555-666666666666")

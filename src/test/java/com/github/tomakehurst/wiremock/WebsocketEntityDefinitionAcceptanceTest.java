@@ -30,9 +30,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import java.io.File;
 import java.util.Map;
@@ -60,13 +58,11 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   @Test
   void textEntityDefinitionWithObjectDataSerializesToJson() {
     Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Object data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(sendMessage().withBody(objectData).onOriginatingChannel())
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(sendMessage().withBody(objectData).onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/object-data-test");
@@ -83,14 +79,12 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
         .getObjectStore("testStore")
         .put("testKey", "stored value");
 
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Store data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(
-                sendMessage().withBodyFromStore("testStore", "testKey").onOriginatingChannel())
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage().withBodyFromStore("testStore", "testKey").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/store-data-test");
@@ -108,14 +102,14 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
         .getObjectStore("objectStore")
         .put("objectKey", storedObject);
 
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Store object data stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(
-                sendMessage().withBodyFromStore("objectStore", "objectKey").onOriginatingChannel())
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage()
+                    .withBodyFromStore("objectStore", "objectKey")
+                    .onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/store-object-test");
@@ -128,13 +122,11 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   void binaryEqualToCanBeUsedToMatchMessageBody() {
     byte[] expectedBytes = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
 
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Binary matching stub")
             .withBody(binaryEqualTo(expectedBytes))
-            .triggersAction(SendMessageAction.toOriginatingChannel("binary matched!"))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(sendMessage("binary matched!").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-test");
@@ -152,15 +144,14 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   void binaryMessageCanBeSentAsResponse() {
     byte[] responseBytes = new byte[] {0x0A, 0x0B, 0x0C, 0x0D, 0x0E};
 
-    BinaryEntityDefinition binaryBody = aBinaryMessage().withBody(responseBytes).build();
-
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Binary response stub")
             .withBody(equalTo("send-binary"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage()
+                    .toOriginatingChannel()
+                    .withMessage(aBinaryMessage().withBody(responseBytes))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-response-test");
@@ -183,16 +174,15 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
         .getObjectStore("binaryStore")
         .put("binaryKey", storedBytes);
 
-    BinaryEntityDefinition binaryBody =
-        aBinaryMessage().withDataStore("binaryStore").withDataRef("binaryKey").build();
-
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("Binary from store stub")
             .withBody(equalTo("send-stored-binary"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage()
+                    .toOriginatingChannel()
+                    .withMessage(
+                        aBinaryMessage().withDataStore("binaryStore").withDataRef("binaryKey"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-store-test");
@@ -215,14 +205,12 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     File messageFile = new File(tempRoot, "__files/message-body.txt");
     writeString(messageFile.toPath(), "Hello from file!");
 
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
+    messageStubFor(
+        message()
             .withName("File body stub")
             .withBody(equalTo("trigger"))
-            .triggersAction(
-                sendMessage().withBodyFromFile("message-body.txt").onOriginatingChannel())
-            .build();
-    wireMockServer.addMessageStubMapping(stub);
+            .willTriggerActions(
+                sendMessage().withBodyFromFile("message-body.txt").onOriginatingChannel()));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/file-body-test");
