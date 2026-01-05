@@ -25,16 +25,16 @@ import com.github.tomakehurst.wiremock.message.MessageDefinition;
 public class SendChannelMessageRequest {
 
   private final ChannelType type;
-  private final RequestPattern requestPattern;
+  private final RequestPattern initiatingRequestPattern;
   private final MessageDefinition message;
 
   @JsonCreator
   public SendChannelMessageRequest(
       @JsonProperty("type") ChannelType type,
-      @JsonProperty("request") RequestPattern requestPattern,
+      @JsonProperty("initiatingRequest") RequestPattern initiatingRequestPattern,
       @JsonProperty("message") MessageDefinition message) {
     this.type = type;
-    this.requestPattern = requestPattern;
+    this.initiatingRequestPattern = initiatingRequestPattern;
     this.message = message;
   }
 
@@ -42,8 +42,8 @@ public class SendChannelMessageRequest {
     return type;
   }
 
-  public RequestPattern getRequestPattern() {
-    return requestPattern;
+  public RequestPattern getInitiatingRequest() {
+    return initiatingRequestPattern;
   }
 
   public MessageDefinition getMessage() {

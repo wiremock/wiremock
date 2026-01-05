@@ -37,7 +37,7 @@ public class SendChannelMessageTask implements AdminTask {
 
     SendChannelMessageResult result =
         admin.sendChannelMessage(
-            request.getType(), request.getRequestPattern(), request.getMessage());
+            request.getType(), request.getInitiatingRequest(), request.getMessage());
 
     return ResponseDefinitionBuilder.jsonResponse(result, HTTP_OK);
   }
