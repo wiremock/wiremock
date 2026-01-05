@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.net.URI;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.stringparser.ParsedString;
 
@@ -151,6 +152,26 @@ public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUr
   }
 
   /**
+   * Converts a {@code Uri} to a {@code java.net.URI}
+   *
+   * <p>This may fail with an {@code IllegalArgumentException} because {@code Uri} is more lenient
+   * than {@code java.net.URI}. Calling {@code Uri.normalise().toUri()} should nearly always work;
+   * the only cases where it will not are:
+   *
+   * <ol>
+   *   <li>{@code scheme:} - no authority, no path, no query, no fragment
+   *   <li>{@code scheme:#fragment} - no authority, no path, no query
+   *   <li>{@code scheme://} - empty authority, no path, no query, no fragment
+   * </ol>
+   *
+   * @return this as a {@code java.net.URI}
+   * @throws IllegalArgumentException if this is not a valid {@code java.net.URI}
+   */
+  default URI toUri() throws IllegalArgumentException {
+    return URI.create(this.toString());
+  }
+
+  /**
    * Parses a string into a URI reference.
    *
    * @param uri the string to parse
@@ -159,6 +180,18 @@ public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUr
    */
   static Uri parse(String uri) throws IllegalUri {
     return UriParser.INSTANCE.parse(uri);
+  }
+
+  /**
+   * Converts a {@code java.net.URI} to a {@code Uri}.
+   *
+   * <p>This is guaranteed to succeed - if it throws an exception it is a bug.
+   *
+   * @param uri the value as a {@code java.net.URI}
+   * @return the value as a {@code Uri}
+   */
+  static Uri of(URI uri) {
+    return parse(uri.toASCIIString());
   }
 
   /**
