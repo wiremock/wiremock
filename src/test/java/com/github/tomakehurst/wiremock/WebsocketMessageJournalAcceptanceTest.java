@@ -21,25 +21,41 @@ import static com.github.tomakehurst.wiremock.client.WireMock.findAllMessageEven
 import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServeEvents;
 import static com.github.tomakehurst.wiremock.client.WireMock.getMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
+import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageChannels;
+import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageStubMappings;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsForStubsMatchingMetadata;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
+import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvent;
+import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvents;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
+import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTestBase {
@@ -415,5 +431,158 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     assertThat(result.getMessageServeEvents().size(), is(0));
     assertThat(getAllMessageServeEvents().size(), is(1));
+  }
+
+  @Test
+  void canListAllMessageStubMappingsViaHttpClient() {
+    messageStubFor(
+        message()
+            .withName("List stub 1")
+            .withBody(equalTo("list-test-1"))
+            .willTriggerActions(sendMessage("response1").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("List stub 2")
+            .withBody(equalTo("list-test-2"))
+            .willTriggerActions(sendMessage("response2").onOriginatingChannel()));
+
+    ListMessageStubMappingsResult result = listAllMessageStubMappings();
+
+    assertThat(result.getMessageMappings().size(), is(greaterThanOrEqualTo(2)));
+    assertThat(result.getMessageMappings(), hasItem(messageStubMappingWithName("List stub 1")));
+    assertThat(result.getMessageMappings(), hasItem(messageStubMappingWithName("List stub 2")));
+  }
+
+  @Test
+  void canListAllMessageChannelsViaHttpClient() {
+    messageStubFor(
+        message()
+            .withName("Channel list stub")
+            .withBody(equalTo("channel-list-test"))
+            .willTriggerActions(sendMessage("response").onOriginatingChannel()));
+
+    WebsocketTestClient testClient1 = new WebsocketTestClient();
+    WebsocketTestClient testClient2 = new WebsocketTestClient();
+    String url1 = websocketUrl("/channel-list-1");
+    String url2 = websocketUrl("/channel-list-2");
+
+    testClient1.connect(url1);
+    testClient2.connect(url2);
+
+    waitAtMost(5, SECONDS).until(testClient1::isConnected);
+    waitAtMost(5, SECONDS).until(testClient2::isConnected);
+
+    ListMessageChannelsResult result = listAllMessageChannels();
+
+    assertThat(result, is(notNullValue()));
+    assertThat(result.getChannels().size(), is(greaterThanOrEqualTo(2)));
+
+    testClient1.disconnect();
+    testClient2.disconnect();
+  }
+
+  @Test
+  void canWaitForSingleMessageEventViaHttpClient() {
+    messageStubFor(
+        MessageStubMapping.builder()
+            .withName("Wait single stub")
+            .withBody(equalTo("wait-single-test"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response"))
+            .build());
+
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/wait-single-test");
+    testClient.sendMessageAndWaitForResponse(url, "wait-single-test");
+
+    Optional<MessageServeEvent> result =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("wait-single-test")).build(), Duration.ofSeconds(5));
+
+    assertThat(result.isPresent(), is(true));
+    assertThat(result.get().getMessage(), is("wait-single-test"));
+  }
+
+  @Test
+  void waitForSingleMessageEventReturnsEmptyWhenNoMatch() {
+    resetMessageJournal();
+
+    Optional<MessageServeEvent> result =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("non-existent-message")).build(),
+            Duration.ofMillis(200));
+
+    assertThat(result.isPresent(), is(false));
+  }
+
+  @Test
+  void canWaitForMultipleMessageEventsViaHttpClient() {
+    messageStubFor(
+        MessageStubMapping.builder()
+            .withName("Wait multiple stub")
+            .withBody(matching("wait-multi-.*"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response"))
+            .build());
+
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/wait-multi-test");
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendMessage("wait-multi-1");
+    testClient.sendMessage("wait-multi-2");
+    testClient.sendMessage("wait-multi-3");
+
+    waitAtMost(5, SECONDS)
+        .until(
+            () ->
+                findAllMessageEvents(messagePattern().withBody(matching("wait-multi-.*")).build())
+                        .size()
+                    >= 3);
+
+    List<MessageServeEvent> result =
+        waitForMessageEvents(
+            messagePattern().withBody(matching("wait-multi-.*")).build(), 3, Duration.ofSeconds(5));
+
+    assertThat(result, hasSize(3));
+  }
+
+  @Test
+  void waitForMultipleMessageEventsReturnsPartialResultsOnTimeout() {
+    messageStubFor(
+        message()
+            .withName("Wait partial stub")
+            .withBody(matching("wait-partial-.*"))
+            .willTriggerActions(SendMessageAction.toOriginatingChannel("response")));
+
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/wait-partial-test");
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendMessage("wait-partial-1");
+
+    waitAtMost(5, SECONDS)
+        .until(
+            () ->
+                !findAllMessageEvents(
+                        messagePattern().withBody(matching("wait-partial-.*")).build())
+                    .isEmpty());
+
+    List<MessageServeEvent> result =
+        waitForMessageEvents(
+            messagePattern().withBody(matching("wait-partial-.*")).build(),
+            5,
+            Duration.ofMillis(200));
+
+    assertThat(result.size(), is(greaterThanOrEqualTo(1)));
   }
 }

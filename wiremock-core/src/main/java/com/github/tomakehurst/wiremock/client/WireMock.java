@@ -21,6 +21,8 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
+import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
@@ -1170,6 +1172,22 @@ public class WireMock {
 
   public void resetAllMessageStubs() {
     admin.resetMessageStubMappings();
+  }
+
+  public static ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return defaultInstance.get().allMessageStubMappings();
+  }
+
+  public ListMessageStubMappingsResult allMessageStubMappings() {
+    return admin.listAllMessageStubMappings();
+  }
+
+  public static ListMessageChannelsResult listAllMessageChannels() {
+    return defaultInstance.get().allMessageChannels();
+  }
+
+  public ListMessageChannelsResult allMessageChannels() {
+    return admin.listAllMessageChannels();
   }
 
   // Message journal verification methods

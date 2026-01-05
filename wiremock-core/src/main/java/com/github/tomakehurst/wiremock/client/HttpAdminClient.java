@@ -37,11 +37,9 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -563,9 +561,10 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public MessageChannels getMessageChannels() {
-    throw new UnsupportedOperationException(
-        "MessageChannels are not accessible via the HTTP admin client");
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageChannelsTask.class),
+        ListMessageChannelsResult.class);
   }
 
   @Override
@@ -588,9 +587,10 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public MessageStubMappings getMessageStubMappings() {
-    throw new UnsupportedOperationException(
-        "Message stub mappings listing is not accessible via the HTTP admin client");
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageStubMappingsTask.class),
+        ListMessageStubMappingsResult.class);
   }
 
   @Override
@@ -654,20 +654,21 @@ public class HttpAdminClient implements Admin {
 
   @Override
   public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
-    throw new UnsupportedOperationException(
-        "Wait for message event is not supported via the HTTP admin client");
+    WaitForMessageEventRequest request =
+        WaitForMessageEventRequest.forSingleEvent(pattern, maxWait.toMillis());
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(WaitForMessageEventTask.class), Json.write(request));
+    SingleMessageServeEventResult result = Json.read(body, SingleMessageServeEventResult.class);
+    return result != null ? Optional.ofNullable(result.getItem()) : Optional.empty();
   }
 
   @Override
   public List<MessageServeEvent> waitForMessageEvents(
       MessagePattern pattern, int count, Duration maxWait) {
-    throw new UnsupportedOperationException(
-        "Wait for message events is not supported via the HTTP admin client");
-  }
-
-  @Override
-  public MessageJournal getMessageJournal() {
-    throw new UnsupportedOperationException(
-        "Message journal is not accessible via the HTTP admin client");
+    WaitForMessageEventRequest request =
+        WaitForMessageEventRequest.forMultipleEvents(pattern, maxWait.toMillis(), count);
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(WaitForMessageEventsTask.class), Json.write(request));
+    return Json.read(body, GetMessageServeEventsResult.class).getMessageServeEvents();
   }
 }

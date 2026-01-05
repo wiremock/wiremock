@@ -20,11 +20,9 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -152,7 +150,12 @@ public interface Admin {
     return sendChannelMessage(type, requestPattern, MessageDefinition.fromString(message));
   }
 
-  MessageChannels getMessageChannels();
+  /**
+   * Lists all active message channels.
+   *
+   * @return result containing all message channels
+   */
+  ListMessageChannelsResult listAllMessageChannels();
 
   /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.
@@ -172,11 +175,11 @@ public interface Admin {
   void resetMessageStubMappings();
 
   /**
-   * Gets the message stub mappings registry.
+   * Lists all message stub mappings.
    *
-   * @return the message stub mappings
+   * @return result containing all message stub mappings
    */
-  MessageStubMappings getMessageStubMappings();
+  ListMessageStubMappingsResult listAllMessageStubMappings();
 
   /**
    * Gets all message serve events from the message journal.
@@ -254,11 +257,4 @@ public interface Admin {
    * @return list of matching events
    */
   List<MessageServeEvent> waitForMessageEvents(MessagePattern pattern, int count, Duration maxWait);
-
-  /**
-   * Gets the message journal.
-   *
-   * @return the message journal
-   */
-  MessageJournal getMessageJournal();
 }

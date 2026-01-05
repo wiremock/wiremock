@@ -37,11 +37,9 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -593,8 +591,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public MessageChannels getMessageChannels() {
-    return wireMockApp.getMessageChannels();
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return wireMockApp.listAllMessageChannels();
   }
 
   @Override
@@ -613,8 +611,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
-  public MessageStubMappings getMessageStubMappings() {
-    return wireMockApp.getMessageStubMappings();
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return wireMockApp.listAllMessageStubMappings();
   }
 
   // Stubbing interface methods for message stubs
@@ -637,7 +635,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public List<MessageStubMapping> getMessageStubMappingsList() {
-    return new ArrayList<>(getMessageStubMappings().getAll());
+    return new ArrayList<>(listAllMessageStubMappings().getMessageMappings());
   }
 
   @Override
@@ -697,11 +695,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
   public List<MessageServeEvent> waitForMessageEvents(
       MessagePattern pattern, int count, Duration maxWait) {
     return wireMockApp.waitForMessageEvents(pattern, count, maxWait);
-  }
-
-  @Override
-  public MessageJournal getMessageJournal() {
-    return wireMockApp.getMessageJournal();
   }
 
   // Message journal methods from Stubbing interface

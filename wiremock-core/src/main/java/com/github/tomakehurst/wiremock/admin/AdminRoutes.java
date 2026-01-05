@@ -119,6 +119,7 @@ public class AdminRoutes {
 
     router.add(GET, "/version", new GetVersionTask());
 
+    router.add(GET, "/channels", new GetAllMessageChannelsTask());
     router.add(POST, "/channels/send", new SendChannelMessageTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());
@@ -127,9 +128,12 @@ public class AdminRoutes {
     router.add(POST, "/messages/find", new FindMessageEventsTask());
     router.add(POST, "/messages/remove", new RemoveMessageServeEventsByPatternTask());
     router.add(POST, "/messages/remove-by-metadata", new RemoveMessageServeEventsByMetadataTask());
+    router.add(POST, "/messages/wait", new WaitForMessageEventTask());
+    router.add(POST, "/messages/wait-for-count", new WaitForMessageEventsTask());
     router.add(GET, "/messages/{id}", new GetMessageServeEventTask());
     router.add(DELETE, "/messages/{id}", new RemoveMessageServeEventTask());
 
+    router.add(GET, "/message-mappings", new GetAllMessageStubMappingsTask());
     router.add(POST, "/message-mappings", new CreateMessageStubMappingTask());
     router.add(DELETE, "/message-mappings", new ResetMessageStubMappingsTask());
     router.add(DELETE, "/message-mappings/{id}", new RemoveMessageStubMappingTask());

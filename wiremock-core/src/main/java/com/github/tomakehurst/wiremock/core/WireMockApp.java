@@ -775,13 +775,12 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public MessageChannels getMessageChannels() {
-    return messageChannels;
-  }
-
-  @Override
-  public MessageStubMappings getMessageStubMappings() {
-    return messageStubMappings;
+  public ListMessageChannelsResult listAllMessageChannels() {
+    List<LoggedMessageChannel> channels =
+        messageChannels.getAll().stream()
+            .map(LoggedMessageChannel::createFrom)
+            .collect(Collectors.toList());
+    return new ListMessageChannelsResult(channels);
   }
 
   @Override
@@ -797,6 +796,12 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void resetMessageStubMappings() {
     messageStubMappings.clear();
+  }
+
+  @Override
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return new ListMessageStubMappingsResult(
+        LimitAndOffsetPaginator.none(messageStubMappings.getAll()));
   }
 
   @Override
@@ -855,10 +860,5 @@ public class WireMockApp implements StubServer, Admin {
   public List<MessageServeEvent> waitForMessageEvents(
       MessagePattern pattern, int count, Duration maxWait) {
     return messageJournal.waitForEvents(pattern, count, maxWait);
-  }
-
-  @Override
-  public MessageJournal getMessageJournal() {
-    return messageJournal;
   }
 }

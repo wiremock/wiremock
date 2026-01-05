@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +25,27 @@ import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientTokenAuthenticator;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -192,6 +200,98 @@ class HttpAdminClientTest {
                 new Errors(
                     List.of(
                         new Errors.Error(null, new Errors.Error.Source(null), "Conflict", null)))));
+  }
+
+  @Test
+  void shouldListAllMessageStubMappings() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    try {
+      MessageStubMapping stub1 =
+          MessageStubMapping.builder()
+              .withName("Test stub 1")
+              .withBody(equalTo("test1"))
+              .triggersAction(SendMessageAction.toOriginatingChannel("response1"))
+              .build();
+      MessageStubMapping stub2 =
+          MessageStubMapping.builder()
+              .withName("Test stub 2")
+              .withBody(equalTo("test2"))
+              .triggersAction(SendMessageAction.toOriginatingChannel("response2"))
+              .build();
+
+      server.addMessageStubMapping(stub1);
+      server.addMessageStubMapping(stub2);
+
+      var client = WireMock.create().port(server.port()).buildAdminClient();
+      ListMessageStubMappingsResult result = client.listAllMessageStubMappings();
+
+      assertThat(result.getMessageMappings()).hasSize(2);
+      assertThat(result.getMessageMappings())
+          .extracting(MessageStubMapping::getName)
+          .containsExactlyInAnyOrder("Test stub 1", "Test stub 2");
+    } finally {
+      server.stop();
+    }
+  }
+
+  @Test
+  void shouldReturnEmptyListWhenNoMessageStubMappings() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    try {
+      var client = WireMock.create().port(server.port()).buildAdminClient();
+      ListMessageStubMappingsResult result = client.listAllMessageStubMappings();
+
+      assertThat(result.getMessageMappings()).isEmpty();
+    } finally {
+      server.stop();
+    }
+  }
+
+  @Test
+  void shouldListAllMessageChannels() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    try {
+      var client = WireMock.create().port(server.port()).buildAdminClient();
+      ListMessageChannelsResult result = client.listAllMessageChannels();
+
+      // No channels connected yet, so should be empty
+      assertThat(result.getChannels()).isEmpty();
+    } finally {
+      server.stop();
+    }
+  }
+
+  @Test
+  void shouldWaitForMessageEventAndReturnEmptyWhenTimeout() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    try {
+      var client = WireMock.create().port(server.port()).buildAdminClient();
+      Optional<MessageServeEvent> result =
+          client.waitForMessageEvent(MessagePattern.ANYTHING, Duration.ofMillis(100));
+
+      assertThat(result).isEmpty();
+    } finally {
+      server.stop();
+    }
+  }
+
+  @Test
+  void shouldWaitForMessageEventsAndReturnEmptyListWhenTimeout() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    try {
+      var client = WireMock.create().port(server.port()).buildAdminClient();
+      List<MessageServeEvent> result =
+          client.waitForMessageEvents(MessagePattern.ANYTHING, 2, Duration.ofMillis(100));
+
+      assertThat(result).isEmpty();
+    } finally {
+      server.stop();
+    }
   }
 
   private static HttpAdminClient buildHttpAdminClient(WireMockServer server) {

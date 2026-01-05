@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithId;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -30,9 +32,6 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import java.util.List;
 import java.util.UUID;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,41 +132,5 @@ public class MessageMappingsLoaderAcceptanceTest {
     assertThat(
         stubs,
         hasItem(messageStubMappingWithId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))));
-  }
-
-  private static Matcher<MessageStubMapping> messageStubMappingWithName(final String name) {
-    return new TypeSafeDiagnosingMatcher<>() {
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("a message stub mapping with name ").appendValue(name);
-      }
-
-      @Override
-      protected boolean matchesSafely(MessageStubMapping item, Description mismatchDescription) {
-        if (name.equals(item.getName())) {
-          return true;
-        }
-        mismatchDescription.appendText("name was ").appendValue(item.getName());
-        return false;
-      }
-    };
-  }
-
-  private static Matcher<MessageStubMapping> messageStubMappingWithId(final UUID id) {
-    return new TypeSafeDiagnosingMatcher<>() {
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("a message stub mapping with id ").appendValue(id);
-      }
-
-      @Override
-      protected boolean matchesSafely(MessageStubMapping item, Description mismatchDescription) {
-        if (id.equals(item.getId())) {
-          return true;
-        }
-        mismatchDescription.appendText("id was ").appendValue(item.getId());
-        return false;
-      }
-    };
   }
 }

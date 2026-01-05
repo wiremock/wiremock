@@ -26,11 +26,9 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -378,8 +376,8 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public MessageChannels getMessageChannels() {
-    return admin.getMessageChannels();
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return admin.listAllMessageChannels();
   }
 
   @Override
@@ -398,8 +396,8 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
-  public MessageStubMappings getMessageStubMappings() {
-    return admin.getMessageStubMappings();
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return admin.listAllMessageStubMappings();
   }
 
   // Stubbing interface methods for message stubs
@@ -481,11 +479,6 @@ public class DslWrapper implements Admin, Stubbing {
   public List<MessageServeEvent> waitForMessageEvents(
       MessagePattern pattern, int count, Duration maxWait) {
     return admin.waitForMessageEvents(pattern, count, maxWait);
-  }
-
-  @Override
-  public MessageJournal getMessageJournal() {
-    return admin.getMessageJournal();
   }
 
   // Message journal methods from Stubbing interface

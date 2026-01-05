@@ -26,11 +26,9 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
-import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -313,11 +311,6 @@ class ExtensionsTest {
     }
 
     @Override
-    public MessageChannels getMessageChannels() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
       throw new UnsupportedOperationException();
     }
@@ -333,7 +326,12 @@ class ExtensionsTest {
     }
 
     @Override
-    public MessageStubMappings getMessageStubMappings() {
+    public ListMessageStubMappingsResult listAllMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListMessageChannelsResult listAllMessageChannels() {
       throw new UnsupportedOperationException();
     }
 
@@ -387,11 +385,6 @@ class ExtensionsTest {
     @Override
     public List<MessageServeEvent> waitForMessageEvents(
         MessagePattern pattern, int count, java.time.Duration maxWait) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public MessageJournal getMessageJournal() {
       throw new UnsupportedOperationException();
     }
   }
