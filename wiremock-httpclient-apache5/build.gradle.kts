@@ -8,6 +8,8 @@ dependencies {
 
     api(project(":wiremock-core"))
 
+    implementation(project(":wiremock-url"))
+
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)

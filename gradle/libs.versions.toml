@@ -50,6 +50,10 @@ guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
 apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
 
+# OkHttp
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
 xmlunit-legacy = { module = "org.xmlunit:xmlunit-legacy", version.ref = "xmlUnit" }

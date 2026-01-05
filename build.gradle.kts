@@ -46,6 +46,9 @@ dependencies {
   testFixturesImplementation(libs.mockito.core)
   testFixturesImplementation(libs.xmlunit.core)
 
+  testImplementation(platform(libs.okhttp.bom))
+  testImplementation(libs.okhttp)
+
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)
@@ -108,6 +111,7 @@ dependencies {
   testRuntimeOnly(libs.junit.vintage.engine)
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit4)
+  testImplementation(project(":wiremock-url"))
 
   modules {
     module("org.apache.logging.log4j:log4j-core") {

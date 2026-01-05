@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.wiremock.url.Url;
 
 public class ApacheBackedHttpClient implements HttpClient {
 
@@ -64,7 +65,7 @@ public class ApacheBackedHttpClient implements HttpClient {
 
     final ClassicRequestBuilder requestBuilder =
         ClassicRequestBuilder.create(request.getMethod().getName())
-            .setUri(request.getAbsoluteUrl())
+            .setUri(Url.parse(request.getAbsoluteUrl()).normalise().toString())
             .setHeaders(
                 request.getHeaders().all().stream()
                     .filter(
