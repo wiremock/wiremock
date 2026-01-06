@@ -6,7 +6,7 @@
     "channelPattern": {"urlPath": "/ws/single"}
   },
   "actions": [{
-    "sendToOriginatingChannel": true,
+    "channelTarget": {"type": "originating"},
     "type": "send",
     "message": {"body": {"data": "Hello from single stub"}}
   }]

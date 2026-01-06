@@ -82,14 +82,16 @@ public class SendMessageActionBuilder {
 
   public SendMessageAction onOriginatingChannel() {
     return new SendMessageAction(
-        new MessageDefinition(resolveBody()), null, true, transformers, transformerParameters);
+        new MessageDefinition(resolveBody()),
+        OriginatingChannelTarget.INSTANCE,
+        transformers,
+        transformerParameters);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
     return new SendMessageAction(
         new MessageDefinition(resolveBody()),
-        targetChannelPattern,
-        false,
+        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
         transformers,
         transformerParameters);
   }
@@ -99,44 +101,40 @@ public class SendMessageActionBuilder {
   }
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
-    return new TargetedSendMessageActionBuilder(true, null, transformers, transformerParameters);
+    return new TargetedSendMessageActionBuilder(
+        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
     return new TargetedSendMessageActionBuilder(
-        false, targetChannelPattern, transformers, transformerParameters);
+        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
+        transformers,
+        transformerParameters);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
       RequestPatternBuilder targetChannelPatternBuilder) {
     return new TargetedSendMessageActionBuilder(
-        false, targetChannelPatternBuilder.build(), transformers, transformerParameters);
+        RequestInitiatedChannelTarget.forPattern(targetChannelPatternBuilder.build()),
+        transformers,
+        transformerParameters);
   }
 
   public static class TargetedSendMessageActionBuilder {
-    private final boolean sendToOriginatingChannel;
-    private final RequestPattern targetChannelPattern;
+    private final ChannelTarget channelTarget;
     private final List<String> transformers;
     private final Parameters transformerParameters;
 
     TargetedSendMessageActionBuilder(
-        boolean sendToOriginatingChannel,
-        RequestPattern targetChannelPattern,
-        List<String> transformers,
-        Parameters transformerParameters) {
-      this.sendToOriginatingChannel = sendToOriginatingChannel;
-      this.targetChannelPattern = targetChannelPattern;
+        ChannelTarget channelTarget, List<String> transformers, Parameters transformerParameters) {
+      this.channelTarget = channelTarget;
       this.transformers = transformers;
       this.transformerParameters = transformerParameters;
     }
 
     public SendMessageAction withMessage(EntityDefinition body) {
       return new SendMessageAction(
-          new MessageDefinition(body),
-          sendToOriginatingChannel ? null : targetChannelPattern,
-          sendToOriginatingChannel,
-          transformers,
-          transformerParameters);
+          new MessageDefinition(body), channelTarget, transformers, transformerParameters);
     }
 
     public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {

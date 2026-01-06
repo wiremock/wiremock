@@ -32,29 +32,26 @@ import java.util.Objects;
 public class SendMessageAction implements MessageAction {
 
   private final MessageDefinition message;
-  private final RequestPattern targetChannelPattern;
-  private final boolean sendToOriginatingChannel;
+  private final ChannelTarget channelTarget;
   private final List<String> transformers;
   private final Parameters transformerParameters;
 
   @JsonCreator
   public SendMessageAction(
       @JsonProperty("message") MessageDefinition message,
-      @JsonProperty("targetChannelPattern") RequestPattern targetChannelPattern,
-      @JsonProperty("sendToOriginatingChannel") Boolean sendToOriginatingChannel,
+      @JsonProperty("channelTarget") ChannelTarget channelTarget,
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters) {
     this.message = message;
-    this.targetChannelPattern = targetChannelPattern;
-    this.sendToOriginatingChannel =
-        sendToOriginatingChannel != null ? sendToOriginatingChannel : false;
+    this.channelTarget = channelTarget != null ? channelTarget : OriginatingChannelTarget.INSTANCE;
     this.transformers = transformers != null ? new ArrayList<>(transformers) : new ArrayList<>();
     this.transformerParameters =
         transformerParameters != null ? transformerParameters : Parameters.empty();
   }
 
   public static SendMessageAction toOriginatingChannel(EntityDefinition body) {
-    return new SendMessageAction(new MessageDefinition(body), null, true, null, null);
+    return new SendMessageAction(
+        new MessageDefinition(body), OriginatingChannelTarget.INSTANCE, null, null);
   }
 
   public static SendMessageAction toOriginatingChannel(String messageBody) {
@@ -64,7 +61,10 @@ public class SendMessageAction implements MessageAction {
   public static SendMessageAction toMatchingChannels(
       EntityDefinition body, RequestPattern targetChannelPattern) {
     return new SendMessageAction(
-        new MessageDefinition(body), targetChannelPattern, false, null, null);
+        new MessageDefinition(body),
+        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
+        null,
+        null);
   }
 
   public static SendMessageAction toMatchingChannels(
@@ -81,12 +81,8 @@ public class SendMessageAction implements MessageAction {
     return message != null ? message.getBody() : null;
   }
 
-  public RequestPattern getTargetChannelPattern() {
-    return targetChannelPattern;
-  }
-
-  public boolean isSendToOriginatingChannel() {
-    return sendToOriginatingChannel;
+  public ChannelTarget getChannelTarget() {
+    return channelTarget;
   }
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -108,21 +104,15 @@ public class SendMessageAction implements MessageAction {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     SendMessageAction that = (SendMessageAction) o;
-    return sendToOriginatingChannel == that.sendToOriginatingChannel
-        && Objects.equals(message, that.message)
-        && Objects.equals(targetChannelPattern, that.targetChannelPattern)
+    return Objects.equals(message, that.message)
+        && Objects.equals(channelTarget, that.channelTarget)
         && Objects.equals(transformers, that.transformers)
         && Objects.equals(transformerParameters, that.transformerParameters);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        message,
-        targetChannelPattern,
-        sendToOriginatingChannel,
-        transformers,
-        transformerParameters);
+    return Objects.hash(message, channelTarget, transformers, transformerParameters);
   }
 
   @Override
@@ -131,10 +121,8 @@ public class SendMessageAction implements MessageAction {
         + "message='"
         + message
         + '\''
-        + ", targetChannelPattern="
-        + targetChannelPattern
-        + ", sendToOriginatingChannel="
-        + sendToOriginatingChannel
+        + ", channelTarget="
+        + channelTarget
         + ", transformers="
         + transformers
         + '}';

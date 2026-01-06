@@ -6,7 +6,7 @@
     "channelPattern": {"urlPath": "/ws/classpath"}
   },
   "actions": [{
-    "sendToOriginatingChannel": true,
+    "channelTarget": {"type": "originating"},
     "type": "send",
     "message": {"body": {"data": "Hello from classpath"}}
   }]

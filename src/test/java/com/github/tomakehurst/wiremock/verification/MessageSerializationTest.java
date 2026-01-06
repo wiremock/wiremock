@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RegexPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.ChannelTarget;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpRequestTrigger;
 import com.github.tomakehurst.wiremock.message.HttpStubTrigger;
@@ -43,6 +44,7 @@ import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.Map;
 import java.util.UUID;
@@ -95,7 +97,9 @@ public class MessageSerializationTest {
                   "message": {
                     "body": "world"
                   },
-                  "sendToOriginatingChannel": true
+                  "channelTarget": {
+                    "type": "originating"
+                  }
                 }
               ]
             }
@@ -127,7 +131,9 @@ public class MessageSerializationTest {
               "message": {
                 "body": "response"
               },
-              "sendToOriginatingChannel": true
+              "channelTarget": {
+                "type": "originating"
+              }
             }
           ]
         }
@@ -226,7 +232,9 @@ public class MessageSerializationTest {
                     "message": {
                       "body": "response"
                     },
-                    "sendToOriginatingChannel": true
+                    "channelTarget": {
+                      "type": "originating"
+                    }
                   }
                 ]
               }
@@ -321,11 +329,13 @@ public class MessageSerializationTest {
                   "message": {
                     "body": "broadcasted"
                   },
-                  "targetChannelPattern": {
-                    "url": "/target",
-                    "method": "ANY"
-                  },
-                  "sendToOriginatingChannel": false
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "requestPattern": {
+                      "url": "/target",
+                      "method": "ANY"
+                    }
+                  }
                 }
               ]
             }
@@ -354,10 +364,12 @@ public class MessageSerializationTest {
               "message": {
                 "body": "broadcast-message"
               },
-              "targetChannelPattern": {
-                "url": "/target-channel"
-              },
-              "sendToOriginatingChannel": false
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "url": "/target-channel"
+                }
+              }
             }
           ]
         }
@@ -370,8 +382,10 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody().getData(), is("broadcast-message"));
-    assertThat(action.isSendToOriginatingChannel(), is(false));
-    assertThat(action.getTargetChannelPattern().getUrl(), is("/target-channel"));
+    ChannelTarget target = action.getChannelTarget();
+    assertThat(target, instanceOf(RequestInitiatedChannelTarget.class));
+    RequestInitiatedChannelTarget requestTarget = (RequestInitiatedChannelTarget) target;
+    assertThat(requestTarget.getRequestPattern().getUrl(), is("/target-channel"));
   }
 
   @Test
@@ -563,7 +577,9 @@ public class MessageSerializationTest {
                       }
                     }
                   },
-                  "sendToOriginatingChannel": true
+                  "channelTarget": {
+                    "type": "originating"
+                  }
                 }
               ]
             }
@@ -593,7 +609,9 @@ public class MessageSerializationTest {
                   "dataRef": "testKey"
                 }
               },
-              "sendToOriginatingChannel": true
+              "channelTarget": {
+                "type": "originating"
+              }
             }
           ]
         }
@@ -661,7 +679,9 @@ public class MessageSerializationTest {
                       "data": "%s"
                     }
                   },
-                  "sendToOriginatingChannel": true
+                  "channelTarget": {
+                    "type": "originating"
+                  }
                 }
               ]
             }
@@ -698,7 +718,9 @@ public class MessageSerializationTest {
                   "data": "%s"
                 }
               },
-              "sendToOriginatingChannel": true
+              "channelTarget": {
+                "type": "originating"
+              }
             }
           ]
         }
@@ -798,11 +820,13 @@ public class MessageSerializationTest {
                   "message": {
                     "body": "triggered message"
                   },
-                  "targetChannelPattern": {
-                    "url": "/ws-channel",
-                    "method": "ANY"
-                  },
-                  "sendToOriginatingChannel": false
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "requestPattern": {
+                      "url": "/ws-channel",
+                      "method": "ANY"
+                    }
+                  }
                 }
               ]
             }
@@ -827,10 +851,12 @@ public class MessageSerializationTest {
               "message": {
                 "body": "response"
               },
-              "targetChannelPattern": {
-                "url": "/target"
-              },
-              "sendToOriginatingChannel": false
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "url": "/target"
+                }
+              }
             }
           ]
         }
@@ -904,11 +930,13 @@ public class MessageSerializationTest {
                   "message": {
                     "body": "request triggered"
                   },
-                  "targetChannelPattern": {
-                    "url": "/ws-notify",
-                    "method": "ANY"
-                  },
-                  "sendToOriginatingChannel": false
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "requestPattern": {
+                      "url": "/ws-notify",
+                      "method": "ANY"
+                    }
+                  }
                 }
               ]
             }
@@ -936,10 +964,12 @@ public class MessageSerializationTest {
               "message": {
                 "body": "event received"
               },
-              "targetChannelPattern": {
-                "url": "/events-channel"
-              },
-              "sendToOriginatingChannel": false
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "url": "/events-channel"
+                }
+              }
             }
           ]
         }

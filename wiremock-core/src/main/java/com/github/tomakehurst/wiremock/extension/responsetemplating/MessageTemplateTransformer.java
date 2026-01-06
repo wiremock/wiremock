@@ -115,21 +115,11 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
   }
 
   private SendMessageAction rebuildAction(SendMessageAction original, String newBody) {
-    if (original.isSendToOriginatingChannel()) {
-      return new SendMessageAction(
-          new MessageDefinition(new StringEntityDefinition(newBody)),
-          null,
-          true,
-          original.getTransformers(),
-          original.getTransformerParameters());
-    } else {
-      return new SendMessageAction(
-          new MessageDefinition(new StringEntityDefinition(newBody)),
-          original.getTargetChannelPattern(),
-          false,
-          original.getTransformers(),
-          original.getTransformerParameters());
-    }
+    return new SendMessageAction(
+        new MessageDefinition(new StringEntityDefinition(newBody)),
+        original.getChannelTarget(),
+        original.getTransformers(),
+        original.getTransformerParameters());
   }
 
   public static class MessageTemplateModel {

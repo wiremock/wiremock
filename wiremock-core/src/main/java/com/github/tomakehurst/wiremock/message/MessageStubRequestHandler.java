@@ -106,12 +106,24 @@ public class MessageStubRequestHandler {
   private void executeSendMessageAction(
       SendMessageAction action, MessageChannel originatingChannel) {
     Message message = resolveToMessage(action.getMessage());
-    if (action.isSendToOriginatingChannel()) {
+    ChannelTarget target = action.getChannelTarget();
+
+    if (target instanceof OriginatingChannelTarget) {
       originatingChannel.sendMessage(message);
-    } else if (action.getTargetChannelPattern() != null) {
-      List<MessageChannel> matchingChannels =
-          messageChannels.findByRequestPattern(
-              action.getTargetChannelPattern(), Collections.emptyMap());
+    } else if (target instanceof RequestInitiatedChannelTarget) {
+      RequestInitiatedChannelTarget requestTarget = (RequestInitiatedChannelTarget) target;
+      List<MessageChannel> matchingChannels;
+      if (requestTarget.getChannelType() != null) {
+        matchingChannels =
+            messageChannels.findByTypeAndRequestPattern(
+                requestTarget.getChannelType(),
+                requestTarget.getRequestPattern(),
+                Collections.emptyMap());
+      } else {
+        matchingChannels =
+            messageChannels.findByRequestPattern(
+                requestTarget.getRequestPattern(), Collections.emptyMap());
+      }
       for (MessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
       }

@@ -7,7 +7,7 @@
       "channelPattern": {"urlPath": "/ws/multi/1"}
     },
     "actions": [{
-      "sendToOriginatingChannel": true,
+      "channelTarget": {"type": "originating"},
       "type": "send",
       "message": {"body": {"data": "Hello from multi stub 1"}}
     }]
@@ -19,7 +19,7 @@
       "channelPattern": {"urlPath": "/ws/multi/2"}
     },
     "actions": [{
-      "sendToOriginatingChannel": true,
+      "channelTarget": {"type": "originating"},
       "type": "send",
       "message": {"body": {"data": "Hello from multi stub 2"}}
     }]
@@ -31,7 +31,7 @@
       "channelPattern": {"urlPath": "/ws/multi/3"}
     },
     "actions": [{
-      "sendToOriginatingChannel": true,
+      "channelTarget": {"type": "originating"},
       "type": "send",
       "message": {"body": {"data": "Hello from multi stub 3"}}
     }]
