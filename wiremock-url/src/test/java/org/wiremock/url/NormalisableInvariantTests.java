@@ -21,10 +21,10 @@ public class NormalisableInvariantTests {
           dynamicTest(
               "Already normal : '" + normalForm + "' is in normal form",
               () -> {
-                assertThat(normalForm.isNormalForm()).isTrue();
+                assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
 
                 var normalised = normalForm.normalise();
-                assertThat(normalised.isNormalForm()).isTrue();
+                assertThat(normalised.isNormalForm()).describedAs(normalised.toString()).isTrue();
                 assertThat(normalised).isEqualTo(normalForm);
               }));
     }
@@ -46,20 +46,20 @@ public class NormalisableInvariantTests {
               "Non-normal : `" + notNormal + "` is not normal form but can be normalised to `" + normalForm
                   + "`",
               () -> {
-                assertThat(notNormal.isNormalForm()).isFalse();
-                assertThat(normalForm.isNormalForm()).isTrue();
+                assertThat(notNormal.isNormalForm()).describedAs(notNormal.toString()).isFalse();
+                assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
 
                 var normalised = notNormal.normalise();
                 assertThat(normalised).isNotEqualTo(notNormal);
-                assertThat(normalised.isNormalForm()).isTrue();
+                assertThat(normalised.isNormalForm()).describedAs(normalised.toString()).isTrue();
                 assertThat(normalised).isEqualTo(normalForm);
 
                 assertThat(normalised.normalise()).isEqualTo(normalised);
 
                 // check that the optimisations have not changed anything
-                assertThat(notNormal.isNormalForm()).isFalse();
-                assertThat(normalised.isNormalForm()).isTrue();
-                assertThat(normalForm.isNormalForm()).isTrue();
+                assertThat(notNormal.isNormalForm()).describedAs(notNormal.toString()).isFalse();
+                assertThat(normalised.isNormalForm()).describedAs(normalised.toString()).isTrue();
+                assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
               }));
     }
     return tests.stream();

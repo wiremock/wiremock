@@ -30,6 +30,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.wiremock.url.QueryTests.NormaliseMethod.NormalisationCase;
 
 public class PathTests {
 
@@ -179,7 +180,12 @@ public class PathTests {
               "/%20!%22$%25&'()*+,-./:;%3C=%3E@%5B%5C%5D%5E_%60%7B%7C%7D~"),
           entry("/�", "/%EF%BF%BD"),
           entry("/foo/../../..", "/"),
-          entry("/foo/%2e./%2e%2e/.%2e/%2e.bar", "/%2e.bar"),
+          entry("/foo/%2e./%2e%2e/.%2e/%2e.bar", "/..bar"),
+          entry("%fF", "%FF"),
+          entry("%Ff", "%FF"),
+          entry("%41", "A"),
+          entry("%5A", "Z"),
+          entry("%5a", "Z"),
           entry("/foo/%2e", "/foo/"),
           entry("/foo/.", "/foo/"),
           entry("/./y:", "/y:"),

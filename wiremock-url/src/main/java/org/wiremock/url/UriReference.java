@@ -162,7 +162,7 @@ public sealed interface UriReference extends Normalisable<UriReference> permits 
     var fragment = getFragment();
     return (scheme == null || scheme.isNormalForm()) &&
         (authority == null || (scheme == null ? authority.isNormalForm() : authority.isNormalForm(scheme))) &&
-        path.isNormalForm() &&
+        (path.isNormalForm() && path.toString().startsWith("/")) &&
         (query == null || (query.isNormalForm())) &&
         (fragment == null || fragment.isNormalForm())
         ;

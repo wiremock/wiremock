@@ -156,6 +156,12 @@ class FragmentTests {
             new NormalisationCase("test{name}", "test%7Bname%7D"),
             new NormalisationCase("café", "caf%C3%A9"),
             new NormalisationCase("héllo", "h%C3%A9llo"),
+            new NormalisationCase("%ff", "%FF"),
+            new NormalisationCase("%fF", "%FF"),
+            new NormalisationCase("%Ff", "%FF"),
+            new NormalisationCase("%41", "A"),
+            new NormalisationCase("%5A", "Z"),
+            new NormalisationCase("%5a", "Z"),
             new NormalisationCase("\u0001control", "%01control"));
 
     static final List<String> alreadyNormalisedFragments =

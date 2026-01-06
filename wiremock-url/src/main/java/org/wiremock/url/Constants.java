@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import static java.lang.Character.toUpperCase;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.regex.Pattern;
@@ -100,14 +101,33 @@ final class Constants {
     for (int i = 0; i < original.length(); i++) {
       char c = original.charAt(i);
 
-      // Preserve already percent-encoded sequences
-      if (c == '%'
-          && i + 2 < original.length()
-          && isHexDigit(original.charAt(i + 1))
-          && isHexDigit(original.charAt(i + 2))) {
-        result.append(c).append(original.charAt(i + 1)).append(original.charAt(i + 2));
-        i += 2;
-        continue;
+      // Handle percent-encoded sequences
+      if (c == '%' && i + 2 < original.length()) {
+        char maybeFirstHexDigit = original.charAt(i + 1);
+        char maybeSecondHexDigit = original.charAt(i + 2);
+        if (isHexDigit(maybeFirstHexDigit) && isHexDigit(maybeSecondHexDigit)) {
+          // Decode the percent-encoded character
+          int decodedValue = (hexDigitToInt(maybeFirstHexDigit) << 4) | hexDigitToInt(maybeSecondHexDigit);
+          char decodedChar = (char) decodedValue;
+
+          // If the decoded character is unreserved, decode it
+          if (decodedChar < charactersThatDoNotNeedEncoding.length
+              && charactersThatDoNotNeedEncoding[decodedChar]) {
+            result.append(decodedChar);
+            changed = true;
+          } else {
+            // Otherwise, keep it encoded but uppercase the hex digits
+            char firstHexDigitUpper = toUpperCase(maybeFirstHexDigit);
+            char secondHexDigitUpper = toUpperCase(maybeSecondHexDigit);
+            result.append(c).append(firstHexDigitUpper).append(secondHexDigitUpper);
+            if (maybeFirstHexDigit != firstHexDigitUpper
+                || maybeSecondHexDigit != secondHexDigitUpper) {
+              changed = true;
+            }
+          }
+          i += 2;
+          continue;
+        }
       }
 
       // Check if character needs encoding per WhatWG fragment percent-encode set
@@ -133,18 +153,34 @@ final class Constants {
     for (int i = 0; i < original.length(); i++) {
       char c = original.charAt(i);
 
-      // Preserve already percent-encoded sequences
-      if (c == '%'
-          && i + 2 < original.length()
-          && isHexDigit(original.charAt(i + 1))
-          && isHexDigit(original.charAt(i + 2))) {
-        i += 2;
-        continue;
+      // Check percent-encoded sequences
+      if (c == '%' && i + 2 < original.length()) {
+        char firstHexDigit = original.charAt(i + 1);
+        char secondHexDigit = original.charAt(i + 2);
+
+        if (isHexDigit(firstHexDigit) && isHexDigit(secondHexDigit)) {
+          // Must be uppercase hex digits
+          if (!isUpperCaseHexDigit(firstHexDigit) || !isUpperCaseHexDigit(secondHexDigit)) {
+            return false;
+          }
+
+          // Decode the character
+          int decodedValue = (hexDigitToInt(firstHexDigit) << 4) | hexDigitToInt(secondHexDigit);
+          char decodedChar = (char) decodedValue;
+
+          // If the decoded character is unreserved, it should not be percent-encoded
+          if (decodedChar < charactersThatDoNotNeedEncoding.length
+              && charactersThatDoNotNeedEncoding[decodedChar]) {
+            return false;
+          }
+
+          i += 2;
+          continue;
+        }
       }
 
       // Check if character needs encoding per WhatWG fragment percent-encode set
       if (c >= charactersThatDoNotNeedEncoding.length || !charactersThatDoNotNeedEncoding[c]) {
-        // Encode as UTF-8 bytes
         return false;
       }
     }
@@ -154,6 +190,21 @@ final class Constants {
 
   private static boolean isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+  }
+
+  private static boolean isUpperCaseHexDigit(char c) {
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
+  }
+
+  private static int hexDigitToInt(char c) {
+    if (c >= '0' && c <= '9') {
+      return c - '0';
+    } else if (c >= 'A' && c <= 'F') {
+      return c - 'A' + 10;
+    } else if (c >= 'a' && c <= 'f') {
+      return c - 'a' + 10;
+    }
+    throw new IllegalArgumentException("Invalid hex digit: " + c);
   }
 
   static String encode(String unencoded, boolean[] charactersThatDoNotNeedEncoding) {

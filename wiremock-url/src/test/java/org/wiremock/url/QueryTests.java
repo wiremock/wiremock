@@ -27,6 +27,8 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.FragmentTests.NormaliseMethod;
+import org.wiremock.url.FragmentTests.NormaliseMethod.NormalisationCase;
 
 class QueryTests {
 
@@ -162,6 +164,12 @@ class QueryTests {
             new NormalisationCase("data={value}", "data=%7Bvalue%7D"),
             new NormalisationCase("q=test<tag>", "q=test%3Ctag%3E"),
             new NormalisationCase("name=café", "name=caf%C3%A9"),
+            new NormalisationCase("%ff", "%FF"),
+            new NormalisationCase("%fF", "%FF"),
+            new NormalisationCase("%Ff", "%FF"),
+            new NormalisationCase("%41", "A"),
+            new NormalisationCase("%5A", "Z"),
+            new NormalisationCase("%5a", "Z"),
             new NormalisationCase("key=}value{", "key=%7Dvalue%7B"));
 
     static final List<String> alreadyNormalisedQueries =
