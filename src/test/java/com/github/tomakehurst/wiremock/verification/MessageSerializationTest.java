@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
@@ -32,6 +33,9 @@ import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpRequestTrigger;
 import com.github.tomakehurst.wiremock.message.HttpStubTrigger;
@@ -135,7 +139,16 @@ public class MessageSerializationTest {
     assertThat(stub.getName(), is("Deserialized stub"));
     assertThat(stub.getPriority(), is(5));
     assertThat(stub.getChannelPattern().getUrl(), is("/my-channel"));
-    assertThat(stub.getMessagePattern(), notNullValue());
+
+    ContentPattern<?> bodyPattern = stub.getMessagePattern().getBodyPattern();
+    assertThat(bodyPattern, notNullValue());
+    assertThat(bodyPattern, instanceOf(RegexPattern.class));
+    assertThat(bodyPattern.getExpected(), is("hello.*"));
+
+    RequestPattern channelPattern = stub.getChannelPattern();
+    assertThat(channelPattern, notNullValue());
+    assertThat(channelPattern, is(any(urlEqualTo("/my-channel")).build().getRequest()));
+
     assertThat(stub.getActions().size(), is(1));
     assertThat(stub.getActions().get(0), is(SendMessageAction.toOriginatingChannel("response")));
   }
