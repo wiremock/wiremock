@@ -105,6 +105,8 @@ class UrlBuilder implements Builder {
         && query == null
         && fragment == null) {
       return new OriginValue(scheme, hostAndPort);
+    } else if (fragment == null) {
+      return new AbsoluteUrlValue(scheme, authority, path, query);
     } else {
       return new UrlValue(scheme, authority, path, query, fragment);
     }

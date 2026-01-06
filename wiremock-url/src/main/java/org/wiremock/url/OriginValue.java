@@ -42,8 +42,8 @@ final class OriginValue implements Origin {
   }
 
   @Override
-  public Url normalise() {
-    return new UrlValue(scheme, authority, Path.ROOT, null, null);
+  public AbsoluteUrl normalise() {
+    return new AbsoluteUrlValue(scheme, authority, Path.ROOT, null);
   }
 
   @Override

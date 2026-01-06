@@ -15,15 +15,21 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+final class AbsoluteUrlParser implements StringParser<AbsoluteUrl> {
 
-public final class IllegalOrigin extends IllegalAbsoluteUrl {
+  static final AbsoluteUrlParser INSTANCE = new AbsoluteUrlParser();
 
-  public IllegalOrigin(String url) {
-    this(url, null);
-  }
-
-  public IllegalOrigin(String url, @Nullable IllegalUriPart cause) {
-    super(url, "Illegal origin: `" + url + "`", cause);
+  @Override
+  public AbsoluteUrl parse(String url) throws IllegalUrl {
+    try {
+      var urlReference = UriReferenceParser.INSTANCE.parse(url);
+      if (urlReference instanceof AbsoluteUrl) {
+        return (AbsoluteUrl) urlReference;
+      } else {
+        throw new IllegalAbsoluteUrl(url);
+      }
+    } catch (IllegalUriPart illegalUriPart) {
+      throw new IllegalAbsoluteUrl(url, illegalUriPart);
+    }
   }
 }

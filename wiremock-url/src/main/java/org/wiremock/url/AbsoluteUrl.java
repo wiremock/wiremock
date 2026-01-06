@@ -35,41 +35,7 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin">HTML Living
  *     Standard - Origin</a>
  */
-public interface Origin extends AbsoluteUrl {
-
-  /**
-   * Returns the authority component of this origin.
-   *
-   * <p>Origins always have an authority that is a {@link HostAndPort} (no user info).
-   *
-   * @return the authority component, never {@code null}
-   */
-  @Override
-  HostAndPort getAuthority();
-
-  /**
-   * {@implSpec} Implementations must ALWAYS return {@link PathAndQuery#EMPTY}
-   *
-   * @deprecated This always returns empty so you have no reason to ever call it
-   * @return {@link PathAndQuery#EMPTY}
-   */
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default PathAndQuery getPathAndQuery() {
-    return PathAndQuery.EMPTY;
-  }
-
-  /**
-   * {@implSpec} Implementations must ALWAYS return {@link Path#EMPTY}
-   *
-   * @deprecated This always returns empty so you have no reason to ever call it
-   * @return {@link Path#EMPTY}
-   */
-  @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
-  default Path getPath() {
-    return Path.EMPTY;
-  }
+public interface AbsoluteUrl extends Url {
 
   /**
    * {@implSpec} Implementations must ALWAYS return null
@@ -80,7 +46,7 @@ public interface Origin extends AbsoluteUrl {
   @Override
   @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
   @Nullable
-  default Query getQuery() {
+  default Fragment getFragment() {
     return null;
   }
 
@@ -93,25 +59,13 @@ public interface Origin extends AbsoluteUrl {
   AbsoluteUrl normalise();
 
   /**
-   * Creates an origin from a scheme and host/port.
-   *
-   * @param scheme the scheme
-   * @param hostAndPort the host and port
-   * @return the origin
-   * @throws IllegalOrigin if any of the scheme, host and port are not normalised
-   */
-  static Origin of(Scheme scheme, HostAndPort hostAndPort) throws IllegalOrigin {
-    return OriginParser.INSTANCE.of(scheme, hostAndPort);
-  }
-
-  /**
    * Parses a string into an origin.
    *
    * @param origin the string to parse
    * @return the parsed origin
    * @throws IllegalOrigin if the string is not a valid origin
    */
-  static Origin parse(String origin) throws IllegalOrigin {
-    return OriginParser.INSTANCE.parse(origin);
+  static AbsoluteUrl parse(String origin) throws IllegalAbsoluteUrl {
+    return AbsoluteUrlParser.INSTANCE.parse(origin);
   }
 }

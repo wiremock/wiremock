@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 public class OriginTests {
 
-
   @Nested
   class Normalise {
 
