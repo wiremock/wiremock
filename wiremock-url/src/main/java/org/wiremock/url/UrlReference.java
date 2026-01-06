@@ -20,7 +20,7 @@ package org.wiremock.url;
  *
  * <p>A UrlReference is either a {@link Url} or a {@link RelativeRef}. An {@link Url} is guaranteed
  * to resolve to an {@link Url} if resolved against a UrlReference, whereas it may resolve to an
- * {@link Urn} if resolved against an {@link UriReference}.
+ * {@link OpaqueUri} if resolved against an {@link UriReference}.
  *
  * <p>Implementations must be immutable and thread-safe.
  *

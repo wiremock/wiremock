@@ -52,7 +52,7 @@ public non-sealed interface Url extends Uri, UrlReference {
   }
 
   @Override
-  default boolean isUrn() {
+  default boolean isOpaqueUri() {
     return false;
   }
 

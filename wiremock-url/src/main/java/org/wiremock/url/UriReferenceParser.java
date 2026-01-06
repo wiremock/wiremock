@@ -40,7 +40,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
             otherClass,
             Origin.class,
             Url.class,
-            Urn.class,
+            OpaqueUri.class,
             RelativeRef.class,
             PathAndQuery.class)
         && Objects.equals(one.getScheme(), other.getScheme())

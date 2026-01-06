@@ -22,7 +22,6 @@ import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_wirem
 
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -71,7 +70,7 @@ public class UriReferenceTests {
                 var normalised = uriReference.normalise();
                 return !(uriReference instanceof PathAndQuery
                         && normalised.toString().startsWith("//"))
-                    && !(normalised instanceof Urn
+                    && !(normalised instanceof OpaqueUri
                         && normalised.getPath().toString().startsWith("//"));
               })
           .toList();
@@ -132,7 +131,7 @@ public class UriReferenceTests {
                   t ->
                       // a normalised URI always as a path
                       !t.pathname().isEmpty()
-                          // if the input is a URN the output will be a URN
+                          // if the input is an Opaque URI the output will be an Opaque URI
                           && !(t.input().matches("^[a-z]+:.*")
                               && !t.input().matches("^[a-z]+://.*")
                               && t.href().matches("^[a-z]+://.*"))
@@ -176,9 +175,9 @@ public class UriReferenceTests {
           wiremock_valid_whatwg_success_with_base.stream()
               .filter(
                   t ->
-                      // absolute URN wins
+                      // absolute Opaque URI wins
                       !(t.input().equals("file:#x") && t.search().equals("?test"))
-                          // absolute URN wins
+                          // absolute Opaque URI wins
                           && !(t.input().equals("file:") && t.search().equals("?test")))
               .toList();
 
@@ -292,7 +291,7 @@ public class UriReferenceTests {
                   t ->
                       // a normalised URI always has a path
                       !t.pathname().isEmpty()
-                          // if the input is a URN the output will be a URN
+                          // if the input is an Opaque URI the output will be an Opaque URI
                           && !(t.input().matches("^[a-z]+:.*")
                               && !t.input().matches("^[a-z]+://.*")
                               && t.href().matches("^[a-z]+://.*"))
@@ -407,46 +406,38 @@ public class UriReferenceTests {
         resolved = normalised;
       }
 
-      if (resolved != null) {
+      Optional<Authority> authority = Optional.ofNullable(resolved.getAuthority());
 
-        Optional<Authority> authority = Optional.ofNullable(resolved.getAuthority());
-
-        if (Optional.ofNullable(resolved.getHost())
-                .map(Object::toString)
-                .orElse("")
-                .equals(successTestCase.hostname())
-            && !successTestCase.pathname().isEmpty()
-            && !successTestCase.pathname().matches(".*/[a-zA-Z]:(/.*|$)")
-            && !successTestCase
-                .pathname()
-                .matches(
-                    ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
-            && !input.endsWith(" ")
-            && !resolved.getPath().toString().contains("\\")
-            && !successTestCase.pathname().contains("|")
-            && !uriReference.getPath().toString().contains("\t")
-            && !successTestCase.search().contains("{")
-            && !successTestCase
-                .search()
-                .matches(
-                    ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
-            && !successTestCase.hash().contains("{")
-            && !successTestCase.hash().contains("#")) {
-          assertThat(resolved.toString()).isEqualTo(successTestCase.href());
-          assertThat(authority.map(Authority::getHostAndPort).map(Object::toString).orElse(""))
-              .isEqualTo(successTestCase.host());
-        }
+      if (Optional.ofNullable(resolved.getHost())
+              .map(Object::toString)
+              .orElse("")
+              .equals(successTestCase.hostname())
+          && !successTestCase.pathname().isEmpty()
+          && !successTestCase.pathname().matches(".*/[a-zA-Z]:(/.*|$)")
+          && !successTestCase
+              .pathname()
+              .matches(
+                  ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
+          && !input.endsWith(" ")
+          && !resolved.getPath().toString().contains("\\")
+          && !successTestCase.pathname().contains("|")
+          && !uriReference.getPath().toString().contains("\t")
+          && !successTestCase.search().contains("{")
+          && !successTestCase
+              .search()
+              .matches(
+                  ".*%[a-fA-F0-9]?(?:[^a-fA-F0-9].*|$)") // % not as part of a percent encoding
+          && !successTestCase.hash().contains("{")
+          && !successTestCase.hash().contains("#")) {
+        assertThat(resolved.toString()).isEqualTo(successTestCase.href());
+        assertThat(authority.map(Authority::getHostAndPort).map(Object::toString).orElse(""))
+            .isEqualTo(successTestCase.host());
       }
     }
   }
 
-  private static @Nullable Uri resolve(UriReference urlReference, String baseString) {
-    try {
-      return Url.parse(baseString).resolve(urlReference);
-    } catch (IllegalUrl ignored) {
-      // probably a URN we do not yet handle
-      return null;
-    }
+  private static Uri resolve(UriReference urlReference, String baseString) {
+    return Url.parse(baseString).resolve(urlReference);
   }
 
   @SuppressWarnings("unused")

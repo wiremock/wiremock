@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
-public sealed interface Uri extends UriReference permits Urn, Url {
+public sealed interface Uri extends UriReference permits OpaqueUri, Url {
 
   @Override
   Scheme getScheme();

@@ -112,7 +112,7 @@ class UriBuilder implements Builder {
       @Nullable Query query,
       @Nullable Fragment fragment) {
     if (authority == null) {
-      return Urn.of(scheme, path, query, fragment);
+      return OpaqueUri.of(scheme, path, query, fragment);
     } else {
       return buildUrl(scheme, authority, path, query, fragment);
     }

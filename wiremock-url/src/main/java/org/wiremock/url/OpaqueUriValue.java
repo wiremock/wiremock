@@ -18,14 +18,14 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-class UrnValue implements Urn {
+class OpaqueUriValue implements OpaqueUri {
 
   private final Scheme scheme;
   private final Path path;
   private final @Nullable Query query;
   private final @Nullable Fragment fragment;
 
-  UrnValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+  OpaqueUriValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
     this.scheme = scheme;
     this.path = path;
     this.query = query;
@@ -69,7 +69,7 @@ class UrnValue implements Urn {
   }
 
   @Override
-  public Urn normalise() {
+  public OpaqueUri normalise() {
 
     Scheme normalisedScheme = scheme.normalise();
     Path normalisedPath = path.normalise();
@@ -85,7 +85,7 @@ class UrnValue implements Urn {
         && Objects.equals(fragment, normalisedFragment)) {
       return this;
     } else {
-      return new UrnValue(normalisedScheme, normalisedPath, normalisedQuery, normalisedFragment);
+      return new OpaqueUriValue(normalisedScheme, normalisedPath, normalisedQuery, normalisedFragment);
     }
   }
 }

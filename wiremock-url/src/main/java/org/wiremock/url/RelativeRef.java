@@ -60,7 +60,7 @@ public non-sealed interface RelativeRef extends UrlReference {
   }
 
   @Override
-  default boolean isUrn() {
+  default boolean isOpaqueUri() {
     return false;
   }
 

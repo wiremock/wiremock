@@ -76,7 +76,7 @@ public sealed interface UriReference extends Normalisable<UriReference> permits 
   boolean isRelativeRef();
 
   /**
-   * Returns {@code true} if this is a URI (either a URL or URN).
+   * Returns {@code true} if this is a URI (either a URL or Opaque URI).
    *
    * @return {@code true} if this is a URI
    */
@@ -90,11 +90,11 @@ public sealed interface UriReference extends Normalisable<UriReference> permits 
   boolean isUrl();
 
   /**
-   * Returns {@code true} if this is a URN (has a scheme but no authority).
+   * Returns {@code true} if this is an Opaque URI (has a scheme but no authority).
    *
-   * @return {@code true} if this is a URN
+   * @return {@code true} if this is an Opaque URI
    */
-  boolean isUrn();
+  boolean isOpaqueUri();
 
   /**
    * Returns the user info component from the authority, or {@code null} if there is no authority or

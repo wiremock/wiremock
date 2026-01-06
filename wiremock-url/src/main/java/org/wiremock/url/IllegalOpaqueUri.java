@@ -15,21 +15,19 @@
  */
 package org.wiremock.url;
 
-final class UrnParser implements StringParser<Urn> {
+import org.jspecify.annotations.Nullable;
 
-  static final UrnParser INSTANCE = new UrnParser();
+public non-sealed class IllegalOpaqueUri extends IllegalUri {
 
-  @Override
-  public Urn parse(String urn) throws IllegalUrn {
-    try {
-      var uriReference = UriReferenceParser.INSTANCE.parse(urn);
-      if (uriReference instanceof Urn) {
-        return (Urn) uriReference;
-      } else {
-        throw new IllegalUrn(urn);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalUrn(urn, illegalUriPart);
-    }
+  public IllegalOpaqueUri(String opaqueUri) {
+    this(opaqueUri, null);
+  }
+
+  public IllegalOpaqueUri(String opaqueUri, @Nullable IllegalUriPart cause) {
+    this(opaqueUri, "Illegal Opaque URI: `" + opaqueUri + "`", cause);
+  }
+
+  public IllegalOpaqueUri(String opaqueUri, String message, @Nullable IllegalUriPart cause) {
+    super(opaqueUri, message, cause);
   }
 }

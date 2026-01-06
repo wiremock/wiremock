@@ -17,13 +17,13 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface Urn extends Uri {
+public non-sealed interface OpaqueUri extends Uri {
 
   default boolean isUrl() {
     return false;
   }
 
-  default boolean isUrn() {
+  default boolean isOpaqueUri() {
     return true;
   }
 
@@ -57,19 +57,19 @@ public non-sealed interface Urn extends Uri {
     return null;
   }
 
-  static Urn parse(String urn) throws IllegalUrn {
-    return UrnParser.INSTANCE.parse(urn);
+  static OpaqueUri parse(String opaqueUri) throws IllegalOpaqueUri {
+    return OpaqueUriParser.INSTANCE.parse(opaqueUri);
   }
 
-  static Urn of(Scheme scheme, Path path) {
+  static OpaqueUri of(Scheme scheme, Path path) {
     return of(scheme, path, null, null);
   }
 
-  static Urn of(Scheme scheme, Path path, Query query) {
+  static OpaqueUri of(Scheme scheme, Path path, Query query) {
     return of(scheme, path, query, null);
   }
 
-  static Urn of(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    return new UrnValue(scheme, path, query, fragment);
+  static OpaqueUri of(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+    return new OpaqueUriValue(scheme, path, query, fragment);
   }
 }
