@@ -131,7 +131,7 @@ public interface Admin {
    * @param type the channel type to target
    * @param requestPattern the pattern to match against the original upgrade request
    * @param message the message to send
-   * @return result containing the number of channels messaged
+   * @return result containing the matched channels that were messaged
    */
   SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, MessageDefinition message);
@@ -143,7 +143,7 @@ public interface Admin {
    * @param type the channel type to target
    * @param requestPattern the pattern to match against the original upgrade request
    * @param message the message to send
-   * @return result containing the number of channels messaged
+   * @return result containing the matched channels that were messaged
    */
   default SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, String message) {

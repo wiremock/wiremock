@@ -20,12 +20,15 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBase {
@@ -58,6 +61,13 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
           assertThat(result1.getChannelsMessaged(), is(1));
           assertThat(result2.getChannelsMessaged(), is(1));
 
+          List<LoggedMessageChannel> channels = result1.getChannels();
+          assertThat(channels, hasSize(1));
+          LoggedMessageChannel channel = channels.get(0);
+          assertThat(channel.getType(), is(ChannelType.WEBSOCKET));
+          assertThat(channel.isOpen(), is(true));
+          assertThat(channel.getInitiatingRequest().getUrl(), is("/notifications"));
+
           return null;
         });
 
@@ -84,6 +94,14 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                           ChannelType.WEBSOCKET, pattern, "Broadcast message");
 
                   assertThat(result.getChannelsMessaged(), is(2));
+
+                  List<LoggedMessageChannel> channels = result.getChannels();
+                  assertThat(channels, hasSize(2));
+                  for (LoggedMessageChannel channel : channels) {
+                    assertThat(channel.getType(), is(ChannelType.WEBSOCKET));
+                    assertThat(channel.isOpen(), is(true));
+                    assertThat(channel.getInitiatingRequest().getUrl(), is("/broadcast"));
+                  }
 
                   return null;
                 }));
@@ -159,6 +177,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
           SendChannelMessageResult result1 =
               wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Before close");
           assertThat(result1.getChannelsMessaged(), is(1));
+          assertThat(result1.getChannels(), hasSize(1));
           return null;
         });
 
@@ -168,5 +187,6 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     SendChannelMessageResult result2 =
         wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "After close");
     assertThat(result2.getChannelsMessaged(), is(0));
+    assertThat(result2.getChannels(), hasSize(0));
   }
 }

@@ -15,18 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+import java.util.Collections;
+import java.util.List;
 
 /** Result model for sending a message to channels. */
 public class SendChannelMessageResult {
 
-  private final int channelsMessaged;
+  private final List<LoggedMessageChannel> channels;
 
-  public SendChannelMessageResult(@JsonProperty("channelsMessaged") int channelsMessaged) {
-    this.channelsMessaged = channelsMessaged;
+  @JsonCreator
+  public SendChannelMessageResult(@JsonProperty("channels") List<LoggedMessageChannel> channels) {
+    this.channels = channels != null ? channels : Collections.emptyList();
+  }
+
+  public List<LoggedMessageChannel> getChannels() {
+    return channels;
   }
 
   public int getChannelsMessaged() {
-    return channelsMessaged;
+    return channels.size();
   }
 }

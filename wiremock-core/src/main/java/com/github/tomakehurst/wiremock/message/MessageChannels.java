@@ -100,7 +100,7 @@ public class MessageChannels {
     return matchingChannels.size();
   }
 
-  public int sendMessageToMatchingByType(
+  public List<MessageChannel> sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
       MessageDefinition messageDefinition,
@@ -111,7 +111,7 @@ public class MessageChannels {
     for (MessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
-    return matchingChannels.size();
+    return matchingChannels;
   }
 
   public void clear() {

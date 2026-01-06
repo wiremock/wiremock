@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
+import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
@@ -769,9 +770,11 @@ public class WireMockApp implements StubServer, Admin {
       ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
-    int count =
+    List<MessageChannel> matchedChannels =
         messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
-    return new SendChannelMessageResult(count);
+    List<LoggedMessageChannel> loggedChannels =
+        matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());
+    return new SendChannelMessageResult(loggedChannels);
   }
 
   @Override
