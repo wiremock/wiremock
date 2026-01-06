@@ -29,6 +29,18 @@ import org.jspecify.annotations.Nullable;
 
 final class PathValue implements Path {
 
+  private final String path;
+  private @Nullable volatile Boolean normalForm;
+
+  PathValue(String path) {
+    this(path, null);
+  }
+
+  PathValue(String path, @Nullable Boolean normalForm) {
+    this.path = path;
+    this.normalForm = normalForm;
+  }
+
   @Override
   public String toString() {
     return path;
@@ -45,7 +57,7 @@ final class PathValue implements Path {
    */
   @Override
   public Path normalise() {
-    if (this.equals(ROOT) || this.equals(EMPTY)) {
+    if (Boolean.TRUE.equals(normalForm) || this.equals(ROOT) || this.equals(EMPTY)) {
       return this;
     }
     var inputBuffer = new StringBuilder(path);
@@ -89,17 +101,22 @@ final class PathValue implements Path {
     }
     var outStr = encode(outputBuffer.toString());
     if (outStr.equals(path)) {
+      this.normalForm = true;
       return this;
     } else if (outStr.equals(ROOT.toString())) {
       return ROOT;
     } else {
-      return PathParser.INSTANCE.parse(outStr);
+      this.normalForm = false;
+      return new PathValue(outStr, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    throw new UnsupportedOperationException();
+    if (normalForm == null) {
+      normalForm = normalise().equals(this);
+    }
+    return normalForm;
   }
 
   private static int getEndOfFirstSegment(StringBuilder inputBuffer) {
@@ -165,11 +182,6 @@ final class PathValue implements Path {
   }
 
   private static final boolean[] pathCharSet = combine(pcharCharSet, include('/'));
-  private final String path;
-
-  PathValue(String path) {
-    this.path = path;
-  }
 
   private String encode(String unencoded) {
     String result = Constants.normalise(unencoded, pathCharSet);

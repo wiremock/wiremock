@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 public class NormalisableInvariantTests {
 
   public static <T extends Normalisable<T>> Stream<DynamicTest> generateNormalisedInvariantTests(
-      List<? extends T> normalForms
+      Collection<? extends T> normalForms
   ) {
     List<DynamicTest> tests = new ArrayList<>();
 
@@ -39,19 +39,27 @@ public class NormalisableInvariantTests {
     List<DynamicTest> tests = new ArrayList<>();
 
     for (NormalisationCase<T> testCase : testCases) {
+      T notNormal = testCase.notNormal;
+      T normalForm = testCase.normalForm;
       tests.add(
           dynamicTest(
-              "Non-normal : `" + testCase.notNormal + "` is not normal form but can be normalised to `" + testCase.normalForm + "`",
+              "Non-normal : `" + notNormal + "` is not normal form but can be normalised to `" + normalForm
+                  + "`",
               () -> {
-                assertThat(testCase.notNormal.isNormalForm()).isFalse();
-                assertThat(testCase.normalForm.isNormalForm()).isTrue();
+                assertThat(notNormal.isNormalForm()).isFalse();
+                assertThat(normalForm.isNormalForm()).isTrue();
 
-                var normalised = testCase.notNormal.normalise();
-                assertThat(normalised).isNotEqualTo(testCase.notNormal);
+                var normalised = notNormal.normalise();
+                assertThat(normalised).isNotEqualTo(notNormal);
                 assertThat(normalised.isNormalForm()).isTrue();
-                assertThat(normalised).isEqualTo(testCase.normalForm);
+                assertThat(normalised).isEqualTo(normalForm);
 
                 assertThat(normalised.normalise()).isEqualTo(normalised);
+
+                // check that the optimisations have not changed anything
+                assertThat(notNormal.isNormalForm()).isFalse();
+                assertThat(normalised.isNormalForm()).isTrue();
+                assertThat(normalForm.isNormalForm()).isTrue();
               }));
     }
     return tests.stream();

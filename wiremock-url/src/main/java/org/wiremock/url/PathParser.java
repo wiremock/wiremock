@@ -31,7 +31,7 @@ final class PathParser implements PercentEncodedStringParser<Path> {
   private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
 
   @Override
-  public Path parse(String stringForm) {
+  public PathValue parse(String stringForm) {
     if (pathPattern.matcher(stringForm).matches()) {
       return new PathValue(stringForm);
     } else {

@@ -31,10 +31,10 @@ import java.util.List;
 public interface Path extends PercentEncoded, Normalisable<Path> {
 
   /** An empty path with no segments. */
-  Path EMPTY = PathParser.INSTANCE.parse("");
+  Path EMPTY = new PathValue("", true);
 
   /** A root path consisting of a single forward slash. */
-  Path ROOT = PathParser.INSTANCE.parse("/");
+  Path ROOT = new PathValue("/", true);
 
   /**
    * Returns {@code true} if this path is absolute (starts with {@code /}).

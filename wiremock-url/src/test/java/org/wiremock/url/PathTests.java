@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -207,15 +208,23 @@ public class PathTests {
     return Map.entry(Path.parse(nonNormalised), Path.parse(normalised));
   }
 
-  @ParameterizedTest
-  @FieldSource("normaliseTestCases")
-  void pathNormalises(Entry<Path, Path> testCase) {
-    assertThat(testCase.getKey().normalise()).isEqualTo(testCase.getValue());
+  @TestFactory
+  Stream<DynamicTest> normalises_path_correctly() {
+    return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
+        normaliseTestCases.stream()
+            .filter(testCase -> !testCase.getKey().equals(testCase.getValue()))
+            .map(testCase -> new NormalisableInvariantTests.NormalisationCase<>(
+            testCase.getKey(),
+            testCase.getValue()
+        )).toList()
+    );
   }
 
-  @Test
-  void pathNormalisesSingle() {
-    pathNormalises(entry("", ""));
+  @TestFactory
+  Stream<DynamicTest> already_normalised_invariants() {
+    return NormalisableInvariantTests.generateNormalisedInvariantTests(
+        normaliseTestCases.stream().map(Entry::getValue).collect(Collectors.toSet())
+    );
   }
 
   private static final List<Entry<Path, Path>> rfc3986TestCases =

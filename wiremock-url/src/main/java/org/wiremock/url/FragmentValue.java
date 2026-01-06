@@ -46,8 +46,10 @@ final class FragmentValue implements Fragment {
     String result = Constants.normalise(fragment, FragmentParser.fragmentCharSet);
 
     if (result == null) {
+      this.normalForm = true;
       return this;
     } else {
+      this.normalForm = false;
       return new FragmentValue(result, true);
     }
   }
