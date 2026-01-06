@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -492,9 +493,21 @@ class PortTests {
     }
 
     @TestFactory
-    Stream<DynamicTest> port_parser_invariants() {
-      return StringParserInvariantTests.generateInvariantTests(
-          PortParser.INSTANCE, ParseMethod.validPortStrings().toList());
+    Stream<DynamicTest> normalises_port_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(List.of(Port.parse("00080")));
     }
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(
+          List.of(Port.of(0), Port.of(80), Port.of(Integer.MAX_VALUE))
+      );
+    }
+  }
+
+  @TestFactory
+  Stream<DynamicTest> port_parser_invariants() {
+    return StringParserInvariantTests.generateInvariantTests(
+        PortParser.INSTANCE, ParseMethod.validPortStrings().toList());
   }
 }
