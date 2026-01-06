@@ -69,8 +69,9 @@ public class MessageActionTransformerAcceptanceTest {
                 wireMockConfig()
                     .dynamicPort()
                     .extensions(
-                        new PrefixingMessageActionTransformer(),
-                        new SuffixingMessageActionTransformer()))
+                        new SuffixingMessageActionTransformer("1"),
+                        new SuffixingMessageActionTransformer("2"),
+                        new SuffixingMessageActionTransformer("3")))
             .startServer();
 
     wm.addMessageStubMapping(
@@ -83,7 +84,7 @@ public class MessageActionTransformerAcceptanceTest {
     String url = websocketUrl("/multi-transform-test");
 
     String response = testClient.sendMessageAndWaitForResponse(url, "test");
-    assertThat(response, is("[TRANSFORMED] message [END]"));
+    assertThat(response, is("message 1 2 3"));
   }
 
   @Test
@@ -168,18 +169,25 @@ public class MessageActionTransformerAcceptanceTest {
   }
 
   public static class SuffixingMessageActionTransformer implements MessageActionTransformer {
+
+    private final String suffix;
+
+    public SuffixingMessageActionTransformer(String suffix) {
+      this.suffix = suffix;
+    }
+
     @Override
     public MessageAction transform(MessageAction action, MessageActionContext context) {
       if (action instanceof SendMessageAction sendAction) {
         String originalBody = getMessageBody(sendAction);
-        return SendMessageAction.toOriginatingChannel(originalBody + " [END]");
+        return SendMessageAction.toOriginatingChannel(originalBody + " " + suffix);
       }
       return action;
     }
 
     @Override
     public String getName() {
-      return "suffixing";
+      return "suffixing " + suffix;
     }
   }
 
