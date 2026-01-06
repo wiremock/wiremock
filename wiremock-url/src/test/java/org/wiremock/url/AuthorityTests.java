@@ -20,6 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 public class AuthorityTests {
 
@@ -562,29 +564,6 @@ public class AuthorityTests {
   class AuthorityNormalise {
 
     @Test
-    void normalise_returns_same_instance_when_already_normalised() {
-      Authority authority = Authority.parse("example.com:8080");
-      Authority normalised = authority.normalise();
-      assertThat(normalised).isSameAs(authority);
-    }
-
-    @Test
-    void normalise_normalises_host() {
-      Authority authority = Authority.parse("EXAMPLE.COM:8080");
-      Authority normalised = authority.normalise();
-      assertThat(normalised).isEqualTo(Authority.parse("example.com:8080"));
-      assertThat(normalised).isNotSameAs(authority);
-    }
-
-    @Test
-    void normalise_normalises_userInfo() {
-      Authority authority = Authority.parse("user:@example.com:8080");
-      Authority normalised = authority.normalise();
-      assertThat(normalised).isEqualTo(Authority.parse("user@example.com:8080"));
-      assertThat(normalised).isNotSameAs(authority);
-    }
-
-    @Test
     void normalise_with_scheme_removes_default_port() {
       Authority authority = Authority.parse("example.com:80");
       Authority normalised = authority.normalise(Scheme.http);
@@ -623,20 +602,48 @@ public class AuthorityTests {
       assertThat(normalised.getPort()).isNull();
     }
 
-    @Test
-    void normalise_with_userInfo_normalises_empty_password() {
-      Authority authority = Authority.parse("user:@example.com");
-      Authority normalised = authority.normalise();
-      assertThat(normalised).isEqualTo(Authority.parse("user@example.com"));
-      assertThat(normalised.getUserInfo()).isEqualTo(UserInfo.parse("user"));
+    static final List<NormalisationCase<Authority>> normalisationCases =
+        Stream.of(
+            Pair.of("EXAMPLE.COM:8080", "example.com:8080"),
+            Pair.of("EXAMPLE.COM:08080", "example.com:8080"),
+            Pair.of("EXAMPLE.COM:", "example.com"),
+            Pair.of("example.com:08080", "example.com:8080"),
+            Pair.of("example.com:", "example.com"),
+            Pair.of("user@EXAMPLE.COM:8080", "user@example.com:8080"),
+            Pair.of("user@EXAMPLE.COM:08080", "user@example.com:8080"),
+            Pair.of("user@EXAMPLE.COM:", "user@example.com"),
+            Pair.of("user@example.com:08080", "user@example.com:8080"),
+            Pair.of("user@example.com:", "user@example.com")
+        ).map(it ->
+            new NormalisationCase<>(
+                Authority.parse(it.getLeft()),
+                Authority.parse(it.getRight())
+            )
+        ).toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_authority_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
     }
 
-    @Test
-    void normalise_returns_hostAndPort_when_userInfo_normalises_to_null() {
-      Authority authority = Authority.parse(":@example.com:8080");
-      Authority normalised = authority.normalise();
-      assertThat(normalised).isInstanceOf(HostAndPort.class);
-      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
+    static final List<Authority> alreadyNormalisedAuthorities = Stream.of(
+        "example.com",
+        "example.com:8080",
+        "user@example.com:8080",
+        "user@example.com",
+        "user:@example.com:8080",
+        "user:@example.com",
+        ":@example.com:8080",
+        ":@example.com",
+        ":password@example.com:8080",
+        ":password@example.com",
+        "user:password@example.com:8080",
+        "user:password@example.com"
+    ).map(Authority::parse).toList();
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalisedAuthorities);
     }
   }
 }
