@@ -28,4 +28,16 @@ package org.wiremock.url;
  * @see Url
  * @see RelativeRef
  */
-public sealed interface UrlReference extends UriReference permits RelativeRef, Url {}
+public sealed interface UrlReference extends UriReference permits RelativeRef, Url {
+
+  /**
+   * Parses a string into a URI reference.
+   *
+   * @param urlReference the string to parse
+   * @return the parsed URI reference
+   * @throws IllegalUriReference if the string is not a valid URI reference
+   */
+  static UrlReference parse(String urlReference) throws IllegalUriReference {
+    return UrlReferenceParser.INSTANCE.parse(urlReference);
+  }
+}

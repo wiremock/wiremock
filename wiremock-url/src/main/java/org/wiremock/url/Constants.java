@@ -93,8 +93,15 @@ final class Constants {
     return result;
   }
 
+  private static final boolean[] empty = new boolean[0];
+
   @Nullable
   static String normalise(String original, boolean[] charactersThatDoNotNeedEncoding) {
+    return normalise(original, charactersThatDoNotNeedEncoding, empty);
+  }
+
+  @Nullable
+  static String normalise(String original, boolean[] charactersThatDoNotNeedEncoding, boolean[] charactersToLeaveAsIs) {
     StringBuilder result = new StringBuilder();
     boolean changed = false;
 
@@ -111,8 +118,7 @@ final class Constants {
           char decodedChar = (char) decodedValue;
 
           // If the decoded character is unreserved, decode it
-          if (decodedChar < charactersThatDoNotNeedEncoding.length
-              && charactersThatDoNotNeedEncoding[decodedChar]) {
+          if (isIn(charactersThatDoNotNeedEncoding, decodedChar) && !isIn(charactersToLeaveAsIs, decodedChar)) {
             result.append(decodedChar);
             changed = true;
           } else {
@@ -131,7 +137,7 @@ final class Constants {
       }
 
       // Check if character needs encoding per WhatWG fragment percent-encode set
-      if (c < charactersThatDoNotNeedEncoding.length && charactersThatDoNotNeedEncoding[c]) {
+      if (isIn(charactersThatDoNotNeedEncoding, c)) {
         result.append(c);
       } else {
         // Encode as UTF-8 bytes
@@ -146,7 +152,6 @@ final class Constants {
       return result.toString();
     }
   }
-
 
   static boolean isNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
 
@@ -169,8 +174,7 @@ final class Constants {
           char decodedChar = (char) decodedValue;
 
           // If the decoded character is unreserved, it should not be percent-encoded
-          if (decodedChar < charactersThatDoNotNeedEncoding.length
-              && charactersThatDoNotNeedEncoding[decodedChar]) {
+          if (isIn(charactersThatDoNotNeedEncoding, decodedChar)) {
             return false;
           }
 
@@ -211,7 +215,7 @@ final class Constants {
     StringBuilder result = new StringBuilder();
     var unencodedChats = unencoded.toCharArray();
     for (char c : unencodedChats) {
-      if (c < charactersThatDoNotNeedEncoding.length && charactersThatDoNotNeedEncoding[c]) {
+      if (isIn(charactersThatDoNotNeedEncoding, c)) {
         result.append(c);
       } else {
         appendPercentEncoded(c, result);
@@ -226,6 +230,10 @@ final class Constants {
       result.append('%');
       result.append(String.format("%02X", b & 0xFF));
     }
+  }
+
+  private static boolean isIn(boolean[] characterSet, char character) {
+    return character < characterSet.length && characterSet[character];
   }
 
   private Constants() {

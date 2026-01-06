@@ -156,6 +156,8 @@ public class PathTests {
           entry("..", ""),
           entry("a", "a"),
           entry("/", "/"),
+          entry("/%2F/", "/%2F/"),
+          entry("/%2f/", "/%2F/"),
           entry("/.", "/"),
           entry("/..", "/"),
           entry("/a", "/a"),
@@ -165,6 +167,7 @@ public class PathTests {
           entry("//", "//"),
           entry("/./", "/"),
           entry("/../", "/"),
+          entry("/../../../../", "/"),
           entry("/a/", "/a/"),
           entry("/foo/bar/../ton", "/foo/ton"),
           entry("//a//../..//foo", "///foo"),
@@ -312,5 +315,29 @@ public class PathTests {
       Path path = Path.parse(testCase.input());
       assertThat(path.decode()).isEqualTo(testCase.expected());
     }
+  }
+
+  @Test
+  void parse_with_encoded_slash() {
+    Path path = Path.parse("/%2F/");
+    assertThat(path.toString()).isEqualTo("/%2F/");
+  }
+
+  @Test
+  void decode_with_encoded_slash() {
+    Path path = Path.parse("/%2F/");
+    assertThat(path.decode()).isEqualTo("///");
+  }
+
+  @Test
+  void encode_with_encoded_slash() {
+    Path path = Path.encode("/%2F/");
+    assertThat(path).isEqualTo(Path.parse("/%252F/"));
+  }
+
+  @Test
+  void normalise_with_encoded_slash() {
+    Path path = Path.parse("/%2F/");
+    assertThat(path.normalise()).isEqualTo(path);
   }
 }

@@ -99,7 +99,7 @@ final class PathValue implements Path {
       outputBuffer.append(inputBuffer, 0, endOfFirstSegment);
       inputBuffer.replace(0, endOfFirstSegment, "");
     }
-    var outStr = encode(outputBuffer.toString());
+    var outStr = PathParser.INSTANCE.encode2(outputBuffer.toString());
     if (outStr.equals(path)) {
       this.normalForm = true;
       return this;
@@ -179,13 +179,6 @@ final class PathValue implements Path {
       result = PathParser.INSTANCE.parse(this.path + "/../" + other);
     }
     return result.normalise();
-  }
-
-  private static final boolean[] pathCharSet = combine(pcharCharSet, include('/'));
-
-  private String encode(String unencoded) {
-    String result = Constants.normalise(unencoded, pathCharSet);
-    return result != null ? result : unencoded;
   }
 
   public String path() {

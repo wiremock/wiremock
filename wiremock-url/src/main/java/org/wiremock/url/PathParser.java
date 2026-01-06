@@ -18,8 +18,7 @@ package org.wiremock.url;
 import static org.wiremock.url.Constants.alwaysIllegal;
 import static org.wiremock.url.Constants.combine;
 import static org.wiremock.url.Constants.include;
-import static org.wiremock.url.Constants.subDelimCharSet;
-import static org.wiremock.url.Constants.unreservedCharSet;
+import static org.wiremock.url.Constants.pcharCharSet;
 
 import java.util.regex.Pattern;
 
@@ -39,11 +38,17 @@ final class PathParser implements PercentEncodedStringParser<Path> {
     }
   }
 
-  private static final boolean[] pathCharSet =
-      combine(unreservedCharSet, subDelimCharSet, include(':', '@', '/'));
+  private static final boolean[] charactersToLeaveAsIs = include('/');
+
+  private static final boolean[] pathCharSet = combine(pcharCharSet, charactersToLeaveAsIs);
 
   @Override
   public Path encode(String unencoded) {
     return parse(Constants.encode(unencoded, pathCharSet));
+  }
+
+  String encode2(String unencoded) {
+    String result = Constants.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
+    return result != null ? result : unencoded;
   }
 }
