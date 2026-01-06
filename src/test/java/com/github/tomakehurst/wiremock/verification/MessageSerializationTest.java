@@ -209,7 +209,7 @@ public class MessageSerializationTest {
             """
             {
               "id": "eeeeeeee-ffff-0000-1111-222222222222",
-              "eventType": "RECEIVED",
+              "eventType": "received",
               "channelType": "websocket",
               "channelId": "11111111-2222-3333-4444-555555555555",
               "message": "test message",
@@ -249,7 +249,7 @@ public class MessageSerializationTest {
         """
         {
           "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-          "eventType": "RECEIVED",
+          "eventType": "received",
           "channelType": "websocket",
           "channelId": "11111111-2222-3333-4444-555555555555",
           "message": "hello world",
@@ -410,7 +410,7 @@ public class MessageSerializationTest {
             """
             {
               "id": "22222222-3333-4444-5555-666666666666",
-              "eventType": "SENT",
+              "eventType": "sent",
               "channelType": "websocket",
               "channelId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
               "message": "sent message",
@@ -426,7 +426,7 @@ public class MessageSerializationTest {
         """
         {
           "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
-          "eventType": "SENT",
+          "eventType": "sent",
           "channelType": "websocket",
           "channelId": "22222222-3333-4444-5555-666666666666",
           "message": "outgoing message",

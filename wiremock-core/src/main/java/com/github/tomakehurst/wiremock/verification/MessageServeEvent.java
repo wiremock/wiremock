@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
@@ -38,7 +39,20 @@ public class MessageServeEvent {
 
   public enum EventType {
     RECEIVED,
-    SENT
+    SENT;
+
+    @JsonValue
+    public String toJson() {
+      return name().toLowerCase(java.util.Locale.ROOT);
+    }
+
+    @JsonCreator
+    public static EventType fromJson(String value) {
+      if (value == null) {
+        return null;
+      }
+      return valueOf(value.toUpperCase(java.util.Locale.ROOT));
+    }
   }
 
   private final UUID id;
