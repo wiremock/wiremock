@@ -127,6 +127,31 @@ final class Constants {
     }
   }
 
+
+  static boolean isNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
+
+    for (int i = 0; i < original.length(); i++) {
+      char c = original.charAt(i);
+
+      // Preserve already percent-encoded sequences
+      if (c == '%'
+          && i + 2 < original.length()
+          && isHexDigit(original.charAt(i + 1))
+          && isHexDigit(original.charAt(i + 2))) {
+        i += 2;
+        continue;
+      }
+
+      // Check if character needs encoding per WhatWG fragment percent-encode set
+      if (c >= charactersThatDoNotNeedEncoding.length || !charactersThatDoNotNeedEncoding[c]) {
+        // Encode as UTF-8 bytes
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private static boolean isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
   }

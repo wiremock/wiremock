@@ -172,24 +172,21 @@ class FragmentTests {
             "caf%C3%A9",
             "test%22quote");
 
-    @ParameterizedTest
-    @FieldSource("normalisationCases")
-    void normalises_fragment_correctly(NormalisationCase testCase) {
-      Fragment fragment = Fragment.parse(testCase.input());
-      Fragment normalised = fragment.normalise();
-      assertThat(normalised.toString()).isEqualTo(testCase.expected());
-      assertThat(normalised).isEqualTo(Fragment.parse(testCase.expected()));
-
-      Fragment normalised2 = normalised.normalise();
-      assertThat(normalised).isSameAs(normalised2);
+    @TestFactory
+    Stream<DynamicTest> normalises_fragment_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
+          normalisationCases.stream().map(testCase -> new NormalisableInvariantTests.NormalisationCase<>(
+              Fragment.parse(testCase.input()),
+              Fragment.parse(testCase.expected())
+          )).toList()
+      );
     }
 
-    @ParameterizedTest
-    @FieldSource("alreadyNormalisedFragments")
-    void returns_same_instance_when_already_normalised(String fragmentString) {
-      Fragment fragment = Fragment.parse(fragmentString);
-      Fragment normalised = fragment.normalise();
-      assertThat(normalised).isSameAs(fragment);
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(
+          alreadyNormalisedFragments.stream().map(Fragment::parse).toList()
+      );
     }
   }
 

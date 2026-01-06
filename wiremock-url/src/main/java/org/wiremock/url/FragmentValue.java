@@ -15,14 +15,21 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 final class FragmentValue implements Fragment {
 
   private final String fragment;
+  private @Nullable volatile Boolean normalForm;
 
   FragmentValue(String fragment) {
+    this(fragment, null);
+  }
+
+  FragmentValue(String fragment, @Nullable Boolean normalForm) {
     this.fragment = fragment;
+    this.normalForm = normalForm;
   }
 
   @Override
@@ -32,19 +39,25 @@ final class FragmentValue implements Fragment {
 
   @Override
   public Fragment normalise() {
+    if (Boolean.TRUE.equals(normalForm)) {
+      return this;
+    }
 
     String result = Constants.normalise(fragment, FragmentParser.fragmentCharSet);
 
     if (result == null) {
       return this;
     } else {
-      return new FragmentValue(result);
+      return new FragmentValue(result, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    throw new UnsupportedOperationException();
+    if (normalForm == null) {
+      normalForm = Constants.isNormalForm(fragment, FragmentParser.fragmentCharSet);
+    }
+    return normalForm;
   }
 
   public String fragment() {
