@@ -63,7 +63,7 @@ public class MessageStubMapping {
     this.name = name;
     this.priority = priority;
     this.trigger = trigger != null ? trigger : IncomingMessageTrigger.ANYTHING;
-    this.actions = actions != null ? List.of(actions) : Collections.emptyList();
+    this.actions = actions != null ? actions : Collections.emptyList();
     this.metadata = metadata != null ? metadata : new Metadata();
   }
 

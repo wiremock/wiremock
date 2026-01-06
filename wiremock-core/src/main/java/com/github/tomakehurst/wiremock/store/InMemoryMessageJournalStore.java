@@ -98,6 +98,12 @@ public class InMemoryMessageJournalStore implements MessageJournalStore {
     eventListeners.add(listener);
   }
 
+  @Override
+  public void unregisterEventListener(
+      Consumer<? super StoreEvent<UUID, MessageServeEvent>> listener) {
+    eventListeners.remove(listener);
+  }
+
   private void notifyListeners(StoreEvent<UUID, MessageServeEvent> event) {
     for (Consumer<? super StoreEvent<UUID, MessageServeEvent>> listener : eventListeners) {
       try {

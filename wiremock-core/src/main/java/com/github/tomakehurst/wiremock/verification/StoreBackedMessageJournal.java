@@ -22,10 +22,12 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.store.MessageJournalStore;
+import com.github.tomakehurst.wiremock.store.StoreEvent;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class StoreBackedMessageJournal implements MessageJournal {
 
@@ -104,13 +106,15 @@ public class StoreBackedMessageJournal implements MessageJournal {
     CountDownLatch latch = new CountDownLatch(1);
     final MessageServeEvent[] result = new MessageServeEvent[1];
 
-    store.registerEventListener(
+    Consumer<StoreEvent<UUID, MessageServeEvent>> listener =
         storeEvent -> {
           if (storeEvent.getNewValue() != null && pattern.matches(storeEvent.getNewValue())) {
             result[0] = storeEvent.getNewValue();
             latch.countDown();
           }
-        });
+        };
+
+    store.registerEventListener(listener);
 
     try {
       boolean found = latch.await(maxWait.toMillis(), TimeUnit.MILLISECONDS);
@@ -119,6 +123,8 @@ public class StoreBackedMessageJournal implements MessageJournal {
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+    } finally {
+      store.unregisterEventListener(listener);
     }
 
     return store.getAll().filter(pattern::matches).findFirst();
@@ -128,9 +134,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
   public List<MessageServeEvent> waitForEvents(
       MessagePattern pattern, int count, Duration maxWait) {
     long deadline = System.currentTimeMillis() + maxWait.toMillis();
-    List<MessageServeEvent> collected = new ArrayList<>();
-
-    while (collected.size() < count && System.currentTimeMillis() < deadline) {
+    while (System.currentTimeMillis() < deadline) {
       List<MessageServeEvent> current = store.getAll().filter(pattern::matches).collect(toList());
       if (current.size() >= count) {
         return current.subList(0, count);
@@ -139,18 +143,22 @@ public class StoreBackedMessageJournal implements MessageJournal {
       long remaining = deadline - System.currentTimeMillis();
       if (remaining > 0) {
         CountDownLatch latch = new CountDownLatch(1);
-        store.registerEventListener(
+        Consumer<StoreEvent<UUID, MessageServeEvent>> listener =
             storeEvent -> {
               if (storeEvent.getNewValue() != null && pattern.matches(storeEvent.getNewValue())) {
                 latch.countDown();
               }
-            });
+            };
+
+        store.registerEventListener(listener);
 
         try {
           latch.await(Math.min(remaining, 100), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           break;
+        } finally {
+          store.unregisterEventListener(listener);
         }
       }
     }
