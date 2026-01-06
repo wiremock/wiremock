@@ -163,7 +163,7 @@ public sealed interface UriReference extends Normalisable<UriReference> permits 
     return (scheme == null || scheme.isNormalForm()) &&
         (authority == null || (scheme == null ? authority.isNormalForm() : authority.isNormalForm(scheme))) &&
         path.isNormalForm() &&
-        (query == null || (scheme == null ? query.isNormalForm() : query.isNormalForm(scheme))) &&
+        (query == null || (query.isNormalForm())) &&
         (fragment == null || fragment.isNormalForm())
         ;
   }

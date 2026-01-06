@@ -49,23 +49,5 @@ public interface Query extends PercentEncoded, Normalisable<Query> {
     return QueryParser.INSTANCE.encode(unencoded);
   }
 
-  /**
-   * Returns a normalized form of this query using default HTTP scheme normalization rules.
-   *
-   * @return a normalized query
-   */
-  @Override
-  default Query normalise() {
-    return normalise(Scheme.http);
-  }
-
-  /**
-   * Returns a normalized form of this query using scheme-specific normalization rules.
-   *
-   * @param scheme the scheme to use for normalization
-   * @return a normalized query
-   */
-  Query normalise(Scheme scheme);
-
-  boolean isNormalForm(Scheme scheme);
+  Query normalise();
 }

@@ -152,27 +152,17 @@ class QueryTests {
   @Nested
   class NormaliseMethod {
 
-    record NormalisationCase(String input, String expected, Scheme scheme) {}
+    record NormalisationCase(String input, String expected) {}
 
     static final List<NormalisationCase> normalisationCases =
         List.of(
-            // Characters that need encoding (non-special scheme)
-            new NormalisationCase("q=search term", "q=search%20term", Scheme.http),
-            new NormalisationCase("key=value test", "key=value%20test", Scheme.https),
-            new NormalisationCase("q=test\"quote", "q=test%22quote", Scheme.http),
-            new NormalisationCase("data={value}", "data=%7Bvalue%7D", Scheme.http),
-            new NormalisationCase("q=test<tag>", "q=test%3Ctag%3E", Scheme.http),
-            new NormalisationCase("name=café", "name=caf%C3%A9", Scheme.http),
-            new NormalisationCase("key=}value{", "key=%7Dvalue%7B", Scheme.http),
-
-            // Single quote handling - special scheme
-            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.http),
-            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.https),
-            new NormalisationCase("q=test'quote", "q=test%27quote", Scheme.ws),
-
-            // Single quote handling - non-special scheme
-            new NormalisationCase("q=test'quote", "q=test'quote", Scheme.parse("custom")),
-            new NormalisationCase("q=test'quote", "q=test'quote", Scheme.parse("myscheme")));
+            new NormalisationCase("q=search term", "q=search%20term"),
+            new NormalisationCase("key=value test", "key=value%20test"),
+            new NormalisationCase("q=test\"quote", "q=test%22quote"),
+            new NormalisationCase("data={value}", "data=%7Bvalue%7D"),
+            new NormalisationCase("q=test<tag>", "q=test%3Ctag%3E"),
+            new NormalisationCase("name=café", "name=caf%C3%A9"),
+            new NormalisationCase("key=}value{", "key=%7Dvalue%7B"));
 
     static final List<String> alreadyNormalisedQueries =
         List.of(
@@ -184,34 +174,24 @@ class QueryTests {
             "time=12:30:00",
             "path=/api/v1",
             "q=search%20term",
-            "name=%C3%A9ric");
+            "name=%C3%A9ric",
+            "q=test'quote");
 
-    @ParameterizedTest
-    @FieldSource("normalisationCases")
-    void normalises_query_correctly(NormalisationCase testCase) {
-      Query query = Query.parse(testCase.input());
-      Query normalised = query.normalise(testCase.scheme());
-      assertThat(normalised.toString()).isEqualTo(testCase.expected());
-      assertThat(normalised).isEqualTo(Query.parse(testCase.expected()));
-
-      Query normalised2 = normalised.normalise(testCase.scheme());
-      assertThat(normalised).isSameAs(normalised2);
+    @TestFactory
+    Stream<DynamicTest> normalises_query_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
+          normalisationCases.stream().map(testCase -> new NormalisableInvariantTests.NormalisationCase<>(
+              Query.parse(testCase.input()),
+              Query.parse(testCase.expected())
+          )).toList()
+      );
     }
 
-    @ParameterizedTest
-    @FieldSource("alreadyNormalisedQueries")
-    void returns_same_instance_when_already_normalised(String queryString) {
-      Query query = Query.parse(queryString);
-      Query normalised = query.normalise();
-      assertThat(normalised).isSameAs(query);
-    }
-
-    @Test
-    void normalise_without_scheme_uses_http_default() {
-      Query query = Query.parse("q=test'quote");
-      Query normalised = query.normalise();
-      // http is special scheme, so single quote should be encoded
-      assertThat(normalised.toString()).isEqualTo("q=test%27quote");
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(
+          alreadyNormalisedQueries.stream().map(Query::parse).toList()
+      );
     }
   }
 

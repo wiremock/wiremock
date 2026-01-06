@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 import static org.wiremock.url.Scheme.specialSchemes;
 
 import java.util.Objects;
@@ -22,9 +24,15 @@ import java.util.Objects;
 final class QueryValue implements Query {
 
   private final String query;
+  private @Nullable volatile Boolean normalForm;
 
   QueryValue(String query) {
+    this(query, null);
+  }
+
+  QueryValue(String query, @Nullable Boolean normalForm) {
     this.query = query;
+    this.normalForm = normalForm;
   }
 
   @Override
@@ -33,28 +41,28 @@ final class QueryValue implements Query {
   }
 
   @Override
-  public Query normalise(Scheme scheme) {
-    boolean[] charactersThatDoNotNeedEncoding =
-        specialSchemes.contains(scheme)
-            ? QueryParser.specialSchemeQueryCharSet
-            : QueryParser.queryCharSet;
-    String result = Constants.normalise(query, charactersThatDoNotNeedEncoding);
+  public Query normalise() {
+    if (Boolean.TRUE.equals(normalForm)) {
+      return this;
+    }
+
+    String result = Constants.normalise(query, QueryParser.queryCharSet);
 
     if (result == null) {
+      this.normalForm = true;
       return this;
     } else {
-      return new QueryValue(result);
+      this.normalForm = false;
+      return new QueryValue(result, true);
     }
   }
 
   @Override
-  public boolean isNormalForm(Scheme scheme) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public boolean isNormalForm() {
-    throw new UnsupportedOperationException();
+    if (normalForm == null) {
+      normalForm = Constants.isNormalForm(query, QueryParser.queryCharSet);
+    }
+    return normalForm;
   }
 
   public String query() {
