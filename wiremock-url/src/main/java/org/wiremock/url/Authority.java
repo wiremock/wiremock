@@ -108,8 +108,7 @@ public interface Authority extends Normalisable<Authority> {
   default boolean isNormalForm() {
     Optional<Port> maybePort = getMaybePort();
     //noinspection OptionalAssignedToNull
-    return (getUserInfo() == null || getUserInfo().isNormalForm()) &&
-        getHost().isNormalForm() &&
+    return getHost().isNormalForm() &&
         (maybePort == null || maybePort.isPresent() && maybePort.get().isNormalForm());
   }
 
@@ -120,8 +119,7 @@ public interface Authority extends Normalisable<Authority> {
    * @return true if in normal form for this scheme
    */
   default boolean isNormalForm(Scheme canonicalScheme) {
-    return (getUserInfo() == null || getUserInfo().isNormalForm()) &&
-        getHost().isNormalForm() &&
+    return getHost().isNormalForm() &&
         portIsNormalForm(canonicalScheme);
   }
 

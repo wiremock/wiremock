@@ -124,49 +124,6 @@ class UserInfoTests {
   }
 
   @Nested
-  class NormaliseMethod {
-
-    static final List<String> normalisesToNull = List.of("", ":");
-
-    static final List<String> alreadyNormalised = List.of("user", "user:password");
-
-    @ParameterizedTest
-    @FieldSource("normalisesToNull")
-    void returns_null_for_empty_userinfo(String userInfoString) {
-      UserInfo userInfo = UserInfo.parse(userInfoString);
-      UserInfo normalised = userInfo.normalise();
-      assertThat(normalised).isNull();
-    }
-
-    @Test
-    void removes_empty_password_when_username_is_not_empty() {
-      UserInfo userInfo = UserInfo.parse("user:");
-      UserInfo normalised = userInfo.normalise();
-      assertThat(normalised).isNotNull();
-      assertThat(normalised.toString()).isEqualTo("user");
-      assertThat(normalised.getUsername().toString()).isEqualTo("user");
-      assertThat(normalised.getPassword()).isNull();
-    }
-
-    @ParameterizedTest
-    @FieldSource("alreadyNormalised")
-    void returns_same_instance_when_already_normalised(String userInfoString) {
-      UserInfo userInfo = UserInfo.parse(userInfoString);
-      UserInfo normalised = userInfo.normalise();
-      assertThat(normalised).isSameAs(userInfo);
-    }
-
-    @Test
-    void normalised_userinfo_can_be_normalised_again() {
-      UserInfo userInfo = UserInfo.parse("user:");
-      UserInfo normalised1 = userInfo.normalise();
-      UserInfo normalised2 = normalised1.normalise();
-      assertThat(normalised1).isEqualTo(normalised2);
-      assertThat(normalised2).isSameAs(normalised1);
-    }
-  }
-
-  @Nested
   class DecodeMethod {
 
     record DecodeCase(String input, String expected) {}

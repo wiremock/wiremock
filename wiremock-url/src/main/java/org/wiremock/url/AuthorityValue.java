@@ -87,8 +87,7 @@ final class AuthorityValue implements Authority {
       //noinspection OptionalAssignedToNull
       optionalNormalisedPort = null;
     }
-    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
+    return buildNormalisedAuthority(userInfo, normalisedHost, optionalNormalisedPort);
   }
 
   @Override
@@ -105,8 +104,7 @@ final class AuthorityValue implements Authority {
       optionalPort = Optional.of(normalisedPort);
     }
 
-    var normalisedUserInfo = Optional.ofNullable(userInfo).map(UserInfo::normalise).orElse(null);
-    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalPort);
+    return buildNormalisedAuthority(userInfo, normalisedHost, optionalPort);
   }
 
   private Authority buildNormalisedAuthority(

@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1">RFC 3986 Section
  *     3.2.1</a>
  */
-public interface UserInfo extends PercentEncoded, Normalisable<UserInfo> {
+public interface UserInfo extends PercentEncoded {
 
   /**
    * Parses a string into user info.
@@ -54,15 +54,6 @@ public interface UserInfo extends PercentEncoded, Normalisable<UserInfo> {
   static UserInfo encode(String unencoded) {
     return UserInfoParser.INSTANCE.encode(unencoded);
   }
-
-  /**
-   * Returns a normalised form of this user info, or {@code null} if it should be removed.
-   *
-   * <p>Normalization may return {@code null} if the user info consists of only empty components.
-   *
-   * @return a normalised user info, or {@code null} if it should be removed
-   */
-  @Nullable UserInfo normalise();
 
   /**
    * Returns the username component.

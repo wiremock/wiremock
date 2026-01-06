@@ -36,23 +36,6 @@ final class UserInfoValue implements UserInfo {
   }
 
   @Override
-  public @Nullable UserInfoValue normalise() {
-    if (!username.toString().isEmpty() && password != null && password.toString().isEmpty()) {
-      return new UserInfoValue(username.toString(), username, null);
-    } else if (username.toString().isEmpty()
-        && (password == null || password.toString().isEmpty())) {
-      return null;
-    } else {
-      return this;
-    }
-  }
-
-  @Override
-  public boolean isNormalForm() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Username getUsername() {
     return username;
   }
