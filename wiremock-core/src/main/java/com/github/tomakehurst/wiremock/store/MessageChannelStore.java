@@ -30,7 +30,7 @@ public interface MessageChannelStore {
 
   void add(MessageChannel channel);
 
-  void remove(UUID id);
+  Optional<MessageChannel> remove(UUID id);
 
   void clear();
 }

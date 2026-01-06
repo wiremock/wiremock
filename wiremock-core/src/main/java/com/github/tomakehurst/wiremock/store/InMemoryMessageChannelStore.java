@@ -44,8 +44,8 @@ public class InMemoryMessageChannelStore implements MessageChannelStore {
   }
 
   @Override
-  public void remove(UUID id) {
-    channels.remove(id);
+  public Optional<MessageChannel> remove(UUID id) {
+    return Optional.ofNullable(channels.remove(id));
   }
 
   @Override
