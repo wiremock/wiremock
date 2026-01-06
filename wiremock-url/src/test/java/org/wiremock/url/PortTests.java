@@ -49,7 +49,7 @@ class PortTests {
           .withMessage(
               "Illegal port ["
                   + invalidPort
-                  + "]; Port value must be an integer between 1 and 65535")
+                  + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(String.valueOf(invalidPort));
@@ -88,7 +88,7 @@ class PortTests {
           .withMessage(
               "Illegal port ["
                   + invalidPortString
-                  + "]; Port value must be an integer between 1 and 65535")
+                  + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(invalidPortString);
@@ -118,7 +118,7 @@ class PortTests {
           .withMessage(
               "Illegal port ["
                   + invalidPortString
-                  + "]; Port value must be an integer between 1 and 65535")
+                  + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
           .isEqualTo(invalidPortString);

@@ -22,7 +22,7 @@ final class PortParser implements StringParser<Port> {
 
   static PortParser INSTANCE = new PortParser();
 
-  static final int MAX_PORT = 65_535;
+  static final int MAX_PORT = Integer.MAX_VALUE;
 
   private final Map<Integer, PortValue> portsByInt = new ConcurrentHashMap<>();
 
@@ -44,7 +44,7 @@ final class PortParser implements StringParser<Port> {
       int port = Integer.parseInt(stringForm);
       String canonical = String.valueOf(port);
       boolean isNormalForm = stringForm.equals(canonical);
-      if (isNormalForm && port <= MAX_PORT) {
+      if (isNormalForm) {
         return of(port);
       } else {
         validate(port);
