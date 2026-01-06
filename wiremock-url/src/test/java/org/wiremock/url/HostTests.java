@@ -410,19 +410,13 @@ class HostTests {
             new NormalisationCase("caf%c3%a9.Example.COM", "caf%C3%A9.example.com"),
             new NormalisationCase("Test-Server_123.Example.COM", "test-server_123.example.com"));
 
-    @ParameterizedTest
-    @FieldSource("normalisationCases")
-    void normalises_host_correctly(NormalisationCase testCase) {
-      Host host = Host.parse(testCase.input());
-      Host normalised = host.normalise();
-      assertThat(normalised.toString()).isEqualTo(testCase.expected());
-      assertThat(normalised).isEqualTo(Host.parse(testCase.expected()));
-    }
-
     @TestFactory
     Stream<DynamicTest> normalises_host_correctly() {
       return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
-          normalisationCases.stream().map(testCase -> Host.parse(testCase.input())).toList()
+          normalisationCases.stream().map(testCase -> new NormalisableInvariantTests.NormalisationCase<>(
+              Host.parse(testCase.input()),
+              Host.parse(testCase.expected())
+          )).toList()
       );
     }
 

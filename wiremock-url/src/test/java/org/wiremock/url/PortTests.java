@@ -121,7 +121,7 @@ class PortTests {
                   + "]; Port value must be an integer between 1 and 65535")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
-          .isEqualTo(String.valueOf(invalidPortString));
+          .isEqualTo(invalidPortString);
     }
   }
 
@@ -494,7 +494,10 @@ class PortTests {
 
     @TestFactory
     Stream<DynamicTest> normalises_port_correctly() {
-      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(List.of(Port.parse("00080")));
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(List.of(new NormalisableInvariantTests.NormalisationCase<>(
+          Port.parse("00080"),
+          Port.of(80)
+      )));
     }
 
     @TestFactory

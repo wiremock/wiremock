@@ -31,22 +31,26 @@ public class NormalisableInvariantTests {
     return tests.stream();
   }
 
+  public record NormalisationCase<T extends Normalisable<T>>(T notNormal, T normalForm) {}
+
   public static <T extends Normalisable<T>> Stream<DynamicTest> generateNotNormalisedInvariantTests(
-      List<? extends T> notNormalised
+      List<NormalisationCase<T>> testCases
   ) {
     List<DynamicTest> tests = new ArrayList<>();
 
-    for (Normalisable<T> normalisable : notNormalised) {
+    for (NormalisationCase<T> testCase : testCases) {
       tests.add(
           dynamicTest(
-              "Non-normal : '" + normalisable + "' is not normal form but can be normalised",
+              "Non-normal : `" + testCase.notNormal + "` is not normal form but can be normalised to `" + testCase.normalForm + "`",
               () -> {
-                assertThat(normalisable.isNormalForm()).isFalse();
+                assertThat(testCase.notNormal.isNormalForm()).isFalse();
+                assertThat(testCase.normalForm.isNormalForm()).isTrue();
 
-                var normalised = normalisable.normalise();
-                assertThat(normalisable).isNotEqualTo(normalised);
-
+                var normalised = testCase.notNormal.normalise();
+                assertThat(normalised).isNotEqualTo(testCase.notNormal);
                 assertThat(normalised.isNormalForm()).isTrue();
+                assertThat(normalised).isEqualTo(testCase.normalForm);
+
                 assertThat(normalised.normalise()).isEqualTo(normalised);
               }));
     }
