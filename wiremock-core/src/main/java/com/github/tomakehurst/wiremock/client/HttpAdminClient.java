@@ -587,6 +587,22 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(FindMessageStubMappingsByMetadataTask.class),
+        pattern,
+        ListMessageStubMappingsResult.class);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageStubMappingsByMetadataTask.class),
+        pattern,
+        Void.class);
+  }
+
+  @Override
   public ListMessageStubMappingsResult listAllMessageStubMappings() {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetAllMessageStubMappingsTask.class),

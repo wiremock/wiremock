@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static java.util.stream.Collectors.toList;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.store.MessageJournalStore;
 import java.time.Duration;
 import java.util.*;
@@ -168,6 +170,11 @@ public class StoreBackedMessageJournal implements MessageJournal {
     return new MessagePattern(null, null) {
       @Override
       public boolean matches(MessageServeEvent event) {
+        MessageStubMapping stub = event.getStubMapping();
+        if (stub != null) {
+          String metadataJson = Json.write(stub.getMetadata());
+          return metadataPattern.match(metadataJson).isExactMatch();
+        }
         return false;
       }
     };

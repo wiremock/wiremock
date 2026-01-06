@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.MessageStubMappingStore;
 import java.util.Comparator;
 import java.util.List;
@@ -70,5 +72,16 @@ public class MessageStubMappings {
     return getAllSortedByPriority().stream()
         .filter(stub -> stub.matches(channel, message))
         .findFirst();
+  }
+
+  public List<MessageStubMapping> findByMetadata(final StringValuePattern pattern) {
+    return store
+        .getAll()
+        .filter(
+            stubMapping -> {
+              String metadataJson = Json.write(stubMapping.getMetadata());
+              return pattern.match(metadataJson).isExactMatch();
+            })
+        .collect(Collectors.toList());
   }
 }

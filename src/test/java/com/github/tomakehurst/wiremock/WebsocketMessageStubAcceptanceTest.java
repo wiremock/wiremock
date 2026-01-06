@@ -16,20 +16,30 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.findMessageStubsByMetadata;
+import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageStubMappings;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageStubsByMetadata;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestBase {
@@ -255,5 +265,72 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
     waitAtMost(5, SECONDS).until(() -> client1.getMessages().contains("broadcasted"));
     waitAtMost(5, SECONDS).until(() -> client2.getMessages().contains("broadcasted"));
+  }
+
+  @Test
+  void canFindMessageStubsByMetadata() {
+    wireMockServer.resetMessageStubMappings();
+
+    messageStubFor(
+        message()
+            .withName("Stub with metadata 1")
+            .withBody(equalTo("test1"))
+            .withMetadata(metadata().attr("category", "important").attr("version", "1"))
+            .willTriggerActions(sendMessage("response1").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("Stub with metadata 2")
+            .withBody(equalTo("test2"))
+            .withMetadata(metadata().attr("category", "important").attr("version", "2"))
+            .willTriggerActions(sendMessage("response2").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("Stub without matching metadata")
+            .withBody(equalTo("test3"))
+            .withMetadata(metadata().attr("category", "unimportant"))
+            .willTriggerActions(sendMessage("response3").onOriginatingChannel()));
+
+    List<MessageStubMapping> found =
+        findMessageStubsByMetadata(matchingJsonPath("$.category", equalTo("important")));
+
+    assertThat(found, hasSize(2));
+    assertThat(found, hasItem(messageStubMappingWithName("Stub with metadata 1")));
+    assertThat(found, hasItem(messageStubMappingWithName("Stub with metadata 2")));
+  }
+
+  @Test
+  void canRemoveMessageStubsByMetadata() {
+    wireMockServer.resetMessageStubMappings();
+
+    messageStubFor(
+        message()
+            .withName("Stub to remove 1")
+            .withBody(equalTo("remove1"))
+            .withMetadata(metadata().attr("toRemove", true))
+            .willTriggerActions(sendMessage("response1").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("Stub to remove 2")
+            .withBody(equalTo("remove2"))
+            .withMetadata(metadata().attr("toRemove", true))
+            .willTriggerActions(sendMessage("response2").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("Stub to keep")
+            .withBody(equalTo("keep"))
+            .withMetadata(metadata().attr("toRemove", false))
+            .willTriggerActions(sendMessage("response3").onOriginatingChannel()));
+
+    assertThat(listAllMessageStubMappings().getMessageMappings(), hasSize(3));
+
+    removeMessageStubsByMetadata(equalToJson("{ \"toRemove\": true }"));
+
+    assertThat(listAllMessageStubMappings().getMessageMappings(), hasSize(1));
+    assertThat(
+        listAllMessageStubMappings().getMessageMappings().get(0).getName(), is("Stub to keep"));
   }
 }

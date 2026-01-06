@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageChannels;
 import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageStubMappings;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
@@ -35,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvents;
+import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -403,10 +405,54 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
   @Test
   void canRemoveMessageServeEventsForStubsMatchingMetadata() {
+    MessageStubMapping stubWithMetadata =
+        MessageStubMapping.builder()
+            .withName("Metadata stub")
+            .withBody(matching("metadata-.*"))
+            .withMetadata(metadata().attr("category", "test").attr("priority", "high"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("response"))
+            .build();
+    messageStubFor(stubWithMetadata);
+
+    MessageStubMapping stubWithoutMetadata =
+        MessageStubMapping.builder()
+            .withName("No metadata stub")
+            .withBody(matching("other-.*"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("other-response"))
+            .build();
+    messageStubFor(stubWithoutMetadata);
+
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/metadata-test");
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    testClient.sendMessage("metadata-a");
+    testClient.sendMessage("other-b");
+
+    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 2);
+
+    assertThat(getAllMessageServeEvents().size(), is(2));
+
+    var result =
+        removeMessageServeEventsForStubsMatchingMetadata(
+            matchingJsonPath("$.category", equalTo("test")));
+
+    assertThat(result.getMessageServeEvents().size(), is(1));
+    assertThat(getAllMessageServeEvents().size(), is(1));
+    assertThat(getAllMessageServeEvents().get(0).getMessage().getBodyAsString(), is("other-b"));
+  }
+
+  @Test
+  void stubsAreNotRemovedViaMetadataWhenNoneMatch() {
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withName("Metadata stub")
             .withBody(matching("metadata-.*"))
+            .withMetadata(metadata().attr("category", "test"))
             .triggersAction(SendMessageAction.toOriginatingChannel("response"))
             .build();
     messageStubFor(stub);
@@ -414,7 +460,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     resetMessageJournal();
 
     WebsocketTestClient testClient = new WebsocketTestClient();
-    String url = websocketUrl("/metadata-test");
+    String url = websocketUrl("/metadata-no-match-test");
 
     testClient.connect(url);
     waitAtMost(5, SECONDS).until(testClient::isConnected);
@@ -427,8 +473,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     var result =
         removeMessageServeEventsForStubsMatchingMetadata(
-            com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath(
-                "$.nonexistent", equalTo("value")));
+            matchingJsonPath("$.nonexistent", equalTo("value")));
 
     assertThat(result.getMessageServeEvents().size(), is(0));
     assertThat(getAllMessageServeEvents().size(), is(1));

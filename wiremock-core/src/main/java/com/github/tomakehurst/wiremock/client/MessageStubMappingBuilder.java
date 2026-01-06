@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import java.util.Map;
 import java.util.UUID;
 
 /** Builder interface for creating message stub mappings using a fluent DSL. */
@@ -54,6 +56,30 @@ public interface MessageStubMappingBuilder {
    * @return this builder
    */
   MessageStubMappingBuilder withMessageBody(StringValuePattern messagePattern);
+
+  /**
+   * Sets metadata for this message stub mapping.
+   *
+   * @param metadata the metadata map
+   * @return this builder
+   */
+  MessageStubMappingBuilder withMetadata(Map<String, ?> metadata);
+
+  /**
+   * Sets metadata for this message stub mapping.
+   *
+   * @param metadata the metadata object
+   * @return this builder
+   */
+  MessageStubMappingBuilder withMetadata(Metadata metadata);
+
+  /**
+   * Sets metadata for this message stub mapping.
+   *
+   * @param metadata the metadata builder
+   * @return this builder
+   */
+  MessageStubMappingBuilder withMetadata(Metadata.Builder metadata);
 
   /**
    * Configures the actions to trigger when this stub matches. This method terminates the builder

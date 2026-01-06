@@ -326,6 +326,16 @@ class ExtensionsTest {
     }
 
     @Override
+    public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public ListMessageStubMappingsResult listAllMessageStubMappings() {
       throw new UnsupportedOperationException();
     }

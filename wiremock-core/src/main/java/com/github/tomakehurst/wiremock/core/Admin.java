@@ -175,6 +175,21 @@ public interface Admin {
   void resetMessageStubMappings();
 
   /**
+   * Finds all message stub mappings matching the given metadata pattern.
+   *
+   * @param pattern the pattern to match stub metadata against
+   * @return result containing matching message stub mappings
+   */
+  ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern);
+
+  /**
+   * Removes all message stub mappings matching the given metadata pattern.
+   *
+   * @param pattern the pattern to match stub metadata against
+   */
+  void removeMessageStubsByMetadata(StringValuePattern pattern);
+
+  /**
    * Lists all message stub mappings.
    *
    * @return result containing all message stub mappings

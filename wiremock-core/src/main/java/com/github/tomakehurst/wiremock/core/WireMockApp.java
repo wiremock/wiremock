@@ -799,6 +799,20 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return new ListMessageStubMappingsResult(
+        LimitAndOffsetPaginator.none(messageStubMappings.findByMetadata(pattern)));
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    List<MessageStubMapping> toRemove = messageStubMappings.findByMetadata(pattern);
+    for (MessageStubMapping stub : toRemove) {
+      messageStubMappings.remove(stub.getId());
+    }
+  }
+
+  @Override
   public ListMessageStubMappingsResult listAllMessageStubMappings() {
     return new ListMessageStubMappingsResult(
         LimitAndOffsetPaginator.none(messageStubMappings.getAll()));

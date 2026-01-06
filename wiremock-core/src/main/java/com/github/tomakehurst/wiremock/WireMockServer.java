@@ -611,6 +611,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return wireMockApp.findAllMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    wireMockApp.removeMessageStubsByMetadata(pattern);
+  }
+
+  @Override
   public ListMessageStubMappingsResult listAllMessageStubMappings() {
     return wireMockApp.listAllMessageStubMappings();
   }

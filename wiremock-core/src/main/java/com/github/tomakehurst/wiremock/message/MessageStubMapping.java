@@ -23,16 +23,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
 
 @JsonInclude(NON_EMPTY)
 public class MessageStubMapping {
@@ -44,6 +49,7 @@ public class MessageStubMapping {
   private final Integer priority;
   private final MessageTrigger trigger;
   private final List<MessageAction> actions;
+  @NonNull private final Metadata metadata;
 
   @JsonCreator
   public MessageStubMapping(
@@ -51,12 +57,14 @@ public class MessageStubMapping {
       @JsonProperty("name") String name,
       @JsonProperty("priority") Integer priority,
       @JsonProperty("trigger") MessageTrigger trigger,
-      @JsonProperty("actions") List<MessageAction> actions) {
+      @JsonProperty("actions") List<MessageAction> actions,
+      @JsonProperty("metadata") Metadata metadata) {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.priority = priority;
     this.trigger = trigger != null ? trigger : IncomingMessageTrigger.ANYTHING;
     this.actions = actions != null ? actions : Collections.emptyList();
+    this.metadata = metadata != null ? metadata : new Metadata();
   }
 
   public static Builder builder() {
@@ -115,6 +123,11 @@ public class MessageStubMapping {
     return actions;
   }
 
+  @NonNull
+  public Metadata getMetadata() {
+    return metadata;
+  }
+
   public boolean matches(MessageChannel channel, Message message) {
     if (trigger instanceof IncomingMessageTrigger) {
       return ((IncomingMessageTrigger) trigger).matches(channel, message);
@@ -154,10 +167,12 @@ public class MessageStubMapping {
         + trigger
         + ", actions="
         + actions
+        + ", metadata="
+        + metadata
         + '}';
   }
 
-  public static class Builder {
+  public static class Builder implements MessageStubMappingBuilder {
     private UUID id;
     private String name;
     private Integer priority;
@@ -165,6 +180,7 @@ public class MessageStubMapping {
     private ContentPattern<?> bodyPattern;
     private MessageTrigger explicitTrigger;
     private ArrayList<MessageAction> actions = new ArrayList<>();
+    @NonNull private Metadata metadata = new Metadata();
 
     public Builder() {}
 
@@ -181,20 +197,34 @@ public class MessageStubMapping {
         this.explicitTrigger = existing.trigger;
       }
       this.actions = new ArrayList<>(existing.actions);
+      this.metadata = existing.metadata;
     }
 
+    @Override
     public Builder withId(UUID id) {
       this.id = id;
       return this;
     }
 
+    @Override
     public Builder withName(String name) {
       this.name = name;
       return this;
     }
 
-    public Builder withPriority(Integer priority) {
+    @Override
+    public Builder atPriority(Integer priority) {
       this.priority = priority;
+      return this;
+    }
+
+    public Builder withPriority(Integer priority) {
+      return atPriority(priority);
+    }
+
+    @Override
+    public Builder withMessageBody(StringValuePattern messagePattern) {
+      this.bodyPattern = messagePattern;
       return this;
     }
 
@@ -242,6 +272,7 @@ public class MessageStubMapping {
       return this;
     }
 
+    @Override
     public MessageStubMapping willTriggerActions(MessageAction... actions) {
       this.actions.addAll(Arrays.asList(actions));
       return build();
@@ -252,6 +283,25 @@ public class MessageStubMapping {
       return this;
     }
 
+    @Override
+    public Builder withMetadata(Map<String, ?> metadataMap) {
+      this.metadata = new Metadata(metadataMap);
+      return this;
+    }
+
+    @Override
+    public Builder withMetadata(Metadata metadata) {
+      this.metadata = metadata;
+      return this;
+    }
+
+    @Override
+    public Builder withMetadata(Metadata.Builder metadata) {
+      this.metadata = metadata.build();
+      return this;
+    }
+
+    @Override
     public MessageStubMapping build() {
       MessageTrigger trigger;
       if (explicitTrigger != null) {
@@ -261,7 +311,7 @@ public class MessageStubMapping {
             bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
         trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
       }
-      return new MessageStubMapping(id, name, priority, trigger, actions);
+      return new MessageStubMapping(id, name, priority, trigger, actions, metadata);
     }
   }
 }

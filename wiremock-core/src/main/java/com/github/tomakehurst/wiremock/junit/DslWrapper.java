@@ -396,6 +396,16 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return admin.findAllMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    admin.removeMessageStubsByMetadata(pattern);
+  }
+
+  @Override
   public ListMessageStubMappingsResult listAllMessageStubMappings() {
     return admin.listAllMessageStubMappings();
   }

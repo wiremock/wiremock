@@ -1174,6 +1174,22 @@ public class WireMock {
     admin.resetMessageStubMappings();
   }
 
+  public static List<MessageStubMapping> findMessageStubsByMetadata(StringValuePattern pattern) {
+    return defaultInstance.get().findAllMessageStubsByMetadata(pattern);
+  }
+
+  public List<MessageStubMapping> findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return admin.findAllMessageStubsByMetadata(pattern).getMessageMappings();
+  }
+
+  public static void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    defaultInstance.get().removeAllMessageStubsByMetadata(pattern);
+  }
+
+  public void removeAllMessageStubsByMetadata(StringValuePattern pattern) {
+    admin.removeMessageStubsByMetadata(pattern);
+  }
+
   public static ListMessageStubMappingsResult listAllMessageStubMappings() {
     return defaultInstance.get().allMessageStubMappings();
   }
