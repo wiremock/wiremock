@@ -114,7 +114,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof RequestInitiatedChannelTarget requestTarget) {
-      List<MessageChannel> matchingChannels;
+      List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
         matchingChannels =
             messageChannels.findByTypeAndRequestPattern(
@@ -123,7 +123,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
         matchingChannels =
             messageChannels.findByRequestPattern(requestTarget.getRequestPattern(), customMatchers);
       }
-      for (MessageChannel channel : matchingChannels) {
+      for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
       }
     }

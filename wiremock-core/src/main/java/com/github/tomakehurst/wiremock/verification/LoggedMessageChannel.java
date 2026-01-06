@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import java.util.UUID;
 
 public class LoggedMessageChannel {
@@ -41,11 +42,14 @@ public class LoggedMessageChannel {
   }
 
   public static LoggedMessageChannel createFrom(MessageChannel channel) {
+    LoggedRequest loggedRequest = null;
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      loggedRequest =
+          LoggedRequest.createFrom(
+              ((RequestInitiatedMessageChannel) channel).getInitiatingRequest());
+    }
     return new LoggedMessageChannel(
-        channel.getId(),
-        channel.getType(),
-        LoggedRequest.createFrom(channel.getInitiatingRequest()),
-        channel.isOpen());
+        channel.getId(), channel.getType(), loggedRequest, channel.isOpen());
   }
 
   public UUID getId() {

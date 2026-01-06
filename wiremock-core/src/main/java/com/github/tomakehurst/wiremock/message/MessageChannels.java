@@ -63,18 +63,20 @@ public class MessageChannels {
         .collect(Collectors.toList());
   }
 
-  public List<MessageChannel> findByRequestPattern(
+  public List<RequestInitiatedMessageChannel> findByRequestPattern(
       RequestPattern requestPattern, Map<String, RequestMatcherExtension> customMatchers) {
     return store
         .getAll()
         .filter(MessageChannel::isOpen)
+        .filter(RequestInitiatedMessageChannel.class::isInstance)
+        .map(RequestInitiatedMessageChannel.class::cast)
         .filter(
             channel ->
                 requestPattern.match(channel.getInitiatingRequest(), customMatchers).isExactMatch())
         .collect(Collectors.toList());
   }
 
-  public List<MessageChannel> findByTypeAndRequestPattern(
+  public List<RequestInitiatedMessageChannel> findByTypeAndRequestPattern(
       ChannelType type,
       RequestPattern requestPattern,
       Map<String, RequestMatcherExtension> customMatchers) {
@@ -82,6 +84,8 @@ public class MessageChannels {
         .getAll()
         .filter(MessageChannel::isOpen)
         .filter(channel -> channel.getType() == type)
+        .filter(RequestInitiatedMessageChannel.class::isInstance)
+        .map(RequestInitiatedMessageChannel.class::cast)
         .filter(
             channel ->
                 requestPattern.match(channel.getInitiatingRequest(), customMatchers).isExactMatch())
@@ -92,23 +96,24 @@ public class MessageChannels {
       RequestPattern requestPattern,
       MessageDefinition messageDefinition,
       Map<String, RequestMatcherExtension> customMatchers) {
-    List<MessageChannel> matchingChannels = findByRequestPattern(requestPattern, customMatchers);
+    List<RequestInitiatedMessageChannel> matchingChannels =
+        findByRequestPattern(requestPattern, customMatchers);
     Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition, null);
-    for (MessageChannel channel : matchingChannels) {
+    for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
     return matchingChannels.size();
   }
 
-  public List<MessageChannel> sendMessageToMatchingByType(
+  public List<RequestInitiatedMessageChannel> sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
       MessageDefinition messageDefinition,
       Map<String, RequestMatcherExtension> customMatchers) {
-    List<MessageChannel> matchingChannels =
+    List<RequestInitiatedMessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);
     Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition, null);
-    for (MessageChannel channel : matchingChannels) {
+    for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
     return matchingChannels;

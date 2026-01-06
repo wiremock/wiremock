@@ -15,17 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import java.util.UUID;
+import com.github.tomakehurst.wiremock.http.Request;
 
-public interface MessageChannel {
+public interface RequestInitiatedMessageChannel extends MessageChannel {
 
-  ChannelType getType();
-
-  UUID getId();
-
-  boolean isOpen();
-
-  void sendMessage(Message message);
-
-  void close();
+  Request getInitiatingRequest();
 }

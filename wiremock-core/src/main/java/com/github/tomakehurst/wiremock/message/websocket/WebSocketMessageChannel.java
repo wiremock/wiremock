@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.message.websocket;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageChannel;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import java.util.UUID;
 
-public class WebSocketMessageChannel implements MessageChannel {
+public class WebSocketMessageChannel implements RequestInitiatedMessageChannel {
 
   private final UUID id;
   private final Request request;

@@ -110,9 +110,8 @@ public class MessageStubRequestHandler {
 
     if (target instanceof OriginatingChannelTarget) {
       originatingChannel.sendMessage(message);
-    } else if (target instanceof RequestInitiatedChannelTarget) {
-      RequestInitiatedChannelTarget requestTarget = (RequestInitiatedChannelTarget) target;
-      List<MessageChannel> matchingChannels;
+    } else if (target instanceof RequestInitiatedChannelTarget requestTarget) {
+      List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
         matchingChannels =
             messageChannels.findByTypeAndRequestPattern(
@@ -124,19 +123,14 @@ public class MessageStubRequestHandler {
             messageChannels.findByRequestPattern(
                 requestTarget.getRequestPattern(), Collections.emptyMap());
       }
-      for (MessageChannel channel : matchingChannels) {
+      for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
       }
     }
   }
 
-  public Message resolveMessageDefinition(MessageDefinition messageDefinition) {
-    return resolveToMessage(messageDefinition);
-  }
-
   public Message resolveToMessage(MessageDefinition messageDefinition) {
-    Entity entity = resolveEntity(messageDefinition.getBody(), stores);
-    return new Message(entity);
+    return resolveToMessage(messageDefinition, stores);
   }
 
   public static Message resolveToMessage(MessageDefinition messageDefinition, Stores stores) {
@@ -152,16 +146,14 @@ public class MessageStubRequestHandler {
       return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
     }
 
-    if (definition instanceof BinaryEntityDefinition) {
-      BinaryEntityDefinition binaryDef = (BinaryEntityDefinition) definition;
+    if (definition instanceof BinaryEntityDefinition binaryDef) {
       byte[] bytes = resolveBinaryEntityData(binaryDef, stores);
       InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
       return new Entity(
           EncodingType.BINARY, FormatType.BASE64, binaryDef.getCompression(), streamSource);
     }
 
-    if (definition instanceof TextEntityDefinition) {
-      TextEntityDefinition textDef = (TextEntityDefinition) definition;
+    if (definition instanceof TextEntityDefinition textDef) {
       String resolvedData = resolveTextEntityData(textDef, stores);
       byte[] bytes =
           resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];

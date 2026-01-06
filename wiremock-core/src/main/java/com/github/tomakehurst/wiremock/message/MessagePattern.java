@@ -79,7 +79,11 @@ public class MessagePattern {
   }
 
   public boolean matches(MessageChannel channel, Message message) {
-    return matches(channel.getInitiatingRequest(), message);
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      return matches(((RequestInitiatedMessageChannel) channel).getInitiatingRequest(), message);
+    }
+    // For non-request-initiated channels, only match if there's no channel pattern
+    return matches((Request) null, message);
   }
 
   @SuppressWarnings("unchecked")

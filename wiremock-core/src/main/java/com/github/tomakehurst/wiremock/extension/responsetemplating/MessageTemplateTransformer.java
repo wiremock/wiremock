@@ -21,10 +21,13 @@ import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageActionContext;
+import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,11 +99,13 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
       if (incomingMessage != null) {
         model.put("message", new MessageTemplateModel(incomingMessage));
       }
-      if (context.getOriginatingChannel() != null
-          && context.getOriginatingChannel().getInitiatingRequest() != null) {
-        model.putAll(
-            templateEngine.buildModelForRequest(
-                context.getOriginatingChannel().getInitiatingRequest()));
+      MessageChannel channel = context.getOriginatingChannel();
+      if (channel instanceof RequestInitiatedMessageChannel) {
+        Request initiatingRequest =
+            ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+        if (initiatingRequest != null) {
+          model.putAll(templateEngine.buildModelForRequest(initiatingRequest));
+        }
       }
     } else if (context.isTriggeredByHttp()) {
       model.putAll(templateEngine.buildModelForRequest(context.getHttpServeEvent()));

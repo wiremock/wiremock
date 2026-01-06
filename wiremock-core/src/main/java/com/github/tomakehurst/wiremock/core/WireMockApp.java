@@ -35,13 +35,13 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
-import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
@@ -770,7 +770,7 @@ public class WireMockApp implements StubServer, Admin {
       ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
-    List<MessageChannel> matchedChannels =
+    List<RequestInitiatedMessageChannel> matchedChannels =
         messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
     List<LoggedMessageChannel> loggedChannels =
         matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());

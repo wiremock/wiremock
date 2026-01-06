@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketMessageChannel;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
@@ -28,7 +28,7 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
 
   private final MessageStubRequestHandler messageStubRequestHandler;
   private final Request upgradeRequest;
-  private MessageChannel messageChannel;
+  private RequestInitiatedMessageChannel messageChannel;
 
   public WireMockWebSocketEndpoint(
       MessageStubRequestHandler messageStubRequestHandler, Request upgradeRequest) {
@@ -71,7 +71,7 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
     }
   }
 
-  public MessageChannel getMessageChannel() {
+  public RequestInitiatedMessageChannel getMessageChannel() {
     return messageChannel;
   }
 }

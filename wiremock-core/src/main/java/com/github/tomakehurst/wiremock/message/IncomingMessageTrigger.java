@@ -58,7 +58,17 @@ public class IncomingMessageTrigger implements MessageTrigger {
   }
 
   public boolean matches(MessageChannel channel, Message message) {
-    return matches(channel.getInitiatingRequest(), message);
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      return matches(((RequestInitiatedMessageChannel) channel).getInitiatingRequest(), message);
+    }
+    // For non-request-initiated channels, only match if there's no channel pattern
+    if (channelPattern != null) {
+      return false;
+    }
+    if (messagePattern != null) {
+      return messagePattern.matches((Request) null, message);
+    }
+    return true;
   }
 
   public boolean matches(Request channelRequest, Message message) {

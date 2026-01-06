@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.base.Stopwatch;
 import java.time.Instant;
@@ -139,8 +140,12 @@ public class MessageServeEvent {
 
   public static MessageServeEvent receivedMatched(
       MessageChannel channel, Message message, MessageStubMapping stubMapping) {
+    Request channelRequest = null;
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+    }
     return receivedMatched(
-        channel.getType(), channel.getId(), channel.getInitiatingRequest(), message, stubMapping);
+        channel.getType(), channel.getId(), channelRequest, message, stubMapping);
   }
 
   public static MessageServeEvent receivedUnmatched(
@@ -159,8 +164,11 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent receivedUnmatched(MessageChannel channel, Message message) {
-    return receivedUnmatched(
-        channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
+    Request channelRequest = null;
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+    }
+    return receivedUnmatched(channel.getType(), channel.getId(), channelRequest, message);
   }
 
   public static MessageServeEvent sent(
@@ -179,7 +187,11 @@ public class MessageServeEvent {
   }
 
   public static MessageServeEvent sent(MessageChannel channel, Message message) {
-    return sent(channel.getType(), channel.getId(), channel.getInitiatingRequest(), message);
+    Request channelRequest = null;
+    if (channel instanceof RequestInitiatedMessageChannel) {
+      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+    }
+    return sent(channel.getType(), channel.getId(), channelRequest, message);
   }
 
   public UUID getId() {
