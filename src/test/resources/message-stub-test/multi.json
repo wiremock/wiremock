@@ -19,7 +19,11 @@
       "channelPattern": {"urlPath": "/ws/multi/2"}
     },
     "actions": [{
-      "channelTarget": {"type": "originating"},
+      "channelTarget": {
+        "requestPattern": {"urlPath": "/ws/multi/2"},
+        "channelType": "WEBSOCKET",
+        "type": "request-initiated"
+      },
       "type": "send",
       "message": {"body": {"data": "Hello from multi stub 2"}}
     }]

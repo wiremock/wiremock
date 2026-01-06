@@ -1005,4 +1005,172 @@ public class MessageSerializationTest {
     HttpRequestTrigger trigger = (HttpRequestTrigger) deserialized.getTrigger();
     assertThat(trigger.getRequestPattern().getUrl(), is("/api/round-trip"));
   }
+
+  // RequestInitiatedChannelTarget serialization tests
+
+  @Test
+  void requestInitiatedChannelTargetWithChannelTypeSerializesToJson() {
+    RequestInitiatedChannelTarget target =
+        RequestInitiatedChannelTarget.forTypeAndPattern(
+            ChannelType.WEBSOCKET, newRequestPattern().withUrl("/ws-target").build());
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withId(UUID.fromString("eeeeeeee-ffff-0000-1111-222222222222"))
+            .withName("Request-initiated with channel type")
+            .withBody(equalTo("trigger"))
+            .triggersAction(
+                new SendMessageAction(
+                    MessageDefinition.fromString("targeted message"), target, null, null))
+            .build();
+
+    String json = Json.write(stub);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "id": "eeeeeeee-ffff-0000-1111-222222222222",
+              "name": "Request-initiated with channel type",
+              "trigger": {
+                "type": "message",
+                "messagePattern": {
+                  "body": {
+                    "equalTo": "trigger"
+                  }
+                }
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": "targeted message"
+                  },
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "channelType": "WEBSOCKET",
+                    "requestPattern": {
+                      "url": "/ws-target",
+                      "method": "ANY"
+                    }
+                  }
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void requestInitiatedChannelTargetWithChannelTypeDeserializesFromJson() {
+    String json =
+        // language=JSON
+        """
+        {
+          "name": "Deserialized request-initiated with channel type",
+          "trigger": {
+            "messagePattern": {
+              "body": {
+                "equalTo": "trigger"
+              }
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": "response"
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "channelType": "WEBSOCKET",
+                "requestPattern": {
+                  "url": "/ws-channel"
+                }
+              }
+            }
+          ]
+        }
+        """;
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    assertThat(stub.getName(), is("Deserialized request-initiated with channel type"));
+    assertThat(stub.getActions().size(), is(1));
+
+    SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
+    ChannelTarget target = action.getChannelTarget();
+    assertThat(target, instanceOf(RequestInitiatedChannelTarget.class));
+
+    RequestInitiatedChannelTarget requestTarget = (RequestInitiatedChannelTarget) target;
+    assertThat(requestTarget.getChannelType(), is(ChannelType.WEBSOCKET));
+    assertThat(requestTarget.getRequestPattern().getUrl(), is("/ws-channel"));
+  }
+
+  @Test
+  void requestInitiatedChannelTargetWithoutChannelTypeDeserializesFromJson() {
+    String json =
+        // language=JSON
+        """
+        {
+          "name": "Request-initiated without channel type",
+          "trigger": {
+            "messagePattern": {
+              "body": {
+                "equalTo": "trigger"
+              }
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": "response"
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "urlPath": "/target-path"
+                }
+              }
+            }
+          ]
+        }
+        """;
+
+    MessageStubMapping stub = Json.read(json, MessageStubMapping.class);
+
+    SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
+    RequestInitiatedChannelTarget requestTarget =
+        (RequestInitiatedChannelTarget) action.getChannelTarget();
+    assertThat(requestTarget.getChannelType(), is((ChannelType) null));
+    assertThat(requestTarget.getRequestPattern().getUrlPath(), is("/target-path"));
+  }
+
+  @Test
+  void requestInitiatedChannelTargetRoundTrips() {
+    RequestInitiatedChannelTarget original =
+        RequestInitiatedChannelTarget.forTypeAndPattern(
+            ChannelType.WEBSOCKET, newRequestPattern().withUrl("/round-trip-target").build());
+
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Round trip request-initiated")
+            .withBody(equalTo("trigger"))
+            .triggersAction(
+                new SendMessageAction(
+                    MessageDefinition.fromString("message"), original, null, null))
+            .build();
+
+    String json = Json.write(stub);
+    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
+
+    SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
+    RequestInitiatedChannelTarget deserializedTarget =
+        (RequestInitiatedChannelTarget) action.getChannelTarget();
+
+    assertThat(deserializedTarget.getChannelType(), is(ChannelType.WEBSOCKET));
+    assertThat(deserializedTarget.getRequestPattern().getUrl(), is("/round-trip-target"));
+  }
 }
