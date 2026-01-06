@@ -417,20 +417,23 @@ class HostTests {
       Host normalised = host.normalise();
       assertThat(normalised.toString()).isEqualTo(testCase.expected());
       assertThat(normalised).isEqualTo(Host.parse(testCase.expected()));
+    }
 
-      Host normalised2 = normalised.normalise();
-      assertThat(normalised).isSameAs(normalised2);
+    @TestFactory
+    Stream<DynamicTest> normalises_host_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
+          normalisationCases.stream().map(testCase -> Host.parse(testCase.input())).toList()
+      );
     }
 
     static final List<String> alreadyNormalisedHosts =
         List.of("example.com", "192.168.1.1", "[2001:db8::1]", "test%2Fserver", "");
 
-    @ParameterizedTest
-    @FieldSource("alreadyNormalisedHosts")
-    void returns_same_instance_when_already_normalised(String hostString) {
-      Host host = Host.parse(hostString);
-      Host normalised = host.normalise();
-      assertThat(normalised).isSameAs(host);
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(
+          alreadyNormalisedHosts.stream().map(Host::parse).toList()
+      );
     }
   }
 
