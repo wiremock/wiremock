@@ -22,15 +22,60 @@ import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_wirem
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
 public class UriReferenceTests {
+
+  @Nested
+  class Normalise {
+
+    static final List<NormalisationCase<UriReference>> normalisationCases =
+        Stream.of(
+            Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
+            Pair.of("HTTPS://EXAMPLE.COM:08080", "https://example.com:8080/"),
+            Pair.of("HTTPS://example.com:08080", "https://example.com:8080/"),
+            Pair.of("HTTPS://example.com:8080", "https://example.com:8080/"),
+            Pair.of("https://EXAMPLE.COM:8080", "https://example.com:8080/"),
+            Pair.of("https://EXAMPLE.COM:08080", "https://example.com:8080/"),
+            Pair.of("https://example.com:08080", "https://example.com:8080/"),
+            Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
+            Pair.of("//EXAMPLE.COM:08080", "//example.com:8080/"),
+            Pair.of("//example.com:08080", "//example.com:8080/")
+        ).map(it ->
+            new NormalisationCase<>(
+                UriReference.parse(it.getLeft()),
+                UriReference.parse(it.getRight())
+            )
+        ).toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_uri_reference_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
+
+    static final Set<UriReference> alreadyNormalisedUriReferences = normalisationCases
+        .stream().map(NormalisationCase::normalForm).collect(
+        Collectors.toSet());
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalisedUriReferences);
+    }
+  }
 
   @SuppressWarnings("unused")
   private static final List<? extends WhatWGUrlTestCase> wiremock_valid =
