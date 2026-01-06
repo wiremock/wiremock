@@ -117,7 +117,6 @@ public class MessageTemplatingAcceptanceTest {
     wm.messageStubFor(
         message()
             .withName("Multi-helper template stub")
-            .withBody(matching(".*"))
             .willTriggerActions(
                 sendMessage("Upper: {{upper message.body}}, Length: {{size message.body}}")
                     .onOriginatingChannel()));
