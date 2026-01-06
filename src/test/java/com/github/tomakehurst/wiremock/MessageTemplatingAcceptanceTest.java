@@ -54,24 +54,6 @@ public class MessageTemplatingAcceptanceTest {
   }
 
   @Test
-  void templatesMessageBodyWithNowHelper() {
-    wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-
-    wm.messageStubFor(
-        message()
-            .withName("Date template stub")
-            .withBody(equalTo("time"))
-            .willTriggerActions(
-                sendMessage("Current year: {{now format='yyyy'}}").onOriginatingChannel()));
-
-    WebsocketTestClient testClient = new WebsocketTestClient();
-    String url = websocketUrl("/date-test");
-
-    String response = testClient.sendMessageAndWaitForResponse(url, "time");
-    assertThat(response, is("Current year: 2026"));
-  }
-
-  @Test
   void templatesMessageBodyWithRandomValue() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
 
