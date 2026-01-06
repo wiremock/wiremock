@@ -20,6 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.wiremock.url.AuthorityTests.AuthorityParseTestCase;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class HostAndPortTests {
 
@@ -106,14 +108,14 @@ class HostAndPortTests {
     @Test
     void normalise_returns_same_instance_when_already_normalised() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
-      Authority normalised = hostAndPort.normalise();
+      HostAndPort normalised = hostAndPort.normalise();
       assertThat(normalised).isSameAs(hostAndPort);
     }
 
     @Test
     void normalise_normalises_host() {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:8080");
-      Authority normalised = hostAndPort.normalise();
+      HostAndPort normalised = hostAndPort.normalise();
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
       assertThat(normalised).isNotSameAs(hostAndPort);
     }
@@ -121,7 +123,7 @@ class HostAndPortTests {
     @Test
     void normalise_normalises_port() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:00080");
-      Authority normalised = hostAndPort.normalise();
+      HostAndPort normalised = hostAndPort.normalise();
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:80"));
       assertThat(normalised).isNotSameAs(hostAndPort);
     }
@@ -129,7 +131,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_removes_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
-      Authority normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -137,7 +139,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_keeps_non_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
-      Authority normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
       assertThat(normalised.getPort()).isEqualTo(Port.of(8080));
     }
@@ -145,14 +147,14 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_returns_same_instance_when_already_normalised() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
-      Authority normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isSameAs(hostAndPort);
     }
 
     @Test
     void normalise_with_scheme_normalises_host_and_removes_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:80");
-      Authority normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -160,7 +162,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_normalises_host_and_port() {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:00443");
-      Authority normalised = hostAndPort.normalise(Scheme.https);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.https);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -168,15 +170,42 @@ class HostAndPortTests {
     @Test
     void normalise_without_port_returns_same_instance() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com");
-      Authority normalised = hostAndPort.normalise();
+      HostAndPort normalised = hostAndPort.normalise();
       assertThat(normalised).isSameAs(hostAndPort);
     }
 
     @Test
     void normalise_with_scheme_without_port_returns_same_instance() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com");
-      Authority normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
       assertThat(normalised).isSameAs(hostAndPort);
+    }
+
+    static final List<NormalisationCase<Authority>> normalisationCases =
+        Stream.of(
+            Pair.of("EXAMPLE.COM:8080", "example.com:8080"),
+            Pair.of("EXAMPLE.COM:08080", "example.com:8080"),
+            Pair.of("example.com:08080", "example.com:8080")
+        ).map(it ->
+            new NormalisationCase<>(
+                HostAndPort.parse(it.getLeft()),
+                HostAndPort.parse(it.getRight())
+            )
+        ).toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_hostAndPort_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
+
+    static final List<HostAndPort> alreadyNormalisedAuthorities = Stream.of(
+        "example.com",
+        "example.com:8080"
+    ).map(HostAndPort::parse).toList();
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalisedAuthorities);
     }
   }
 }
