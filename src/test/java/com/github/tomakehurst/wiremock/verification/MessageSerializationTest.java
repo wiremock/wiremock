@@ -210,7 +210,7 @@ public class MessageSerializationTest {
             {
               "id": "eeeeeeee-ffff-0000-1111-222222222222",
               "eventType": "RECEIVED",
-              "channelType": "WEBSOCKET",
+              "channelType": "websocket",
               "channelId": "11111111-2222-3333-4444-555555555555",
               "message": "test message",
               "wasMatched": true,
@@ -250,7 +250,7 @@ public class MessageSerializationTest {
         {
           "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
           "eventType": "RECEIVED",
-          "channelType": "WEBSOCKET",
+          "channelType": "websocket",
           "channelId": "11111111-2222-3333-4444-555555555555",
           "message": "hello world",
           "wasMatched": false,
@@ -411,7 +411,7 @@ public class MessageSerializationTest {
             {
               "id": "22222222-3333-4444-5555-666666666666",
               "eventType": "SENT",
-              "channelType": "WEBSOCKET",
+              "channelType": "websocket",
               "channelId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
               "message": "sent message",
               "wasMatched": true,
@@ -427,7 +427,7 @@ public class MessageSerializationTest {
         {
           "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
           "eventType": "SENT",
-          "channelType": "WEBSOCKET",
+          "channelType": "websocket",
           "channelId": "22222222-3333-4444-5555-666666666666",
           "message": "outgoing message",
           "wasMatched": true,
@@ -1050,7 +1050,7 @@ public class MessageSerializationTest {
                   },
                   "channelTarget": {
                     "type": "request-initiated",
-                    "channelType": "WEBSOCKET",
+                    "channelType": "websocket",
                     "requestPattern": {
                       "url": "/ws-target",
                       "method": "ANY"
@@ -1084,7 +1084,7 @@ public class MessageSerializationTest {
               },
               "channelTarget": {
                 "type": "request-initiated",
-                "channelType": "WEBSOCKET",
+                "channelType": "websocket",
                 "requestPattern": {
                   "url": "/ws-channel"
                 }

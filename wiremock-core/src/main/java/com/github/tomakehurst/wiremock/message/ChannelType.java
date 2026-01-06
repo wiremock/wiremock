@@ -15,7 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Locale;
+
 public enum ChannelType {
   WEBSOCKET,
-  SSE
+  SSE;
+
+  @JsonValue
+  public String toJson() {
+    return name().toLowerCase(Locale.ROOT);
+  }
+
+  @JsonCreator
+  public static ChannelType fromJson(String value) {
+    if (value == null) {
+      return null;
+    }
+    return valueOf(value.toUpperCase(Locale.ROOT));
+  }
 }

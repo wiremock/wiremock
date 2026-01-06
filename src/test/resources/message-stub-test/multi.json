@@ -21,7 +21,7 @@
     "actions": [{
       "channelTarget": {
         "requestPattern": {"urlPath": "/ws/multi/2"},
-        "channelType": "WEBSOCKET",
+        "channelType": "websocket",
         "type": "request-initiated"
       },
       "type": "send",
