@@ -113,16 +113,17 @@ public class MessageStubMapping implements Prioritisable {
 
   @JsonIgnore
   public RequestPattern getChannelPattern() {
-    if (trigger instanceof IncomingMessageTrigger) {
-      return ((IncomingMessageTrigger) trigger).getChannelPattern();
+    if (trigger instanceof IncomingMessageTrigger messageTrigger) {
+      return messageTrigger.getChannelPattern();
     }
+
     return null;
   }
 
   @JsonIgnore
   public MessagePattern getMessagePattern() {
-    if (trigger instanceof IncomingMessageTrigger) {
-      return ((IncomingMessageTrigger) trigger).getMessagePattern();
+    if (trigger instanceof IncomingMessageTrigger messageTrigger) {
+      return messageTrigger.getMessagePattern();
     }
     return null;
   }
@@ -137,8 +138,8 @@ public class MessageStubMapping implements Prioritisable {
   }
 
   public boolean matches(MessageChannel channel, Message message) {
-    if (trigger instanceof IncomingMessageTrigger) {
-      return ((IncomingMessageTrigger) trigger).matches(channel, message);
+    if (trigger instanceof IncomingMessageTrigger messageTrigger) {
+      return messageTrigger.matches(channel, message);
     }
     return false;
   }
