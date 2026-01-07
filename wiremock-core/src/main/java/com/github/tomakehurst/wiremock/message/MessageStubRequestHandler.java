@@ -98,8 +98,8 @@ public class MessageStubRequestHandler {
 
   private void executeAction(
       MessageAction action, MessageChannel originatingChannel, Message incomingMessage) {
-    if (action instanceof SendMessageAction) {
-      executeSendMessageAction((SendMessageAction) action, originatingChannel);
+    if (action instanceof SendMessageAction sendAction) {
+      executeSendMessageAction(sendAction, originatingChannel);
     }
   }
 
@@ -169,8 +169,8 @@ public class MessageStubRequestHandler {
   private static String resolveTextEntityData(TextEntityDefinition definition, Stores stores) {
     Object data = definition.getData();
 
-    if (data instanceof String) {
-      return (String) data;
+    if (data instanceof String s) {
+      return s;
     }
 
     if (data != null) {
@@ -191,8 +191,8 @@ public class MessageStubRequestHandler {
           .get(dataRef)
           .map(
               value -> {
-                if (value instanceof String) {
-                  return (String) value;
+                if (value instanceof String s) {
+                  return s;
                 }
                 return Json.write(value);
               })
@@ -222,11 +222,11 @@ public class MessageStubRequestHandler {
           .get(dataRef)
           .map(
               value -> {
-                if (value instanceof byte[]) {
-                  return (byte[]) value;
+                if (value instanceof byte[] bytes) {
+                  return bytes;
                 }
-                if (value instanceof String) {
-                  return getDecoder().decode((String) value);
+                if (value instanceof String s) {
+                  return getDecoder().decode(s);
                 }
                 return new byte[0];
               })
