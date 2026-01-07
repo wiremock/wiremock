@@ -69,6 +69,8 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
     if (messageChannel != null) {
       messageStubRequestHandler.getMessageChannels().remove(messageChannel.getId());
     }
+
+    callback.succeed();
   }
 
   public RequestInitiatedMessageChannel getMessageChannel() {
