@@ -308,4 +308,14 @@ public class WarConfiguration implements Options {
   public long getWebSocketIdleTimeout() {
     return DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
   }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
+  }
 }

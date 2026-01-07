@@ -399,8 +399,10 @@ public class Jetty12HttpServer extends JettyHttpServer {
     JettyWebSocketServletContainerInitializer.configure(
         mockServiceContext,
         (servletContext, container) -> {
-          // Set WebSocket idle timeout from options
+          // Set WebSocket configuration from options
           container.setIdleTimeout(Duration.ofMillis(options.getWebSocketIdleTimeout()));
+          container.setMaxTextMessageSize(options.getWebSocketMaxTextMessageSize());
+          container.setMaxBinaryMessageSize(options.getWebSocketMaxBinaryMessageSize());
 
           // Add WebSocket mapping that accepts all WebSocket upgrade requests
           container.addMapping(

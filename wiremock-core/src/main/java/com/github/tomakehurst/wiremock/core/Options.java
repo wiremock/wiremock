@@ -51,6 +51,8 @@ public interface Options {
   boolean DEFAULT_DISABLE_CONNECTION_REUSE = true;
   Long DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES = 1000L;
   long DEFAULT_WEBSOCKET_IDLE_TIMEOUT = 300_000;
+  long DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE = 10485760;
+  long DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE = 10485760;
 
   int portNumber();
 
@@ -159,4 +161,8 @@ public interface Options {
   int getWebhookThreadPoolSize();
 
   long getWebSocketIdleTimeout();
+
+  long getWebSocketMaxTextMessageSize();
+
+  long getWebSocketMaxBinaryMessageSize();
 }

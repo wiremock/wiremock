@@ -132,6 +132,9 @@ public class CommandLineOptions implements Options {
   private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
   private static final String WEBHOOK_THREADPOOL_SIZE = "webhook-threadpool-size";
   private static final String WEBSOCKET_IDLE_TIMEOUT = "websocket-idle-timeout";
+  private static final String WEBSOCKET_MAX_TEXT_MESSAGE_SIZE = "websocket-max-text-message-size";
+  private static final String WEBSOCKET_MAX_BINARY_MESSAGE_SIZE =
+      "websocket-max-binary-message-size";
 
   private final OptionSet optionSet;
 
@@ -406,6 +409,16 @@ public class CommandLineOptions implements Options {
         .accepts(
             WEBSOCKET_IDLE_TIMEOUT,
             "Idle timeout in milliseconds for WebSocket connections (default: 300000)")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_MAX_TEXT_MESSAGE_SIZE,
+            "Maximum size in bytes for WebSocket text messages (default: 65536)")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_MAX_BINARY_MESSAGE_SIZE,
+            "Maximum size in bytes for WebSocket binary messages (default: 65536)")
         .withRequiredArg();
 
     optionParser.accepts(VERSION, "Prints wiremock version information and exits");
@@ -1066,5 +1079,19 @@ public class CommandLineOptions implements Options {
     return optionSet.has(WEBSOCKET_IDLE_TIMEOUT)
         ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_IDLE_TIMEOUT))
         : DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return optionSet.has(WEBSOCKET_MAX_TEXT_MESSAGE_SIZE)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_MAX_TEXT_MESSAGE_SIZE))
+        : DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return optionSet.has(WEBSOCKET_MAX_BINARY_MESSAGE_SIZE)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_MAX_BINARY_MESSAGE_SIZE))
+        : DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
   }
 }

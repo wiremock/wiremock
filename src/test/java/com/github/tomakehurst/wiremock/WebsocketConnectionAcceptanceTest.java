@@ -241,4 +241,104 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
       testClient.disconnect();
     }
   }
+
+  @Nested
+  class WebSocketMaxTextMessageSizeTest {
+
+    @RegisterExtension
+    WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(
+                wireMockConfig()
+                    .dynamicPort()
+                    .withRootDirectory(filePath("empty"))
+                    .webSocketMaxTextMessageSize(1024))
+            .build();
+
+    @Test
+    void acceptsTextMessageWithinLimit() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/text-size-test";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Send a message within the limit (500 bytes)
+      String smallMessage = "x".repeat(500);
+      testClient.sendMessage(smallMessage);
+
+      // Connection should still be open
+      Thread.sleep(100);
+      assertThat(testClient.isConnected(), is(true));
+
+      testClient.disconnect();
+    }
+
+    @Test
+    void closesConnectionWhenTextMessageExceedsLimit() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/text-size-test";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Send a message exceeding the limit (2000 bytes > 1024 limit)
+      String largeMessage = "x".repeat(2000);
+      testClient.sendMessage(largeMessage);
+
+      // Connection should be closed due to message size violation
+      Thread.sleep(200);
+      assertThat(testClient.isConnected(), is(false));
+    }
+  }
+
+  @Nested
+  class WebSocketMaxBinaryMessageSizeTest {
+
+    @RegisterExtension
+    WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(
+                wireMockConfig()
+                    .dynamicPort()
+                    .withRootDirectory(filePath("empty"))
+                    .webSocketMaxBinaryMessageSize(1024))
+            .build();
+
+    @Test
+    void acceptsBinaryMessageWithinLimit() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/binary-size-test";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Send a binary message within the limit (500 bytes)
+      byte[] smallMessage = new byte[500];
+      testClient.sendBinaryMessage(smallMessage);
+
+      // Connection should still be open
+      Thread.sleep(100);
+      assertThat(testClient.isConnected(), is(true));
+
+      testClient.disconnect();
+    }
+
+    @Test
+    void closesConnectionWhenBinaryMessageExceedsLimit() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/binary-size-test";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Send a binary message exceeding the limit (2000 bytes > 1024 limit)
+      byte[] largeMessage = new byte[2000];
+      testClient.sendBinaryMessage(largeMessage);
+
+      // Connection should be closed due to message size violation
+      Thread.sleep(200);
+      assertThat(testClient.isConnected(), is(false));
+    }
+  }
 }

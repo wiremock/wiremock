@@ -144,6 +144,8 @@ public class WireMockConfiguration implements Options {
   private int webhookThreadPoolSize = DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 
   private long webSocketIdleTimeout = DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  private long webSocketMaxTextMessageSize = DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  private long webSocketMaxBinaryMessageSize = DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -180,6 +182,16 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration webSocketIdleTimeout(long timeout) {
     this.webSocketIdleTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketMaxTextMessageSize(long size) {
+    this.webSocketMaxTextMessageSize = size;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketMaxBinaryMessageSize(long size) {
+    this.webSocketMaxBinaryMessageSize = size;
     return this;
   }
 
@@ -853,5 +865,15 @@ public class WireMockConfiguration implements Options {
   @Override
   public long getWebSocketIdleTimeout() {
     return webSocketIdleTimeout;
+  }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return webSocketMaxTextMessageSize;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return webSocketMaxBinaryMessageSize;
   }
 }

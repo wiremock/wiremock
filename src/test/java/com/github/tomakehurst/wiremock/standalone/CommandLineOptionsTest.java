@@ -888,6 +888,44 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  void webSocketMaxTextMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-text-message-size", "131072");
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(131072L));
+  }
+
+  @Test
+  void defaultWebSocketMaxTextMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE));
+  }
+
+  @Test
+  void webSocketMaxBinaryMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-binary-message-size", "262144");
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(262144L));
+  }
+
+  @Test
+  void defaultWebSocketMaxBinaryMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE));
+  }
+
+  @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");
     assertFalse(options.getStores().getSettingsStore().get().getProxyPassThrough());
