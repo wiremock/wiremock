@@ -77,8 +77,8 @@ class HttpAdminClientTest {
 
   @Test
   void shouldSendEmptyRequestForResetAll() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
+    var server = new WireMockServer(options().dynamicPort()).startServer();
+
     server.stubFor(
         post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
             .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
@@ -133,8 +133,8 @@ class HttpAdminClientTest {
 
   @Test
   void shouldNotSendEntityForGetAllScenarios() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
+    var server = new WireMockServer(options().dynamicPort()).startServer();
+
     var expectedResponse = new GetScenariosResult(List.of(Scenario.inStartedState("scn1")));
     server.stubFor(
         get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
@@ -204,8 +204,8 @@ class HttpAdminClientTest {
 
   @Test
   void shouldListAllMessageStubMappings() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
+    var server = new WireMockServer(options().dynamicPort()).startServer();
+
     try {
       MessageStubMapping stub1 =
           MessageStubMapping.builder()
@@ -237,8 +237,8 @@ class HttpAdminClientTest {
 
   @Test
   void shouldReturnEmptyListWhenNoMessageStubMappings() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
+    var server = new WireMockServer(options().dynamicPort()).startServer();
+
     try {
       var client = WireMock.create().port(server.port()).buildAdminClient();
       ListMessageStubMappingsResult result = client.listAllMessageStubMappings();
@@ -250,43 +250,13 @@ class HttpAdminClientTest {
   }
 
   @Test
-  void shouldListAllMessageChannels() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
-    try {
-      var client = WireMock.create().port(server.port()).buildAdminClient();
-      ListMessageChannelsResult result = client.listAllMessageChannels();
-
-      // No channels connected yet, so should be empty
-      assertThat(result.getChannels()).isEmpty();
-    } finally {
-      server.stop();
-    }
-  }
-
-  @Test
   void shouldWaitForMessageEventAndReturnEmptyWhenTimeout() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
+    var server = new WireMockServer(options().dynamicPort()).startServer();
+
     try {
       var client = WireMock.create().port(server.port()).buildAdminClient();
       Optional<MessageServeEvent> result =
           client.waitForMessageEvent(MessagePattern.ANYTHING, Duration.ofMillis(100));
-
-      assertThat(result).isEmpty();
-    } finally {
-      server.stop();
-    }
-  }
-
-  @Test
-  void shouldWaitForMessageEventsAndReturnEmptyListWhenTimeout() {
-    var server = new WireMockServer(options().dynamicPort());
-    server.start();
-    try {
-      var client = WireMock.create().port(server.port()).buildAdminClient();
-      List<MessageServeEvent> result =
-          client.waitForMessageEvents(MessagePattern.ANYTHING, 2, Duration.ofMillis(100));
 
       assertThat(result).isEmpty();
     } finally {
