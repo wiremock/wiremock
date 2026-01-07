@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -28,13 +30,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
+@JsonInclude(NON_EMPTY)
 public class SendMessageAction implements MessageAction {
 
-  private final MessageDefinition message;
-  private final ChannelTarget channelTarget;
-  private final List<String> transformers;
-  private final Parameters transformerParameters;
+  @NonNull private final MessageDefinition message;
+  @NonNull private final ChannelTarget channelTarget;
+  @NonNull private final List<String> transformers;
+  @NonNull private final Parameters transformerParameters;
 
   @JsonCreator
   public SendMessageAction(
@@ -85,12 +89,12 @@ public class SendMessageAction implements MessageAction {
     return channelTarget;
   }
 
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @JsonInclude(NON_EMPTY)
   public List<String> getTransformers() {
     return Collections.unmodifiableList(transformers);
   }
 
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @JsonInclude(NON_EMPTY)
   public Parameters getTransformerParameters() {
     return transformerParameters;
   }

@@ -15,13 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import java.util.Objects;
 
+@JsonInclude(NON_NULL)
 public class MessageDefinition {
 
   private final EntityDefinition body;

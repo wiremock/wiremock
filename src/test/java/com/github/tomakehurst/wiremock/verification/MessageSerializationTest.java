@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
@@ -289,6 +291,48 @@ public class MessageSerializationTest {
   }
 
   @Test
+  void minimalMessageStubDoesNotContainEmptyElementsWhenSerialized() {
+    MessageStubMapping stub =
+        WireMock.message()
+            .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .onChannelFromRequestMatching("/trigger")
+            .willTriggerActions(sendMessage("response").onOriginatingChannel());
+
+    String json = Json.write(stub);
+
+    assertThat(
+        "JSON: " + json,
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+                    {
+                      "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                      "trigger": {
+                        "type": "message",
+                        "channelPattern": {
+                          "urlPath": "/trigger",
+                          "method" : "ANY"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "send",
+                          "message": {
+                            "body": {
+                              "data": "response"
+                            }
+                          },
+                          "channelTarget": {
+                            "type": "originating"
+                          }
+                        }
+                      ]
+                    }
+                    """));
+  }
+
+  @Test
   void messageStubMappingWithBroadcastActionSerializesCorrectly() {
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -345,6 +389,7 @@ public class MessageSerializationTest {
   @Test
   void messageStubMappingWithBroadcastActionDeserializesCorrectly() {
     String json =
+        // language=JSON
         """
         {
           "name": "Broadcast deserialized",

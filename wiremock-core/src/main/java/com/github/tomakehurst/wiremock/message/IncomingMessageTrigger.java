@@ -49,7 +49,7 @@ public class IncomingMessageTrigger implements MessageTrigger {
   }
 
   public MessagePattern getMessagePattern() {
-    return messagePattern != null ? messagePattern : MessagePattern.ANYTHING;
+    return messagePattern;
   }
 
   @JsonIgnore

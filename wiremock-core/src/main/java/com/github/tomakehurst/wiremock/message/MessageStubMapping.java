@@ -52,8 +52,8 @@ public class MessageStubMapping implements Prioritisable {
   private final UUID id;
   private final String name;
   private final Integer priority;
-  private final MessageTrigger trigger;
-  private final List<MessageAction> actions;
+  @NonNull private final MessageTrigger trigger;
+  @NonNull private final List<MessageAction> actions;
   @NonNull private final Metadata metadata;
   private final long insertionIndex;
 
