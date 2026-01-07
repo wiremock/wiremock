@@ -131,6 +131,7 @@ public class CommandLineOptions implements Options {
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
   private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
   private static final String WEBHOOK_THREADPOOL_SIZE = "webhook-threadpool-size";
+  private static final String WEBSOCKET_IDLE_TIMEOUT = "websocket-idle-timeout";
 
   private final OptionSet optionSet;
 
@@ -400,6 +401,11 @@ public class CommandLineOptions implements Options {
         .withValuesSeparatedBy(",");
     optionParser
         .accepts(WEBHOOK_THREADPOOL_SIZE, "The size of the webhook thread pool")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_IDLE_TIMEOUT,
+            "Idle timeout in milliseconds for WebSocket connections (default: 300000)")
         .withRequiredArg();
 
     optionParser.accepts(VERSION, "Prints wiremock version information and exits");
@@ -1053,5 +1059,12 @@ public class CommandLineOptions implements Options {
     return optionSet.has(WEBHOOK_THREADPOOL_SIZE)
         ? Integer.parseInt((String) optionSet.valueOf(WEBHOOK_THREADPOOL_SIZE))
         : DEFAULT_WEBHOOK_THREADPOOL_SIZE;
+  }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return optionSet.has(WEBSOCKET_IDLE_TIMEOUT)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_IDLE_TIMEOUT))
+        : DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -867,6 +867,24 @@ public class CommandLineOptionsTest {
     int proxyTimeout = options.proxyTimeout();
 
     assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
+  }
+
+  @Test
+  void webSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--websocket-idle-timeout", "60000");
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(60000L));
+  }
+
+  @Test
+  void defaultWebSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(Options.DEFAULT_WEBSOCKET_IDLE_TIMEOUT));
   }
 
   @Test

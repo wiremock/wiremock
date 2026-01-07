@@ -303,4 +303,9 @@ public class WarConfiguration implements Options {
   public int getWebhookThreadPoolSize() {
     return DEFAULT_WEBHOOK_THREADPOOL_SIZE;
   }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  }
 }

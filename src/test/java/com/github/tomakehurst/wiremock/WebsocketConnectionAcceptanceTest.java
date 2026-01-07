@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,12 +26,15 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.util.List;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBase {
 
@@ -188,5 +193,52 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
         wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "After close");
     assertThat(result2.getChannelsMessaged(), is(0));
     assertThat(result2.getChannels(), hasSize(0));
+  }
+
+  @Nested
+  class WebSocketIdleTimeoutTest {
+
+    @RegisterExtension
+    WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(
+                wireMockConfig()
+                    .dynamicPort()
+                    .withRootDirectory(filePath("empty"))
+                    .webSocketIdleTimeout(1000))
+            .build();
+
+    @Test
+    void websocketConnectionClosesAfterIdleTimeout() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/idle-timeout-test";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Wait for the idle timeout to expire (1 second + buffer)
+      Thread.sleep(1500);
+
+      // The connection should be closed by the server due to idle timeout
+      assertThat(testClient.isConnected(), is(false));
+    }
+
+    @Test
+    void websocketConnectionStaysOpenWithActivity() throws Exception {
+      WebsocketTestClient testClient = new WebsocketTestClient();
+      String url = "ws://localhost:" + wm.getPort() + "/active-connection";
+
+      testClient.connect(url);
+      assertThat(testClient.isConnected(), is(true));
+
+      // Send messages to keep the connection active
+      for (int i = 0; i < 3; i++) {
+        Thread.sleep(500);
+        testClient.sendMessage("keep-alive-" + i);
+        assertThat(testClient.isConnected(), is(true));
+      }
+
+      testClient.disconnect();
+    }
   }
 }

@@ -43,6 +43,7 @@ import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.DispatcherType;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -398,6 +399,9 @@ public class Jetty12HttpServer extends JettyHttpServer {
     JettyWebSocketServletContainerInitializer.configure(
         mockServiceContext,
         (servletContext, container) -> {
+          // Set WebSocket idle timeout from options
+          container.setIdleTimeout(Duration.ofMillis(options.getWebSocketIdleTimeout()));
+
           // Add WebSocket mapping that accepts all WebSocket upgrade requests
           container.addMapping(
               "/*",

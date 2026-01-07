@@ -143,6 +143,8 @@ public class WireMockConfiguration implements Options {
 
   private int webhookThreadPoolSize = DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 
+  private long webSocketIdleTimeout = DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource =
@@ -173,6 +175,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration timeout(int timeout) {
     this.asyncResponseTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketIdleTimeout(long timeout) {
+    this.webSocketIdleTimeout = timeout;
     return this;
   }
 
@@ -841,5 +848,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public int getWebhookThreadPoolSize() {
     return webhookThreadPoolSize;
+  }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return webSocketIdleTimeout;
   }
 }
