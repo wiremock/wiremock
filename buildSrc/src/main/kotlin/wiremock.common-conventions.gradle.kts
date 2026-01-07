@@ -142,6 +142,8 @@ if (spotlessEnabled) {
         "src/test/resources/filesource/subdir/deepfile.json",
         "src/test/resources/schema-validation/*.json",
         "src/test/resources/test-file-root/mappings/testjsonmapping.json",
+        "src/test/resources/message-stub-test/*.json",
+        "src/test/resources/classpath-filesource/message-mappings/*.json",
         "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
       )
       simple().indentWithSpaces(2)
