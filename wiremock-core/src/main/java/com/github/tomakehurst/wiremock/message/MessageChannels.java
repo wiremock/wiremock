@@ -117,11 +117,6 @@ public class MessageChannels {
     return matchingChannels;
   }
 
-  public void clear() {
-    store.getAll().forEach(MessageChannel::close);
-    store.clear();
-  }
-
   public int size() {
     return (int) store.getAll().count();
   }
