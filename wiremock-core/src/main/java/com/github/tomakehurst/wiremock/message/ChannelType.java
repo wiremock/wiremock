@@ -15,24 +15,59 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.github.tomakehurst.wiremock.message.ChannelType.Directionality.BIDIRECTIONAL;
+import static com.github.tomakehurst.wiremock.message.ChannelType.Lifecycle.REQUEST_INITIATED;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Locale;
 
-public enum ChannelType {
-  WEBSOCKET,
-  SSE;
+public class ChannelType {
 
-  @JsonValue
-  public String toJson() {
-    return name().toLowerCase(Locale.ROOT);
+  public enum Lifecycle {
+    REQUEST_INITIATED
+  }
+
+  public enum Directionality {
+    BIDIRECTIONAL
+  }
+
+  private final String name;
+  private final Lifecycle lifecycle;
+  private final Directionality directionality;
+
+  public ChannelType(String name, Lifecycle lifecycle, Directionality directionality) {
+    this.name = name;
+    this.lifecycle = lifecycle;
+    this.directionality = directionality;
+  }
+
+  public boolean isRequestInitiated() {
+    return getLifecycle() == REQUEST_INITIATED;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Lifecycle getLifecycle() {
+    return lifecycle;
+  }
+
+  public Directionality getDirectionality() {
+    return directionality;
   }
 
   @JsonCreator
   public static ChannelType fromJson(String value) {
-    if (value == null) {
-      return null;
-    }
-    return valueOf(value.toUpperCase(Locale.ROOT));
+    return WEBSOCKET;
   }
+
+  @JsonValue
+  public String toJson() {
+    return getName().toLowerCase(Locale.ROOT);
+  }
+
+  public static ChannelType WEBSOCKET =
+      new ChannelType("websocket", REQUEST_INITIATED, BIDIRECTIONAL);
 }

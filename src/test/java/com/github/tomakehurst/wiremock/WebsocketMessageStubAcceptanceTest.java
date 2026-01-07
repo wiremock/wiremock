@@ -81,7 +81,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
     messageStubFor(
         message()
             .withName("VIP stub")
-            .onChannelFromRequestMatching(newRequestPattern().withUrl("/vip-channel"))
+            .onWebsocketChannelFromRequestMatching(newRequestPattern().withUrl("/vip-channel"))
             .withBody(equalTo("request"))
             .willTriggerActions(sendMessage("VIP response").onOriginatingChannel()));
 
@@ -250,7 +250,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
   void messageStubMappingDslSupportsMultipleActions() {
     messageStubFor(
         message()
-            .onChannelFromRequestMatching(newRequestPattern().withUrl("/dsl-multi"))
+            .onWebsocketChannelFromRequestMatching(newRequestPattern().withUrl("/dsl-multi"))
             .withName("DSL multi-action stub")
             .withBody(equalTo("trigger"))
             .willTriggerActions(
@@ -271,7 +271,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
   void messageStubMappingDslSupportsBroadcastToMatchingChannels() {
     messageStubFor(
         message()
-            .onChannelFromRequestMatching("/dsl-broadcast")
+            .onWebsocketChannelFromRequestMatching("/dsl-broadcast")
             .withName("DSL broadcast stub")
             .withBody(equalTo("broadcast"))
             .willTriggerActions(

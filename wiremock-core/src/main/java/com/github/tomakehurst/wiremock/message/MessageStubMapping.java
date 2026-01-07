@@ -161,7 +161,7 @@ public class MessageStubMapping implements Prioritisable {
     private UUID id;
     private String name;
     private Integer priority;
-    private RequestPattern channelPattern;
+    private ChannelPattern channelPattern;
     private ContentPattern<?> bodyPattern;
     private MessageTrigger explicitTrigger;
     private ArrayList<MessageAction> actions = new ArrayList<>();
@@ -175,9 +175,9 @@ public class MessageStubMapping implements Prioritisable {
       this.name = existing.name;
       this.priority = existing.priority;
       if (existing.trigger instanceof IncomingMessageTrigger incomingTrigger) {
-        this.channelPattern = incomingTrigger.getChannelPattern();
-        if (incomingTrigger.getMessagePattern() != null) {
-          this.bodyPattern = incomingTrigger.getMessagePattern().getBodyPattern();
+        this.channelPattern = incomingTrigger.getChannel();
+        if (incomingTrigger.getMessage() != null) {
+          this.bodyPattern = incomingTrigger.getMessage().getBodyPattern();
         }
       } else {
         this.explicitTrigger = existing.trigger;
@@ -215,17 +215,30 @@ public class MessageStubMapping implements Prioritisable {
       return this;
     }
 
-    public Builder onChannelFromRequestMatching(String urlPath) {
-      return onChannelFromRequestMatching(newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    public Builder onWebsocketChannelFromRequestMatching(String urlPath) {
+      return onChannelFromRequestMatching(
+          ChannelType.WEBSOCKET, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
     }
 
-    public Builder onChannelFromRequestMatching(RequestPatternBuilder channelPatternBuilder) {
-      this.channelPattern = channelPatternBuilder.build();
-      return this;
+    public Builder onWebsocketChannelFromRequestMatching(
+        RequestPatternBuilder channelPatternBuilder) {
+      return onChannelFromRequestMatching(ChannelType.WEBSOCKET, channelPatternBuilder.build());
     }
 
-    public Builder onChannelFromRequestMatching(RequestPattern channelPattern) {
-      this.channelPattern = channelPattern;
+    public Builder onChannelFromRequestMatching(ChannelType channelType, String urlPath) {
+      return onChannelFromRequestMatching(
+          channelType, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    }
+
+    public Builder onChannelFromRequestMatching(
+        ChannelType channelType, RequestPatternBuilder channelPatternBuilder) {
+      return onChannelFromRequestMatching(channelType, channelPatternBuilder.build());
+    }
+
+    public Builder onChannelFromRequestMatching(
+        ChannelType channelType, RequestPattern requestPattern) {
+      this.channelPattern =
+          RequestInitiatedChannelPattern.forRequestPattern(channelType, requestPattern);
       return this;
     }
 

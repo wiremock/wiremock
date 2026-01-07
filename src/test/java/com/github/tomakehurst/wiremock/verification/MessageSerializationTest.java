@@ -66,7 +66,7 @@ public class MessageSerializationTest {
             .withId(UUID.fromString("d8e8fca2-dc0f-11db-8314-0800200c9a66"))
             .withName("Test message stub")
             .withPriority(3)
-            .onChannelFromRequestMatching(newRequestPattern().withUrl("/test-channel").build())
+            .onWebsocketChannelFromRequestMatching(newRequestPattern().withUrl("/test-channel"))
             .withBody(equalTo("hello"))
             .triggersAction(SendMessageAction.toOriginatingChannel("world"))
             .build();
@@ -84,11 +84,14 @@ public class MessageSerializationTest {
               "priority": 3,
               "trigger": {
                 "type": "message",
-                "channelPattern": {
-                  "url": "/test-channel",
-                  "method": "ANY"
+                "channel": {
+                  "type": "websocket",
+                  "initiatingRequestPattern": {
+                    "url": "/test-channel",
+                    "method": "ANY"
+                  }
                 },
-                "messagePattern": {
+                "message": {
                   "body": {
                     "equalTo": "hello"
                   }
@@ -119,10 +122,13 @@ public class MessageSerializationTest {
           "name": "Deserialized stub",
           "priority": 5,
           "trigger": {
-            "channelPattern": {
-              "url": "/my-channel"
+            "channel": {
+              "type": "websocket",
+              "initiatingRequestPattern": {
+                "url": "/my-channel"
+              }
             },
-            "messagePattern": {
+            "message": {
               "body": {
                 "matches": "hello.*"
               }
@@ -150,16 +156,16 @@ public class MessageSerializationTest {
 
     assertThat(stub.getTrigger(), instanceOf(IncomingMessageTrigger.class));
     IncomingMessageTrigger trigger = (IncomingMessageTrigger) stub.getTrigger();
-    assertThat(trigger.getChannelPattern().getUrl(), is("/my-channel"));
+    assertThat(trigger.getInitiatingRequestPattern().getUrl(), is("/my-channel"));
 
     ContentPattern<?> bodyPattern = trigger.getBodyPattern();
     assertThat(bodyPattern, notNullValue());
     assertThat(bodyPattern, instanceOf(RegexPattern.class));
     assertThat(bodyPattern.getExpected(), is("hello.*"));
 
-    RequestPattern channelPattern = trigger.getChannelPattern();
-    assertThat(channelPattern, notNullValue());
-    assertThat(channelPattern, is(any(urlEqualTo("/my-channel")).build().getRequest()));
+    RequestPattern initiatingRequestPattern = trigger.getInitiatingRequestPattern();
+    assertThat(initiatingRequestPattern, notNullValue());
+    assertThat(initiatingRequestPattern, is(any(urlEqualTo("/my-channel")).build().getRequest()));
 
     assertThat(stub.getActions().size(), is(1));
     assertThat(stub.getActions().get(0), is(SendMessageAction.toOriginatingChannel("response")));
@@ -170,7 +176,7 @@ public class MessageSerializationTest {
     MessageStubMapping original =
         MessageStubMapping.builder()
             .withName("Round trip stub")
-            .onChannelFromRequestMatching(newRequestPattern().withUrl("/round-trip").build())
+            .onWebsocketChannelFromRequestMatching(newRequestPattern().withUrl("/round-trip"))
             .withBody(matching("test-.*"))
             .triggersAction(SendMessageAction.toOriginatingChannel("response"))
             .build();
@@ -183,7 +189,7 @@ public class MessageSerializationTest {
 
     assertThat(deserialized.getTrigger(), instanceOf(IncomingMessageTrigger.class));
     IncomingMessageTrigger trigger = (IncomingMessageTrigger) deserialized.getTrigger();
-    assertThat(trigger.getChannelPattern().getUrl(), is("/round-trip"));
+    assertThat(trigger.getInitiatingRequestPattern().getUrl(), is("/round-trip"));
     assertThat(deserialized.getActions().size(), is(1));
   }
 
@@ -229,7 +235,7 @@ public class MessageSerializationTest {
                 "name": "Matched stub",
                 "trigger": {
                   "type": "message",
-                  "messagePattern": {
+                  "message": {
                     "body": {
                       "equalTo": "test"
                     }
@@ -302,7 +308,7 @@ public class MessageSerializationTest {
     MessageStubMapping stub =
         WireMock.message()
             .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
-            .onChannelFromRequestMatching("/trigger")
+            .onWebsocketChannelFromRequestMatching("/trigger")
             .willTriggerActions(sendMessage("response").onOriginatingChannel());
 
     String json = Json.write(stub);
@@ -317,9 +323,12 @@ public class MessageSerializationTest {
                       "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
                       "trigger": {
                         "type": "message",
-                        "channelPattern": {
-                          "urlPath": "/trigger",
-                          "method" : "ANY"
+                        "channel": {
+                          "type": "websocket",
+                          "initiatingRequestPattern": {
+                            "urlPath": "/trigger",
+                            "method" : "ANY"
+                          }
                         }
                       },
                       "actions": [
@@ -345,7 +354,7 @@ public class MessageSerializationTest {
         MessageStubMapping.builder()
             .withId(UUID.fromString("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"))
             .withName("Broadcast stub")
-            .onChannelFromRequestMatching(newRequestPattern().withUrl("/source").build())
+            .onWebsocketChannelFromRequestMatching(newRequestPattern().withUrl("/source"))
             .withBody(equalTo("broadcast"))
             .triggersAction(
                 SendMessageAction.toMatchingChannels(
@@ -364,11 +373,14 @@ public class MessageSerializationTest {
               "name": "Broadcast stub",
               "trigger": {
                 "type": "message",
-                "channelPattern": {
-                  "url": "/source",
-                  "method": "ANY"
+                "channel": {
+                  "type": "websocket",
+                  "initiatingRequestPattern": {
+                    "url": "/source",
+                    "method": "ANY"
+                  }
                 },
-                "messagePattern": {
+                "message": {
                   "body": {
                     "equalTo": "broadcast"
                   }
@@ -401,10 +413,13 @@ public class MessageSerializationTest {
         {
           "name": "Broadcast deserialized",
           "trigger": {
-            "channelPattern": {
-              "url": "/source"
+            "channel": {
+              "type": "websocket",
+              "initiatingRequestPattern": {
+                "url": "/source"
+              }
             },
-            "messagePattern": {
+            "message": {
               "body": {
                 "equalTo": "trigger"
               }
@@ -613,7 +628,7 @@ public class MessageSerializationTest {
               "name": "Text entity stub",
               "trigger": {
                 "type": "message",
-                "messagePattern": {
+                "message": {
                   "body": {
                     "equalTo": "trigger"
                   }
@@ -646,7 +661,7 @@ public class MessageSerializationTest {
         {
           "name": "Text entity deserialized",
           "trigger": {
-            "messagePattern": {
+            "message": {
               "body": {
                 "equalTo": "trigger"
               }
@@ -716,7 +731,7 @@ public class MessageSerializationTest {
               "name": "Binary stub",
               "trigger": {
                 "type": "message",
-                "messagePattern": {
+                "message": {
                   "body": {
                     "binaryEqualTo": "%s"
                   }
@@ -755,7 +770,7 @@ public class MessageSerializationTest {
         {
           "name": "Binary deserialized",
           "trigger": {
-            "messagePattern": {
+            "message": {
               "body": {
                 "binaryEqualTo": "%s"
               }
@@ -1088,7 +1103,7 @@ public class MessageSerializationTest {
               "name": "Request-initiated with channel type",
               "trigger": {
                 "type": "message",
-                "messagePattern": {
+                "message": {
                   "body": {
                     "equalTo": "trigger"
                   }
@@ -1122,7 +1137,7 @@ public class MessageSerializationTest {
         {
           "name": "Deserialized request-initiated with channel type",
           "trigger": {
-            "messagePattern": {
+            "message": {
               "body": {
                 "equalTo": "trigger"
               }
@@ -1168,7 +1183,7 @@ public class MessageSerializationTest {
         {
           "name": "Request-initiated without channel type",
           "trigger": {
-            "messagePattern": {
+            "message": {
               "body": {
                 "equalTo": "trigger"
               }

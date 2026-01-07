@@ -3,8 +3,12 @@
     "name": "Multi message stub 1",
     "id": "22222222-2222-2222-2222-222222222222",
     "trigger": {
+      "channel": {
+        "initiatingRequestPattern": {"urlPath": "/ws/multi/1"},
+        "type": "websocket"
+      },
       "type": "message",
-      "channelPattern": {"urlPath": "/ws/multi/1"}
+      "message": {"body": {"equalTo": "Hello multi stub 1"}}
     },
     "actions": [{
       "channelTarget": {"type": "originating"},
@@ -15,8 +19,11 @@
   {
     "name": "Multi message stub 2",
     "trigger": {
-      "type": "message",
-      "channelPattern": {"urlPath": "/ws/multi/2"}
+      "channel": {
+        "initiatingRequestPattern": {"urlPath": "/ws/multi/2"},
+        "type": "websocket"
+      },
+      "type": "message"
     },
     "actions": [{
       "channelTarget": {
@@ -31,8 +38,11 @@
   {
     "name": "Multi message stub 3",
     "trigger": {
-      "type": "message",
-      "channelPattern": {"urlPath": "/ws/multi/3"}
+      "channel": {
+        "initiatingRequestPattern": {"urlPath": "/ws/multi/3"},
+        "type": "websocket"
+      },
+      "type": "message"
     },
     "actions": [{
       "channelTarget": {"type": "originating"},

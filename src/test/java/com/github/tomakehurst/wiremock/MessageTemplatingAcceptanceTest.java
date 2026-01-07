@@ -99,7 +99,8 @@ public class MessageTemplatingAcceptanceTest {
     wm.messageStubFor(
         message()
             .withName("Request data template stub")
-            .onChannelFromRequestMatching(newRequestPattern().withUrl(urlPathMatching("/my.*")))
+            .onWebsocketChannelFromRequestMatching(
+                newRequestPattern().withUrl(urlPathMatching("/my.*")))
             .withBody(equalTo("info"))
             .willTriggerActions(sendMessage("Path: {{request.path}}").onOriginatingChannel()));
 

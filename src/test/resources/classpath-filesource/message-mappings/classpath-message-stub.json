@@ -2,8 +2,11 @@
   "name": "Classpath message stub",
   "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
   "trigger": {
-    "type": "message",
-    "channelPattern": {"urlPath": "/ws/classpath"}
+    "channel": {
+      "initiatingRequestPattern": {"urlPath": "/ws/classpath"},
+      "type": "websocket"
+    },
+    "type": "message"
   },
   "actions": [{
     "channelTarget": {"type": "originating"},
