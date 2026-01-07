@@ -16,40 +16,8 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public class InMemoryMessageStubMappingStore implements MessageStubMappingStore {
-
-  private final Map<UUID, MessageStubMapping> mappings = new ConcurrentHashMap<>();
-
-  @Override
-  public Stream<MessageStubMapping> getAll() {
-    return mappings.values().stream();
-  }
-
-  @Override
-  public Optional<MessageStubMapping> get(UUID id) {
-    return Optional.ofNullable(mappings.get(id));
-  }
-
-  @Override
-  public void add(MessageStubMapping mapping) {
-    mappings.put(mapping.getId(), mapping);
-  }
-
-  @Override
-  public void remove(UUID id) {
-    mappings.remove(id);
-  }
-
-  @Override
-  public void clear() {
-    mappings.clear();
-  }
-}
+public class InMemoryMessageStubMappingStore extends InMemoryMappingStore<MessageStubMapping>
+    implements MessageStubMappingStore {}

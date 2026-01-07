@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,8 +37,11 @@ class SingleMessageStubMappingWrapper implements MessageStubMappingOrMappings {
       @JsonProperty("priority") Integer priority,
       @JsonProperty("trigger") MessageTrigger trigger,
       @JsonProperty("actions") List<MessageAction> actions,
-      @JsonProperty("metadata") Metadata metadata) {
-    this.mapping = new MessageStubMapping(id, name, priority, trigger, actions, metadata);
+      @JsonProperty("metadata") Metadata metadata,
+      @JsonProperty("insertionIndex") Long insertionIndex) {
+    this.mapping =
+        new MessageStubMapping(
+            id, name, priority, trigger, actions, metadata, getFirstNonNull(insertionIndex, 0L));
   }
 
   @Override

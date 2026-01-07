@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
-import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.Errors;

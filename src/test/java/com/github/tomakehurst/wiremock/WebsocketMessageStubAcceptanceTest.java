@@ -108,7 +108,6 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
         message()
             .withName("Low priority stub")
             .withPriority(10)
-            .withBody(matching(".*"))
             .willTriggerActions(sendMessage("low priority").onOriginatingChannel()));
 
     messageStubFor(
@@ -118,11 +117,39 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
             .withBody(equalTo("test"))
             .willTriggerActions(sendMessage("high priority").onOriginatingChannel()));
 
+    messageStubFor(
+        message()
+            .withName("Medium priority stub")
+            .withPriority(4)
+            .withBody(equalTo("test"))
+            .willTriggerActions(sendMessage("medium priority").onOriginatingChannel()));
+
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/priority-test");
 
     String response = testClient.sendMessageAndWaitForResponse(url, "test");
     assertThat(response, is("high priority"));
+  }
+
+  @Test
+  void messageStubMappingWithSamePriorityMatchesMostRecentlyAdded() {
+    messageStubFor(
+        message()
+            .withName("First stub")
+            .withPriority(5)
+            .willTriggerActions(sendMessage("first").onOriginatingChannel()));
+
+    messageStubFor(
+        message()
+            .withName("Second stub")
+            .withPriority(5)
+            .willTriggerActions(sendMessage("second").onOriginatingChannel()));
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/same-priority-test");
+
+    String response = testClient.sendMessageAndWaitForResponse(url, "test");
+    assertThat(response, is("second"));
   }
 
   @Test

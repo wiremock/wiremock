@@ -21,10 +21,14 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.common.Prioritisable;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -40,7 +44,8 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 @JsonInclude(NON_EMPTY)
-public class MessageStubMapping {
+@JsonIgnoreProperties({"$schema", "uuid", "insertionIndex"})
+public class MessageStubMapping implements Prioritisable {
 
   public static final int DEFAULT_PRIORITY = 5;
 
@@ -50,6 +55,7 @@ public class MessageStubMapping {
   private final MessageTrigger trigger;
   private final List<MessageAction> actions;
   @NonNull private final Metadata metadata;
+  private final long insertionIndex;
 
   @JsonCreator
   public MessageStubMapping(
@@ -58,13 +64,15 @@ public class MessageStubMapping {
       @JsonProperty("priority") Integer priority,
       @JsonProperty("trigger") MessageTrigger trigger,
       @JsonProperty("actions") List<MessageAction> actions,
-      @JsonProperty("metadata") Metadata metadata) {
+      @JsonProperty("metadata") Metadata metadata,
+      @JsonProperty("insertionIndex") @JsonView(Json.PrivateView.class) long insertionIndex) {
     this.id = id != null ? id : UUID.randomUUID();
     this.name = name;
     this.priority = priority;
     this.trigger = trigger != null ? trigger : IncomingMessageTrigger.ANYTHING;
     this.actions = actions != null ? actions : Collections.emptyList();
     this.metadata = metadata != null ? metadata : new Metadata();
+    this.insertionIndex = insertionIndex;
   }
 
   public static Builder builder() {
@@ -135,41 +143,35 @@ public class MessageStubMapping {
     return false;
   }
 
-  public int comparePriorityWith(MessageStubMapping other) {
-    int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
-    int otherPriority = other.priority != null ? other.priority : DEFAULT_PRIORITY;
-    return thisPriority - otherPriority;
+  public long getInsertionIndex() {
+    return insertionIndex;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
+    return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));
   }
 
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     MessageStubMapping that = (MessageStubMapping) o;
-    return Objects.equals(id, that.id);
+    return Objects.equals(id, that.id)
+        && Objects.equals(priority, that.priority)
+        && Objects.equals(trigger, that.trigger)
+        && Objects.equals(actions, that.actions)
+        && Objects.equals(metadata, that.metadata);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id);
+    return Objects.hash(id, priority, trigger, actions, metadata);
   }
 
   @Override
   public String toString() {
-    return "MessageStubMapping{"
-        + "id="
-        + id
-        + ", name='"
-        + name
-        + '\''
-        + ", priority="
-        + priority
-        + ", trigger="
-        + trigger
-        + ", actions="
-        + actions
-        + ", metadata="
-        + metadata
-        + '}';
+    return Json.write(this);
   }
 
   public static class Builder implements MessageStubMappingBuilder {
@@ -181,6 +183,7 @@ public class MessageStubMapping {
     private MessageTrigger explicitTrigger;
     private ArrayList<MessageAction> actions = new ArrayList<>();
     @NonNull private Metadata metadata = new Metadata();
+    private long insertionIndex;
 
     public Builder() {}
 
@@ -198,6 +201,7 @@ public class MessageStubMapping {
       }
       this.actions = new ArrayList<>(existing.actions);
       this.metadata = existing.metadata;
+      this.insertionIndex = existing.insertionIndex;
     }
 
     @Override
@@ -301,6 +305,16 @@ public class MessageStubMapping {
       return this;
     }
 
+    public long getInsertionIndex() {
+      return insertionIndex;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public Builder setInsertionIndex(long insertionIndex) {
+      this.insertionIndex = insertionIndex;
+      return this;
+    }
+
     @Override
     public MessageStubMapping build() {
       MessageTrigger trigger;
@@ -311,7 +325,7 @@ public class MessageStubMapping {
             bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
         trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
       }
-      return new MessageStubMapping(id, name, priority, trigger, actions, metadata);
+      return new MessageStubMapping(id, name, priority, trigger, actions, metadata, insertionIndex);
     }
   }
 }

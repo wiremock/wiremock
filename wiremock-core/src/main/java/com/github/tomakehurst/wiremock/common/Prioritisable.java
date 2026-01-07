@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.common;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.wiremock.annotations.Beta;
+import java.util.UUID;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public class InMemoryStubMappingStore extends InMemoryMappingStore<StubMapping>
-    implements StubMappingStore {}
+public interface Prioritisable {
+
+  int DEFAULT_PRIORITY = 5;
+
+  UUID getId();
+
+  Integer getPriority();
+
+  long getInsertionIndex();
+
+  <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex);
+}

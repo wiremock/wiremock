@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -24,6 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.Iterator;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -31,13 +32,13 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SortedConcurrentMappingSetTest {
+public class SortedConcurrentPrioritisableSetTest {
 
-  private SortedConcurrentMappingSet mappingSet;
+  private SortedConcurrentPrioritisableSet<StubMapping> mappingSet;
 
   @BeforeEach
   public void init() {
-    mappingSet = new SortedConcurrentMappingSet();
+    mappingSet = new SortedConcurrentPrioritisableSet<>();
   }
 
   @SuppressWarnings("unchecked")

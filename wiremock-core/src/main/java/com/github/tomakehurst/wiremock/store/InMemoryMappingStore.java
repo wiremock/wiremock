@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,40 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.common.Prioritisable;
+import com.github.tomakehurst.wiremock.common.SortedConcurrentPrioritisableSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageStubMappingStore {
+public abstract class InMemoryMappingStore<T extends Prioritisable> {
 
-  Stream<MessageStubMapping> getAll();
+  private final SortedConcurrentPrioritisableSet<T> mappings =
+      new SortedConcurrentPrioritisableSet<>();
 
-  Optional<MessageStubMapping> get(UUID id);
+  public Optional<T> get(UUID id) {
+    return mappings.stream().filter(mapping -> mapping.getId().equals(id)).findFirst();
+  }
 
-  MessageStubMapping add(MessageStubMapping mapping);
+  public void remove(UUID id) {
+    mappings.remove(id);
+  }
 
-  void remove(UUID id);
+  public void clear() {
+    mappings.clear();
+  }
 
-  void clear();
+  public Stream<T> getAll() {
+    return mappings.stream();
+  }
+
+  public T add(T mapping) {
+    return mappings.add(mapping);
+  }
+
+  public T replace(T existing, T updated) {
+    return mappings.replace(existing, updated);
+  }
 }
