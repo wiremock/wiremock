@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -109,23 +108,6 @@ public class MessageStubMapping implements Prioritisable {
 
   public MessageTrigger getTrigger() {
     return trigger;
-  }
-
-  @JsonIgnore
-  public RequestPattern getChannelPattern() {
-    if (trigger instanceof IncomingMessageTrigger messageTrigger) {
-      return messageTrigger.getChannelPattern();
-    }
-
-    return null;
-  }
-
-  @JsonIgnore
-  public MessagePattern getMessagePattern() {
-    if (trigger instanceof IncomingMessageTrigger messageTrigger) {
-      return messageTrigger.getMessagePattern();
-    }
-    return null;
   }
 
   public List<MessageAction> getActions() {

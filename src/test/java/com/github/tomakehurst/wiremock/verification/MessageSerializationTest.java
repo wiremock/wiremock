@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.message.ChannelTarget;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpRequestTrigger;
 import com.github.tomakehurst.wiremock.message.HttpStubTrigger;
+import com.github.tomakehurst.wiremock.message.IncomingMessageTrigger;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
@@ -146,14 +147,17 @@ public class MessageSerializationTest {
     assertThat(stub.getId().toString(), is("d8e8fca2-dc0f-11db-8314-0800200c9a66"));
     assertThat(stub.getName(), is("Deserialized stub"));
     assertThat(stub.getPriority(), is(5));
-    assertThat(stub.getChannelPattern().getUrl(), is("/my-channel"));
 
-    ContentPattern<?> bodyPattern = stub.getMessagePattern().getBodyPattern();
+    assertThat(stub.getTrigger(), instanceOf(IncomingMessageTrigger.class));
+    IncomingMessageTrigger trigger = (IncomingMessageTrigger) stub.getTrigger();
+    assertThat(trigger.getChannelPattern().getUrl(), is("/my-channel"));
+
+    ContentPattern<?> bodyPattern = trigger.getBodyPattern();
     assertThat(bodyPattern, notNullValue());
     assertThat(bodyPattern, instanceOf(RegexPattern.class));
     assertThat(bodyPattern.getExpected(), is("hello.*"));
 
-    RequestPattern channelPattern = stub.getChannelPattern();
+    RequestPattern channelPattern = trigger.getChannelPattern();
     assertThat(channelPattern, notNullValue());
     assertThat(channelPattern, is(any(urlEqualTo("/my-channel")).build().getRequest()));
 
@@ -176,7 +180,10 @@ public class MessageSerializationTest {
 
     assertThat(deserialized.getId(), is(original.getId()));
     assertThat(deserialized.getName(), is(original.getName()));
-    assertThat(deserialized.getChannelPattern().getUrl(), is("/round-trip"));
+
+    assertThat(deserialized.getTrigger(), instanceOf(IncomingMessageTrigger.class));
+    IncomingMessageTrigger trigger = (IncomingMessageTrigger) deserialized.getTrigger();
+    assertThat(trigger.getChannelPattern().getUrl(), is("/round-trip"));
     assertThat(deserialized.getActions().size(), is(1));
   }
 
