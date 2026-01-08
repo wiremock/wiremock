@@ -22,14 +22,10 @@ import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.remoteUrl;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.sortTestData;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.testData;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.updateTestData;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_invalid_wiremock_invalid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_invalid_wiremock_valid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_valid_wiremock_invalid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_rfc3986_valid_wiremock_valid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_invalid_wiremock_invalid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_invalid_wiremock_valid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_valid_wiremock_invalid;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_rfc3986_valid_wiremock_valid;
+import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_wiremock_invalid;
+import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_invalid_wiremock_valid;
+import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_wiremock_invalid;
+import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.whatwg_valid_wiremock_valid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.wiremock_invalid;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.wiremock_valid;
 
@@ -66,63 +62,43 @@ class WhatWGUrlInvariantTests {
   }
 
   @Test
-  void whatwg_valid_rfc3986_valid_wiremock_valid_contains_no_duplicates() {
-    assertThat(whatwg_valid_rfc3986_valid_wiremock_valid).doesNotHaveDuplicates();
+  void whatwg_valid_wiremock_valid_contains_no_duplicates() {
+    assertThat(whatwg_valid_wiremock_valid).doesNotHaveDuplicates();
   }
 
   @Test
-  void whatwg_valid_rfc3986_valid_wiremock_invalid_contains_no_duplicates() {
-    assertThat(whatwg_valid_rfc3986_valid_wiremock_invalid).doesNotHaveDuplicates();
+  void whatwg_valid_wiremock_invalid_contains_no_duplicates() {
+    assertThat(whatwg_valid_wiremock_invalid).doesNotHaveDuplicates();
   }
 
   @Test
-  void whatwg_valid_rfc3986_invalid_wiremock_valid_contains_no_duplicates() {
-    assertThat(whatwg_valid_rfc3986_invalid_wiremock_valid).doesNotHaveDuplicates();
+  void whatwg_invalid_wiremock_valid_contains_no_duplicates() {
+    assertThat(whatwg_invalid_wiremock_valid).doesNotHaveDuplicates();
   }
 
   @Test
-  void whatwg_valid_rfc3986_invalid_wiremock_invalid_contains_no_duplicates() {
-    assertThat(whatwg_valid_rfc3986_invalid_wiremock_invalid).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void whatwg_invalid_rfc3986_valid_wiremock_valid_contains_no_duplicates() {
-    assertThat(whatwg_invalid_rfc3986_valid_wiremock_valid).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void whatwg_invalid_rfc3986_valid_wiremock_invalid_contains_no_duplicates() {
-    assertThat(whatwg_invalid_rfc3986_valid_wiremock_invalid).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void whatwg_invalid_rfc3986_invalid_wiremock_valid_contains_no_duplicates() {
-    assertThat(whatwg_invalid_rfc3986_invalid_wiremock_valid).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void whatwg_invalid_rfc3986_invalid_wiremock_invalid_contains_no_duplicates() {
-    assertThat(whatwg_invalid_rfc3986_invalid_wiremock_invalid).doesNotHaveDuplicates();
+  void whatwg_invalid_wiremock_invalid_contains_no_duplicates() {
+    assertThat(whatwg_invalid_wiremock_invalid).doesNotHaveDuplicates();
   }
 
   @Test
   void whatwg_covers_all_cases() throws IOException {
-    coversAllCases(whatwg_valid, whatwg_invalid);
-  }
-
-  @Test
-  void rfc3986_covers_all_cases() throws IOException {
-    coversAllCases(rfc3986_valid, rfc3986_invalid);
+    coversAllWireMockCases(whatwg_valid, whatwg_invalid);
   }
 
   @Test
   void wiremock_covers_all_cases() throws IOException {
-    coversAllCases(wiremock_valid, wiremock_invalid);
+    coversAllWireMockCases(wiremock_valid, wiremock_invalid);
+  }
+
+  @Test
+  void rfc3986_covers_all_cases() throws IOException {
+    coversAllWhatWgCases(rfc3986_valid, rfc3986_invalid);
   }
 
   @Test
   void java_covers_all_cases() throws IOException {
-    coversAllCases(java_valid, java_invalid);
+    coversAllWhatWgCases(java_valid, java_invalid);
   }
 
   private static final List<? extends WhatWGUrlTestCase> rfc3986_valid =
@@ -143,22 +119,22 @@ class WhatWGUrlInvariantTests {
     assertThat(Rfc3986Validator.isValidUriReference(testCase.input())).isFalse();
   }
 
-  private static final List<? extends SuccessWhatWGUrlTestCase> whatwg_valid =
+  private static final List<? extends WireMockSnapshotTestCase> whatwg_valid =
       WhatWGUrlTestManagement.whatwg_valid;
 
   @ParameterizedTest
   @FieldSource("whatwg_valid")
-  void whatwg_valid_is_correct(WhatWGUrlTestCase testCase) {
-    assertThat(testCase.success()).isTrue();
+  void whatwg_valid_is_correct(WireMockSnapshotTestCase testCase) {
+    assertThat(testCase.source().success()).isTrue();
   }
 
-  private static final List<? extends FailureWhatWGUrlTestCase> whatwg_invalid =
+  private static final List<? extends WireMockSnapshotTestCase> whatwg_invalid =
       WhatWGUrlTestManagement.whatwg_invalid;
 
   @ParameterizedTest
   @FieldSource("whatwg_invalid")
-  void whatwg_invalid_is_correct(WhatWGUrlTestCase testCase) {
-    assertThat(testCase.success()).isFalse();
+  void whatwg_invalid_is_correct(WireMockSnapshotTestCase testCase) {
+    assertThat(testCase.source().success()).isFalse();
   }
 
   private static final List<? extends WhatWGUrlTestCase> java_valid =
@@ -179,13 +155,27 @@ class WhatWGUrlInvariantTests {
     assertThatThrownBy(() -> new URI(testCase.input())).isInstanceOf(URISyntaxException.class);
   }
 
-  private static void coversAllCases(
+  private static void coversAllWhatWgCases(
       List<? extends WhatWGUrlTestCase> valid, List<? extends WhatWGUrlTestCase> invalid)
       throws IOException {
     try {
       @SuppressWarnings("unchecked")
       var concat = (List<WhatWGUrlTestCase>) concat(valid, invalid);
       assertThat(concat).containsAll(testData);
+    } catch (AssertionError e) {
+      sortTestData();
+      throw e;
+    }
+  }
+
+  private static void coversAllWireMockCases(
+      List<? extends WireMockSnapshotTestCase> valid,
+      List<? extends WireMockSnapshotTestCase> invalid)
+      throws IOException {
+    try {
+      var whatWgTestCases = concat(valid, invalid).stream().map(WireMockSnapshotTestCase::source);
+
+      assertThat(whatWgTestCases).containsAll(testData);
     } catch (AssertionError e) {
       sortTestData();
       throw e;

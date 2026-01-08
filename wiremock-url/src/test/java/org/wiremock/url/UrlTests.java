@@ -17,13 +17,8 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.url.Url.transform;
-import static org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase.withContext;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
@@ -32,12 +27,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
-import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
-import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
+@SuppressWarnings("HttpUrlsUsage")
 class UrlTests {
 
   @Nested
@@ -91,167 +84,6 @@ class UrlTests {
       Url parsed = Url.parse(urlString);
 
       assertThat(parsed).isNotInstanceOf(Origin.class);
-    }
-
-    private static final Set<String> whatWgOriginsWeReject =
-        Set.of("http://!\"$&'()*+,-.;=_`{}~", "wss://!\"$&'()*+,-.;=_`{}~");
-
-    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlOrigins =
-        WhatWGUrlTestManagement.whatwg_valid.stream()
-            .filter(t -> t.origin() != null && !t.origin().isEmpty() && !t.origin().equals("null"))
-            .filter(t -> !whatWgOriginsWeReject.contains(t.origin()))
-            .collect(Collectors.toSet());
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlOrigins")
-    void whatWgUrlOriginsMaintainToString(SuccessWhatWGUrlTestCase testCase) {
-      withContext(
-          testCase,
-          () -> {
-            var origin = getOrigin(testCase);
-
-            assertThat(origin.toString()).isEqualTo(testCase.origin());
-          });
-    }
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlOrigins")
-    void uriReferenceParseWhatWgUrlOriginReturnsEqualValue(SuccessWhatWGUrlTestCase testCase) {
-      withContext(
-          testCase,
-          () -> {
-            var origin = getOrigin(testCase);
-
-            UriReference uriReference = UriReference.parse(origin.toString());
-            assertThat(uriReference).isInstanceOf(Origin.class);
-            assertThat(origin).isEqualTo(uriReference);
-          });
-    }
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlOrigins")
-    void whatWgUrlOriginHasSameComponentsAsJavaUri(SuccessWhatWGUrlTestCase testCase) {
-      withContext(
-          testCase,
-          () -> {
-            var origin = getOrigin(testCase);
-
-            URI javaUri = URI.create(origin.toString());
-
-            assertThat(origin.getScheme().toString()).isEqualTo(javaUri.getScheme());
-            assertThat(origin.getAuthority().toString()).isEqualTo(javaUri.getRawAuthority());
-          });
-    }
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlOrigins")
-    void whatWgUrlOriginIsEqualToBuilt(SuccessWhatWGUrlTestCase testCase) {
-      withContext(
-          testCase,
-          () -> {
-            var origin = getOrigin(testCase);
-
-            UriReference builtUri =
-                UriReference.builder()
-                    .setScheme(origin.getScheme())
-                    .setAuthority(origin.getAuthority())
-                    .setPath(Path.EMPTY)
-                    .build();
-            assertThat(builtUri).isInstanceOf(Origin.class);
-
-            assertThat(origin).isEqualTo(builtUri);
-          });
-    }
-
-    private static Origin getOrigin(SuccessWhatWGUrlTestCase testCase) {
-      String originExpectation = testCase.origin();
-      assert originExpectation != null;
-
-      return Origin.parse(originExpectation);
-    }
-
-    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlBase =
-        WhatWGUrlTestManagement.whatwg_valid.stream()
-            .filter(
-                t ->
-                    t.base() != null
-                        && !t.base().isEmpty()
-                        && !t.hostname().isEmpty()
-                        && !t.base().equals("sc://ñ"))
-            .collect(Collectors.toSet());
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlBase")
-    void whatWgUrlBasesAreAllUrls(SuccessWhatWGUrlTestCase testCase) {
-      assert testCase.base() != null;
-      testWhatWgUrl(testCase, testCase.base());
-    }
-
-    private static final Set<? extends SuccessWhatWGUrlTestCase> whatWgUrlHref =
-        WhatWGUrlTestManagement.whatwg_valid.stream()
-            .filter(
-                t ->
-                    t.href() != null
-                        && !t.href().isEmpty()
-                        && !t.hostname().isEmpty()
-                        && !t.href().equals("sc://%/")
-                        && !t.href()
-                            .equals(
-                                "wss://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/")
-                        && !t.href()
-                            .equals("http://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href()
-                            .equals("foo://!\"$%&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href()
-                            .equals("wss://!\"$&'()*+,-.;=_`{}~/") // host contains `{` and `}`
-                        && !t.href()
-                            .equals(
-                                "foo://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
-                        && !t.href()
-                            .equals(
-                                "foo://%20!%22$%&'()*+,-.%3B%3C%3D%3E%40%5B%5C%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
-                        && !t.href()
-                            .equals(
-                                "wss://joe:%20!%22$%&'()*+,-.%3A%3B%3C%3D%3E%40%5B%5D%5E_%60%7B%7C%7D~@host/") // user-info contains a `%` not followed by two hex digits
-                        && !t.href()
-                            .equals(
-                                "sc://%01%02%03%04%05%06%07%08%0B%0C%0E%0F%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%7F!\"$%&'()*+,-.;=_`{}~/"))
-            .collect(Collectors.toSet());
-
-    @ParameterizedTest
-    @FieldSource("whatWgUrlHref")
-    void whatWgUrlHrefsAreAllUrls(SuccessWhatWGUrlTestCase testCase) {
-      assert testCase.href() != null;
-      testWhatWgUrl(testCase, testCase.href());
-    }
-
-    private static void testWhatWgUrl(SuccessWhatWGUrlTestCase testCase, String urlString) {
-      withContext(
-          testCase,
-          () -> {
-            var url = Url.parse(urlString);
-
-            assertThat(url.toString()).isEqualTo(urlString);
-            assertThat(url).isEqualTo(UriReference.parse(urlString));
-            if (url.getPath().isEmpty()) {
-              assertThat(url.normalise()).isEqualTo(transform(url, b -> b.setPath(Path.ROOT)));
-            }
-
-            URI javaUri = uriOrNull(urlString);
-
-            if (javaUri != null) {
-              assertThat(url.getScheme().toString()).isEqualTo(javaUri.getScheme());
-              Authority authority = url.getAuthority();
-              String javaUriRawAuthority = javaUri.getRawAuthority();
-              if (javaUriRawAuthority == null) {
-                assertThat(authority.toString()).isEmpty();
-                assertThat(authority.getHostAndPort())
-                    .isEqualTo(HostAndPort.of(Host.parse(""), null));
-              } else {
-                assertThat(authority.toString()).isEqualTo(javaUriRawAuthority);
-              }
-            }
-          });
     }
 
     static Stream<UrlReferenceParseTestCase> validUrls() {
@@ -440,14 +272,6 @@ class UrlTests {
     Stream<DynamicTest> already_normalised_invariants() {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
           alreadyNormalisedUrlReferences);
-    }
-  }
-
-  private static @Nullable URI uriOrNull(String origin) {
-    try {
-      return new URI(origin);
-    } catch (URISyntaxException e) {
-      return null;
     }
   }
 

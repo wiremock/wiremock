@@ -17,7 +17,6 @@ package org.wiremock.url.whatwg;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.text.StringEscapeUtils;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.Uri;
 import org.wiremock.url.UriReference;
@@ -35,9 +34,7 @@ public record SuccessWhatWGUrlTestCase(
     // 213 null base & failure
     //  60 present base & failure
     @Nullable String base,
-
-    // can be absent (null), never empty, 536 occurrences
-    @Nullable String href,
+    String href,
 
     // can be absent (null), never empty. What I call base url
     @Nullable String origin,
@@ -81,7 +78,11 @@ public record SuccessWhatWGUrlTestCase(
   }
 
   @Override
-  @NonNull
+  public @Nullable String context() {
+    return base;
+  }
+
+  @Override
   public String toString() {
     return "new SuccessWhatWGUrlTestCase("
         + appendParameter("input", input)
@@ -114,11 +115,11 @@ public record SuccessWhatWGUrlTestCase(
         + "\n)";
   }
 
-  private static @NonNull String appendParameter(String name, String value) {
+  private static String appendParameter(String name, @Nullable String value) {
     return "\n  /* " + name + " */ " + stringOrNull(value);
   }
 
-  private static @NonNull String stringOrNull(@Nullable String value) {
+  private static String stringOrNull(@Nullable String value) {
     return value == null ? "null" : '"' + StringEscapeUtils.escapeJava(value) + '"';
   }
 
@@ -130,11 +131,11 @@ public record SuccessWhatWGUrlTestCase(
       var input = UriReference.parse(testCase.input());
       report("input", input);
       UriReference resolved;
-      if (testCase instanceof SuccessWhatWGUrlTestCase succesTestCase
-          && succesTestCase.base() != null
-          && !succesTestCase.base().isEmpty()
-          && !succesTestCase.base().equals("sc://ñ")) {
-        var base = Uri.parse(succesTestCase.base());
+      if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase
+          && successTestCase.base() != null
+          && !successTestCase.base().isEmpty()
+          && !successTestCase.base().equals("sc://ñ")) {
+        var base = Uri.parse(successTestCase.base());
         report("base", base);
         resolved = base.resolve(input);
       } else {

@@ -18,18 +18,33 @@ package org.wiremock.url.whatwg;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Comparator;
+import org.junit.jupiter.params.shadow.de.siegmar.fastcsv.util.Nullable;
 
 @JsonInclude(Include.NON_NULL)
-public sealed interface WhatWGUrlTestCase
+public sealed interface WhatWGUrlTestCase extends Comparable<WhatWGUrlTestCase>
     permits FailureWhatWGUrlTestCase, SuccessWhatWGUrlTestCase {
 
   boolean success();
 
   String input();
 
+  @Nullable
+  String context();
+
   @JsonProperty(value = "failure", access = JsonProperty.Access.READ_ONLY)
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   default boolean failure() {
     return !success();
+  }
+
+  Comparator<WhatWGUrlTestCase> comparator =
+      Comparator.comparing(WhatWGUrlTestCase::input) // input assumed non-null
+          .thenComparing(
+              WhatWGUrlTestCase::context, Comparator.nullsFirst(Comparator.naturalOrder()));
+
+  @Override
+  default int compareTo(WhatWGUrlTestCase o) {
+    return comparator.compare(this, o);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@
  */
 package org.wiremock.url.whatwg;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jspecify.annotations.Nullable;
 
-@JsonIgnoreProperties({"comment"})
-public record SimpleFailureWhatWGUrlTestCase(
-    // always present, never null, can be empty signifying empty input
-    String input,
-    // always present, can be null, never empty
-    // 213 null base & failure
-    //  60 present base & failure
-    @Nullable String base)
-    implements FailureWhatWGUrlTestCase {
-
-  @Override
-  @Nullable
-  public String context() {
-    return base;
+public record SimpleParseFailure(
+    @Override String input,
+    @Override @Nullable String base,
+    String exceptionType,
+    String exceptionMessage,
+    @Nullable String exceptionCauseType,
+    @Nullable String exceptionCauseMessage,
+    @Override WhatWGUrlTestCase source)
+    implements WireMockSnapshotTestCase {
+  public SimpleParseFailure {
+    if (base != null && (base.isEmpty() || base.equals("null"))) {
+      throw new IllegalArgumentException("base cannot be " + base);
+    }
   }
 }

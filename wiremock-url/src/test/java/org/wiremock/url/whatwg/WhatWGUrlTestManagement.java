@@ -16,10 +16,13 @@
 package org.wiremock.url.whatwg;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
+import static org.wiremock.url.whatwg.SnapshotTests.toExpectation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,8 +39,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.IllegalUriReference;
+import org.wiremock.url.OpaqueUri;
+import org.wiremock.url.Origin;
 import org.wiremock.url.Rfc3986Validator;
+import org.wiremock.url.Uri;
 import org.wiremock.url.UriReference;
 import org.wiremock.url.Url;
 
@@ -52,29 +63,31 @@ public class WhatWGUrlTestManagement {
   private static final String URLTESTDATA_JSON = "urltestdata.json";
   private static final String ADDITIONAL_TESTS_JSON = "additional_tests.json";
 
-  static final List<? extends WhatWGUrlTestCase> remoteData =
-      readLocalJson()
-          .valueStream()
-          .filter(JsonNode::isObject)
-          .map(WhatWGUrlTestManagement::map)
-          .toList();
+  static final List<? extends WhatWGUrlTestCase> remoteData = toWhatWGUrlTestCases(readLocalJson());
 
   static final List<? extends WhatWGUrlTestCase> additionalTests;
 
   static {
     try (var additionalTestResource =
         WhatWGUrlTestManagement.class.getResourceAsStream(ADDITIONAL_TESTS_JSON)) {
-      additionalTests =
-          objectMapper.readValue(
-              additionalTestResource, new TypeReference<List<SuccessWhatWGUrlTestCase>>() {});
+      additionalTests = toWhatWGUrlTestCases(objectMapper.readTree(additionalTestResource));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  static final List<? extends WhatWGUrlTestCase> testData = concat(remoteData, additionalTests);
+  private static List<WhatWGUrlTestCase> toWhatWGUrlTestCases(JsonNode jsonNode) {
+    return jsonNode
+        .valueStream()
+        .filter(JsonNode::isObject)
+        .map(WhatWGUrlTestManagement::mapToWhatWgUrlTestCase)
+        .toList();
+  }
 
-  private static WhatWGUrlTestCase map(JsonNode o) {
+  public static final List<? extends WhatWGUrlTestCase> testData =
+      concat(remoteData, additionalTests);
+
+  private static WhatWGUrlTestCase mapToWhatWgUrlTestCase(JsonNode o) {
     try {
       JsonNode failure = o.get("failure");
       if (failure != null && failure.asBoolean()) {
@@ -91,54 +104,97 @@ public class WhatWGUrlTestManagement {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  static final List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_valid =
-      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_valid_wiremock_valid");
+  private static WireMockSnapshotTestCase mapToWireMockSnapshotTestCase(JsonNode o) {
+    try {
+      var input = o.get("input").asText();
+      var base = o.get("base").textValue();
+      var source = mapToWhatWgUrlTestCase(o.get("source"));
+      var inputExpectedNode = o.get("inputExpected");
+      if (inputExpectedNode != null) {
+        var inputExpected =
+            objectMapper.treeToValue(inputExpectedNode, UriReferenceExpectation.class);
+        var inputNormalised =
+            objectMapper.treeToValue(o.get("inputNormalised"), UriReferenceExpectation.class);
+        var baseExpected =
+            objectMapper.treeToValue(o.get("baseExpected"), UriReferenceExpectation.class);
+        var baseNormalised =
+            objectMapper.treeToValue(o.get("baseNormalised"), UriReferenceExpectation.class);
+        var resolved = objectMapper.treeToValue(o.get("resolved"), UriReferenceExpectation.class);
+        var origin = objectMapper.treeToValue(o.get("origin"), UriReferenceExpectation.class);
+        var matchesWhatWg = o.get("matchesWhatWg").asBoolean();
+        return new SimpleParseSuccess(
+            input,
+            base,
+            inputExpected,
+            inputNormalised,
+            baseExpected,
+            baseNormalised,
+            resolved,
+            origin,
+            source,
+            matchesWhatWg);
+      } else {
+        JsonNode exceptionCauseType = o.get("exceptionCauseType");
+        JsonNode exceptionCauseMessage = o.get("exceptionCauseMessage");
+        return new SimpleParseFailure(
+            input,
+            base,
+            o.get("exceptionType").textValue(),
+            o.get("exceptionMessage").textValue(),
+            exceptionCauseType.textValue(),
+            exceptionCauseMessage.textValue(),
+            source);
+      }
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @SuppressWarnings("unchecked")
-  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_valid_wiremock_invalid =
-      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_valid_wiremock_invalid");
+  public static final List<SimpleParseSuccess> whatwg_valid_wiremock_valid =
+      (List<SimpleParseSuccess>)
+          readResource(
+              "whatwg_valid_wiremock_valid",
+              WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_valid =
-      (List<SuccessWhatWGUrlTestCase>) readResource("whatwg_valid_rfc3986_invalid_wiremock_valid");
+  static List<SimpleParseFailure> whatwg_valid_wiremock_invalid =
+      (List<SimpleParseFailure>)
+          readResource(
+              "whatwg_valid_wiremock_invalid",
+              WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<SuccessWhatWGUrlTestCase> whatwg_valid_rfc3986_invalid_wiremock_invalid =
-      (List<SuccessWhatWGUrlTestCase>)
-          readResource("whatwg_valid_rfc3986_invalid_wiremock_invalid");
+  static List<SimpleParseSuccess> whatwg_invalid_wiremock_valid =
+      (List<SimpleParseSuccess>)
+          readResource(
+              "whatwg_invalid_wiremock_valid",
+              WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_valid =
-      (List<? extends FailureWhatWGUrlTestCase>)
-          readResource("whatwg_invalid_rfc3986_valid_wiremock_valid");
-
-  @SuppressWarnings("unchecked")
-  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_valid_wiremock_invalid =
-      (List<? extends FailureWhatWGUrlTestCase>)
-          readResource("whatwg_invalid_rfc3986_valid_wiremock_invalid");
-
-  @SuppressWarnings("unchecked")
-  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_valid =
-      (List<? extends FailureWhatWGUrlTestCase>)
-          readResource("whatwg_invalid_rfc3986_invalid_wiremock_valid");
-
-  @SuppressWarnings("unchecked")
-  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid_rfc3986_invalid_wiremock_invalid =
-      (List<? extends FailureWhatWGUrlTestCase>)
-          readResource("whatwg_invalid_rfc3986_invalid_wiremock_invalid");
+  static List<SimpleParseFailure> whatwg_invalid_wiremock_invalid =
+      (List<SimpleParseFailure>)
+          readResource(
+              "whatwg_invalid_wiremock_invalid",
+              WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_valid =
-      readResource("rfc3986_valid_java_valid");
+      readResource("rfc3986_valid_java_valid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
   static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_invalid =
-      readResource("rfc3986_valid_java_invalid");
+      readResource("rfc3986_valid_java_invalid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
   static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_valid =
-      readResource("rfc3986_invalid_java_valid");
+      readResource("rfc3986_invalid_java_valid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
   static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
-      readResource("rfc3986_invalid_java_invalid");
+      readResource("rfc3986_invalid_java_invalid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
+
+  static List<? extends WhatWGUrlTestCase> rfc3986_valid =
+      concat(rfc3986_valid_java_valid, rfc3986_valid_java_invalid);
+
+  static List<? extends WhatWGUrlTestCase> rfc3986_invalid =
+      concat(rfc3986_invalid_java_valid, rfc3986_invalid_java_invalid);
 
   static List<? extends WhatWGUrlTestCase> java_valid =
       concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
@@ -146,51 +202,17 @@ public class WhatWGUrlTestManagement {
   static List<? extends WhatWGUrlTestCase> java_invalid =
       concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
 
-  public static List<? extends SuccessWhatWGUrlTestCase> whatwg_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid);
+  public static List<? extends WireMockSnapshotTestCase> whatwg_valid =
+      concat(whatwg_valid_wiremock_valid, whatwg_valid_wiremock_invalid);
 
-  static List<? extends FailureWhatWGUrlTestCase> whatwg_invalid =
-      concat(
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+  static List<? extends WireMockSnapshotTestCase> whatwg_invalid =
+      concat(whatwg_invalid_wiremock_valid, whatwg_invalid_wiremock_invalid);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid);
+  public static List<? extends SimpleParseSuccess> wiremock_valid =
+      concat(whatwg_valid_wiremock_valid, whatwg_invalid_wiremock_valid);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_invalid =
-      concat(
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
-
-  public static List<? extends SuccessWhatWGUrlTestCase> whatwg_valid_wiremock_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid, whatwg_valid_rfc3986_invalid_wiremock_valid);
-
-  public static List<? extends WhatWGUrlTestCase> wiremock_valid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_valid,
-          whatwg_valid_rfc3986_invalid_wiremock_valid,
-          whatwg_invalid_rfc3986_valid_wiremock_valid,
-          whatwg_invalid_rfc3986_invalid_wiremock_valid);
-
-  public static List<? extends WhatWGUrlTestCase> wiremock_invalid =
-      concat(
-          whatwg_valid_rfc3986_valid_wiremock_invalid,
-          whatwg_valid_rfc3986_invalid_wiremock_invalid,
-          whatwg_invalid_rfc3986_valid_wiremock_invalid,
-          whatwg_invalid_rfc3986_invalid_wiremock_invalid);
+  public static List<? extends SimpleParseFailure> wiremock_invalid =
+      concat(whatwg_valid_wiremock_invalid, whatwg_invalid_wiremock_invalid);
 
   private static JsonNode readLocalJson() {
     try {
@@ -235,28 +257,33 @@ public class WhatWGUrlTestManagement {
     }
   }
 
-  static List<? extends WhatWGUrlTestCase> readResource(String resourceName) {
+  static <T> List<? extends T> readResource(String resourceName, Function<JsonNode, T> mapper) {
     try (var resource = WhatWGUrlTestManagement.class.getResourceAsStream(resourceName + ".json")) {
       if (resource == null) {
         return Collections.emptyList();
       } else {
         var json = objectMapper.readTree(resource);
-        return json.valueStream().map(WhatWGUrlTestManagement::map).toList();
+        return json.valueStream().map(mapper).toList();
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  static void writeResource(String resourceName, List<WhatWGUrlTestCase> testCases)
+  public static void writeResource(String resourceName, List<?> testCases) throws IOException {
+    var printer = new OneObjectPerLinePrettyPrinter();
+    writeResource(resourceName, testCases, printer);
+  }
+
+  public static void writeResource(String resourceName, List<?> testCases, PrettyPrinter printer)
       throws IOException {
     File theFile = getResourceFile(resourceName + ".json");
     if (theFile != null) {
-      objectMapper.writer(new OneObjectPerLinePrettyPrinter()).writeValue(theFile, testCases);
+      objectMapper.writer(printer).writeValue(theFile, testCases);
     }
   }
 
-  private static File getResourceFile(String resourceName) {
+  private static @Nullable File getResourceFile(String resourceName) {
     URL resourceUrl = WhatWGUrlTestManagement.class.getResource(resourceName);
     if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
       return new File(
@@ -279,16 +306,132 @@ public class WhatWGUrlTestManagement {
     return lists.flatMap(Collection::stream).toList();
   }
 
-  @SuppressWarnings("ConstantValue")
   static void sortTestData() throws IOException {
-    var whatwg_valid_rfc3986_valid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_valid_rfc3986_valid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_valid_rfc3986_invalid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_valid_rfc3986_invalid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_invalid_rfc3986_valid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_invalid_rfc3986_valid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_invalid_rfc3986_invalid_wiremock_valid = new ArrayList<WhatWGUrlTestCase>();
-    var whatwg_invalid_rfc3986_invalid_wiremock_invalid = new ArrayList<WhatWGUrlTestCase>();
+    documentJavaUriBehaviour();
+    initialiseSimpleSuccesses();
+    initialiseSimpleFailures();
+    writeResource("whatwg_valid_wiremock_invalid", List.of());
+    writeResource("whatwg_invalid_wiremock_valid", List.of(), new CustomDepthPrettyPrinter());
+  }
+
+  private static void initialiseSimpleSuccesses() throws IOException {
+    List<SimpleParseSuccess> wiremock_valid_whatwg_valid =
+        testData.stream()
+            .filter(testCase -> testCase instanceof SuccessWhatWGUrlTestCase)
+            .map(testCase -> (SuccessWhatWGUrlTestCase) testCase)
+            .map(WhatWGUrlTestManagement::toWireMockSuccess)
+            .sorted()
+            .toList();
+
+    writeResource(
+        "whatwg_valid_wiremock_valid", wiremock_valid_whatwg_valid, new CustomDepthPrettyPrinter());
+  }
+
+  private static SimpleParseSuccess toWireMockSuccess(SuccessWhatWGUrlTestCase testCase) {
+
+    String input = testCase.input();
+    UriReferenceExpectation normalisedInputExpectation;
+    UriReferenceExpectation inputExpectation;
+    try {
+      UriReference inputUriRef = UriReference.parse(input);
+      inputExpectation = toExpectation(inputUriRef);
+      normalisedInputExpectation = toExpectation(inputUriRef.normalise());
+    } catch (IllegalUriReference e) {
+      inputExpectation = expectation(testCase, input, false);
+      normalisedInputExpectation = expectation(testCase, input, true);
+    }
+
+    String base = normalise(testCase.base());
+    UriReferenceExpectation baseExpectation;
+    UriReferenceExpectation baseNormalised;
+    if (base != null) {
+      try {
+        UriReference baseUriRef = UriReference.parse(base);
+        baseExpectation = toExpectation(baseUriRef);
+        baseNormalised = toExpectation(baseUriRef.normalise());
+      } catch (IllegalUriReference e) {
+        baseExpectation = expectation(testCase, base, false);
+        baseNormalised = expectation(testCase, base, true);
+      }
+    } else {
+      baseExpectation = null;
+      baseNormalised = null;
+    }
+
+    String href = testCase.href();
+    UriReferenceExpectation resolved = expectation(testCase, href, true);
+
+    String origin = testCase.origin();
+    UriReferenceExpectation originExpectation = null;
+    if (normalise(origin) != null) {
+      originExpectation =
+          new UriReferenceExpectation(
+              origin,
+              Origin.class.getSimpleName(),
+              StringUtils.substringBefore(testCase.protocol(), ":"),
+              testCase.host(),
+              null,
+              null,
+              null,
+              testCase.hostname().isEmpty() ? null : testCase.hostname(),
+              testCase.port() == null ? null : (testCase.port().isEmpty() ? null : testCase.port()),
+              "",
+              null,
+              null);
+    }
+
+    return new SimpleParseSuccess(
+        input,
+        base,
+        inputExpectation,
+        normalisedInputExpectation,
+        baseExpectation,
+        baseNormalised,
+        resolved,
+        originExpectation,
+        testCase,
+        true);
+  }
+
+  private static UriReferenceExpectation expectation(
+      SuccessWhatWGUrlTestCase testCase, String input, boolean normalised) {
+    String search = substringAfter(testCase.search(), "?");
+    String hash = substringAfter(testCase.hash(), "#");
+    Class<? extends Uri> type = calculateType(testCase, input, normalised);
+    return new UriReferenceExpectation(
+        (testCase.pathname().isEmpty()
+                && normalised
+                && testCase.search().isEmpty()
+                && testCase.hash().isEmpty())
+            ? testCase.href() + "/"
+            : testCase.href(),
+        type.getSimpleName(),
+        substringBefore(testCase.protocol(), ":"),
+        authority(testCase, type),
+        userInfo(testCase),
+        testCase.username().isEmpty() ? null : testCase.username(),
+        testCase.password().isEmpty() ? null : testCase.password(),
+        Url.class.isAssignableFrom(type) ? testCase.hostname() : null,
+        testCase.port() == null ? null : (testCase.port().isEmpty() ? null : testCase.port()),
+        (testCase.pathname().isEmpty() && normalised) ? "/" : testCase.pathname(),
+        search.isEmpty() ? null : search,
+        hash.isEmpty() ? null : hash);
+  }
+
+  private static void initialiseSimpleFailures() throws IOException {
+    var wiremock_invalid_whatwg_invalid =
+        testData.stream()
+            .filter(testCase -> testCase instanceof FailureWhatWGUrlTestCase)
+            .map(testCase -> (FailureWhatWGUrlTestCase) testCase)
+            .map(WhatWGUrlTestManagement::toWireMockFailure)
+            .sorted()
+            .toList();
+
+    writeResource("whatwg_invalid_wiremock_invalid", wiremock_invalid_whatwg_invalid);
+  }
+
+  @SuppressWarnings("ConstantValue")
+  private static void documentJavaUriBehaviour() throws IOException {
     var rfc3986_valid_java_valid = new ArrayList<WhatWGUrlTestCase>();
     var rfc3986_valid_java_invalid = new ArrayList<WhatWGUrlTestCase>();
     var rfc3986_invalid_java_valid = new ArrayList<WhatWGUrlTestCase>();
@@ -296,31 +439,8 @@ public class WhatWGUrlTestManagement {
 
     testData.forEach(
         test -> {
-          var whatwg_valid = !test.failure();
           var rfc3986_valid = Rfc3986Validator.isValidUriReference(test.input());
-
-          var wiremock_valid = shouldBeValid(rfc3986_valid, test);
           var java_valid = javaValid(test.input());
-
-          if (whatwg_valid && rfc3986_valid && wiremock_valid) {
-            whatwg_valid_rfc3986_valid_wiremock_valid.add(test);
-          } else if (whatwg_valid && rfc3986_valid && !wiremock_valid) {
-            whatwg_valid_rfc3986_valid_wiremock_invalid.add(test);
-          } else if (whatwg_valid && !rfc3986_valid && wiremock_valid) {
-            whatwg_valid_rfc3986_invalid_wiremock_valid.add(test);
-          } else if (whatwg_valid && !rfc3986_valid && !wiremock_valid) {
-            whatwg_valid_rfc3986_invalid_wiremock_invalid.add(test);
-          } else if (!whatwg_valid && rfc3986_valid && wiremock_valid) {
-            whatwg_invalid_rfc3986_valid_wiremock_valid.add(test);
-          } else if (!whatwg_valid && rfc3986_valid && !wiremock_valid) {
-            whatwg_invalid_rfc3986_valid_wiremock_invalid.add(test);
-          } else if (!whatwg_valid && !rfc3986_valid && wiremock_valid) {
-            whatwg_invalid_rfc3986_invalid_wiremock_valid.add(test);
-          } else if (!whatwg_valid && !rfc3986_valid && !wiremock_valid) {
-            whatwg_invalid_rfc3986_invalid_wiremock_invalid.add(test);
-          } else {
-            throw new IllegalStateException("Unreachable");
-          }
 
           if (rfc3986_valid && java_valid) {
             rfc3986_valid_java_valid.add(test);
@@ -335,26 +455,6 @@ public class WhatWGUrlTestManagement {
           }
         });
 
-    writeResource(
-        "whatwg_valid_rfc3986_valid_wiremock_valid", whatwg_valid_rfc3986_valid_wiremock_valid);
-    writeResource(
-        "whatwg_valid_rfc3986_valid_wiremock_invalid", whatwg_valid_rfc3986_valid_wiremock_invalid);
-    writeResource(
-        "whatwg_valid_rfc3986_invalid_wiremock_valid", whatwg_valid_rfc3986_invalid_wiremock_valid);
-    writeResource(
-        "whatwg_valid_rfc3986_invalid_wiremock_invalid",
-        whatwg_valid_rfc3986_invalid_wiremock_invalid);
-    writeResource(
-        "whatwg_invalid_rfc3986_valid_wiremock_valid", whatwg_invalid_rfc3986_valid_wiremock_valid);
-    writeResource(
-        "whatwg_invalid_rfc3986_valid_wiremock_invalid",
-        whatwg_invalid_rfc3986_valid_wiremock_invalid);
-    writeResource(
-        "whatwg_invalid_rfc3986_invalid_wiremock_valid",
-        whatwg_invalid_rfc3986_invalid_wiremock_valid);
-    writeResource(
-        "whatwg_invalid_rfc3986_invalid_wiremock_invalid",
-        whatwg_invalid_rfc3986_invalid_wiremock_invalid);
     writeResource("rfc3986_valid_java_valid", rfc3986_valid_java_valid);
     writeResource("rfc3986_valid_java_invalid", rfc3986_valid_java_invalid);
     writeResource("rfc3986_invalid_java_valid", rfc3986_invalid_java_valid);
@@ -378,6 +478,69 @@ public class WhatWGUrlTestManagement {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  private static Class<? extends Uri> calculateType(
+      SuccessWhatWGUrlTestCase testCase, String input, boolean normalised) {
+    if (!normalised
+        && (input.equals(testCase.origin())
+            || (!testCase.protocol().isEmpty()
+                && testCase.pathname().isEmpty()
+                && testCase.username().isEmpty()
+                && testCase.password().isEmpty()
+                && testCase.search().isEmpty()
+                && testCase.hash().isEmpty()))) {
+      return Origin.class;
+    } else if (testCase.host().isEmpty() && !input.matches("^[a-z]+://($|/.*)")) {
+      return OpaqueUri.class;
+    } else if (testCase.hash().isEmpty()) {
+      return AbsoluteUrl.class;
+    } else {
+      return Url.class;
+    }
+  }
+
+  private static SimpleParseFailure toWireMockFailure(FailureWhatWGUrlTestCase testCase) {
+    String base;
+    if (testCase instanceof SimpleFailureWhatWGUrlTestCase simpleFailureWhatWGUrlTestCase) {
+      base = normalise(simpleFailureWhatWGUrlTestCase.base());
+    } else {
+      base = null;
+    }
+    return new SimpleParseFailure(
+        testCase.input(),
+        base,
+        IllegalUriReference.class.getSimpleName(),
+        "Illegal uri reference: `" + testCase.input() + "`",
+        null,
+        "",
+        testCase);
+  }
+
+  private static @Nullable String normalise(@Nullable String input) {
+    if (input == null || input.isEmpty() || input.equals("null")) {
+      return null;
+    }
+    return input;
+  }
+
+  private static @Nullable String userInfo(SuccessWhatWGUrlTestCase testCase) {
+    if (testCase.password().isEmpty()) {
+      return testCase.username().isEmpty() ? null : testCase.username();
+    } else {
+      return testCase.username() + ":" + testCase.password();
+    }
+  }
+
+  private static @Nullable String authority(
+      SuccessWhatWGUrlTestCase testCase, Class<? extends Uri> type) {
+    var userInfo = userInfo(testCase);
+    return userInfo == null ? hostAndPort(testCase, type) : userInfo + "@" + testCase.host();
+  }
+
+  private static @Nullable String hostAndPort(
+      SuccessWhatWGUrlTestCase testCase, Class<? extends Uri> type) {
+    return Url.class.isAssignableFrom(type) ? testCase.host() : null;
   }
 }
 
@@ -437,5 +600,39 @@ class OneObjectPerLinePrettyPrinter extends DefaultPrettyPrinter {
   @Override
   public void writeObjectEntrySeparator(JsonGenerator g) throws IOException {
     g.writeRaw(", ");
+  }
+}
+
+class CustomDepthPrettyPrinter extends DefaultPrettyPrinter {
+  private int depth = 0;
+  private final DefaultIndenter normalIndent = new DefaultIndenter("  ", "\n");
+  private final DefaultIndenter compactIndent = new DefaultIndenter("", " ");
+
+  public CustomDepthPrettyPrinter() {
+    _objectIndenter = normalIndent;
+    indentArraysWith(normalIndent);
+  }
+
+  @Override
+  public void writeStartObject(JsonGenerator g) throws java.io.IOException {
+    depth++;
+    if (depth > 1) {
+      _objectIndenter = compactIndent;
+    }
+    super.writeStartObject(g);
+  }
+
+  @Override
+  public void writeEndObject(JsonGenerator g, int nrOfEntries) throws java.io.IOException {
+    super.writeEndObject(g, nrOfEntries);
+    depth--;
+    if (depth <= 1) {
+      _objectIndenter = normalIndent;
+    }
+  }
+
+  @Override
+  public DefaultPrettyPrinter createInstance() {
+    return new CustomDepthPrettyPrinter();
   }
 }

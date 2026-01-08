@@ -151,7 +151,7 @@ AbsoluteUrl <|-- Origin
   - **Path**: Accepts all non-control characters except `?` and `#`
   - **Query**: Accepts all non-control characters except `#`
   - **Fragment**: Accepts all non-control characters
-- **Normalization**: RFC 3986 compliant normalization via `normalise()` method, which
+- **Normalization**: RFC 3986 compliant normalisation via `normalise()` method, which
   percent-encodes path, query, and fragment components as needed
 
 ### Design Principles
@@ -197,3 +197,65 @@ The library maintains the following invariants:
 
    **Note**: There are edge cases where this is not possible. For example, a `PathAndQuery`
    starting with `//` will be parsed as a `RelativeRef` when converted to string and re-parsed.
+
+## Testing
+
+### Snapshot Testing
+
+The library uses **snapshot testing** to maintain comprehensive test coverage of URI/URL parsing
+behaviour. Snapshot tests capture the actual behaviour of the parser and compare it against
+previously recorded "snapshots" stored in JSON files.
+
+#### How Snapshot Testing Works
+
+1. **Test Execution**: Tests parse URIs and compare results against expected values in snapshot
+   files
+2. **Behaviour Changes**: When implementation changes cause different parsing behaviour:
+   - Tests fail (as expected)
+   - Actual behaviour is recorded in memory
+   - After all tests complete, updated snapshots are written to disk
+3. **Review & Commit**: Developers review the snapshot diffs and commit them if the changes are
+   correct
+
+#### Test Categories
+
+Snapshot tests are organised into four categories based on two dimensions:
+
+- **WHATWG validity**: Whether the input is valid according to the WHATWG URL Standard
+- **WireMock validity**: Whether WireMock successfully parses the input
+
+This creates four snapshot files in `wiremock-url/src/test/resources/org/wiremock/url/whatwg/`:
+
+| Snapshot File                          | Description                                                     |
+|----------------------------------------|-----------------------------------------------------------------|
+| `whatwg_valid_wiremock_valid.json`     | Valid by both standards (ideal cases)                           |
+| `whatwg_valid_wiremock_invalid.json`   | WHATWG considers valid but WireMock rejects                     |
+| `whatwg_invalid_wiremock_valid.json`   | WHATWG considers invalid but WireMock accepts (lenient parsing) |
+| `whatwg_invalid_wiremock_invalid.json` | Invalid by both standards                                       |
+
+#### Developer Workflow
+
+When making changes to the URI parsing implementation:
+
+1. Make your code changes
+2. Run the `SnapshotTests` test class
+3. If behaviour changed:
+   - Tests will fail
+   - Snapshot files will be automatically updated
+4. Review the diff in the JSON snapshot files (e.g., using `git diff`)
+5. If changes are correct, commit the updated snapshots along with your code changes
+6. If changes are incorrect, fix the implementation and repeat
+
+#### What Gets Tested
+
+**For successful parses**, snapshots verify:
+- The parsed input URI and its normalised form
+- The parsed base URI (if provided) and its normalised form
+- The result of resolving the input against the base URI
+- The origin (for absolute URLs)
+- All URI components (scheme, authority, host, port, path, query, fragment, etc.)
+
+**For parsing failures**, snapshots verify:
+- The exception type thrown
+- The exception message
+- The cause exception (if any)

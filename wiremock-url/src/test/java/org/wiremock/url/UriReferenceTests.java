@@ -25,6 +25,7 @@ import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 public class UriReferenceTests {
 
+  @SuppressWarnings("HttpUrlsUsage")
   @Nested
   class Normalise {
 
