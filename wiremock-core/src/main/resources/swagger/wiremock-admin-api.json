@@ -56,6 +56,30 @@
       "description": "Manage the files used to support WireMock stubs"
     },
     {
+      "name": "Message Mappings",
+      "description": "Operations on message stub mappings for WebSocket and other messaging protocols",
+      "externalDocs": {
+        "description": "User documentation",
+        "url": "https://wiremock.org/docs/websockets-and-other-messaging/"
+      }
+    },
+    {
+      "name": "Messages",
+      "description": "Message events logged in the journal",
+      "externalDocs": {
+        "description": "User documentation",
+        "url": "https://wiremock.org/docs/websockets-and-other-messaging/"
+      }
+    },
+    {
+      "name": "Channels",
+      "description": "Active message channels",
+      "externalDocs": {
+        "description": "User documentation",
+        "url": "https://wiremock.org/docs/websockets-and-other-messaging/"
+      }
+    },
+    {
       "name": "System",
       "description": "Global operations"
     }
@@ -1407,6 +1431,1036 @@
         }
       }
     },
+    "/__admin/message-mappings": {
+      "get": {
+        "operationId": "getAllMessageStubMappings",
+        "summary": "Get all message stub mappings",
+        "tags": [
+          "Message Mappings"
+        ],
+        "parameters": [
+          {
+            "description": "The maximum number of results to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "example": 10,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The start index of the results to return",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "example": 0,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-stub-mappings"
+                },
+                "example": {
+                  "messageMappings": [
+                    {
+                      "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+                      "name": "Echo WebSocket messages",
+                      "priority": 5,
+                      "trigger": {
+                        "type": "message",
+                        "channel": {
+                          "type": "websocket",
+                          "initiatingRequestPattern": {
+                            "urlPath": "/ws/echo"
+                          }
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "send",
+                          "message": {
+                            "body": {
+                              "data": "Echo response"
+                            }
+                          },
+                          "channelTarget": {
+                            "type": "originating"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "name": "Broadcast to all WebSocket clients",
+                      "trigger": {
+                        "type": "http-request",
+                        "requestPattern": {
+                          "method": "POST",
+                          "urlPath": "/broadcast"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "send",
+                          "message": {
+                            "body": {
+                              "data": "Broadcast message"
+                            }
+                          },
+                          "channelTarget": {
+                            "type": "request-initiated",
+                            "channelType": "websocket",
+                            "requestPattern": {
+                              "urlPathPattern": "/ws/.*"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "meta": {
+                    "total": 2
+                  }
+                }
+              }
+            },
+            "description": "All message stub mappings"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMessageStubMapping",
+        "summary": "Create a new message stub mapping",
+        "tags": [
+          "Message Mappings"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-stub-mapping"
+              },
+              "example": {
+                "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+                "name": "Echo WebSocket messages",
+                "priority": 5,
+                "trigger": {
+                  "type": "message",
+                  "channel": {
+                    "type": "websocket",
+                    "initiatingRequestPattern": {
+                      "urlPath": "/ws/echo"
+                    }
+                  },
+                  "message": {
+                    "body": {
+                      "contains": "hello"
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "type": "send",
+                    "message": {
+                      "body": {
+                        "data": "Echo: hello"
+                      }
+                    },
+                    "channelTarget": {
+                      "type": "originating"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "tags": [
+                    "websocket",
+                    "echo"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message stub mapping created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-stub-mapping"
+                },
+                "example": {
+                  "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+                  "name": "Echo WebSocket messages",
+                  "priority": 5,
+                  "trigger": {
+                    "type": "message",
+                    "channel": {
+                      "type": "websocket",
+                      "initiatingRequestPattern": {
+                        "urlPath": "/ws/echo"
+                      }
+                    },
+                    "message": {
+                      "body": {
+                        "contains": "hello"
+                      }
+                    }
+                  },
+                  "actions": [
+                    {
+                      "type": "send",
+                      "message": {
+                        "body": {
+                          "data": "Echo: hello"
+                        }
+                      },
+                      "channelTarget": {
+                        "type": "originating"
+                      }
+                    }
+                  ],
+                  "metadata": {
+                    "tags": [
+                      "websocket",
+                      "echo"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/badRequestEntity"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAllMessageStubMappings",
+        "summary": "Delete all message stub mappings",
+        "tags": [
+          "Message Mappings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
+      }
+    },
+    "/__admin/message-mappings/{id}": {
+      "parameters": [
+        {
+          "description": "The UUID of the message stub mapping",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "example": "730d3e32-d098-4169-a20c-554c3bedce58",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "delete": {
+        "operationId": "deleteMessageStubMapping",
+        "summary": "Delete a message stub mapping",
+        "tags": [
+          "Message Mappings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          },
+          "404": {
+            "description": "Message stub mapping not found"
+          }
+        }
+      }
+    },
+    "/__admin/message-mappings/find-by-metadata": {
+      "post": {
+        "operationId": "findMessageStubMappingsByMetadata",
+        "summary": "Find message stub mappings by metadata",
+        "description": "Find message stub mappings by matching on their metadata",
+        "tags": [
+          "Message Mappings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/content-pattern"
+              },
+              "example": {
+                "matchesJsonPath": {
+                  "expression": "$.outer",
+                  "equalToJson": "{ \"inner\": 42 }"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-stub-mappings"
+                },
+                "example": {
+                  "messageMappings": [
+                    {
+                      "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+                      "name": "Echo WebSocket messages",
+                      "priority": 5,
+                      "trigger": {
+                        "type": "message",
+                        "channel": {
+                          "type": "websocket",
+                          "initiatingRequestPattern": {
+                            "urlPath": "/ws/echo"
+                          }
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "send",
+                          "message": {
+                            "body": {
+                              "data": "Echo response"
+                            }
+                          },
+                          "channelTarget": {
+                            "type": "originating"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "name": "Broadcast to all WebSocket clients",
+                      "trigger": {
+                        "type": "http-request",
+                        "requestPattern": {
+                          "method": "POST",
+                          "urlPath": "/broadcast"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "send",
+                          "message": {
+                            "body": {
+                              "data": "Broadcast message"
+                            }
+                          },
+                          "channelTarget": {
+                            "type": "request-initiated",
+                            "channelType": "websocket",
+                            "requestPattern": {
+                              "urlPathPattern": "/ws/.*"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "meta": {
+                    "total": 2
+                  }
+                }
+              }
+            },
+            "description": "Matched message stub mappings"
+          }
+        }
+      }
+    },
+    "/__admin/message-mappings/remove-by-metadata": {
+      "post": {
+        "operationId": "removeMessageStubMappingsByMetadata",
+        "summary": "Delete message stub mappings matching metadata",
+        "tags": [
+          "Message Mappings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/content-pattern"
+              },
+              "example": {
+                "matchesJsonPath": {
+                  "expression": "$.outer",
+                  "equalToJson": "{ \"inner\": 42 }"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The message stub mappings were successfully removed"
+          }
+        }
+      }
+    },
+    "/__admin/messages": {
+      "get": {
+        "operationId": "getAllMessageEvents",
+        "summary": "Get all message events in journal",
+        "tags": [
+          "Messages"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-serve-events-result"
+                },
+                "example": {
+                  "messageServeEvents": [
+                    {
+                      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                      "eventType": "RECEIVED",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+                      "eventType": "SENT",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Echo: Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:01Z"
+                    }
+                  ],
+                  "messageJournalDisabled": false
+                }
+              }
+            },
+            "description": "List of message events"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAllMessageEvents",
+        "summary": "Delete all message events in journal",
+        "tags": [
+          "Messages"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
+      }
+    },
+    "/__admin/messages/{id}": {
+      "parameters": [
+        {
+          "description": "The UUID of the message event",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "example": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getMessageEventById",
+        "summary": "Get message event by ID",
+        "tags": [
+          "Messages"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/single-message-serve-event-result"
+                },
+                "example": {
+                  "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                  "eventType": "RECEIVED",
+                  "channelType": "websocket",
+                  "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "channelRequest": {
+                    "url": "/ws/chat",
+                    "absoluteUrl": "http://localhost:8080/ws/chat",
+                    "method": "GET",
+                    "clientIp": "127.0.0.1",
+                    "headers": {
+                      "Host": "localhost:8080",
+                      "Upgrade": "websocket",
+                      "Connection": "Upgrade"
+                    },
+                    "cookies": {},
+                    "browserProxyRequest": false,
+                    "loggedDate": 1609459200000,
+                    "loggedDateString": "2021-01-01T00:00:00Z"
+                  },
+                  "message": "Hello, WebSocket!",
+                  "stubMapping": {
+                    "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+                    "name": "Echo WebSocket messages",
+                    "trigger": {
+                      "type": "message",
+                      "channel": {
+                        "type": "websocket",
+                        "initiatingRequestPattern": {
+                          "urlPath": "/ws/chat"
+                        }
+                      }
+                    },
+                    "actions": [
+                      {
+                        "type": "send",
+                        "message": {
+                          "body": {
+                            "data": "Echo: Hello, WebSocket!"
+                          }
+                        },
+                        "channelTarget": {
+                          "type": "originating"
+                        }
+                      }
+                    ]
+                  },
+                  "wasMatched": true,
+                  "timestamp": "2021-01-01T00:00:00Z",
+                  "subEvents": []
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Message event not found"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteMessageEventById",
+        "summary": "Delete message event by ID",
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "description": "The UUID of the message event",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "example": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
+      }
+    },
+    "/__admin/messages/count": {
+      "post": {
+        "operationId": "countMessageEventsByCriteria",
+        "summary": "Count message events by criteria",
+        "description": "Count message events logged in the journal matching the specified criteria",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-pattern"
+              },
+              "example": {
+                "channel": {
+                  "urlPath": "/ws/chat",
+                  "method": "GET"
+                },
+                "body": {
+                  "contains": "hello"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Number of matching message events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-verification-result"
+                },
+                "example": {
+                  "count": 4,
+                  "messageJournalDisabled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/messages/find": {
+      "post": {
+        "operationId": "findMessageEventsByCriteria",
+        "summary": "Find message events by criteria",
+        "description": "Retrieve details of message events logged in the journal matching the specified criteria",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-pattern"
+              },
+              "example": {
+                "channel": {
+                  "urlPath": "/ws/chat",
+                  "method": "GET"
+                },
+                "body": {
+                  "contains": "hello"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Matching message event details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-serve-events-result"
+                },
+                "example": {
+                  "messageServeEvents": [
+                    {
+                      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                      "eventType": "RECEIVED",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+                      "eventType": "SENT",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Echo: Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:01Z"
+                    }
+                  ],
+                  "messageJournalDisabled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/messages/remove": {
+      "post": {
+        "operationId": "removeMessageEventsByCriteria",
+        "summary": "Remove message events by criteria",
+        "description": "Remove message events logged in the journal matching the specified criteria",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-pattern"
+              },
+              "example": {
+                "channel": {
+                  "urlPath": "/ws/chat",
+                  "method": "GET"
+                },
+                "body": {
+                  "contains": "hello"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Removed message event details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-serve-events-result"
+                },
+                "example": {
+                  "messageServeEvents": [
+                    {
+                      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                      "eventType": "RECEIVED",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+                      "eventType": "SENT",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Echo: Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:01Z"
+                    }
+                  ],
+                  "messageJournalDisabled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/messages/remove-by-metadata": {
+      "post": {
+        "operationId": "removeMessageEventsByMetadata",
+        "summary": "Delete message events matching metadata",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/content-pattern"
+              },
+              "example": {
+                "matchesJsonPath": {
+                  "expression": "$.outer",
+                  "equalToJson": "{ \"inner\": 42 }"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Removed message event details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-serve-events-result"
+                },
+                "example": {
+                  "messageServeEvents": [
+                    {
+                      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                      "eventType": "RECEIVED",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+                      "eventType": "SENT",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Echo: Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:01Z"
+                    }
+                  ],
+                  "messageJournalDisabled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/messages/wait": {
+      "post": {
+        "operationId": "waitForMessageEvent",
+        "summary": "Wait for a message event",
+        "description": "Wait for a message event matching the specified pattern",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/wait-for-message-request"
+              },
+              "example": {
+                "pattern": {
+                  "channel": {
+                    "urlPath": "/ws/chat"
+                  },
+                  "body": {
+                    "contains": "hello"
+                  }
+                },
+                "timeoutMillis": 5000,
+                "count": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message event result (may be null if timeout)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/single-message-serve-event-result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/messages/wait-for-count": {
+      "post": {
+        "operationId": "waitForMessageEvents",
+        "summary": "Wait for multiple message events",
+        "description": "Wait for a specified number of message events matching the specified pattern",
+        "tags": [
+          "Messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/wait-for-message-request"
+              },
+              "example": {
+                "pattern": {
+                  "body": {
+                    "contains": "hello"
+                  }
+                },
+                "timeoutMillis": 5000,
+                "count": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message events result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-serve-events-result"
+                },
+                "example": {
+                  "messageServeEvents": [
+                    {
+                      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+                      "eventType": "RECEIVED",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+                      "eventType": "SENT",
+                      "channelType": "websocket",
+                      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "channelRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "message": "Echo: Hello, WebSocket!",
+                      "wasMatched": true,
+                      "timestamp": "2021-01-01T00:00:01Z"
+                    }
+                  ],
+                  "messageJournalDisabled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/channels": {
+      "get": {
+        "operationId": "getAllMessageChannels",
+        "summary": "Get all message channels",
+        "description": "Get all active message channels",
+        "tags": [
+          "Channels"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-channels-result"
+                },
+                "example": {
+                  "channels": [
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "type": "websocket",
+                      "initiatingRequest": {
+                        "url": "/ws/chat",
+                        "method": "GET"
+                      },
+                      "open": true
+                    },
+                    {
+                      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                      "type": "websocket",
+                      "initiatingRequest": {
+                        "url": "/ws/notifications",
+                        "method": "GET"
+                      },
+                      "open": true
+                    }
+                  ],
+                  "meta": {
+                    "total": 2
+                  }
+                }
+              }
+            },
+            "description": "All message channels"
+          }
+        }
+      }
+    },
+    "/__admin/channels/send": {
+      "post": {
+        "operationId": "sendChannelMessage",
+        "summary": "Send a message to channels",
+        "description": "Send a message to all channels matching the specified criteria",
+        "tags": [
+          "Channels"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/send-channel-message-request"
+              },
+              "example": {
+                "type": "websocket",
+                "initiatingRequest": {
+                  "urlPathPattern": "/ws/.*"
+                },
+                "message": {
+                  "body": {
+                    "data": "Broadcast message to all WebSocket clients"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/send-channel-message-result"
+                },
+                "example": {
+                  "channels": [
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "type": "websocket",
+                      "open": true
+                    }
+                  ],
+                  "channelsMessaged": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/__admin/health": {
       "get": {
         "operationId": "getHealth",
@@ -1707,6 +2761,36 @@
       }
     },
     "schemas": {
+      "one-of-request-method-pattern": {
+        "title": "One of request method pattern",
+        "type": "object",
+        "properties": {
+          "oneOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "oneOf"
+        ]
+      },
+      "none-of-request-method-pattern": {
+        "title": "One of request method pattern",
+        "type": "object",
+        "properties": {
+          "noneOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "noneOf"
+        ]
+      },
       "equal-to-pattern": {
         "title": "String equals",
         "type": "object",
@@ -1853,6 +2937,21 @@
           },
           {
             "$ref": "#/components/schemas/includes-multivalue-pattern"
+          },
+          {
+            "$ref": "#/components/schemas/equal-to-number-pattern"
+          },
+          {
+            "$ref": "#/components/schemas/greater-than-number-pattern"
+          },
+          {
+            "$ref": "#/components/schemas/greater-than-equal-number-pattern"
+          },
+          {
+            "$ref": "#/components/schemas/less-than-number-pattern"
+          },
+          {
+            "$ref": "#/components/schemas/less-than-equal-number-pattern"
           }
         ]
       },
@@ -2197,6 +3296,66 @@
           "includes"
         ]
       },
+      "equal-to-number-pattern": {
+        "title": "Number equals",
+        "type": "object",
+        "properties": {
+          "equalToNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "equalToNumber"
+        ]
+      },
+      "greater-than-number-pattern": {
+        "title": "Number greater than",
+        "type": "object",
+        "properties": {
+          "greaterThanNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "greaterThanNumber"
+        ]
+      },
+      "greater-than-equal-number-pattern": {
+        "title": "Number greater than or equal",
+        "type": "object",
+        "properties": {
+          "greaterThanEqualNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "greaterThanEqualNumber"
+        ]
+      },
+      "less-than-number-pattern": {
+        "title": "Number less than",
+        "type": "object",
+        "properties": {
+          "lessThanNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lessThanNumber"
+        ]
+      },
+      "less-than-equal-number-pattern": {
+        "title": "Number less than or equal",
+        "type": "object",
+        "properties": {
+          "lessThanEqualNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lessThanEqualNumber"
+        ]
+      },
       "request-pattern": {
         "type": "object",
         "example": "{\n  \"urlPath\" : \"/charges\",\n  \"method\" : \"POST\",\n  \"headers\" : {\n    \"Content-Type\" : {\n      \"equalTo\" : \"application/json\"\n    }\n  }\n}",
@@ -2220,9 +3379,19 @@
             "description": "The HTTP port number of the request URL"
           },
           "method": {
-            "type": "string",
-            "pattern": "^[A-Z]+$",
-            "description": "The HTTP request method e.g. GET"
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z]+$",
+                "description": "The HTTP request method e.g. GET"
+              },
+              {
+                "$ref": "#/components/schemas/one-of-request-method-pattern"
+              },
+              {
+                "$ref": "#/components/schemas/none-of-request-method-pattern"
+              }
+            ]
           },
           "url": {
             "type": "string",
@@ -3066,6 +4235,489 @@
             "default": "Started",
             "description": "The current state of this scenario",
             "example": "state_2"
+          }
+        }
+      },
+      "channel-type": {
+        "type": "string",
+        "description": "The type of message channel",
+        "enum": [
+          "websocket"
+        ],
+        "example": "websocket"
+      },
+      "channel-pattern": {
+        "type": "object",
+        "description": "Pattern for matching message channels",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/channel-type"
+          },
+          "initiatingRequestPattern": {
+            "$ref": "#/components/schemas/request-pattern",
+            "description": "Pattern to match the request that initiated the channel"
+          }
+        }
+      },
+      "message-pattern": {
+        "type": "object",
+        "description": "Pattern for matching messages",
+        "properties": {
+          "channel": {
+            "$ref": "#/components/schemas/request-pattern",
+            "description": "Pattern to match the channel's initiating request"
+          },
+          "body": {
+            "$ref": "#/components/schemas/content-pattern",
+            "description": "Pattern to match the message body"
+          }
+        }
+      },
+      "message-trigger": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Trigger on incoming message",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "message"
+                ]
+              },
+              "channel": {
+                "$ref": "#/components/schemas/channel-pattern"
+              },
+              "message": {
+                "$ref": "#/components/schemas/message-pattern"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Trigger when a specific HTTP stub is matched",
+            "required": [
+              "type",
+              "stubId"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "http-stub"
+                ]
+              },
+              "stubId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The ID of the HTTP stub mapping that triggers this message stub"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Trigger when an HTTP request matches a pattern",
+            "required": [
+              "type",
+              "requestPattern"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "http-request"
+                ]
+              },
+              "requestPattern": {
+                "$ref": "#/components/schemas/request-pattern"
+              }
+            }
+          }
+        ]
+      },
+      "message-definition": {
+        "type": "object",
+        "description": "Definition of a message to be sent",
+        "properties": {
+          "body": {
+            "description": "The message body",
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string",
+                    "description": "Text message data"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string",
+                    "format": "byte",
+                    "description": "Base64-encoded binary message data"
+                  },
+                  "isBinary": {
+                    "type": "boolean",
+                    "description": "Indicates this is binary data"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "channel-target": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Target the originating channel",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "originating"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Target channels initiated by requests matching a pattern",
+            "required": [
+              "type",
+              "requestPattern"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "request-initiated"
+                ]
+              },
+              "channelType": {
+                "$ref": "#/components/schemas/channel-type"
+              },
+              "requestPattern": {
+                "$ref": "#/components/schemas/request-pattern"
+              }
+            }
+          }
+        ]
+      },
+      "message-action": {
+        "type": "object",
+        "description": "Action to perform when a message stub is triggered",
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "send"
+            ]
+          },
+          "message": {
+            "$ref": "#/components/schemas/message-definition"
+          },
+          "channelTarget": {
+            "$ref": "#/components/schemas/channel-target"
+          },
+          "transformers": {
+            "type": "array",
+            "description": "List of transformer names to apply to the message",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transformerParameters": {
+            "type": "object",
+            "description": "Parameters to pass to transformers",
+            "additionalProperties": true
+          }
+        }
+      },
+      "message-stub-mapping": {
+        "type": "object",
+        "description": "A message stub mapping defines how WireMock responds to messages on channels",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "This message stub mapping's unique identifier"
+          },
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Alias for the id"
+          },
+          "name": {
+            "type": "string",
+            "description": "The message stub mapping's name"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "This message stub mapping's priority relative to others. 1 is highest.",
+            "minimum": 1
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/message-trigger"
+          },
+          "actions": {
+            "type": "array",
+            "description": "Actions to perform when this stub is triggered",
+            "items": {
+              "$ref": "#/components/schemas/message-action"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Arbitrary metadata to be attached to the stub mapping",
+            "additionalProperties": true
+          }
+        }
+      },
+      "message-stub-mappings": {
+        "type": "object",
+        "description": "A collection of message stub mappings",
+        "properties": {
+          "messageMappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/message-stub-mapping"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "description": "Pagination metadata",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "Total number of message stub mappings"
+              }
+            }
+          }
+        }
+      },
+      "message-serve-event": {
+        "type": "object",
+        "description": "A message event logged in the journal",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for this message event"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "SENT"
+            ],
+            "description": "Whether the message was received or sent"
+          },
+          "channelType": {
+            "$ref": "#/components/schemas/channel-type"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the channel on which the message was sent/received"
+          },
+          "channelRequest": {
+            "$ref": "#/components/schemas/logged-request",
+            "description": "The HTTP request that initiated the channel (for request-initiated channels)"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message body as a string"
+          },
+          "stubMapping": {
+            "$ref": "#/components/schemas/message-stub-mapping",
+            "description": "The message stub mapping that was matched (if any)"
+          },
+          "wasMatched": {
+            "type": "boolean",
+            "description": "Whether this message matched a stub mapping"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the message event occurred"
+          },
+          "subEvents": {
+            "type": "array",
+            "description": "Sub-events that occurred during message processing",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "relativeTiming": {
+                  "type": "integer",
+                  "description": "Timing in nanoseconds relative to the start of the event"
+                },
+                "data": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "message-serve-events-result": {
+        "type": "object",
+        "description": "Result containing message serve events",
+        "properties": {
+          "messageServeEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/message-serve-event"
+            }
+          },
+          "messageJournalDisabled": {
+            "type": "boolean",
+            "description": "Whether the message journal is disabled"
+          }
+        }
+      },
+      "single-message-serve-event-result": {
+        "type": "object",
+        "description": "Result containing a single message serve event",
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/message-serve-event",
+            "description": "The message serve event, or null if not found"
+          }
+        }
+      },
+      "message-verification-result": {
+        "type": "object",
+        "description": "Result of a message verification operation",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of messages matching the criteria"
+          },
+          "messageJournalDisabled": {
+            "type": "boolean",
+            "description": "Whether the message journal is disabled"
+          }
+        }
+      },
+      "wait-for-message-request": {
+        "type": "object",
+        "description": "Request to wait for message events",
+        "required": [
+          "timeoutMillis"
+        ],
+        "properties": {
+          "pattern": {
+            "$ref": "#/components/schemas/message-pattern"
+          },
+          "timeoutMillis": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum time to wait in milliseconds"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of messages to wait for (for wait-for-count endpoint)"
+          }
+        }
+      },
+      "logged-message-channel": {
+        "type": "object",
+        "description": "A logged message channel",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for this channel"
+          },
+          "type": {
+            "$ref": "#/components/schemas/channel-type"
+          },
+          "initiatingRequest": {
+            "$ref": "#/components/schemas/logged-request",
+            "description": "The HTTP request that initiated the channel (for request-initiated channels)"
+          },
+          "open": {
+            "type": "boolean",
+            "description": "Whether the channel is currently open"
+          }
+        }
+      },
+      "message-channels-result": {
+        "type": "object",
+        "description": "Result containing message channels",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/logged-message-channel"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "description": "Pagination metadata",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "Total number of channels"
+              }
+            }
+          }
+        }
+      },
+      "send-channel-message-request": {
+        "type": "object",
+        "description": "Request to send a message to channels",
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/channel-type"
+          },
+          "initiatingRequest": {
+            "$ref": "#/components/schemas/request-pattern",
+            "description": "Pattern to match the initiating request of target channels"
+          },
+          "message": {
+            "$ref": "#/components/schemas/message-definition"
+          }
+        }
+      },
+      "send-channel-message-result": {
+        "type": "object",
+        "description": "Result of sending a message to channels",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "description": "Channels that received the message",
+            "items": {
+              "$ref": "#/components/schemas/logged-message-channel"
+            }
+          },
+          "channelsMessaged": {
+            "type": "integer",
+            "description": "Number of channels that received the message"
           }
         }
       },
