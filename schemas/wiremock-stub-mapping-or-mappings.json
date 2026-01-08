@@ -891,7 +891,7 @@
       "type" : "object",
       "description" : "Pattern for matching messages",
       "properties" : {
-        "channelPattern" : {
+        "channel" : {
           "$ref" : "#/definitions/request-pattern",
           "description" : "Pattern to match the channel's initiating request"
         },
