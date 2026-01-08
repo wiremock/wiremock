@@ -166,13 +166,13 @@ accidental modification.
 All types provide a standard parsing interface:
 
 ```java
-static Type parse(CharSequence stringForm);
+static Type parse(String stringForm);
 ```
 
 Types implementing `PercentEncoded` additionally provide:
 
 ```java
-static Type encode(CharSequence unencoded);
+static Type encode(String unencoded);
 ```
 
 #### Invariants
@@ -192,7 +192,7 @@ The library maintains the following invariants:
 
 3. **Round-Trip Equality**: In general, round-tripping through parse and toString preserves equality:
    ```java
-   UrlReference.parse(urlReference.toString()).equals(instance) == true;
+   UriReference.parse(uriReference.toString()).equals(uriReference) == true;
    ```
 
    **Note**: There are edge cases where this is not possible. For example, a `PathAndQuery`
