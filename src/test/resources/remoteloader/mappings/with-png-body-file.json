@@ -1,5 +1,7 @@
 {
-  "request": {"url": "/image-file"},
+  "request": {
+    "url": "/image-file"
+  },
   "response": {
     "bodyFileName": "favicon3.png",
     "status": 200

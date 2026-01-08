@@ -30,7 +30,9 @@
     }
   ],
   "metadata": {
-    "tags": ["websocket", "echo"]
+    "tags": [
+      "websocket",
+      "echo"
+    ]
   }
 }
-
