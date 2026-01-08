@@ -27,10 +27,23 @@ def buildStubMappingSchema = tasks.register("buildStubMappingSchema") {
   }
 }
 
+def buildMessageStubMappingSchema = tasks.register("buildMessageStubMappingSchema") {
+  group = "build"
+  outputs.dir(temporaryDir)
+  inputs.dir('src/main/resources/swagger/schemas')
+
+  doLast {
+    def schemasDir = new File(temporaryDir, "schemas")
+    schemasDir.mkdir()
+    new File(schemasDir, "wiremock-message-stub-mapping.json").write(doBuildMessageStubMappingSchema())
+  }
+}
+
 sourceSets {
   main {
     resources {
       srcDir(buildStubMappingSchema.map { it.temporaryDir })
+      srcDir(buildMessageStubMappingSchema.map { it.temporaryDir })
     }
   }
 }
@@ -144,4 +157,40 @@ private def replaceFileRefs(JsonNode node) {
 
 private static String removePrefix(String input, String prefix) {
   return input.substring(prefix.length())
+}
+
+private String doBuildMessageStubMappingSchema() {
+  def jsonMapper = new ObjectMapper()
+  def document = jsonMapper.createObjectNode()
+  document.put("title", "WireMock message stub mapping")
+  document.put("type", "object")
+
+  document.put("\$schema", "http://json-schema.org/draft-07/schema#")
+
+  def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
+
+  def schemas = new ArrayList<Tuple>()
+  file('src/main/resources/swagger/schemas').listFiles().toList().sort { it.name }.each { file ->
+    def name = file.name - ".yaml"
+    def schema = readSchema(yamlMapper, file)
+
+    if (name != "date-time-elements") {
+      schemas.add(Tuple.tuple(name, schema))
+    } else {
+      ((ObjectNode) schema).properties().each { prop ->
+        schemas.add(Tuple.tuple(prop.getKey(), prop.getValue()))
+      }
+    }
+  }
+
+  def definitions = document.putObject("definitions")
+  schemas.each { keyAndNode -> definitions.putIfAbsent(keyAndNode[0], keyAndNode[1]) }
+
+  def oneOf = document.putArray("oneOf")
+  oneOf.addObject().put("\$ref", "#/definitions/message-stub-mapping")
+  oneOf.addObject().put("\$ref", "#/definitions/message-stub-mappings")
+
+  return jsonMapper
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(document)
 }
