@@ -1,5 +1,6 @@
 plugins {
   id("wiremock.common-conventions")
+  alias(libs.plugins.jmh)
 }
 
 tasks.jar {
@@ -24,6 +25,20 @@ dependencies {
 
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
+
+  // JMH
+  jmh(libs.jmh.core)
+  jmh(libs.jmh.generator.annprocess)
+
+  // JMH needs access to test dependencies for benchmark data
+  jmh(platform(libs.jackson.bom))
+  jmh(libs.jackson.core)
+  jmh(libs.jackson.databind)
+  jmh(libs.commons.lang)
+}
+
+jmh {
+  includes.add(".*ParsePerformanceBenchmark.*")
 }
 
 publishing {
