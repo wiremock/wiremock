@@ -106,6 +106,55 @@
         }
       }
     },
+    "channel-pattern" : {
+      "type" : "object",
+      "description" : "Pattern for matching message channels",
+      "required" : [ "type" ],
+      "properties" : {
+        "type" : {
+          "$ref" : "#/definitions/channel-type"
+        },
+        "initiatingRequestPattern" : {
+          "$ref" : "#/definitions/request-pattern",
+          "description" : "Pattern to match the request that initiated the channel"
+        }
+      }
+    },
+    "channel-target" : {
+      "oneOf" : [ {
+        "type" : "object",
+        "description" : "Target the originating channel",
+        "required" : [ "type" ],
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "originating" ]
+          }
+        }
+      }, {
+        "type" : "object",
+        "description" : "Target channels initiated by requests matching a pattern",
+        "required" : [ "type", "requestPattern" ],
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "request-initiated" ]
+          },
+          "channelType" : {
+            "$ref" : "#/definitions/channel-type"
+          },
+          "requestPattern" : {
+            "$ref" : "#/definitions/request-pattern"
+          }
+        }
+      } ]
+    },
+    "channel-type" : {
+      "type" : "string",
+      "description" : "The type of message channel",
+      "enum" : [ "websocket" ],
+      "example" : "websocket"
+    },
     "contains-pattern" : {
       "title" : "String contains",
       "type" : "object",
@@ -486,6 +535,28 @@
       },
       "required" : [ "lessThanNumber" ]
     },
+    "logged-message-channel" : {
+      "type" : "object",
+      "description" : "A logged message channel",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "Unique identifier for this channel"
+        },
+        "type" : {
+          "$ref" : "#/definitions/channel-type"
+        },
+        "initiatingRequest" : {
+          "$ref" : "#/definitions/logged-request",
+          "description" : "The HTTP request that initiated the channel (for request-initiated channels)"
+        },
+        "open" : {
+          "type" : "boolean",
+          "description" : "Whether the channel is currently open"
+        }
+      }
+    },
     "logged-request" : {
       "type" : "object",
       "properties" : {
@@ -733,6 +804,305 @@
         }
       },
       "required" : [ "matchesXPath" ]
+    },
+    "message-action" : {
+      "type" : "object",
+      "description" : "Action to perform when a message stub is triggered",
+      "required" : [ "type", "message" ],
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "enum" : [ "send" ]
+        },
+        "message" : {
+          "$ref" : "#/definitions/message-definition"
+        },
+        "channelTarget" : {
+          "$ref" : "#/definitions/channel-target"
+        },
+        "transformers" : {
+          "type" : "array",
+          "description" : "List of transformer names to apply to the message",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "transformerParameters" : {
+          "type" : "object",
+          "description" : "Parameters to pass to transformers",
+          "additionalProperties" : true
+        }
+      }
+    },
+    "message-channels-result" : {
+      "type" : "object",
+      "description" : "Result containing message channels",
+      "properties" : {
+        "channels" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/logged-message-channel"
+          }
+        },
+        "meta" : {
+          "type" : "object",
+          "description" : "Pagination metadata",
+          "properties" : {
+            "total" : {
+              "type" : "integer",
+              "description" : "Total number of channels"
+            }
+          }
+        }
+      }
+    },
+    "message-definition" : {
+      "type" : "object",
+      "description" : "Definition of a message to be sent",
+      "properties" : {
+        "body" : {
+          "description" : "The message body",
+          "oneOf" : [ {
+            "type" : "object",
+            "properties" : {
+              "data" : {
+                "type" : "string",
+                "description" : "Text message data"
+              }
+            }
+          }, {
+            "type" : "object",
+            "properties" : {
+              "data" : {
+                "type" : "string",
+                "format" : "byte",
+                "description" : "Base64-encoded binary message data"
+              },
+              "isBinary" : {
+                "type" : "boolean",
+                "description" : "Indicates this is binary data"
+              }
+            }
+          } ]
+        }
+      }
+    },
+    "message-pattern" : {
+      "type" : "object",
+      "description" : "Pattern for matching messages",
+      "properties" : {
+        "channelPattern" : {
+          "$ref" : "#/definitions/request-pattern",
+          "description" : "Pattern to match the channel's initiating request"
+        },
+        "body" : {
+          "$ref" : "#/definitions/content-pattern",
+          "description" : "Pattern to match the message body"
+        }
+      }
+    },
+    "message-serve-event" : {
+      "type" : "object",
+      "description" : "A message event logged in the journal",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "Unique identifier for this message event"
+        },
+        "eventType" : {
+          "type" : "string",
+          "enum" : [ "RECEIVED", "SENT" ],
+          "description" : "Whether the message was received or sent"
+        },
+        "channelType" : {
+          "$ref" : "#/definitions/channel-type"
+        },
+        "channelId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "ID of the channel on which the message was sent/received"
+        },
+        "channelRequest" : {
+          "$ref" : "#/definitions/logged-request",
+          "description" : "The HTTP request that initiated the channel (for request-initiated channels)"
+        },
+        "message" : {
+          "type" : "string",
+          "description" : "The message body as a string"
+        },
+        "stubMapping" : {
+          "$ref" : "#/definitions/message-stub-mapping",
+          "description" : "The message stub mapping that was matched (if any)"
+        },
+        "wasMatched" : {
+          "type" : "boolean",
+          "description" : "Whether this message matched a stub mapping"
+        },
+        "timestamp" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "When the message event occurred"
+        },
+        "subEvents" : {
+          "type" : "array",
+          "description" : "Sub-events that occurred during message processing",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "relativeTiming" : {
+                "type" : "integer",
+                "description" : "Timing in nanoseconds relative to the start of the event"
+              },
+              "data" : {
+                "type" : "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "message-serve-events-result" : {
+      "type" : "object",
+      "description" : "Result containing message serve events",
+      "properties" : {
+        "messageServeEvents" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/message-serve-event"
+          }
+        },
+        "messageJournalDisabled" : {
+          "type" : "boolean",
+          "description" : "Whether the message journal is disabled"
+        }
+      }
+    },
+    "message-stub-mapping" : {
+      "type" : "object",
+      "description" : "A message stub mapping defines how WireMock responds to messages on channels",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "This message stub mapping's unique identifier"
+        },
+        "uuid" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "Alias for the id"
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The message stub mapping's name"
+        },
+        "priority" : {
+          "type" : "integer",
+          "description" : "This message stub mapping's priority relative to others. 1 is highest.",
+          "minimum" : 1
+        },
+        "trigger" : {
+          "$ref" : "#/definitions/message-trigger"
+        },
+        "actions" : {
+          "type" : "array",
+          "description" : "Actions to perform when this stub is triggered",
+          "items" : {
+            "$ref" : "#/definitions/message-action"
+          }
+        },
+        "metadata" : {
+          "type" : "object",
+          "description" : "Arbitrary metadata to be attached to the stub mapping",
+          "additionalProperties" : true
+        }
+      }
+    },
+    "message-stub-mappings" : {
+      "type" : "object",
+      "description" : "A collection of message stub mappings",
+      "properties" : {
+        "messageMappings" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/message-stub-mapping"
+          }
+        },
+        "meta" : {
+          "type" : "object",
+          "description" : "Pagination metadata",
+          "properties" : {
+            "total" : {
+              "type" : "integer",
+              "description" : "Total number of message stub mappings"
+            }
+          }
+        }
+      }
+    },
+    "message-trigger" : {
+      "oneOf" : [ {
+        "type" : "object",
+        "description" : "Trigger on incoming message",
+        "required" : [ "type" ],
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "message" ]
+          },
+          "channel" : {
+            "$ref" : "#/definitions/channel-pattern"
+          },
+          "message" : {
+            "$ref" : "#/definitions/message-pattern"
+          }
+        }
+      }, {
+        "type" : "object",
+        "description" : "Trigger when a specific HTTP stub is matched",
+        "required" : [ "type", "stubId" ],
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "http-stub" ]
+          },
+          "stubId" : {
+            "type" : "string",
+            "format" : "uuid",
+            "description" : "The ID of the HTTP stub mapping that triggers this message stub"
+          }
+        }
+      }, {
+        "type" : "object",
+        "description" : "Trigger when an HTTP request matches a pattern",
+        "required" : [ "type", "requestPattern" ],
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "http-request" ]
+          },
+          "requestPattern" : {
+            "$ref" : "#/definitions/request-pattern"
+          }
+        }
+      } ]
+    },
+    "message-verification-result" : {
+      "type" : "object",
+      "description" : "Result of a message verification operation",
+      "properties" : {
+        "count" : {
+          "type" : "integer",
+          "description" : "Number of messages matching the criteria"
+        },
+        "messageJournalDisabled" : {
+          "type" : "boolean",
+          "description" : "Whether the message journal is disabled"
+        }
+      }
     },
     "none-of-request-method-pattern" : {
       "title" : "One of request method pattern",
@@ -1223,6 +1593,50 @@
         }
       }
     },
+    "send-channel-message-request" : {
+      "type" : "object",
+      "description" : "Request to send a message to channels",
+      "required" : [ "type", "message" ],
+      "properties" : {
+        "type" : {
+          "$ref" : "#/definitions/channel-type"
+        },
+        "initiatingRequest" : {
+          "$ref" : "#/definitions/request-pattern",
+          "description" : "Pattern to match the initiating request of target channels"
+        },
+        "message" : {
+          "$ref" : "#/definitions/message-definition"
+        }
+      }
+    },
+    "send-channel-message-result" : {
+      "type" : "object",
+      "description" : "Result of sending a message to channels",
+      "properties" : {
+        "channels" : {
+          "type" : "array",
+          "description" : "Channels that received the message",
+          "items" : {
+            "$ref" : "#/definitions/logged-message-channel"
+          }
+        },
+        "channelsMessaged" : {
+          "type" : "integer",
+          "description" : "Number of channels that received the message"
+        }
+      }
+    },
+    "single-message-serve-event-result" : {
+      "type" : "object",
+      "description" : "Result containing a single message serve event",
+      "properties" : {
+        "item" : {
+          "$ref" : "#/definitions/message-serve-event",
+          "description" : "The message serve event, or null if not found"
+        }
+      }
+    },
     "stub-mapping" : {
       "type" : "object",
       "properties" : {
@@ -1322,6 +1736,25 @@
         }
       },
       "additionalProperties" : false
+    },
+    "wait-for-message-request" : {
+      "type" : "object",
+      "description" : "Request to wait for message events",
+      "required" : [ "timeoutMillis" ],
+      "properties" : {
+        "pattern" : {
+          "$ref" : "#/definitions/message-pattern"
+        },
+        "timeoutMillis" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Maximum time to wait in milliseconds"
+        },
+        "count" : {
+          "type" : "integer",
+          "description" : "Number of messages to wait for (for wait-for-count endpoint)"
+        }
+      }
     }
   },
   "oneOf" : [ {
