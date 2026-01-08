@@ -42,7 +42,7 @@ public class MessagePattern {
 
   @JsonCreator
   public MessagePattern(
-      @JsonProperty("channelPattern") RequestPattern channelPattern,
+      @JsonProperty("channel") RequestPattern channelPattern,
       @JsonProperty("body") ContentPattern<?> bodyPattern) {
     this.channelPattern = channelPattern;
     this.bodyPattern = bodyPattern;
@@ -69,7 +69,7 @@ public class MessagePattern {
   }
 
   @JsonIgnore
-  public RequestPattern getChannelPattern() {
+  public RequestPattern getChannel() {
     return channelPattern;
   }
 

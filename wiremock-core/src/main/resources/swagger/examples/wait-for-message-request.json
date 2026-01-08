@@ -1,6 +1,6 @@
 {
   "pattern": {
-    "channelPattern": {
+    "channel": {
       "urlPath": "/ws/chat"
     },
     "body": {

@@ -1,5 +1,5 @@
 {
-  "channelPattern": {
+  "channel": {
     "urlPath": "/ws/chat",
     "method": "GET"
   },
