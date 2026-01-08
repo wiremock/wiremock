@@ -104,8 +104,7 @@ public class EntityDefinitionSerializationTest {
 
     String json = Json.write(entity);
 
-    String expectedJson =
-        """
+    String expectedJson = """
         {
           "data" : "test data"
         }
@@ -183,4 +182,3 @@ public class EntityDefinitionSerializationTest {
     assertEquals(original, deserialized);
   }
 }
-
