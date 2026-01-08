@@ -1,0 +1,36 @@
+{
+  "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+  "name": "Echo WebSocket messages",
+  "priority": 5,
+  "trigger": {
+    "type": "message",
+    "channel": {
+      "type": "websocket",
+      "initiatingRequestPattern": {
+        "urlPath": "/ws/echo"
+      }
+    },
+    "message": {
+      "body": {
+        "contains": "hello"
+      }
+    }
+  },
+  "actions": [
+    {
+      "type": "send",
+      "message": {
+        "body": {
+          "data": "Echo: hello"
+        }
+      },
+      "channelTarget": {
+        "type": "originating"
+      }
+    }
+  ],
+  "metadata": {
+    "tags": ["websocket", "echo"]
+  }
+}
+

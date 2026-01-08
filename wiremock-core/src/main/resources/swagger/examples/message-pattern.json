@@ -1,0 +1,10 @@
+{
+  "channelPattern": {
+    "urlPath": "/ws/chat",
+    "method": "GET"
+  },
+  "body": {
+    "contains": "hello"
+  }
+}
+

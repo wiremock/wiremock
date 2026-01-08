@@ -1,0 +1,13 @@
+{
+  "pattern": {
+    "channelPattern": {
+      "urlPath": "/ws/chat"
+    },
+    "body": {
+      "contains": "hello"
+    }
+  },
+  "timeoutMillis": 5000,
+  "count": 1
+}
+

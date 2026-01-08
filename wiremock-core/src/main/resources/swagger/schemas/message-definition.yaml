@@ -1,0 +1,21 @@
+type: object
+description: Definition of a message to be sent
+properties:
+  body:
+    description: The message body
+    oneOf:
+      - type: object
+        properties:
+          data:
+            type: string
+            description: Text message data
+      - type: object
+        properties:
+          data:
+            type: string
+            format: byte
+            description: Base64-encoded binary message data
+          isBinary:
+            type: boolean
+            description: Indicates this is binary data
+

@@ -1,0 +1,11 @@
+type: object
+description: Result containing message serve events
+properties:
+  messageServeEvents:
+    type: array
+    items:
+      $ref: 'message-serve-event.yaml'
+  messageJournalDisabled:
+    type: boolean
+    description: Whether the message journal is disabled
+

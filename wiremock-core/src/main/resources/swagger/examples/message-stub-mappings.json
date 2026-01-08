@@ -1,0 +1,63 @@
+{
+  "messageMappings": [
+    {
+      "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+      "name": "Echo WebSocket messages",
+      "priority": 5,
+      "trigger": {
+        "type": "message",
+        "channel": {
+          "type": "websocket",
+          "initiatingRequestPattern": {
+            "urlPath": "/ws/echo"
+          }
+        }
+      },
+      "actions": [
+        {
+          "type": "send",
+          "message": {
+            "body": {
+              "data": "Echo response"
+            }
+          },
+          "channelTarget": {
+            "type": "originating"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Broadcast to all WebSocket clients",
+      "trigger": {
+        "type": "http-request",
+        "requestPattern": {
+          "method": "POST",
+          "urlPath": "/broadcast"
+        }
+      },
+      "actions": [
+        {
+          "type": "send",
+          "message": {
+            "body": {
+              "data": "Broadcast message"
+            }
+          },
+          "channelTarget": {
+            "type": "request-initiated",
+            "channelType": "websocket",
+            "requestPattern": {
+              "urlPathPattern": "/ws/.*"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "total": 2
+  }
+}
+
