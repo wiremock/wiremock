@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ public class ServletContextFileSource extends AbstractFileSource {
   private static File getRootFile(ServletContext servletContext, String rootPath) {
     String containerRootPath = servletContext.getRealPath(rootPath);
     servletContext.log("rootPath: " + rootPath);
+    if (containerRootPath == null) {
+      // Path doesn't exist in the WAR, return a non-existent file
+      return new File(rootPath);
+    }
     return new File(containerRootPath);
   }
 

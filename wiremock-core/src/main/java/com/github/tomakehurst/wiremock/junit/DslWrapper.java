@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,17 @@ package com.github.tomakehurst.wiremock.junit;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -32,7 +37,9 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DslWrapper implements Admin, Stubbing {
@@ -360,5 +367,154 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
     return stubbing.findAllNearMissesFor(requestPatternBuilder);
+  }
+
+  @Override
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+    return admin.sendChannelMessage(type, requestPattern, message);
+  }
+
+  @Override
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return admin.listAllMessageChannels();
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    admin.addMessageStubMapping(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    admin.removeMessageStubMapping(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    admin.resetMessageStubMappings();
+  }
+
+  @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return admin.findAllMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    admin.removeMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return admin.listAllMessageStubMappings();
+  }
+
+  // Stubbing interface methods for message stubs
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
+    return stubbing.messageStubFor(builder);
+  }
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping) {
+    return stubbing.messageStubFor(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStub(UUID id) {
+    stubbing.removeMessageStub(id);
+  }
+
+  @Override
+  public List<MessageStubMapping> getMessageStubMappingsList() {
+    return stubbing.getMessageStubMappingsList();
+  }
+
+  @Override
+  public void resetMessageStubs() {
+    stubbing.resetMessageStubs();
+  }
+
+  // Message journal methods from Admin interface
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    return admin.getMessageServeEvents();
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return admin.getMessageServeEvent(id);
+  }
+
+  @Override
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    return admin.countMessageEventsMatching(pattern);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    return admin.findMessageEventsMatching(pattern);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    admin.removeMessageServeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    return admin.removeMessageServeEventsMatching(pattern);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return admin.removeMessageServeEventsForStubsMatchingMetadata(pattern);
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    admin.resetMessageJournal();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    return admin.waitForMessageEvent(pattern, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      MessagePattern pattern, int count, Duration maxWait) {
+    return admin.waitForMessageEvents(pattern, count, maxWait);
+  }
+
+  // Message journal methods from Stubbing interface
+
+  @Override
+  public List<MessageServeEvent> getAllMessageServeEvents() {
+    return stubbing.getAllMessageServeEvents();
+  }
+
+  @Override
+  public List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
+    return stubbing.findAllMessageEvents(pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(MessagePattern pattern) {
+    stubbing.verifyMessageEvent(pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(int expectedCount, MessagePattern pattern) {
+    stubbing.verifyMessageEvent(expectedCount, pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    stubbing.verifyMessageEvent(expectedCount, pattern);
   }
 }

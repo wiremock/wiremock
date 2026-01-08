@@ -1,0 +1,25 @@
+oneOf:
+  - type: object
+    description: Target the originating channel
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        enum:
+          - originating
+  - type: object
+    description: Target channels initiated by requests matching a pattern
+    required:
+      - type
+      - requestPattern
+    properties:
+      type:
+        type: string
+        enum:
+          - request-initiated
+      channelType:
+        $ref: 'channel-type.yaml'
+      requestPattern:
+        $ref: 'request-pattern.yaml'
+

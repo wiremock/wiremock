@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,14 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
     setupServer(
         new WireMockConfiguration()
             .httpServerFactory(
-                (options, adminRequestHandler, stubRequestHandler) ->
+                (options, adminRequestHandler, stubRequestHandler, messageStubRequestHandler) ->
                     new Jetty12HttpServer(
                         options,
                         adminRequestHandler,
                         stubRequestHandler,
                         JettySettings.Builder.aJettySettings().build(),
-                        new InstrumentedQueuedThreadPool(options.containerThreads()))));
+                        new InstrumentedQueuedThreadPool(options.containerThreads()),
+                        messageStubRequestHandler)));
   }
 
   @Test

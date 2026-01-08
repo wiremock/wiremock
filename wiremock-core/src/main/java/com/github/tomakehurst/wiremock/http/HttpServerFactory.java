@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 
 @FunctionalInterface
 public interface HttpServerFactory extends Extension {
@@ -29,5 +30,6 @@ public interface HttpServerFactory extends Extension {
   HttpServer buildHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler);
+      StubRequestHandler stubRequestHandler,
+      MessageStubRequestHandler messageStubRequestHandler);
 }

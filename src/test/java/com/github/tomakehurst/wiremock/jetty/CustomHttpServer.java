@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,21 @@ package com.github.tomakehurst.wiremock.jetty;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class CustomHttpServer extends Jetty12HttpServer {
   public CustomHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler) {
+      StubRequestHandler stubRequestHandler,
+      MessageStubRequestHandler messageStubRequestHandler) {
     super(
         options,
         adminRequestHandler,
         stubRequestHandler,
         JettySettings.Builder.aJettySettings().build(),
-        new QueuedThreadPool(options.containerThreads()));
+        new QueuedThreadPool(options.containerThreads()),
+        messageStubRequestHandler);
   }
 }

@@ -1,0 +1,49 @@
+type: object
+description: A message event logged in the journal
+properties:
+  id:
+    type: string
+    format: uuid
+    description: Unique identifier for this message event
+  eventType:
+    type: string
+    enum:
+      - RECEIVED
+      - SENT
+    description: Whether the message was received or sent
+  channelType:
+    $ref: 'channel-type.yaml'
+  channelId:
+    type: string
+    format: uuid
+    description: ID of the channel on which the message was sent/received
+  channelRequest:
+    $ref: 'logged-request.yaml'
+    description: The HTTP request that initiated the channel (for request-initiated channels)
+  message:
+    type: string
+    description: The message body as a string
+  stubMapping:
+    $ref: 'message-stub-mapping.yaml'
+    description: The message stub mapping that was matched (if any)
+  wasMatched:
+    type: boolean
+    description: Whether this message matched a stub mapping
+  timestamp:
+    type: string
+    format: date-time
+    description: When the message event occurred
+  subEvents:
+    type: array
+    description: Sub-events that occurred during message processing
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+        relativeTiming:
+          type: integer
+          description: Timing in nanoseconds relative to the start of the event
+        data:
+          type: object
+

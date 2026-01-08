@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,6 +118,31 @@ public class AdminRoutes {
     router.add(GET, "/health", new HealthCheckTask());
 
     router.add(GET, "/version", new GetVersionTask());
+
+    router.add(GET, "/channels", new GetAllMessageChannelsTask());
+    router.add(POST, "/channels/send", new SendChannelMessageTask());
+
+    router.add(GET, "/messages", new GetAllMessageEventsTask());
+    router.add(DELETE, "/messages", new ResetMessageJournalTask());
+    router.add(POST, "/messages/count", new GetMessageEventCountTask());
+    router.add(POST, "/messages/find", new FindMessageEventsTask());
+    router.add(POST, "/messages/remove", new RemoveMessageServeEventsByPatternTask());
+    router.add(POST, "/messages/remove-by-metadata", new RemoveMessageServeEventsByMetadataTask());
+    router.add(POST, "/messages/wait", new WaitForMessageEventTask());
+    router.add(POST, "/messages/wait-for-count", new WaitForMessageEventsTask());
+    router.add(GET, "/messages/{id}", new GetMessageServeEventTask());
+    router.add(DELETE, "/messages/{id}", new RemoveMessageServeEventTask());
+
+    router.add(GET, "/message-mappings", new GetAllMessageStubMappingsTask());
+    router.add(POST, "/message-mappings", new CreateMessageStubMappingTask());
+    router.add(DELETE, "/message-mappings", new ResetMessageStubMappingsTask());
+    router.add(DELETE, "/message-mappings/{id}", new RemoveMessageStubMappingTask());
+    router.add(
+        POST, "/message-mappings/find-by-metadata", new FindMessageStubMappingsByMetadataTask());
+    router.add(
+        POST,
+        "/message-mappings/remove-by-metadata",
+        new RemoveMessageStubMappingsByMetadataTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

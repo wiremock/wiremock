@@ -13,6 +13,7 @@ dependencies {
     api(libs.jetty.io)
     api(libs.jetty.server)
     api(libs.jetty.util)
+    api(libs.jetty.websocket.jetty.api)
 
     implementation(libs.jetty.alpn.server)
     implementation(libs.jetty.ee11.servlets)
@@ -20,6 +21,9 @@ dependencies {
     implementation(libs.jetty.http2.common)
     implementation(libs.jetty.http2.server)
 
+    implementation(libs.jetty.ee11.websocket.jetty.server)
+
+    runtimeOnly(libs.jetty.ee11.websockets)
     runtimeOnly(libs.jetty.alpn.java.client)
     runtimeOnly(libs.jetty.alpn.java.server)
     runtimeOnly(libs.jetty.ee11.webapp)

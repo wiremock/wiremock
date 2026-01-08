@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ public interface Options {
   int DEFAULT_WEBHOOK_THREADPOOL_SIZE = 10;
   boolean DEFAULT_DISABLE_CONNECTION_REUSE = true;
   Long DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES = 1000L;
+  long DEFAULT_WEBSOCKET_IDLE_TIMEOUT = 300_000;
+  long DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE = 10485760;
+  long DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE = 10485760;
 
   int portNumber();
 
@@ -156,4 +159,10 @@ public interface Options {
   boolean getDisableConnectionReuse();
 
   int getWebhookThreadPoolSize();
+
+  long getWebSocketIdleTimeout();
+
+  long getWebSocketMaxTextMessageSize();
+
+  long getWebSocketMaxBinaryMessageSize();
 }

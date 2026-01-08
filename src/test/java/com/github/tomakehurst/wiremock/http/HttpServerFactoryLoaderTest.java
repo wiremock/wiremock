@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StaticExtensionLoader;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,8 @@ public class HttpServerFactoryLoaderTest {
     public HttpServer buildHttpServer(
         Options options,
         AdminRequestHandler adminRequestHandler,
-        StubRequestHandler stubRequestHandler) {
+        StubRequestHandler stubRequestHandler,
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }
@@ -149,7 +151,8 @@ public class HttpServerFactoryLoaderTest {
     public HttpServer buildHttpServer(
         Options options,
         AdminRequestHandler adminRequestHandler,
-        StubRequestHandler stubRequestHandler) {
+        StubRequestHandler stubRequestHandler,
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }
@@ -159,7 +162,8 @@ public class HttpServerFactoryLoaderTest {
     public HttpServer buildHttpServer(
         Options options,
         AdminRequestHandler adminRequestHandler,
-        StubRequestHandler stubRequestHandler) {
+        StubRequestHandler stubRequestHandler,
+        MessageStubRequestHandler messageStubRequestHandler) {
       return null;
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,17 @@ import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.servlet.NotMatchedServlet;
 import com.github.tomakehurst.wiremock.jetty.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.jetty.ssl.SslContexts;
+import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.DispatcherType;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee11.servlet.*;
 import org.eclipse.jetty.ee11.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketServletContainerInitializer;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
@@ -68,8 +73,15 @@ public class Jetty12HttpServer extends JettyHttpServer {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
       JettySettings jettySettings,
-      ThreadPool threadPool) {
-    super(options, adminRequestHandler, stubRequestHandler, jettySettings, threadPool);
+      ThreadPool threadPool,
+      MessageStubRequestHandler messageStubRequestHandler) {
+    super(
+        options,
+        adminRequestHandler,
+        stubRequestHandler,
+        jettySettings,
+        threadPool,
+        messageStubRequestHandler);
   }
 
   @Override
@@ -381,6 +393,34 @@ public class Jetty12HttpServer extends JettyHttpServer {
     if (stubCorsEnabled) {
       addCorsFilter(mockServiceContext);
     }
+
+    // Configure WebSocket support using the filter-based approach
+    // This ensures non-WebSocket requests pass through to the normal servlet chain
+    JettyWebSocketServletContainerInitializer.configure(
+        mockServiceContext,
+        (servletContext, container) -> {
+          // Set WebSocket configuration from options
+          container.setIdleTimeout(Duration.ofMillis(options.getWebSocketIdleTimeout()));
+          container.setMaxTextMessageSize(options.getWebSocketMaxTextMessageSize());
+          container.setMaxBinaryMessageSize(options.getWebSocketMaxBinaryMessageSize());
+
+          // Add WebSocket mapping that accepts all WebSocket upgrade requests
+          container.addMapping(
+              "/*",
+              (upgradeRequest, upgradeResponse) -> {
+                // Convert the upgrade request to a WireMock Request and create a snapshot
+                // We need to create a LoggedRequest snapshot because the servlet request
+                // becomes invalid after the WebSocket upgrade completes
+                com.github.tomakehurst.wiremock.http.Request servletRequest =
+                    new WireMockHttpServletRequestAdapter(
+                        upgradeRequest.getHttpServletRequest(), null, false);
+                com.github.tomakehurst.wiremock.http.Request wireMockRequest =
+                    LoggedRequest.createFrom(servletRequest);
+
+                // Create and return the WebSocket endpoint
+                return new WireMockWebSocketEndpoint(messageStubRequestHandler, wireMockRequest);
+              });
+        });
 
     decorateMockServiceContextAfterConfig(mockServiceContext);
 

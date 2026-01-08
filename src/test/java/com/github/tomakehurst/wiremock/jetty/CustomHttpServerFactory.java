@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 
 public class CustomHttpServerFactory implements HttpServerFactory {
 
@@ -32,7 +33,9 @@ public class CustomHttpServerFactory implements HttpServerFactory {
   public HttpServer buildHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler) {
-    return new CustomHttpServer(options, adminRequestHandler, stubRequestHandler);
+      StubRequestHandler stubRequestHandler,
+      MessageStubRequestHandler messageStubRequestHandler) {
+    return new CustomHttpServer(
+        options, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
   }
 }

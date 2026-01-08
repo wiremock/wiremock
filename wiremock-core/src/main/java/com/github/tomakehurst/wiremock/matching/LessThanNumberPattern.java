@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LessThanNumberPattern extends AbstractNumberPattern {
 
-    public LessThanNumberPattern(@JsonProperty("lessThanNumber") Number testValue) {
-        super(testValue);
-    }
+  public LessThanNumberPattern(@JsonProperty("lessThanNumber") Number testValue) {
+    super(testValue);
+  }
 
-    public Number getLessThanNumber() {
-        return expectedNumber;
-    }
+  public Number getLessThanNumber() {
+    return expectedNumber;
+  }
 
-    @Override
-    public MatchResult match(final String value) {
-        return new AbstractNumberMatchResult(expectedNumber, value) {
-            @Override
-            protected boolean isExactMatch(double expected, double actual) {
-                return actual < expected;
-            }
-        };
-    }
+  @Override
+  public MatchResult match(final String value) {
+    return new AbstractNumberMatchResult(expectedNumber, value) {
+      @Override
+      protected boolean isExactMatch(double expected, double actual) {
+        return actual < expected;
+      }
+    };
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -142,10 +143,17 @@ public class WireMockConfiguration implements Options {
 
   private int webhookThreadPoolSize = DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 
+  private long webSocketIdleTimeout = DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  private long webSocketMaxTextMessageSize = DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  private long webSocketMaxBinaryMessageSize = DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource =
-          new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), getFilenameMaker());
+          new JsonFileMappingsSource(
+              filesRoot.child(MAPPINGS_ROOT),
+              filesRoot.child(MESSAGE_MAPPINGS_ROOT),
+              getFilenameMaker());
     }
 
     return mappingsSource;
@@ -169,6 +177,21 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration timeout(int timeout) {
     this.asyncResponseTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketIdleTimeout(long timeout) {
+    this.webSocketIdleTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketMaxTextMessageSize(long size) {
+    this.webSocketMaxTextMessageSize = size;
+    return this;
+  }
+
+  public WireMockConfiguration webSocketMaxBinaryMessageSize(long size) {
+    this.webSocketMaxBinaryMessageSize = size;
     return this;
   }
 
@@ -837,5 +860,20 @@ public class WireMockConfiguration implements Options {
   @Override
   public int getWebhookThreadPoolSize() {
     return webhookThreadPoolSize;
+  }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return webSocketIdleTimeout;
+  }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return webSocketMaxTextMessageSize;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return webSocketMaxBinaryMessageSize;
   }
 }

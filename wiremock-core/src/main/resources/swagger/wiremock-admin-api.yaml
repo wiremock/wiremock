@@ -40,6 +40,21 @@ tags:
       url: https://wiremock.org/docs/stateful-behaviour/
   - name: Files
     description: Manage the files used to support WireMock stubs
+  - name: Message Mappings
+    description: Operations on message stub mappings for WebSocket and other messaging protocols
+    externalDocs:
+      description: User documentation
+      url: https://wiremock.org/docs/websockets-and-other-messaging/
+  - name: Messages
+    description: Message events logged in the journal
+    externalDocs:
+      description: User documentation
+      url: https://wiremock.org/docs/websockets-and-other-messaging/
+  - name: Channels
+    description: Active message channels
+    externalDocs:
+      description: User documentation
+      url: https://wiremock.org/docs/websockets-and-other-messaging/
   - name: System
     description: Global operations
 
@@ -678,6 +693,394 @@ paths:
                   version:
                     type: string
                     example: "3.8.0"
+
+  /__admin/message-mappings:
+    get:
+      operationId: getAllMessageStubMappings
+      summary: Get all message stub mappings
+      tags:
+        - Message Mappings
+      parameters:
+        - description: The maximum number of results to return
+          in: query
+          name: limit
+          required: false
+          example: 10
+          schema:
+            type: integer
+        - description: The start index of the results to return
+          in: query
+          name: offset
+          required: false
+          example: 0
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-stub-mappings.yaml'
+              example:
+                $ref: 'examples/message-stub-mappings.json'
+          description: All message stub mappings
+    post:
+      operationId: createMessageStubMapping
+      summary: Create a new message stub mapping
+      tags:
+        - Message Mappings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/message-stub-mapping.yaml'
+            example:
+              $ref: 'examples/message-stub-mapping.json'
+      responses:
+        '201':
+          description: Message stub mapping created
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-stub-mapping.yaml'
+              example:
+                $ref: 'examples/message-stub-mapping.json'
+        '422':
+          $ref: "#/components/responses/badRequestEntity"
+    delete:
+      operationId: deleteAllMessageStubMappings
+      summary: Delete all message stub mappings
+      tags:
+        - Message Mappings
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/message-mappings/{id}:
+    parameters:
+      - description: The UUID of the message stub mapping
+        in: path
+        name: id
+        required: true
+        example: 730d3e32-d098-4169-a20c-554c3bedce58
+        schema:
+          type: string
+    delete:
+      operationId: deleteMessageStubMapping
+      summary: Delete a message stub mapping
+      tags:
+        - Message Mappings
+      responses:
+        '404':
+          description: Message stub mapping not found
+        '200':
+          description: Successfully deleted
+
+  /__admin/message-mappings/find-by-metadata:
+    post:
+      operationId: findMessageStubMappingsByMetadata
+      summary: Find message stub mappings by metadata
+      description: Find message stub mappings by matching on their metadata
+      tags:
+        - Message Mappings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-stub-mappings.yaml'
+              example:
+                $ref: 'examples/message-stub-mappings.json'
+          description: Matched message stub mappings
+
+  /__admin/message-mappings/remove-by-metadata:
+    post:
+      operationId: removeMessageStubMappingsByMetadata
+      summary: Delete message stub mappings matching metadata
+      tags:
+        - Message Mappings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: 'The message stub mappings were successfully removed'
+
+  /__admin/messages:
+    get:
+      operationId: getAllMessageEvents
+      summary: Get all message events in journal
+      tags:
+        - Messages
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-serve-events-result.yaml'
+              example:
+                $ref: 'examples/message-serve-events.json'
+          description: List of message events
+    delete:
+      operationId: deleteAllMessageEvents
+      summary: Delete all message events in journal
+      tags:
+        - Messages
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/messages/{id}:
+    parameters:
+      - description: The UUID of the message event
+        in: path
+        name: id
+        required: true
+        example: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+        schema:
+          type: string
+    get:
+      operationId: getMessageEventById
+      summary: Get message event by ID
+      tags:
+        - Messages
+      responses:
+        '404':
+          description: Message event not found
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/single-message-serve-event-result.yaml'
+              example:
+                $ref: 'examples/message-serve-event.json'
+    delete:
+      operationId: deleteMessageEventById
+      summary: Delete message event by ID
+      tags:
+        - Messages
+      parameters:
+        - description: The UUID of the message event
+          in: path
+          name: id
+          required: true
+          example: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/messages/count:
+    post:
+      operationId: countMessageEventsByCriteria
+      summary: Count message events by criteria
+      description: Count message events logged in the journal matching the specified criteria
+      tags:
+        - Messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/message-pattern.yaml'
+            example:
+              $ref: 'examples/message-pattern.json'
+      responses:
+        '200':
+          description: Number of matching message events
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-verification-result.yaml'
+              example:
+                count: 4
+                messageJournalDisabled: false
+
+  /__admin/messages/find:
+    post:
+      operationId: findMessageEventsByCriteria
+      summary: Find message events by criteria
+      description: Retrieve details of message events logged in the journal matching the specified criteria
+      tags:
+        - Messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/message-pattern.yaml'
+            example:
+              $ref: 'examples/message-pattern.json'
+      responses:
+        '200':
+          description: Matching message event details
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-serve-events-result.yaml'
+              example:
+                $ref: 'examples/message-serve-events.json'
+
+  /__admin/messages/remove:
+    post:
+      operationId: removeMessageEventsByCriteria
+      summary: Remove message events by criteria
+      description: Remove message events logged in the journal matching the specified criteria
+      tags:
+        - Messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/message-pattern.yaml'
+            example:
+              $ref: 'examples/message-pattern.json'
+      responses:
+        '200':
+          description: Removed message event details
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-serve-events-result.yaml'
+              example:
+                $ref: 'examples/message-serve-events.json'
+
+  /__admin/messages/remove-by-metadata:
+    post:
+      operationId: removeMessageEventsByMetadata
+      summary: Delete message events matching metadata
+      tags:
+        - Messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: Removed message event details
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-serve-events-result.yaml'
+              example:
+                $ref: 'examples/message-serve-events.json'
+
+  /__admin/messages/wait:
+    post:
+      operationId: waitForMessageEvent
+      summary: Wait for a message event
+      description: Wait for a message event matching the specified pattern
+      tags:
+        - Messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/wait-for-message-request.yaml'
+            example:
+              $ref: 'examples/wait-for-message-request.json'
+      responses:
+        '200':
+          description: Message event result (may be null if timeout)
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/single-message-serve-event-result.yaml'
+
+  /__admin/messages/wait-for-count:
+    post:
+      operationId: waitForMessageEvents
+      summary: Wait for multiple message events
+      description: Wait for a specified number of message events matching the specified pattern
+      tags:
+        - Messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/wait-for-message-request.yaml'
+            example:
+              pattern:
+                body:
+                  contains: "hello"
+              timeoutMillis: 5000
+              count: 3
+      responses:
+        '200':
+          description: Message events result
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-serve-events-result.yaml'
+              example:
+                $ref: 'examples/message-serve-events.json'
+
+  /__admin/channels:
+    get:
+      operationId: getAllMessageChannels
+      summary: Get all message channels
+      description: Get all active message channels
+      tags:
+        - Channels
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/message-channels-result.yaml'
+              example:
+                $ref: 'examples/message-channels.json'
+          description: All message channels
+
+  /__admin/channels/send:
+    post:
+      operationId: sendChannelMessage
+      summary: Send a message to channels
+      description: Send a message to all channels matching the specified criteria
+      tags:
+        - Channels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/send-channel-message-request.yaml'
+            example:
+              $ref: 'examples/send-channel-message-request.json'
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/send-channel-message-result.yaml'
+              example:
+                channels:
+                  - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    type: "websocket"
+                    open: true
+                channelsMessaged: 1
 
   /__admin/health:
     get:

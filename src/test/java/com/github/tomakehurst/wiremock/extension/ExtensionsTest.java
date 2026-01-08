@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -72,6 +76,7 @@ class ExtensionsTest {
             "e7",
             "e8",
             "response-template",
+            "message-template",
             "webhook",
             "proxied-hostname-rewrite"),
         allExtensions);
@@ -296,6 +301,100 @@ class ExtensionsTest {
 
     @Override
     public GetGlobalSettingsResult getGlobalSettings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SendChannelMessageResult sendChannelMessage(
+        ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageStubMapping(UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resetMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListMessageStubMappingsResult listAllMessageStubMappings() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListMessageChannelsResult listAllMessageChannels() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GetMessageServeEventsResult getMessageServeEvents() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int countMessageEventsMatching(MessagePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageServeEvent(UUID eventId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+        StringValuePattern pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resetMessageJournal() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public java.util.Optional<MessageServeEvent> waitForMessageEvent(
+        MessagePattern pattern, java.time.Duration maxWait) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<MessageServeEvent> waitForMessageEvents(
+        MessagePattern pattern, int count, java.time.Duration maxWait) {
       throw new UnsupportedOperationException();
     }
   }

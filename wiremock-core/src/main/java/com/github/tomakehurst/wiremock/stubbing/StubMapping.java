@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.common.Prioritisable;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDeserializer;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
@@ -40,9 +41,7 @@ import org.jspecify.annotations.NonNull;
 }) // $schema allows this to be added as a hint to IDEs like VS Code
 @JsonInclude(Include.NON_NULL)
 @JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
-public final class StubMapping implements StubMappingOrMappings {
-
-  public static final int DEFAULT_PRIORITY = 5;
+public final class StubMapping implements StubMappingOrMappings, Prioritisable {
 
   public static final StubMapping NOT_CONFIGURED =
       StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
@@ -169,6 +168,12 @@ public final class StubMapping implements StubMappingOrMappings {
 
   public long getInsertionIndex() {
     return insertionIndex;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
+    return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));
   }
 
   @JsonIgnore

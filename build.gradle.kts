@@ -37,6 +37,7 @@ dependencies {
   testFixturesApi(libs.hamcrest)
   testFixturesApi(libs.handlebars)
   testFixturesApi(libs.jakarta.servlet.api)
+  testFixturesApi(libs.jakarta.websockets)
   testFixturesApi(libs.jsonassert)
   testFixturesApi(libs.junit.jupiter.api)
 
@@ -45,6 +46,7 @@ dependencies {
   testFixturesImplementation(platform(libs.junit.bom))
   testFixturesImplementation(libs.mockito.core)
   testFixturesImplementation(libs.xmlunit.core)
+  testFixturesImplementation(libs.awaitility)
 
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
@@ -81,7 +83,6 @@ dependencies {
   testImplementation(libs.archunit)
   testImplementation(libs.archunit.junit5.api)
   testImplementation(libs.assertj.core)
-  testImplementation(libs.awaitility)
   testImplementation(libs.jackson.databind)
   testImplementation(libs.jetty.client)
   testImplementation(libs.jetty.ee11.webapp)
@@ -97,6 +98,7 @@ dependencies {
   testImplementation(libs.junit.pioneer)
   testImplementation(libs.junit.platform.engine)
   testImplementation(libs.junit.platform.launcher)
+  testImplementation(libs.awaitility)
   testImplementation(libs.mockito.core)
   testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)

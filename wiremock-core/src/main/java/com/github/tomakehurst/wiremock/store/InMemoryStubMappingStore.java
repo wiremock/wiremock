@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.stubbing.SortedConcurrentMappingSet;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public class InMemoryStubMappingStore implements StubMappingStore {
-
-  private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-
-  @Override
-  public Optional<StubMapping> get(UUID id) {
-    return mappings.stream().filter(stubMapping -> stubMapping.getId().equals(id)).findFirst();
-  }
-
-  @Override
-  public void remove(UUID stubMappingId) {
-    mappings.remove(stubMappingId);
-  }
-
-  @Override
-  public void clear() {
-    mappings.clear();
-  }
-
-  @Override
-  public Stream<StubMapping> getAll() {
-    return mappings.stream();
-  }
-
-  @Override
-  public StubMapping add(StubMapping stubMapping) {
-    return mappings.add(stubMapping);
-  }
-
-  @Override
-  public StubMapping replace(StubMapping existing, StubMapping updated) {
-    return mappings.replace(existing, updated);
-  }
-}
+public class InMemoryStubMappingStore extends InMemoryMappingStore<StubMapping>
+    implements StubMappingStore {}

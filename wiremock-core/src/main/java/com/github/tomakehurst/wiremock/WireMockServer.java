@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
@@ -35,6 +36,10 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -44,7 +49,10 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -72,7 +80,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
     httpServer =
         httpServerFactory.buildHttpServer(
-            options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
+            options,
+            wireMockApp.buildAdminRequestHandler(),
+            stubRequestHandler,
+            wireMockApp.buildMessageStubRequestHandler());
 
     notifier.info("Using HTTP server impl: " + httpServer.getClass().getSimpleName());
 
@@ -139,6 +150,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     wireMockApp.loadMappingsUsing(mappingsLoader);
+  }
+
+  public void loadMessageMappingsUsing(final MappingsLoader mappingsLoader) {
+    wireMockApp.loadMessageMappingsUsing(mappingsLoader);
   }
 
   public void addMockServiceRequestListener(RequestListener listener) {
@@ -567,5 +582,155 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return wireMockApp.getLoadedExtensionNames();
+  }
+
+  @Override
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+    return wireMockApp.sendChannelMessage(type, requestPattern, message);
+  }
+
+  @Override
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return wireMockApp.listAllMessageChannels();
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    wireMockApp.addMessageStubMapping(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    wireMockApp.removeMessageStubMapping(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    wireMockApp.resetMessageStubMappings();
+  }
+
+  @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return wireMockApp.findAllMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    wireMockApp.removeMessageStubsByMetadata(pattern);
+  }
+
+  @Override
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return wireMockApp.listAllMessageStubMappings();
+  }
+
+  // Stubbing interface methods for message stubs
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
+    return messageStubFor(builder.build());
+  }
+
+  @Override
+  public MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping) {
+    addMessageStubMapping(messageStubMapping);
+    return messageStubMapping;
+  }
+
+  @Override
+  public void removeMessageStub(UUID id) {
+    removeMessageStubMapping(id);
+  }
+
+  @Override
+  public List<MessageStubMapping> getMessageStubMappingsList() {
+    return new ArrayList<>(listAllMessageStubMappings().getMessageMappings());
+  }
+
+  @Override
+  public void resetMessageStubs() {
+    resetMessageStubMappings();
+  }
+
+  // Message journal methods from Admin interface
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    return wireMockApp.getMessageServeEvents();
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return wireMockApp.getMessageServeEvent(id);
+  }
+
+  @Override
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    return wireMockApp.countMessageEventsMatching(pattern);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    return wireMockApp.findMessageEventsMatching(pattern);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    wireMockApp.removeMessageServeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    return wireMockApp.removeMessageServeEventsMatching(pattern);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return wireMockApp.removeMessageServeEventsForStubsMatchingMetadata(pattern);
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    wireMockApp.resetMessageJournal();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    return wireMockApp.waitForMessageEvent(pattern, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      MessagePattern pattern, int count, Duration maxWait) {
+    return wireMockApp.waitForMessageEvents(pattern, count, maxWait);
+  }
+
+  // Message journal methods from Stubbing interface
+
+  @Override
+  public List<MessageServeEvent> getAllMessageServeEvents() {
+    return client.getMessageServeEvents();
+  }
+
+  @Override
+  public List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
+    return client.findMessageEvents(pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(MessagePattern pattern) {
+    client.verifyThatMessageEvent(pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(int expectedCount, MessagePattern pattern) {
+    client.verifyThatMessageEvent(expectedCount, pattern);
+  }
+
+  @Override
+  public void verifyMessageEvent(CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    client.verifyThatMessageEvent(expectedCount, pattern);
   }
 }

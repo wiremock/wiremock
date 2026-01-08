@@ -142,9 +142,10 @@ if (spotlessEnabled) {
         "src/test/resources/filesource/subdir/deepfile.json",
         "src/test/resources/schema-validation/*.json",
         "src/test/resources/test-file-root/mappings/testjsonmapping.json",
+        "src/test/resources/message-stub-test/*.json",
         "src/main/resources/assets/swagger-ui/swagger-ui-dist/package.json"
       )
-      simple().indentWithSpaces(2)
+      gson().indentWithSpaces(2)
     }
   }
 } else {

@@ -1,0 +1,89 @@
+{
+  "messageMappings": [
+    {
+      "name": "Multi message stub 1",
+      "id": "22222222-2222-2222-2222-222222222222",
+      "trigger": {
+        "channel": {
+          "initiatingRequestPattern": {
+            "urlPath": "/ws/multi/1"
+          },
+          "type": "websocket"
+        },
+        "type": "message",
+        "message": {
+          "body": {
+            "equalTo": "Hello multi stub 1"
+          }
+        }
+      },
+      "actions": [
+        {
+          "channelTarget": {
+            "type": "originating"
+          },
+          "type": "send",
+          "message": {
+            "body": {
+              "data": "Hello from multi stub 1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Multi message stub 2",
+      "trigger": {
+        "channel": {
+          "initiatingRequestPattern": {
+            "urlPath": "/ws/multi/2"
+          },
+          "type": "websocket"
+        },
+        "type": "message"
+      },
+      "actions": [
+        {
+          "channelTarget": {
+            "requestPattern": {
+              "urlPath": "/ws/multi/2"
+            },
+            "channelType": "websocket",
+            "type": "request-initiated"
+          },
+          "type": "send",
+          "message": {
+            "body": {
+              "data": "Hello from multi stub 2"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Multi message stub 3",
+      "trigger": {
+        "channel": {
+          "initiatingRequestPattern": {
+            "urlPath": "/ws/multi/3"
+          },
+          "type": "websocket"
+        },
+        "type": "message"
+      },
+      "actions": [
+        {
+          "channelTarget": {
+            "type": "originating"
+          },
+          "type": "send",
+          "message": {
+            "body": {
+              "data": "Hello from multi stub 3"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

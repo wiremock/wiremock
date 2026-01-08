@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty.servlet;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -103,7 +104,10 @@ public class WarConfiguration implements Options {
 
   @Override
   public MappingsLoader mappingsLoader() {
-    return new JsonFileMappingsSource(filesRoot().child("mappings"), new FilenameMaker());
+    return new JsonFileMappingsSource(
+        filesRoot().child("mappings"),
+        filesRoot().child(MESSAGE_MAPPINGS_ROOT),
+        new FilenameMaker());
   }
 
   @Override
@@ -298,5 +302,20 @@ public class WarConfiguration implements Options {
   @Override
   public int getWebhookThreadPoolSize() {
     return DEFAULT_WEBHOOK_THREADPOOL_SIZE;
+  }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
   }
 }

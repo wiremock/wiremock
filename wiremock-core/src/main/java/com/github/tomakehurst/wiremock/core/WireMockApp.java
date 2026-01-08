@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,15 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
@@ -43,6 +52,7 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -52,12 +62,14 @@ public class WireMockApp implements StubServer, Admin {
   public static final String FILES_ROOT = "__files";
   public static final String ADMIN_CONTEXT_ROOT = "/__admin";
   public static final String MAPPINGS_ROOT = "mappings";
+  public static final String MESSAGE_MAPPINGS_ROOT = "message-mappings";
   private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;
   private final Scenarios scenarios;
   private final StubMappings stubMappings;
   private final RequestJournal requestJournal;
+  private final MessageJournal messageJournal;
   private final SettingsStore settingsStore;
   private final boolean browserProxyingEnabled;
   private final MappingsLoader defaultMappingsLoader;
@@ -68,6 +80,8 @@ public class WireMockApp implements StubServer, Admin {
   private final List<GlobalSettingsListener> globalSettingsListeners;
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
   private final Map<String, ServeEventListener> serveEventListeners;
+  private final MessageChannels messageChannels;
+  private final MessageStubMappings messageStubMappings;
 
   private Options options;
 
@@ -111,8 +125,6 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
 
-    serveEventListeners = extensions.ofType(ServeEventListener.class);
-
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
@@ -120,6 +132,28 @@ public class WireMockApp implements StubServer, Admin {
                 options.maxRequestJournalEntries().orElse(null),
                 customMatchers,
                 stores.getRequestJournalStore());
+
+    messageJournal =
+        options.requestJournalDisabled()
+            ? new DisabledMessageJournal()
+            : new StoreBackedMessageJournal(
+                options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
+
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+
+    HttpStubServeEventListener httpStubListener =
+        new HttpStubServeEventListener(
+            messageStubMappings,
+            messageChannels,
+            stores,
+            customMatchers,
+            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+    Map<String, ServeEventListener> extensionListeners =
+        extensions.ofType(ServeEventListener.class);
+    Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
+    combinedListeners.put(httpStubListener.getName(), httpStubListener);
+    serveEventListeners = Collections.unmodifiableMap(combinedListeners);
 
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =
@@ -169,9 +203,24 @@ public class WireMockApp implements StubServer, Admin {
             ? new DisabledRequestJournal()
             : new StoreBackedRequestJournal(
                 maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
+    messageJournal =
+        requestJournalDisabled
+            ? new DisabledMessageJournal()
+            : new StoreBackedMessageJournal(
+                maxRequestJournalEntries, stores.getMessageJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
 
-    serveEventListeners = Collections.emptyMap();
+    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+
+    HttpStubServeEventListener httpStubListener =
+        new HttpStubServeEventListener(
+            messageStubMappings,
+            messageChannels,
+            stores,
+            requestMatchers,
+            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+    serveEventListeners = Map.of(httpStubListener.getName(), httpStubListener);
 
     stubMappings =
         new StoreBackedStubMappings(
@@ -253,6 +302,15 @@ public class WireMockApp implements StubServer, Admin {
         options.getNotMatchedRendererFactory().apply(extensions));
   }
 
+  public MessageStubRequestHandler buildMessageStubRequestHandler() {
+    return new MessageStubRequestHandler(
+        messageStubMappings,
+        messageChannels,
+        messageJournal,
+        stores,
+        List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+  }
+
   private List<RequestFilter> getAdminRequestFilters() {
     return extensions.ofType(RequestFilter.class).values().stream()
         .filter(RequestFilter::applyToAdmin)
@@ -279,12 +337,19 @@ public class WireMockApp implements StubServer, Admin {
 
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
-    if (mappingsLoaderExtensions != null)
+    loadMessageMappingsUsing(defaultMappingsLoader);
+    if (mappingsLoaderExtensions != null) {
       mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
+      mappingsLoaderExtensions.values().forEach(e -> loadMessageMappingsUsing(e));
+    }
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     mappingsLoader.loadMappingsInto(stubMappings);
+  }
+
+  public void loadMessageMappingsUsing(final MappingsLoader mappingsLoader) {
+    mappingsLoader.loadMessageMappingsInto(messageStubMappings);
   }
 
   @Override
@@ -698,5 +763,119 @@ public class WireMockApp implements StubServer, Admin {
 
   public Set<String> getLoadedExtensionNames() {
     return extensions.getAllExtensionNames();
+  }
+
+  @Override
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+    Map<String, RequestMatcherExtension> customMatchers =
+        extensions.ofType(RequestMatcherExtension.class);
+    List<RequestInitiatedMessageChannel> matchedChannels =
+        messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
+    List<LoggedMessageChannel> loggedChannels =
+        matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());
+    return new SendChannelMessageResult(loggedChannels);
+  }
+
+  @Override
+  public ListMessageChannelsResult listAllMessageChannels() {
+    List<LoggedMessageChannel> channels =
+        messageChannels.getAll().stream()
+            .map(LoggedMessageChannel::createFrom)
+            .collect(Collectors.toList());
+    return new ListMessageChannelsResult(channels);
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    messageStubMappings.add(messageStubMapping);
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    messageStubMappings.remove(id);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    messageStubMappings.clear();
+  }
+
+  @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return new ListMessageStubMappingsResult(
+        LimitAndOffsetPaginator.none(messageStubMappings.findByMetadata(pattern)));
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    List<MessageStubMapping> toRemove = messageStubMappings.findByMetadata(pattern);
+    for (MessageStubMapping stub : toRemove) {
+      messageStubMappings.remove(stub.getId());
+    }
+  }
+
+  @Override
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return new ListMessageStubMappingsResult(
+        LimitAndOffsetPaginator.none(messageStubMappings.getAll()));
+  }
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    try {
+      return GetMessageServeEventsResult.messageJournalEnabled(
+          messageJournal.getAllMessageServeEvents());
+    } catch (MessageJournalDisabledException e) {
+      return GetMessageServeEventsResult.messageJournalDisabled();
+    }
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return SingleMessageServeEventResult.fromOptional(messageJournal.getMessageServeEvent(id));
+  }
+
+  @Override
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    return messageJournal.countEventsMatching(pattern);
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    return messageJournal.getEventsMatching(pattern);
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    messageJournal.removeEvent(eventId);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    return new FindMessageServeEventsResult(messageJournal.removeEventsMatching(pattern));
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return new FindMessageServeEventsResult(
+        messageJournal.removeEventsForStubsMatchingMetadata(pattern));
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    messageJournal.reset();
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    return messageJournal.waitForEvent(pattern, maxWait);
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      MessagePattern pattern, int count, Duration maxWait) {
+    return messageJournal.waitForEvents(pattern, count, maxWait);
   }
 }

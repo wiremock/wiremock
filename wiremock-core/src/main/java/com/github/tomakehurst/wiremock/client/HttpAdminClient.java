@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,10 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -45,6 +49,7 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -544,5 +549,142 @@ public class HttpAdminClient implements Admin {
   private String getAdminUrl(String pathSuffix) {
     String portPart = port == NO_PORT_DEFINED ? "" : ":" + port;
     return String.format(ADMIN_URL_PREFIX + pathSuffix, scheme, host, portPart, urlPathPrefix);
+  }
+
+  @Override
+  public SendChannelMessageResult sendChannelMessage(
+      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+    String url = urlFor(SendChannelMessageTask.class);
+    String body = Json.write(new SendChannelMessageRequest(type, requestPattern, message));
+    String response = postJsonAssertOkAndReturnBody(url, body);
+    return Json.read(response, SendChannelMessageResult.class);
+  }
+
+  @Override
+  public ListMessageChannelsResult listAllMessageChannels() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageChannelsTask.class),
+        ListMessageChannelsResult.class);
+  }
+
+  @Override
+  public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
+    postJsonAssertOkAndReturnBody(
+        urlFor(CreateMessageStubMappingTask.class), Json.write(messageStubMapping));
+  }
+
+  @Override
+  public void removeMessageStubMapping(UUID id) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageStubMappingTask.class),
+        PathParams.single("id", id),
+        Void.class);
+  }
+
+  @Override
+  public void resetMessageStubMappings() {
+    executeRequest(adminRoutes.requestSpecForTask(ResetMessageStubMappingsTask.class));
+  }
+
+  @Override
+  public ListMessageStubMappingsResult findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(FindMessageStubMappingsByMetadataTask.class),
+        pattern,
+        ListMessageStubMappingsResult.class);
+  }
+
+  @Override
+  public void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageStubMappingsByMetadataTask.class),
+        pattern,
+        Void.class);
+  }
+
+  @Override
+  public ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageStubMappingsTask.class),
+        ListMessageStubMappingsResult.class);
+  }
+
+  @Override
+  public GetMessageServeEventsResult getMessageServeEvents() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllMessageEventsTask.class),
+        GetMessageServeEventsResult.class);
+  }
+
+  @Override
+  public SingleMessageServeEventResult getMessageServeEvent(UUID id) {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetMessageServeEventTask.class),
+        PathParams.single("id", id),
+        SingleMessageServeEventResult.class);
+  }
+
+  @Override
+  public int countMessageEventsMatching(MessagePattern pattern) {
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(GetMessageEventCountTask.class), Json.write(pattern));
+    return MessageVerificationResult.from(body).getCount();
+  }
+
+  @Override
+  public List<MessageServeEvent> findMessageEventsMatching(MessagePattern pattern) {
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(FindMessageEventsTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class).getMessageServeEvents();
+  }
+
+  @Override
+  public void removeMessageServeEvent(UUID eventId) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageServeEventTask.class),
+        PathParams.single("id", eventId),
+        Void.class);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsMatching(MessagePattern pattern) {
+    String body =
+        postJsonAssertOkAndReturnBody(
+            urlFor(RemoveMessageServeEventsByPatternTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class);
+  }
+
+  @Override
+  public FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    String body =
+        postJsonAssertOkAndReturnBody(
+            urlFor(RemoveMessageServeEventsByMetadataTask.class), Json.write(pattern));
+    return Json.read(body, FindMessageServeEventsResult.class);
+  }
+
+  @Override
+  public void resetMessageJournal() {
+    executeRequest(adminRoutes.requestSpecForTask(ResetMessageJournalTask.class));
+  }
+
+  @Override
+  public Optional<MessageServeEvent> waitForMessageEvent(MessagePattern pattern, Duration maxWait) {
+    WaitForMessageEventRequest request =
+        WaitForMessageEventRequest.forSingleEvent(pattern, maxWait.toMillis());
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(WaitForMessageEventTask.class), Json.write(request));
+    SingleMessageServeEventResult result = Json.read(body, SingleMessageServeEventResult.class);
+    return result != null ? Optional.ofNullable(result.getItem()) : Optional.empty();
+  }
+
+  @Override
+  public List<MessageServeEvent> waitForMessageEvents(
+      MessagePattern pattern, int count, Duration maxWait) {
+    WaitForMessageEventRequest request =
+        WaitForMessageEventRequest.forMultipleEvents(pattern, maxWait.toMillis(), count);
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(WaitForMessageEventsTask.class), Json.write(request));
+    return Json.read(body, GetMessageServeEventsResult.class).getMessageServeEvents();
   }
 }

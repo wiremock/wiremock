@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
+import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
@@ -34,6 +36,9 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.message.MessagePattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -46,14 +51,17 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubImportBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindMessageServeEventsResult;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.networknt.schema.SpecVersion;
 import java.io.File;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -1115,6 +1123,199 @@ public class WireMock {
 
   public static GlobalSettings getSettings() {
     return defaultInstance.get().getGlobalSettings();
+  }
+
+  // Message stub mapping DSL methods
+
+  public static MessageStubMapping.Builder message() {
+    return MessageStubMapping.builder();
+  }
+
+  public static SendMessageActionBuilder sendMessage() {
+    return new SendMessageActionBuilder();
+  }
+
+  public static SendMessageActionBuilder sendMessage(String message) {
+    return new SendMessageActionBuilder().withBody(message);
+  }
+
+  public static MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
+    return defaultInstance.get().registerMessageStub(builder);
+  }
+
+  public MessageStubMapping registerMessageStub(MessageStubMappingBuilder builder) {
+    MessageStubMapping mapping = builder.build();
+    admin.addMessageStubMapping(mapping);
+    return mapping;
+  }
+
+  public static MessageStubMapping messageStubFor(MessageStubMapping messageStubMapping) {
+    return defaultInstance.get().registerMessageStub(messageStubMapping);
+  }
+
+  public MessageStubMapping registerMessageStub(MessageStubMapping messageStubMapping) {
+    admin.addMessageStubMapping(messageStubMapping);
+    return messageStubMapping;
+  }
+
+  public static void removeMessageStub(UUID id) {
+    defaultInstance.get().deleteMessageStub(id);
+  }
+
+  public void deleteMessageStub(UUID id) {
+    admin.removeMessageStubMapping(id);
+  }
+
+  public static void resetMessageStubs() {
+    defaultInstance.get().resetAllMessageStubs();
+  }
+
+  public void resetAllMessageStubs() {
+    admin.resetMessageStubMappings();
+  }
+
+  public static List<MessageStubMapping> findMessageStubsByMetadata(StringValuePattern pattern) {
+    return defaultInstance.get().findAllMessageStubsByMetadata(pattern);
+  }
+
+  public List<MessageStubMapping> findAllMessageStubsByMetadata(StringValuePattern pattern) {
+    return admin.findAllMessageStubsByMetadata(pattern).getMessageMappings();
+  }
+
+  public static void removeMessageStubsByMetadata(StringValuePattern pattern) {
+    defaultInstance.get().removeAllMessageStubsByMetadata(pattern);
+  }
+
+  public void removeAllMessageStubsByMetadata(StringValuePattern pattern) {
+    admin.removeMessageStubsByMetadata(pattern);
+  }
+
+  public static ListMessageStubMappingsResult listAllMessageStubMappings() {
+    return defaultInstance.get().allMessageStubMappings();
+  }
+
+  public ListMessageStubMappingsResult allMessageStubMappings() {
+    return admin.listAllMessageStubMappings();
+  }
+
+  public static ListMessageChannelsResult listAllMessageChannels() {
+    return defaultInstance.get().allMessageChannels();
+  }
+
+  public ListMessageChannelsResult allMessageChannels() {
+    return admin.listAllMessageChannels();
+  }
+
+  // Message journal verification methods
+
+  public static List<MessageServeEvent> getAllMessageServeEvents() {
+    return defaultInstance.get().getMessageServeEvents();
+  }
+
+  public List<MessageServeEvent> getMessageServeEvents() {
+    return admin.getMessageServeEvents().getMessageServeEvents();
+  }
+
+  public static MessageServeEvent getMessageServeEvent(UUID id) {
+    return defaultInstance.get().getMessageServeEventById(id);
+  }
+
+  public MessageServeEvent getMessageServeEventById(UUID id) {
+    return admin.getMessageServeEvent(id).getItem();
+  }
+
+  public static void removeMessageServeEvent(UUID eventId) {
+    defaultInstance.get().deleteMessageServeEvent(eventId);
+  }
+
+  public void deleteMessageServeEvent(UUID eventId) {
+    admin.removeMessageServeEvent(eventId);
+  }
+
+  public static List<MessageServeEvent> findAllMessageEvents(MessagePattern pattern) {
+    return defaultInstance.get().findMessageEvents(pattern);
+  }
+
+  public List<MessageServeEvent> findMessageEvents(MessagePattern pattern) {
+    return admin.findMessageEventsMatching(pattern);
+  }
+
+  public static void verifyMessageEvent(MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(pattern);
+  }
+
+  public void verifyThatMessageEvent(MessagePattern pattern) {
+    verifyThatMessageEvent(moreThanOrExactly(1), pattern);
+  }
+
+  public static void verifyMessageEvent(int expectedCount, MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, pattern);
+  }
+
+  public void verifyThatMessageEvent(int expectedCount, MessagePattern pattern) {
+    verifyThatMessageEvent(exactly(expectedCount), pattern);
+  }
+
+  public static void verifyMessageEvent(
+      CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    defaultInstance.get().verifyThatMessageEvent(expectedCount, pattern);
+  }
+
+  public void verifyThatMessageEvent(CountMatchingStrategy expectedCount, MessagePattern pattern) {
+    int actualCount = admin.countMessageEventsMatching(pattern);
+    if (!expectedCount.match(actualCount)) {
+      throw new VerificationException(
+          "Expected "
+              + expectedCount
+              + " message events matching pattern but found "
+              + actualCount);
+    }
+  }
+
+  public static Optional<MessageServeEvent> waitForMessageEvent(
+      MessagePattern pattern, Duration maxWait) {
+    return defaultInstance.get().waitForMessage(pattern, maxWait);
+  }
+
+  public Optional<MessageServeEvent> waitForMessage(MessagePattern pattern, Duration maxWait) {
+    return admin.waitForMessageEvent(pattern, maxWait);
+  }
+
+  public static List<MessageServeEvent> waitForMessageEvents(
+      MessagePattern pattern, int count, Duration maxWait) {
+    return defaultInstance.get().waitForMessages(pattern, count, maxWait);
+  }
+
+  public List<MessageServeEvent> waitForMessages(
+      MessagePattern pattern, int count, Duration maxWait) {
+    return admin.waitForMessageEvents(pattern, count, maxWait);
+  }
+
+  public static void resetMessageJournal() {
+    defaultInstance.get().resetMessages();
+  }
+
+  public void resetMessages() {
+    admin.resetMessageJournal();
+  }
+
+  public static FindMessageServeEventsResult removeMessageServeEventsMatching(
+      MessagePattern pattern) {
+    return defaultInstance.get().removeMessageEvents(pattern);
+  }
+
+  public FindMessageServeEventsResult removeMessageEvents(MessagePattern pattern) {
+    return admin.removeMessageServeEventsMatching(pattern);
+  }
+
+  public static FindMessageServeEventsResult removeMessageServeEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return defaultInstance.get().removeMessageEventsForStubsMatchingMetadata(pattern);
+  }
+
+  public FindMessageServeEventsResult removeMessageEventsForStubsMatchingMetadata(
+      StringValuePattern pattern) {
+    return admin.removeMessageServeEventsForStubsMatchingMetadata(pattern);
   }
 
   public enum JsonSchemaVersion {

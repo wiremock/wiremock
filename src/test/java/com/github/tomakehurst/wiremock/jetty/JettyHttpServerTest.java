@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,13 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.store.InMemoryMessageChannelStore;
+import com.github.tomakehurst.wiremock.store.InMemoryMessageStubMappingStore;
+import com.github.tomakehurst.wiremock.verification.InMemoryMessageJournal;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.lang.reflect.Field;
@@ -50,6 +56,10 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
+  private MessageChannels messageChannels = new MessageChannels(new InMemoryMessageChannelStore());
+  private MessageStubMappings messageStubMappings =
+      new MessageStubMappings(new InMemoryMessageStubMappingStore());
+  private MessageStubRequestHandler messageStubRequestHandler;
   private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach
@@ -79,6 +89,13 @@ public class JettyHttpServerTest {
             false,
             NO_TRUNCATION,
             new PlainTextStubNotMatchedRenderer(Extensions.NONE));
+    messageStubRequestHandler =
+        new MessageStubRequestHandler(
+            messageStubMappings,
+            messageChannels,
+            new InMemoryMessageJournal(null),
+            null,
+            Collections.emptyList());
   }
 
   @Test
@@ -94,7 +111,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -106,7 +124,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
   }
@@ -118,7 +137,8 @@ public class JettyHttpServerTest {
 
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     Field httpConnectorField = JettyHttpServer.class.getDeclaredField("httpConnector");
     httpConnectorField.setAccessible(true);
@@ -138,7 +158,8 @@ public class JettyHttpServerTest {
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().port(currentPort);
     JettyHttpServer jettyHttpServer =
         (JettyHttpServer)
-            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+            serverFactory.buildHttpServer(
+                config, adminRequestHandler, stubRequestHandler, messageStubRequestHandler);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
     assertTrue(exception instanceof FatalStartupException);

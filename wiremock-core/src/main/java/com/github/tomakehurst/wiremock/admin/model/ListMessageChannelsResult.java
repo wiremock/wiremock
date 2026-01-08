@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2025-2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.admin.model;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+import java.util.List;
+
+public class ListMessageChannelsResult extends PaginatedResult<LoggedMessageChannel> {
+
+  @JsonCreator
+  public ListMessageChannelsResult(
+      @JsonProperty("channels") List<LoggedMessageChannel> channels,
+      @JsonProperty("meta") Meta meta) {
+    super(channels, meta);
+  }
+
+  public ListMessageChannelsResult(List<LoggedMessageChannel> channels) {
+    super(channels, new Meta(channels.size()));
+  }
+
+  public List<LoggedMessageChannel> getChannels() {
+    return select();
+  }
+}
