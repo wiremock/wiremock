@@ -68,7 +68,7 @@ public interface HostAndPort extends Authority {
   @Override
   @Nullable
   @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default UserInfo getUserInfo() {
     return null;
   }
@@ -80,7 +80,7 @@ public interface HostAndPort extends Authority {
    * @return this
    */
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default HostAndPort getHostAndPort() {
     return this;
   }

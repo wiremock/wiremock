@@ -37,7 +37,7 @@ public interface AbsoluteUrl extends Url {
    * @return null
    */
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   @Nullable
   default Fragment getFragment() {
     return null;

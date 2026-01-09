@@ -55,7 +55,7 @@ public interface Origin extends AbsoluteUrl {
    * @return {@link PathAndQuery#EMPTY}
    */
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default PathAndQuery getPathAndQuery() {
     return PathAndQuery.EMPTY;
   }
@@ -67,7 +67,7 @@ public interface Origin extends AbsoluteUrl {
    * @return {@link Path#EMPTY}
    */
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default Path getPath() {
     return Path.EMPTY;
   }
@@ -79,7 +79,7 @@ public interface Origin extends AbsoluteUrl {
    * @return null
    */
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   @Nullable
   default Query getQuery() {
     return null;

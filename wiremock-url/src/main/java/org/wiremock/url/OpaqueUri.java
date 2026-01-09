@@ -28,31 +28,31 @@ public non-sealed interface OpaqueUri extends Uri {
   }
 
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default @Nullable Authority getAuthority() {
     return null;
   }
 
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default @Nullable UserInfo getUserInfo() {
     return null;
   }
 
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default @Nullable Host getHost() {
     return null;
   }
 
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default @Nullable Port getPort() {
     return null;
   }
 
   @Override
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default @Nullable Port getResolvedPort() {
     return null;
   }

@@ -38,7 +38,7 @@ public interface PathAndQuery extends RelativeRef {
    */
   @Override
   @Nullable
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default Authority getAuthority() {
     return null;
   }
@@ -51,7 +51,7 @@ public interface PathAndQuery extends RelativeRef {
    */
   @Override
   @Nullable
-  @Deprecated(forRemoval = true) // not actually for removal, just no point ever calling
+  @Deprecated // no point ever calling on this subtype
   default Fragment getFragment() {
     return null;
   }
