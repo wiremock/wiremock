@@ -28,7 +28,7 @@ class PathAndQueryTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.of(Pair.of("/?q=%ff", "/?q=%FF"))
             .map(
                 it ->
@@ -42,7 +42,7 @@ class PathAndQueryTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Implementations must be immutable and thread-safe.
  */
-public interface PathAndQuery extends RelativeRef {
+public interface PathAndQuery extends RelativeUrl {
 
   /** An empty path and query with no components. */
   PathAndQuery EMPTY = new PathAndQueryValue(Path.EMPTY, null);

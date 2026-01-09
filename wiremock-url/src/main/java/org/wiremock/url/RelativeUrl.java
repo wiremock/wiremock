@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.2">RFC 3986 Section 4.2</a>
  */
-public non-sealed interface RelativeRef extends UrlReference {
+public non-sealed interface RelativeUrl extends Url {
 
   /**
    * {@implSpec} Implementations must ALWAYS return null
@@ -45,17 +45,17 @@ public non-sealed interface RelativeRef extends UrlReference {
   }
 
   @Override
-  default boolean isRelativeRef() {
+  default boolean isRelative() {
     return true;
   }
 
   @Override
-  default boolean isUri() {
+  default boolean isAbsolute() {
     return false;
   }
 
   @Override
-  default boolean isUrl() {
+  default boolean isAbsoluteUrl() {
     return false;
   }
 
@@ -70,16 +70,16 @@ public non-sealed interface RelativeRef extends UrlReference {
    * @return a normalised relative reference
    */
   @Override
-  RelativeRef normalise();
+  RelativeUrl normalise();
 
   /**
    * Parses a string into a relative reference.
    *
    * @param relativeRef the string to parse
    * @return the parsed relative reference
-   * @throws IllegalRelativeRef if the string is not a valid relative reference
+   * @throws IllegalRelativeUrl if the string is not a valid relative reference
    */
-  static RelativeRef parse(String relativeRef) throws IllegalRelativeRef {
-    return RelativeRefParser.INSTANCE.parse(relativeRef);
+  static RelativeUrl parse(String relativeRef) throws IllegalRelativeUrl {
+    return RelativeUrlParser.INSTANCE.parse(relativeRef);
   }
 }

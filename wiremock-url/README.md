@@ -40,21 +40,21 @@ The library provides:
 * Parsers for producing these types from String representations
 
 ### URI Types
-- **UriReference**: Either a URI (a URL or an Opaque URI), or a RelativeRef
-- **Uri**: Either a URL or an Opaque URI
-- **Url**: A URL, which is a URI with a scheme and an authority, e.g. `http://example.com/foo?q#f`
-- **OpaqueURI**: A URI with a scheme but no authority, e.g. `mailto:me@example.com`
-- **RelativeRef**: A relative reference, lacking a scheme and possibly an authority.
-  e.g. `//example.com/foo?q#f`
-- **UrlReference**: Either a URL or a relative reference. `Url.resolve(UrlReference)` can return
-  `Url` because is guaranteed to produce a `Url`, whereas `Url.resolve(UriReference)` can only
-  return `Uri` because it may produce an `OpaqueUri`.
-- **PathAndQuery**: A specialisation of `RelativeRef` that contains neither an authority nor a
+- **Uri**: Either an Absolute URI (an Absolute URL or an Opaque URI), or a Relative URL
+- **AbsoluteUri**: Either an Absolute URL or an Opaque URI
+- **Url**: Either an Absolute URL or a Relative URL. `AbsoluteUrl.resolve(Url)` can return
+  `AbsoluteUrl` because is guaranteed to produce an `AbsoluteUrl`, whereas
+  `AbsoluteUrl.resolve(Uri)` can only  return `AbsoluteUri` because it may produce an `OpaqueUri`.
+- **AbsoluteUrl**: A URI with a scheme and an authority, e.g. `http://example.com/foo?q#f`
+- **RelativeUrl**: A relative reference, lacking a scheme and possibly an authority.
+  e.g. `//example.com/foo?q#f` or `/foo?q#f`
+- **OpaqueURI**: A URI with a scheme but no authority, e.g. `mailto:me@example.com` or `file:/home`
+- **PathAndQuery**: A specialisation of `RelativeUrl` that contains neither an authority nor a
   fragment. Used in the request line of an HTTP request.
-- **AbsoluteUrl**: A specialisation of `Url` that contains no fragment. Used in the request line of
-  an HTTP request when using an HTTP proxy.
-- **Origin**: A specialisation of `Url` which contains only a normalised scheme, host and (optional)
-  port.
+- **ServersideAbsoluteUrl**: A specialisation of `AbsoluteUrl` that contains no fragment. Used in
+  the request line of an HTTP request when using an HTTP proxy.
+- **Origin**: A specialisation of `AbsoluteUrl` which contains only a normalised scheme, host and
+  (optional) port. Used as the origin for a user agent doing content security.
 
 ### URI Components
 
@@ -85,27 +85,27 @@ The library provides:
 classDiagram
 direction TB
 
-class UriReference {
-  <<Sealed_Interface>>
-
-}
-
-class UrlReference {
-  <<Sealed_Interface>>
-
-}
-
 class Uri {
   <<Sealed_Interface>>
 
 }
 
-class RelativeRef {
+class Url {
+  <<Sealed_Interface>>
+
+}
+
+class AbsoluteUri {
+  <<Sealed_Interface>>
+
+}
+
+class RelativeUrl {
 <<Interface>>
 
 }
 
-class Url {
+class AbsoluteUrl {
 <<Interface>>
 
 }
@@ -120,7 +120,7 @@ class PathAndQuery {
 
 }
 
-class AbsoluteUrl {
+class ServersideAbsoluteUrl {
 <<Interface>>
 
 }
@@ -130,15 +130,15 @@ class Origin {
 
 }
 
-UriReference <|-- UrlReference 
-UriReference <|-- Uri
-UrlReference <|-- RelativeRef
-UrlReference <|-- Url 
 Uri <|-- Url 
-Uri <|-- OpaqueUri 
-RelativeRef <|-- PathAndQuery 
+Uri <|-- AbsoluteUri
+Url <|-- RelativeUrl
 Url <|-- AbsoluteUrl
-AbsoluteUrl <|-- Origin
+AbsoluteUri <|-- AbsoluteUrl 
+AbsoluteUri <|-- OpaqueUri 
+RelativeUrl <|-- PathAndQuery 
+AbsoluteUrl <|-- ServersideAbsoluteUrl
+ServersideAbsoluteUrl <|-- Origin
 ```
 ## Design Goals
 
@@ -192,7 +192,7 @@ The library maintains the following invariants:
 
 3. **Round-Trip Equality**: In general, round-tripping through parse and toString preserves equality:
    ```java
-   UriReference.parse(uriReference.toString()).equals(uriReference) == true;
+   Uri.parse(uri.toString()).equals(uri) == true;
    ```
 
    **Note**: There are edge cases where this is not possible. For example, a `PathAndQuery`

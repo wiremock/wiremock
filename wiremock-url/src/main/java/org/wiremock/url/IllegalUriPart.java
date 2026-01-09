@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public abstract non-sealed class IllegalUriPart extends IllegalUriReferenceOrPart {
+public abstract non-sealed class IllegalUriPart extends IllegalUriOrPart {
 
   public IllegalUriPart(String illegalValue, String message) {
     this(illegalValue, message, null);

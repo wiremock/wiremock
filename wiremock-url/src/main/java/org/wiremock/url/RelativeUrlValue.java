@@ -19,14 +19,14 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
-final class RelativeRefValue implements RelativeRef {
+final class RelativeUrlValue implements RelativeUrl {
 
   private final @Nullable Authority authority;
   private final Path path;
   private final @Nullable Query query;
   private final @Nullable Fragment fragment;
 
-  RelativeRefValue(
+  RelativeUrlValue(
       @Nullable Authority authority,
       Path path,
       @Nullable Query query,
@@ -54,7 +54,7 @@ final class RelativeRefValue implements RelativeRef {
   }
 
   @Override
-  public RelativeRef normalise() {
+  public RelativeUrl normalise() {
     Authority normalisedAuthority =
         Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
     Path normalisedPath = path.normalise();
@@ -69,7 +69,7 @@ final class RelativeRefValue implements RelativeRef {
         && Objects.equals(normalisedFragment, fragment)) {
       return this;
     } else {
-      return new RelativeRefValue(
+      return new RelativeUrlValue(
           normalisedAuthority, normalisedPath, normalisedQuery, normalisedFragment);
     }
   }

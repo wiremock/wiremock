@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,18 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-final class UrlValue implements Url {
+class ServersideAbsoluteUrlValue implements ServersideAbsoluteUrl {
 
   private final Scheme scheme;
   private final Authority authority;
   private final Path path;
   private final @Nullable Query query;
-  private final @Nullable Fragment fragment;
 
-  UrlValue(
-      Scheme scheme,
-      Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
+  ServersideAbsoluteUrlValue(Scheme scheme, Authority authority, Path path, @Nullable Query query) {
     this.scheme = scheme;
     this.authority = authority;
     this.path = path;
     this.query = query;
-    this.fragment = fragment;
   }
 
   @Override
@@ -56,7 +49,7 @@ final class UrlValue implements Url {
   }
 
   @Override
-  public Url normalise() {
+  public ServersideAbsoluteUrl normalise() {
     Scheme normalisedScheme = scheme.normalise();
     Authority normalisedAuthority = authority.normalise(normalisedScheme);
     Path normalisedPath = path.normalise();
@@ -64,22 +57,19 @@ final class UrlValue implements Url {
       normalisedPath = Path.ROOT;
     }
     Query normalisedQuery = query == null ? null : query.normalise();
-    Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 
     if (scheme.equals(normalisedScheme)
         && authority.equals(normalisedAuthority)
         && path.equals(normalisedPath)
-        && Objects.equals(query, normalisedQuery)
-        && Objects.equals(fragment, normalisedFragment)) {
+        && Objects.equals(query, normalisedQuery)) {
       return this;
     } else {
-      return (Url)
-          UriReference.builder()
+      return (ServersideAbsoluteUrl)
+          Uri.builder()
               .setScheme(normalisedScheme)
               .setAuthority(normalisedAuthority)
               .setPath(normalisedPath)
               .setQuery(normalisedQuery)
-              .setFragment(normalisedFragment)
               .build();
     }
   }
@@ -102,10 +92,5 @@ final class UrlValue implements Url {
   @Override
   public @Nullable Query getQuery() {
     return query;
-  }
-
-  @Override
-  public @Nullable Fragment getFragment() {
-    return fragment;
   }
 }

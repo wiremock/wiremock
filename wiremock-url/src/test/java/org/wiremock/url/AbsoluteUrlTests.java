@@ -16,7 +16,7 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.wiremock.url.Url.transform;
+import static org.wiremock.url.AbsoluteUrl.transform;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 @SuppressWarnings("HttpUrlsUsage")
-class UrlTests {
+class AbsoluteUrlTests {
 
   @Nested
   class ParseMethod {
@@ -39,8 +39,8 @@ class UrlTests {
     @ParameterizedTest
     @MethodSource("validUrls")
     void parses_valid_url(UrlReferenceParseTestCase urlTest) {
-      UriReference url = UriReference.parse(urlTest.stringForm);
-      assertThat(url.isUrl()).isTrue();
+      Uri url = Uri.parse(urlTest.stringForm);
+      assertThat(url.isAbsoluteUrl()).isTrue();
       assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
       assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);
       assertThat(url.getQuery()).isEqualTo(urlTest.expectation.query);
@@ -50,16 +50,16 @@ class UrlTests {
     @Test
     void normalise() {
       String urlString = "http://proxy.example.com/";
-      Url parsed = Url.parse(urlString);
-      Url normalised = parsed.normalise();
+      AbsoluteUrl parsed = AbsoluteUrl.parse(urlString);
+      AbsoluteUrl normalised = parsed.normalise();
       assertThat(normalised).isEqualTo(parsed);
       assertThat(normalised.toString()).isEqualTo(parsed.toString());
     }
 
     @Test
     void resolveRelative() {
-      Url base = Url.parse("http://example.com");
-      Url resolved = base.resolve(Path.parse("foo"));
+      AbsoluteUrl base = AbsoluteUrl.parse("http://example.com");
+      AbsoluteUrl resolved = base.resolve(Path.parse("foo"));
       assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
       assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
       assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
@@ -69,10 +69,10 @@ class UrlTests {
     void settingPortToNullChangesNothing() {
       String urlString = "http://example.com";
 
-      Url noPortToStartWith = Url.parse(urlString);
+      AbsoluteUrl noPortToStartWith = AbsoluteUrl.parse(urlString);
       assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
 
-      Url stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
+      AbsoluteUrl stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
       assertThat(noPortToStartWith).isEqualTo(stillNoPort);
       assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
     }
@@ -81,7 +81,7 @@ class UrlTests {
     void normalisingOriginWithEmptyPathReturnsOrigin() {
       // Parse a URL that needs normalisation (uppercase scheme) with empty path
       String urlString = "HTTP://example.com:80";
-      Url parsed = Url.parse(urlString);
+      AbsoluteUrl parsed = AbsoluteUrl.parse(urlString);
 
       assertThat(parsed).isNotInstanceOf(Origin.class);
     }
@@ -154,7 +154,7 @@ class UrlTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.<Pair<String, String>>of(
                 // Scheme normalization - uppercase to lowercase
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
@@ -256,7 +256,10 @@ class UrlTests {
                 Pair.of("http://example.com/%aB%Cd", "http://example.com/%AB%CD"),
                 Pair.of("http://example.com?key=%aB", "http://example.com/?key=%AB"),
                 Pair.of("http://example.com#%aB", "http://example.com/#%AB"))
-            .map(it -> new NormalisationCase<>(Url.parse(it.getLeft()), Url.parse(it.getRight())))
+            .map(
+                it ->
+                    new NormalisationCase<>(
+                        AbsoluteUrl.parse(it.getLeft()), AbsoluteUrl.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -265,7 +268,7 @@ class UrlTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

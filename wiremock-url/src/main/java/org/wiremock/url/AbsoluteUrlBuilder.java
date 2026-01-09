@@ -16,9 +16,9 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
-import org.wiremock.url.Url.Builder;
+import org.wiremock.url.AbsoluteUrl.Builder;
 
-class UrlBuilder implements Builder {
+class AbsoluteUrlBuilder implements Builder {
 
   private Scheme scheme;
   private Authority authority;
@@ -26,12 +26,12 @@ class UrlBuilder implements Builder {
   @Nullable Query query = null;
   @Nullable Fragment fragment = null;
 
-  UrlBuilder(Scheme scheme, Authority authority) {
+  AbsoluteUrlBuilder(Scheme scheme, Authority authority) {
     this.scheme = scheme;
     this.authority = authority;
   }
 
-  UrlBuilder(Url url) {
+  AbsoluteUrlBuilder(AbsoluteUrl url) {
     this.scheme = url.getScheme();
     this.authority = url.getAuthority();
     this.path = url.getPath();
@@ -88,11 +88,11 @@ class UrlBuilder implements Builder {
   }
 
   @Override
-  public Url build() {
+  public AbsoluteUrl build() {
     return buildUrl(scheme, authority, path, query, fragment);
   }
 
-  static Url buildUrl(
+  static AbsoluteUrl buildUrl(
       Scheme scheme,
       Authority authority,
       Path path,
@@ -106,9 +106,9 @@ class UrlBuilder implements Builder {
         && fragment == null) {
       return new OriginValue(scheme, hostAndPort);
     } else if (fragment == null) {
-      return new AbsoluteUrlValue(scheme, authority, path, query);
+      return new ServersideAbsoluteUrlValue(scheme, authority, path, query);
     } else {
-      return new UrlValue(scheme, authority, path, query, fragment);
+      return new AbsoluteUrlValue(scheme, authority, path, query, fragment);
     }
   }
 }

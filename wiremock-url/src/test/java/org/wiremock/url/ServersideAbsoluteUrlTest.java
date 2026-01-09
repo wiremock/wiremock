@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,48 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
-public class UriReferenceTests {
+class ServersideAbsoluteUrlTest {
 
-  @SuppressWarnings("HttpUrlsUsage")
+  @Nested
+  class Parse {
+
+    private static final List<String> invalidAbsoluteUrls =
+        List.of(
+            "http://example.com#",
+            "http://example.com/#",
+            "http://example.com/?#",
+            "http://example.com#foo",
+            "http://example.com/#foo",
+            "http://example.com/?#foo");
+
+    @ParameterizedTest
+    @FieldSource("invalidAbsoluteUrls")
+    void invalid_absolute_urls_are_rejected(String invalidAbsoluteUrl) {
+      assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
+          .isThrownBy(() -> ServersideAbsoluteUrl.parse(invalidAbsoluteUrl))
+          .withMessage("Illegal serverside absolute URL: `" + invalidAbsoluteUrl + "`")
+          .extracting(IllegalServersideAbsoluteUrl::getIllegalValue)
+          .isEqualTo(invalidAbsoluteUrl);
+    }
+  }
+
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.<Pair<String, String>>of(
-                // Scheme normalization - uppercase to lowercase
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
                 Pair.of("HTTPS://EXAMPLE.COM:08080", "https://example.com:8080/"),
                 Pair.of("HTTPS://example.com:08080", "https://example.com:8080/"),
@@ -59,11 +84,6 @@ public class UriReferenceTests {
                 Pair.of("https://example.com:443/", "https://example.com/"),
                 Pair.of("https://example.com:443/path", "https://example.com/path"),
                 Pair.of("https://example.com:0443", "https://example.com/"),
-
-                // Protocol-relative URLs - host normalization
-                Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
-                Pair.of("//EXAMPLE.COM:08080", "//example.com:8080/"),
-                Pair.of("//example.com:08080", "//example.com:8080/"),
 
                 // Percent encoding - uppercase hex digits in path
                 Pair.of("http://example.com/%1f", "http://example.com/%1F"),
@@ -94,15 +114,6 @@ public class UriReferenceTests {
                 Pair.of("http://example.com?%61=%62", "http://example.com/?a=b"),
                 Pair.of("http://example.com?key=%7E", "http://example.com/?key=~"),
 
-                // Percent encoding - uppercase hex in fragment
-                Pair.of("http://example.com#%1f", "http://example.com/#%1F"),
-                Pair.of("http://example.com#%ab", "http://example.com/#%AB"),
-
-                // Percent encoding - decode unreserved in fragment
-                Pair.of("http://example.com#%41", "http://example.com/#A"),
-                Pair.of("http://example.com#%7E", "http://example.com/#~"),
-                Pair.of("http://example.com#%61%62%63", "http://example.com/#abc"),
-
                 // Combined normalizations - scheme + host + port
                 Pair.of("HTTP://EXAMPLE.COM:80", "http://example.com/"),
                 Pair.of("HTTPS://EXAMPLE.COM:443", "https://example.com/"),
@@ -114,8 +125,6 @@ public class UriReferenceTests {
                 Pair.of("HTTPS://EXAMPLE.COM:443/PATH", "https://example.com/PATH"),
                 Pair.of("HTTP://EXAMPLE.COM/%41%42", "http://example.com/AB"),
                 Pair.of("HTTPS://EXAMPLE.COM:0443/path?key=%41", "https://example.com/path?key=A"),
-                Pair.of("HTTP://EXAMPLE.COM:080/%1f?a=%1f#%1f", "http://example.com/%1F?a=%1F#%1F"),
-                Pair.of("HTTPS://EXAMPLE.COM:443/%61?%62=%63#%64", "https://example.com/a?b=c#d"),
 
                 // Path with percent encoding variations
                 Pair.of("http://example.com/%41/%42/%43", "http://example.com/A/B/C"),
@@ -123,35 +132,19 @@ public class UriReferenceTests {
                     "http://example.com/path/%1F/segment", "http://example.com/path/%1F/segment"),
                 Pair.of("http://example.com/%7Euser/docs", "http://example.com/~user/docs"),
 
-                // Query and fragment combinations
-                Pair.of("http://example.com?%41=%42#%43", "http://example.com/?A=B#C"),
-                Pair.of("http://example.com?key=%1f#%1f", "http://example.com/?key=%1F#%1F"),
-
                 // Multiple ports in different contexts
                 Pair.of("http://example.com:8080", "http://example.com:8080/"),
                 Pair.of("https://example.com:8443", "https://example.com:8443/"),
                 Pair.of("ftp://example.com:21", "ftp://example.com/"),
 
-                // Non-spec driven
-                /*
-                `whatever:/..//` is a URI without an Authority.
-                Acording to the spec https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4
-                `/..//` should normalise to `//`, so `whatever:/..//` should normalise to `whatever://`.
-                However, this changes the semantics to now have an (empty) authority and an empty path.
-
-                We have made an executive decision that if a URI without an Authority has a path that
-                normalises to more than one `/` at the start, they will be treatd as a single `/`.
-                */
-                Pair.of("whatever:/..//", "whatever:/"),
-
                 // Mixed case hex digits
                 Pair.of("http://example.com/%aB%Cd", "http://example.com/%AB%CD"),
-                Pair.of("http://example.com?key=%aB", "http://example.com/?key=%AB"),
-                Pair.of("http://example.com#%aB", "http://example.com/#%AB"))
+                Pair.of("http://example.com?key=%aB", "http://example.com/?key=%AB"))
             .map(
                 it ->
                     new NormalisationCase<>(
-                        UriReference.parse(it.getLeft()), UriReference.parse(it.getRight())))
+                        ServersideAbsoluteUrl.parse(it.getLeft()),
+                        ServersideAbsoluteUrl.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -160,13 +153,13 @@ public class UriReferenceTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUriReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory
     Stream<DynamicTest> already_normalised_invariants() {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
-          alreadyNormalisedUriReferences);
+          alreadyNormalisedUrlReferences);
     }
   }
 }

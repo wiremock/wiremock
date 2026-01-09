@@ -21,11 +21,11 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.AbsoluteUri;
+import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.Authority;
 import org.wiremock.url.Origin;
 import org.wiremock.url.Uri;
-import org.wiremock.url.UriReference;
-import org.wiremock.url.Url;
 
 public class NormalisedAreJavaUrisTests {
 
@@ -35,15 +35,15 @@ public class NormalisedAreJavaUrisTests {
   @ParameterizedTest
   @FieldSource("wiremock_valid")
   void normalised_are_all_valid_java_uris(SimpleParseSuccess testCase) {
-    var inputUriRef = UriReference.parse(testCase.input());
-    UriReference inputNormalised = inputUriRef.normalise();
+    var inputUriRef = Uri.parse(testCase.input());
+    Uri inputNormalised = inputUriRef.normalise();
 
     var baseUri = parseUri(testCase.base());
     var baseNormalised = baseUri != null ? baseUri.normalise() : null;
 
-    UriReference resolved = baseUri == null ? inputNormalised : baseUri.resolve(inputUriRef);
+    Uri resolved = baseUri == null ? inputNormalised : baseUri.resolve(inputUriRef);
 
-    Origin origin = resolved instanceof Url resolvedUrl ? resolvedUrl.getOrigin() : null;
+    Origin origin = resolved instanceof AbsoluteUrl resolvedUrl ? resolvedUrl.getOrigin() : null;
 
     Assertions.assertDoesNotThrow(
         () -> {
@@ -62,15 +62,15 @@ public class NormalisedAreJavaUrisTests {
         });
   }
 
-  private @Nullable Uri parseUri(@Nullable String input) {
+  private @Nullable AbsoluteUri parseUri(@Nullable String input) {
     if (input == null) {
       return null;
     }
-    return Uri.parse(input);
+    return AbsoluteUri.parse(input);
   }
 
-  private static boolean hasJavaValidAuthority(UriReference uriReference) {
-    Authority authority = uriReference.getAuthority();
+  private static boolean hasJavaValidAuthority(Uri uri) {
+    Authority authority = uri.getAuthority();
     return authority == null || !authority.toString().isEmpty();
   }
 }

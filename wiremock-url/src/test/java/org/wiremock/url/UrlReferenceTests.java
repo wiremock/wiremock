@@ -28,7 +28,7 @@ class UrlReferenceTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.<Pair<String, String>>of(
                 // Scheme normalization - uppercase to lowercase
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
@@ -135,10 +135,7 @@ class UrlReferenceTests {
                 Pair.of("http://example.com/%aB%Cd", "http://example.com/%AB%CD"),
                 Pair.of("http://example.com?key=%aB", "http://example.com/?key=%AB"),
                 Pair.of("http://example.com#%aB", "http://example.com/#%AB"))
-            .map(
-                it ->
-                    new NormalisationCase<>(
-                        UrlReference.parse(it.getLeft()), UrlReference.parse(it.getRight())))
+            .map(it -> new NormalisationCase<>(Url.parse(it.getLeft()), Url.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -147,7 +144,7 @@ class UrlReferenceTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

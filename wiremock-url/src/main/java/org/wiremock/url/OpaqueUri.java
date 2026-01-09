@@ -17,9 +17,18 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed interface OpaqueUri extends Uri {
+/**
+ * Represents a URI as defined in <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC
+ * 3986</a> which does not have an {@link Authority}, such as {@code mailto:joan@example.com},
+ * {@code file:/home/joan} or {@code aws:some:identifier}
+ *
+ * <p>Implementations must be immutable and thread-safe.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>
+ */
+public non-sealed interface OpaqueUri extends AbsoluteUri {
 
-  default boolean isUrl() {
+  default boolean isAbsoluteUrl() {
     return false;
   }
 

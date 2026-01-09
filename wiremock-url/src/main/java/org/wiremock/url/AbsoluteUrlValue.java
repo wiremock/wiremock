@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,25 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-class AbsoluteUrlValue implements AbsoluteUrl {
+final class AbsoluteUrlValue implements AbsoluteUrl {
 
   private final Scheme scheme;
   private final Authority authority;
   private final Path path;
   private final @Nullable Query query;
+  private final @Nullable Fragment fragment;
 
-  AbsoluteUrlValue(Scheme scheme, Authority authority, Path path, @Nullable Query query) {
+  AbsoluteUrlValue(
+      Scheme scheme,
+      Authority authority,
+      Path path,
+      @Nullable Query query,
+      @Nullable Fragment fragment) {
     this.scheme = scheme;
     this.authority = authority;
     this.path = path;
     this.query = query;
+    this.fragment = fragment;
   }
 
   @Override
@@ -57,19 +64,22 @@ class AbsoluteUrlValue implements AbsoluteUrl {
       normalisedPath = Path.ROOT;
     }
     Query normalisedQuery = query == null ? null : query.normalise();
+    Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 
     if (scheme.equals(normalisedScheme)
         && authority.equals(normalisedAuthority)
         && path.equals(normalisedPath)
-        && Objects.equals(query, normalisedQuery)) {
+        && Objects.equals(query, normalisedQuery)
+        && Objects.equals(fragment, normalisedFragment)) {
       return this;
     } else {
       return (AbsoluteUrl)
-          UriReference.builder()
+          Uri.builder()
               .setScheme(normalisedScheme)
               .setAuthority(normalisedAuthority)
               .setPath(normalisedPath)
               .setQuery(normalisedQuery)
+              .setFragment(normalisedFragment)
               .build();
     }
   }
@@ -92,5 +102,10 @@ class AbsoluteUrlValue implements AbsoluteUrl {
   @Override
   public @Nullable Query getQuery() {
     return query;
+  }
+
+  @Override
+  public @Nullable Fragment getFragment() {
+    return fragment;
   }
 }

@@ -28,12 +28,14 @@ public class OriginTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
-        Stream.<Pair<String, String>>of(
+    static final List<NormalisationCase<Uri>> normalisationCases =
+        Stream.of(
                 Pair.of("http://example.com", "http://example.com/"),
                 Pair.of("http://example.com:8080", "http://example.com:8080/"))
             .map(
-                it -> new NormalisationCase<>(Origin.parse(it.getLeft()), Url.parse(it.getRight())))
+                it ->
+                    new NormalisationCase<>(
+                        Origin.parse(it.getLeft()), AbsoluteUrl.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -42,7 +44,7 @@ public class OriginTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

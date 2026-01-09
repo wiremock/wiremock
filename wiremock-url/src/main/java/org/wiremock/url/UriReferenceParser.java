@@ -20,28 +20,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class UriReferenceParser implements StringParser<UriReference> {
+final class UriReferenceParser implements StringParser<Uri> {
 
   static final UriReferenceParser INSTANCE = new UriReferenceParser();
 
-  static boolean equals(UriReference one, Object o) {
+  static boolean equals(Uri one, Object o) {
     if (one == o) {
       return true;
     }
 
-    if (!(o instanceof UriReference other)) {
+    if (!(o instanceof Uri other)) {
       return false;
     }
 
-    Class<? extends UriReference> oneClass = one.getClass();
-    Class<? extends UriReference> otherClass = other.getClass();
+    Class<? extends Uri> oneClass = one.getClass();
+    Class<? extends Uri> otherClass = other.getClass();
     return shareSameSuperTypes(
             oneClass,
             otherClass,
             Origin.class,
-            Url.class,
+            AbsoluteUrl.class,
             OpaqueUri.class,
-            RelativeRef.class,
+            RelativeUrl.class,
             PathAndQuery.class)
         && Objects.equals(one.getScheme(), other.getScheme())
         && Objects.equals(one.getAuthority(), other.getAuthority())
@@ -61,7 +61,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
     return true;
   }
 
-  static int hashCode(UriReference urlReference) {
+  static int hashCode(Uri urlReference) {
     return Objects.hash(
         urlReference.getScheme(),
         urlReference.getAuthority(),
@@ -70,7 +70,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
         urlReference.getFragment());
   }
 
-  static String toString(UriReference urlReference) {
+  static String toString(Uri urlReference) {
     StringBuilder result = new StringBuilder();
     if (urlReference.getScheme() != null) {
       result.append(urlReference.getScheme()).append(":");
@@ -93,14 +93,14 @@ final class UriReferenceParser implements StringParser<UriReference> {
           "^(?:(?<scheme>[^:/?#]+):)?(?://(?<authority>[^/?#]*))?(?<path>[^?#]*)(?:\\?(?<query>[^#]*))?(?:#(?<fragment>.*))?");
 
   @Override
-  public UriReference parse(String stringForm) {
+  public Uri parse(String stringForm) {
     try {
       var result = regex.matcher(stringForm);
       if (!result.matches()) {
         if (stringForm.contains(":")) {
-          throw new IllegalUrl(stringForm);
+          throw new IllegalAbsoluteUrl(stringForm);
         } else {
-          throw new IllegalRelativeRef(stringForm);
+          throw new IllegalRelativeUrl(stringForm);
         }
       }
 
@@ -114,7 +114,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
       var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
       var hierarchicalPart = extractHierarchicalPart(scheme != null, result, stringForm);
-      return UriReference.builder()
+      return Uri.builder()
           .setScheme(scheme)
           .setAuthority(hierarchicalPart.authority)
           .setPath(hierarchicalPart.path)
@@ -122,7 +122,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
           .setFragment(fragment)
           .build();
     } catch (IllegalUriPart illegalPart) {
-      throw new IllegalUriReference(stringForm, illegalPart);
+      throw new IllegalUri(stringForm, illegalPart);
     }
   }
 
@@ -137,7 +137,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
         if (!path.isAbsolute()
             && !path.isEmpty()
             && path.getSegments().get(0).toString().contains(":")) {
-          throw new IllegalUriReference(
+          throw new IllegalUri(
               uriRefString,
               new IllegalPath(
                   path.toString(),
@@ -145,7 +145,7 @@ final class UriReferenceParser implements StringParser<UriReference> {
         }
       } else {
         if (!path.isAbsolute() && !path.isEmpty()) {
-          throw new IllegalUriReference(
+          throw new IllegalUri(
               uriRefString,
               new IllegalPath(path.toString(), "path `" + path + "` must be absolute or empty"));
         }

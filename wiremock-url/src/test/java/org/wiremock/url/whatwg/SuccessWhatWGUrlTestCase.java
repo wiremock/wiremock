@@ -18,8 +18,8 @@ package org.wiremock.url.whatwg;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUri;
 import org.wiremock.url.Uri;
-import org.wiremock.url.UriReference;
 
 // 596 success
 @JsonIgnoreProperties("comment")
@@ -128,14 +128,14 @@ public record SuccessWhatWGUrlTestCase(
       o.run();
     } catch (Throwable e) {
       System.out.println(testCase);
-      var input = UriReference.parse(testCase.input());
+      var input = Uri.parse(testCase.input());
       report("input", input);
-      UriReference resolved;
+      Uri resolved;
       if (testCase instanceof SuccessWhatWGUrlTestCase successTestCase
           && successTestCase.base() != null
           && !successTestCase.base().isEmpty()
           && !successTestCase.base().equals("sc://ñ")) {
-        var base = Uri.parse(successTestCase.base());
+        var base = AbsoluteUri.parse(successTestCase.base());
         report("base", base);
         resolved = base.resolve(input);
       } else {
@@ -146,7 +146,7 @@ public record SuccessWhatWGUrlTestCase(
     }
   }
 
-  private static void report(String element, UriReference uriReference) {
-    System.out.println(element + ": " + uriReference.getClass() + " `" + uriReference + "`");
+  private static void report(String element, Uri uri) {
+    System.out.println(element + ": " + uri.getClass() + " `" + uri + "`");
   }
 }

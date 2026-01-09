@@ -17,18 +17,17 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed class IllegalRelativeRef extends IllegalUriReference {
+public class IllegalServersideAbsoluteUrl extends IllegalAbsoluteUrl {
 
-  public IllegalRelativeRef(String relativeRef) {
-    this(relativeRef, null);
+  public IllegalServersideAbsoluteUrl(String url) {
+    this(url, null);
   }
 
-  public IllegalRelativeRef(String illegalRelativeRef, @Nullable IllegalUriPart cause) {
-    this(illegalRelativeRef, "Illegal relative ref: `" + illegalRelativeRef + "`", cause);
+  public IllegalServersideAbsoluteUrl(String url, @Nullable IllegalUriPart cause) {
+    this(url, "Illegal serverside absolute URL: `" + url + "`", cause);
   }
 
-  public IllegalRelativeRef(
-      String illegalRelativeRef, String message, @Nullable IllegalUriPart cause) {
-    super(illegalRelativeRef, message, cause);
+  public IllegalServersideAbsoluteUrl(String url, String message, @Nullable IllegalUriPart cause) {
+    super(url, message, cause);
   }
 }

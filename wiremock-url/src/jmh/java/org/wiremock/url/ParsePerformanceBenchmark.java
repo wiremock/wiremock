@@ -28,8 +28,8 @@ import org.wiremock.url.whatwg.SuccessWhatWGUrlTestCase;
 import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 
 /**
- * JMH benchmark comparing the performance of {@code java.net.URI} and {@code
- * org.wiremock.url.UriReference} parsing.
+ * JMH benchmark comparing the performance of {@code java.net.URI} and {@code org.wiremock.url.Uri}
+ * parsing.
  *
  * <p>Run with: {@code ./gradlew :wiremock-url:jmh}
  *
@@ -77,8 +77,8 @@ public class ParsePerformanceBenchmark {
                   return false;
                 }
                 try {
-                  UriReference.parse(uriStr);
-                } catch (IllegalUriReference e) {
+                  Uri.parse(uriStr);
+                } catch (IllegalUri e) {
                   return false;
                 }
                 return true;
@@ -95,9 +95,9 @@ public class ParsePerformanceBenchmark {
                 } catch (URISyntaxException ignored) {
                 }
                 try {
-                  UriReference.parse(uriStr);
+                  Uri.parse(uriStr);
                   return false;
-                } catch (IllegalUriReference ignored) {
+                } catch (IllegalUri ignored) {
                 }
                 return true;
               })
@@ -129,14 +129,14 @@ public class ParsePerformanceBenchmark {
   }
 
   /**
-   * Benchmark for parsing URIs using {@code org.wiremock.url.UriReference.parse}.
+   * Benchmark for parsing URIs using {@code org.wiremock.url.Uri.parse}.
    *
    * @param state the benchmark state containing the current URI to parse
-   * @return the parsed UriReference (to prevent dead code elimination)
+   * @return the parsed Uri (to prevent dead code elimination)
    */
   @Benchmark
-  public UriReference benchmarkWireMockUriReference(ParseableBenchmarkState state) {
-    return UriReference.parse(state.getCurrentUri());
+  public Uri benchmarkWireMockUriReference(ParseableBenchmarkState state) {
+    return Uri.parse(state.getCurrentUri());
   }
 
   @State(Scope.Thread)
@@ -172,18 +172,18 @@ public class ParsePerformanceBenchmark {
 
   /**
    * Benchmark for error handling when parsing invalid URIs using {@code
-   * org.wiremock.url.UriReference.parse}.
+   * org.wiremock.url.Uri.parse}.
    *
-   * <p>Tests the performance of exception handling when URIs are rejected by UriReference.
+   * <p>Tests the performance of exception handling when URIs are rejected by Uri.
    *
    * @param state the benchmark state containing the current invalid URI
    * @return null (exception is expected)
    */
   @Benchmark
-  public UriReference benchmarkWireMockUriReferenceErrorHandling(InvalidBenchmarkState state) {
+  public Uri benchmarkWireMockUriReferenceErrorHandling(InvalidBenchmarkState state) {
     try {
-      return UriReference.parse(state.getCurrentUri());
-    } catch (IllegalUriReference e) {
+      return Uri.parse(state.getCurrentUri());
+    } catch (IllegalUri e) {
       return null;
     }
   }

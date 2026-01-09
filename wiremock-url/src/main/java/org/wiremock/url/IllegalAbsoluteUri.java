@@ -15,21 +15,20 @@
  */
 package org.wiremock.url;
 
-final class AbsoluteUrlParser implements StringParser<AbsoluteUrl> {
+import org.jspecify.annotations.Nullable;
 
-  static final AbsoluteUrlParser INSTANCE = new AbsoluteUrlParser();
+public sealed class IllegalAbsoluteUri extends IllegalUri
+    permits IllegalAbsoluteUrl, IllegalOpaqueUri {
 
-  @Override
-  public AbsoluteUrl parse(String url) throws IllegalUrl {
-    try {
-      var urlReference = UriReferenceParser.INSTANCE.parse(url);
-      if (urlReference instanceof AbsoluteUrl) {
-        return (AbsoluteUrl) urlReference;
-      } else {
-        throw new IllegalAbsoluteUrl(url);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalAbsoluteUrl(url, illegalUriPart);
-    }
+  public IllegalAbsoluteUri(String uri) {
+    this(uri, null);
+  }
+
+  public IllegalAbsoluteUri(String uri, @Nullable IllegalUriPart cause) {
+    this(uri, "Illegal absolute URI: `" + uri + "`", cause);
+  }
+
+  public IllegalAbsoluteUri(String uri, String message, @Nullable IllegalUriPart cause) {
+    super(uri, message, cause);
   }
 }
