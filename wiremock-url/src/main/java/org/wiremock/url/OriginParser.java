@@ -43,10 +43,4 @@ final class OriginParser implements StringParser<Origin> {
       throw new IllegalOrigin(scheme + "://" + hostAndPort);
     }
   }
-
-  Origin normalise(Scheme scheme, HostAndPort hostAndPort) {
-    var normalisedScheme = scheme.normalise();
-    var normalisedHostAndPort = hostAndPort.normalise(normalisedScheme);
-    return new OriginValue(normalisedScheme, normalisedHostAndPort);
-  }
 }

@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin">HTML Living
  *     Standard - Origin</a>
  */
-public interface Origin extends AbsoluteUrl {
+public interface Origin extends ServersideAbsoluteUrl {
 
   /**
    * Returns the authority component of this origin.
@@ -91,7 +91,7 @@ public interface Origin extends AbsoluteUrl {
    * @return a normalised origin (as a URL)
    */
   @Override
-  AbsoluteUrl normalise();
+  ServersideAbsoluteUrl normalise();
 
   /**
    * Creates an origin from a scheme and host/port.

@@ -15,146 +15,21 @@
  */
 package org.wiremock.url;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.wiremock.url.Url.transform;
-
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
-@SuppressWarnings("HttpUrlsUsage")
-class UrlTests {
+public class UriTests {
 
-  @Nested
-  class ParseMethod {
-
-    @ParameterizedTest
-    @MethodSource("validUrls")
-    void parses_valid_url(UrlReferenceParseTestCase urlTest) {
-      UriReference url = UriReference.parse(urlTest.stringForm);
-      assertThat(url.isUrl()).isTrue();
-      assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
-      assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);
-      assertThat(url.getQuery()).isEqualTo(urlTest.expectation.query);
-      assertThat(url.getFragment()).isEqualTo(urlTest.expectation.fragment);
-    }
-
-    @Test
-    void normalise() {
-      String urlString = "http://proxy.example.com/";
-      Url parsed = Url.parse(urlString);
-      Url normalised = parsed.normalise();
-      assertThat(normalised).isEqualTo(parsed);
-      assertThat(normalised.toString()).isEqualTo(parsed.toString());
-    }
-
-    @Test
-    void resolveRelative() {
-      Url base = Url.parse("http://example.com");
-      Url resolved = base.resolve(Path.parse("foo"));
-      assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
-      assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
-    }
-
-    @Test
-    void settingPortToNullChangesNothing() {
-      String urlString = "http://example.com";
-
-      Url noPortToStartWith = Url.parse(urlString);
-      assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
-
-      Url stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
-      assertThat(noPortToStartWith).isEqualTo(stillNoPort);
-      assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
-    }
-
-    @Test
-    void normalisingOriginWithEmptyPathReturnsOrigin() {
-      // Parse a URL that needs normalisation (uppercase scheme) with empty path
-      String urlString = "HTTP://example.com:80";
-      Url parsed = Url.parse(urlString);
-
-      assertThat(parsed).isNotInstanceOf(Origin.class);
-    }
-
-    static Stream<UrlReferenceParseTestCase> validUrls() {
-      return Stream.of(
-          testCase(
-              "https://user:password@www.example.com:8080/foo/bar?a=b#somefragment",
-              expectation(
-                  "https",
-                  "user:password@www.example.com:8080",
-                  "/foo/bar",
-                  "a=b",
-                  "somefragment")),
-          testCase("s://h/p2", expectation("s", "h", "/p2", null, null)),
-          testCase("s://h/p2?", expectation("s", "h", "/p2", "", null)),
-          testCase("s://h/p2?q", expectation("s", "h", "/p2", "q", null)),
-          testCase("s://h/p2#", expectation("s", "h", "/p2", null, "")),
-          testCase("s://h/p2#f", expectation("s", "h", "/p2", null, "f")),
-          testCase("s://h/p2?#", expectation("s", "h", "/p2", "", "")),
-          testCase("s://h/p2?q#", expectation("s", "h", "/p2", "q", "")),
-          testCase("s://h/p2?#f", expectation("s", "h", "/p2", "", "f")),
-          testCase("s://h/p2?q#f", expectation("s", "h", "/p2", "q", "f")),
-          testCase(
-              "ftp://user:pass@example.com:21/",
-              expectation("ftp", "user:pass@example.com:21", "/", null, null)),
-          testCase(
-              "https://example.com:00080/",
-              expectation("https", "example.com:00080", "/", null, null)),
-          testCase(
-              "https://example.com?foo=bar",
-              expectation("https", "example.com", "", "foo=bar", null)),
-          testCase(
-              "https://example.com#frag", expectation("https", "example.com", "", null, "frag")),
-          testCase(
-              "https://example.com/?q=100%25",
-              expectation("https", "example.com", "/", "q=100%25", null)),
-          testCase(
-              "https://example.com/path%2Fwith%2Fslashes",
-              expectation("https", "example.com", "/path%2Fwith%2Fslashes", null, null)),
-          testCase("https://[::1]/", expectation("https", "[::1]", "/", null, null)),
-          testCase(
-              "https://[2001:db8::1]/", expectation("https", "[2001:db8::1]", "/", null, null)),
-          testCase(
-              "https://[v7.fe80::1234]/", expectation("https", "[v7.fe80::1234]", "/", null, null)),
-          testCase(
-              "scheme+ext.-123://host/", expectation("scheme+ext.-123", "host", "/", null, null)),
-          testCase("a://%61", expectation("a", "%61", "", null, null)),
-          testCase("x://host/path;param", expectation("x", "host", "/path;param", null, null)),
-          testCase(
-              "x://host/path?query=foo&bar=baz",
-              expectation("x", "host", "/path", "query=foo&bar=baz", null)),
-          testCase(
-              "x://host/path%00segment", expectation("x", "host", "/path%00segment", null, null)),
-          testCase(
-              "https://example.com/{}?{}#{}",
-              expectation("https", "example.com", "/{}", "{}", "{}")),
-          testCase(
-              "https://example.com/a b?a b#a b",
-              expectation("https", "example.com", "/a b", "a b", "a b")),
-          testCase(
-              "https://example.com/a\tb?a\tb#a\tb",
-              expectation("https", "example.com", "/a\tb", "a\tb", "a\tb")),
-          testCase(
-              "https://example.com/a|b?a|b#a|b",
-              expectation("https", "example.com", "/a|b", "a|b", "a|b")));
-    }
-  }
-
+  @SuppressWarnings("HttpUrlsUsage")
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.<Pair<String, String>>of(
                 // Scheme normalization - uppercase to lowercase
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
@@ -184,6 +59,11 @@ class UrlTests {
                 Pair.of("https://example.com:443/", "https://example.com/"),
                 Pair.of("https://example.com:443/path", "https://example.com/path"),
                 Pair.of("https://example.com:0443", "https://example.com/"),
+
+                // Protocol-relative URLs - host normalization
+                Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
+                Pair.of("//EXAMPLE.COM:08080", "//example.com:8080/"),
+                Pair.of("//example.com:08080", "//example.com:8080/"),
 
                 // Percent encoding - uppercase hex digits in path
                 Pair.of("http://example.com/%1f", "http://example.com/%1F"),
@@ -252,11 +132,23 @@ class UrlTests {
                 Pair.of("https://example.com:8443", "https://example.com:8443/"),
                 Pair.of("ftp://example.com:21", "ftp://example.com/"),
 
+                // Non-spec driven
+                /*
+                `whatever:/..//` is a URI without an Authority.
+                Acording to the spec https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4
+                `/..//` should normalise to `//`, so `whatever:/..//` should normalise to `whatever://`.
+                However, this changes the semantics to now have an (empty) authority and an empty path.
+
+                We have made an executive decision that if a URI without an Authority has a path that
+                normalises to more than one `/` at the start, they will be treatd as a single `/`.
+                */
+                Pair.of("whatever:/..//", "whatever:/"),
+
                 // Mixed case hex digits
                 Pair.of("http://example.com/%aB%Cd", "http://example.com/%AB%CD"),
                 Pair.of("http://example.com?key=%aB", "http://example.com/?key=%AB"),
                 Pair.of("http://example.com#%aB", "http://example.com/#%AB"))
-            .map(it -> new NormalisationCase<>(Url.parse(it.getLeft()), Url.parse(it.getRight())))
+            .map(it -> new NormalisationCase<>(Uri.parse(it.getLeft()), Uri.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -265,41 +157,13 @@ class UrlTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUriReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory
     Stream<DynamicTest> already_normalised_invariants() {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
-          alreadyNormalisedUrlReferences);
+          alreadyNormalisedUriReferences);
     }
   }
-
-  static UrlReferenceParseTestCase testCase(
-      String stringForm, UrlReferenceExpectation expectation) {
-    return new UrlReferenceParseTestCase(stringForm, expectation);
-  }
-
-  static UrlReferenceExpectation expectation(
-      @Nullable String schemeStr,
-      @Nullable String authorityStr,
-      String pathStr,
-      @Nullable String queryStr,
-      @Nullable String fragmentStr) {
-    Scheme scheme = schemeStr == null ? null : Scheme.parse(schemeStr);
-    Authority authority = authorityStr == null ? null : Authority.parse(authorityStr);
-    Path path = Path.parse(pathStr);
-    Query query = queryStr == null ? null : Query.parse(queryStr);
-    Fragment fragment = fragmentStr == null ? null : Fragment.parse(fragmentStr);
-    return new UrlReferenceExpectation(scheme, authority, path, query, fragment);
-  }
-
-  record UrlReferenceParseTestCase(String stringForm, UrlReferenceExpectation expectation) {}
-
-  record UrlReferenceExpectation(
-      @Nullable Scheme scheme,
-      @Nullable Authority authority,
-      @Nullable Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {}
 }

@@ -15,22 +15,24 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.UriBuilder.buildUri;
+import static org.wiremock.url.AbsoluteUrlBuilder.buildUrl;
 
 import org.jspecify.annotations.Nullable;
-import org.wiremock.url.UriReference.Builder;
+import org.wiremock.url.AbsoluteUri.Builder;
 
-class UriReferenceBuilder implements Builder {
+class AbsoluteUriBuilder implements Builder {
 
-  @Nullable private Scheme scheme = null;
+  private Scheme scheme;
   @Nullable private Authority authority = null;
   private Path path = Path.ROOT;
   @Nullable Query query = null;
   @Nullable Fragment fragment = null;
 
-  UriReferenceBuilder() {}
+  AbsoluteUriBuilder(Scheme scheme) {
+    this.scheme = scheme;
+  }
 
-  UriReferenceBuilder(UriReference uri) {
+  AbsoluteUriBuilder(AbsoluteUri uri) {
     this.scheme = uri.getScheme();
     this.authority = uri.getAuthority();
     this.path = uri.getPath();
@@ -39,19 +41,19 @@ class UriReferenceBuilder implements Builder {
   }
 
   @Override
-  public UriReferenceBuilder setScheme(@Nullable Scheme scheme) {
+  public Builder setScheme(Scheme scheme) {
     this.scheme = scheme;
     return this;
   }
 
   @Override
-  public UriReferenceBuilder setAuthority(@Nullable Authority authority) {
+  public AbsoluteUriBuilder setAuthority(@Nullable Authority authority) {
     this.authority = authority;
     return this;
   }
 
   @Override
-  public UriReferenceBuilder setUserInfo(@Nullable UserInfo userInfo) {
+  public AbsoluteUriBuilder setUserInfo(@Nullable UserInfo userInfo) {
     if (this.authority == null) {
       throw new IllegalStateException("Must set an authority or a host before setting user info");
     } else {
@@ -61,7 +63,7 @@ class UriReferenceBuilder implements Builder {
   }
 
   @Override
-  public UriReferenceBuilder setHost(Host host) {
+  public AbsoluteUriBuilder setHost(Host host) {
     if (this.authority == null) {
       this.authority = Authority.of(host);
     } else {
@@ -71,7 +73,7 @@ class UriReferenceBuilder implements Builder {
   }
 
   @Override
-  public UriReferenceBuilder setPort(@Nullable Port port) {
+  public AbsoluteUriBuilder setPort(@Nullable Port port) {
     if (this.authority == null) {
       throw new IllegalStateException("Must set an authority or a host before setting port");
     } else {
@@ -81,31 +83,38 @@ class UriReferenceBuilder implements Builder {
   }
 
   @Override
-  public UriReferenceBuilder setPath(Path path) {
+  public AbsoluteUriBuilder setPath(Path path) {
     this.path = path;
     return this;
   }
 
   @Override
-  public UriReferenceBuilder setQuery(@Nullable Query query) {
+  public AbsoluteUriBuilder setQuery(@Nullable Query query) {
     this.query = query;
     return this;
   }
 
   @Override
-  public UriReferenceBuilder setFragment(@Nullable Fragment fragment) {
+  public AbsoluteUriBuilder setFragment(@Nullable Fragment fragment) {
     this.fragment = fragment;
     return this;
   }
 
   @Override
-  public UriReference build() {
-    if (scheme == null) {
-      if (authority == null && fragment == null) {
-        return new PathAndQueryValue(path, query);
-      } else {
-        return new RelativeRefValue(authority, path, query, fragment);
-      }
-    } else return buildUri(scheme, authority, path, query, fragment);
+  public AbsoluteUri build() {
+    return buildUri(scheme, authority, path, query, fragment);
+  }
+
+  static AbsoluteUri buildUri(
+      Scheme scheme,
+      @Nullable Authority authority,
+      Path path,
+      @Nullable Query query,
+      @Nullable Fragment fragment) {
+    if (authority == null) {
+      return OpaqueUri.of(scheme, path, query, fragment);
+    } else {
+      return buildUrl(scheme, authority, path, query, fragment);
+    }
   }
 }

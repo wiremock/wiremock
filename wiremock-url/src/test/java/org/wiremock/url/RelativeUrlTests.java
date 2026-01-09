@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestFactory;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
-class RelativeRefTests {
+class RelativeUrlTests {
 
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<UriReference>> normalisationCases =
+    static final List<NormalisationCase<Uri>> normalisationCases =
         Stream.of(
                 // Protocol-relative URLs - host normalization
                 Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
@@ -37,7 +37,7 @@ class RelativeRefTests {
             .map(
                 it ->
                     new NormalisationCase<>(
-                        RelativeRef.parse(it.getLeft()), RelativeRef.parse(it.getRight())))
+                        RelativeUrl.parse(it.getLeft()), RelativeUrl.parse(it.getRight())))
             .toList();
 
     @TestFactory
@@ -46,7 +46,7 @@ class RelativeRefTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<UriReference> alreadyNormalisedUrlReferences =
+    static final List<Uri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

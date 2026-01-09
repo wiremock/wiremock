@@ -15,22 +15,20 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.UrlBuilder.buildUrl;
+import static org.wiremock.url.AbsoluteUriBuilder.buildUri;
 
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.Uri.Builder;
 
 class UriBuilder implements Builder {
 
-  private Scheme scheme;
+  @Nullable private Scheme scheme = null;
   @Nullable private Authority authority = null;
   private Path path = Path.ROOT;
   @Nullable Query query = null;
   @Nullable Fragment fragment = null;
 
-  UriBuilder(Scheme scheme) {
-    this.scheme = scheme;
-  }
+  UriBuilder() {}
 
   UriBuilder(Uri uri) {
     this.scheme = uri.getScheme();
@@ -41,7 +39,7 @@ class UriBuilder implements Builder {
   }
 
   @Override
-  public Builder setScheme(Scheme scheme) {
+  public UriBuilder setScheme(@Nullable Scheme scheme) {
     this.scheme = scheme;
     return this;
   }
@@ -102,19 +100,12 @@ class UriBuilder implements Builder {
 
   @Override
   public Uri build() {
-    return buildUri(scheme, authority, path, query, fragment);
-  }
-
-  static Uri buildUri(
-      Scheme scheme,
-      @Nullable Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    if (authority == null) {
-      return OpaqueUri.of(scheme, path, query, fragment);
-    } else {
-      return buildUrl(scheme, authority, path, query, fragment);
-    }
+    if (scheme == null) {
+      if (authority == null && fragment == null) {
+        return new PathAndQueryValue(path, query);
+      } else {
+        return new RelativeUrlValue(authority, path, query, fragment);
+      }
+    } else return buildUri(scheme, authority, path, query, fragment);
   }
 }

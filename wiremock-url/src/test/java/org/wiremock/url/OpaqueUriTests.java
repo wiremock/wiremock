@@ -28,8 +28,7 @@ class OpaqueUriTests {
     @Test
     void resolvesOpaqueUriAgainstInput() {
       var opaqueUri = OpaqueUri.parse("non-spec:/..//p");
-      assertThat(opaqueUri.resolve(UriReference.parse("")))
-          .isEqualTo(OpaqueUri.parse("non-spec:/p"));
+      assertThat(opaqueUri.resolve(Uri.parse(""))).isEqualTo(OpaqueUri.parse("non-spec:/p"));
     }
   }
 

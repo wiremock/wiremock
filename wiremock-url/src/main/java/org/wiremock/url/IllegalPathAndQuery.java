@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public final class IllegalPathAndQuery extends IllegalRelativeRef {
+public final class IllegalPathAndQuery extends IllegalRelativeUrl {
 
   public IllegalPathAndQuery(String pathAndQuery) {
     this(pathAndQuery, null);

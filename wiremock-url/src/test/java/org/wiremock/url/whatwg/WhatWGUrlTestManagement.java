@@ -43,21 +43,21 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUri;
 import org.wiremock.url.AbsoluteUrl;
-import org.wiremock.url.IllegalUriReference;
+import org.wiremock.url.IllegalUri;
 import org.wiremock.url.OpaqueUri;
 import org.wiremock.url.Origin;
 import org.wiremock.url.Rfc3986Validator;
+import org.wiremock.url.ServersideAbsoluteUrl;
 import org.wiremock.url.Uri;
-import org.wiremock.url.UriReference;
-import org.wiremock.url.Url;
 
 public class WhatWGUrlTestManagement {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  static final Url remoteUrl =
-      Url.parse(
+  static final AbsoluteUrl remoteUrl =
+      AbsoluteUrl.parse(
           "https://raw.githubusercontent.com/web-platform-tests/wpt/refs/heads/master/url/resources/urltestdata.json");
 
   private static final String URLTESTDATA_JSON = "urltestdata.json";
@@ -333,10 +333,10 @@ public class WhatWGUrlTestManagement {
     UriReferenceExpectation normalisedInputExpectation;
     UriReferenceExpectation inputExpectation;
     try {
-      UriReference inputUriRef = UriReference.parse(input);
+      Uri inputUriRef = Uri.parse(input);
       inputExpectation = toExpectation(inputUriRef);
       normalisedInputExpectation = toExpectation(inputUriRef.normalise());
-    } catch (IllegalUriReference e) {
+    } catch (IllegalUri e) {
       inputExpectation = expectation(testCase, input, false);
       normalisedInputExpectation = expectation(testCase, input, true);
     }
@@ -346,10 +346,10 @@ public class WhatWGUrlTestManagement {
     UriReferenceExpectation baseNormalised;
     if (base != null) {
       try {
-        UriReference baseUriRef = UriReference.parse(base);
+        Uri baseUriRef = Uri.parse(base);
         baseExpectation = toExpectation(baseUriRef);
         baseNormalised = toExpectation(baseUriRef.normalise());
-      } catch (IllegalUriReference e) {
+      } catch (IllegalUri e) {
         baseExpectation = expectation(testCase, base, false);
         baseNormalised = expectation(testCase, base, true);
       }
@@ -397,7 +397,7 @@ public class WhatWGUrlTestManagement {
       SuccessWhatWGUrlTestCase testCase, String input, boolean normalised) {
     String search = substringAfter(testCase.search(), "?");
     String hash = substringAfter(testCase.hash(), "#");
-    Class<? extends Uri> type = calculateType(testCase, input, normalised);
+    Class<? extends AbsoluteUri> type = calculateType(testCase, input, normalised);
     return new UriReferenceExpectation(
         (testCase.pathname().isEmpty()
                 && normalised
@@ -411,7 +411,7 @@ public class WhatWGUrlTestManagement {
         userInfo(testCase),
         testCase.username().isEmpty() ? null : testCase.username(),
         testCase.password().isEmpty() ? null : testCase.password(),
-        Url.class.isAssignableFrom(type) ? testCase.hostname() : null,
+        AbsoluteUrl.class.isAssignableFrom(type) ? testCase.hostname() : null,
         testCase.port() == null ? null : (testCase.port().isEmpty() ? null : testCase.port()),
         (testCase.pathname().isEmpty() && normalised) ? "/" : testCase.pathname(),
         search.isEmpty() ? null : search,
@@ -473,14 +473,14 @@ public class WhatWGUrlTestManagement {
   @SuppressWarnings("unused")
   private static boolean shouldBeValid(boolean rfc3986Valid, WhatWGUrlTestCase test) {
     try {
-      UriReference.parse(test.input());
+      Uri.parse(test.input());
       return true;
     } catch (Exception e) {
       return false;
     }
   }
 
-  private static Class<? extends Uri> calculateType(
+  private static Class<? extends AbsoluteUri> calculateType(
       SuccessWhatWGUrlTestCase testCase, String input, boolean normalised) {
     if (!normalised
         && (input.equals(testCase.origin())
@@ -494,9 +494,9 @@ public class WhatWGUrlTestManagement {
     } else if (testCase.host().isEmpty() && !input.matches("^[a-z]+://($|/.*)")) {
       return OpaqueUri.class;
     } else if (testCase.hash().isEmpty()) {
-      return AbsoluteUrl.class;
+      return ServersideAbsoluteUrl.class;
     } else {
-      return Url.class;
+      return AbsoluteUrl.class;
     }
   }
 
@@ -510,7 +510,7 @@ public class WhatWGUrlTestManagement {
     return new SimpleParseFailure(
         testCase.input(),
         base,
-        IllegalUriReference.class.getSimpleName(),
+        IllegalUri.class.getSimpleName(),
         "Illegal uri reference: `" + testCase.input() + "`",
         null,
         "",
@@ -533,14 +533,14 @@ public class WhatWGUrlTestManagement {
   }
 
   private static @Nullable String authority(
-      SuccessWhatWGUrlTestCase testCase, Class<? extends Uri> type) {
+      SuccessWhatWGUrlTestCase testCase, Class<? extends AbsoluteUri> type) {
     var userInfo = userInfo(testCase);
     return userInfo == null ? hostAndPort(testCase, type) : userInfo + "@" + testCase.host();
   }
 
   private static @Nullable String hostAndPort(
-      SuccessWhatWGUrlTestCase testCase, Class<? extends Uri> type) {
-    return Url.class.isAssignableFrom(type) ? testCase.host() : null;
+      SuccessWhatWGUrlTestCase testCase, Class<? extends AbsoluteUri> type) {
+    return AbsoluteUrl.class.isAssignableFrom(type) ? testCase.host() : null;
   }
 }
 

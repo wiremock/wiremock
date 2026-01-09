@@ -39,8 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.Rfc3986Validator;
-import org.wiremock.url.Url;
 
 class WhatWGUrlInvariantTests {
 
@@ -187,7 +187,7 @@ class WhatWGUrlInvariantTests {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private static boolean hostReachable(Url url) {
+  private static boolean hostReachable(AbsoluteUrl url) {
     try (Socket socket = new Socket()) {
       //noinspection DataFlowIssue
       socket.connect(

@@ -15,21 +15,21 @@
  */
 package org.wiremock.url;
 
-final class UrlReferenceParser implements StringParser<Url> {
+final class ServersideAbsoluteUrlParser implements StringParser<ServersideAbsoluteUrl> {
 
-  static final UrlReferenceParser INSTANCE = new UrlReferenceParser();
+  static final ServersideAbsoluteUrlParser INSTANCE = new ServersideAbsoluteUrlParser();
 
   @Override
-  public Url parse(String stringForm) {
+  public ServersideAbsoluteUrl parse(String url) throws IllegalServersideAbsoluteUrl {
     try {
-      var uriReference = UriReferenceParser.INSTANCE.parse(stringForm);
-      if (uriReference instanceof Url) {
-        return (Url) uriReference;
+      var urlReference = UriReferenceParser.INSTANCE.parse(url);
+      if (urlReference instanceof ServersideAbsoluteUrl) {
+        return (ServersideAbsoluteUrl) urlReference;
       } else {
-        throw new IllegalUri(stringForm);
+        throw new IllegalServersideAbsoluteUrl(url);
       }
     } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalUri(stringForm, illegalUriPart);
+      throw new IllegalServersideAbsoluteUrl(url, illegalUriPart);
     }
   }
 }

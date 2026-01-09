@@ -31,11 +31,11 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
-import org.wiremock.url.IllegalUriReference;
+import org.wiremock.url.AbsoluteUri;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.IllegalUri;
 import org.wiremock.url.Origin;
 import org.wiremock.url.Uri;
-import org.wiremock.url.UriReference;
-import org.wiremock.url.Url;
 
 /**
  * Snapshot tests for URI/URL parsing behaviour.
@@ -137,14 +137,14 @@ public class SnapshotTests {
   void wiremock_valid(SimpleParseSuccess testCase) {
 
     var inputUriRef = parseReference(testCase, testCase.input());
-    UriReference inputNormalised = inputUriRef.normalise();
+    Uri inputNormalised = inputUriRef.normalise();
 
     var baseUri = parseUri(testCase, testCase.base());
     var baseNormalised = baseUri != null ? baseUri.normalise() : null;
 
-    UriReference resolved = baseUri == null ? inputNormalised : baseUri.resolve(inputUriRef);
+    Uri resolved = baseUri == null ? inputNormalised : baseUri.resolve(inputUriRef);
 
-    Origin origin = resolved instanceof Url resolvedUrl ? resolvedUrl.getOrigin() : null;
+    Origin origin = resolved instanceof AbsoluteUrl resolvedUrl ? resolvedUrl.getOrigin() : null;
 
     try {
       assertSoftly(
@@ -171,10 +171,10 @@ public class SnapshotTests {
   void wiremock_invalid(SimpleParseFailure testCase) {
 
     var throwable =
-        assertThatExceptionOfType(IllegalUriReference.class)
+        assertThatExceptionOfType(IllegalUri.class)
             .isThrownBy(
                 () -> {
-                  UriReference.parse(testCase.input());
+                  Uri.parse(testCase.input());
                   registerUpdatedSuccess(testCase);
                 })
             .actual();
@@ -199,19 +199,7 @@ public class SnapshotTests {
     }
   }
 
-  private UriReference parseReference(SimpleParseSuccess testCase, String input) {
-    try {
-      return UriReference.parse(input);
-    } catch (Exception e) {
-      registerUpdatedFailure(testCase, e);
-      throw e;
-    }
-  }
-
-  private @Nullable Uri parseUri(SimpleParseSuccess testCase, @Nullable String input) {
-    if (input == null) {
-      return null;
-    }
+  private Uri parseReference(SimpleParseSuccess testCase, String input) {
     try {
       return Uri.parse(input);
     } catch (Exception e) {
@@ -220,26 +208,38 @@ public class SnapshotTests {
     }
   }
 
+  private @Nullable AbsoluteUri parseUri(SimpleParseSuccess testCase, @Nullable String input) {
+    if (input == null) {
+      return null;
+    }
+    try {
+      return AbsoluteUri.parse(input);
+    } catch (Exception e) {
+      registerUpdatedFailure(testCase, e);
+      throw e;
+    }
+  }
+
   private void registerUpdatedSuccess(WireMockSnapshotTestCase testCase) {
     String input = testCase.input();
-    UriReference inputUriRef = UriReference.parse(input);
-    final UriReference inputNormalised = inputUriRef.normalise();
+    Uri inputUriRef = Uri.parse(input);
+    final Uri inputNormalised = inputUriRef.normalise();
 
     final UriReferenceExpectation inputExpected = toExpectation(inputUriRef);
     final UriReferenceExpectation inputNormalisedExpected = toExpectation(inputNormalised);
 
     final String base = testCase.base();
 
-    final Uri baseUri;
-    final Uri baseUriNormalised;
-    final UriReference resolved;
+    final AbsoluteUri baseUri;
+    final AbsoluteUri baseUriNormalised;
+    final Uri resolved;
 
     if (base == null || base.isEmpty() || base.equals("null")) {
       baseUri = null;
       baseUriNormalised = null;
       resolved = inputNormalised;
     } else {
-      baseUri = Uri.parse(base);
+      baseUri = AbsoluteUri.parse(base);
       baseUriNormalised = baseUri.normalise();
       resolved = baseUri.resolve(inputUriRef);
     }
@@ -249,7 +249,7 @@ public class SnapshotTests {
     final UriReferenceExpectation resolvedExpected = toExpectation(resolved);
 
     final UriReferenceExpectation origin;
-    if (resolved instanceof Url resolvedUrl) {
+    if (resolved instanceof AbsoluteUrl resolvedUrl) {
       origin = toExpectation(resolvedUrl.getOrigin());
     } else {
       origin = null;
@@ -299,7 +299,7 @@ public class SnapshotTests {
     }
   }
 
-  public static @Nullable UriReferenceExpectation toExpectation(@Nullable UriReference uri) {
+  public static @Nullable UriReferenceExpectation toExpectation(@Nullable Uri uri) {
     if (uri == null) {
       return null;
     }
@@ -322,7 +322,7 @@ public class SnapshotTests {
         uri.getFragment() == null ? null : uri.getFragment().toString());
   }
 
-  static String getFirstInterface(UriReference uri) {
+  static String getFirstInterface(Uri uri) {
     //noinspection OptionalGetWithoutIsPresent
     return Arrays.stream(uri.getClass().getInterfaces()).findFirst().get().getSimpleName();
   }
