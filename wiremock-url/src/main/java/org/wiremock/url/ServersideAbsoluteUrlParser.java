@@ -20,16 +20,16 @@ final class ServersideAbsoluteUrlParser implements StringParser<ServersideAbsolu
   static final ServersideAbsoluteUrlParser INSTANCE = new ServersideAbsoluteUrlParser();
 
   @Override
-  public ServersideAbsoluteUrl parse(String url) throws IllegalServersideAbsoluteUrl {
+  public ServersideAbsoluteUrl parse(String stringForm) throws IllegalServersideAbsoluteUrl {
     try {
-      var urlReference = UriReferenceParser.INSTANCE.parse(url);
-      if (urlReference instanceof ServersideAbsoluteUrl) {
-        return (ServersideAbsoluteUrl) urlReference;
+      var uri = UriParser.INSTANCE.parse(stringForm);
+      if (uri instanceof ServersideAbsoluteUrl absoluteUrl) {
+        return absoluteUrl;
       } else {
-        throw new IllegalServersideAbsoluteUrl(url);
+        throw new IllegalServersideAbsoluteUrl(stringForm);
       }
     } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalServersideAbsoluteUrl(url, illegalUriPart);
+      throw new IllegalServersideAbsoluteUrl(stringForm, illegalUriPart);
     }
   }
 }

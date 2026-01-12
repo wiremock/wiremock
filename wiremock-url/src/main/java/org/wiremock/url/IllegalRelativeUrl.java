@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public non-sealed class IllegalRelativeUrl extends IllegalUri {
+public non-sealed class IllegalRelativeUrl extends IllegalUrl {
 
   public IllegalRelativeUrl(String relativeRef) {
     this(relativeRef, null);

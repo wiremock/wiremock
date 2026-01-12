@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,15 @@
  */
 package org.wiremock.url;
 
-final class UrlParser implements StringParser<Url> {
+import org.jspecify.annotations.Nullable;
 
-  static final UrlParser INSTANCE = new UrlParser();
+public sealed class IllegalUrl extends IllegalUri permits IllegalRelativeUrl, IllegalAbsoluteUrl {
 
-  @Override
-  public Url parse(String stringForm) {
-    try {
-      var uri = UriParser.INSTANCE.parse(stringForm);
-      if (uri instanceof Url) {
-        return (Url) uri;
-      } else {
-        throw new IllegalUrl(stringForm, "Illegal url: `" + uri + "`; a url has an authority");
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalUri(stringForm, illegalUriPart);
-    }
+  public IllegalUrl(String illegalValue, String message) {
+    this(illegalValue, message, null);
+  }
+
+  public IllegalUrl(String illegalValue, String message, @Nullable IllegalUriPart cause) {
+    super(illegalValue, message, cause);
   }
 }

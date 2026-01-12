@@ -175,12 +175,12 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Url {
   /**
    * Parses a string into a URI reference.
    *
-   * @param urlReference the string to parse
+   * @param uri the string to parse
    * @return the parsed URI reference
    * @throws IllegalUri if the string is not a valid URI reference
    */
-  static Uri parse(String urlReference) throws IllegalUri {
-    return UriReferenceParser.INSTANCE.parse(urlReference);
+  static Uri parse(String uri) throws IllegalUri {
+    return UriParser.INSTANCE.parse(uri);
   }
 
   /**

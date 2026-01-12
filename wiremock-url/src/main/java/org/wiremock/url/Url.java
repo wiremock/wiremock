@@ -45,11 +45,11 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
   /**
    * Parses a string into a URI reference.
    *
-   * @param urlReference the string to parse
+   * @param url the string to parse
    * @return the parsed URI reference
    * @throws IllegalUri if the string is not a valid URI reference
    */
-  static Url parse(String urlReference) throws IllegalUri {
-    return UrlReferenceParser.INSTANCE.parse(urlReference);
+  static Url parse(String url) throws IllegalUri {
+    return UrlParser.INSTANCE.parse(url);
   }
 }

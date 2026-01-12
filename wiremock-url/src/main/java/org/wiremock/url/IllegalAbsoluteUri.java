@@ -17,8 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-public sealed class IllegalAbsoluteUri extends IllegalUri
-    permits IllegalAbsoluteUrl, IllegalOpaqueUri {
+public non-sealed class IllegalAbsoluteUri extends IllegalUri {
 
   public IllegalAbsoluteUri(String uri) {
     this(uri, null);

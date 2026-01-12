@@ -22,9 +22,9 @@ final class RelativeUrlParser implements StringParser<RelativeUrl> {
   @Override
   public RelativeUrl parse(String stringForm) {
     try {
-      var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
-      if (urlReference instanceof RelativeUrl) {
-        return (RelativeUrl) urlReference;
+      var uri = UriParser.INSTANCE.parse(stringForm);
+      if (uri instanceof RelativeUrl relativeUrl) {
+        return relativeUrl;
       } else {
         throw new IllegalRelativeUrl(stringForm);
       }

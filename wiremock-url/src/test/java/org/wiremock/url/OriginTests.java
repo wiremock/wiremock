@@ -15,15 +15,69 @@
  */
 package org.wiremock.url;
 
+import static java.util.stream.Stream.concat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.wiremock.url.Scheme.http;
+import static org.wiremock.url.ServersideAbsoluteUrlTest.Parse.invalidAbsoluteUrls;
+
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 public class OriginTests {
+
+  @Nested
+  class Parse {
+
+    @Test
+    void parses_origin_correctly() {
+      var origin = Origin.parse("http://example.com");
+
+      assertThat(origin.getScheme()).isEqualTo(http);
+
+      assertThat(origin.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(origin.getUserInfo()).isNull();
+      assertThat(origin.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(origin.getPort()).isNull();
+
+      assertThat(origin.getPathAndQuery()).isEqualTo(PathAndQuery.EMPTY);
+      assertThat(origin.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(origin.getQuery()).isNull();
+
+      assertThat(origin.getFragment()).isNull();
+
+      assertThat(origin.toString()).isEqualTo("http://example.com");
+    }
+
+    static final List<String> illegalOrigins =
+        concat(
+                invalidAbsoluteUrls.stream(),
+                Stream.of(
+                    "http://example.com/",
+                    "http://example.com/?",
+                    "http://example.com?",
+                    "http://example.com/",
+                    "http://example.com/?"))
+            .toList();
+
+    @ParameterizedTest
+    @FieldSource("illegalOrigins")
+    void illegal_origins_are_rejected(String invalidOrigin) {
+      assertThatExceptionOfType(IllegalOrigin.class)
+          .isThrownBy(() -> Origin.parse(invalidOrigin))
+          .withMessage("Illegal origin: `" + invalidOrigin + "`")
+          .extracting(IllegalOrigin::getIllegalValue)
+          .isEqualTo(invalidOrigin);
+    }
+  }
 
   @Nested
   class Normalise {

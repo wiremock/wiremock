@@ -47,7 +47,7 @@ public interface HostAndPort extends Authority {
    * @return the host and port
    */
   static HostAndPort of(Host host, @Nullable Port port) {
-    if (host.isEmpty()) {
+    if (host.isEmpty() && port == null) {
       return HostAndPort.EMPTY;
     } else {
       return new HostAndPortValue(host, port);

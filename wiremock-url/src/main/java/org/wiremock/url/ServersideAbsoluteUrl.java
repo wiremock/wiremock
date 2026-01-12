@@ -54,7 +54,6 @@ public interface ServersideAbsoluteUrl extends AbsoluteUrl {
   @Override
   ServersideAbsoluteUrl normalise();
 
-
   /**
    * Returns this.
    *

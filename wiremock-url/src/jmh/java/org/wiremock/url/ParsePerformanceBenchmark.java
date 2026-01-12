@@ -51,7 +51,7 @@ import org.wiremock.url.whatwg.WhatWGUrlTestManagement;
 @Measurement(iterations = 5, time = 1)
 public class ParsePerformanceBenchmark {
 
-  private static final Set<String> allUriReferences =
+  private static final Set<String> allUris =
       WhatWGUrlTestManagement.testData.stream()
           .flatMap(
               test -> {
@@ -68,7 +68,7 @@ public class ParsePerformanceBenchmark {
           .collect(Collectors.toSet());
 
   private static final List<String> parseableByBoth =
-      allUriReferences.stream()
+      allUris.stream()
           .filter(
               uriStr -> {
                 try {
@@ -86,7 +86,7 @@ public class ParsePerformanceBenchmark {
           .toList();
 
   private static final List<String> notParseableByEither =
-      allUriReferences.stream()
+      allUris.stream()
           .filter(
               uriStr -> {
                 try {
@@ -135,7 +135,7 @@ public class ParsePerformanceBenchmark {
    * @return the parsed Uri (to prevent dead code elimination)
    */
   @Benchmark
-  public Uri benchmarkWireMockUriReference(ParseableBenchmarkState state) {
+  public Uri benchmarkWireMockUri(ParseableBenchmarkState state) {
     return Uri.parse(state.getCurrentUri());
   }
 
@@ -180,7 +180,7 @@ public class ParsePerformanceBenchmark {
    * @return null (exception is expected)
    */
   @Benchmark
-  public Uri benchmarkWireMockUriReferenceErrorHandling(InvalidBenchmarkState state) {
+  public Uri benchmarkWireMockUriErrorHandling(InvalidBenchmarkState state) {
     try {
       return Uri.parse(state.getCurrentUri());
     } catch (IllegalUri e) {

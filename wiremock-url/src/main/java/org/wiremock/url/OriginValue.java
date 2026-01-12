@@ -28,17 +28,17 @@ final class OriginValue implements Origin {
   @Override
   @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public boolean equals(Object obj) {
-    return UriReferenceParser.equals(this, obj);
+    return UriParser.equals(this, obj);
   }
 
   @Override
   public int hashCode() {
-    return UriReferenceParser.hashCode(this);
+    return UriParser.hashCode(this);
   }
 
   @Override
   public String toString() {
-    return UriReferenceParser.toString(this);
+    return UriParser.toString(this);
   }
 
   @Override

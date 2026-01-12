@@ -20,9 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class UriReferenceParser implements StringParser<Uri> {
+final class UriParser implements StringParser<Uri> {
 
-  static final UriReferenceParser INSTANCE = new UriReferenceParser();
+  static final UriParser INSTANCE = new UriParser();
 
   static boolean equals(Uri one, Object o) {
     if (one == o) {
@@ -61,29 +61,25 @@ final class UriReferenceParser implements StringParser<Uri> {
     return true;
   }
 
-  static int hashCode(Uri urlReference) {
+  static int hashCode(Uri uri) {
     return Objects.hash(
-        urlReference.getScheme(),
-        urlReference.getAuthority(),
-        urlReference.getPath(),
-        urlReference.getQuery(),
-        urlReference.getFragment());
+        uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
   }
 
-  static String toString(Uri urlReference) {
+  static String toString(Uri uri) {
     StringBuilder result = new StringBuilder();
-    if (urlReference.getScheme() != null) {
-      result.append(urlReference.getScheme()).append(":");
+    if (uri.getScheme() != null) {
+      result.append(uri.getScheme()).append(":");
     }
-    if (urlReference.getAuthority() != null) {
-      result.append("//").append(urlReference.getAuthority());
+    if (uri.getAuthority() != null) {
+      result.append("//").append(uri.getAuthority());
     }
-    result.append(urlReference.getPath());
-    if (urlReference.getQuery() != null) {
-      result.append("?").append(urlReference.getQuery());
+    result.append(uri.getPath());
+    if (uri.getQuery() != null) {
+      result.append("?").append(uri.getQuery());
     }
-    if (urlReference.getFragment() != null) {
-      result.append("#").append(urlReference.getFragment());
+    if (uri.getFragment() != null) {
+      result.append("#").append(uri.getFragment());
     }
     return result.toString();
   }

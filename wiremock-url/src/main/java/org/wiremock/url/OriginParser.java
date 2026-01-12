@@ -22,9 +22,9 @@ final class OriginParser implements StringParser<Origin> {
   @Override
   public Origin parse(String url) throws IllegalOrigin {
     try {
-      var urlReference = UriReferenceParser.INSTANCE.parse(url);
-      if (urlReference instanceof Origin) {
-        return (Origin) urlReference;
+      var uri = UriParser.INSTANCE.parse(url);
+      if (uri instanceof Origin origin) {
+        return origin;
       } else {
         throw new IllegalOrigin(url);
       }

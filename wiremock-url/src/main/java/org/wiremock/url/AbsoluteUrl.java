@@ -149,7 +149,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @throws IllegalAbsoluteUrl if the string is not a valid URL
    */
   static AbsoluteUrl parse(String url) throws IllegalAbsoluteUrl {
-    return UrlParser.INSTANCE.parse(url);
+    return AbsoluteUrlParser.INSTANCE.parse(url);
   }
 
   /**

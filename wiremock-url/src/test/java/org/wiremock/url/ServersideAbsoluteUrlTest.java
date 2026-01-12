@@ -32,13 +32,15 @@ class ServersideAbsoluteUrlTest {
   @Nested
   class Parse {
 
-    private static final List<String> invalidAbsoluteUrls =
+    static final List<String> invalidAbsoluteUrls =
         List.of(
             "http://example.com#",
             "http://example.com/#",
+            "http://example.com?#",
             "http://example.com/?#",
             "http://example.com#foo",
             "http://example.com/#foo",
+            "http://example.com?#foo",
             "http://example.com/?#foo");
 
     @ParameterizedTest

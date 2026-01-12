@@ -266,8 +266,16 @@ public class SnapshotTests {
             resolvedExpected,
             origin,
             testCase.source(),
-            false);
+            matchesWhatWg(testCase.source(), resolved));
     registerSuccess(updated);
+  }
+
+  private boolean matchesWhatWg(WhatWGUrlTestCase source, Uri resolved) {
+    if (source instanceof SuccessWhatWGUrlTestCase successWhatWGUrlTestCase) {
+      return successWhatWGUrlTestCase.href().equals(resolved.toString());
+    } else {
+      return false;
+    }
   }
 
   private void registerSuccess(SimpleParseSuccess testCase) {

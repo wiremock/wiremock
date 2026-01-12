@@ -22,9 +22,9 @@ final class PathAndQueryParser implements StringParser<PathAndQuery> {
   @Override
   public PathAndQuery parse(String stringForm) {
     try {
-      var urlReference = UriReferenceParser.INSTANCE.parse(stringForm);
-      if (urlReference instanceof PathAndQuery) {
-        return (PathAndQuery) urlReference;
+      var uri = UriParser.INSTANCE.parse(stringForm);
+      if (uri instanceof PathAndQuery pathAndQuery) {
+        return pathAndQuery;
       } else {
         throw new IllegalPathAndQuery(stringForm);
       }
