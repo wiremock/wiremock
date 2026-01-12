@@ -75,6 +75,15 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
   }
 
   /**
+   * Returns the serverside absolute URL of this URL, this URL without a fragment
+   *
+   * @return the origin
+   */
+  default ServersideAbsoluteUrl getServersideAbsoluteUrl() {
+    return (ServersideAbsoluteUrl) transform(builder -> builder.setFragment(null));
+  }
+
+  /**
    * Returns a normalised form of this URL.
    *
    * @return a normalised URL

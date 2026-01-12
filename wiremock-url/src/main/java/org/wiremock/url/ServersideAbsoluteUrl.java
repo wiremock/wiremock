@@ -54,6 +54,17 @@ public interface ServersideAbsoluteUrl extends AbsoluteUrl {
   @Override
   ServersideAbsoluteUrl normalise();
 
+
+  /**
+   * Returns this.
+   *
+   * @return this
+   */
+  @Deprecated // no point ever calling on this subtype
+  default ServersideAbsoluteUrl getServersideAbsoluteUrl() {
+    return this;
+  }
+
   /**
    * Parses a string into an absolute URL.
    *

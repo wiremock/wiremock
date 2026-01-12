@@ -94,6 +94,16 @@ public interface Origin extends ServersideAbsoluteUrl {
   ServersideAbsoluteUrl normalise();
 
   /**
+   * Returns this.
+   *
+   * @return this
+   */
+  @Deprecated // no point ever calling on this subtype
+  default Origin getServersideAbsoluteUrl() {
+    return this;
+  }
+
+  /**
    * Creates an origin from a scheme and host/port.
    *
    * @param scheme the scheme
