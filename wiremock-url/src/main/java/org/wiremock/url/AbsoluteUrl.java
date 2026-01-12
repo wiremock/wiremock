@@ -75,15 +75,6 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
   }
 
   /**
-   * Returns the path and query components combined.
-   *
-   * @return the path and query
-   */
-  default PathAndQuery getPathAndQuery() {
-    return new PathAndQueryValue(getPath(), getQuery());
-  }
-
-  /**
    * Returns a normalised form of this URL.
    *
    * @return a normalised URL

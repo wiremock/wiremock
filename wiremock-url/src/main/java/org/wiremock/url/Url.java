@@ -34,6 +34,15 @@ package org.wiremock.url;
 public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
 
   /**
+   * Returns the path and query components combined.
+   *
+   * @return the path and query
+   */
+  default PathAndQuery getPathAndQuery() {
+    return new PathAndQueryValue(getPath(), getQuery());
+  }
+
+  /**
    * Parses a string into a URI reference.
    *
    * @param urlReference the string to parse
