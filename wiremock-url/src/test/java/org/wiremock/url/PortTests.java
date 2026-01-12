@@ -59,13 +59,6 @@ class PortTests {
   @Nested
   class ParseMethod {
 
-    @Test
-    void uri() {
-      var uri = URI.create("http://localhost:00080");
-      assertThat(uri.getPort()).isEqualTo(80);
-      assertThat(uri.toString()).isEqualTo("http://localhost:00080");
-    }
-
     static Stream<String> validPortStrings() {
       return Stream.of(
           "0", "1", "80", "443", "8080", "8443", "9000", "65535", "00080", "65536", "70000",
