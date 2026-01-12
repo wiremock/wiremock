@@ -19,7 +19,7 @@ import static java.util.stream.Stream.concat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.wiremock.url.Scheme.http;
-import static org.wiremock.url.ServersideAbsoluteUrlTest.Parse.invalidAbsoluteUrls;
+import static org.wiremock.url.ServersideAbsoluteUrlTests.Parse.invalidAbsoluteUrls;
 
 import java.util.List;
 import java.util.stream.Stream;

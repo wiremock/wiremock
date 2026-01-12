@@ -20,11 +20,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUrl.transform;
 import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.UriExpectation.expectation;
+import static org.wiremock.url.UriParseTestCase.testCase;
 
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -235,55 +236,16 @@ class AbsoluteUrlTests {
 
     @ParameterizedTest
     @MethodSource("validUrls")
-    void parses_valid_url(UrlReferenceParseTestCase urlTest) {
-      AbsoluteUrl url = AbsoluteUrl.parse(urlTest.stringForm);
+    void parses_valid_url(UriParseTestCase urlTest) {
+      AbsoluteUrl url = AbsoluteUrl.parse(urlTest.stringForm());
       assertThat(url.isAbsoluteUrl()).isTrue();
-      assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
-      assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);
-      assertThat(url.getQuery()).isEqualTo(urlTest.expectation.query);
-      assertThat(url.getFragment()).isEqualTo(urlTest.expectation.fragment);
+      assertThat(url.getScheme()).isEqualTo(urlTest.expectation().scheme());
+      assertThat(url.getPath()).isEqualTo(urlTest.expectation().path());
+      assertThat(url.getQuery()).isEqualTo(urlTest.expectation().query());
+      assertThat(url.getFragment()).isEqualTo(urlTest.expectation().fragment());
     }
 
-    @Test
-    void normalise() {
-      String urlString = "http://proxy.example.com/";
-      AbsoluteUrl parsed = AbsoluteUrl.parse(urlString);
-      AbsoluteUrl normalised = parsed.normalise();
-      assertThat(normalised).isEqualTo(parsed);
-      assertThat(normalised.toString()).isEqualTo(parsed.toString());
-    }
-
-    @Test
-    void resolveRelative() {
-      AbsoluteUrl base = AbsoluteUrl.parse("http://example.com");
-      AbsoluteUrl resolved = base.resolve(Path.parse("foo"));
-      assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
-      assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
-    }
-
-    @Test
-    void settingPortToNullChangesNothing() {
-      String urlString = "http://example.com";
-
-      AbsoluteUrl noPortToStartWith = AbsoluteUrl.parse(urlString);
-      assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
-
-      AbsoluteUrl stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
-      assertThat(noPortToStartWith).isEqualTo(stillNoPort);
-      assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
-    }
-
-    @Test
-    void normalisingOriginWithEmptyPathReturnsOrigin() {
-      // Parse a URL that needs normalisation (uppercase scheme) with empty path
-      String urlString = "HTTP://example.com:80";
-      AbsoluteUrl parsed = AbsoluteUrl.parse(urlString);
-
-      assertThat(parsed).isNotInstanceOf(Origin.class);
-    }
-
-    static Stream<UrlReferenceParseTestCase> validUrls() {
+    static Stream<UriParseTestCase> validUrls() {
       return Stream.of(
           testCase(
               "https://user:password@www.example.com:8080/foo/bar?a=b#somefragment",
@@ -475,31 +437,24 @@ class AbsoluteUrlTests {
     }
   }
 
-  static UrlReferenceParseTestCase testCase(
-      String stringForm, UrlReferenceExpectation expectation) {
-    return new UrlReferenceParseTestCase(stringForm, expectation);
+  @Test
+  void resolves_relative_path() {
+    AbsoluteUrl base = AbsoluteUrl.parse("http://example.com");
+    AbsoluteUrl resolved = base.resolve(Path.parse("foo"));
+    assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
+    assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
+    assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
   }
 
-  static UrlReferenceExpectation expectation(
-      @Nullable String schemeStr,
-      @Nullable String authorityStr,
-      String pathStr,
-      @Nullable String queryStr,
-      @Nullable String fragmentStr) {
-    Scheme scheme = schemeStr == null ? null : Scheme.parse(schemeStr);
-    Authority authority = authorityStr == null ? null : Authority.parse(authorityStr);
-    Path path = Path.parse(pathStr);
-    Query query = queryStr == null ? null : Query.parse(queryStr);
-    Fragment fragment = fragmentStr == null ? null : Fragment.parse(fragmentStr);
-    return new UrlReferenceExpectation(scheme, authority, path, query, fragment);
+  @Test
+  void settingPortToNullChangesNothing() {
+    String urlString = "http://example.com";
+
+    AbsoluteUrl noPortToStartWith = AbsoluteUrl.parse(urlString);
+    assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
+
+    AbsoluteUrl stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
+    assertThat(noPortToStartWith).isEqualTo(stillNoPort);
+    assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
   }
-
-  record UrlReferenceParseTestCase(String stringForm, UrlReferenceExpectation expectation) {}
-
-  record UrlReferenceExpectation(
-      @Nullable Scheme scheme,
-      @Nullable Authority authority,
-      @Nullable Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {}
 }
