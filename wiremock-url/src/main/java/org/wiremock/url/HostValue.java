@@ -45,6 +45,8 @@ final class HostValue implements Host {
             unmatched -> unmatched.toLowerCase(ROOT));
     if (normalised.equals(host)) {
       return this;
+    } else if (normalised.isEmpty()) {
+      return Host.EMPTY;
     } else {
       return new HostValue(normalised);
     }

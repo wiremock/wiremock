@@ -50,7 +50,7 @@ final class HostAndPortValue implements HostAndPort {
     if (Objects.equals(port, this.port)) {
       return this;
     } else {
-      return new HostAndPortValue(host, port);
+      return HostAndPort.of(host, port);
     }
   }
 
@@ -71,10 +71,10 @@ final class HostAndPortValue implements HostAndPort {
     return normalised(normalisedHost, normalisedPort);
   }
 
-  private HostAndPortValue normalised(Host normalisedHost, @Nullable Port normalisedPort) {
+  private HostAndPort normalised(Host normalisedHost, @Nullable Port normalisedPort) {
     return normalisedHost.equals(host) && Objects.equals(normalisedPort, port)
         ? this
-        : new HostAndPortValue(normalisedHost, normalisedPort);
+        : HostAndPort.of(normalisedHost, normalisedPort);
   }
 
   @Override

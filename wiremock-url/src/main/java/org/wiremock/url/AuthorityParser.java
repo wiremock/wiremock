@@ -56,7 +56,7 @@ final class AuthorityParser implements StringParser<Authority> {
       //noinspection OptionalAssignedToNull
       if (userInfo == null && (maybePort == null || maybePort.isPresent())) {
         //noinspection OptionalAssignedToNull
-        return new HostAndPortValue(host, maybePort != null ? maybePort.orElse(null) : null);
+        return HostAndPort.of(host, maybePort != null ? maybePort.orElse(null) : null);
       } else {
         return new AuthorityValue(userInfo, host, maybePort);
       }
@@ -67,7 +67,7 @@ final class AuthorityParser implements StringParser<Authority> {
 
   Authority of(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {
     if (userInfo == null) {
-      return new HostAndPortValue(host, port);
+      return HostAndPort.of(host, port);
     } else {
       var portOptional = port != null ? Optional.of(port) : Optional.<Port>empty();
       return new AuthorityValue(userInfo, host, portOptional);

@@ -29,6 +29,8 @@ package org.wiremock.url;
  */
 public interface Host extends PercentEncoded, Normalisable<Host> {
 
+  Host EMPTY = new HostValue("");
+
   /**
    * Returns a normalised form of this host.
    *

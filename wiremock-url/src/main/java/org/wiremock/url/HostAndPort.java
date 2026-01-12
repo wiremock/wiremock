@@ -27,6 +27,8 @@ import org.jspecify.annotations.Nullable;
  */
 public interface HostAndPort extends Authority {
 
+  HostAndPort EMPTY = new HostAndPortValue(Host.EMPTY, null);
+
   /**
    * Creates a host and port from a host.
    *
@@ -45,7 +47,11 @@ public interface HostAndPort extends Authority {
    * @return the host and port
    */
   static HostAndPort of(Host host, @Nullable Port port) {
-    return new HostAndPortValue(host, port);
+    if (host.isEmpty()) {
+      return HostAndPort.EMPTY;
+    } else {
+      return new HostAndPortValue(host, port);
+    }
   }
 
   /**

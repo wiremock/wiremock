@@ -37,6 +37,7 @@ final class HostParser implements PercentEncodedStringParser<Host> {
 
   @Override
   public Host parse(String stringForm) throws IllegalHost {
+    if (stringForm.isEmpty()) return Host.EMPTY;
     Matcher matcher = hostPattern.matcher(stringForm);
     if (matcher.matches()) {
       String ipv6Address = matcher.group("ipv6Address");
@@ -62,6 +63,10 @@ final class HostParser implements PercentEncodedStringParser<Host> {
   @Override
   public Host encode(String unencoded) {
     var result = Constants.encode(unencoded, hostCharSet);
-    return new HostValue(result);
+    if (unencoded.isEmpty()) {
+      return Host.EMPTY;
+    } else {
+      return new HostValue(result);
+    }
   }
 }

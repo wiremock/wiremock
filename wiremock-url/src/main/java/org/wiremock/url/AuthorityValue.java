@@ -62,7 +62,7 @@ final class AuthorityValue implements Authority {
 
   @Override
   public HostAndPort getHostAndPort() {
-    return new HostAndPortValue(host, getPort());
+    return HostAndPort.of(host, getPort());
   }
 
   @Override
@@ -119,7 +119,7 @@ final class AuthorityValue implements Authority {
       @SuppressWarnings("OptionalAssignedToNull")
       var normalisedPort =
           optionalNormalisedPort != null ? optionalNormalisedPort.orElse(null) : null;
-      return new HostAndPortValue(normalisedHost, normalisedPort);
+      return HostAndPort.of(normalisedHost, normalisedPort);
     } else {
       return new AuthorityValue(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
     }
