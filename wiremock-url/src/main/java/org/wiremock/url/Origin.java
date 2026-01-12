@@ -56,6 +56,7 @@ public interface Origin extends ServersideAbsoluteUrl {
    */
   @Override
   @Deprecated // no point ever calling on this subtype
+  @SuppressWarnings("DeprecatedIsStillUsed")
   default PathAndQuery getPathAndQuery() {
     return PathAndQuery.EMPTY;
   }
@@ -68,6 +69,7 @@ public interface Origin extends ServersideAbsoluteUrl {
    */
   @Override
   @Deprecated // no point ever calling on this subtype
+  @SuppressWarnings("DeprecatedIsStillUsed")
   default Path getPath() {
     return Path.EMPTY;
   }
@@ -92,6 +94,16 @@ public interface Origin extends ServersideAbsoluteUrl {
    */
   @Override
   ServersideAbsoluteUrl normalise();
+
+  /**
+   * Returns this.
+   *
+   * @return this
+   */
+  @Deprecated // no point ever calling on this subtype
+  default Origin getOrigin() {
+    return this;
+  }
 
   /**
    * Returns this.
