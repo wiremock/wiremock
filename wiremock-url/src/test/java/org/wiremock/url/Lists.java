@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,23 @@
  */
 package org.wiremock.url;
 
-public class IllegalUserInfo extends IllegalUriPart {
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
-  public IllegalUserInfo(String illegalUserInfo) {
-    super(illegalUserInfo, "Illegal user info: `" + illegalUserInfo + "`");
+public class Lists {
+
+  public static <C extends Collection<T>, T> List<? extends T> concat(
+      Collection<? extends C> lists) {
+    return concat(lists.stream());
+  }
+
+  @SafeVarargs
+  public static <T> List<? extends T> concat(Collection<? extends T>... lists) {
+    return concat(Stream.of(lists));
+  }
+
+  public static <C extends Collection<? extends T>, T> List<? extends T> concat(Stream<C> lists) {
+    return lists.flatMap(Collection::stream).toList();
   }
 }

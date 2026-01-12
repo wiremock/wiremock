@@ -20,8 +20,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Scheme.https;
 
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 
 public class AbsoluteUriTests {
 
@@ -240,7 +243,7 @@ public class AbsoluteUriTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> AbsoluteUri.parse("not a :uri"))
@@ -256,27 +259,24 @@ public class AbsoluteUriTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_path_and_query() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalAbsoluteUri.class)
-              .isThrownBy(() -> AbsoluteUri.parse("/path?query"))
-              .actual();
-      assertThat(exception.getMessage()).isEqualTo("Illegal absolute uri: `/path?query`");
-      assertThat(exception.getIllegalValue()).isEqualTo("/path?query");
-      assertThat(exception.getCause()).isNull();
-    }
+    static final List<String> illegalAbsoluteUris =
+        List.of(
+            "//example.com/path?query#fragment",
+            "/path?query#fragment",
+            "/path?query",
+            "",
+            "relative",
+            "?",
+            "#");
 
-    @Test
-    void rejects_relative_url() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalAbsoluteUri.class)
-              .isThrownBy(() -> AbsoluteUri.parse("//example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal absolute uri: `//example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
+    @ParameterizedTest
+    @FieldSource("illegalAbsoluteUris")
+    void rejects_illegal_absolute_uri(String illegalAbsoluteUri) {
+      assertThatExceptionOfType(IllegalAbsoluteUri.class)
+          .isThrownBy(() -> AbsoluteUri.parse(illegalAbsoluteUri))
+          .withMessage("Illegal absolute uri: `" + illegalAbsoluteUri + "`")
+          .extracting(IllegalAbsoluteUri::getIllegalValue)
+          .isEqualTo(illegalAbsoluteUri);
     }
   }
 }

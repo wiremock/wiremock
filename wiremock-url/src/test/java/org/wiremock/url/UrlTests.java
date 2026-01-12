@@ -20,8 +20,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Scheme.https;
 
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 
 class UrlTests {
 
@@ -175,6 +179,86 @@ class UrlTests {
     }
 
     @Test
+    void parses_relative_path_correctly() {
+      var pathAndQuery = Url.parse("relative");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("relative");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
+      assertThat(pathAndQuery.getQuery()).isNull();
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_empty_path_correctly() {
+      var pathAndQuery = Url.parse("");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(pathAndQuery.getQuery()).isNull();
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_query_only_correctly() {
+      var pathAndQuery = Url.parse("?");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("?");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse(""));
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_fragment_only_correctly() {
+      var relativeUrl = Url.parse("#");
+
+      assertThat(relativeUrl.toString()).isEqualTo("#");
+      assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
+
+      assertThat(relativeUrl.getScheme()).isNull();
+
+      assertThat(relativeUrl.getAuthority()).isNull();
+      assertThat(relativeUrl.getUserInfo()).isNull();
+      assertThat(relativeUrl.getHost()).isNull();
+      assertThat(relativeUrl.getPort()).isNull();
+
+      assertThat(relativeUrl.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(relativeUrl.getQuery()).isNull();
+
+      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse(""));
+    }
+
+    @Test
     void parses_file_empty_authority_correctly() {
       var fileUri = Url.parse("file:///home/me/some/dir");
 
@@ -215,7 +299,7 @@ class UrlTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> Url.parse("not a :uri"))
@@ -231,46 +315,21 @@ class UrlTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_mailto() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> Url.parse("mailto:joan@example.com"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal url: `mailto:joan@example.com`; a url has an authority");
-      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
-      assertThat(exception.getCause()).isNull();
-    }
+    static final List<String> illegalUrls =
+        Stream.of(
+                "mailto:joan@example.com",
+                "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS",
+                "file:/home/me/some/dir")
+            .toList();
 
-    @Test
-    void rejects_arn() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(
-                  () ->
-                      Url.parse(
-                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo(
-              "Illegal url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`; a url has an authority");
-      assertThat(exception.getIllegalValue())
-          .isEqualTo(
-              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_file_no_authority() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> Url.parse("file:/home/me/some/dir"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal url: `file:/home/me/some/dir`; a url has an authority");
-      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
-      assertThat(exception.getCause()).isNull();
+    @ParameterizedTest
+    @FieldSource("illegalUrls")
+    void illegal_urls_are_rejected(String illegalUrl) {
+      assertThatExceptionOfType(IllegalUrl.class)
+          .isThrownBy(() -> Url.parse(illegalUrl))
+          .withMessage("Illegal url: `" + illegalUrl + "`; a url has an authority")
+          .extracting(IllegalUrl::getIllegalValue)
+          .isEqualTo(illegalUrl);
     }
   }
 }

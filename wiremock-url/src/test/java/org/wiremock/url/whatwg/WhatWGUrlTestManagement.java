@@ -18,6 +18,7 @@ package org.wiremock.url.whatwg;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
+import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.whatwg.SnapshotTests.toExpectation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -36,11 +37,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUri;
@@ -291,19 +290,6 @@ public class WhatWGUrlTestManagement {
     } else {
       return null;
     }
-  }
-
-  static <C extends Collection<T>, T> List<? extends T> concat(Collection<? extends C> lists) {
-    return concat(lists.stream());
-  }
-
-  @SafeVarargs
-  static <T> List<? extends T> concat(Collection<? extends T>... lists) {
-    return concat(Stream.of(lists));
-  }
-
-  static <C extends Collection<? extends T>, T> List<? extends T> concat(Stream<C> lists) {
-    return lists.flatMap(Collection::stream).toList();
   }
 
   static void sortTestData() throws IOException {

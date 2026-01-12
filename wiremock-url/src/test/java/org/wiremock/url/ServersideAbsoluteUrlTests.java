@@ -18,6 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
+import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.Scheme.https;
 
 import java.util.List;
@@ -118,7 +120,7 @@ class ServersideAbsoluteUrlTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> ServersideAbsoluteUrl.parse("not a :uri"))
@@ -134,79 +136,23 @@ class ServersideAbsoluteUrlTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_mailto() {
-      IllegalServersideAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
-              .isThrownBy(() -> ServersideAbsoluteUrl.parse("mailto:joan@example.com"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal serverside absolute url: `mailto:joan@example.com`");
-      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_arn() {
-      IllegalServersideAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
-              .isThrownBy(
-                  () ->
-                      ServersideAbsoluteUrl.parse(
-                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo(
-              "Illegal serverside absolute url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
-      assertThat(exception.getIllegalValue())
-          .isEqualTo(
-              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_file_no_authority() {
-      IllegalServersideAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
-              .isThrownBy(() -> ServersideAbsoluteUrl.parse("file:/home/me/some/dir"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal serverside absolute url: `file:/home/me/some/dir`");
-      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_relative_url() {
-      IllegalServersideAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
-              .isThrownBy(() -> ServersideAbsoluteUrl.parse("//example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal serverside absolute url: `//example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    static final List<String> invalidAbsoluteUrls =
-        List.of(
-            "http://example.com#",
-            "http://example.com/#",
-            "http://example.com?#",
-            "http://example.com/?#",
-            "http://example.com#foo",
-            "http://example.com/#foo",
-            "http://example.com?#foo",
-            "http://example.com/?#foo");
+    static final List<? extends String> illegalServersideAbsoluteUrls =
+        concat(
+            illegalAbsoluteUris,
+            List.of(
+                "mailto:joan@example.com",
+                "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS",
+                "file:/home/me/some/dir",
+                "//example.com/path?query#fragment"));
 
     @ParameterizedTest
-    @FieldSource("invalidAbsoluteUrls")
-    void invalid_absolute_urls_are_rejected(String invalidAbsoluteUrl) {
+    @FieldSource("illegalServersideAbsoluteUrls")
+    void illegal_serverside_absolute_urls_are_rejected(String illegalAbsoluteUrl) {
       assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
-          .isThrownBy(() -> ServersideAbsoluteUrl.parse(invalidAbsoluteUrl))
-          .withMessage("Illegal serverside absolute url: `" + invalidAbsoluteUrl + "`")
+          .isThrownBy(() -> ServersideAbsoluteUrl.parse(illegalAbsoluteUrl))
+          .withMessage("Illegal serverside absolute url: `" + illegalAbsoluteUrl + "`")
           .extracting(IllegalServersideAbsoluteUrl::getIllegalValue)
-          .isEqualTo(invalidAbsoluteUrl);
+          .isEqualTo(illegalAbsoluteUrl);
     }
   }
 

@@ -195,8 +195,47 @@ public class UriTests {
       assertThat(pathAndQuery.getPort()).isNull();
 
       assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
       assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_relative_path_correctly() {
+      var pathAndQuery = Uri.parse("relative");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("relative");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
+      assertThat(pathAndQuery.getQuery()).isNull();
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_empty_path_correctly() {
+      var pathAndQuery = Uri.parse("");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(pathAndQuery.getQuery()).isNull();
 
       assertThat(pathAndQuery.getFragment()).isNull();
     }
@@ -309,7 +348,7 @@ public class UriTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> Uri.parse("not a :uri"))

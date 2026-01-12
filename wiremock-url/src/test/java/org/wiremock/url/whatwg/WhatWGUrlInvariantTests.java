@@ -17,7 +17,7 @@ package org.wiremock.url.whatwg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.concat;
+import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.remoteUrl;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.sortTestData;
 import static org.wiremock.url.whatwg.WhatWGUrlTestManagement.testData;

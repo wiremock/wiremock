@@ -104,12 +104,13 @@ class UsernameTests {
           "%GG", // invalid hex
           "user%ZZname" // invalid hex
         })
-    void throws_exception_for_invalid_usernames(String invalidUsername) {
+    void rejects_illegal_username(String illegalUsername) {
       assertThatExceptionOfType(IllegalUsername.class)
-          .isThrownBy(() -> Username.parse(invalidUsername))
-          .withMessage("Illegal username: `" + invalidUsername + "`")
+          .isThrownBy(() -> Username.parse(illegalUsername))
+          .withMessage("Illegal username: `" + illegalUsername + "`")
+          .withNoCause()
           .extracting(IllegalUsername::getIllegalValue)
-          .isEqualTo(invalidUsername);
+          .isEqualTo(illegalUsername);
     }
   }
 

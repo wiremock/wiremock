@@ -18,10 +18,13 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
 import static org.wiremock.url.AbsoluteUrl.transform;
+import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.Scheme.https;
 import static org.wiremock.url.UriExpectation.expectation;
 import static org.wiremock.url.UriParseTestCase.testCase;
+import static org.wiremock.url.UrlTests.Parse.illegalUrls;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,6 +34,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
@@ -164,7 +168,7 @@ class AbsoluteUrlTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> AbsoluteUrl.parse("not a :uri"))
@@ -180,58 +184,17 @@ class AbsoluteUrlTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_mailto() {
-      IllegalAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
-              .isThrownBy(() -> AbsoluteUrl.parse("mailto:joan@example.com"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal absolute url: `mailto:joan@example.com`");
-      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
-      assertThat(exception.getCause()).isNull();
-    }
+    static final List<? extends String> illegalAbsoluteUrls =
+        concat(illegalUrls, illegalAbsoluteUris);
 
-    @Test
-    void rejects_arn() {
-      IllegalAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
-              .isThrownBy(
-                  () ->
-                      AbsoluteUrl.parse(
-                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo(
-              "Illegal absolute url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
-      assertThat(exception.getIllegalValue())
-          .isEqualTo(
-              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_file_no_authority() {
-      IllegalAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
-              .isThrownBy(() -> AbsoluteUrl.parse("file:/home/me/some/dir"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal absolute url: `file:/home/me/some/dir`");
-      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_relative_url() {
-      IllegalAbsoluteUrl exception =
-          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
-              .isThrownBy(() -> AbsoluteUrl.parse("//example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal absolute url: `//example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
+    @ParameterizedTest
+    @FieldSource("illegalAbsoluteUrls")
+    void rejects_illegal_absolute_url(String illegalAbsoluteUrl) {
+      assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+          .isThrownBy(() -> AbsoluteUrl.parse(illegalAbsoluteUrl))
+          .withMessage("Illegal absolute url: `" + illegalAbsoluteUrl + "`")
+          .extracting(IllegalAbsoluteUrl::getIllegalValue)
+          .isEqualTo(illegalAbsoluteUrl);
     }
 
     @ParameterizedTest

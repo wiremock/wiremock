@@ -126,20 +126,20 @@ public class PathTests {
         "/path%ZZname"); // invalid hex
   }
 
-  static Stream<String> invalidPaths() {
+  static Stream<String> illegalPaths() {
     return Stream.of(
         // Query and fragment characters (not delimiters in path context for this parser)
         "/path?with?questions", "/path#with#hashes", "/path#fragment");
   }
 
   @ParameterizedTest
-  @MethodSource("invalidPaths")
-  void throws_exception_for_invalid_userinfo(String invalidPath) {
+  @MethodSource("illegalPaths")
+  void rejects_illegal_path(String illegalPath) {
     assertThatExceptionOfType(IllegalPath.class)
-        .isThrownBy(() -> Path.parse(invalidPath))
-        .withMessage("Illegal path: `" + invalidPath + "`")
+        .isThrownBy(() -> Path.parse(illegalPath))
+        .withMessage("Illegal path: `" + illegalPath + "`")
         .extracting(IllegalPath::getIllegalValue)
-        .isEqualTo(invalidPath);
+        .isEqualTo(illegalPath);
   }
 
   @TestFactory

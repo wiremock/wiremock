@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class PasswordTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     static final List<String> validPasswords =
         List.of(
@@ -109,12 +109,12 @@ class PasswordTests {
           "%GG", // invalid hex
           "pass%ZZword" // invalid hex
         })
-    void throws_exception_for_invalid_passwords(String invalidPassword) {
+    void rejects_illegal_password(String illegalPassword) {
       assertThatExceptionOfType(IllegalPassword.class)
-          .isThrownBy(() -> Password.parse(invalidPassword))
-          .withMessage("Illegal password: `" + invalidPassword + "`")
+          .isThrownBy(() -> Password.parse(illegalPassword))
+          .withMessage("Illegal password: `" + illegalPassword + "`")
           .extracting(IllegalPassword::getIllegalValue)
-          .isEqualTo(invalidPassword);
+          .isEqualTo(illegalPassword);
     }
   }
 
@@ -252,6 +252,6 @@ class PasswordTests {
   @TestFactory
   Stream<DynamicTest> invariants() {
     return StringParserInvariantTests.generateInvariantTests(
-        PasswordParser.INSTANCE, ParseMethod.validPasswords);
+        PasswordParser.INSTANCE, Parse.validPasswords);
   }
 }

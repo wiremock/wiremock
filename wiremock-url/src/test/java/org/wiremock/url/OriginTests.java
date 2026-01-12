@@ -15,12 +15,12 @@
  */
 package org.wiremock.url;
 
-import static java.util.stream.Stream.concat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.Scheme.http;
-import static org.wiremock.url.ServersideAbsoluteUrlTests.Parse.invalidAbsoluteUrls;
+import static org.wiremock.url.ServersideAbsoluteUrlTests.Parse.illegalServersideAbsoluteUrls;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -59,7 +59,7 @@ public class OriginTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> Origin.parse("not a :uri"))
@@ -75,77 +75,24 @@ public class OriginTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_mailto() {
-      IllegalOrigin exception =
-          assertThatExceptionOfType(IllegalOrigin.class)
-              .isThrownBy(() -> Origin.parse("mailto:joan@example.com"))
-              .actual();
-      assertThat(exception.getMessage()).isEqualTo("Illegal origin: `mailto:joan@example.com`");
-      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_arn() {
-      IllegalOrigin exception =
-          assertThatExceptionOfType(IllegalOrigin.class)
-              .isThrownBy(
-                  () ->
-                      Origin.parse(
-                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo(
-              "Illegal origin: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
-      assertThat(exception.getIllegalValue())
-          .isEqualTo(
-              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_file_no_authority() {
-      IllegalOrigin exception =
-          assertThatExceptionOfType(IllegalOrigin.class)
-              .isThrownBy(() -> Origin.parse("file:/home/me/some/dir"))
-              .actual();
-      assertThat(exception.getMessage()).isEqualTo("Illegal origin: `file:/home/me/some/dir`");
-      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_relative_url() {
-      IllegalOrigin exception =
-          assertThatExceptionOfType(IllegalOrigin.class)
-              .isThrownBy(() -> Origin.parse("//example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal origin: `//example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    static final List<String> illegalOrigins =
+    static final List<? extends String> illegalOrigins =
         concat(
-                invalidAbsoluteUrls.stream(),
-                Stream.of(
-                    "http://example.com/",
-                    "http://example.com/?",
-                    "http://example.com?",
-                    "http://example.com/",
-                    "http://example.com/?"))
-            .toList();
+            illegalServersideAbsoluteUrls,
+            List.of(
+                "http://example.com/",
+                "http://example.com/?",
+                "http://example.com?",
+                "http://example.com/",
+                "http://example.com/?"));
 
     @ParameterizedTest
     @FieldSource("illegalOrigins")
-    void illegal_origins_are_rejected(String invalidOrigin) {
+    void rejects_illegal_origin(String illegalOrigin) {
       assertThatExceptionOfType(IllegalOrigin.class)
-          .isThrownBy(() -> Origin.parse(invalidOrigin))
-          .withMessage("Illegal origin: `" + invalidOrigin + "`")
+          .isThrownBy(() -> Origin.parse(illegalOrigin))
+          .withMessage("Illegal origin: `" + illegalOrigin + "`")
           .extracting(IllegalOrigin::getIllegalValue)
-          .isEqualTo(invalidOrigin);
+          .isEqualTo(illegalOrigin);
     }
   }
 

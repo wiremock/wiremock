@@ -144,8 +144,14 @@ class SchemeTests {
     }
 
     @Test
-    void throws_exception_for_invalid_scheme_pattern() {
-      assertThatExceptionOfType(IllegalScheme.class).isThrownBy(() -> Scheme.register("1invalid"));
+    void rejects_illegal_scheme() {
+      assertThatExceptionOfType(IllegalScheme.class)
+          .isThrownBy(() -> Scheme.register("1invalid"))
+          .withMessage(
+              "Illegal scheme `1invalid`; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}")
+          .withNoCause()
+          .extracting(IllegalScheme::getIllegalValue)
+          .isEqualTo("1invalid");
     }
   }
 

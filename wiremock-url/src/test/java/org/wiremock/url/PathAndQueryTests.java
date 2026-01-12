@@ -18,6 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.Lists.concat;
+import static org.wiremock.url.RelativeUrlTests.Parse.illegalRelativeUrls;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,6 +28,8 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class PathAndQueryTests {
@@ -55,19 +59,67 @@ class PathAndQueryTests {
     }
 
     @Test
-    void rejects_absolute_url() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("https://example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal path and query: `https://example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("https://example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
+    void parses_relative_path_correctly() {
+      var pathAndQuery = PathAndQuery.parse("relative");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("relative");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
+      assertThat(pathAndQuery.getQuery()).isNull();
+
+      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void parses_empty_path_correctly() {
+      var pathAndQuery = PathAndQuery.parse("");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(pathAndQuery.getQuery()).isNull();
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_query_only_correctly() {
+      var pathAndQuery = PathAndQuery.parse("?");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("?");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse(""));
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> PathAndQuery.parse("not a :uri"))
@@ -83,70 +135,27 @@ class PathAndQueryTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    @Test
-    void rejects_mailto() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("mailto:joan@example.com"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal path and query: `mailto:joan@example.com`");
-      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
-      assertThat(exception.getCause()).isNull();
-    }
+    static final List<? extends String> illegalPathAndQueries =
+        concat(
+            illegalRelativeUrls,
+            List.of(
+                "//example.com/path?query#fragment",
+                "/path?query#fragment",
+                "/path#fragment",
+                "?query#fragment",
+                "?#fragment",
+                "?#",
+                "#fragment",
+                "#"));
 
-    @Test
-    void rejects_arn() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(
-                  () ->
-                      PathAndQuery.parse(
-                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo(
-              "Illegal path and query: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
-      assertThat(exception.getIllegalValue())
-          .isEqualTo(
-              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_file_no_authority() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("file:/home/me/some/dir"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal path and query: `file:/home/me/some/dir`");
-      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_relative_url_with_authority() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("//example.com/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal path and query: `//example.com/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
-    void rejects_relative_url_without_authority_with_fragment() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("/path?query#fragment"))
-              .actual();
-      assertThat(exception.getMessage())
-          .isEqualTo("Illegal path and query: `/path?query#fragment`");
-      assertThat(exception.getIllegalValue()).isEqualTo("/path?query#fragment");
-      assertThat(exception.getCause()).isNull();
+    @ParameterizedTest
+    @FieldSource("illegalPathAndQueries")
+    void rejects_illegal_path_and_query(String illegalPathAndQuery) {
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(() -> PathAndQuery.parse(illegalPathAndQuery))
+          .withMessage("Illegal path and query: `" + illegalPathAndQuery + "`")
+          .extracting(IllegalPathAndQuery::getIllegalValue)
+          .isEqualTo(illegalPathAndQuery);
     }
   }
 

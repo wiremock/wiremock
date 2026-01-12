@@ -43,16 +43,16 @@ class PortTests {
 
     @ParameterizedTest
     @ValueSource(ints = {-1000, -1})
-    void throws_exception_for_various_invalid_ports(int invalidPort) {
+    void rejects_illegal_port(int illegalPort) {
       assertThatExceptionOfType(IllegalPort.class)
-          .isThrownBy(() -> Port.of(invalidPort))
+          .isThrownBy(() -> Port.of(illegalPort))
           .withMessage(
               "Illegal port ["
-                  + invalidPort
+                  + illegalPort
                   + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
-          .isEqualTo(String.valueOf(invalidPort));
+          .isEqualTo(String.valueOf(illegalPort));
     }
   }
 
@@ -82,16 +82,16 @@ class PortTests {
 
     @ParameterizedTest
     @ValueSource(strings = {"-1000", "-1"})
-    void throws_exception_for_strings_in_invalid_range(String invalidPortString) {
+    void rejects_illegal_port(String illegalPortString) {
       assertThatExceptionOfType(IllegalPort.class)
-          .isThrownBy(() -> Port.parse(invalidPortString))
+          .isThrownBy(() -> Port.parse(illegalPortString))
           .withMessage(
               "Illegal port ["
-                  + invalidPortString
+                  + illegalPortString
                   + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
-          .isEqualTo(invalidPortString);
+          .isEqualTo(illegalPortString);
     }
 
     @ParameterizedTest
@@ -112,16 +112,16 @@ class PortTests {
           "8080port",
           "80 80"
         })
-    void throws_exception_for_various_invalid_strings(String invalidPortString) {
+    void rejects_various_illegal_port_strings(String illegalPortString) {
       assertThatExceptionOfType(IllegalPort.class)
-          .isThrownBy(() -> Port.parse(invalidPortString))
+          .isThrownBy(() -> Port.parse(illegalPortString))
           .withMessage(
               "Illegal port ["
-                  + invalidPortString
+                  + illegalPortString
                   + "]; Port value must be an integer between 1 and 2147483647")
           .withNoCause()
           .extracting(IllegalPort::getIllegalValue)
-          .isEqualTo(invalidPortString);
+          .isEqualTo(illegalPortString);
     }
   }
 

@@ -18,6 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
+import static org.wiremock.url.Lists.concat;
 
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -98,7 +100,7 @@ class OpaqueUriTests {
     }
 
     @Test
-    void rejects_invalid_uri() {
+    void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)
               .isThrownBy(() -> OpaqueUri.parse("not a :uri"))
@@ -114,22 +116,21 @@ class OpaqueUriTests {
       assertThat(cause.getCause()).isNull();
     }
 
-    private static final List<String> nonOpaqueUris =
-        List.of(
-            "https://example.com/path?query#fragment",
-            "https://user@example.com/path?query#fragment",
-            "https://example.com/path?query",
-            "data://:443",
-            "https://example.com",
-            "//example.com/path?query#fragment",
-            "/path?query#fragment",
-            "/path?query",
-            "file:///home/me/some/dir",
-            "file://user@remote/home/me/some/dir");
+    private static final List<? extends String> nonOpaqueUris =
+        concat(
+            illegalAbsoluteUris,
+            List.of(
+                "https://example.com/path?query#fragment",
+                "https://user@example.com/path?query#fragment",
+                "https://example.com/path?query",
+                "data://:443",
+                "https://example.com",
+                "file:///home/me/some/dir",
+                "file://user@remote/home/me/some/dir"));
 
     @ParameterizedTest
     @FieldSource("nonOpaqueUris")
-    void rejects_non_opaque_uris(String nonOpaqueUri) {
+    void rejects_illegal_opaque_uris(String nonOpaqueUri) {
       assertThatExceptionOfType(IllegalOpaqueUri.class)
           .isThrownBy(() -> OpaqueUri.parse(nonOpaqueUri))
           .withMessage("Illegal opaque uri: `" + nonOpaqueUri + "`")

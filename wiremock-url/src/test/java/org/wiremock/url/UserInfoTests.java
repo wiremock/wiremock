@@ -114,12 +114,13 @@ class UserInfoTests {
           "%GG", // invalid hex
           "user%ZZname" // invalid hex
         })
-    void throws_exception_for_invalid_userinfo(String invalidUserInfo) {
+    void rejects_illegal_userinfo(String illegalUserInfo) {
       assertThatExceptionOfType(IllegalUserInfo.class)
-          .isThrownBy(() -> UserInfo.parse(invalidUserInfo))
-          .withMessage("Illegal user info: `" + invalidUserInfo + "`")
+          .isThrownBy(() -> UserInfo.parse(illegalUserInfo))
+          .withMessage("Illegal user info: `" + illegalUserInfo + "`")
+          .withNoCause()
           .extracting(IllegalUserInfo::getIllegalValue)
-          .isEqualTo(invalidUserInfo);
+          .isEqualTo(illegalUserInfo);
     }
   }
 

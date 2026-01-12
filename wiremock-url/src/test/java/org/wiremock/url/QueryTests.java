@@ -27,7 +27,6 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.wiremock.url.FragmentTests.NormaliseMethod.NormalisationCase;
 
 class QueryTests {
 
@@ -141,12 +140,12 @@ class QueryTests {
 
     @ParameterizedTest
     @ValueSource(strings = {"key=val#ue", "query#fragment", "#", "test#test"})
-    void throws_exception_for_queries_with_hash(String invalidQuery) {
+    void rejects_queries_with_hash(String illegalQuery) {
       assertThatExceptionOfType(IllegalQuery.class)
-          .isThrownBy(() -> Query.parse(invalidQuery))
-          .withMessage("Illegal query: `" + invalidQuery + "`")
+          .isThrownBy(() -> Query.parse(illegalQuery))
+          .withMessage("Illegal query: `" + illegalQuery + "`")
           .extracting(IllegalQuery::getIllegalValue)
-          .isEqualTo(invalidQuery);
+          .isEqualTo(illegalQuery);
     }
   }
 

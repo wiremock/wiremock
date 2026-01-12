@@ -91,12 +91,12 @@ class HostAndPortTests {
     assertThat(hostAndPort.getPort()).isEqualTo(urlTest.expectation().port());
   }
 
-  private static final List<AuthorityParseTestCase> invalidHostAndPorts =
+  private static final List<AuthorityParseTestCase> illegalHostAndPorts =
       AuthorityTests.validAuthoritiesWithUserInfo;
 
   @ParameterizedTest
-  @FieldSource("invalidHostAndPorts")
-  void rejects_invalid_host_and_port(AuthorityParseTestCase urlTest) {
+  @FieldSource("illegalHostAndPorts")
+  void rejects_illegal_host_and_port(AuthorityParseTestCase urlTest) {
     assertThatThrownBy(() -> HostAndPort.parse(urlTest.stringForm()))
         .isInstanceOf(IllegalHostAndPort.class)
         .hasMessage("Illegal host and port: `" + urlTest.stringForm() + "`");
