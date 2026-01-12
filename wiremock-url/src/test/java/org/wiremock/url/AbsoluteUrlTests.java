@@ -16,7 +16,10 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUrl.transform;
+import static org.wiremock.url.Scheme.https;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -34,12 +37,206 @@ import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 class AbsoluteUrlTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
+
+    @Test
+    void parses_absolute_url_correctly() {
+      var absoluteUrl = AbsoluteUrl.parse("https://example.com/path?query#fragment");
+
+      assertThat(absoluteUrl.toString()).isEqualTo("https://example.com/path?query#fragment");
+      assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
+      assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
+
+      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
+
+      assertThat(absoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(absoluteUrl.getUserInfo()).isNull();
+      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(absoluteUrl.getPort()).isNull();
+
+      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+    }
+
+    @Test
+    void parses_absolute_url_with_userinfo_correctly() {
+      var absoluteUrl = AbsoluteUrl.parse("https://user@example.com/path?query#fragment");
+
+      assertThat(absoluteUrl.toString()).isEqualTo("https://user@example.com/path?query#fragment");
+      assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
+      assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
+
+      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
+
+      assertThat(absoluteUrl.getAuthority()).isEqualTo(Authority.parse("user@example.com"));
+      assertThat(absoluteUrl.getUserInfo()).isEqualTo(UserInfo.parse("user"));
+      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(absoluteUrl.getPort()).isNull();
+
+      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+    }
+
+    @Test
+    void parses_serverside_absolute_url_correctly() {
+      var serversideAbsoluteUrl = AbsoluteUrl.parse("https://example.com/path?query");
+
+      assertThat(serversideAbsoluteUrl.toString()).isEqualTo("https://example.com/path?query");
+      assertThat(serversideAbsoluteUrl).isInstanceOf(ServersideAbsoluteUrl.class);
+      assertThat(serversideAbsoluteUrl).isNotInstanceOf(Origin.class);
+
+      assertThat(serversideAbsoluteUrl.getScheme()).isEqualTo(https);
+
+      assertThat(serversideAbsoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(serversideAbsoluteUrl.getUserInfo()).isNull();
+      assertThat(serversideAbsoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(serversideAbsoluteUrl.getPort()).isNull();
+
+      assertThat(serversideAbsoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(serversideAbsoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(serversideAbsoluteUrl.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_origin_correctly() {
+      var origin = AbsoluteUrl.parse("https://example.com");
+
+      assertThat(origin.toString()).isEqualTo("https://example.com");
+      assertThat(origin).isInstanceOf(Origin.class);
+
+      assertThat(origin.getScheme()).isEqualTo(https);
+
+      assertThat(origin.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(origin.getUserInfo()).isNull();
+      assertThat(origin.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(origin.getPort()).isNull();
+
+      assertThat(origin.getPath()).isEqualTo(Path.EMPTY);
+      assertThat(origin.getQuery()).isNull();
+
+      assertThat(origin.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_file_empty_authority_correctly() {
+      var fileUri = AbsoluteUrl.parse("file:///home/me/some/dir");
+
+      assertThat(fileUri.toString()).isEqualTo("file:///home/me/some/dir");
+      assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
+
+      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
+
+      assertThat(fileUri.getAuthority()).isEqualTo(HostAndPort.EMPTY);
+      assertThat(fileUri.getUserInfo()).isNull();
+      assertThat(fileUri.getHost()).isEqualTo(Host.EMPTY);
+      assertThat(fileUri.getPort()).isNull();
+
+      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
+      assertThat(fileUri.getQuery()).isNull();
+
+      assertThat(fileUri.getFragment()).isNull();
+    }
+
+    @Test
+    void parses_file_with_authority_correctly() {
+      var fileUri = AbsoluteUrl.parse("file://user@remote/home/me/some/dir");
+
+      assertThat(fileUri.toString()).isEqualTo("file://user@remote/home/me/some/dir");
+      assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
+
+      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
+
+      assertThat(fileUri.getAuthority()).isEqualTo(Authority.parse("user@remote"));
+      assertThat(fileUri.getUserInfo()).isEqualTo(UserInfo.parse("user"));
+      assertThat(fileUri.getHost()).isEqualTo(Host.parse("remote"));
+      assertThat(fileUri.getPort()).isNull();
+
+      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
+      assertThat(fileUri.getQuery()).isNull();
+
+      assertThat(fileUri.getFragment()).isNull();
+    }
+
+    @Test
+    void rejects_invalid_uri() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> AbsoluteUrl.parse("not a :uri"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal uri: `not a :uri`");
+      assertThat(exception.getIllegalValue()).isEqualTo("not a :uri");
+
+      IllegalScheme cause =
+          assertThat(exception.getCause()).asInstanceOf(type(IllegalScheme.class)).actual();
+      assertThat(cause.getMessage())
+          .isEqualTo("Illegal scheme `not a `; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
+      assertThat(cause.getIllegalValue()).isEqualTo("not a ");
+      assertThat(cause.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_mailto() {
+      IllegalAbsoluteUrl exception =
+          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+              .isThrownBy(() -> AbsoluteUrl.parse("mailto:joan@example.com"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal absolute url: `mailto:joan@example.com`");
+      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_arn() {
+      IllegalAbsoluteUrl exception =
+          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+              .isThrownBy(
+                  () ->
+                      AbsoluteUrl.parse(
+                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo(
+              "Illegal absolute url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
+      assertThat(exception.getIllegalValue())
+          .isEqualTo(
+              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_file_no_authority() {
+      IllegalAbsoluteUrl exception =
+          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+              .isThrownBy(() -> AbsoluteUrl.parse("file:/home/me/some/dir"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal absolute url: `file:/home/me/some/dir`");
+      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_relative_url() {
+      IllegalAbsoluteUrl exception =
+          assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+              .isThrownBy(() -> AbsoluteUrl.parse("//example.com/path?query#fragment"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal absolute url: `//example.com/path?query#fragment`");
+      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
+      assertThat(exception.getCause()).isNull();
+    }
 
     @ParameterizedTest
     @MethodSource("validUrls")
     void parses_valid_url(UrlReferenceParseTestCase urlTest) {
-      Uri url = Uri.parse(urlTest.stringForm);
+      AbsoluteUrl url = AbsoluteUrl.parse(urlTest.stringForm);
       assertThat(url.isAbsoluteUrl()).isTrue();
       assertThat(url.getScheme()).isEqualTo(urlTest.expectation.scheme);
       assertThat(url.getPath()).isEqualTo(urlTest.expectation.path);

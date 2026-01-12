@@ -99,10 +99,11 @@ class RelativeUrlTests {
     @Test
     void rejects_absolute_url() {
       IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
+          assertThatExceptionOfType(IllegalRelativeUrl.class)
               .isThrownBy(() -> RelativeUrl.parse("https://example.com/path?query#fragment"))
               .actual();
-      assertThat(exception.getMessage()).isEqualTo("Illegal relative URL: `https://example.com/path?query#fragment`");
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal relative url: `https://example.com/path?query#fragment`");
       assertThat(exception.getIllegalValue()).isEqualTo("https://example.com/path?query#fragment");
       assertThat(exception.getCause()).isNull();
     }
@@ -127,11 +128,11 @@ class RelativeUrlTests {
     @Test
     void rejects_mailto() {
       IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> Url.parse("mailto:joan@example.com"))
+          assertThatExceptionOfType(IllegalRelativeUrl.class)
+              .isThrownBy(() -> RelativeUrl.parse("mailto:joan@example.com"))
               .actual();
       assertThat(exception.getMessage())
-          .isEqualTo("Illegal url: `mailto:joan@example.com`; a url has an authority");
+          .isEqualTo("Illegal relative url: `mailto:joan@example.com`");
       assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
       assertThat(exception.getCause()).isNull();
     }
@@ -139,15 +140,15 @@ class RelativeUrlTests {
     @Test
     void rejects_arn() {
       IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
+          assertThatExceptionOfType(IllegalRelativeUrl.class)
               .isThrownBy(
                   () ->
-                      Url.parse(
+                      RelativeUrl.parse(
                           "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
               .actual();
       assertThat(exception.getMessage())
           .isEqualTo(
-              "Illegal url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`; a url has an authority");
+              "Illegal relative url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
       assertThat(exception.getIllegalValue())
           .isEqualTo(
               "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
@@ -157,16 +158,15 @@ class RelativeUrlTests {
     @Test
     void rejects_file_no_authority() {
       IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> Url.parse("file:/home/me/some/dir"))
+          assertThatExceptionOfType(IllegalRelativeUrl.class)
+              .isThrownBy(() -> RelativeUrl.parse("file:/home/me/some/dir"))
               .actual();
       assertThat(exception.getMessage())
-          .isEqualTo("Illegal url: `file:/home/me/some/dir`; a url has an authority");
+          .isEqualTo("Illegal relative url: `file:/home/me/some/dir`");
       assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
       assertThat(exception.getCause()).isNull();
     }
   }
-
 
   @Nested
   class Normalise {

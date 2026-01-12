@@ -24,7 +24,7 @@ public class IllegalOpaqueUri extends IllegalAbsoluteUri {
   }
 
   public IllegalOpaqueUri(String opaqueUri, @Nullable IllegalUriPart cause) {
-    this(opaqueUri, "Illegal Opaque URI: `" + opaqueUri + "`", cause);
+    this(opaqueUri, "Illegal opaque uri: `" + opaqueUri + "`", cause);
   }
 
   public IllegalOpaqueUri(String opaqueUri, String message, @Nullable IllegalUriPart cause) {

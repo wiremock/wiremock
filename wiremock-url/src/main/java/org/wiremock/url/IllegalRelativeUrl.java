@@ -24,7 +24,7 @@ public non-sealed class IllegalRelativeUrl extends IllegalUrl {
   }
 
   public IllegalRelativeUrl(String illegalRelativeRef, @Nullable IllegalUriPart cause) {
-    this(illegalRelativeRef, "Illegal relative URL: `" + illegalRelativeRef + "`", cause);
+    this(illegalRelativeRef, "Illegal relative url: `" + illegalRelativeRef + "`", cause);
   }
 
   public IllegalRelativeUrl(

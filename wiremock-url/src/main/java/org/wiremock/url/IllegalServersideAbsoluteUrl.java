@@ -24,7 +24,7 @@ public class IllegalServersideAbsoluteUrl extends IllegalAbsoluteUrl {
   }
 
   public IllegalServersideAbsoluteUrl(String url, @Nullable IllegalUriPart cause) {
-    this(url, "Illegal serverside absolute URL: `" + url + "`", cause);
+    this(url, "Illegal serverside absolute url: `" + url + "`", cause);
   }
 
   public IllegalServersideAbsoluteUrl(String url, String message, @Nullable IllegalUriPart cause) {

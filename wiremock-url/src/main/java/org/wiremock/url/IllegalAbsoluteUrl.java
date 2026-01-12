@@ -24,7 +24,7 @@ public non-sealed class IllegalAbsoluteUrl extends IllegalUrl {
   }
 
   public IllegalAbsoluteUrl(String url, @Nullable IllegalUriPart cause) {
-    this(url, "Illegal absolute URL: `" + url + "`", cause);
+    this(url, "Illegal absolute url: `" + url + "`", cause);
   }
 
   public IllegalAbsoluteUrl(String url, String message, @Nullable IllegalUriPart cause) {
