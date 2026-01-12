@@ -329,6 +329,8 @@
 { "input": "http://0xffffffff1", "base": "http://other.com/", "failure": true },
 { "input": "http://256.256.256.256", "base": "http://other.com/", "failure": true },
 { "input": "https://0x.0x.0", "href": "https://0.0.0.0/", "origin": "https://0.0.0.0", "protocol": "https:", "username": "", "password": "", "host": "0.0.0.0", "hostname": "0.0.0.0", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "https://0x.0x.0x.0x", "href": "https://0.0.0.0/", "origin": "https://0.0.0.0", "protocol": "https:", "username": "", "password": "", "host": "0.0.0.0", "hostname": "0.0.0.0", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "https://00.00.00.00", "href": "https://0.0.0.0/", "origin": "https://0.0.0.0", "protocol": "https:", "username": "", "password": "", "host": "0.0.0.0", "hostname": "0.0.0.0", "port": "", "pathname": "/", "search": "", "hash": "" },
 { "input": "https://0x100000000/test", "failure": true },
 { "input": "https://256.0.0.1/test", "failure": true },
 { "input": "file:///C%3A/", "href": "file:///C%3A/", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/C%3A/", "search": "", "hash": "" },

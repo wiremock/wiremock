@@ -4692,6 +4692,18 @@
     "matchesWhatWg" : false
   },
   {
+    "input" : "https://00.00.00.00",
+    "base" : null,
+    "inputExpected" : { "stringValue" : "https://00.00.00.00", "type" : "Origin", "scheme" : "https", "authority" : "00.00.00.00", "userInfo" : null, "username" : null, "password" : null, "host" : "00.00.00.00", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "inputNormalised" : { "stringValue" : "https://00.00.00.00/", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "00.00.00.00", "userInfo" : null, "username" : null, "password" : null, "host" : "00.00.00.00", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseExpected" : null,
+    "baseNormalised" : null,
+    "resolved" : { "stringValue" : "https://00.00.00.00/", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "00.00.00.00", "userInfo" : null, "username" : null, "password" : null, "host" : "00.00.00.00", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "origin" : { "stringValue" : "https://00.00.00.00", "type" : "Origin", "scheme" : "https", "authority" : "00.00.00.00", "userInfo" : null, "username" : null, "password" : null, "host" : "00.00.00.00", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "https://00.00.00.00", "href" : "https://0.0.0.0/", "origin" : "https://0.0.0.0", "protocol" : "https:", "username" : "", "password" : "", "host" : "0.0.0.0", "hostname" : "0.0.0.0", "port" : "", "pathname" : "/", "search" : "", "hash" : "" },
+    "matchesWhatWg" : false
+  },
+  {
     "input" : "https://0x.0x.0",
     "base" : null,
     "inputExpected" : { "stringValue" : "https://0x.0x.0", "type" : "Origin", "scheme" : "https", "authority" : "0x.0x.0", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0", "port" : null, "path" : "", "query" : null, "fragment" : null },
@@ -4701,6 +4713,18 @@
     "resolved" : { "stringValue" : "https://0x.0x.0/", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "0x.0x.0", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0", "port" : null, "path" : "/", "query" : null, "fragment" : null },
     "origin" : { "stringValue" : "https://0x.0x.0", "type" : "Origin", "scheme" : "https", "authority" : "0x.0x.0", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0", "port" : null, "path" : "", "query" : null, "fragment" : null },
     "source" : { "input" : "https://0x.0x.0", "href" : "https://0.0.0.0/", "origin" : "https://0.0.0.0", "protocol" : "https:", "username" : "", "password" : "", "host" : "0.0.0.0", "hostname" : "0.0.0.0", "port" : "", "pathname" : "/", "search" : "", "hash" : "" },
+    "matchesWhatWg" : false
+  },
+  {
+    "input" : "https://0x.0x.0x.0x",
+    "base" : null,
+    "inputExpected" : { "stringValue" : "https://0x.0x.0x.0x", "type" : "Origin", "scheme" : "https", "authority" : "0x.0x.0x.0x", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0x.0x", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "inputNormalised" : { "stringValue" : "https://0x.0x.0x.0x/", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "0x.0x.0x.0x", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0x.0x", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseExpected" : null,
+    "baseNormalised" : null,
+    "resolved" : { "stringValue" : "https://0x.0x.0x.0x/", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "0x.0x.0x.0x", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0x.0x", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "origin" : { "stringValue" : "https://0x.0x.0x.0x", "type" : "Origin", "scheme" : "https", "authority" : "0x.0x.0x.0x", "userInfo" : null, "username" : null, "password" : null, "host" : "0x.0x.0x.0x", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "https://0x.0x.0x.0x", "href" : "https://0.0.0.0/", "origin" : "https://0.0.0.0", "protocol" : "https:", "username" : "", "password" : "", "host" : "0.0.0.0", "hostname" : "0.0.0.0", "port" : "", "pathname" : "/", "search" : "", "hash" : "" },
     "matchesWhatWg" : false
   },
   {
