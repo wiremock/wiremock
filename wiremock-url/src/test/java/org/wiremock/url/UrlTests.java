@@ -43,18 +43,6 @@ class UrlTests {
       assertThat(absoluteUrl.toString()).isEqualTo("https://example.com/path?query#fragment");
       assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
       assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(absoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(absoluteUrl.getUserInfo()).isNull();
-      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(absoluteUrl.getPort()).isNull();
-
-      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -64,18 +52,6 @@ class UrlTests {
       assertThat(absoluteUrl.toString()).isEqualTo("https://user@example.com/path?query#fragment");
       assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
       assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(absoluteUrl.getAuthority()).isEqualTo(Authority.parse("user@example.com"));
-      assertThat(absoluteUrl.getUserInfo()).isEqualTo(UserInfo.parse("user"));
-      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(absoluteUrl.getPort()).isNull();
-
-      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -85,18 +61,6 @@ class UrlTests {
       assertThat(serversideAbsoluteUrl.toString()).isEqualTo("https://example.com/path?query");
       assertThat(serversideAbsoluteUrl).isInstanceOf(ServersideAbsoluteUrl.class);
       assertThat(serversideAbsoluteUrl).isNotInstanceOf(Origin.class);
-
-      assertThat(serversideAbsoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(serversideAbsoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(serversideAbsoluteUrl.getUserInfo()).isNull();
-      assertThat(serversideAbsoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(serversideAbsoluteUrl.getPort()).isNull();
-
-      assertThat(serversideAbsoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(serversideAbsoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(serversideAbsoluteUrl.getFragment()).isNull();
     }
 
     @Test
@@ -105,18 +69,6 @@ class UrlTests {
 
       assertThat(origin.toString()).isEqualTo("https://example.com");
       assertThat(origin).isInstanceOf(Origin.class);
-
-      assertThat(origin.getScheme()).isEqualTo(https);
-
-      assertThat(origin.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(origin.getUserInfo()).isNull();
-      assertThat(origin.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(origin.getPort()).isNull();
-
-      assertThat(origin.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(origin.getQuery()).isNull();
-
-      assertThat(origin.getFragment()).isNull();
     }
 
     @Test
@@ -126,18 +78,6 @@ class UrlTests {
       assertThat(relativeUrl.toString()).isEqualTo("//example.com/path?query#fragment");
       assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
       assertThat(relativeUrl).isNotInstanceOf(PathAndQuery.class);
-
-      assertThat(relativeUrl.getScheme()).isNull();
-
-      assertThat(relativeUrl.getAuthority()).isEqualTo(Authority.parse("example.com"));
-      assertThat(relativeUrl.getUserInfo()).isNull();
-      assertThat(relativeUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(relativeUrl.getPort()).isNull();
-
-      assertThat(relativeUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -147,18 +87,6 @@ class UrlTests {
       assertThat(relativeUrl.toString()).isEqualTo("/path?query#fragment");
       assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
       assertThat(relativeUrl).isNotInstanceOf(PathAndQuery.class);
-
-      assertThat(relativeUrl.getScheme()).isNull();
-
-      assertThat(relativeUrl.getAuthority()).isNull();
-      assertThat(relativeUrl.getUserInfo()).isNull();
-      assertThat(relativeUrl.getHost()).isNull();
-      assertThat(relativeUrl.getPort()).isNull();
-
-      assertThat(relativeUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -167,18 +95,6 @@ class UrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("/path?query");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -187,18 +103,6 @@ class UrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("relative");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
-      assertThat(pathAndQuery.getQuery()).isNull();
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -207,18 +111,6 @@ class UrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(pathAndQuery.getQuery()).isNull();
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -227,18 +119,6 @@ class UrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("?");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse(""));
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -247,18 +127,6 @@ class UrlTests {
 
       assertThat(relativeUrl.toString()).isEqualTo("#");
       assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
-
-      assertThat(relativeUrl.getScheme()).isNull();
-
-      assertThat(relativeUrl.getAuthority()).isNull();
-      assertThat(relativeUrl.getUserInfo()).isNull();
-      assertThat(relativeUrl.getHost()).isNull();
-      assertThat(relativeUrl.getPort()).isNull();
-
-      assertThat(relativeUrl.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(relativeUrl.getQuery()).isNull();
-
-      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse(""));
     }
 
     @Test
@@ -267,18 +135,7 @@ class UrlTests {
 
       assertThat(fileUri.toString()).isEqualTo("file:///home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
-
-      assertThat(fileUri.getAuthority()).isEqualTo(HostAndPort.EMPTY);
-      assertThat(fileUri.getUserInfo()).isNull();
-      assertThat(fileUri.getHost()).isEqualTo(Host.EMPTY);
-      assertThat(fileUri.getPort()).isNull();
-
-      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
-      assertThat(fileUri.getQuery()).isNull();
-
-      assertThat(fileUri.getFragment()).isNull();
+      assertThat(fileUri).isNotInstanceOf(Origin.class);
     }
 
     @Test
@@ -287,18 +144,7 @@ class UrlTests {
 
       assertThat(fileUri.toString()).isEqualTo("file://user@remote/home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
-
-      assertThat(fileUri.getAuthority()).isEqualTo(Authority.parse("user@remote"));
-      assertThat(fileUri.getUserInfo()).isEqualTo(UserInfo.parse("user"));
-      assertThat(fileUri.getHost()).isEqualTo(Host.parse("remote"));
-      assertThat(fileUri.getPort()).isNull();
-
-      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
-      assertThat(fileUri.getQuery()).isNull();
-
-      assertThat(fileUri.getFragment()).isNull();
+      assertThat(fileUri).isNotInstanceOf(Origin.class);
     }
 
     @Test

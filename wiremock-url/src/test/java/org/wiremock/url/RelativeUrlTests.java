@@ -56,6 +56,11 @@ class RelativeUrlTests {
       assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
 
       assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+
+      assertThat(relativeUrl.isAbsolute()).isFalse();
+      assertThat(relativeUrl.isRelative()).isTrue();
+      assertThat(relativeUrl.isAbsoluteUrl()).isFalse();
+      assertThat(relativeUrl.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -77,6 +82,11 @@ class RelativeUrlTests {
       assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
 
       assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+
+      assertThat(relativeUrl.isAbsolute()).isFalse();
+      assertThat(relativeUrl.isRelative()).isTrue();
+      assertThat(relativeUrl.isAbsoluteUrl()).isFalse();
+      assertThat(relativeUrl.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -85,19 +95,6 @@ class RelativeUrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("/path?query");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -106,18 +103,6 @@ class RelativeUrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("relative");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
-      assertThat(pathAndQuery.getQuery()).isNull();
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -126,18 +111,6 @@ class RelativeUrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(pathAndQuery.getQuery()).isNull();
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -146,18 +119,6 @@ class RelativeUrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("?");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
-
-      assertThat(pathAndQuery.getScheme()).isNull();
-
-      assertThat(pathAndQuery.getAuthority()).isNull();
-      assertThat(pathAndQuery.getUserInfo()).isNull();
-      assertThat(pathAndQuery.getHost()).isNull();
-      assertThat(pathAndQuery.getPort()).isNull();
-
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse(""));
-
-      assertThat(pathAndQuery.getFragment()).isNull();
     }
 
     @Test
@@ -166,6 +127,7 @@ class RelativeUrlTests {
 
       assertThat(pathAndQuery.toString()).isEqualTo("#");
       assertThat(pathAndQuery).isInstanceOf(RelativeUrl.class);
+      assertThat(pathAndQuery).isNotInstanceOf(PathAndQuery.class);
 
       assertThat(pathAndQuery.getScheme()).isNull();
 
@@ -178,6 +140,11 @@ class RelativeUrlTests {
       assertThat(pathAndQuery.getQuery()).isNull();
 
       assertThat(pathAndQuery.getFragment()).isEqualTo(Fragment.parse(""));
+
+      assertThat(pathAndQuery.isAbsolute()).isFalse();
+      assertThat(pathAndQuery.isRelative()).isTrue();
+      assertThat(pathAndQuery.isAbsoluteUrl()).isFalse();
+      assertThat(pathAndQuery.isOpaqueUri()).isFalse();
     }
 
     @Test

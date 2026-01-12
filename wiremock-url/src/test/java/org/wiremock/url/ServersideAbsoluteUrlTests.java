@@ -57,6 +57,11 @@ class ServersideAbsoluteUrlTests {
       assertThat(serversideAbsoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
 
       assertThat(serversideAbsoluteUrl.getFragment()).isNull();
+
+      assertThat(serversideAbsoluteUrl.isAbsolute()).isTrue();
+      assertThat(serversideAbsoluteUrl.isRelative()).isFalse();
+      assertThat(serversideAbsoluteUrl.isAbsoluteUrl()).isTrue();
+      assertThat(serversideAbsoluteUrl.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -65,18 +70,6 @@ class ServersideAbsoluteUrlTests {
 
       assertThat(origin.toString()).isEqualTo("https://example.com");
       assertThat(origin).isInstanceOf(Origin.class);
-
-      assertThat(origin.getScheme()).isEqualTo(https);
-
-      assertThat(origin.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(origin.getUserInfo()).isNull();
-      assertThat(origin.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(origin.getPort()).isNull();
-
-      assertThat(origin.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(origin.getQuery()).isNull();
-
-      assertThat(origin.getFragment()).isNull();
     }
 
     @Test
@@ -85,6 +78,7 @@ class ServersideAbsoluteUrlTests {
 
       assertThat(fileUri.toString()).isEqualTo("file:///home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
+      assertThat(fileUri).isNotInstanceOf(Origin.class);
 
       assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
 
@@ -97,6 +91,11 @@ class ServersideAbsoluteUrlTests {
       assertThat(fileUri.getQuery()).isNull();
 
       assertThat(fileUri.getFragment()).isNull();
+
+      assertThat(fileUri.isAbsolute()).isTrue();
+      assertThat(fileUri.isRelative()).isFalse();
+      assertThat(fileUri.isAbsoluteUrl()).isTrue();
+      assertThat(fileUri.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -105,6 +104,7 @@ class ServersideAbsoluteUrlTests {
 
       assertThat(fileUri.toString()).isEqualTo("file://user@remote/home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
+      assertThat(fileUri).isNotInstanceOf(Origin.class);
 
       assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
 
@@ -117,6 +117,11 @@ class ServersideAbsoluteUrlTests {
       assertThat(fileUri.getQuery()).isNull();
 
       assertThat(fileUri.getFragment()).isNull();
+
+      assertThat(fileUri.isAbsolute()).isTrue();
+      assertThat(fileUri.isRelative()).isFalse();
+      assertThat(fileUri.isAbsoluteUrl()).isTrue();
+      assertThat(fileUri.isOpaqueUri()).isFalse();
     }
 
     @Test

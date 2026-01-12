@@ -50,6 +50,11 @@ class OpaqueUriTests {
       assertThat(mailtoUri.getQuery()).isNull();
 
       assertThat(mailtoUri.getFragment()).isNull();
+
+      assertThat(mailtoUri.isAbsolute()).isTrue();
+      assertThat(mailtoUri.isRelative()).isFalse();
+      assertThat(mailtoUri.isAbsoluteUrl()).isFalse();
+      assertThat(mailtoUri.isOpaqueUri()).isTrue();
     }
 
     @Test
@@ -77,6 +82,11 @@ class OpaqueUriTests {
       assertThat(arn.getQuery()).isNull();
 
       assertThat(arn.getFragment()).isNull();
+
+      assertThat(arn.isAbsolute()).isTrue();
+      assertThat(arn.isRelative()).isFalse();
+      assertThat(arn.isAbsoluteUrl()).isFalse();
+      assertThat(arn.isOpaqueUri()).isTrue();
     }
 
     @Test
@@ -97,6 +107,11 @@ class OpaqueUriTests {
       assertThat(fileUri.getQuery()).isNull();
 
       assertThat(fileUri.getFragment()).isNull();
+
+      assertThat(fileUri.isAbsolute()).isTrue();
+      assertThat(fileUri.isRelative()).isFalse();
+      assertThat(fileUri.isAbsoluteUrl()).isFalse();
+      assertThat(fileUri.isOpaqueUri()).isTrue();
     }
 
     @Test

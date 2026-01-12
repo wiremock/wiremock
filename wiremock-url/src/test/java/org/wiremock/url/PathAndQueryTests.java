@@ -55,6 +55,11 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
 
       assertThat(pathAndQuery.getFragment()).isNull();
+
+      assertThat(pathAndQuery.isAbsolute()).isFalse();
+      assertThat(pathAndQuery.isRelative()).isTrue();
+      assertThat(pathAndQuery.isAbsoluteUrl()).isFalse();
+      assertThat(pathAndQuery.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -75,6 +80,11 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getQuery()).isNull();
 
       assertThat(pathAndQuery.getFragment()).isNull();
+
+      assertThat(pathAndQuery.isAbsolute()).isFalse();
+      assertThat(pathAndQuery.isRelative()).isTrue();
+      assertThat(pathAndQuery.isAbsoluteUrl()).isFalse();
+      assertThat(pathAndQuery.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -95,6 +105,11 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getQuery()).isNull();
 
       assertThat(pathAndQuery.getFragment()).isNull();
+
+      assertThat(pathAndQuery.isAbsolute()).isFalse();
+      assertThat(pathAndQuery.isRelative()).isTrue();
+      assertThat(pathAndQuery.isAbsoluteUrl()).isFalse();
+      assertThat(pathAndQuery.isOpaqueUri()).isFalse();
     }
 
     @Test
@@ -115,6 +130,11 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse(""));
 
       assertThat(pathAndQuery.getFragment()).isNull();
+
+      assertThat(pathAndQuery.isAbsolute()).isFalse();
+      assertThat(pathAndQuery.isRelative()).isTrue();
+      assertThat(pathAndQuery.isAbsoluteUrl()).isFalse();
+      assertThat(pathAndQuery.isOpaqueUri()).isFalse();
     }
 
     @Test

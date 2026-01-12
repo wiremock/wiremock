@@ -18,7 +18,6 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.wiremock.url.Scheme.https;
 
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -37,19 +36,6 @@ public class AbsoluteUriTests {
 
       assertThat(absoluteUrl.toString()).isEqualTo("https://example.com/path?query#fragment");
       assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
-      assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(absoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(absoluteUrl.getUserInfo()).isNull();
-      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(absoluteUrl.getPort()).isNull();
-
-      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -58,19 +44,6 @@ public class AbsoluteUriTests {
 
       assertThat(absoluteUrl.toString()).isEqualTo("https://user@example.com/path?query#fragment");
       assertThat(absoluteUrl).isInstanceOf(AbsoluteUrl.class);
-      assertThat(absoluteUrl).isNotInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(absoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(absoluteUrl.getAuthority()).isEqualTo(Authority.parse("user@example.com"));
-      assertThat(absoluteUrl.getUserInfo()).isEqualTo(UserInfo.parse("user"));
-      assertThat(absoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(absoluteUrl.getPort()).isNull();
-
-      assertThat(absoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(absoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(absoluteUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
     }
 
     @Test
@@ -79,19 +52,6 @@ public class AbsoluteUriTests {
 
       assertThat(serversideAbsoluteUrl.toString()).isEqualTo("https://example.com/path?query");
       assertThat(serversideAbsoluteUrl).isInstanceOf(ServersideAbsoluteUrl.class);
-      assertThat(serversideAbsoluteUrl).isNotInstanceOf(Origin.class);
-
-      assertThat(serversideAbsoluteUrl.getScheme()).isEqualTo(https);
-
-      assertThat(serversideAbsoluteUrl.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(serversideAbsoluteUrl.getUserInfo()).isNull();
-      assertThat(serversideAbsoluteUrl.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(serversideAbsoluteUrl.getPort()).isNull();
-
-      assertThat(serversideAbsoluteUrl.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(serversideAbsoluteUrl.getQuery()).isEqualTo(Query.parse("query"));
-
-      assertThat(serversideAbsoluteUrl.getFragment()).isNull();
     }
 
     @Test
@@ -100,19 +60,6 @@ public class AbsoluteUriTests {
 
       assertThat(serversideAbsoluteUrl.toString()).isEqualTo("data://:443");
       assertThat(serversideAbsoluteUrl).isInstanceOf(Origin.class);
-
-      assertThat(serversideAbsoluteUrl.getScheme()).isEqualTo(Scheme.parse("data"));
-
-      assertThat(serversideAbsoluteUrl.getAuthority())
-          .isEqualTo(HostAndPort.of(Host.EMPTY, Port.of(443)));
-      assertThat(serversideAbsoluteUrl.getUserInfo()).isNull();
-      assertThat(serversideAbsoluteUrl.getHost()).isEqualTo(Host.EMPTY);
-      assertThat(serversideAbsoluteUrl.getPort()).isEqualTo(Port.of(443));
-
-      assertThat(serversideAbsoluteUrl.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(serversideAbsoluteUrl.getQuery()).isNull();
-
-      assertThat(serversideAbsoluteUrl.getFragment()).isNull();
     }
 
     @Test
@@ -121,18 +68,6 @@ public class AbsoluteUriTests {
 
       assertThat(origin.toString()).isEqualTo("https://example.com");
       assertThat(origin).isInstanceOf(Origin.class);
-
-      assertThat(origin.getScheme()).isEqualTo(https);
-
-      assertThat(origin.getAuthority()).isEqualTo(HostAndPort.parse("example.com"));
-      assertThat(origin.getUserInfo()).isNull();
-      assertThat(origin.getHost()).isEqualTo(Host.parse("example.com"));
-      assertThat(origin.getPort()).isNull();
-
-      assertThat(origin.getPath()).isEqualTo(Path.EMPTY);
-      assertThat(origin.getQuery()).isNull();
-
-      assertThat(origin.getFragment()).isNull();
     }
 
     @Test
@@ -141,18 +76,6 @@ public class AbsoluteUriTests {
 
       assertThat(mailtoUri.toString()).isEqualTo("mailto:joan@example.com");
       assertThat(mailtoUri).isInstanceOf(OpaqueUri.class);
-
-      assertThat(mailtoUri.getScheme()).isEqualTo(Scheme.mailto);
-
-      assertThat(mailtoUri.getAuthority()).isNull();
-      assertThat(mailtoUri.getUserInfo()).isNull();
-      assertThat(mailtoUri.getHost()).isNull();
-      assertThat(mailtoUri.getPort()).isNull();
-
-      assertThat(mailtoUri.getPath()).isEqualTo(Path.parse("joan@example.com"));
-      assertThat(mailtoUri.getQuery()).isNull();
-
-      assertThat(mailtoUri.getFragment()).isNull();
     }
 
     @Test
@@ -165,21 +88,6 @@ public class AbsoluteUriTests {
           .isEqualTo(
               "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
       assertThat(arn).isInstanceOf(OpaqueUri.class);
-
-      assertThat(arn.getScheme()).isEqualTo(Scheme.parse("arn"));
-
-      assertThat(arn.getAuthority()).isNull();
-      assertThat(arn.getUserInfo()).isNull();
-      assertThat(arn.getHost()).isNull();
-      assertThat(arn.getPort()).isNull();
-
-      assertThat(arn.getPath())
-          .isEqualTo(
-              Path.parse(
-                  "aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"));
-      assertThat(arn.getQuery()).isNull();
-
-      assertThat(arn.getFragment()).isNull();
     }
 
     @Test
@@ -188,18 +96,6 @@ public class AbsoluteUriTests {
 
       assertThat(fileUri.toString()).isEqualTo("file:///home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
-
-      assertThat(fileUri.getAuthority()).isEqualTo(HostAndPort.EMPTY);
-      assertThat(fileUri.getUserInfo()).isNull();
-      assertThat(fileUri.getHost()).isEqualTo(Host.EMPTY);
-      assertThat(fileUri.getPort()).isNull();
-
-      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
-      assertThat(fileUri.getQuery()).isNull();
-
-      assertThat(fileUri.getFragment()).isNull();
     }
 
     @Test
@@ -208,18 +104,6 @@ public class AbsoluteUriTests {
 
       assertThat(fileUri.toString()).isEqualTo("file://user@remote/home/me/some/dir");
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
-
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
-
-      assertThat(fileUri.getAuthority()).isEqualTo(Authority.parse("user@remote"));
-      assertThat(fileUri.getUserInfo()).isEqualTo(UserInfo.parse("user"));
-      assertThat(fileUri.getHost()).isEqualTo(Host.parse("remote"));
-      assertThat(fileUri.getPort()).isNull();
-
-      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
-      assertThat(fileUri.getQuery()).isNull();
-
-      assertThat(fileUri.getFragment()).isNull();
     }
 
     @Test
@@ -228,18 +112,6 @@ public class AbsoluteUriTests {
 
       assertThat(fileUri.toString()).isEqualTo("file:/home/me/some/dir");
       assertThat(fileUri).isInstanceOf(OpaqueUri.class);
-
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
-
-      assertThat(fileUri.getAuthority()).isNull();
-      assertThat(fileUri.getUserInfo()).isNull();
-      assertThat(fileUri.getHost()).isNull();
-      assertThat(fileUri.getPort()).isNull();
-
-      assertThat(fileUri.getPath()).isEqualTo(Path.parse("/home/me/some/dir"));
-      assertThat(fileUri.getQuery()).isNull();
-
-      assertThat(fileUri.getFragment()).isNull();
     }
 
     @Test

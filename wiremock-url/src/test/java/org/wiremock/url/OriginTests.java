@@ -56,6 +56,11 @@ public class OriginTests {
       assertThat(origin.getFragment()).isNull();
 
       assertThat(origin.toString()).isEqualTo("http://example.com");
+
+      assertThat(origin.isAbsolute()).isTrue();
+      assertThat(origin.isRelative()).isFalse();
+      assertThat(origin.isAbsoluteUrl()).isTrue();
+      assertThat(origin.isOpaqueUri()).isFalse();
     }
 
     @Test
