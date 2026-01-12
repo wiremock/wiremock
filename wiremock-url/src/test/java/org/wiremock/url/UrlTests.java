@@ -176,7 +176,6 @@ class UrlTests {
       assertThat(pathAndQuery.getPort()).isNull();
 
       assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
       assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
 
       assertThat(pathAndQuery.getFragment()).isNull();
