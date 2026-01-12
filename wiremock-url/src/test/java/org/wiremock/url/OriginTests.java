@@ -18,6 +18,7 @@ package org.wiremock.url;
 import static java.util.stream.Stream.concat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Scheme.http;
 import static org.wiremock.url.ServersideAbsoluteUrlTests.Parse.invalidAbsoluteUrls;
 
@@ -55,6 +56,75 @@ public class OriginTests {
       assertThat(origin.getFragment()).isNull();
 
       assertThat(origin.toString()).isEqualTo("http://example.com");
+    }
+
+    @Test
+    void rejects_invalid_uri() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> Origin.parse("not a :uri"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal uri: `not a :uri`");
+      assertThat(exception.getIllegalValue()).isEqualTo("not a :uri");
+
+      IllegalScheme cause =
+          assertThat(exception.getCause()).asInstanceOf(type(IllegalScheme.class)).actual();
+      assertThat(cause.getMessage())
+          .isEqualTo("Illegal scheme `not a `; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
+      assertThat(cause.getIllegalValue()).isEqualTo("not a ");
+      assertThat(cause.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_mailto() {
+      IllegalOrigin exception =
+          assertThatExceptionOfType(IllegalOrigin.class)
+              .isThrownBy(() -> Origin.parse("mailto:joan@example.com"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal origin: `mailto:joan@example.com`");
+      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_arn() {
+      IllegalOrigin exception =
+          assertThatExceptionOfType(IllegalOrigin.class)
+              .isThrownBy(
+                  () ->
+                      Origin.parse(
+                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo(
+              "Illegal origin: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`");
+      assertThat(exception.getIllegalValue())
+          .isEqualTo(
+              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_file_no_authority() {
+      IllegalOrigin exception =
+          assertThatExceptionOfType(IllegalOrigin.class)
+              .isThrownBy(() -> Origin.parse("file:/home/me/some/dir"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal origin: `file:/home/me/some/dir`");
+      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_relative_url() {
+      IllegalOrigin exception =
+          assertThatExceptionOfType(IllegalOrigin.class)
+              .isThrownBy(() -> Origin.parse("//example.com/path?query#fragment"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal origin: `//example.com/path?query#fragment`");
+      assertThat(exception.getIllegalValue()).isEqualTo("//example.com/path?query#fragment");
+      assertThat(exception.getCause()).isNull();
     }
 
     static final List<String> illegalOrigins =
