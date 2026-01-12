@@ -252,7 +252,6 @@ class UrlTests {
                       Url.parse(
                           "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
               .actual();
-      exception.printStackTrace();
       assertThat(exception.getMessage())
           .isEqualTo(
               "Illegal url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`; a url has an authority");

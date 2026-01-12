@@ -15,15 +15,158 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
+
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class RelativeUrlTests {
+
+  @Nested
+  class Parse {
+
+    @Test
+    void parses_relative_url_with_authority_correctly() {
+      var relativeUrl = RelativeUrl.parse("//example.com/path?query#fragment");
+
+      assertThat(relativeUrl.toString()).isEqualTo("//example.com/path?query#fragment");
+      assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
+      assertThat(relativeUrl).isNotInstanceOf(PathAndQuery.class);
+
+      assertThat(relativeUrl.getScheme()).isNull();
+
+      assertThat(relativeUrl.getAuthority()).isEqualTo(Authority.parse("example.com"));
+      assertThat(relativeUrl.getUserInfo()).isNull();
+      assertThat(relativeUrl.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(relativeUrl.getPort()).isNull();
+
+      assertThat(relativeUrl.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+    }
+
+    @Test
+    void parses_relative_url_without_authority_correctly() {
+      var relativeUrl = RelativeUrl.parse("/path?query#fragment");
+
+      assertThat(relativeUrl.toString()).isEqualTo("/path?query#fragment");
+      assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
+      assertThat(relativeUrl).isNotInstanceOf(PathAndQuery.class);
+
+      assertThat(relativeUrl.getScheme()).isNull();
+
+      assertThat(relativeUrl.getAuthority()).isNull();
+      assertThat(relativeUrl.getUserInfo()).isNull();
+      assertThat(relativeUrl.getHost()).isNull();
+      assertThat(relativeUrl.getPort()).isNull();
+
+      assertThat(relativeUrl.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(relativeUrl.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(relativeUrl.getFragment()).isEqualTo(Fragment.parse("fragment"));
+    }
+
+    @Test
+    void parses_path_and_query_correctly() {
+      var pathAndQuery = RelativeUrl.parse("/path?query");
+
+      assertThat(pathAndQuery.toString()).isEqualTo("/path?query");
+      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+
+      assertThat(pathAndQuery.getScheme()).isNull();
+
+      assertThat(pathAndQuery.getAuthority()).isNull();
+      assertThat(pathAndQuery.getUserInfo()).isNull();
+      assertThat(pathAndQuery.getHost()).isNull();
+      assertThat(pathAndQuery.getPort()).isNull();
+
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("/path"));
+      assertThat(pathAndQuery.getQuery()).isEqualTo(Query.parse("query"));
+
+      assertThat(pathAndQuery.getFragment()).isNull();
+    }
+
+    @Test
+    void rejects_absolute_url() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> RelativeUrl.parse("https://example.com/path?query#fragment"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal relative URL: `https://example.com/path?query#fragment`");
+      assertThat(exception.getIllegalValue()).isEqualTo("https://example.com/path?query#fragment");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_invalid_uri() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> RelativeUrl.parse("not a :uri"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal uri: `not a :uri`");
+      assertThat(exception.getIllegalValue()).isEqualTo("not a :uri");
+
+      IllegalScheme cause =
+          assertThat(exception.getCause()).asInstanceOf(type(IllegalScheme.class)).actual();
+      assertThat(cause.getMessage())
+          .isEqualTo("Illegal scheme `not a `; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
+      assertThat(cause.getIllegalValue()).isEqualTo("not a ");
+      assertThat(cause.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_mailto() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> Url.parse("mailto:joan@example.com"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal url: `mailto:joan@example.com`; a url has an authority");
+      assertThat(exception.getIllegalValue()).isEqualTo("mailto:joan@example.com");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_arn() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(
+                  () ->
+                      Url.parse(
+                          "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo(
+              "Illegal url: `arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS`; a url has an authority");
+      assertThat(exception.getIllegalValue())
+          .isEqualTo(
+              "arn:aws:servicecatalog:us-east-1:912624918755:stack/some-stack/pp-a3B9zXp1mQ7rS");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void rejects_file_no_authority() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> Url.parse("file:/home/me/some/dir"))
+              .actual();
+      assertThat(exception.getMessage())
+          .isEqualTo("Illegal url: `file:/home/me/some/dir`; a url has an authority");
+      assertThat(exception.getIllegalValue()).isEqualTo("file:/home/me/some/dir");
+      assertThat(exception.getCause()).isNull();
+    }
+  }
+
 
   @Nested
   class Normalise {
