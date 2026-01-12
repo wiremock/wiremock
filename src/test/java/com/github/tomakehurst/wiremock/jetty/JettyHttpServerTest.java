@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -56,7 +57,9 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private MessageChannels messageChannels = new MessageChannels(new InMemoryMessageChannelStore());
+  private EntityResolver entityResolver = new EntityResolver(null);
+  private MessageChannels messageChannels =
+      new MessageChannels(new InMemoryMessageChannelStore(), entityResolver);
   private MessageStubMappings messageStubMappings =
       new MessageStubMappings(new InMemoryMessageStubMappingStore());
   private MessageStubRequestHandler messageStubRequestHandler;
@@ -94,7 +97,7 @@ public class JettyHttpServerTest {
             messageStubMappings,
             messageChannels,
             new InMemoryMessageJournal(null),
-            null,
+            entityResolver,
             Collections.emptyList());
   }
 

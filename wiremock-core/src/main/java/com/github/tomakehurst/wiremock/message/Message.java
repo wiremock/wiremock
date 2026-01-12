@@ -84,6 +84,56 @@ public class Message {
     return getBodyAsString();
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Message transform(java.util.function.Function<Builder, Builder> builderTransform) {
+    return builderTransform.apply(new Builder(this)).build();
+  }
+
+  public static class Builder {
+    private Entity body;
+
+    public Builder() {}
+
+    private Builder(Message message) {
+      this.body = message.body;
+    }
+
+    public Builder withBody(Entity body) {
+      this.body = body;
+      return this;
+    }
+
+    public Builder withTextBody(String text) {
+      if (text == null) {
+        this.body = null;
+        return this;
+      }
+      byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
+      this.body =
+          new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
+      return this;
+    }
+
+    public Builder withBinaryBody(byte[] data) {
+      if (data == null) {
+        this.body = null;
+        return this;
+      }
+      InputStreamSource streamSource = () -> new ByteArrayInputStream(data);
+      this.body =
+          new Entity(EncodingType.BINARY, FormatType.BASE64, CompressionType.NONE, streamSource);
+      return this;
+    }
+
+    public Message build() {
+      return new Message(body);
+    }
+  }
+
   static class MessageDeserializer extends JsonDeserializer<Message> {
     @Override
     public Message deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

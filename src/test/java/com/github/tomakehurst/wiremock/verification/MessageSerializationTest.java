@@ -46,7 +46,6 @@ import com.github.tomakehurst.wiremock.message.IncomingMessageTrigger;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.Map;
@@ -56,7 +55,7 @@ import org.junit.jupiter.api.Test;
 public class MessageSerializationTest {
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
+    return Message.builder().withTextBody(text).build();
   }
 
   @Test
