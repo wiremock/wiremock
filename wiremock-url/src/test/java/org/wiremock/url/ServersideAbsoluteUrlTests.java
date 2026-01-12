@@ -147,7 +147,7 @@ class ServersideAbsoluteUrlTests {
 
     @ParameterizedTest
     @FieldSource("illegalServersideAbsoluteUrls")
-    void illegal_serverside_absolute_urls_are_rejected(String illegalAbsoluteUrl) {
+    void rejects_illegal_serverside_absolute_url(String illegalAbsoluteUrl) {
       assertThatExceptionOfType(IllegalServersideAbsoluteUrl.class)
           .isThrownBy(() -> ServersideAbsoluteUrl.parse(illegalAbsoluteUrl))
           .withMessage("Illegal serverside absolute url: `" + illegalAbsoluteUrl + "`")

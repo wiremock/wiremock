@@ -327,7 +327,7 @@ class UrlTests {
 
     @ParameterizedTest
     @FieldSource("illegalUrls")
-    void illegal_urls_are_rejected(String illegalUrl) {
+    void rejects_illegal_url(String illegalUrl) {
       assertThatExceptionOfType(IllegalUrl.class)
           .isThrownBy(() -> Url.parse(illegalUrl))
           .withMessage("Illegal url: `" + illegalUrl + "`; a url has an authority")
