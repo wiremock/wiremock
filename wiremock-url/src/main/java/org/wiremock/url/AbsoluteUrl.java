@@ -66,15 +66,6 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
   }
 
   /**
-   * Returns {@code true} if this URL is absolute (has no fragment component).
-   *
-   * @return {@code true} if this URL has no fragment
-   */
-  default boolean isAbsolute() {
-    return getFragment() == null;
-  }
-
-  /**
    * Returns the origin of this URL, consisting of the scheme, host, and port.
    *
    * @return the origin
