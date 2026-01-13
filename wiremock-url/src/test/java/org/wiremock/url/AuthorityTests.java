@@ -529,7 +529,6 @@ public class AuthorityTests {
       HostAndPort hostAndPort = HostAndPort.of(host);
       assertThat(hostAndPort.getHost()).isEqualTo(host);
       assertThat(hostAndPort.getPort()).isNull();
-      //noinspection removal
       assertThat(hostAndPort.getUserInfo()).isNull();
       assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com"));
     }
@@ -541,7 +540,6 @@ public class AuthorityTests {
       HostAndPort hostAndPort = HostAndPort.of(host, port);
       assertThat(hostAndPort.getHost()).isEqualTo(host);
       assertThat(hostAndPort.getPort()).isEqualTo(port);
-      //noinspection removal
       assertThat(hostAndPort.getUserInfo()).isNull();
       assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com:8080"));
     }
@@ -552,7 +550,6 @@ public class AuthorityTests {
       HostAndPort hostAndPort = HostAndPort.of(host, null);
       assertThat(hostAndPort.getHost()).isEqualTo(host);
       assertThat(hostAndPort.getPort()).isNull();
-      //noinspection removal
       assertThat(hostAndPort.getUserInfo()).isNull();
       assertThat(hostAndPort).isEqualTo(HostAndPort.parse("example.com"));
     }
@@ -608,6 +605,37 @@ public class AuthorityTests {
       Authority normalised = authority.normalise(Scheme.http);
       assertThat(normalised).isEqualTo(Authority.parse("user:password@example.com"));
       assertThat(normalised.getPort()).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"example.com", "example.com:8080"})
+    void is_normal_form_with_http_scheme_returns_true(String authorityString) {
+      var authority = Authority.parse(authorityString);
+      assertThat(authority.isNormalForm(Scheme.http)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"example.com:", "example.com:80"})
+    void is_normal_form_with_http_scheme_returns_false(String authorityString) {
+      var authority = Authority.parse(authorityString);
+      assertThat(authority.isNormalForm(Scheme.http)).isFalse();
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "example.com",
+          "example.com:123",
+        })
+    void is_normal_form_with_file_scheme_returns_true(String authorityString) {
+      var authority = Authority.parse(authorityString);
+      assertThat(authority.isNormalForm(Scheme.file)).isTrue();
+    }
+
+    @Test
+    void is_normal_form_with_file_scheme_returns_false() {
+      var authority = Authority.parse("example.com:");
+      assertThat(authority.isNormalForm(Scheme.file)).isFalse();
     }
 
     static final List<NormalisationCase<Authority>> normalisationCases =
