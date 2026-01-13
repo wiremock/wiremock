@@ -59,11 +59,8 @@ final class FragmentValue implements Fragment {
     if (normalForm == null) {
       normalForm = Constants.isNormalForm(fragment, FragmentParser.fragmentCharSet);
     }
+    //noinspection DataFlowIssue
     return normalForm;
-  }
-
-  public String fragment() {
-    return fragment;
   }
 
   @Override
