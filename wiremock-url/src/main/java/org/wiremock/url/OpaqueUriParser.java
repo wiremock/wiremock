@@ -21,15 +21,11 @@ final class OpaqueUriParser implements StringParser<OpaqueUri> {
 
   @Override
   public OpaqueUri parse(String stringForm) throws IllegalOpaqueUri {
-    try {
-      var uri = UriParser.INSTANCE.parse(stringForm);
-      if (uri instanceof OpaqueUri opaqueUri) {
-        return opaqueUri;
-      } else {
-        throw new IllegalOpaqueUri(stringForm);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalOpaqueUri(stringForm, illegalUriPart);
+    var uri = UriParser.INSTANCE.parse(stringForm);
+    if (uri instanceof OpaqueUri opaqueUri) {
+      return opaqueUri;
+    } else {
+      throw new IllegalOpaqueUri(stringForm);
     }
   }
 }

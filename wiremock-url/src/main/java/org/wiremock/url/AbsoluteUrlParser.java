@@ -21,15 +21,11 @@ final class AbsoluteUrlParser implements StringParser<AbsoluteUrl> {
 
   @Override
   public AbsoluteUrl parse(String stringForm) throws IllegalAbsoluteUrl {
-    try {
-      var uri = UriParser.INSTANCE.parse(stringForm);
-      if (uri instanceof AbsoluteUrl absoluteUrl) {
-        return absoluteUrl;
-      } else {
-        throw new IllegalAbsoluteUrl(stringForm);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalAbsoluteUrl(stringForm, illegalUriPart);
+    var uri = UriParser.INSTANCE.parse(stringForm);
+    if (uri instanceof AbsoluteUrl absoluteUrl) {
+      return absoluteUrl;
+    } else {
+      throw new IllegalAbsoluteUrl(stringForm);
     }
   }
 }

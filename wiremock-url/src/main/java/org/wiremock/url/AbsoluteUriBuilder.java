@@ -23,6 +23,8 @@ import org.wiremock.url.AbsoluteUri.Builder;
 class AbsoluteUriBuilder implements Builder {
 
   private Scheme scheme;
+  @Nullable private UserInfo userInfo = null;
+  @Nullable private Port port = null;
   @Nullable private Authority authority = null;
   private Path path = Path.ROOT;
   @Nullable Query query = null;
@@ -49,15 +51,17 @@ class AbsoluteUriBuilder implements Builder {
   @Override
   public AbsoluteUriBuilder setAuthority(@Nullable Authority authority) {
     this.authority = authority;
+    this.userInfo = null;
+    this.port = null;
     return this;
   }
 
   @Override
   public AbsoluteUriBuilder setUserInfo(@Nullable UserInfo userInfo) {
     if (this.authority == null) {
-      throw new IllegalStateException("Must set an authority or a host before setting user info");
+      this.userInfo = userInfo;
     } else {
-      this.authority = Authority.of(userInfo, authority.getHost(), authority.getPort());
+      setAuthority(Authority.of(userInfo, authority.getHost(), authority.getPort()));
     }
     return this;
   }
@@ -65,9 +69,9 @@ class AbsoluteUriBuilder implements Builder {
   @Override
   public AbsoluteUriBuilder setHost(Host host) {
     if (this.authority == null) {
-      this.authority = Authority.of(host);
+      setAuthority(Authority.of(userInfo, host, port));
     } else {
-      this.authority = Authority.of(authority.getUserInfo(), host, authority.getPort());
+      setAuthority(Authority.of(authority.getUserInfo(), host, authority.getPort()));
     }
     return this;
   }
@@ -75,9 +79,9 @@ class AbsoluteUriBuilder implements Builder {
   @Override
   public AbsoluteUriBuilder setPort(@Nullable Port port) {
     if (this.authority == null) {
-      throw new IllegalStateException("Must set an authority or a host before setting port");
+      this.port = port;
     } else {
-      this.authority = Authority.of(authority.getUserInfo(), authority.getHost(), port);
+      setAuthority(Authority.of(authority.getUserInfo(), authority.getHost(), port));
     }
     return this;
   }
@@ -102,6 +106,9 @@ class AbsoluteUriBuilder implements Builder {
 
   @Override
   public AbsoluteUri build() {
+    if (authority == null && (userInfo != null || port != null)) {
+      throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
+    }
     return buildUri(scheme, authority, path, query, fragment);
   }
 

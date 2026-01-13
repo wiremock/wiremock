@@ -21,15 +21,11 @@ final class OriginParser implements StringParser<Origin> {
 
   @Override
   public Origin parse(String url) throws IllegalOrigin {
-    try {
-      var uri = UriParser.INSTANCE.parse(url);
-      if (uri instanceof Origin origin) {
-        return origin;
-      } else {
-        throw new IllegalOrigin(url);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalOrigin(url, illegalUriPart);
+    var uri = UriParser.INSTANCE.parse(url);
+    if (uri instanceof Origin origin) {
+      return origin;
+    } else {
+      throw new IllegalOrigin(url);
     }
   }
 

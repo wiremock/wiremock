@@ -21,15 +21,11 @@ final class ServersideAbsoluteUrlParser implements StringParser<ServersideAbsolu
 
   @Override
   public ServersideAbsoluteUrl parse(String stringForm) throws IllegalServersideAbsoluteUrl {
-    try {
-      var uri = UriParser.INSTANCE.parse(stringForm);
-      if (uri instanceof ServersideAbsoluteUrl absoluteUrl) {
-        return absoluteUrl;
-      } else {
-        throw new IllegalServersideAbsoluteUrl(stringForm);
-      }
-    } catch (IllegalUriPart illegalUriPart) {
-      throw new IllegalServersideAbsoluteUrl(stringForm, illegalUriPart);
+    var uri = UriParser.INSTANCE.parse(stringForm);
+    if (uri instanceof ServersideAbsoluteUrl absoluteUrl) {
+      return absoluteUrl;
+    } else {
+      throw new IllegalServersideAbsoluteUrl(stringForm);
     }
   }
 }

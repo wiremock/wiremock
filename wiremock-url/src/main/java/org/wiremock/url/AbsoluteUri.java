@@ -66,20 +66,18 @@ public sealed interface AbsoluteUri extends Uri permits OpaqueUri, AbsoluteUrl {
               Path path = otherPath.isEmpty() ? Path.ROOT : otherPath.normalise();
               builder.setPath(path);
               builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
-            } else {
-              if (otherPath.isEmpty()) {
-                builder.setPath(this.normalise().getPath());
-                if (otherQuery != null) {
-                  builder.setQuery(otherQuery.normalise());
-                }
-              } else {
-                if (otherPath.isAbsolute()) {
-                  builder.setPath(otherPath.normalise());
-                } else {
-                  builder.setPath(this.normalise().getPath().resolve(otherPath));
-                }
-                builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
+            } else if (otherPath.isEmpty()) {
+              builder.setPath(this.normalise().getPath());
+              if (otherQuery != null) {
+                builder.setQuery(otherQuery.normalise());
               }
+            } else {
+              if (otherPath.isAbsolute()) {
+                builder.setPath(otherPath.normalise());
+              } else {
+                builder.setPath(this.normalise().getPath().resolve(otherPath));
+              }
+              builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
             }
             otherFragment = otherFragment != null ? otherFragment.normalise() : null;
             builder.setFragment(otherFragment);

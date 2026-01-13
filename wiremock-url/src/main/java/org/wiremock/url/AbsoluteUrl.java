@@ -94,12 +94,12 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
   /**
    * Resolves the given string as a URI reference against this URL.
    *
-   * @param other the URI reference to resolve
-   * @return the resolved URL
-   * @throws IllegalAbsoluteUrl if the string is not a valid URI reference
+   * @param other the URL to resolve
+   * @return the resolved absolute URL
+   * @throws IllegalAbsoluteUrl if the string is not a valid absolute URL
    */
   default AbsoluteUrl resolve(String other) {
-    return resolve(parse(other));
+    return resolve(Url.parse(other));
   }
 
   /**
