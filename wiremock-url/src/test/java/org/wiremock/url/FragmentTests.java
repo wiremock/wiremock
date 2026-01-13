@@ -29,7 +29,7 @@ import org.junit.jupiter.params.provider.FieldSource;
 class FragmentTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     static final List<String> validFragments =
         List.of(
@@ -137,10 +137,16 @@ class FragmentTests {
       Fragment fragment = Fragment.parse(fragmentString);
       assertThat(fragment.toString()).isEqualTo(fragmentString);
     }
+
+    @TestFactory
+    Stream<DynamicTest> invariants() {
+      return StringParserInvariantTests.generateInvariantTests(
+          FragmentParser.INSTANCE, validFragments);
+    }
   }
 
   @Nested
-  class NormaliseMethod {
+  class Normalise {
 
     record NormalisationCase(String input, String expected) {}
 
@@ -197,9 +203,7 @@ class FragmentTests {
   }
 
   @Nested
-  class DecodeMethod {
-
-    record DecodeCase(String input, String expected) {}
+  class Decode {
 
     static final List<String> fragmentsWithoutPercentEncoding =
         List.of(
@@ -211,18 +215,6 @@ class FragmentTests {
             "section?detail",
             "time:12:30");
 
-    static final List<DecodeCase> decodeCases =
-        List.of(
-            new DecodeCase("section%20name", "section name"),
-            new DecodeCase("caf%C3%A9", "café"),
-            new DecodeCase("%C3%A9ric", "éric"),
-            new DecodeCase("100%25", "100%"),
-            new DecodeCase("path%2Fsection", "path/section"),
-            new DecodeCase("%7B%22key%22:%22value%22%7D", "{\"key\":\"value\"}"),
-            new DecodeCase("hello%20world%21", "hello world!"),
-            new DecodeCase("test%3Ctag%3E", "test<tag>"),
-            new DecodeCase("test%60backtick", "test`backtick"));
-
     @ParameterizedTest
     @FieldSource("fragmentsWithoutPercentEncoding")
     void returns_same_string_for_fragment_without_percent_encoding(String fragmentString) {
@@ -230,11 +222,43 @@ class FragmentTests {
       assertThat(fragment.decode()).isEqualTo(fragmentString);
     }
 
+    static final List<CodecCase> encodeCases =
+        List.of(
+            new CodecCase("section%20name", "section name"),
+            new CodecCase("caf%C3%A9", "café"),
+            new CodecCase("%C3%A9ric", "éric"),
+            new CodecCase("100%25", "100%"),
+            new CodecCase("path/section", "path/section"),
+            new CodecCase("%7B%22key%22:%22value%22%7D", "{\"key\":\"value\"}"),
+            new CodecCase("hello%20world!", "hello world!"),
+            new CodecCase("test%3Ctag%3E", "test<tag>"),
+            new CodecCase("test%60backtick", "test`backtick"));
+
+    @ParameterizedTest
+    @FieldSource("encodeCases")
+    void encodes_percent_encoded_correctly(CodecCase testCase) {
+      var encoded = Fragment.encode(testCase.decoded());
+      assertThat(encoded.toString()).isEqualTo(testCase.encoded());
+      assertThat(encoded.decode()).isEqualTo(testCase.decoded());
+    }
+
+    static final List<CodecCase> decodeCases =
+        List.of(
+            new CodecCase("section%20name", "section name"),
+            new CodecCase("caf%C3%A9", "café"),
+            new CodecCase("%C3%A9ric", "éric"),
+            new CodecCase("100%25", "100%"),
+            new CodecCase("path%2Fsection", "path/section"),
+            new CodecCase("%7B%22key%22:%22value%22%7D", "{\"key\":\"value\"}"),
+            new CodecCase("hello%20world%21", "hello world!"),
+            new CodecCase("test%3Ctag%3E", "test<tag>"),
+            new CodecCase("test%60backtick", "test`backtick"));
+
     @ParameterizedTest
     @FieldSource("decodeCases")
-    void decodes_percent_encoded_fragment_correctly(DecodeCase testCase) {
-      Fragment fragment = Fragment.parse(testCase.input());
-      assertThat(fragment.decode()).isEqualTo(testCase.expected());
+    void decodes_percent_encoded_correctly(CodecCase testCase) {
+      var encoded = Fragment.parse(testCase.encoded());
+      assertThat(encoded.decode()).isEqualTo(testCase.decoded());
     }
   }
 
@@ -333,11 +357,5 @@ class FragmentTests {
       assertThat(parsed).isEqualTo(original);
       assertThat(parsed.toString()).isEqualTo(stringForm);
     }
-  }
-
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    return StringParserInvariantTests.generateInvariantTests(
-        FragmentParser.INSTANCE, ParseMethod.validFragments);
   }
 }

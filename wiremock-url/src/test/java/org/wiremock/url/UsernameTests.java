@@ -185,7 +185,7 @@ class UsernameTests {
     @ParameterizedTest
     @FieldSource("codecCases")
     void encodes_percent_encoded_username_correctly(CodecCase testCase) {
-      Username username = Username.encode(testCase.unencoded());
+      Username username = Username.encode(testCase.decoded());
       assertThat(username.toString()).isEqualTo(testCase.encoded());
     }
 
@@ -193,10 +193,8 @@ class UsernameTests {
     @FieldSource("codecCases")
     void decodes_percent_encoded_username_correctly(CodecCase testCase) {
       Username username = Username.parse(testCase.encoded());
-      assertThat(username.decode()).isEqualTo(testCase.unencoded());
+      assertThat(username.decode()).isEqualTo(testCase.decoded());
     }
-
-    record CodecCase(String encoded, String unencoded) {}
   }
 
   @Nested

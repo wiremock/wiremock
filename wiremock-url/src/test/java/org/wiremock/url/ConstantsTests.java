@@ -78,7 +78,8 @@ class ConstantsTests {
           Pair.of("~", "%7E") // should be encoded
           );
 
-  private static final List<Pair<String, String>> nonNormalNormalisationCases = normalisationCases.stream().filter(t -> !t.getLeft().equals(t.getRight())).toList();
+  private static final List<Pair<String, String>> nonNormalNormalisationCases =
+      normalisationCases.stream().filter(t -> !t.getLeft().equals(t.getRight())).toList();
 
   @ParameterizedTest
   @FieldSource("nonNormalNormalisationCases")
