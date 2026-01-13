@@ -15,7 +15,6 @@
  */
 package org.wiremock.url;
 
-import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -44,10 +43,6 @@ public interface Scheme {
   Scheme sftp = register("sftp", Port.of(22));
   Scheme ssh = register("ssh", Port.of(22));
   Scheme mailto = register("mailto");
-
-  Set<Scheme> specialSchemes =
-      Set.of(
-          Scheme.http, Scheme.https, Scheme.ws, Scheme.wss, Scheme.file, Scheme.ftp, Scheme.sftp);
 
   Scheme normalise();
 
