@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,11 +28,12 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class UsernameTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     static final List<String> validUsernames =
         List.of(
@@ -101,6 +103,7 @@ class UsernameTests {
           "user\"name", // quote not allowed
           "%", // incomplete encoding
           "%2", // incomplete encoding
+          "%2G", // incomplete encoding
           "%GG", // invalid hex
           "user%ZZname" // invalid hex
         })
@@ -112,40 +115,88 @@ class UsernameTests {
           .extracting(IllegalUsername::getIllegalValue)
           .isEqualTo(illegalUsername);
     }
+
+    @TestFactory
+    Stream<DynamicTest> invariants() {
+      return StringParserInvariantTests.generateInvariantTests(
+          UsernameParser.INSTANCE, validUsernames);
+    }
   }
 
   @Nested
-  class DecodeMethod {
+  class Normalise {
 
-    record DecodeCase(String input, String expected) {}
+    static final List<NormalisationCase<UserInfo>> normalisationCases =
+        Stream.of(Pair.of("us%65r", "user"), Pair.of("user%2f", "user%2F"))
+            .map(
+                it ->
+                    new NormalisationCase<>(
+                        UserInfo.parse(it.getLeft()), UserInfo.parse(it.getRight())))
+            .toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_user_info_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
+
+    static final List<UserInfo> alreadyNormalised =
+        Stream.of("user", "user%2F", "user_with_encoded_%3A_colon").map(UserInfo::parse).toList();
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalised);
+    }
+  }
+
+  @Nested
+  class Codec {
 
     static final List<String> usernamesWithoutPercentEncoding =
         List.of("", "user", "admin", "user-name", "user.name", "User123");
 
-    static final List<DecodeCase> decodeCases =
-        List.of(
-            new DecodeCase("user%20name", "user name"),
-            new DecodeCase("%C3%A9", "é"),
-            new DecodeCase("caf%C3%A9", "café"),
-            new DecodeCase("user%40example", "user@example"),
-            new DecodeCase("user%3Aname", "user:name"),
-            new DecodeCase("%20", " "),
-            new DecodeCase("hello%20world", "hello world"),
-            new DecodeCase("test%2Fuser", "test/user"));
-
     @ParameterizedTest
     @FieldSource("usernamesWithoutPercentEncoding")
-    void returns_same_string_for_username_without_percent_encoding(String usernameString) {
-      Username username = Username.parse(usernameString);
+    void encode_returns_same_string_for_username_without_percent_encoding(String usernameString) {
+      Username username = Username.encode(usernameString);
+      assertThat(username.toString()).isEqualTo(usernameString);
       assertThat(username.decode()).isEqualTo(usernameString);
     }
 
     @ParameterizedTest
-    @FieldSource("decodeCases")
-    void decodes_percent_encoded_username_correctly(DecodeCase testCase) {
-      Username username = Username.parse(testCase.input());
-      assertThat(username.decode()).isEqualTo(testCase.expected());
+    @FieldSource("usernamesWithoutPercentEncoding")
+    void decode_returns_same_string_for_username_without_percent_encoding(String usernameString) {
+      Username username = Username.parse(usernameString);
+      assertThat(username.decode()).isEqualTo(usernameString);
     }
+
+    static final List<CodecCase> codecCases =
+        List.of(
+            new CodecCase("user%20name", "user name"),
+            new CodecCase("user%3Aname", "user:name"),
+            new CodecCase("user%25name", "user%name"),
+            new CodecCase("%C3%A9", "é"),
+            new CodecCase("caf%C3%A9", "café"),
+            new CodecCase("user%40example", "user@example"),
+            new CodecCase("user%3Aname", "user:name"),
+            new CodecCase("%20", " "),
+            new CodecCase("hello%20world", "hello world"),
+            new CodecCase("test%2Fuser", "test/user"));
+
+    @ParameterizedTest
+    @FieldSource("codecCases")
+    void encodes_percent_encoded_username_correctly(CodecCase testCase) {
+      Username username = Username.encode(testCase.unencoded());
+      assertThat(username.toString()).isEqualTo(testCase.encoded());
+    }
+
+    @ParameterizedTest
+    @FieldSource("codecCases")
+    void decodes_percent_encoded_username_correctly(CodecCase testCase) {
+      Username username = Username.parse(testCase.encoded());
+      assertThat(username.decode()).isEqualTo(testCase.unencoded());
+    }
+
+    record CodecCase(String encoded, String unencoded) {}
   }
 
   @Nested
@@ -243,11 +294,5 @@ class UsernameTests {
       assertThat(parsed).isEqualTo(original);
       assertThat(parsed.toString()).isEqualTo(stringForm);
     }
-  }
-
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    return StringParserInvariantTests.generateInvariantTests(
-        UsernameParser.INSTANCE, ParseMethod.validUsernames);
   }
 }
