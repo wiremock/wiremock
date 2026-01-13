@@ -33,210 +33,219 @@ import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 public class AuthorityTests {
 
-  static List<AuthorityParseTestCase> validHostAndPorts =
-      List.of(
-          testCase("example.com:00080", expectation(null, "example.com", "00080")),
-          testCase("example.com", expectation(null, "example.com", null)),
-          testCase("[::1]", expectation(null, "[::1]", null)),
-          testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
-          testCase("[v7.fe80::1234]", expectation(null, "[v7.fe80::1234]", null)),
-          testCase("%61", expectation(null, "%61", null)),
-          testCase("localhost", expectation(null, "localhost", null)),
-          testCase("www.example.com", expectation(null, "www.example.com", null)),
-          testCase("127.0.0.1", expectation(null, "127.0.0.1", null)),
-          testCase("test-server", expectation(null, "test-server", null)),
-          testCase("test_server", expectation(null, "test_server", null)),
-          testCase("server123", expectation(null, "server123", null)),
-          testCase("a", expectation(null, "a", null)),
-          testCase("a.b.c.d.e", expectation(null, "a.b.c.d.e", null)),
-          testCase("test%20server", expectation(null, "test%20server", null)),
-          testCase("caf%C3%A9.com", expectation(null, "caf%C3%A9.com", null)),
-          testCase("localhost:8080", expectation(null, "localhost", "8080")),
-          testCase("example.com:8080", expectation(null, "example.com", "8080")),
-          testCase("www.example.com:8080", expectation(null, "www.example.com", "8080")),
-          testCase("127.0.0.1:8080", expectation(null, "127.0.0.1", "8080")),
-          testCase("[::1]:8080", expectation(null, "[::1]", "8080")),
-          testCase("[2001:db8::1]:8080", expectation(null, "[2001:db8::1]", "8080")),
-          testCase("test-server:8080", expectation(null, "test-server", "8080")),
-          testCase("test_server:8080", expectation(null, "test_server", "8080")),
-          testCase("server123:8080", expectation(null, "server123", "8080")),
-          testCase("a:8080", expectation(null, "a", "8080")),
-          testCase("a.b.c.d.e:8080", expectation(null, "a.b.c.d.e", "8080")),
-          testCase("test%20server:8080", expectation(null, "test%20server", "8080")),
-          testCase("caf%C3%A9.com:8080", expectation(null, "caf%C3%A9.com", "8080")));
+  @Nested
+  class Parse {
 
-  static List<AuthorityParseTestCase> validAuthoritiesWithUserInfo =
-      List.of(
-          testCase(
-              "user:password@www.example.com:8080",
-              expectation("user:password", "www.example.com", "8080")),
-          testCase("user:pass@example.com:21", expectation("user:pass", "example.com", "21")),
-          testCase("me@localhost", expectation("me", "localhost", null)),
-          testCase("me@example.com", expectation("me", "example.com", null)),
-          testCase("me@www.example.com", expectation("me", "www.example.com", null)),
-          testCase("me@127.0.0.1", expectation("me", "127.0.0.1", null)),
-          testCase("me@[::1]", expectation("me", "[::1]", null)),
-          testCase("me@[2001:db8::1]", expectation("me", "[2001:db8::1]", null)),
-          testCase("me@test-server", expectation("me", "test-server", null)),
-          testCase("me@test_server", expectation("me", "test_server", null)),
-          testCase("me@server123", expectation("me", "server123", null)),
-          testCase("me@a", expectation("me", "a", null)),
-          testCase("me@a.b.c.d.e", expectation("me", "a.b.c.d.e", null)),
-          testCase("me@test%20server", expectation("me", "test%20server", null)),
-          testCase("me@caf%C3%A9.com", expectation("me", "caf%C3%A9.com", null)),
-          testCase("me@localhost:8080", expectation("me", "localhost", "8080")),
-          testCase("me@example.com:8080", expectation("me", "example.com", "8080")),
-          testCase("me@www.example.com:8080", expectation("me", "www.example.com", "8080")),
-          testCase("me@127.0.0.1:8080", expectation("me", "127.0.0.1", "8080")),
-          testCase("me@[::1]:8080", expectation("me", "[::1]", "8080")),
-          testCase("me@[2001:db8::1]:8080", expectation("me", "[2001:db8::1]", "8080")),
-          testCase("me@test-server:8080", expectation("me", "test-server", "8080")),
-          testCase("me@test_server:8080", expectation("me", "test_server", "8080")),
-          testCase("me@server123:8080", expectation("me", "server123", "8080")),
-          testCase("me@a:8080", expectation("me", "a", "8080")),
-          testCase("me@a.b.c.d.e:8080", expectation("me", "a.b.c.d.e", "8080")),
-          testCase("me@test%20server:8080", expectation("me", "test%20server", "8080")),
-          testCase("me@caf%C3%A9.com:8080", expectation("me", "caf%C3%A9.com", "8080")));
+    static List<AuthorityParseTestCase> validHostAndPorts =
+        List.of(
+            testCase("example.com:00080", expectation(null, "example.com", "00080")),
+            testCase("example.com", expectation(null, "example.com", null)),
+            testCase("[::1]", expectation(null, "[::1]", null)),
+            testCase("[2001:db8::1]", expectation(null, "[2001:db8::1]", null)),
+            testCase("[v7.fe80::1234]", expectation(null, "[v7.fe80::1234]", null)),
+            testCase("%61", expectation(null, "%61", null)),
+            testCase("localhost", expectation(null, "localhost", null)),
+            testCase("www.example.com", expectation(null, "www.example.com", null)),
+            testCase("127.0.0.1", expectation(null, "127.0.0.1", null)),
+            testCase("test-server", expectation(null, "test-server", null)),
+            testCase("test_server", expectation(null, "test_server", null)),
+            testCase("server123", expectation(null, "server123", null)),
+            testCase("a", expectation(null, "a", null)),
+            testCase("a.b.c.d.e", expectation(null, "a.b.c.d.e", null)),
+            testCase("test%20server", expectation(null, "test%20server", null)),
+            testCase("caf%C3%A9.com", expectation(null, "caf%C3%A9.com", null)),
+            testCase("localhost:8080", expectation(null, "localhost", "8080")),
+            testCase("example.com:8080", expectation(null, "example.com", "8080")),
+            testCase("www.example.com:8080", expectation(null, "www.example.com", "8080")),
+            testCase("127.0.0.1:8080", expectation(null, "127.0.0.1", "8080")),
+            testCase("[::1]:8080", expectation(null, "[::1]", "8080")),
+            testCase("[2001:db8::1]:8080", expectation(null, "[2001:db8::1]", "8080")),
+            testCase("test-server:8080", expectation(null, "test-server", "8080")),
+            testCase("test_server:8080", expectation(null, "test_server", "8080")),
+            testCase("server123:8080", expectation(null, "server123", "8080")),
+            testCase("a:8080", expectation(null, "a", "8080")),
+            testCase("a.b.c.d.e:8080", expectation(null, "a.b.c.d.e", "8080")),
+            testCase("test%20server:8080", expectation(null, "test%20server", "8080")),
+            testCase("caf%C3%A9.com:8080", expectation(null, "caf%C3%A9.com", "8080")));
 
-  static List<AuthorityParseTestCase> validAuthorities =
-      Stream.concat(validHostAndPorts.stream(), validAuthoritiesWithUserInfo.stream()).toList();
+    static List<AuthorityParseTestCase> validAuthoritiesWithUserInfo =
+        List.of(
+            testCase(
+                "user:password@www.example.com:8080",
+                expectation("user:password", "www.example.com", "8080")),
+            testCase("user:pass@example.com:21", expectation("user:pass", "example.com", "21")),
+            testCase("me@localhost", expectation("me", "localhost", null)),
+            testCase("me@example.com", expectation("me", "example.com", null)),
+            testCase("me@www.example.com", expectation("me", "www.example.com", null)),
+            testCase("me@127.0.0.1", expectation("me", "127.0.0.1", null)),
+            testCase("me@[::1]", expectation("me", "[::1]", null)),
+            testCase("me@[2001:db8::1]", expectation("me", "[2001:db8::1]", null)),
+            testCase("me@test-server", expectation("me", "test-server", null)),
+            testCase("me@test_server", expectation("me", "test_server", null)),
+            testCase("me@server123", expectation("me", "server123", null)),
+            testCase("me@a", expectation("me", "a", null)),
+            testCase("me@a.b.c.d.e", expectation("me", "a.b.c.d.e", null)),
+            testCase("me@test%20server", expectation("me", "test%20server", null)),
+            testCase("me@caf%C3%A9.com", expectation("me", "caf%C3%A9.com", null)),
+            testCase("me@localhost:8080", expectation("me", "localhost", "8080")),
+            testCase("me@example.com:8080", expectation("me", "example.com", "8080")),
+            testCase("me@www.example.com:8080", expectation("me", "www.example.com", "8080")),
+            testCase("me@127.0.0.1:8080", expectation("me", "127.0.0.1", "8080")),
+            testCase("me@[::1]:8080", expectation("me", "[::1]", "8080")),
+            testCase("me@[2001:db8::1]:8080", expectation("me", "[2001:db8::1]", "8080")),
+            testCase("me@test-server:8080", expectation("me", "test-server", "8080")),
+            testCase("me@test_server:8080", expectation("me", "test_server", "8080")),
+            testCase("me@server123:8080", expectation("me", "server123", "8080")),
+            testCase("me@a:8080", expectation("me", "a", "8080")),
+            testCase("me@a.b.c.d.e:8080", expectation("me", "a.b.c.d.e", "8080")),
+            testCase("me@test%20server:8080", expectation("me", "test%20server", "8080")),
+            testCase("me@caf%C3%A9.com:8080", expectation("me", "caf%C3%A9.com", "8080")));
 
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    List<String> authorities =
-        validAuthorities.stream()
-            .map(authorityParseTestCase -> authorityParseTestCase.stringForm)
-            .toList();
-    return StringParserInvariantTests.generateInvariantTests(AuthorityParser.INSTANCE, authorities);
+    static List<AuthorityParseTestCase> validAuthorities =
+        Stream.concat(validHostAndPorts.stream(), validAuthoritiesWithUserInfo.stream()).toList();
+
+    @ParameterizedTest
+    @FieldSource("validAuthorities")
+    void parses_valid_authority(AuthorityParseTestCase urlTest) {
+      Authority authority = Authority.parse(urlTest.stringForm);
+      assertThat(authority.getUserInfo()).isEqualTo(urlTest.expectation.userInfo);
+      assertThat(authority.getHost()).isEqualTo(urlTest.expectation.host);
+      assertThat(authority.getPort()).isEqualTo(urlTest.expectation.port);
+    }
+
+    @ParameterizedTest
+    @FieldSource("validHostAndPorts")
+    void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
+      Authority authority = Authority.parse(urlTest.stringForm);
+      assertThat(authority).isInstanceOf(HostAndPort.class);
+      HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm);
+      assertThat(hostAndPort).isEqualTo(authority);
+      assertThat(authority.getUserInfo()).isNull();
+      assertThat(authority.getHost()).isEqualTo(urlTest.expectation.host);
+      assertThat(authority.getPort()).isEqualTo(urlTest.expectation.port);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> invariants() {
+      List<String> authorities =
+          validAuthorities.stream()
+              .map(authorityParseTestCase -> authorityParseTestCase.stringForm)
+              .toList();
+      return StringParserInvariantTests.generateInvariantTests(
+          AuthorityParser.INSTANCE, authorities);
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          " ", // space
+          "example.com:abc", // non-numeric port
+          "example.com:-80", // negative port
+          "user name@example.com", // unencoded space in userinfo
+          "user@ex ample.com", // space in host
+          "example.com:8080:9090", // multiple ports
+          "[::1", // unclosed IPv6 bracket
+          "::1]", // IPv6 without opening bracket
+          "user@@example.com", // double @
+          "user#name@example.com", // invalid char in userinfo
+          "example?.com", // invalid char in host
+        })
+    void throws_exception_for_illegal_authority(String illegalAuthority) {
+      assertThatExceptionOfType(IllegalAuthority.class)
+          .isThrownBy(() -> Authority.parse(illegalAuthority))
+          .withMessage("Illegal authority: `" + illegalAuthority + "`")
+          .extracting(IllegalAuthority::getIllegalValue)
+          .isEqualTo(illegalAuthority);
+    }
+
+    static AuthorityParseTestCase testCase(String stringForm, AuthorityExpectation expectation) {
+      return new AuthorityParseTestCase(stringForm, expectation);
+    }
+
+    static AuthorityExpectation expectation(
+        @Nullable String userInfoStr, String hostStr, @Nullable String portStr) {
+      UserInfo userInfo = userInfoStr == null ? null : UserInfo.parse(userInfoStr);
+      Host host = Host.parse(hostStr);
+      Port port = portStr == null ? null : Port.parse(portStr);
+      return new AuthorityExpectation(userInfo, host, port);
+    }
+
+    record AuthorityParseTestCase(String stringForm, AuthorityExpectation expectation) {}
+
+    record AuthorityExpectation(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {}
   }
 
-  @ParameterizedTest
-  @FieldSource("validAuthorities")
-  void parses_valid_authority(AuthorityParseTestCase urlTest) {
-    Authority authority = Authority.parse(urlTest.stringForm);
-    assertThat(authority.getUserInfo()).isEqualTo(urlTest.expectation.userInfo);
-    assertThat(authority.getHost()).isEqualTo(urlTest.expectation.host);
-    assertThat(authority.getPort()).isEqualTo(urlTest.expectation.port);
+  @Nested
+  class Update {
+
+    private static final List<AuthorityChangeTestCase> withoutPortTestCases =
+        List.of(
+            changeTest("example.com:80", "example.com"),
+            changeTest("user@example.com:80", "user@example.com"),
+            changeTest("example.com:", "example.com"),
+            changeTest("user@example.com:", "user@example.com"));
+
+    @ParameterizedTest()
+    @FieldSource("withoutPortTestCases")
+    void withoutPortRemovesPort(AuthorityChangeTestCase testCase) {
+      assertThat(testCase.original.withoutPort()).isEqualTo(testCase.expected);
+    }
+
+    @ParameterizedTest()
+    @FieldSource("withoutPortTestCases")
+    void withPortNullRemovesPort(AuthorityChangeTestCase testCase) {
+      assertThat(testCase.original.withPort(null)).isEqualTo(testCase.expected);
+    }
+
+    private static final List<AuthorityChangeTestCase> unchangedWithoutPortTestCases =
+        List.of(
+            changeTest("example.com", "example.com"),
+            changeTest("user@example.com", "user@example.com"));
+
+    @ParameterizedTest()
+    @FieldSource("unchangedWithoutPortTestCases")
+    void withoutPortDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
+      assertThat(testCase.original.withoutPort()).isSameAs(testCase.original);
+    }
+
+    @ParameterizedTest()
+    @FieldSource("unchangedWithoutPortTestCases")
+    void withPortNullDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
+      assertThat(testCase.original.withPort(null)).isSameAs(testCase.original);
+    }
+
+    private static final List<AuthorityChangeTestCase> withPortChangesPortTestCases =
+        List.of(
+            changeTest("example.com", "example.com:8080"),
+            changeTest("user@example.com", "user@example.com:8080"),
+            changeTest("example.com:", "example.com:8080"),
+            changeTest("user@example.com:", "user@example.com:8080"),
+            changeTest("example.com:80", "example.com:8080"),
+            changeTest("user@example.com:80", "user@example.com:8080"));
+
+    @ParameterizedTest
+    @FieldSource("withPortChangesPortTestCases")
+    void withPortChangesPort(AuthorityChangeTestCase testCase) {
+      assertThat(testCase.original.withPort(Port.of(8080))).isEqualTo(testCase.expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "example.com:8080",
+          "user@example.com:8080",
+        })
+    void withPortDoesNothingIfNoChangeInPort(String original) {
+      var authority = Authority.parse(original);
+      assertThat(authority.withPort(Port.of(8080))).isSameAs(authority);
+    }
+
+    record AuthorityChangeTestCase(Authority original, Authority expected) {}
+
+    private static AuthorityChangeTestCase changeTest(String original, String expected) {
+      return new AuthorityChangeTestCase(Authority.parse(original), Authority.parse(expected));
+    }
   }
-
-  @ParameterizedTest
-  @FieldSource("validHostAndPorts")
-  void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
-    Authority authority = Authority.parse(urlTest.stringForm);
-    assertThat(authority).isInstanceOf(HostAndPort.class);
-    HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm);
-    assertThat(hostAndPort).isEqualTo(authority);
-    assertThat(authority.getUserInfo()).isNull();
-    assertThat(authority.getHost()).isEqualTo(urlTest.expectation.host);
-    assertThat(authority.getPort()).isEqualTo(urlTest.expectation.port);
-  }
-
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        " ", // space
-        "example.com:abc", // non-numeric port
-        "example.com:-80", // negative port
-        "user name@example.com", // unencoded space in userinfo
-        "user@ex ample.com", // space in host
-        "example.com:8080:9090", // multiple ports
-        "[::1", // unclosed IPv6 bracket
-        "::1]", // IPv6 without opening bracket
-        "user@@example.com", // double @
-        "user#name@example.com", // invalid char in userinfo
-        "example?.com", // invalid char in host
-      })
-  void throws_exception_for_illegal_authority(String illegalAuthority) {
-    assertThatExceptionOfType(IllegalAuthority.class)
-        .isThrownBy(() -> Authority.parse(illegalAuthority))
-        .withMessage("Illegal authority: `" + illegalAuthority + "`")
-        .extracting(IllegalAuthority::getIllegalValue)
-        .isEqualTo(illegalAuthority);
-  }
-
-  record AuthorityChangeTestCase(Authority original, Authority expected) {}
-
-  private static AuthorityChangeTestCase changeTest(String original, String expected) {
-    return new AuthorityChangeTestCase(Authority.parse(original), Authority.parse(expected));
-  }
-
-  private static final List<AuthorityChangeTestCase> withoutPortTestCases =
-      List.of(
-          changeTest("example.com:80", "example.com"),
-          changeTest("user@example.com:80", "user@example.com"),
-          changeTest("example.com:", "example.com"),
-          changeTest("user@example.com:", "user@example.com"));
-
-  private static final List<AuthorityChangeTestCase> unchangedWithoutPortTestCases =
-      List.of(
-          changeTest("example.com", "example.com"),
-          changeTest("user@example.com", "user@example.com"));
-
-  @ParameterizedTest()
-  @FieldSource("withoutPortTestCases")
-  void withoutPortRemovesPort(AuthorityChangeTestCase testCase) {
-    assertThat(testCase.original.withoutPort()).isEqualTo(testCase.expected);
-  }
-
-  @ParameterizedTest()
-  @FieldSource("unchangedWithoutPortTestCases")
-  void withoutPortDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
-    assertThat(testCase.original.withoutPort()).isSameAs(testCase.original);
-  }
-
-  @ParameterizedTest()
-  @FieldSource("withoutPortTestCases")
-  void withPortNullRemovesPort(AuthorityChangeTestCase testCase) {
-    assertThat(testCase.original.withPort(null)).isEqualTo(testCase.expected);
-  }
-
-  @ParameterizedTest()
-  @FieldSource("unchangedWithoutPortTestCases")
-  void withPortNullDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
-    assertThat(testCase.original.withPort(null)).isSameAs(testCase.original);
-  }
-
-  private static final List<AuthorityChangeTestCase> withPortChangesPortTestCases =
-      List.of(
-          changeTest("example.com", "example.com:8080"),
-          changeTest("user@example.com", "user@example.com:8080"),
-          changeTest("example.com:", "example.com:8080"),
-          changeTest("user@example.com:", "user@example.com:8080"),
-          changeTest("example.com:80", "example.com:8080"),
-          changeTest("user@example.com:80", "user@example.com:8080"));
-
-  @ParameterizedTest
-  @FieldSource("withPortChangesPortTestCases")
-  void withPortChangesPort(AuthorityChangeTestCase testCase) {
-    assertThat(testCase.original.withPort(Port.of(8080))).isEqualTo(testCase.expected);
-  }
-
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "example.com:8080",
-        "user@example.com:8080",
-      })
-  void withPortDoesNothingIfNoChangeInPort(String original) {
-    var authority = Authority.parse(original);
-    assertThat(authority.withPort(Port.of(8080))).isSameAs(authority);
-  }
-
-  static AuthorityParseTestCase testCase(String stringForm, AuthorityExpectation expectation) {
-    return new AuthorityParseTestCase(stringForm, expectation);
-  }
-
-  static AuthorityExpectation expectation(
-      @Nullable String userInfoStr, String hostStr, @Nullable String portStr) {
-    UserInfo userInfo = userInfoStr == null ? null : UserInfo.parse(userInfoStr);
-    Host host = Host.parse(hostStr);
-    Port port = portStr == null ? null : Port.parse(portStr);
-    return new AuthorityExpectation(userInfo, host, port);
-  }
-
-  record AuthorityParseTestCase(String stringForm, AuthorityExpectation expectation) {}
-
-  record AuthorityExpectation(@Nullable UserInfo userInfo, Host host, @Nullable Port port) {}
 
   @Nested
   class AuthorityEquality {

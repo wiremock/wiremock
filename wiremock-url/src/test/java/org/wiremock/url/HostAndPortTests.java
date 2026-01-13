@@ -28,7 +28,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.wiremock.url.AuthorityTests.AuthorityParseTestCase;
+import org.wiremock.url.AuthorityTests.Parse.AuthorityParseTestCase;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class HostAndPortTests {
@@ -79,20 +79,19 @@ class HostAndPortTests {
   }
 
   private static final List<AuthorityParseTestCase> validHostAndPorts =
-      AuthorityTests.validHostAndPorts;
+      AuthorityTests.Parse.validHostAndPorts;
 
   @ParameterizedTest
   @FieldSource("validHostAndPorts")
   void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
     HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm());
-    //noinspection removal
     assertThat(hostAndPort.getUserInfo()).isNull();
     assertThat(hostAndPort.getHost()).isEqualTo(urlTest.expectation().host());
     assertThat(hostAndPort.getPort()).isEqualTo(urlTest.expectation().port());
   }
 
   private static final List<AuthorityParseTestCase> illegalHostAndPorts =
-      AuthorityTests.validAuthoritiesWithUserInfo;
+      AuthorityTests.Parse.validAuthoritiesWithUserInfo;
 
   @ParameterizedTest
   @FieldSource("illegalHostAndPorts")
