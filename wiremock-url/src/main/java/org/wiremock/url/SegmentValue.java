@@ -16,21 +16,24 @@
 package org.wiremock.url;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 final class SegmentValue implements Segment {
 
   private final String stringForm;
+  private @Nullable volatile Boolean normalForm;
 
   SegmentValue(String stringForm) {
+    this(stringForm, null);
+  }
+
+  SegmentValue(String stringForm, @Nullable Boolean normalForm) {
     this.stringForm = stringForm;
+    this.normalForm = normalForm;
   }
 
   @Override
   public String toString() {
-    return stringForm;
-  }
-
-  public String stringForm() {
     return stringForm;
   }
 
@@ -47,16 +50,32 @@ final class SegmentValue implements Segment {
 
   @Override
   public int hashCode() {
-    return Objects.hash(stringForm);
+    return stringForm.hashCode();
   }
 
   @Override
   public Segment normalise() {
-    throw new UnsupportedOperationException();
+    if (Boolean.TRUE.equals(normalForm)) {
+      return this;
+    }
+
+    String result = Constants.normalise(stringForm, SegmentParser.segmentCharSet);
+
+    if (result == null) {
+      this.normalForm = true;
+      return this;
+    } else {
+      this.normalForm = false;
+      return new SegmentValue(result, true);
+    }
   }
 
   @Override
   public boolean isNormalForm() {
-    throw new UnsupportedOperationException();
+    if (normalForm == null) {
+      normalForm = Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
+    }
+    //noinspection DataFlowIssue
+    return normalForm;
   }
 }

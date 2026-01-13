@@ -39,7 +39,7 @@ final class SegmentParser implements PercentEncodedStringParser<Segment> {
     }
   }
 
-  private static final boolean[] segmentCharSet =
+  static final boolean[] segmentCharSet =
       combine(unreservedCharSet, subDelimCharSet, include(':', '@'));
 
   @Override

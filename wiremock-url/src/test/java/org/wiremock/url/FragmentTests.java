@@ -21,12 +21,14 @@ import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generate
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class FragmentTests {
 
@@ -150,27 +152,35 @@ class FragmentTests {
   @Nested
   class Normalise {
 
-    record NormalisationCase(String input, String expected) {}
+    static final List<NormalisationCase<Fragment>> normalisationCases =
+        Stream.of(
+                // Characters that need encoding
+                Pair.of("section name", "section%20name"),
+                Pair.of("hello world", "hello%20world"),
+                Pair.of("test\"quote", "test%22quote"),
+                Pair.of("test<tag>", "test%3Ctag%3E"),
+                Pair.of("test`backtick", "test%60backtick"),
+                Pair.of("data{value}", "data%7Bvalue%7D"),
+                Pair.of("test{name}", "test%7Bname%7D"),
+                Pair.of("café", "caf%C3%A9"),
+                Pair.of("héllo", "h%C3%A9llo"),
+                Pair.of("%ff", "%FF"),
+                Pair.of("%fF", "%FF"),
+                Pair.of("%Ff", "%FF"),
+                Pair.of("%41", "A"),
+                Pair.of("%5A", "Z"),
+                Pair.of("%5a", "Z"),
+                Pair.of("\u0001control", "%01control"))
+            .map(
+                testCase ->
+                    new NormalisationCase<>(
+                        Fragment.parse(testCase.getLeft()), Fragment.parse(testCase.getRight())))
+            .toList();
 
-    static final List<NormalisationCase> normalisationCases =
-        List.of(
-            // Characters that need encoding
-            new NormalisationCase("section name", "section%20name"),
-            new NormalisationCase("hello world", "hello%20world"),
-            new NormalisationCase("test\"quote", "test%22quote"),
-            new NormalisationCase("test<tag>", "test%3Ctag%3E"),
-            new NormalisationCase("test`backtick", "test%60backtick"),
-            new NormalisationCase("data{value}", "data%7Bvalue%7D"),
-            new NormalisationCase("test{name}", "test%7Bname%7D"),
-            new NormalisationCase("café", "caf%C3%A9"),
-            new NormalisationCase("héllo", "h%C3%A9llo"),
-            new NormalisationCase("%ff", "%FF"),
-            new NormalisationCase("%fF", "%FF"),
-            new NormalisationCase("%Ff", "%FF"),
-            new NormalisationCase("%41", "A"),
-            new NormalisationCase("%5A", "Z"),
-            new NormalisationCase("%5a", "Z"),
-            new NormalisationCase("\u0001control", "%01control"));
+    @TestFactory
+    Stream<DynamicTest> normalises_fragment_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
 
     static final List<String> alreadyNormalisedFragments =
         List.of(
@@ -185,17 +195,6 @@ class FragmentTests {
             "section%20name",
             "caf%C3%A9",
             "test%22quote");
-
-    @TestFactory
-    Stream<DynamicTest> normalises_fragment_correctly() {
-      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
-          normalisationCases.stream()
-              .map(
-                  testCase ->
-                      new NormalisableInvariantTests.NormalisationCase<>(
-                          Fragment.parse(testCase.input()), Fragment.parse(testCase.expected())))
-              .toList());
-    }
 
     @TestFactory
     Stream<DynamicTest> already_normalised_invariants() {
