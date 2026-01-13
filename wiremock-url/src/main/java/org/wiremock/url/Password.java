@@ -29,7 +29,7 @@ package org.wiremock.url;
  *
  * @see UserInfo
  */
-public interface Password extends PercentEncoded {
+public interface Password extends PercentEncoded, Normalisable<Password> {
 
   /**
    * Parses a string into a password.

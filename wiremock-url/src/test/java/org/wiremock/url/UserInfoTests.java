@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,11 +29,12 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class UserInfoTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     static final List<String> validUserInfo =
         List.of(
@@ -80,6 +83,9 @@ class UserInfoTests {
             ":password",
             "user:pass:extra",
 
+            // with encoded colon in username
+            "user_with_encoded_%3A_colon:password",
+
             // Complex combinations
             "john.doe:secret123",
             "user%20one:p%40ssword",
@@ -94,6 +100,12 @@ class UserInfoTests {
     void parses_valid_userinfo(String userInfoString) {
       UserInfo userInfo = UserInfo.parse(userInfoString);
       assertThat(userInfo.toString()).isEqualTo(userInfoString);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> invariants() {
+      return StringParserInvariantTests.generateInvariantTests(
+          UserInfoParser.INSTANCE, validUserInfo);
     }
 
     @ParameterizedTest
@@ -125,7 +137,7 @@ class UserInfoTests {
   }
 
   @Nested
-  class DecodeMethod {
+  class Decode {
 
     record DecodeCase(String input, String expected) {}
 
@@ -155,6 +167,43 @@ class UserInfoTests {
     void decodes_percent_encoded_userinfo_correctly(DecodeCase testCase) {
       UserInfo userInfo = UserInfo.parse(testCase.input());
       assertThat(userInfo.decode()).isEqualTo(testCase.expected());
+    }
+  }
+
+  @Nested
+  class Normalise {
+
+    static final List<NormalisationCase<UserInfo>> normalisationCases =
+        Stream.of(
+                Pair.of("us%65r", "user"),
+                Pair.of("user%2f", "user%2F"),
+                Pair.of(
+                    "user_with_encoded_%3A_colon:pass_%3A_word",
+                    "user_with_encoded_%3A_colon:pass_:_word"))
+            .map(
+                it ->
+                    new NormalisationCase<>(
+                        UserInfo.parse(it.getLeft()), UserInfo.parse(it.getRight())))
+            .toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_user_info_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
+
+    static final List<UserInfo> alreadyNormalised =
+        Stream.of(
+                "user",
+                "user:password",
+                "user:pass:word",
+                "user%2F:password%2F",
+                "user_with_encoded_%3A_colon:password")
+            .map(UserInfo::parse)
+            .toList();
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalised);
     }
   }
 
@@ -222,7 +271,7 @@ class UserInfoTests {
   }
 
   @Nested
-  class ToStringMethod {
+  class ToString {
 
     static final List<String> toStringTestCases =
         List.of("user:password", "User:Password", "user%20name:pass%20word", "john.doe:secret123");
@@ -248,8 +297,6 @@ class UserInfoTests {
   @Nested
   class UsernameAndPassword {
 
-    record ExtractionCase(String input, String expectedUsername, String expectedPassword) {}
-
     static final List<ExtractionCase> extractionCases =
         List.of(
             new ExtractionCase("john:secret", "john", "secret"),
@@ -270,11 +317,8 @@ class UserInfoTests {
         assertThat(userInfo.getPassword().toString()).isEqualTo(testCase.expectedPassword());
       }
     }
-  }
 
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    return StringParserInvariantTests.generateInvariantTests(
-        UserInfoParser.INSTANCE, ParseMethod.validUserInfo);
+    record ExtractionCase(
+        String input, String expectedUsername, @Nullable String expectedPassword) {}
   }
 }

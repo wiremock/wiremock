@@ -24,8 +24,19 @@ final class UserInfoValue implements UserInfo {
   private final Username username;
   private final @Nullable Password password;
 
-  UserInfoValue(String userInfo, Username username, @Nullable Password password) {
+  UserInfoValue(String userInfo) {
     this.userInfo = userInfo;
+    var components = userInfo.split(":", 2);
+    this.username = new UsernameValue(components[0]);
+    if (components.length == 2) {
+      this.password = new PasswordValue(components[1]);
+    } else {
+      this.password = null;
+    }
+  }
+
+  UserInfoValue(Username username, @Nullable Password password) {
+    this.userInfo = password == null ? username.toString() : username + ":" + password;
     this.username = username;
     this.password = password;
   }
@@ -59,5 +70,23 @@ final class UserInfoValue implements UserInfo {
   @Override
   public int hashCode() {
     return Objects.hash(userInfo);
+  }
+
+  @Override
+  public UserInfo normalise() {
+
+    var normalisedUsername = username.normalise();
+    var normalisedPassword = password != null ? password.normalise() : null;
+
+    if (normalisedUsername.equals(username) && Objects.equals(normalisedPassword, password)) {
+      return this;
+    } else {
+      return new UserInfoValue(normalisedUsername, normalisedPassword);
+    }
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    return username.isNormalForm() && (password == null || password.isNormalForm());
   }
 }

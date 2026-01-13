@@ -108,7 +108,8 @@ public interface Authority extends Normalisable<Authority> {
   default boolean isNormalForm() {
     Optional<Port> maybePort = getMaybePort();
     //noinspection OptionalAssignedToNull
-    return getHost().isNormalForm()
+    return (getUserInfo() == null || getUserInfo().isNormalForm())
+        && getHost().isNormalForm()
         && (maybePort == null || maybePort.isPresent() && maybePort.get().isNormalForm());
   }
 

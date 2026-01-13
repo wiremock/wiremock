@@ -78,6 +78,7 @@ final class AuthorityValue implements Authority {
 
   @Override
   public Authority normalise() {
+    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
     var normalisedHost = host.normalise();
     final Optional<Port> optionalNormalisedPort;
     if (maybePort != null && maybePort.isPresent()) {
@@ -87,11 +88,12 @@ final class AuthorityValue implements Authority {
       //noinspection OptionalAssignedToNull
       optionalNormalisedPort = null;
     }
-    return buildNormalisedAuthority(userInfo, normalisedHost, optionalNormalisedPort);
+    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
   }
 
   @Override
   public Authority normalise(Scheme canonicalScheme) {
+    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
     var normalisedHost = host.normalise();
     Port port = getPort();
     var normalisedPort = port != null ? port.normalise() : null;
@@ -104,7 +106,7 @@ final class AuthorityValue implements Authority {
       optionalPort = Optional.of(normalisedPort);
     }
 
-    return buildNormalisedAuthority(userInfo, normalisedHost, optionalPort);
+    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalPort);
   }
 
   private Authority buildNormalisedAuthority(

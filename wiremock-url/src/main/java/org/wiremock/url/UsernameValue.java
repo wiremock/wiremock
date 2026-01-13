@@ -16,13 +16,45 @@
 package org.wiremock.url;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 final class UsernameValue implements Username {
 
   private final String username;
+  private @Nullable volatile Boolean normalForm;
 
   UsernameValue(String username) {
+    this(username, null);
+  }
+
+  UsernameValue(String username, @Nullable Boolean normalForm) {
     this.username = username;
+    this.normalForm = normalForm;
+  }
+
+  @Override
+  public Username normalise() {
+    if (Boolean.TRUE.equals(normalForm)) {
+      return this;
+    }
+
+    String result = Constants.normalise(username, UserInfoParser.usernameCharSet);
+
+    if (result == null) {
+      this.normalForm = true;
+      return this;
+    } else {
+      this.normalForm = false;
+      return new UsernameValue(result, true);
+    }
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    if (normalForm == null) {
+      normalForm = Constants.isNormalForm(username, UserInfoParser.usernameCharSet);
+    }
+    return normalForm;
   }
 
   @Override

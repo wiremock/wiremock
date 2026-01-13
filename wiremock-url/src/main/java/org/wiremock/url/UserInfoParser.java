@@ -30,22 +30,15 @@ class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
   @Override
   public UserInfo parse(String stringForm) {
     if (userInfoPattern.matcher(stringForm).matches()) {
-      var components = stringForm.split(":", 2);
-      var username = new UsernameValue(components[0]);
-      final Password password;
-      if (components.length == 2) {
-        password = new PasswordValue(components[1]);
-      } else {
-        password = null;
-      }
-      return new UserInfoValue(stringForm, username, password);
+      return new UserInfoValue(stringForm);
     } else {
       throw new IllegalUserInfo(stringForm);
     }
   }
 
-  private static final boolean[] userInfoCharSet =
-      combine(unreservedCharSet, subDelimCharSet, include(':'));
+  static final boolean[] usernameCharSet = combine(unreservedCharSet, subDelimCharSet);
+
+  static final boolean[] userInfoCharSet = combine(usernameCharSet, include(':'));
 
   @Override
   public UserInfo encode(String unencoded) {

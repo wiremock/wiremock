@@ -649,7 +649,9 @@ public class AuthorityTests {
                 Pair.of("user@EXAMPLE.COM:08080", "user@example.com:8080"),
                 Pair.of("user@EXAMPLE.COM:", "user@example.com"),
                 Pair.of("user@example.com:08080", "user@example.com:8080"),
-                Pair.of("user@example.com:", "user@example.com"))
+                Pair.of("user@example.com:", "user@example.com"),
+                Pair.of("us%65r@example.com:", "user@example.com"),
+                Pair.of("us%65r%2f@example.com:", "user%2F@example.com"))
             .map(
                 it ->
                     new NormalisationCase<>(
@@ -674,6 +676,7 @@ public class AuthorityTests {
                 ":password@example.com:8080",
                 ":password@example.com",
                 "user:password@example.com:8080",
+                "userwithencodedcolon%3A@example.com:8080",
                 "user:password@example.com")
             .map(Authority::parse)
             .toList();

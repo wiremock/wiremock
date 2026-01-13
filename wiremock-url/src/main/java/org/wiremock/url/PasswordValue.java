@@ -16,13 +16,45 @@
 package org.wiremock.url;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 final class PasswordValue implements Password {
 
   private final String password;
+  private @Nullable volatile Boolean normalForm;
 
   PasswordValue(String password) {
+    this(password, null);
+  }
+
+  PasswordValue(String password, @Nullable Boolean normalForm) {
     this.password = password;
+    this.normalForm = normalForm;
+  }
+
+  @Override
+  public Password normalise() {
+    if (Boolean.TRUE.equals(normalForm)) {
+      return this;
+    }
+
+    String result = Constants.normalise(password, UserInfoParser.userInfoCharSet);
+
+    if (result == null) {
+      this.normalForm = true;
+      return this;
+    } else {
+      this.normalForm = false;
+      return new PasswordValue(result, true);
+    }
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    if (normalForm == null) {
+      normalForm = Constants.isNormalForm(password, UserInfoParser.userInfoCharSet);
+    }
+    return normalForm;
   }
 
   @Override
