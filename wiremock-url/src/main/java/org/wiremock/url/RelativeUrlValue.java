@@ -55,8 +55,7 @@ final class RelativeUrlValue implements RelativeUrl {
 
   @Override
   public RelativeUrl normalise() {
-    Authority normalisedAuthority =
-        Optional.ofNullable(authority).map(Authority::normalise).orElse(null);
+    Authority normalisedAuthority = authority != null ? authority.normalise() : null;
     Path normalisedPath = path.normalise();
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
