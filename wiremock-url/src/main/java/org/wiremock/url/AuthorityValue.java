@@ -78,49 +78,36 @@ final class AuthorityValue implements Authority {
 
   @Override
   public Authority normalise() {
-    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-    var normalisedHost = host.normalise();
-    final Optional<Port> optionalNormalisedPort;
-    if (maybePort != null && maybePort.isPresent()) {
-      var normalisedPort = maybePort.get().normalise();
-      optionalNormalisedPort = Optional.of(normalisedPort);
-    } else {
-      //noinspection OptionalAssignedToNull
-      optionalNormalisedPort = null;
-    }
-    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalNormalisedPort);
+    var normalisedPort = normalisePort();
+    return buildNormalisedAuthority(normalisedPort);
   }
 
   @Override
   public Authority normalise(Scheme canonicalScheme) {
-    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
-    var normalisedHost = host.normalise();
-    Port port = getPort();
-    var normalisedPort = port != null ? port.normalise() : null;
-    final Optional<Port> optionalPort;
-    if (normalisedPort == null
-        || Objects.equals(normalisedPort, canonicalScheme.getDefaultPort())) {
-      //noinspection OptionalAssignedToNull
-      optionalPort = null;
-    } else {
-      optionalPort = Optional.of(normalisedPort);
-    }
-
-    return buildNormalisedAuthority(normalisedUserInfo, normalisedHost, optionalPort);
+    var normalisedPort = normalisePort(canonicalScheme);
+    return buildNormalisedAuthority(normalisedPort);
   }
 
-  private Authority buildNormalisedAuthority(
-      @Nullable UserInfo normalisedUserInfo,
-      Host normalisedHost,
-      @Nullable Optional<Port> optionalNormalisedPort) {
+  private @Nullable Port normalisePort(Scheme canonicalScheme) {
+    var normalisedPort = normalisePort();
+    return Objects.equals(normalisedPort, canonicalScheme.getDefaultPort()) ? null : normalisedPort;
+  }
+
+  private @Nullable Port normalisePort() {
+    var port = getPort();
+    return port != null ? port.normalise() : null;
+  }
+
+  private Authority buildNormalisedAuthority(@Nullable Port normalisedPort) {
+    var normalisedUserInfo = userInfo != null ? userInfo.normalise() : null;
+    var normalisedHost = host.normalise();
+    @SuppressWarnings("OptionalAssignedToNull")
+    var optionalNormalisedPort = normalisedPort != null ? Optional.of(normalisedPort) : null;
     if (Objects.equals(normalisedUserInfo, userInfo)
         && normalisedHost.equals(host)
         && Objects.equals(optionalNormalisedPort, maybePort)) {
       return this;
     } else if (normalisedUserInfo == null) {
-      @SuppressWarnings("OptionalAssignedToNull")
-      var normalisedPort =
-          optionalNormalisedPort != null ? optionalNormalisedPort.orElse(null) : null;
       return HostAndPort.of(normalisedHost, normalisedPort);
     } else {
       return new AuthorityValue(normalisedUserInfo, normalisedHost, optionalNormalisedPort);

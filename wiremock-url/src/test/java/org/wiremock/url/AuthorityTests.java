@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -156,6 +157,24 @@ public class AuthorityTests {
           .withMessage("Illegal authority: `" + illegalAuthority + "`")
           .extracting(IllegalAuthority::getIllegalValue)
           .isEqualTo(illegalAuthority);
+    }
+
+    @Test
+    void rejects_illegal_port() {
+      // Intger.MAX_VALUE + 1
+      var authorityWithIllegalPort = "example.com:2147483648";
+      var exception =
+          assertThatExceptionOfType(IllegalAuthority.class)
+              .isThrownBy(() -> Authority.parse(authorityWithIllegalPort))
+              .withMessage("Illegal authority: `" + authorityWithIllegalPort + "`")
+              .actual();
+
+      assertThat(exception.getIllegalValue()).isEqualTo(authorityWithIllegalPort);
+      var cause = assertThat(exception.getCause()).asInstanceOf(type(IllegalPort.class)).actual();
+      assertThat(cause.getMessage())
+          .isEqualTo(
+              "Illegal port [2147483648]; Port value must be an integer between 1 and 2147483647");
+      assertThat(cause.getCause()).isNull();
     }
 
     static AuthorityParseTestCase testCase(String stringForm, AuthorityExpectation expectation) {
