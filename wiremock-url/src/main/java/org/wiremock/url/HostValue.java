@@ -67,10 +67,6 @@ final class HostValue implements Host {
     return isNormalForm || normalise().equals(this);
   }
 
-  public String host() {
-    return host;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {

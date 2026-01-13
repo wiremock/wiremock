@@ -174,10 +174,6 @@ final class PathValue implements Path {
     return result.normalise();
   }
 
-  public String path() {
-    return path;
-  }
-
   private volatile @Nullable List<Segment> segments = null;
 
   @Override

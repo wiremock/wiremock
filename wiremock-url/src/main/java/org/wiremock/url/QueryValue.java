@@ -56,10 +56,6 @@ final class QueryValue implements Query {
     return isNormalForm || Constants.isNormalForm(query, QueryParser.queryCharSet);
   }
 
-  public String query() {
-    return query;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
