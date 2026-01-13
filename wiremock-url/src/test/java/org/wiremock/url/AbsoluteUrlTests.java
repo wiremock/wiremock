@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
-import static org.wiremock.url.AbsoluteUrl.transform;
 import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.Scheme.https;
 import static org.wiremock.url.UriExpectation.expectation;
@@ -36,6 +35,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 @SuppressWarnings("HttpUrlsUsage")
@@ -349,7 +349,7 @@ class AbsoluteUrlTests {
             .toList();
 
     @TestFactory
-    Stream<DynamicTest> normalises_uri_reference_correctly() {
+    Stream<DynamicTest> normalises_absolute_urls_correctly() {
       return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
@@ -364,24 +364,194 @@ class AbsoluteUrlTests {
     }
   }
 
-  @Test
-  void resolves_relative_path() {
-    AbsoluteUrl base = AbsoluteUrl.parse("http://example.com");
-    AbsoluteUrl resolved = base.resolve(Path.parse("foo"));
-    assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
-    assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
-    assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
+  @Nested
+  class Resolve {
+
+    @Test
+    void resolves_relative_path() {
+      AbsoluteUrl base = AbsoluteUrl.parse("http://example.com");
+      AbsoluteUrl resolved = base.resolve(Path.parse("foo"));
+      assertThat(resolved.toString()).isEqualTo("http://example.com/foo");
+      assertThat(resolved.getHost()).isEqualTo(Host.parse("example.com"));
+      assertThat(resolved.getPath()).isEqualTo(Path.parse("/foo"));
+    }
+
+    static final List<ResolutionTestCase> resolutionCases =
+        List.of(
+            testCase("http://example.com", "https://www.example.com", "https://www.example.com/"),
+            testCase("http://example.com", "https://example.com", "https://example.com/"),
+            testCase("http://example.com", "https://example.com:8443", "https://example.com:8443/"),
+            testCase(
+                "http://example.com",
+                "https://user@example.com:8443/path",
+                "https://user@example.com:8443/path"),
+            testCase(
+                "http://example.com",
+                "https://user@example.com:8443?query",
+                "https://user@example.com:8443/?query"),
+            testCase(
+                "http://example.com",
+                "https://user@example.com:8443#fragment",
+                "https://user@example.com:8443/#fragment"),
+            testCase(
+                "http://example.com",
+                "https://user@example.com:8443/path?query#fragment",
+                "https://user@example.com:8443/path?query#fragment"),
+            testCase("http://example.com", "//www.example.com", "http://www.example.com/"),
+            testCase("http://example.com", "//example.com", "http://example.com/"),
+            testCase("http://example.com", "//example.com:8443", "http://example.com:8443/"),
+            testCase(
+                "http://example.com",
+                "//user@example.com:8443/path",
+                "http://user@example.com:8443/path"),
+            testCase(
+                "http://example.com",
+                "//user@example.com:8443?query",
+                "http://user@example.com:8443/?query"),
+            testCase(
+                "http://example.com",
+                "//user@example.com:8443#fragment",
+                "http://user@example.com:8443/#fragment"),
+            testCase(
+                "http://example.com",
+                "//user@example.com:8443/path?query#fragment",
+                "http://user@example.com:8443/path?query#fragment"),
+            testCase("http://example.com", "?query", "http://example.com/?query"),
+            testCase("http://example.com", "#fragment", "http://example.com/#fragment"),
+            testCase(
+                "http://example.com",
+                "/path?query#fragment",
+                "http://example.com/path?query#fragment"),
+            testCase("http://example.com", "path?query", "http://example.com/path?query"),
+            testCase("http://example.com", "path#fragment", "http://example.com/path#fragment"),
+            testCase(
+                "http://example.com",
+                "path?query#fragment",
+                "http://example.com/path?query#fragment"),
+            testCase("http://example.com/basepath", "path?query", "http://example.com/path?query"),
+            testCase(
+                "http://example.com/basepath/",
+                "path?query",
+                "http://example.com/basepath/path?query"));
+
+    @ParameterizedTest
+    @FieldSource("resolutionCases")
+    void resolves_strings_when_they_are_valid_urls(ResolutionTestCase resolutionTestCase) {
+      var base = AbsoluteUrl.parse(resolutionTestCase.base());
+      String input = resolutionTestCase.input();
+      var resolved = base.resolve(input);
+      assertThat(resolved).isEqualTo(AbsoluteUrl.parse(resolutionTestCase.expectedResult()));
+    }
+
+    @ParameterizedTest
+    @FieldSource("resolutionCases")
+    void resolves_urls(ResolutionTestCase resolutionTestCase) {
+      var base = AbsoluteUrl.parse(resolutionTestCase.base());
+      Url other = Url.parse(resolutionTestCase.input());
+      var resolved = base.resolve(other);
+      assertThat(resolved).isEqualTo(AbsoluteUrl.parse(resolutionTestCase.expectedResult()));
+    }
+
+    record ResolutionTestCase(String base, String input, String expectedResult) {}
+
+    static ResolutionTestCase testCase(String base, String input, String expectedResult) {
+      return new ResolutionTestCase(base, input, expectedResult);
+    }
   }
 
-  @Test
-  void settingPortToNullChangesNothing() {
-    String urlString = "http://example.com";
+  @Nested
+  class Builder {
 
-    AbsoluteUrl noPortToStartWith = AbsoluteUrl.parse(urlString);
-    assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
+    @Test
+    void can_build_an_absolute_uri() {
 
-    AbsoluteUrl stillNoPort = transform(noPortToStartWith, it -> it.setPort(null));
-    assertThat(noPortToStartWith).isEqualTo(stillNoPort);
-    assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
+      var uri =
+          AbsoluteUrl.builder(Scheme.https, Authority.parse("example.com"))
+              .setPath(Path.parse("/path"))
+              .setQuery(Query.parse("query"))
+              .setFragment(Fragment.parse("fragment"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("https://example.com/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_a_urls_scheme() {
+
+      var uri = AbsoluteUrl.parse("https://user@example.com:8443/path?query#fragment");
+      var transformed = AbsoluteUrl.transform(uri, builder -> builder.setScheme(Scheme.wss));
+
+      assertThat(transformed)
+          .isEqualTo(AbsoluteUrl.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void setting_user_info_after_authority_works() {
+      var uri =
+          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@example.com:8443"))
+              .setUserInfo(UserInfo.parse("me:passwd"))
+              .build();
+
+      assertThat(uri).isEqualTo(AbsoluteUrl.parse("https://me:passwd@example.com:8443/"));
+    }
+
+    @Test
+    void setting_host_after_authority_works() {
+      var uri =
+          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@www.example.com:8443"))
+              .setHost(Host.parse("example.com"))
+              .build();
+
+      assertThat(uri).isEqualTo(AbsoluteUrl.parse("https://user@example.com:8443/"));
+    }
+
+    @Test
+    void setting_port_after_authority_works() {
+      var uri =
+          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@example.com:8443"))
+              .setPort(Port.of(88443))
+              .build();
+
+      assertThat(uri).isEqualTo(AbsoluteUrl.parse("https://user@example.com:88443/"));
+    }
+
+    @Test
+    void can_change_authority() {
+      var uri = AbsoluteUrl.parse("https://example.com/path#fragment");
+
+      var uriWithNewAuthority =
+          uri.transform(
+              builder -> builder.setAuthority(Authority.parse("user@www.example.com:8443")));
+
+      assertThat(uriWithNewAuthority)
+          .isEqualTo(AbsoluteUrl.parse("https://user@www.example.com:8443/path#fragment"));
+    }
+
+    @Test
+    void setting_port_to_null_changes_nothing() {
+      String urlString = "http://example.com";
+
+      AbsoluteUrl noPortToStartWith = AbsoluteUrl.parse(urlString);
+      assertThat(noPortToStartWith.toString()).isEqualTo(urlString);
+
+      AbsoluteUrl stillNoPort = noPortToStartWith.transform(it -> it.setPort(null));
+      assertThat(noPortToStartWith).isEqualTo(stillNoPort);
+      assertThat(noPortToStartWith.toString()).isEqualTo(stillNoPort.toString());
+    }
+
+    @Test
+    void can_thaw_a_url() {
+      var url = AbsoluteUrl.parse("https://example.com/foo#fragment");
+      var mutated = url.thaw().setScheme(Scheme.wss).build();
+      assertThat(mutated).isEqualTo(AbsoluteUrl.parse("wss://example.com/foo#fragment"));
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"https://example.com/", "https://example.com/#fragment"})
+  void get_serverside_absolute_url_returns_without_fragment(String urlString) {
+    var url = AbsoluteUrl.parse(urlString);
+    assertThat(url.getServersideAbsoluteUrl())
+        .isEqualTo(ServersideAbsoluteUrl.parse("https://example.com/"));
   }
 }

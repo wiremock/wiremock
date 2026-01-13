@@ -18,7 +18,6 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.wiremock.url.Scheme.https;
 
 import java.util.List;
 import java.util.stream.Stream;
