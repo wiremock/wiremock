@@ -84,6 +84,7 @@ final class Constants {
     return charSet;
   }
 
+  @SuppressWarnings("SameParameterValue")
   static boolean[] remove(boolean[] original, char... toRemove) {
     boolean[] result = new boolean[original.length];
     System.arraycopy(original, 0, result, 0, original.length);
@@ -199,6 +200,7 @@ final class Constants {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private static boolean isUpperCaseHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
   }
