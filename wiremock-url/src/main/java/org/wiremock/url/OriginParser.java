@@ -30,9 +30,6 @@ final class OriginParser implements StringParser<Origin> {
   }
 
   Origin of(Scheme scheme, HostAndPort hostAndPort) {
-    if (!scheme.isNormalForm()) {
-      throw new IllegalOrigin(scheme + "://" + hostAndPort);
-    }
     if (scheme.isNormalForm() && hostAndPort.isNormalForm(scheme)) {
       return new OriginValue(scheme, hostAndPort);
     } else {

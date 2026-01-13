@@ -129,4 +129,44 @@ public class OriginTests {
           alreadyNormalisedUrlReferences);
     }
   }
+
+  @Nested
+  class Of {
+
+    @Test
+    void of_builds_origin_from_valid_parameters_no_port() {
+      assertThat(Origin.of(http, HostAndPort.parse("example.com")))
+          .isEqualTo(Origin.parse("http://example.com"));
+    }
+
+    @Test
+    void of_builds_origin_from_valid_parameters_with_port() {
+      assertThat(Origin.of(http, HostAndPort.parse("example.com:8080")))
+          .isEqualTo(Origin.parse("http://example.com:8080"));
+    }
+
+    @Test
+    void of_rejects_non_normal_scheme() {
+      assertThatExceptionOfType(IllegalOrigin.class)
+          .isThrownBy(() -> Origin.of(Scheme.parse("HTTP"), HostAndPort.parse("example.com")))
+          .withMessage("Illegal origin: `HTTP://example.com`")
+          .withNoCause();
+    }
+
+    @Test
+    void of_rejects_non_normal_host() {
+      assertThatExceptionOfType(IllegalOrigin.class)
+          .isThrownBy(() -> Origin.of(http, HostAndPort.parse("EXAMPLE.com")))
+          .withMessage("Illegal origin: `http://EXAMPLE.com`")
+          .withNoCause();
+    }
+
+    @Test
+    void of_rejects_non_normal_port() {
+      assertThatExceptionOfType(IllegalOrigin.class)
+          .isThrownBy(() -> Origin.of(http, HostAndPort.parse("example.com:80")))
+          .withMessage("Illegal origin: `http://example.com:80`")
+          .withNoCause();
+    }
+  }
 }
