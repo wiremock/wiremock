@@ -27,7 +27,7 @@ package org.wiremock.url;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2">RFC 3986 Section
  *     3.2.2</a>
  */
-public interface Host extends PercentEncoded, Normalisable<Host> {
+public interface Host extends PercentEncoded<Host> {
 
   Host EMPTY = new HostValue("");
 

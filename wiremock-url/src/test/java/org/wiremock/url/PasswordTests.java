@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -119,7 +120,7 @@ class PasswordTests {
   }
 
   @Nested
-  class DecodeMethod {
+  class Codec {
 
     record DecodeCase(String input, String expected) {}
 
@@ -149,6 +150,13 @@ class PasswordTests {
     void decodes_percent_encoded_password_correctly(DecodeCase testCase) {
       Password password = Password.parse(testCase.input());
       assertThat(password.decode()).isEqualTo(testCase.expected());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> encode_decode_invariants() {
+      return generateEncodeDecodeInvariantTests(
+          PasswordParser.INSTANCE,
+          Stream.of("foo", "bar", "test123", "hello world", "user@example", "café", "こんにちは"));
     }
   }
 

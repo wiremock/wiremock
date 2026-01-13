@@ -49,4 +49,14 @@ final class SegmentValue implements Segment {
   public int hashCode() {
     return Objects.hash(stringForm);
   }
+
+  @Override
+  public Segment normalise() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -26,7 +26,7 @@ package org.wiremock.url;
  *
  * @see Path
  */
-public interface Segment extends PercentEncoded {
+public interface Segment extends PercentEncoded<Segment> {
 
   /** An empty path segment. */
   Segment EMPTY = new SegmentValue("");

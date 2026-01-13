@@ -33,7 +33,7 @@ public class NormalisableInvariantTests {
     for (Normalisable<T> normalForm : normalForms) {
       tests.add(
           dynamicTest(
-              "Already normal : '" + normalForm + "' is in normal form",
+              "Already normal : `" + normalForm + "` is in normal form",
               () -> {
                 assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
 

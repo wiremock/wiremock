@@ -16,8 +16,10 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -203,7 +205,7 @@ class FragmentTests {
   }
 
   @Nested
-  class Decode {
+  class Codec {
 
     static final List<String> fragmentsWithoutPercentEncoding =
         List.of(
@@ -259,6 +261,32 @@ class FragmentTests {
     void decodes_percent_encoded_correctly(CodecCase testCase) {
       var encoded = Fragment.parse(testCase.encoded());
       assertThat(encoded.decode()).isEqualTo(testCase.decoded());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> encode_decode_invariants() {
+      var decoded =
+          Stream.concat(decodeCases.stream(), encodeCases.stream())
+              .map(CodecCase::decoded)
+              .collect(Collectors.toSet())
+              .stream()
+              .sorted();
+
+      return generateEncodeDecodeInvariantTests(FragmentParser.INSTANCE, decoded);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> normalise_decode_encode_invariants() {
+
+      var encoded =
+          Stream.concat(decodeCases.stream(), encodeCases.stream())
+              .map(CodecCase::encoded)
+              .collect(Collectors.toSet())
+              .stream()
+              .sorted();
+
+      return PercentEncodedStringParserInvariantTests.generateNormaliseDecodeEncodeInvariantTests(
+          FragmentParser.INSTANCE, encoded);
     }
   }
 

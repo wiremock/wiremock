@@ -25,7 +25,7 @@ package org.wiremock.url;
  *
  * @see UserInfo
  */
-public interface Username extends PercentEncoded, Normalisable<Username> {
+public interface Username extends PercentEncoded<Username> {
 
   /**
    * Parses a string into a username.

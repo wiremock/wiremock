@@ -16,95 +16,41 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.TestFactory;
 
 public class PercentEncodedStringParserInvariantTests {
 
-  @TestFactory
-  Stream<DynamicTest> passwordParser() {
-    return generateEncodeDecodeInvariantTests(
-        PasswordParser.INSTANCE,
-        Stream.of("foo", "bar", "test123", "hello world", "user@example", "café", "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> usernameParser() {
-    return generateEncodeDecodeInvariantTests(
-        UsernameParser.INSTANCE,
-        Stream.of("foo", "bar", "test123", "hello world", "user@example", "café", "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> userInfoParser() {
-    return generateEncodeDecodeInvariantTests(
-        UserInfoParser.INSTANCE,
-        Stream.of(
-            "foo", "foo:bar", "test123", "hello world", "user@example:password", "café", "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> hostParser() {
-    return generateEncodeDecodeInvariantTests(
-        HostParser.INSTANCE,
-        Stream.of("foo", "example.com", "test123", "hello world", "café", "example.org", "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> fragmentParser() {
-    return generateEncodeDecodeInvariantTests(
-        FragmentParser.INSTANCE,
-        Stream.of(
-            "foo",
-            "bar",
-            "test123",
-            "hello world",
-            "section-1",
-            "café",
-            "path/to/section",
-            "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> queryParser() {
-    return generateEncodeDecodeInvariantTests(
-        QueryParser.INSTANCE,
-        Stream.of(
-            "foo",
-            "bar",
-            "key=value",
-            "hello world",
-            "q=café",
-            "param1=value1&param2=value2",
-            "こんにちは"));
-  }
-
-  @TestFactory
-  Stream<DynamicTest> pathParser() {
-    return generateEncodeDecodeInvariantTests(
-        PathParser.INSTANCE,
-        Stream.of(
-            "foo",
-            "/bar",
-            "/path/to/resource",
-            "hello world",
-            "/café",
-            "/path/with spaces",
-            "こんにちは"));
-  }
-
-  static <T extends PercentEncoded> Stream<DynamicTest> generateEncodeDecodeInvariantTests(
-      PercentEncodedStringParser<T> parser, Stream<String> inputs) {
-    return inputs.map(
-        input ->
-            DynamicTest.dynamicTest(
-                "encode(\"" + input + "\").decode() == \"" + input + "\"",
+  static <T extends PercentEncoded<T>> Stream<DynamicTest> generateEncodeDecodeInvariantTests(
+      PercentEncodedStringParser<T> parser, Stream<String> decodedForms) {
+    return decodedForms.map(
+        original ->
+            dynamicTest(
+                "Original -> Encode -> Decode `" + original + "` produces the original value",
                 () -> {
-                  T encoded = parser.encode(input);
+                  T encoded = parser.encode(original);
                   String decoded = encoded.decode();
-                  assertThat(decoded).isEqualTo(input);
+                  assertThat(decoded).isEqualTo(original);
+                }));
+  }
+
+  static <T extends PercentEncoded<T>>
+      Stream<DynamicTest> generateNormaliseDecodeEncodeInvariantTests(
+          PercentEncodedStringParser<T> parser, Stream<String> encodedForms) {
+    return encodedForms.map(
+        original ->
+            dynamicTest(
+                "Original (encoded) -> Normalise -> Decode -> Encode `"
+                    + original
+                    + "` produces the normalised value",
+                () -> {
+                  T encoded = parser.parse(original);
+                  T normalisedEncoded = encoded.normalise();
+                  String decoded = normalisedEncoded.decode();
+                  T reEncoded = parser.encode(decoded);
+                  assertThat(reEncoded).isEqualTo(normalisedEncoded);
                 }));
   }
 }

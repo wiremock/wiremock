@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1">RFC 3986 Section
  *     3.2.1</a>
  */
-public interface UserInfo extends PercentEncoded, Normalisable<UserInfo> {
+public interface UserInfo extends PercentEncoded<UserInfo> {
 
   /**
    * Parses a string into user info.

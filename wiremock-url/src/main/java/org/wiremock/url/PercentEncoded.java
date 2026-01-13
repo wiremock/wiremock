@@ -35,7 +35,7 @@ import java.io.ByteArrayOutputStream;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.1">RFC 3986 Section 2.1</a>
  */
-public interface PercentEncoded {
+public interface PercentEncoded<SELF extends PercentEncoded<SELF>> extends Normalisable<SELF> {
 
   /**
    * Decodes all percent-encoded sequences in this string.

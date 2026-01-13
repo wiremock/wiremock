@@ -198,6 +198,20 @@ The library maintains the following invariants:
    **Note**: There are edge cases where this is not possible. For example, a `PathAndQuery`
    starting with `//` will be parsed as a `RelativeRef` when converted to string and re-parsed.
 
+4. **Percent-Encoded Round-Trip**: The following two invariants should always hold:
+   1. Original -> Encode -> Decode produces the original value:
+   ```java
+   PercentEncoded encoded = PercentEncoded.encode(original);
+   encoded.decode().equals(original) == true;
+   ```
+   2. Original (encoded) -> Normalise -> Decode -> Encode produces the normalised value:
+   ```java
+   PercentEncoded normalisedEncoded = PercentEncoded.parse(originalEncoded).normalise();
+   String decoded = normalisedEncoded.decode();
+   PercentEncoded reEncoded = PercentEncoded.encode(decoded);
+   reEncoded.equals(normalisedEncoded) == true;
+   ```
+
 ## Testing
 
 ### Snapshot Testing

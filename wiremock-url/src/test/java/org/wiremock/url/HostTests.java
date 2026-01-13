@@ -18,6 +18,7 @@ package org.wiremock.url;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,14 +30,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.wiremock.url.HostTests.ParseMethod.IPv4Addresses;
-import org.wiremock.url.HostTests.ParseMethod.IPv6Addresses;
-import org.wiremock.url.HostTests.ParseMethod.RegisteredNames;
 
 class HostTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     @Nested
     class IPv4Addresses {
@@ -127,6 +125,20 @@ class HostTests {
             .withMessage("Illegal host: `" + invalidIpv6 + "`")
             .extracting(IllegalHost::getIllegalValue)
             .isEqualTo(invalidIpv6);
+      }
+
+      @TestFactory
+      Stream<DynamicTest> invariants() {
+        List<String> validHosts =
+            Stream.of(
+                    IPv4Addresses.validIpv4Addresses(),
+                    IPv6Addresses.validIpv6Addresses(),
+                    RegisteredNames.validRegisteredNames(),
+                    Stream.of(""))
+                .flatMap(identity())
+                .toList();
+
+        return StringParserInvariantTests.generateInvariantTests(HostParser.INSTANCE, validHosts);
       }
     }
 
@@ -432,9 +444,7 @@ class HostTests {
   }
 
   @Nested
-  class DecodeMethod {
-
-    record DecodeCase(String input, String expected) {}
+  class Codec {
 
     static final List<String> hostsWithoutPercentEncoding =
         List.of(
@@ -445,17 +455,17 @@ class HostTests {
             "test-server_123.example.com",
             "test!server$example");
 
-    static final List<DecodeCase> decodeCases =
+    static final List<CodecCase> decodeCases =
         List.of(
-            new DecodeCase("test%20server", "test server"),
-            new DecodeCase("test%20%21server", "test !server"),
-            new DecodeCase("caf%C3%A9.example.com", "café.example.com"),
-            new DecodeCase("%2F", "/"),
-            new DecodeCase("example.com%2Fpath", "example.com/path"),
-            new DecodeCase("test%2fserver", "test/server"),
-            new DecodeCase("%C3%A9", "é"),
-            new DecodeCase("hello%20world%21", "hello world!"),
-            new DecodeCase("test%3A%2F%2Fserver", "test://server"));
+            new CodecCase("test%20server", "test server"),
+            new CodecCase("test%20%21server", "test !server"),
+            new CodecCase("caf%C3%A9.example.com", "café.example.com"),
+            new CodecCase("%2F", "/"),
+            new CodecCase("example.com%2Fpath", "example.com/path"),
+            new CodecCase("test%2fserver", "test/server"),
+            new CodecCase("%C3%A9", "é"),
+            new CodecCase("hello%20world%21", "hello world!"),
+            new CodecCase("test%3A%2F%2Fserver", "test://server"));
 
     @ParameterizedTest
     @FieldSource("hostsWithoutPercentEncoding")
@@ -466,9 +476,17 @@ class HostTests {
 
     @ParameterizedTest
     @FieldSource("decodeCases")
-    void decodes_percent_encoded_host_correctly(DecodeCase testCase) {
-      Host host = Host.parse(testCase.input());
-      assertThat(host.decode()).isEqualTo(testCase.expected());
+    void decodes_percent_encoded_host_correctly(CodecCase testCase) {
+      Host host = Host.parse(testCase.encoded());
+      assertThat(host.decode()).isEqualTo(testCase.decoded());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> encode_decode_invariants() {
+      return generateEncodeDecodeInvariantTests(
+          HostParser.INSTANCE,
+          Stream.of(
+              "foo", "example.com", "test123", "hello world", "café", "example.org", "こんにちは"));
     }
   }
 
@@ -519,19 +537,5 @@ class HostTests {
       Host host = Host.parse("255.255.255.255");
       assertThat(host.toString()).isEqualTo("255.255.255.255");
     }
-  }
-
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    List<String> validHosts =
-        Stream.of(
-                IPv4Addresses.validIpv4Addresses(),
-                IPv6Addresses.validIpv6Addresses(),
-                RegisteredNames.validRegisteredNames(),
-                Stream.of(""))
-            .flatMap(identity())
-            .toList();
-
-    return StringParserInvariantTests.generateInvariantTests(HostParser.INSTANCE, validHosts);
   }
 }

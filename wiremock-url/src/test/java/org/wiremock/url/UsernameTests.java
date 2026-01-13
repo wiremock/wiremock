@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -194,6 +195,13 @@ class UsernameTests {
     void decodes_percent_encoded_username_correctly(CodecCase testCase) {
       Username username = Username.parse(testCase.encoded());
       assertThat(username.decode()).isEqualTo(testCase.decoded());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> encode_decode_invariants() {
+      return generateEncodeDecodeInvariantTests(
+          UsernameParser.INSTANCE,
+          Stream.of("foo", "bar", "test123", "hello world", "user@example", "café", "こんにちは"));
     }
   }
 

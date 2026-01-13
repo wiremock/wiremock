@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,7 +32,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class QueryTests {
 
   @Nested
-  class ParseMethod {
+  class Parse {
 
     static final List<String> validQueries =
         List.of(
@@ -147,10 +148,16 @@ class QueryTests {
           .extracting(IllegalQuery::getIllegalValue)
           .isEqualTo(illegalQuery);
     }
+
+    @TestFactory
+    Stream<DynamicTest> invariants() {
+      return StringParserInvariantTests.generateInvariantTests(
+          QueryParser.INSTANCE, Parse.validQueries);
+    }
   }
 
   @Nested
-  class NormaliseMethod {
+  class Normalise {
 
     record NormalisationCase(String input, String expected) {}
 
@@ -202,24 +209,22 @@ class QueryTests {
   }
 
   @Nested
-  class DecodeMethod {
-
-    record DecodeCase(String input, String expected) {}
+  class Codec {
 
     static final List<String> queriesWithoutPercentEncoding =
         List.of("", "q=search", "key=value", "a=1&b=2", "time=12:30:00", "path=/api/v1");
 
-    static final List<DecodeCase> decodeCases =
+    static final List<CodecCase> decodeCases =
         List.of(
-            new DecodeCase("q=search%20term", "q=search term"),
-            new DecodeCase("name=%C3%A9ric", "name=éric"),
-            new DecodeCase("caf%C3%A9=coffee", "café=coffee"),
-            new DecodeCase("percent=%25", "percent=%"),
-            new DecodeCase("path=%2Fapi%2Fv1", "path=/api/v1"),
-            new DecodeCase("data=%7B%22key%22:%22value%22%7D", "data={\"key\":\"value\"}"),
-            new DecodeCase("query=%20", "query= "),
-            new DecodeCase("%20=value", " =value"),
-            new DecodeCase("q=hello%20world%21", "q=hello world!"));
+            new CodecCase("q=search%20term", "q=search term"),
+            new CodecCase("name=%C3%A9ric", "name=éric"),
+            new CodecCase("caf%C3%A9=coffee", "café=coffee"),
+            new CodecCase("percent=%25", "percent=%"),
+            new CodecCase("path=%2Fapi%2Fv1", "path=/api/v1"),
+            new CodecCase("data=%7B%22key%22:%22value%22%7D", "data={\"key\":\"value\"}"),
+            new CodecCase("query=%20", "query= "),
+            new CodecCase("%20=value", " =value"),
+            new CodecCase("q=hello%20world%21", "q=hello world!"));
 
     @ParameterizedTest
     @FieldSource("queriesWithoutPercentEncoding")
@@ -230,9 +235,23 @@ class QueryTests {
 
     @ParameterizedTest
     @FieldSource("decodeCases")
-    void decodes_percent_encoded_query_correctly(DecodeCase testCase) {
-      Query query = Query.parse(testCase.input());
-      assertThat(query.decode()).isEqualTo(testCase.expected());
+    void decodes_percent_encoded_query_correctly(CodecCase testCase) {
+      Query query = Query.parse(testCase.encoded());
+      assertThat(query.decode()).isEqualTo(testCase.decoded());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> encode_decode_invariants() {
+      return generateEncodeDecodeInvariantTests(
+          QueryParser.INSTANCE,
+          Stream.of(
+              "foo",
+              "bar",
+              "key=value",
+              "hello world",
+              "q=café",
+              "param1=value1&param2=value2",
+              "こんにちは"));
     }
   }
 
@@ -331,11 +350,5 @@ class QueryTests {
       assertThat(parsed).isEqualTo(original);
       assertThat(parsed.toString()).isEqualTo(stringForm);
     }
-  }
-
-  @TestFactory
-  Stream<DynamicTest> invariants() {
-    return StringParserInvariantTests.generateInvariantTests(
-        QueryParser.INSTANCE, ParseMethod.validQueries);
   }
 }
