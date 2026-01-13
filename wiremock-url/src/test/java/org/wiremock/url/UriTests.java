@@ -184,6 +184,26 @@ public class UriTests {
       assertThat(cause.getIllegalValue()).isEqualTo("not a ");
       assertThat(cause.getCause()).isNull();
     }
+
+    @Test
+    void rejects_illegal_relative_url() {
+      assertThatExceptionOfType(IllegalRelativeUrl.class)
+          .isThrownBy(() -> Uri.parse("#\n"))
+          .withMessage("Illegal relative url: `#\n`")
+          .withNoCause()
+          .extracting(IllegalUri::getIllegalValue)
+          .isEqualTo("#\n");
+    }
+
+    @Test
+    void rejects_illegal_absolute_url() {
+      assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+          .isThrownBy(() -> Uri.parse("#:\n"))
+          .withMessage("Illegal absolute url: `#:\n`")
+          .withNoCause()
+          .extracting(IllegalUri::getIllegalValue)
+          .isEqualTo("#:\n");
+    }
   }
 
   @SuppressWarnings("HttpUrlsUsage")

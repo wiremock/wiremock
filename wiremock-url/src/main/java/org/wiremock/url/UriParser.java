@@ -110,7 +110,7 @@ final class UriParser implements StringParser<Uri> {
       var fragmentString = result.group("fragment");
       var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
-      var hierarchicalPart = extractHierarchicalPart(scheme != null, result, stringForm);
+      var hierarchicalPart = extractHierarchicalPart(scheme == null, result, stringForm);
       return Uri.builder()
           .setScheme(scheme)
           .setAuthority(hierarchicalPart.authority)
@@ -124,26 +124,26 @@ final class UriParser implements StringParser<Uri> {
   }
 
   private HierarchicalPart extractHierarchicalPart(
-      boolean isUri, Matcher matcher, String uriRefString) {
+      boolean isRelative, Matcher matcher, String stringForm) {
     var authority = extractAuthorityOrNull(matcher);
     var pathStr = matcher.group("path");
     var path = PathParser.INSTANCE.parse(pathStr);
 
-    if (!isUri) {
+    if (isRelative) {
       if (authority == null) {
         if (!path.isAbsolute()
             && !path.isEmpty()
             && path.getSegments().get(0).toString().contains(":")) {
-          throw new IllegalUri(
-              uriRefString,
+          throw new IllegalRelativeUrl(
+              stringForm,
               new IllegalPath(
                   path.toString(),
                   "path `" + path + "` may not contain a colon (`:`) in the first segment"));
         }
       } else {
         if (!path.isAbsolute() && !path.isEmpty()) {
-          throw new IllegalUri(
-              uriRefString,
+          throw new IllegalRelativeUrl(
+              stringForm,
               new IllegalPath(path.toString(), "path `" + path + "` must be absolute or empty"));
         }
       }
