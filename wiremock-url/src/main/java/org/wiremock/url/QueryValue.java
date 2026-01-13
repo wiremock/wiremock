@@ -16,20 +16,19 @@
 package org.wiremock.url;
 
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 
 final class QueryValue implements Query {
 
   private final String query;
-  private @Nullable volatile Boolean normalForm;
+  private final boolean isNormalForm;
 
   QueryValue(String query) {
-    this(query, null);
+    this(query, false);
   }
 
-  QueryValue(String query, @Nullable Boolean normalForm) {
+  QueryValue(String query, boolean isNormalForm) {
     this.query = query;
-    this.normalForm = normalForm;
+    this.isNormalForm = isNormalForm;
   }
 
   @Override
@@ -39,27 +38,22 @@ final class QueryValue implements Query {
 
   @Override
   public Query normalise() {
-    if (Boolean.TRUE.equals(normalForm)) {
+    if (isNormalForm) {
       return this;
     }
 
     String result = Constants.normalise(query, QueryParser.queryCharSet);
 
     if (result == null) {
-      this.normalForm = true;
       return this;
     } else {
-      this.normalForm = false;
       return new QueryValue(result, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    if (normalForm == null) {
-      normalForm = Constants.isNormalForm(query, QueryParser.queryCharSet);
-    }
-    return normalForm;
+    return isNormalForm || Constants.isNormalForm(query, QueryParser.queryCharSet);
   }
 
   public String query() {

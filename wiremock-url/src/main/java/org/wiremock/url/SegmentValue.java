@@ -16,20 +16,19 @@
 package org.wiremock.url;
 
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 
 final class SegmentValue implements Segment {
 
   private final String stringForm;
-  private @Nullable volatile Boolean normalForm;
+  private final boolean isNormalForm;
 
   SegmentValue(String stringForm) {
-    this(stringForm, null);
+    this(stringForm, false);
   }
 
-  SegmentValue(String stringForm, @Nullable Boolean normalForm) {
+  SegmentValue(String stringForm, boolean isNormalForm) {
     this.stringForm = stringForm;
-    this.normalForm = normalForm;
+    this.isNormalForm = isNormalForm;
   }
 
   @Override
@@ -55,27 +54,21 @@ final class SegmentValue implements Segment {
 
   @Override
   public Segment normalise() {
-    if (Boolean.TRUE.equals(normalForm)) {
+    if (isNormalForm) {
       return this;
     }
 
     String result = Constants.normalise(stringForm, SegmentParser.segmentCharSet);
 
     if (result == null) {
-      this.normalForm = true;
       return this;
     } else {
-      this.normalForm = false;
       return new SegmentValue(result, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    if (normalForm == null) {
-      normalForm = Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
-    }
-    //noinspection DataFlowIssue
-    return normalForm;
+    return isNormalForm || Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
   }
 }

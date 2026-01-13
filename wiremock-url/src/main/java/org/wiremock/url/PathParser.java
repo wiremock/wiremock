@@ -44,7 +44,7 @@ final class PathParser implements PercentEncodedStringParser<Path> {
 
   @Override
   public Path encode(String unencoded) {
-    return parse(Constants.encode(unencoded, pathCharSet));
+    return new PathValue(Constants.encode(unencoded, pathCharSet), true);
   }
 
   String encode2(String unencoded) {

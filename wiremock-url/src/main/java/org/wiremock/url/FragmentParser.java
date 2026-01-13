@@ -31,6 +31,6 @@ final class FragmentParser implements PercentEncodedStringParser<Fragment> {
   @Override
   public Fragment encode(String unencoded) {
     var result = Constants.encode(unencoded, fragmentCharSet);
-    return new FragmentValue(result);
+    return new FragmentValue(result, true);
   }
 }

@@ -25,15 +25,26 @@ public class PercentEncodedStringParserInvariantTests {
 
   static <T extends PercentEncoded<T>> Stream<DynamicTest> generateEncodeDecodeInvariantTests(
       PercentEncodedStringParser<T> parser, Stream<String> decodedForms) {
-    return decodedForms.map(
+    return decodedForms.flatMap(
         original ->
-            dynamicTest(
-                "Original -> Encode -> Decode `" + original + "` produces the original value",
-                () -> {
-                  T encoded = parser.encode(original);
-                  String decoded = encoded.decode();
-                  assertThat(decoded).isEqualTo(original);
-                }));
+            Stream.of(
+                dynamicTest(
+                    "result of encoding `" + original + "` is in normal form",
+                    () -> {
+                      T encoded = parser.encode(original);
+                      assertThat(encoded.isNormalForm());
+
+                      T parsed = parser.parse(encoded.toString());
+                      assertThat(parsed).isEqualTo(encoded);
+                      assertThat(parsed.isNormalForm());
+                    }),
+                dynamicTest(
+                    "Original -> Encode -> Decode `" + original + "` produces the original value",
+                    () -> {
+                      T encoded = parser.encode(original);
+                      String decoded = encoded.decode();
+                      assertThat(decoded).isEqualTo(original);
+                    })));
   }
 
   static <T extends PercentEncoded<T>>

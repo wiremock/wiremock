@@ -24,9 +24,15 @@ import java.util.Objects;
 final class HostValue implements Host {
 
   private final String host;
+  private final boolean isNormalForm;
 
   HostValue(String host) {
+    this(host, false);
+  }
+
+  HostValue(String host, boolean isNormalForm) {
     this.host = host;
+    this.isNormalForm = isNormalForm;
   }
 
   @Override
@@ -36,6 +42,10 @@ final class HostValue implements Host {
 
   @Override
   public Host normalise() {
+
+    if (isNormalForm) {
+      return this;
+    }
 
     String normalised =
         transform(
@@ -48,13 +58,13 @@ final class HostValue implements Host {
     } else if (normalised.isEmpty()) {
       return Host.EMPTY;
     } else {
-      return new HostValue(normalised);
+      return new HostValue(normalised, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    return normalise().equals(this);
+    return isNormalForm || normalise().equals(this);
   }
 
   public String host() {

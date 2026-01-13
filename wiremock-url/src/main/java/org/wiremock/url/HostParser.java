@@ -66,7 +66,7 @@ final class HostParser implements PercentEncodedStringParser<Host> {
     if (unencoded.isEmpty()) {
       return Host.EMPTY;
     } else {
-      return new HostValue(result);
+      return new HostValue(result, true);
     }
   }
 }

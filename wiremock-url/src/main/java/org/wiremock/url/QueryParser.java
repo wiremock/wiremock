@@ -37,11 +37,9 @@ class QueryParser implements PercentEncodedStringParser<Query> {
 
   static final boolean[] queryCharSet = combine(pcharCharSet, include('/', '?'));
 
-  static final boolean[] specialSchemeQueryCharSet = remove(queryCharSet, '\'');
-
   @Override
   public Query encode(String unencoded) {
     var result = Constants.encode(unencoded, queryCharSet);
-    return new QueryValue(result);
+    return new QueryValue(result, true);
   }
 }

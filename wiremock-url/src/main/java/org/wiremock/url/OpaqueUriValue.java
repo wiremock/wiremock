@@ -87,7 +87,7 @@ class OpaqueUriValue implements OpaqueUri {
     normalises to more than one `/` at the start, they will be treatd as a single `/`.
     */
     if (normalisedPath.toString().startsWith("//")) {
-      normalisedPath = new PathValue(normalisedPath.toString().replaceFirst("^//+", "/"));
+      normalisedPath = new PathValue(normalisedPath.toString().replaceFirst("^//+", "/"), true);
     }
     Query normalisedQuery = query == null ? null : query.normalise();
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();

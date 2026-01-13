@@ -15,8 +15,6 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.Constants.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +28,15 @@ import org.jspecify.annotations.Nullable;
 final class PathValue implements Path {
 
   private final String path;
-  private @Nullable volatile Boolean normalForm;
+  private final boolean isNormalForm;
 
   PathValue(String path) {
-    this(path, null);
+    this(path, false);
   }
 
-  PathValue(String path, @Nullable Boolean normalForm) {
+  PathValue(String path, boolean isNormalForm) {
     this.path = path;
-    this.normalForm = normalForm;
+    this.isNormalForm = isNormalForm;
   }
 
   @Override
@@ -57,7 +55,7 @@ final class PathValue implements Path {
    */
   @Override
   public Path normalise() {
-    if (Boolean.TRUE.equals(normalForm) || this.equals(ROOT) || this.equals(EMPTY)) {
+    if (isNormalForm || this.equals(ROOT) || this.equals(EMPTY)) {
       return this;
     }
     var inputBuffer = new StringBuilder(path);
@@ -101,22 +99,17 @@ final class PathValue implements Path {
     }
     var outStr = PathParser.INSTANCE.encode2(outputBuffer.toString());
     if (outStr.equals(path)) {
-      this.normalForm = true;
       return this;
     } else if (outStr.equals(ROOT.toString())) {
       return ROOT;
     } else {
-      this.normalForm = false;
       return new PathValue(outStr, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    if (normalForm == null) {
-      normalForm = normalise().equals(this);
-    }
-    return normalForm;
+    return isNormalForm || normalise().equals(this);
   }
 
   private static int getEndOfFirstSegment(StringBuilder inputBuffer) {

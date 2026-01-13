@@ -29,7 +29,7 @@ package org.wiremock.url;
  */
 public interface Host extends PercentEncoded<Host> {
 
-  Host EMPTY = new HostValue("");
+  Host EMPTY = new HostValue("", true);
 
   /**
    * Returns a normalised form of this host.

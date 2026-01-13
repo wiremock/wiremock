@@ -42,6 +42,6 @@ final class PasswordParser implements PercentEncodedStringParser<Password> {
   @Override
   public Password encode(String unencoded) {
     var result = Constants.encode(unencoded, passwordCharSet);
-    return new PasswordValue(result);
+    return new PasswordValue(result, true);
   }
 }

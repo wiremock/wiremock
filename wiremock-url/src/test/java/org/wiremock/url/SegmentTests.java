@@ -106,7 +106,7 @@ class SegmentTests {
               "/segment",
               "segment/");
 
-      return generateEncodeDecodeInvariantTests(FragmentParser.INSTANCE, decoded);
+      return generateEncodeDecodeInvariantTests(SegmentParser.INSTANCE, decoded);
     }
 
     @TestFactory
@@ -129,7 +129,7 @@ class SegmentTests {
               "%2Fsegment",
               "segment%2F");
 
-      return generateNormaliseDecodeEncodeInvariantTests(FragmentParser.INSTANCE, encoded);
+      return generateNormaliseDecodeEncodeInvariantTests(SegmentParser.INSTANCE, encoded);
     }
   }
 
