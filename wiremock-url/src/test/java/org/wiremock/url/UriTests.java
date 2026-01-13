@@ -22,10 +22,13 @@ import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 public class UriTests {
@@ -322,5 +325,24 @@ public class UriTests {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
           alreadyNormalisedUriReferences);
     }
+  }
+
+  @Nested
+  class ResolvedPort {
+
+    private static final List<ResolvedPortCase> resolvedPortCases = List.of(
+        new ResolvedPortCase("//host:80", Port.of(80)),
+        new ResolvedPortCase("https://host", Port.of(443)),
+        new ResolvedPortCase("//host", null)
+    );
+
+    @ParameterizedTest
+    @FieldSource("resolvedPortCases")
+    void get_resolved_port_returns_correct_port(ResolvedPortCase testCase) {
+      var uri = Uri.parse(testCase.uri);
+      assertThat(uri.getResolvedPort()).isEqualTo(testCase.expected);
+    }
+
+    record ResolvedPortCase(String uri, @Nullable Port expected) {}
   }
 }

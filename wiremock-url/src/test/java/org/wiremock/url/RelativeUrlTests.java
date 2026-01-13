@@ -192,6 +192,13 @@ class RelativeUrlTests {
                 // Protocol-relative URLs - host normalization
                 Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
                 Pair.of("//EXAMPLE.COM:08080", "//example.com:8080/"),
+                Pair.of("//EXAMPLE.com:8080/p ath?q uery#fr agment", "//example.com:8080/p%20ath?q%20uery#fr%20agment"),
+                Pair.of("//example.com:8080/p ath?q uery#fr agment", "//example.com:8080/p%20ath?q%20uery#fr%20agment"),
+                Pair.of("//example.com:8080/p ath", "//example.com:8080/p%20ath"),
+                Pair.of("//example.com:8080/?q uery", "//example.com:8080/?q%20uery"),
+                Pair.of("//example.com:8080/#fr agment", "//example.com:8080/#fr%20agment"),
+                Pair.of("#fr agment", "/#fr%20agment"),
+                Pair.of("//example.com:8080#fr agment", "//example.com:8080/#fr%20agment"),
                 Pair.of("//example.com:08080", "//example.com:8080/"))
             .map(
                 it ->
