@@ -39,6 +39,7 @@ final class UriParser implements StringParser<Uri> {
             oneClass,
             otherClass,
             Origin.class,
+            ServersideAbsoluteUrl.class,
             AbsoluteUrl.class,
             OpaqueUri.class,
             RelativeUrl.class,

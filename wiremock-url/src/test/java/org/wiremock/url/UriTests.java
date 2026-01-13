@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 import java.util.List;
@@ -330,11 +331,11 @@ public class UriTests {
   @Nested
   class ResolvedPort {
 
-    private static final List<ResolvedPortCase> resolvedPortCases = List.of(
-        new ResolvedPortCase("//host:80", Port.of(80)),
-        new ResolvedPortCase("https://host", Port.of(443)),
-        new ResolvedPortCase("//host", null)
-    );
+    private static final List<ResolvedPortCase> resolvedPortCases =
+        List.of(
+            new ResolvedPortCase("//host:80", Port.of(80)),
+            new ResolvedPortCase("https://host", Port.of(443)),
+            new ResolvedPortCase("//host", null));
 
     @ParameterizedTest
     @FieldSource("resolvedPortCases")
@@ -344,5 +345,162 @@ public class UriTests {
     }
 
     record ResolvedPortCase(String uri, @Nullable Port expected) {}
+  }
+
+  @Nested
+  class Builder {
+
+    @Test
+    void can_build_a_uri() {
+
+      var uri =
+          Uri.builder()
+              .setAuthority(Authority.parse("example.com"))
+              .setPath(Path.parse("/path"))
+              .setQuery(Query.parse("query"))
+              .setFragment(Fragment.parse("fragment"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//example.com/path?query#fragment"));
+    }
+
+    @Test
+    void can_build_a_uri_with_separate_authority_parts() {
+
+      var uri =
+          Uri.builder()
+              .setHost(Host.parse("example.com"))
+              .setUserInfo(UserInfo.parse("user:password"))
+              .setPort(Port.of(8443))
+              .setPath(Path.parse("/path"))
+              .setQuery(Query.parse("query"))
+              .setFragment(Fragment.parse("fragment"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//user:password@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_a_urls_scheme() {
+
+      var uri = Uri.parse("https://user@example.com:8443/path?query#fragment");
+      var transformed = Uri.transform(uri, builder -> builder.setScheme(Scheme.wss));
+
+      assertThat(transformed)
+          .isEqualTo(Uri.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
+
+    private static final List<Uri.Builder> authorityBuilders =
+        List.of(
+            Uri.builder()
+                .setHost(Host.parse("example.com"))
+                .setUserInfo(UserInfo.parse("user:password"))
+                .setPort(Port.of(8443)),
+            Uri.builder()
+                .setHost(Host.parse("example.com"))
+                .setPort(Port.of(8443))
+                .setUserInfo(UserInfo.parse("user:password")),
+            Uri.builder()
+                .setPort(Port.of(8443))
+                .setHost(Host.parse("example.com"))
+                .setUserInfo(UserInfo.parse("user:password")),
+            Uri.builder()
+                .setPort(Port.of(8443))
+                .setUserInfo(UserInfo.parse("user:password"))
+                .setHost(Host.parse("example.com")),
+            Uri.builder()
+                .setUserInfo(UserInfo.parse("user:password"))
+                .setPort(Port.of(8443))
+                .setHost(Host.parse("example.com")),
+            Uri.builder()
+                .setUserInfo(UserInfo.parse("user:password"))
+                .setHost(Host.parse("example.com"))
+                .setPort(Port.of(8443)));
+
+    @ParameterizedTest
+    @FieldSource("authorityBuilders")
+    void can_set_authority_fields_in_any_order(Uri.Builder builder) {
+      var uri =
+          builder
+              .setPath(Path.parse("/path"))
+              .setQuery(Query.parse("query"))
+              .setFragment(Fragment.parse("fragment"))
+              .build();
+      assertThat(uri).isEqualTo(Uri.parse("//user:password@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void setting_user_info_after_authority_works() {
+      var uri =
+          Uri.builder()
+              .setAuthority(Authority.parse("user@example.com:8443"))
+              .setUserInfo(UserInfo.parse("me:passwd"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//me:passwd@example.com:8443/"));
+    }
+
+    @Test
+    void setting_host_after_authority_works() {
+      var uri =
+          Uri.builder()
+              .setAuthority(Authority.parse("user@www.example.com:8443"))
+              .setHost(Host.parse("example.com"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//user@example.com:8443/"));
+    }
+
+    @Test
+    void setting_port_after_authority_works() {
+      var uri =
+          Uri.builder()
+              .setAuthority(Authority.parse("user@example.com:8443"))
+              .setPort(Port.of(88443))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//user@example.com:88443/"));
+    }
+
+    @Test
+    void authority_overrides_user_info_and_port() {
+      var uri =
+          Uri.builder()
+              .setUserInfo(UserInfo.parse("me:passwd"))
+              .setPort(Port.of(88443))
+              .setAuthority(Authority.parse("user@example.com:8443"))
+              .build();
+
+      assertThat(uri).isEqualTo(Uri.parse("//user@example.com:8443/"));
+    }
+
+    @Test
+    void build_fails_if_user_info_set_and_host_or_authority_not() {
+      assertThatIllegalStateException()
+          .isThrownBy(() -> Uri.builder().setUserInfo(UserInfo.parse("me:passwd")).build())
+          .withMessage("Cannot construct a uri with a userinfo or port but no host")
+          .withNoCause();
+    }
+
+    @Test
+    void build_fails_if_port_set_and_host_or_authority_not() {
+      assertThatIllegalStateException()
+          .isThrownBy(() -> Uri.builder().setPort(Port.of(88443)).build())
+          .withMessage("Cannot construct a uri with a userinfo or port but no host")
+          .withNoCause();
+    }
+
+    @Test
+    void build_fails_if_user_info_and_port_set_and_host_or_authority_not() {
+      assertThatIllegalStateException()
+          .isThrownBy(
+              () ->
+                  Uri.builder()
+                      .setUserInfo(UserInfo.parse("me:passwd"))
+                      .setPort(Port.of(88443))
+                      .build())
+          .withMessage("Cannot construct a uri with a userinfo or port but no host")
+          .withNoCause();
+    }
   }
 }

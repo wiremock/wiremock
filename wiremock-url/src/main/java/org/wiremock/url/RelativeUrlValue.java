@@ -16,7 +16,6 @@
 package org.wiremock.url;
 
 import java.util.Objects;
-import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 final class RelativeUrlValue implements RelativeUrl {
