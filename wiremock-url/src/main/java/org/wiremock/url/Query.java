@@ -15,6 +15,12 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.QueryValue.encodeValues;
+
+import java.util.List;
+import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents the query component of a URI as defined in <a
  * href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.4">RFC 3986 Section 3.4</a>.
@@ -26,7 +32,9 @@ package org.wiremock.url;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.4">RFC 3986 Section 3.4</a>
  */
-public interface Query extends PercentEncoded<Query> {
+public interface Query extends PercentEncoded<Query>, QueryParamReader {
+
+  Query EMPTY = QueryValue.EMPTY;
 
   /**
    * Parses a string into a query.
@@ -51,4 +59,105 @@ public interface Query extends PercentEncoded<Query> {
 
   @Override
   Query normalise();
+
+  default Query with(String key, @Nullable String value, @Nullable String... otherValues) {
+    return with(QueryParamKey.encode(key), encodeValues(value, otherValues));
+  }
+
+  default Query with(
+      QueryParamKey key,
+      @Nullable QueryParamValue value,
+      @Nullable QueryParamValue... otherValues) {
+    return with(key, Lists.of(value, otherValues));
+  }
+
+  default Query with(QueryParamKey key, List<? extends @Nullable QueryParamValue> values) {
+    return transform(q -> q.append(key, values));
+  }
+
+  default Query replace(String key, @Nullable String value, @Nullable String... otherValues) {
+    return replace(QueryParamKey.encode(key), encodeValues(value, otherValues));
+  }
+
+  default Query replace(
+      QueryParamKey key,
+      @Nullable QueryParamValue value,
+      @Nullable QueryParamValue... otherValues) {
+    return replace(key, Lists.of(value, otherValues));
+  }
+
+  default Query replace(QueryParamKey key, List<? extends @Nullable QueryParamValue> values) {
+    return transform(q -> q.put(key, values));
+  }
+
+  default Query without(String key) {
+    return without(QueryParamKey.encode(key));
+  }
+
+  default Query without(QueryParamKey key) {
+    return transform(q -> q.remove(key));
+  }
+
+  default Query without(String key, @Nullable String value, @Nullable String... otherValues) {
+    return without(QueryParamKey.encode(key), encodeValues(value, otherValues));
+  }
+
+  default Query without(
+      QueryParamKey key,
+      @Nullable QueryParamValue value,
+      @Nullable QueryParamValue... otherValues) {
+    return without(key, Lists.of(value, otherValues));
+  }
+
+  default Query without(QueryParamKey key, List<? extends @Nullable QueryParamValue> values) {
+    return transform(q -> q.remove(key, values));
+  }
+
+  static Builder builder() {
+    return new QueryBuilder();
+  }
+
+  Builder thaw();
+
+  default Query transform(Consumer<Builder> transformer) {
+    var builder = thaw();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  interface Builder {
+
+    Builder append(String key, @Nullable String value, @Nullable String... otherValues);
+
+    Builder append(
+        QueryParamKey key,
+        @Nullable QueryParamValue value,
+        @Nullable QueryParamValue... otherValues);
+
+    Builder append(QueryParamKey key, List<? extends @Nullable QueryParamValue> values);
+
+    Builder put(String key, @Nullable String value, @Nullable String... otherValues);
+
+    Builder put(
+        QueryParamKey key,
+        @Nullable QueryParamValue value,
+        @Nullable QueryParamValue... otherValues);
+
+    Builder put(QueryParamKey key, List<? extends @Nullable QueryParamValue> values);
+
+    Builder remove(String key);
+
+    Builder remove(QueryParamKey key);
+
+    Builder remove(String key, @Nullable String value, @Nullable String... otherValues);
+
+    Builder remove(
+        QueryParamKey key,
+        @Nullable QueryParamValue value,
+        @Nullable QueryParamValue... otherValues);
+
+    Builder remove(QueryParamKey key, List<? extends @Nullable QueryParamValue> values);
+
+    Query build();
+  }
 }

@@ -15,23 +15,13 @@
  */
 package org.wiremock.url;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
+public interface QueryParamValue extends PercentEncoded<QueryParamValue> {
 
-public class Lists {
-
-  public static <C extends Collection<T>, T> List<? extends T> concat(
-      Collection<? extends C> lists) {
-    return concat(lists.stream());
+  static QueryParamValue parse(String key) {
+    return QueryParamValueParser.INSTANCE.parse(key);
   }
 
-  @SafeVarargs
-  public static <T> List<? extends T> concat(Collection<? extends T>... lists) {
-    return concat(Stream.of(lists));
-  }
-
-  public static <C extends Collection<? extends T>, T> List<? extends T> concat(Stream<C> lists) {
-    return lists.flatMap(Collection::stream).toList();
+  static QueryParamValue encode(String key) {
+    return QueryParamValueParser.INSTANCE.encode(key);
   }
 }

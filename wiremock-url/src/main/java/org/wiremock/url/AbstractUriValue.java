@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
@@ -34,7 +36,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
       @Nullable Fragment fragment) {
     this.scheme = scheme;
     this.authority = authority;
-    this.path = path;
+    this.path = requireNonNull(path);
     this.query = query;
     this.fragment = fragment;
   }
@@ -106,7 +108,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
 
   @Override
   public int hashCode() {
-    return Objects.hash(getScheme(), getAuthority(), getPath(), getQuery(), getFragment());
+    return Objects.hash(getScheme(), getAuthority(), getPath(), query, getFragment());
   }
 
   @Override
@@ -119,8 +121,8 @@ abstract non-sealed class AbstractUriValue implements Uri {
       result.append("//").append(getAuthority());
     }
     result.append(getPath());
-    if (getQuery() != null) {
-      result.append("?").append(getQuery());
+    if (query != null) {
+      result.append("?").append(query);
     }
     if (getFragment() != null) {
       result.append("#").append(getFragment());

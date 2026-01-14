@@ -28,7 +28,9 @@ final class QueryParser implements PercentEncodedStringParser<Query> {
 
   @Override
   public Query parse(String stringForm) throws IllegalQuery {
-    if (queryPattern.matcher(stringForm).matches()) {
+    if (stringForm.isEmpty()) {
+      return Query.EMPTY;
+    } else if (queryPattern.matcher(stringForm).matches()) {
       return new QueryValue(stringForm);
     } else {
       throw new IllegalQuery(stringForm);

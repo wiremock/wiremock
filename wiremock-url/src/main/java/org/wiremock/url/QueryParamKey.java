@@ -15,27 +15,13 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+public interface QueryParamKey extends PercentEncoded<QueryParamKey> {
 
-public interface UriBaseBuilder<SELF extends UriBaseBuilder<SELF>> {
+  static QueryParamKey parse(String key) {
+    return QueryParamKeyParser.INSTANCE.parse(key);
+  }
 
-  SELF setAuthority(Authority authority);
-
-  SELF setUserInfo(@Nullable UserInfo userInfo);
-
-  SELF setHost(Host host);
-
-  SELF setPort(@Nullable Port port);
-
-  SELF setPath(Path path);
-
-  Query.Builder getQuery();
-
-  SELF setQuery(@Nullable Query query);
-
-  SELF setQuery(Query.Builder query);
-
-  SELF setFragment(@Nullable Fragment fragment);
-
-  Uri build();
+  static QueryParamKey encode(String key) {
+    return QueryParamKeyParser.INSTANCE.encode(key);
+  }
 }

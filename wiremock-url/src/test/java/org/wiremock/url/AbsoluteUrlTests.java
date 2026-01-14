@@ -563,6 +563,13 @@ class AbsoluteUrlTests {
           .withMessage(null)
           .withNoCause();
     }
+
+    @Test
+    void can_update_query() {
+      var url = AbsoluteUrl.parse("https://example.com/?a=b");
+      Url updated = url.transform(builder -> builder.getQuery().append("b", "2"));
+      assertThat(updated).hasToString("https://example.com/?a=b&b=2");
+    }
   }
 
   @ParameterizedTest

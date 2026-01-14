@@ -15,11 +15,22 @@
  */
 package org.wiremock.url;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 
 final class QueryValue implements Query {
 
+  static final Query EMPTY = new QueryValue("", List.of(), true);
+
   private final String query;
+  private volatile @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries;
   private final boolean isNormalForm;
 
   QueryValue(String query) {
@@ -27,7 +38,33 @@ final class QueryValue implements Query {
   }
 
   QueryValue(String query, boolean isNormalForm) {
+    this(query, null, isNormalForm);
+  }
+
+  QueryValue(List<Entry<QueryParamKey, @Nullable QueryParamValue>> params) {
+    this(params, false);
+  }
+
+  QueryValue(List<Entry<QueryParamKey, @Nullable QueryParamValue>> params, boolean isNormalForm) {
+    this(joinToString(params), Collections.unmodifiableList(params), isNormalForm);
+  }
+
+  private static String joinToString(List<Entry<QueryParamKey, @Nullable QueryParamValue>> params) {
+    return params.stream()
+        .map(
+            entry -> {
+              var value = entry.getValue();
+              return value == null ? entry.getKey().toString() : entry.getKey() + "=" + value;
+            })
+        .collect(Collectors.joining("&"));
+  }
+
+  private QueryValue(
+      String query,
+      @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries,
+      boolean isNormalForm) {
     this.query = query;
+    this.paramEntries = paramEntries;
     this.isNormalForm = isNormalForm;
   }
 
@@ -42,18 +79,37 @@ final class QueryValue implements Query {
       return this;
     }
 
-    String result = Constants.normalise(query, QueryParser.queryCharSet);
+    var currentParams = getEntries();
+    List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> normalised =
+        currentParams.stream()
+            .map(
+                entry -> {
+                  var value = entry.getValue();
+                  @SuppressWarnings("UnnecessaryLocalVariable")
+                  // it's not unnecessary, the compiler needs it
+                  Entry<QueryParamKey, @Nullable QueryParamValue> normalEntry =
+                      new SimpleEntry<>(
+                          entry.getKey().normalise(), (value != null ? value.normalise() : value));
+                  return normalEntry;
+                })
+            .toList();
 
-    if (result == null) {
+    if (normalised.equals(currentParams)) {
       return this;
     } else {
-      return new QueryValue(result, true);
+      return new QueryValue(normalised, true);
     }
   }
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || Constants.isNormalForm(query, QueryParser.queryCharSet);
+    return isNormalForm
+        || getEntries().stream()
+            .allMatch(
+                entry -> {
+                  QueryParamValue value = entry.getValue();
+                  return entry.getKey().isNormalForm() && (value == null || value.isNormalForm());
+                });
   }
 
   @Override
@@ -70,5 +126,39 @@ final class QueryValue implements Query {
   @Override
   public int hashCode() {
     return Objects.hash(query);
+  }
+
+  @Override
+  public Builder thaw() {
+    return new QueryBuilder(getEntries());
+  }
+
+  @Override
+  public List<Entry<QueryParamKey, @Nullable QueryParamValue>> getEntries() {
+    var entries = paramEntries;
+    if (entries != null) {
+      return entries;
+    } else {
+      var result = new ArrayList<Map.Entry<QueryParamKey, @Nullable QueryParamValue>>();
+      var keyValuePairStrs = query.split("&", -1);
+      for (String keyValuePairStr : keyValuePairStrs) {
+        var keyValuePair = keyValuePairStr.split("=", 2);
+        var key = new QueryParamKeyValue(keyValuePair[0]);
+        var value = keyValuePair.length == 2 ? new QueryParamValueValue(keyValuePair[1]) : null;
+        result.add(new SimpleEntry<>(key, value));
+      }
+      var unmodifiableResult = Collections.unmodifiableList(result);
+      paramEntries = unmodifiableResult;
+      return unmodifiableResult;
+    }
+  }
+
+  static List<@Nullable QueryParamValue> encodeValues(
+      @Nullable String value, @Nullable String[] otherValues) {
+    return Lists.of(value, otherValues).stream().map(QueryValue::encodeValue).toList();
+  }
+
+  private static @Nullable QueryParamValue encodeValue(@Nullable String value) {
+    return value != null ? QueryParamValue.encode(value) : null;
   }
 }

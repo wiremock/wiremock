@@ -19,8 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -139,6 +144,59 @@ class QueryTests {
       assertThat(query.toString()).isEqualTo(queryString);
     }
 
+    @Test
+    void get_entries_returns_flat_key_value_pairs() {
+      Query parsed = Query.parse("x=1&y&x&y=2&z");
+      assertThat(parsed.getEntries())
+          .isEqualTo(
+              List.of(
+                  flatEntry("x", "1"),
+                  flatEntry("y", null),
+                  flatEntry("x", null),
+                  flatEntry("y", "2"),
+                  flatEntry("z", null)));
+    }
+
+    @Test
+    void get_entry_set_returns_grouped_entries() {
+      Query parsed = Query.parse("x=1&y&x&y=2&z");
+      assertThat(parsed.asMap())
+          .isEqualTo(Map.ofEntries(entry("x", "1", null), entry("y", null, "2"), entry("z")));
+    }
+
+    @Test
+    void get_values_by_string_key() {
+      Query parsed = Query.parse("x=1&y&x&y=2&z");
+      assertThat(parsed.get("x")).isEqualTo(values("1", null));
+      assertThat(parsed.getFirst("x")).isEqualTo(QueryParamValue.parse("1"));
+      assertThat(parsed.getFirst("y")).isNull();
+      assertThat(parsed.getFirst("not_present")).isNull();
+    }
+
+    @Test
+    void get_values_by_query_param_key() {
+      Query parsed = Query.parse("x=1&y&x&y=2&z");
+      assertThat(parsed.get(QueryParamKey.parse("x"))).isEqualTo(values("1", null));
+      assertThat(parsed.getFirst(QueryParamKey.parse("x"))).isEqualTo(QueryParamValue.parse("1"));
+      assertThat(parsed.getFirst(QueryParamKey.parse("y"))).isNull();
+      assertThat(parsed.getFirst(QueryParamKey.parse("not_present"))).isNull();
+    }
+
+    @Test
+    void get_keys_returns_all_keys() {
+      Query parsed = Query.parse("x=1&y&x&y=2&z");
+      assertThat(parsed.getKeys())
+          .isEqualTo(
+              Set.of(QueryParamKey.parse("x"), QueryParamKey.parse("y"), QueryParamKey.parse("z")));
+    }
+
+    @Test
+    void get_first_with_percent_encoded_key_returns_value() {
+      Query parsed = Query.parse("a&b%3D1%262=c%3D2%263=4&");
+      assertThat(parsed.getFirst("a")).isNull();
+      assertThat(parsed.getFirst("b=1&2")).hasToString("c%3D2%263=4");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"key=val#ue", "query#fragment", "#", "test#test"})
     void rejects_queries_with_hash(String illegalQuery) {
@@ -149,10 +207,51 @@ class QueryTests {
           .isEqualTo(illegalQuery);
     }
 
+    @Test
+    void get_empty_works() {
+      Query parsed = Query.parse("");
+      assertThat(parsed.getEntries()).isEqualTo(List.of());
+      assertThat(parsed.get("")).isEqualTo(List.of());
+      assertThat(parsed.getFirst("")).isEqualTo(null);
+      assertThat(parsed.getKeys()).isEqualTo(Set.of());
+    }
+
+    @Test
+    void get_multiple_empty_works() {
+      Query parsed = Query.parse("&");
+      assertThat(parsed.getEntries()).isEqualTo(List.of(flatEntry("", null), flatEntry("", null)));
+      assertThat(parsed.get("")).isEqualTo(values(null, null));
+      assertThat(parsed.getFirst("")).isEqualTo(null);
+      assertThat(parsed.getKeys()).isEqualTo(Set.of(QueryParamKey.parse("")));
+      assertThat(parsed.contains("")).isTrue();
+    }
+
     @TestFactory
     Stream<DynamicTest> invariants() {
       return StringParserInvariantTests.generateInvariantTests(
           QueryParser.INSTANCE, Parse.validQueries);
+    }
+
+    private static Map.Entry<QueryParamKey, @Nullable QueryParamValue> flatEntry(
+        String key, @Nullable String value) {
+      return new SimpleEntry<>(QueryParamKey.parse(key), parseOrNull(value));
+    }
+
+    private static Map.Entry<QueryParamKey, List<@Nullable QueryParamValue>> entry(String key) {
+      return entry(key, (String) null);
+    }
+
+    private static Map.Entry<QueryParamKey, List<@Nullable QueryParamValue>> entry(
+        String x, @Nullable String... values) {
+      return new SimpleEntry<>(QueryParamKey.parse(x), values(values));
+    }
+
+    private static @Nullable QueryParamValue parseOrNull(@Nullable String value) {
+      return value != null ? QueryParamValue.parse(value) : null;
+    }
+
+    private static List<@Nullable QueryParamValue> values(@Nullable String... values) {
+      return Arrays.stream(values).map(Parse::parseOrNull).toList();
     }
   }
 
@@ -175,6 +274,7 @@ class QueryTests {
             new NormalisationCase("%41", "A"),
             new NormalisationCase("%5A", "Z"),
             new NormalisationCase("%5a", "Z"),
+            new NormalisationCase("a&b%3D1%262=c%3D2%263=4&", "a&b%3D1%262=c=2%263=4&"),
             new NormalisationCase("key=}value{", "key=%7Dvalue%7B"));
 
     static final List<String> alreadyNormalisedQueries =
@@ -211,6 +311,12 @@ class QueryTests {
   @Nested
   class Codec {
 
+    @Test
+    void encode_double_encodes_percent_signs() {
+      Query encoded = Query.encode("a&b%3D1%262=c%3D2%263=4&");
+      assertThat(encoded.toString()).isEqualTo("a&b%253D1%25262=c%253D2%25263=4&");
+    }
+
     static final List<String> queriesWithoutPercentEncoding =
         List.of("", "q=search", "key=value", "a=1&b=2", "time=12:30:00", "path=/api/v1");
 
@@ -224,6 +330,7 @@ class QueryTests {
             new CodecCase("data=%7B%22key%22:%22value%22%7D", "data={\"key\":\"value\"}"),
             new CodecCase("query=%20", "query= "),
             new CodecCase("%20=value", " =value"),
+            new CodecCase("a&b%253D1%25262=c%253D2%25263=4&", "a&b%3D1%262=c%3D2%263=4&"),
             new CodecCase("q=hello%20world%21", "q=hello world!"));
 
     @ParameterizedTest
@@ -251,6 +358,7 @@ class QueryTests {
               "hello world",
               "q=café",
               "param1=value1&param2=value2",
+              "a&b%3D1%262=c%3D2%263=4&",
               "こんにちは"));
     }
   }
@@ -349,6 +457,622 @@ class QueryTests {
       Query parsed = Query.parse(stringForm);
       assertThat(parsed).isEqualTo(original);
       assertThat(parsed.toString()).isEqualTo(stringForm);
+    }
+  }
+
+  @Nested
+  class Builder {
+
+    @Test
+    void builds_empty_query() {
+      Query query = Query.builder().build();
+      assertThat(query.toString()).isEmpty();
+      assertThat(query.getKeys()).isEqualTo(Set.of());
+    }
+
+    @Test
+    void appends_single_key_value_pair_with_strings() {
+      Query query = Query.builder().append("key", "value").build();
+      assertThat(query.toString()).isEqualTo("key=value");
+    }
+
+    @Test
+    void appends_single_key_value_pair_with_typed_params() {
+      Query query =
+          Query.builder()
+              .append(QueryParamKey.encode("key"), QueryParamValue.encode("value"))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=value");
+    }
+
+    @Test
+    void appends_key_with_null_value() {
+      Query query = Query.builder().append("key", null).build();
+      assertThat(query.toString()).isEqualTo("key");
+      assertThat(query.getFirst("key")).isNull();
+    }
+
+    @Test
+    void appends_multiple_key_value_pairs() {
+      Query query = Query.builder().append("a", "1").append("b", "2").append("c", "3").build();
+      assertThat(query.toString()).isEqualTo("a=1&b=2&c=3");
+    }
+
+    @Test
+    void appends_multiple_values_for_same_key() {
+      Query query = Query.builder().append("key", "value1").append("key", "value2").build();
+      assertThat(query.toString()).isEqualTo("key=value1&key=value2");
+      assertThat(query.get("key"))
+          .containsExactly(QueryParamValue.parse("value1"), QueryParamValue.parse("value2"));
+    }
+
+    @Test
+    void appends_multiple_values_at_once() {
+      Query query = Query.builder().append("key", "value1", "value2", "value3").build();
+      assertThat(query.toString()).isEqualTo("key=value1&key=value2&key=value3");
+    }
+
+    @Test
+    void appends_values_with_list() {
+      Query query =
+          Query.builder()
+              .append(
+                  QueryParamKey.encode("key"),
+                  List.of(QueryParamValue.encode("a"), QueryParamValue.encode("b")))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=a&key=b");
+    }
+
+    @Test
+    void put_replaces_existing_values() {
+      Query query =
+          Query.builder().append("key", "old1").append("key", "old2").put("key", "new").build();
+      assertThat(query.toString()).isEqualTo("key=new");
+      assertThat(query.get("key")).containsExactly(QueryParamValue.parse("new"));
+    }
+
+    @Test
+    void put_adds_if_key_not_present() {
+      Query query = Query.builder().append("other", "value").put("key", "new").build();
+      assertThat(query.toString()).isEqualTo("other=value&key=new");
+    }
+
+    @Test
+    void put_with_multiple_values() {
+      Query query = Query.builder().append("key", "old").put("key", "new1", "new2").build();
+      assertThat(query.toString()).isEqualTo("key=new1&key=new2");
+    }
+
+    @Test
+    void put_with_typed_params() {
+      Query query =
+          Query.builder()
+              .append("key", "old")
+              .put(QueryParamKey.encode("key"), QueryParamValue.encode("new"))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=new");
+    }
+
+    @Test
+    void remove_by_key_string() {
+      Query query = Query.builder().append("a", "1").append("b", "2").remove("a").build();
+      assertThat(query.toString()).isEqualTo("b=2");
+      assertThat(query.contains("a")).isFalse();
+    }
+
+    @Test
+    void remove_by_typed_key() {
+      Query query =
+          Query.builder()
+              .append("a", "1")
+              .append("b", "2")
+              .remove(QueryParamKey.encode("a"))
+              .build();
+      assertThat(query.toString()).isEqualTo("b=2");
+    }
+
+    @Test
+    void remove_all_values_for_key() {
+      Query query =
+          Query.builder()
+              .append("key", "value1")
+              .append("key", "value2")
+              .append("other", "x")
+              .remove("key")
+              .build();
+      assertThat(query.toString()).isEqualTo("other=x");
+    }
+
+    @Test
+    void remove_specific_value_from_key() {
+      Query query =
+          Query.builder()
+              .append("key", "keep")
+              .append("key", "remove")
+              .append("key", "also-keep")
+              .remove(QueryParamKey.encode("key"), List.of(QueryParamValue.encode("remove")))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=keep&key=also-keep");
+    }
+
+    @Test
+    void remove_multiple_specific_values() {
+      Query query =
+          Query.builder()
+              .append("key", "a")
+              .append("key", "b")
+              .append("key", "c")
+              .append("key", "d")
+              .remove(
+                  QueryParamKey.encode("key"),
+                  List.of(QueryParamValue.encode("b"), QueryParamValue.encode("d")))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=a&key=c");
+    }
+
+    @Test
+    void remove_with_typed_key_and_value_list() {
+      Query query =
+          Query.builder()
+              .append("key", "keep")
+              .append("key", "remove")
+              .remove(QueryParamKey.encode("key"), List.of(QueryParamValue.encode("remove")))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=keep");
+    }
+
+    @Test
+    void remove_nonexistent_key_is_no_op() {
+      Query query = Query.builder().append("a", "1").remove("nonexistent").build();
+      assertThat(query.toString()).isEqualTo("a=1");
+    }
+
+    @Test
+    void remove_with_string_key_and_specific_value() {
+      Query query =
+          Query.builder()
+              .append("key", "keep")
+              .append("key", "remove")
+              .append("key", "also-keep")
+              .remove("key", "remove")
+              .build();
+      assertThat(query.toString()).isEqualTo("key=keep&key=also-keep");
+    }
+
+    @Test
+    void remove_with_string_key_and_multiple_specific_values() {
+      Query query =
+          Query.builder()
+              .append("key", "a")
+              .append("key", "b")
+              .append("key", "c")
+              .append("key", "d")
+              .remove("key", "b", "d")
+              .build();
+      assertThat(query.toString()).isEqualTo("key=a&key=c");
+    }
+
+    @Test
+    void remove_with_typed_key_and_varargs_values() {
+      Query query =
+          Query.builder()
+              .append("key", "keep")
+              .append("key", "remove")
+              .remove(QueryParamKey.encode("key"), QueryParamValue.encode("remove"))
+              .build();
+      assertThat(query.toString()).isEqualTo("key=keep");
+    }
+
+    @Test
+    void encodes_special_characters_in_keys() {
+      Query query = Query.builder().append("key=with=equals", "value").build();
+      assertThat(query.toString()).isEqualTo("key%3Dwith%3Dequals=value");
+    }
+
+    @Test
+    void encodes_special_characters_in_values() {
+      Query query = Query.builder().append("key", "value&with&ampersands").build();
+      assertThat(query.toString()).isEqualTo("key=value%26with%26ampersands");
+    }
+
+    @Test
+    void chained_operations() {
+      Query query =
+          Query.builder()
+              .append("a", "1")
+              .append("b", "2")
+              .append("c", "3")
+              .put("b", "replaced")
+              .remove("c")
+              .append("d", "4")
+              .build();
+      assertThat(query.toString()).isEqualTo("a=1&b=replaced&d=4");
+    }
+
+    @Test
+    void builder_is_reusable_for_multiple_builds() {
+      Query.Builder builder = Query.builder().append("shared", "value");
+
+      Query query1 = builder.append("extra1", "a").build();
+      // Note: builder state is modified, so this tests current behavior
+      Query query2 = builder.append("extra2", "b").build();
+
+      assertThat(query1.contains("shared")).isTrue();
+      assertThat(query2.contains("shared")).isTrue();
+    }
+  }
+
+  @Nested
+  class Empty {
+
+    @Test
+    void empty_constant_has_empty_string_representation() {
+      assertThat(Query.EMPTY.toString()).isEmpty();
+    }
+
+    @Test
+    void empty_constant_has_no_keys() {
+      assertThat(Query.EMPTY.getKeys()).isEqualTo(Set.of());
+    }
+
+    @Test
+    void empty_constant_equals_parsed_empty_string() {
+      assertThat(Query.EMPTY).isEqualTo(Query.parse(""));
+    }
+
+    @Test
+    void empty_constant_equals_builder_built_empty() {
+      assertThat(Query.EMPTY).isEqualTo(Query.builder().build());
+    }
+  }
+
+  @Nested
+  class With {
+
+    @Test
+    void with_adds_param_to_existing_query() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.with(QueryParamKey.encode("b"), List.of(QueryParamValue.encode("2")));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void with_preserves_original_query() {
+      Query original = Query.parse("a=1");
+      original.with(QueryParamKey.encode("b"), List.of(QueryParamValue.encode("2")));
+      assertThat(original.toString()).isEqualTo("a=1");
+    }
+
+    @Test
+    void with_adds_multiple_values_for_same_key() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original
+              .with(QueryParamKey.encode("b"), List.of(QueryParamValue.encode("2")))
+              .with(QueryParamKey.encode("b"), List.of(QueryParamValue.encode("3")));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2&b=3");
+    }
+
+    @Test
+    void with_adds_null_value() {
+      Query original = Query.parse("a=1");
+      List<@Nullable QueryParamValue> nullValue = Arrays.asList((QueryParamValue) null);
+      Query updated = original.with(QueryParamKey.encode("b"), nullValue);
+      assertThat(updated.toString()).isEqualTo("a=1&b");
+    }
+
+    @Test
+    void with_list_of_values() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.with(
+              QueryParamKey.encode("b"),
+              List.of(QueryParamValue.encode("2"), QueryParamValue.encode("3")));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2&b=3");
+    }
+
+    @Test
+    void with_encodes_special_characters() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.with(
+              QueryParamKey.encode("key=special"),
+              List.of(QueryParamValue.encode("value&special")));
+      assertThat(updated.toString()).isEqualTo("a=1&key%3Dspecial=value%26special");
+    }
+
+    @Test
+    void with_string_key_and_value() {
+      Query original = Query.parse("a=1");
+      Query updated = original.with("b", "2");
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void with_string_key_and_multiple_values() {
+      Query original = Query.parse("a=1");
+      Query updated = original.with("b", "2", "3", "4");
+      assertThat(updated.toString()).isEqualTo("a=1&b=2&b=3&b=4");
+    }
+
+    @Test
+    void with_string_key_and_null_value() {
+      Query original = Query.parse("a=1");
+      Query updated = original.with("b", null);
+      assertThat(updated.toString()).isEqualTo("a=1&b");
+    }
+
+    @Test
+    void with_typed_key_and_varargs_values() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.with(
+              QueryParamKey.encode("b"), QueryParamValue.encode("2"), QueryParamValue.encode("3"));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2&b=3");
+    }
+  }
+
+  @Nested
+  class Replace {
+
+    @Test
+    void replace_replaces_existing_param() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated =
+          original.replace(QueryParamKey.encode("a"), List.of(QueryParamValue.encode("new")));
+      assertThat(updated.toString()).isEqualTo("b=2&a=new");
+    }
+
+    @Test
+    void replace_preserves_original_query() {
+      Query original = Query.parse("a=1");
+      original.replace(QueryParamKey.encode("a"), List.of(QueryParamValue.encode("new")));
+      assertThat(original.toString()).isEqualTo("a=1");
+    }
+
+    @Test
+    void replace_adds_if_key_not_present() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.replace(QueryParamKey.encode("b"), List.of(QueryParamValue.encode("2")));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void replace_replaces_all_values_for_key() {
+      Query original = Query.parse("a=1&a=2&a=3&b=x");
+      Query updated =
+          original.replace(QueryParamKey.encode("a"), List.of(QueryParamValue.encode("new")));
+      assertThat(updated.toString()).isEqualTo("b=x&a=new");
+      assertThat(updated.get("a")).containsExactly(QueryParamValue.parse("new"));
+    }
+
+    @Test
+    void replace_with_multiple_values() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated =
+          original.replace(
+              QueryParamKey.encode("a"),
+              List.of(
+                  QueryParamValue.encode("x"),
+                  QueryParamValue.encode("y"),
+                  QueryParamValue.encode("z")));
+      assertThat(updated.get("a"))
+          .containsExactly(
+              QueryParamValue.parse("x"), QueryParamValue.parse("y"), QueryParamValue.parse("z"));
+    }
+
+    @Test
+    void replace_with_list_of_values() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.replace(
+              QueryParamKey.encode("a"),
+              List.of(QueryParamValue.encode("x"), QueryParamValue.encode("y")));
+      assertThat(updated.get("a"))
+          .containsExactly(QueryParamValue.parse("x"), QueryParamValue.parse("y"));
+    }
+
+    @Test
+    void replace_with_string_key_and_value() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated = original.replace("a", "new");
+      assertThat(updated.toString()).isEqualTo("b=2&a=new");
+    }
+
+    @Test
+    void replace_with_string_key_and_multiple_values() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated = original.replace("a", "x", "y", "z");
+      assertThat(updated.get("a"))
+          .containsExactly(
+              QueryParamValue.parse("x"), QueryParamValue.parse("y"), QueryParamValue.parse("z"));
+    }
+
+    @Test
+    void replace_with_typed_key_and_varargs_values() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original.replace(
+              QueryParamKey.encode("a"), QueryParamValue.encode("x"), QueryParamValue.encode("y"));
+      assertThat(updated.get("a"))
+          .containsExactly(QueryParamValue.parse("x"), QueryParamValue.parse("y"));
+    }
+  }
+
+  @Nested
+  class Without {
+
+    @Test
+    void without_removes_param_by_key() {
+      Query original = Query.parse("a=1&b=2&c=3");
+      Query updated = original.without("b");
+      assertThat(updated.toString()).isEqualTo("a=1&c=3");
+    }
+
+    @Test
+    void without_preserves_original_query() {
+      Query original = Query.parse("a=1&b=2");
+      original.without("a");
+      assertThat(original.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void without_removes_all_values_for_key() {
+      Query original = Query.parse("a=1&a=2&a=3&b=x");
+      Query updated = original.without("a");
+      assertThat(updated.toString()).isEqualTo("b=x");
+      assertThat(updated.contains("a")).isFalse();
+    }
+
+    @Test
+    void without_nonexistent_key_returns_equivalent_query() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated = original.without("nonexistent");
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void without_typed_key() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated = original.without(QueryParamKey.encode("a"));
+      assertThat(updated.toString()).isEqualTo("b=2");
+    }
+
+    @Test
+    void without_specific_value() {
+      Query original = Query.parse("a=1&a=2&a=3");
+      Query updated =
+          original.without(QueryParamKey.encode("a"), List.of(QueryParamValue.encode("2")));
+      assertThat(updated.toString()).isEqualTo("a=1&a=3");
+    }
+
+    @Test
+    void without_multiple_specific_values() {
+      Query original = Query.parse("a=1&a=2&a=3&a=4");
+      Query updated =
+          original.without(
+              QueryParamKey.encode("a"),
+              List.of(QueryParamValue.encode("2"), QueryParamValue.encode("4")));
+      assertThat(updated.toString()).isEqualTo("a=1&a=3");
+    }
+
+    @Test
+    void without_string_key_and_specific_value() {
+      Query original = Query.parse("a=1&a=2&a=3");
+      Query updated = original.without("a", "2");
+      assertThat(updated.toString()).isEqualTo("a=1&a=3");
+    }
+
+    @Test
+    void without_string_key_and_multiple_specific_values() {
+      Query original = Query.parse("a=1&a=2&a=3&a=4");
+      Query updated = original.without("a", "2", "4");
+      assertThat(updated.toString()).isEqualTo("a=1&a=3");
+    }
+
+    @Test
+    void without_typed_key_and_varargs_values() {
+      Query original = Query.parse("a=1&a=2&a=3");
+      Query updated =
+          original.without(
+              QueryParamKey.encode("a"), QueryParamValue.encode("2"), QueryParamValue.encode("3"));
+      assertThat(updated.toString()).isEqualTo("a=1");
+    }
+  }
+
+  @Nested
+  class Thaw {
+
+    @Test
+    void thaw_returns_builder_with_same_content() {
+      Query original = Query.parse("a=1&b=2");
+      Query.Builder builder = original.thaw();
+      Query rebuilt = builder.build();
+      assertThat(rebuilt).isEqualTo(original);
+    }
+
+    @Test
+    void thaw_builder_can_be_modified() {
+      Query original = Query.parse("a=1");
+      Query.Builder builder = original.thaw();
+      builder.append("b", "2");
+      Query updated = builder.build();
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void thaw_does_not_modify_original() {
+      Query original = Query.parse("a=1");
+      Query.Builder builder = original.thaw();
+      builder.append("b", "2");
+      builder.build();
+      assertThat(original.toString()).isEqualTo("a=1");
+    }
+
+    @Test
+    void thaw_empty_query() {
+      Query original = Query.parse("");
+      Query.Builder builder = original.thaw();
+      builder.append("a", "1");
+      Query updated = builder.build();
+      assertThat(updated.toString()).isEqualTo("a=1");
+    }
+  }
+
+  @Nested
+  class Transform {
+
+    @Test
+    void transform_applies_modification() {
+      Query original = Query.parse("a=1");
+      Query updated = original.transform(b -> b.append("b", "2"));
+      assertThat(updated.toString()).isEqualTo("a=1&b=2");
+    }
+
+    @Test
+    void transform_preserves_original() {
+      Query original = Query.parse("a=1");
+      original.transform(b -> b.append("b", "2"));
+      assertThat(original.toString()).isEqualTo("a=1");
+    }
+
+    @Test
+    void transform_with_multiple_operations() {
+      Query original = Query.parse("a=1&b=2&c=3");
+      Query updated =
+          original.transform(
+              b -> {
+                b.remove("b");
+                b.put("a", "replaced");
+                b.append("d", "4");
+              });
+      assertThat(updated.toString()).isEqualTo("c=3&a=replaced&d=4");
+    }
+
+    @Test
+    void transform_can_clear_and_rebuild() {
+      Query original = Query.parse("a=1&b=2");
+      Query updated =
+          original.transform(
+              b -> {
+                b.remove("a");
+                b.remove("b");
+                b.append("x", "new");
+              });
+      assertThat(updated.toString()).isEqualTo("x=new");
+    }
+
+    @Test
+    void transform_chained() {
+      Query original = Query.parse("a=1");
+      Query updated =
+          original
+              .transform(b -> b.append("b", "2"))
+              .transform(b -> b.append("c", "3"))
+              .transform(b -> b.remove("a"));
+      assertThat(updated.toString()).isEqualTo("b=2&c=3");
     }
   }
 }

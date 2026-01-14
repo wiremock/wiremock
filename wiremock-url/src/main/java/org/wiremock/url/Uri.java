@@ -64,6 +64,11 @@ public sealed interface Uri permits AbsoluteUri, AbstractUriValue, Url {
    */
   @Nullable Query getQuery();
 
+  default Query getQueryOrEmpty() {
+    var query = getQuery();
+    return query != null ? query : Query.EMPTY;
+  }
+
   /**
    * Returns the fragment component of this URI reference, or {@code null} if there is no fragment.
    *

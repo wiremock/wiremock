@@ -29,6 +29,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   protected @Nullable Authority authority = null;
   protected Path path = Path.ROOT;
   protected @Nullable Query query = null;
+  protected Query.@Nullable Builder queryBuilder = null;
   protected @Nullable Fragment fragment = null;
 
   AbstractUriBaseBuilder() {}
@@ -89,9 +90,25 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
+  public Query.Builder getQuery() {
+    if (queryBuilder == null) {
+      queryBuilder = query != null ? new QueryBuilder(query.getEntries()) : new QueryBuilder();
+    }
+    return queryBuilder;
+  }
+
+  @Override
   public @NonNull SELF setQuery(@Nullable Query query) {
     this.query = query;
+    this.queryBuilder = null;
     return getSelf();
+  }
+
+  @Override
+  public @NonNull SELF setQuery(Query.Builder query) {
+    Query built = query.build();
+    built = built.isEmpty() ? null : built;
+    return setQuery(built);
   }
 
   @Override
@@ -104,6 +121,9 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   public Uri build() {
     if (authority == null && (userInfo != null || port != null)) {
       throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
+    }
+    if (queryBuilder != null) {
+      setQuery(queryBuilder);
     }
     if (scheme == null) {
       if (authority == null && fragment == null) {
