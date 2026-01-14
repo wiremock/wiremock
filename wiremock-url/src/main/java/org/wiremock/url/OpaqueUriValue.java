@@ -18,54 +18,10 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-class OpaqueUriValue implements OpaqueUri {
-
-  private final Scheme scheme;
-  private final Path path;
-  private final @Nullable Query query;
-  private final @Nullable Fragment fragment;
+class OpaqueUriValue extends AbstractAbsoluteUriValue<AbsoluteUri> implements OpaqueUri {
 
   OpaqueUriValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    this.scheme = scheme;
-    this.path = path;
-    this.query = query;
-    this.fragment = fragment;
-  }
-
-  @Override
-  public Scheme getScheme() {
-    return scheme;
-  }
-
-  @Override
-  public Path getPath() {
-    return path;
-  }
-
-  @Override
-  public @Nullable Query getQuery() {
-    return query;
-  }
-
-  @Override
-  public @Nullable Fragment getFragment() {
-    return fragment;
-  }
-
-  @Override
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
-  public boolean equals(Object obj) {
-    return UriParser.equals(this, obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return UriParser.hashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    return UriParser.toString(this);
+    super(scheme, null, path, query, fragment);
   }
 
   @Override

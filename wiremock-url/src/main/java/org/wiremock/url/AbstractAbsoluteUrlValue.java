@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,23 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class AbsoluteUrlValue extends AbstractAbsoluteUrlValue<AbsoluteUrl> implements AbsoluteUrl {
+abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
+    extends AbstractAbsoluteUriValue<NORMALISED> implements AbsoluteUrl {
 
-  AbsoluteUrlValue(
+  protected final Authority authority;
+
+  AbstractAbsoluteUrlValue(
       Scheme scheme,
       Authority authority,
       Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
     super(scheme, authority, path, query, fragment);
+    this.authority = authority;
+  }
+
+  @Override
+  public Authority getAuthority() {
+    return authority;
   }
 }

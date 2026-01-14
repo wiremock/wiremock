@@ -15,40 +15,18 @@
  */
 package org.wiremock.url;
 
-final class OriginValue implements Origin {
+final class OriginValue extends AbstractAbsoluteUrlValue<AbsoluteUrl> implements Origin {
 
-  private final Scheme scheme;
   private final HostAndPort authority;
 
   OriginValue(Scheme scheme, HostAndPort authority) {
-    this.scheme = scheme;
+    super(scheme, authority, Path.EMPTY, null, null);
     this.authority = authority;
-  }
-
-  @Override
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
-  public boolean equals(Object obj) {
-    return UriParser.equals(this, obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return UriParser.hashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    return UriParser.toString(this);
   }
 
   @Override
   public ServersideAbsoluteUrl normalise() {
     return new ServersideAbsoluteUrlValue(scheme, authority, Path.ROOT, null);
-  }
-
-  @Override
-  public Scheme getScheme() {
-    return scheme;
   }
 
   @Override

@@ -15,7 +15,6 @@
  */
 package org.wiremock.url;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -23,67 +22,6 @@ import org.jspecify.annotations.Nullable;
 final class UriParser implements StringParser<Uri> {
 
   static final UriParser INSTANCE = new UriParser();
-
-  static boolean equals(Uri one, Object o) {
-    if (one == o) {
-      return true;
-    }
-
-    if (!(o instanceof Uri other)) {
-      return false;
-    }
-
-    Class<? extends Uri> oneClass = one.getClass();
-    Class<? extends Uri> otherClass = other.getClass();
-    return shareSameSuperTypes(
-            oneClass,
-            otherClass,
-            Origin.class,
-            ServersideAbsoluteUrl.class,
-            AbsoluteUrl.class,
-            OpaqueUri.class,
-            RelativeUrl.class,
-            PathAndQuery.class)
-        && Objects.equals(one.getScheme(), other.getScheme())
-        && Objects.equals(one.getAuthority(), other.getAuthority())
-        && Objects.equals(one.getPath(), other.getPath())
-        && Objects.equals(one.getQuery(), other.getQuery())
-        && Objects.equals(one.getFragment(), other.getFragment());
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private static boolean shareSameSuperTypes(
-      Class<?> oneClass, Class<?> otherClass, Class<?>... types) {
-    for (Class<?> type : types) {
-      if (oneClass.isAssignableFrom(type) != otherClass.isAssignableFrom(type)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  static int hashCode(Uri uri) {
-    return Objects.hash(
-        uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
-  }
-
-  static String toString(Uri uri) {
-    StringBuilder result = new StringBuilder();
-    if (uri.getScheme() != null) {
-      result.append(uri.getScheme()).append(":");
-    }
-    if (uri.getAuthority() != null) {
-      result.append("//").append(uri.getAuthority());
-    }
-    result.append(uri.getPath());
-    if (uri.getQuery() != null) {
-      result.append("?").append(uri.getQuery());
-    }
-    if (uri.getFragment() != null) {
-      result.append("#").append(uri.getFragment());
-    }
-    return result.toString();
-  }
 
   private final Pattern regex =
       Pattern.compile(

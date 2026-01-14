@@ -15,38 +15,11 @@
  */
 package org.wiremock.url;
 
-import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-record PathAndQueryValue(Path getPath, @Nullable Query getQuery) implements PathAndQuery {
+final class PathAndQueryValue extends AbstractUriValue<PathAndQuery> implements PathAndQuery {
 
-  @Override
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
-  public boolean equals(Object obj) {
-    return UriParser.equals(this, obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return UriParser.hashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    return UriParser.toString(this);
-  }
-
-  @Override
-  public PathAndQuery normalise() {
-    var normalisedPath = getPath.normalise();
-    if (normalisedPath.isEmpty()) {
-      normalisedPath = Path.ROOT;
-    }
-    var normalisedQuery = getQuery == null ? null : getQuery.normalise();
-    if (normalisedPath.equals(getPath) && Objects.equals(normalisedQuery, getQuery)) {
-      return this;
-    } else {
-      return new PathAndQueryValue(normalisedPath, normalisedQuery);
-    }
+  PathAndQueryValue(Path path, @Nullable Query query) {
+    super(null, null, path, query, null);
   }
 }

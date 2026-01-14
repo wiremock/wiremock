@@ -31,7 +31,8 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
  */
-public sealed interface AbsoluteUri extends Uri permits OpaqueUri, AbsoluteUrl {
+public sealed interface AbsoluteUri extends Uri
+    permits AbsoluteUrl, AbstractAbsoluteUriValue, OpaqueUri {
 
   @Override
   Scheme getScheme();
