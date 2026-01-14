@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
+final class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
 
   static final UserInfoParser INSTANCE = new UserInfoParser();
 

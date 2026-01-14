@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-class ServersideAbsoluteUrlValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl>
+final class ServersideAbsoluteUrlValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl>
     implements ServersideAbsoluteUrl {
 
   ServersideAbsoluteUrlValue(Scheme scheme, Authority authority, Path path, @Nullable Query query) {

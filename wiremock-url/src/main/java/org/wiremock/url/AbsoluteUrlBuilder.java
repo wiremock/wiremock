@@ -18,7 +18,7 @@ package org.wiremock.url;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl.Builder;
 
-class AbsoluteUrlBuilder implements Builder {
+final class AbsoluteUrlBuilder implements Builder {
 
   private Scheme scheme;
   private Authority authority;

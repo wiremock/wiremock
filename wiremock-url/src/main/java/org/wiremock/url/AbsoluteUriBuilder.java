@@ -20,7 +20,7 @@ import static org.wiremock.url.AbsoluteUrlBuilder.buildUrl;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUri.Builder;
 
-class AbsoluteUriBuilder implements Builder {
+final class AbsoluteUriBuilder implements Builder {
 
   private Scheme scheme;
   @Nullable private UserInfo userInfo = null;

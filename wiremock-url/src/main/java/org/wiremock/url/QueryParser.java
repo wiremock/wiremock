@@ -19,7 +19,7 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-class QueryParser implements PercentEncodedStringParser<Query> {
+final class QueryParser implements PercentEncodedStringParser<Query> {
 
   static final QueryParser INSTANCE = new QueryParser();
 
