@@ -104,7 +104,7 @@ public sealed interface AbsoluteUri extends Uri
     return AbsoluteUriParser.INSTANCE.parse(uriString);
   }
 
-  interface Builder {
+  interface Builder extends Mutator {
 
     Builder setScheme(Scheme scheme);
 

@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jspecify.annotations.Nullable;
 
 abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
@@ -29,7 +31,7 @@ abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
       @Nullable Query query,
       @Nullable Fragment fragment) {
     super(scheme, authority, path, query, fragment);
-    this.authority = authority;
+    this.authority = requireNonNull(authority);
   }
 
   @Override

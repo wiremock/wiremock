@@ -215,7 +215,22 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
     return builder.build();
   }
 
-  interface Builder {
+  interface Mutator {
+
+    Mutator setUserInfo(@Nullable UserInfo userInfo);
+
+    Mutator setHost(Host host);
+
+    Mutator setPort(@Nullable Port port);
+
+    Mutator setPath(Path path);
+
+    Mutator setQuery(@Nullable Query query);
+
+    Mutator setFragment(@Nullable Fragment fragment);
+  }
+
+  interface Builder extends Mutator {
 
     Builder setScheme(@Nullable Scheme scheme);
 

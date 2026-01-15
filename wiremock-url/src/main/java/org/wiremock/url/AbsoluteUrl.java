@@ -186,7 +186,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
     return builder.build();
   }
 
-  interface Builder {
+  interface Builder extends Uri.Mutator {
 
     Builder setScheme(Scheme scheme);
 

@@ -15,13 +15,15 @@
  */
 package org.wiremock.url;
 
-final class OriginValue extends AbstractAbsoluteUrlValue<AbsoluteUrl> implements Origin {
+import static java.util.Objects.requireNonNull;
+
+final class OriginValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl> implements Origin {
 
   private final HostAndPort authority;
 
   OriginValue(Scheme scheme, HostAndPort authority) {
     super(scheme, authority, Path.EMPTY, null, null);
-    this.authority = authority;
+    this.authority = requireNonNull(authority);
   }
 
   @Override

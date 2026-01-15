@@ -17,89 +17,16 @@ package org.wiremock.url;
 
 import static org.wiremock.url.AbsoluteUriBuilder.buildUri;
 
-import org.jspecify.annotations.Nullable;
 import org.wiremock.url.Uri.Builder;
 
-final class UriBuilder implements Builder {
+final class UriBuilder extends AbstractUriMutator<Builder> implements Builder {
 
-  @Nullable private Scheme scheme = null;
-  @Nullable private UserInfo userInfo = null;
-  @Nullable private Port port = null;
-  @Nullable private Authority authority = null;
-  private Path path = Path.ROOT;
-  @Nullable Query query = null;
-  @Nullable Fragment fragment = null;
-
-  UriBuilder() {}
+  UriBuilder() {
+    super();
+  }
 
   UriBuilder(Uri uri) {
-    this.scheme = uri.getScheme();
-    this.authority = uri.getAuthority();
-    this.path = uri.getPath();
-    this.query = uri.getQuery();
-    this.fragment = uri.getFragment();
-  }
-
-  @Override
-  public UriBuilder setScheme(@Nullable Scheme scheme) {
-    this.scheme = scheme;
-    return this;
-  }
-
-  @Override
-  public UriBuilder setAuthority(@Nullable Authority authority) {
-    this.authority = authority;
-    this.userInfo = null;
-    this.port = null;
-    return this;
-  }
-
-  @Override
-  public UriBuilder setUserInfo(@Nullable UserInfo userInfo) {
-    if (this.authority == null) {
-      this.userInfo = userInfo;
-    } else {
-      setAuthority(Authority.of(userInfo, authority.getHost(), authority.getPort()));
-    }
-    return this;
-  }
-
-  @Override
-  public UriBuilder setHost(Host host) {
-    if (this.authority == null) {
-      setAuthority(Authority.of(userInfo, host, port));
-    } else {
-      setAuthority(Authority.of(authority.getUserInfo(), host, authority.getPort()));
-    }
-    return this;
-  }
-
-  @Override
-  public UriBuilder setPort(@Nullable Port port) {
-    if (this.authority == null) {
-      this.port = port;
-    } else {
-      setAuthority(Authority.of(authority.getUserInfo(), authority.getHost(), port));
-    }
-    return this;
-  }
-
-  @Override
-  public UriBuilder setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
-  @Override
-  public UriBuilder setQuery(@Nullable Query query) {
-    this.query = query;
-    return this;
-  }
-
-  @Override
-  public UriBuilder setFragment(@Nullable Fragment fragment) {
-    this.fragment = fragment;
-    return this;
+    super(uri);
   }
 
   @Override

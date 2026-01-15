@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-final class OpaqueUriValue extends AbstractAbsoluteUriValue<AbsoluteUri> implements OpaqueUri {
+final class OpaqueUriValue extends AbstractAbsoluteUriValue<OpaqueUri> implements OpaqueUri {
 
   OpaqueUriValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(scheme, null, path, query, fragment);

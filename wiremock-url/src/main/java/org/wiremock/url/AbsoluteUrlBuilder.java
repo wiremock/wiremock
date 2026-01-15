@@ -15,16 +15,12 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl.Builder;
 
-final class AbsoluteUrlBuilder implements Builder {
-
-  private Scheme scheme;
-  private Authority authority;
-  private Path path = Path.ROOT;
-  @Nullable Query query = null;
-  @Nullable Fragment fragment = null;
+final class AbsoluteUrlBuilder extends AbstractUriMutator<Builder> implements Builder {
 
   AbsoluteUrlBuilder(Scheme scheme, Authority authority) {
     this.scheme = scheme;
@@ -32,64 +28,12 @@ final class AbsoluteUrlBuilder implements Builder {
   }
 
   AbsoluteUrlBuilder(AbsoluteUrl url) {
-    this.scheme = url.getScheme();
-    this.authority = url.getAuthority();
-    this.path = url.getPath();
-    this.query = url.getQuery();
-    this.fragment = url.getFragment();
-  }
-
-  @Override
-  public Builder setScheme(Scheme scheme) {
-    this.scheme = scheme;
-    return this;
-  }
-
-  @Override
-  public Builder setAuthority(Authority authority) {
-    this.authority = authority;
-    return this;
-  }
-
-  @Override
-  public Builder setUserInfo(@Nullable UserInfo userInfo) {
-    this.authority = Authority.of(userInfo, authority.getHost(), authority.getPort());
-    return this;
-  }
-
-  @Override
-  public Builder setHost(Host host) {
-    this.authority = Authority.of(authority.getUserInfo(), host, authority.getPort());
-    return this;
-  }
-
-  @Override
-  public Builder setPort(@Nullable Port port) {
-    this.authority = Authority.of(authority.getUserInfo(), authority.getHost(), port);
-    return this;
-  }
-
-  @Override
-  public Builder setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
-  @Override
-  public Builder setQuery(@Nullable Query query) {
-    this.query = query;
-    return this;
-  }
-
-  @Override
-  public Builder setFragment(@Nullable Fragment fragment) {
-    this.fragment = fragment;
-    return this;
+    super(url);
   }
 
   @Override
   public AbsoluteUrl build() {
-    return buildUrl(scheme, authority, path, query, fragment);
+    return buildUrl(requireNonNull(scheme), requireNonNull(authority), path, query, fragment);
   }
 
   static AbsoluteUrl buildUrl(
