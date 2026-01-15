@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
@@ -73,23 +76,28 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withSimpleBody(String body) {
+    builder.setBody(TextEntityDefinition.simple(body));
+    return this;
+  }
+
   public ResponseDefinitionBuilder withBody(String body) {
-    builder.setBody(Body.fromOneOf(null, body, null, null));
+    builder.setBody(new TextEntityDefinition.Builder().withBody(body).build());
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    builder.setBody(Body.fromOneOf(body, null, null, null));
+    builder.setBody(new BinaryEntityDefinition.Builder().withBody(body).build());
     return this;
   }
 
-  public ResponseDefinitionBuilder withResponseBody(Body body) {
+  public ResponseDefinitionBuilder withResponseBody(EntityDefinition body) {
     builder.setBody(body);
     return this;
   }
 
   public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
-    builder.setBody(Body.fromOneOf(null, null, jsonBody, null));
+    builder.setBody(TextEntityDefinition.json(jsonBody));
     return this;
   }
 
@@ -181,7 +189,7 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBase64Body(String base64Body) {
-    builder.setBody(Body.fromOneOf(null, null, null, base64Body));
+    builder.setBody(BinaryEntityDefinition.fromBase64(base64Body));
     return this;
   }
 

@@ -92,7 +92,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     if (proxyUrl == null || !absoluteUrlMatcher.test(proxyUrl)) {
       return response()
           .status(HTTP_INTERNAL_ERROR)
-          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain; charset=utf-8")))
           .body("The target proxy address `" + proxyUrl + "` is not an absolute URL.")
           .build();
     }

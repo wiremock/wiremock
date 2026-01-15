@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -996,7 +996,7 @@ class AdminApiTest extends AcceptanceTestBase {
     testClient.postJson("/__admin/mappings/import", IMPORT_JSON);
 
     List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
-    assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
+    assertThat(stubs.get(1).getResponse().getBody().getData(), is("Original"));
     assertThat(stubs.size(), is(2));
   }
 

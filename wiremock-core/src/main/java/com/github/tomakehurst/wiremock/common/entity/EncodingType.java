@@ -22,7 +22,6 @@ public class EncodingType {
 
   public static final EncodingType TEXT = new EncodingType("text");
   public static final EncodingType BINARY = new EncodingType("binary");
-  public static final EncodingType MULTIPART = new EncodingType("multipart");
 
   private final String type;
 
@@ -61,6 +60,6 @@ public class EncodingType {
   }
 
   public static EncodingType[] values() {
-    return new EncodingType[] {TEXT, BINARY, MULTIPART};
+    return new EncodingType[] {TEXT, BINARY};
   }
 }

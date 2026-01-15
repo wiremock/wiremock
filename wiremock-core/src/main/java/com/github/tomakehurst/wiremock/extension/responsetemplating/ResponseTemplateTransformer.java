@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -76,14 +79,13 @@ public class ResponseTemplateTransformer
       final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
 
-      if (responseDefinition.specifiesTextBodyContent()) {
-        boolean isJsonBody = responseDefinition.getReponseBody().isJson();
+      if (responseDefinition.getBody() instanceof TextEntityDefinition textBody) {
+        boolean isJsonBody = textBody.getFormat() == FormatType.JSON;
         HandlebarsOptimizedTemplate bodyTemplate =
             templateEngine.getTemplate(
-                HttpTemplateCacheKey.forInlineBody(responseDefinition),
-                responseDefinition.getTextBody());
+                HttpTemplateCacheKey.forInlineBody(responseDefinition), textBody.getDataAsString());
         applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
-      } else if (responseDefinition.specifiesBodyFile()) {
+      } else if (!responseDefinition.getBody().isInline()) {
         HandlebarsOptimizedTemplate filePathTemplate =
             templateEngine.getUncachedTemplate(responseDefinition.getBodyFileName());
         String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
@@ -200,10 +202,15 @@ public class ResponseTemplateTransformer
       HandlebarsOptimizedTemplate bodyTemplate,
       boolean isJsonBody) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-    Body body =
+    EntityDefinition body =
         isJsonBody
-            ? Body.fromJsonBytes(bodyString.getBytes(StandardCharsets.UTF_8))
-            : Body.fromOneOf(null, bodyString, null, null);
+            ? TextEntityDefinition.builder()
+                .withFormat(FormatType.JSON)
+                .withCharset(StandardCharsets.UTF_8)
+                .withBody(bodyString)
+                .build()
+            : TextEntityDefinition.full(bodyString);
+
     newResponseDefBuilder.withResponseBody(body);
   }
 

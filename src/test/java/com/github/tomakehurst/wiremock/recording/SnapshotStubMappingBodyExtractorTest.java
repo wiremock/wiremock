@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     assertThat(
         modifiedStub.getResponse().getBodyFileName(),
         is("get-foo-" + stubMapping.getId() + ".txt"));
-    assertThat(modifiedStub.getResponse().specifiesBodyFile(), is(true));
-    assertThat(modifiedStub.getResponse().specifiesBodyContent(), is(false));
+    assertThat(modifiedStub.getResponse().getBody().isInline(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes
     verify(filesSource).writeBinaryFile(any(String.class), any(byte[].class));
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
             aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
 
-    assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
+    assertThat(responseDefinition.getBody().getDataAsString(), startsWith("<test></test>"));
   }
 
   @Test
@@ -223,7 +223,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{{{xPath request.body '/stuff'}}}"));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         equalToCompressingWhiteSpace(
             "<stuff xmlns:th=\"https://thing.com\">\n"
                 + "    <th:thing>One</th:thing>\n"

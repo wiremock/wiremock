@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
-        responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
+        responseDefinition.getBody().getDataAsString(),
+        startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
   }
 
   @Test
@@ -143,8 +144,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                     "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
                         + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
-    assertThat(responseDefinition.getBody(), containsString("One"));
-    assertThat(responseDefinition.getBody(), not(containsString("Two")));
+    assertThat(responseDefinition.getBody().getDataAsString(), containsString("One"));
+    assertThat(responseDefinition.getBody().getDataAsString(), not(containsString("Two")));
   }
 
   @Test

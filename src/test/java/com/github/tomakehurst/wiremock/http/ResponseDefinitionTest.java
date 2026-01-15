@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.text;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,19 +28,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EncodingType;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.Body;
-import com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay;
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.FixedDelayDistribution;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 public class ResponseDefinitionTest {
+
+  public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
+      new ResponseDefinition(
+          200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+          null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -46,7 +55,7 @@ public class ResponseDefinitionTest {
         new ResponseDefinition(
             222,
             null,
-            "blah",
+            text("blah").build(),
             null,
             null,
             "name.json",
@@ -76,17 +85,21 @@ public class ResponseDefinitionTest {
   }
 
   private static final String STRING_BODY =
-      "{	        								\n"
-          + "		\"status\": 200,    				\n"
-          + "		\"body\": \"String content\" 		\n"
-          + "}											";
+      // language=JSON
+      """
+          {
+            "status": 200,
+            "body": "String content"
+          }
+          """;
 
   @Test
   public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
     ResponseDefinition responseDef = Json.read(STRING_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
     assertThat(responseDef.getJsonBody(), is(nullValue()));
-    assertThat(responseDef.getBody(), is("String content"));
+    assertThat(responseDef.getBody(), instanceOf(SimpleStringEntityDefinition.class));
+    assertThat(responseDef.getBody().getData(), is("String content"));
   }
 
   private static final String JSON_BODY =
@@ -106,11 +119,11 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void correctlyMarshalsToJsonWhenBodyIsAString() throws Exception {
+  public void correctlyMarshalsToJsonWhenBodyIsAString() {
     ResponseDefinition responseDef =
-        responseDefinition().withStatus(200).withBody("String content").build();
+        responseDefinition().withStatus(200).withSimpleBody("String content").build();
 
-    JSONAssert.assertEquals(STRING_BODY, Json.write(responseDef), false);
+    assertThat(Json.write(responseDef), jsonEquals(STRING_BODY));
   }
 
   private static final byte[] BODY = new byte[] {1, 2, 3};
@@ -131,29 +144,25 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void correctlyMarshalsToJsonWhenBodyIsBinary() throws Exception {
+  public void correctlyMarshalsToJsonWhenBodyIsBinary() {
     ResponseDefinition responseDef =
         responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
 
     String actualJson = Json.write(responseDef);
-    JSONAssert.assertEquals(actualJson, BINARY_BODY, false);
-  }
 
-  @Test
-  public void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
-    ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").build();
-
-    assertTrue(responseDefinition.specifiesBodyFile());
-    assertFalse(responseDefinition.specifiesBodyContent());
-  }
-
-  @Test
-  public void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
-    ResponseDefinition responseDefinition =
-        responseDefinition().withBodyFile("my-file").withBody("hello").build();
-
-    assertFalse(responseDefinition.specifiesBodyFile());
-    assertTrue(responseDefinition.specifiesBodyContent());
+    assertThat(
+        actualJson,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "status": 200,
+              "body": {
+                "encoding": "binary",
+                "data": "AQID"
+              }
+            }
+            """));
   }
 
   @Test
@@ -241,10 +250,7 @@ public class ResponseDefinitionTest {
     assertThat(builder.getHeaders().size(), is(0));
     assertThat(builder.build().getHeaders(), notNullValue());
     assertThat(builder.build().getHeaders().size(), is(0));
-    var responseDefinition =
-        new ResponseDefinition(
-            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
+    var responseDefinition = ALL_NULLS_RESPONSE_DEFINITION;
     assertThat(responseDefinition.getHeaders(), notNullValue());
     assertThat(responseDefinition.getHeaders().size(), is(0));
   }
@@ -259,10 +265,7 @@ public class ResponseDefinitionTest {
     assertThat(builder.getAdditionalProxyRequestHeaders().size(), is(0));
     assertThat(builder.build().getAdditionalProxyRequestHeaders(), notNullValue());
     assertThat(builder.build().getAdditionalProxyRequestHeaders().size(), is(0));
-    var responseDefinition =
-        new ResponseDefinition(
-            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
+    var responseDefinition = ALL_NULLS_RESPONSE_DEFINITION;
     assertThat(responseDefinition.getAdditionalProxyRequestHeaders(), notNullValue());
     assertThat(responseDefinition.getAdditionalProxyRequestHeaders().size(), is(0));
   }
@@ -274,11 +277,7 @@ public class ResponseDefinitionTest {
     assertThrows(NullPointerException.class, () -> builder.setRemoveProxyRequestHeaders(null));
     assertThat(builder.getRemoveProxyRequestHeaders(), empty());
     assertThat(builder.build().getRemoveProxyRequestHeaders(), empty());
-    var responseDefinition =
-        new ResponseDefinition(
-            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
-    assertThat(responseDefinition.getRemoveProxyRequestHeaders(), empty());
+    assertThat(ALL_NULLS_RESPONSE_DEFINITION.getRemoveProxyRequestHeaders(), empty());
   }
 
   @Test
@@ -289,11 +288,7 @@ public class ResponseDefinitionTest {
     assertThat(builder.getTransformers(), notNullValue());
     assertThat(builder.getTransformers().size(), is(0));
     assertThat(builder.build().getTransformers(), empty());
-    var responseDefinition =
-        new ResponseDefinition(
-            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
-    assertThat(responseDefinition.getTransformers(), empty());
+    assertThat(ALL_NULLS_RESPONSE_DEFINITION.getTransformers(), empty());
   }
 
   @Test
@@ -306,12 +301,8 @@ public class ResponseDefinitionTest {
     assertThat(builder.getTransformerParameters().size(), is(0));
     assertThat(builder.build().getTransformerParameters(), notNullValue());
     assertThat(builder.build().getTransformerParameters().size(), is(0));
-    var responseDefinition =
-        new ResponseDefinition(
-            200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
-    assertThat(responseDefinition.getTransformerParameters(), notNullValue());
-    assertThat(responseDefinition.getTransformerParameters().size(), is(0));
+    assertThat(ALL_NULLS_RESPONSE_DEFINITION.getTransformerParameters(), notNullValue());
+    assertThat(ALL_NULLS_RESPONSE_DEFINITION.getTransformerParameters().size(), is(0));
   }
 
   @Test
@@ -320,8 +311,8 @@ public class ResponseDefinitionTest {
         new ResponseDefinition(
             200,
             "my status message",
-            new Body("my body"),
-            "my body file name",
+            text("my body").build(),
+            false,
             new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2")),
             new HttpHeaders(httpHeader("additional-header-1", "h1v1", "h1v2")),
             List.of("remove-header-1", "h1v1", "h1v2"),
@@ -340,8 +331,7 @@ public class ResponseDefinitionTest {
     assertThat(copy, is(responseDefinition));
     assertThat(copy.getStatus(), is(200));
     assertThat(copy.getStatusMessage(), is("my status message"));
-    assertThat(copy.getBody(), is("my body"));
-    assertThat(copy.getBodyFileName(), is("my body file name"));
+    assertThat(copy.getBody().getData(), is("my body"));
     assertThat(copy.getHeaders(), is(new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2"))));
     assertThat(
         copy.getAdditionalProxyRequestHeaders(),
@@ -359,5 +349,124 @@ public class ResponseDefinitionTest {
     assertThat(copy.getTransformerParameters(), is(Parameters.one("p-1", "p1v1")));
     assertThat(copy.getBrowserProxyUrl(), is("https://browser.example.com"));
     assertThat(copy.wasConfigured(), is(true));
+  }
+
+  @Test
+  void parsesMinimalNewStyleBody() {
+    var json =
+        // language=JSON
+        """
+            {
+              "body": {
+                "data": "{ \\"message\\": \\"Hello\\" }"
+              }
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    EntityDefinition body = responseDefinition.getBody();
+    assertThat(body, notNullValue());
+    assertThat(body, instanceOf(TextEntityDefinition.class));
+    assertThat(body.getData(), is("{ \"message\": \"Hello\" }"));
+    assertThat(body.isInline(), is(true));
+  }
+
+  @Test
+  void parsesMaxmimalNewStyleBodyWithStringData() {
+    var json =
+        // language=JSON
+        """
+            {
+              "body": {
+                "data": "<my-data/>",
+                "compression": "none",
+                "encoding": "text",
+                "format": "xml",
+                "charset": "UTF-16"
+              }
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    EntityDefinition body = responseDefinition.getBody();
+    assertThat(body, notNullValue());
+    assertThat(body, instanceOf(TextEntityDefinition.class));
+
+    assertThat(body.getData(), is("<my-data/>"));
+    assertThat(body.isInline(), is(true));
+    assertThat(body.getCompression(), is(CompressionType.NONE));
+    assertThat(body.getEncoding(), is(EncodingType.TEXT));
+    assertThat(body.getFormat(), is(FormatType.XML));
+    assertThat(((TextEntityDefinition) body).getCharset(), is(StandardCharsets.UTF_16));
+  }
+
+  @Test
+  void parsesNewStyleBodyWithJsonData() {
+    var json =
+        // language=JSON
+        """
+            {
+              "body": {
+                "data": {
+                  "key": "value"
+                },
+                "encoding": "text"
+              }
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    EntityDefinition body = responseDefinition.getBody();
+    assertThat(body, notNullValue());
+    assertThat(body, instanceOf(JsonEntityDefinition.class));
+
+    JsonEntityDefinition jsonBody = (JsonEntityDefinition) body;
+    assertThat(jsonBody.getData(), instanceOf(JsonNode.class));
+    assertThat(body.isInline(), is(true));
+    assertThat(body.getCompression(), is(CompressionType.NONE));
+    assertThat(body.getEncoding(), is(EncodingType.TEXT));
+    assertThat(body.getFormat(), is(FormatType.JSON));
+
+    assertThat(jsonBody.getDataAsJson().get("key").textValue(), is("value"));
+  }
+
+  @Test
+  void takesCharsetFromContentTypeHeaderWhenAvailableAndNotSetExplicitly() {
+    var json =
+        // language=JSON
+        """
+            {
+              "headers": {
+                "Content-Type": "text/plain; charset=UTF-16"
+              },
+              "body": {
+                "data": "odd charset"
+              }
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    assertThat(
+        ((TextEntityDefinition) responseDefinition.getBody()).getCharset(),
+        is(StandardCharsets.UTF_16));
+  }
+
+  @Test
+  void absentBodyFieldResultInEmptyBody() {
+    var json =
+        // language=JSON
+        """
+        {
+          "status": 418
+        }
+        """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    assertThat(responseDefinition.getBody(), instanceOf(EmptyEntityDefinition.class));
   }
 }

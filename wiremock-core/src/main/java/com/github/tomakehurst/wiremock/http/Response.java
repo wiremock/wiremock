@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,14 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.common.*;
-import java.io.IOException;
-import java.io.InputStream;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import java.util.Optional;
 
 public class Response {
 
   private final int status;
   private final String statusMessage;
-  private final InputStreamSource bodyStreamSource;
+  private final Entity body;
   private final HttpHeaders headers;
   private final boolean configured;
   private final Fault fault;
@@ -40,16 +39,7 @@ public class Response {
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND,
-        null,
-        StreamSources.empty(),
-        noHeaders(),
-        false,
-        null,
-        0,
-        null,
-        false,
-        null);
+        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null);
   }
 
   public static Builder response() {
@@ -59,7 +49,7 @@ public class Response {
   private Response(
       int status,
       String statusMessage,
-      InputStreamSource bodyStreamSource,
+      Entity body,
       HttpHeaders headers,
       boolean configured,
       Fault fault,
@@ -69,7 +59,7 @@ public class Response {
       String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
-    this.bodyStreamSource = bodyStreamSource;
+    this.body = body;
     this.headers = headers;
     this.configured = configured;
     this.fault = fault;
@@ -87,38 +77,21 @@ public class Response {
     return statusMessage;
   }
 
-  public byte[] getBody() {
-    return getBody(UNLIMITED);
+  public Entity getBody() {
+    return body;
   }
 
-  public byte[] getBody(Limit sizeLimit) {
-    return Exceptions.uncheck(() -> getBytesFromStream(bodyStreamSource, sizeLimit), byte[].class);
-  }
-
-  private static byte[] getBytesFromStream(InputStreamSource streamSource, Limit limit)
-      throws IOException {
-    try (InputStream stream = streamSource == null ? null : streamSource.getStream()) {
-      if (stream == null) {
-        return null;
-      }
-
-      return limit != null && !limit.isUnlimited()
-          ? stream.readNBytes(limit.getValue())
-          : stream.readAllBytes();
-    }
+  public byte[] getBodyAsBytes() {
+    return body.getData(UNLIMITED);
   }
 
   public String getBodyAsString() {
-    return Strings.stringFromBytes(getBody(), headers.getContentTypeHeader().charset());
-  }
-
-  public InputStream getBodyStream() {
-    return bodyStreamSource == null ? null : bodyStreamSource.getStream();
+    return Strings.stringFromBytes(getBodyAsBytes(), headers.getContentTypeHeader().charset());
   }
 
   public boolean hasInlineBody() {
     return StreamSources.ByteArrayInputStreamSource.class.isAssignableFrom(
-        bodyStreamSource.getClass());
+        body.getStreamSource().getClass());
   }
 
   public HttpHeaders getHeaders() {
@@ -157,10 +130,8 @@ public class Response {
   public static class Builder {
     private int status = HTTP_OK;
     private String statusMessage;
-    private byte[] bodyBytes;
-    private String bodyString;
-    private InputStreamSource bodyStream;
     private HttpHeaders headers = new HttpHeaders();
+    private Entity body;
     private boolean configured = true;
     private Fault fault;
     private boolean fromProxy;
@@ -172,7 +143,7 @@ public class Response {
       Builder responseBuilder = new Builder();
       responseBuilder.status = response.getStatus();
       responseBuilder.statusMessage = response.getStatusMessage();
-      responseBuilder.bodyStream = response.bodyStreamSource;
+      responseBuilder.body = response.body;
       responseBuilder.headers = response.getHeaders();
       responseBuilder.configured = response.wasConfigured();
       responseBuilder.fault = response.getFault();
@@ -196,24 +167,16 @@ public class Response {
       return this;
     }
 
-    public Builder body(byte[] body) {
-      this.bodyBytes = body;
-      this.bodyString = null;
-      this.bodyStream = null;
-      return this;
+    public Builder body(String text) {
+      return body(Entity.builder().setBody(text).build());
     }
 
-    public Builder body(String body) {
-      this.bodyBytes = null;
-      this.bodyString = body;
-      this.bodyStream = null;
-      return this;
+    public Builder body(byte[] data) {
+      return body(Entity.builder().setBody(data).build());
     }
 
-    public Builder body(InputStreamSource bodySource) {
-      this.bodyBytes = null;
-      this.bodyString = null;
-      this.bodyStream = bodySource;
+    public Builder body(Entity body) {
+      this.body = body;
       return this;
     }
 
@@ -286,21 +249,10 @@ public class Response {
     }
 
     public Response build() {
-      InputStreamSource bodyStream;
-      if (bodyBytes != null) {
-        bodyStream = StreamSources.forBytes(bodyBytes);
-      } else if (bodyString != null) {
-        bodyStream = StreamSources.forString(bodyString, headers.getContentTypeHeader().charset());
-      } else if (this.bodyStream != null) {
-        bodyStream = this.bodyStream;
-      } else {
-        bodyStream = StreamSources.empty();
-      }
-
       return new Response(
           status,
           statusMessage,
-          bodyStream,
+          body,
           headers,
           configured,
           fault,

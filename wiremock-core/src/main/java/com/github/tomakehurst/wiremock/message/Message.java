@@ -21,12 +21,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -111,10 +108,8 @@ public class Message {
         this.body = null;
         return this;
       }
-      byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      this.body =
-          new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
+
+      this.body = Entity.builder().setBody(text).build();
       return this;
     }
 
@@ -123,9 +118,14 @@ public class Message {
         this.body = null;
         return this;
       }
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(data);
+
       this.body =
-          new Entity(EncodingType.BINARY, FormatType.BASE64, CompressionType.NONE, streamSource);
+          Entity.builder()
+              .setEncoding(EncodingType.BINARY)
+              .setFormat(FormatType.BASE64)
+              .setBody(data)
+              .build();
+
       return this;
     }
 
@@ -141,10 +141,8 @@ public class Message {
       if (text == null) {
         return new Message(null);
       }
-      byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      Entity entity =
-          new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
+
+      Entity entity = Entity.builder().setBody(text).build();
       return new Message(entity);
     }
   }

@@ -34,15 +34,16 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
 
     Class<? extends EntityDefinition> targetClass;
     if (node.isTextual()) {
-      targetClass = StringEntityDefinition.class;
-    } else if (node.isObject()) {
+      return new SimpleStringEntityDefinition(node.asText());
+    }
+
+    if (node.isObject()) {
       JsonNode encodingNode = node.get("encoding");
-      if (encodingNode != null
-          && encodingNode.isTextual()
-          && EncodingType.BINARY.value().equals(encodingNode.textValue())) {
+      if (encodingIs(encodingNode, EncodingType.BINARY)) {
         targetClass = BinaryEntityDefinition.class;
+      } else if (isJsonObject(node)) {
+        return new JsonEntityDefinition(node.get("data"));
       } else {
-        // Default to TextEntityDefinition for text encoding or when encoding is not specified
         targetClass = TextEntityDefinition.class;
       }
     } else {
@@ -50,5 +51,16 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
     }
 
     return ctxt.readTreeAsValue(node, targetClass);
+  }
+
+  private static boolean isJsonObject(JsonNode node) {
+    final JsonNode dataNode = node.get("data");
+    return dataNode != null && dataNode.isObject();
+  }
+
+  private static boolean encodingIs(JsonNode encodingNode, EncodingType encodingType) {
+    return encodingNode != null
+        && encodingNode.isTextual()
+        && encodingType.value().equals(encodingNode.textValue());
   }
 }

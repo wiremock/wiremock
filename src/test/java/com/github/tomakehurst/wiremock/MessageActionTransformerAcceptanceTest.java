@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.message.MessageAction;
@@ -229,9 +228,6 @@ public class MessageActionTransformerAcceptanceTest {
 
   private static String getMessageBody(SendMessageAction action) {
     EntityDefinition body = action.getBody();
-    if (body instanceof StringEntityDefinition stringDef) {
-      return stringDef.getValue();
-    }
     if (body instanceof TextEntityDefinition textDef) {
       Object data = textDef.getData();
       return data != null ? data.toString() : "";

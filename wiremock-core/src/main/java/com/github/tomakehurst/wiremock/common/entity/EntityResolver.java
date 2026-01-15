@@ -17,13 +17,10 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static java.util.Base64.getDecoder;
 
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 public class EntityResolver {
 
@@ -34,31 +31,29 @@ public class EntityResolver {
   }
 
   public Entity resolve(EntityDefinition definition) {
-    if (definition instanceof StringEntityDefinition) {
-      String value = ((StringEntityDefinition) definition).getValue();
-      byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
-    }
-
     if (definition instanceof BinaryEntityDefinition binaryDef) {
       byte[] bytes = resolveBinaryEntityData(binaryDef);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.BINARY, FormatType.BASE64, binaryDef.getCompression(), streamSource);
+
+      return Entity.builder()
+          .setEncoding(EncodingType.BINARY)
+          .setFormat(FormatType.BASE64)
+          .setCompression(binaryDef.getCompression())
+          .setBody(bytes)
+          .build();
     }
 
     if (definition instanceof TextEntityDefinition textDef) {
       String resolvedData = resolveTextEntityData(textDef);
-      byte[] bytes =
-          resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.TEXT, textDef.getFormat(), textDef.getCompression(), streamSource);
+      return Entity.builder()
+          .setEncoding(EncodingType.TEXT)
+          .setFormat(textDef.getFormat())
+          .setCharset(textDef.getCharset())
+          .setCompression(textDef.getCompression())
+          .setBody(resolvedData)
+          .build();
     }
 
-    throw new UnsupportedOperationException(
-        "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
+    return Entity.EMPTY;
   }
 
   private String resolveTextEntityData(TextEntityDefinition definition) {

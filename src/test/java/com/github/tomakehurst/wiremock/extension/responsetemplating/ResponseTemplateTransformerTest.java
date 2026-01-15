@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -547,7 +547,7 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(mockRequest().url("/things").id(id), aResponse().withBody("{{request.id}}"));
 
-    String requestId = transformedResponseDef.getBody();
+    String requestId = transformedResponseDef.getBody().getDataAsString();
     assertThat(requestId, notNullValue());
     assertThat(requestId, is(id.toString()));
   }
@@ -695,7 +695,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
                 ok("{{size request.query.things}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("4"));
   }
@@ -704,7 +705,8 @@ public class ResponseTemplateTransformerTest {
   public void calculateMapSize() {
     String body =
         transform(mockRequest().url("/stuff?one=1&two=2&three=3"), ok("{{size request.query}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("3"));
   }
@@ -715,7 +717,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
                 ok("{{request.query.things.first}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("1"));
   }
@@ -726,7 +729,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
                 ok("{{request.query.things.last}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("4"));
   }
@@ -737,7 +741,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
                 ok("{{request.query.things.[-2]}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("2"));
   }
@@ -748,7 +753,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
                 ok("{{request.query.things.[-1]}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("3"));
   }
@@ -812,7 +818,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?things[1]=one&things[2]=two&things[3]=three"),
                 ok("{{lookup request.query 'things[2]'}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("two"));
   }
@@ -823,7 +830,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?filter[order_id]=123"),
                 ok("Order ID: {{lookup request.query 'filter[order_id]'}}"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("Order ID: 123"));
   }
@@ -834,7 +842,8 @@ public class ResponseTemplateTransformerTest {
         transform(
                 mockRequest().url("/stuff?one=1&two=2"),
                 ok("Start \n\n {{request.query.one}} middle {{{request.query.two}}} end\n"))
-            .getBody();
+            .getBody()
+            .getDataAsString();
 
     assertThat(body, is("Start \n\n 1 middle 2 end\n"));
   }
@@ -1395,12 +1404,15 @@ public class ResponseTemplateTransformerTest {
         aResponse().withBody(responseBodyTemplate);
     final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     final MockRequest request = mockRequest();
-    return transform(newPostMatchServeEvent(request, responseDefinitionBuilder, stub)).getBody();
+    return transform(newPostMatchServeEvent(request, responseDefinitionBuilder, stub))
+        .getBody()
+        .getDataAsString();
   }
 
   private String transform(String responseBodyTemplate, String requestBody) {
     return transform(mockRequest().body(requestBody), aResponse().withBody(responseBodyTemplate))
-        .getBody();
+        .getBody()
+        .getDataAsString();
   }
 
   private ResponseDefinition transform(

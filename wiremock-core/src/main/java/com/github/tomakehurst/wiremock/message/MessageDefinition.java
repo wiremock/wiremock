@@ -20,9 +20,9 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import java.util.Objects;
 
 @JsonInclude(NON_NULL)
@@ -36,11 +36,11 @@ public class MessageDefinition {
   }
 
   public static MessageDefinition fromString(String message) {
-    return new MessageDefinition(new StringEntityDefinition(message));
+    return new MessageDefinition(TextEntityDefinition.full(message));
   }
 
   public static MessageDefinition fromBytes(byte[] data) {
-    return new MessageDefinition(BinaryEntityDefinition.aBinaryMessage().withBody(data).build());
+    return new MessageDefinition(WireMock.binary().withBody(data).build());
   }
 
   public EntityDefinition getBody() {

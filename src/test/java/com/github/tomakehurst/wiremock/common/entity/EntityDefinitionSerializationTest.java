@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.aBinaryMessage;
-import static com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition.aTextMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.binary;
+import static com.github.tomakehurst.wiremock.client.WireMock.text;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -29,37 +29,9 @@ import org.junit.jupiter.api.Test;
 public class EntityDefinitionSerializationTest {
 
   @Test
-  void stringEntityDefinitionSerializesCorrectly() {
-    StringEntityDefinition entity = new StringEntityDefinition("test message");
-
-    String json = Json.write(entity);
-
-    assertThat(json, is("\"test message\""));
-  }
-
-  @Test
-  void stringEntityDefinitionDeserializesCorrectly() {
-    String json = "\"test message\"";
-
-    EntityDefinition entity = Json.read(json, EntityDefinition.class);
-
-    assertThat(entity, is(new StringEntityDefinition("test message")));
-  }
-
-  @Test
-  void stringEntityDefinitionRoundTripSerialization() {
-    StringEntityDefinition original = new StringEntityDefinition("simple string");
-
-    String json = Json.write(original);
-    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
-
-    assertEquals(original, deserialized);
-  }
-
-  @Test
   void textEntityDefinitionSerializesWithLowercaseEnums() {
     TextEntityDefinition entity =
-        aTextMessage()
+        text()
             .withFormat(FormatType.XML)
             .withCompression(CompressionType.GZIP)
             .withBody("test data")
@@ -100,7 +72,7 @@ public class EntityDefinitionSerializationTest {
 
   @Test
   void textEntityDefinitionWithDefaultsOmitsEnums() {
-    TextEntityDefinition entity = aTextMessage().withBody("test data").build();
+    TextEntityDefinition entity = text().withBody("test data").build();
 
     String json = Json.write(entity);
 
@@ -116,7 +88,7 @@ public class EntityDefinitionSerializationTest {
   @Test
   void textEntityDefinitionRoundTripSerialization() {
     TextEntityDefinition original =
-        aTextMessage()
+        text()
             .withFormat(FormatType.JSON)
             .withCompression(CompressionType.GZIP)
             .withBody("{\"key\":\"value\"}")
@@ -132,7 +104,7 @@ public class EntityDefinitionSerializationTest {
   void binaryEntityDefinitionSerializesWithLowercaseEnums() {
     byte[] data = {1, 2, 3, 4, 5};
     BinaryEntityDefinition entity =
-        aBinaryMessage().withCompression(CompressionType.DEFLATE).withBody(data).build();
+        binary().withCompression(CompressionType.DEFLATE).withBody(data).build();
 
     String json = Json.write(entity);
 
@@ -174,7 +146,7 @@ public class EntityDefinitionSerializationTest {
   void binaryEntityDefinitionRoundTripSerialization() {
     byte[] data = {1, 2, 3, 4, 5, 6, 7, 8};
     BinaryEntityDefinition original =
-        aBinaryMessage().withCompression(CompressionType.BROTLI).withBody(data).build();
+        binary().withCompression(CompressionType.BROTLI).withBody(data).build();
 
     String json = Json.write(original);
     EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
