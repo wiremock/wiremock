@@ -1,0 +1,98 @@
+/*
+ * Copyright (C) 2025-2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.wiremock.url;
+
+import static java.util.Objects.requireNonNull;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
+@NullUnmarked
+@SuppressWarnings("unchecked")
+abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutator {
+
+  protected Scheme scheme = null;
+  protected UserInfo userInfo = null;
+  @Nullable protected Port port = null;
+  @Nullable protected Authority authority = null;
+  protected Path path = Path.ROOT;
+  @Nullable protected Query query = null;
+  @Nullable protected Fragment fragment = null;
+
+  AbstractUriMutator() {}
+
+  AbstractUriMutator(Uri uri) {
+    this.scheme = uri.getScheme();
+    this.authority = uri.getAuthority();
+    this.path = uri.getPath();
+    this.query = uri.getQuery();
+    this.fragment = uri.getFragment();
+  }
+
+  public @NonNull SELF setScheme(Scheme scheme) {
+    this.scheme = scheme;
+    return (SELF) this;
+  }
+
+  public @NonNull SELF setAuthority(Authority authority) {
+    this.authority = authority;
+    this.userInfo = null;
+    this.port = null;
+    return (SELF) this;
+  }
+
+  public @NonNull SELF setUserInfo(@Nullable UserInfo userInfo) {
+    if (this.authority == null) {
+      this.userInfo = userInfo;
+      return (SELF) this;
+    } else {
+      return setAuthority(Authority.of(userInfo, authority.getHost(), authority.getPort()));
+    }
+  }
+
+  public @NonNull SELF setHost(@NonNull Host host) {
+    if (this.authority == null) {
+      return setAuthority(Authority.of(userInfo, host, port));
+    } else {
+      return setAuthority(Authority.of(authority.getUserInfo(), host, authority.getPort()));
+    }
+  }
+
+  public @NonNull SELF setPort(@Nullable Port port) {
+    if (this.authority == null) {
+      this.port = port;
+      return (SELF) this;
+    } else {
+      return setAuthority(Authority.of(authority.getUserInfo(), authority.getHost(), port));
+    }
+  }
+
+  public @NonNull SELF setPath(@NonNull Path path) {
+    this.path = requireNonNull(path);
+    return (SELF) this;
+  }
+
+  public @NonNull SELF setQuery(@Nullable Query query) {
+    this.query = query;
+    return (SELF) this;
+  }
+
+  public @NonNull SELF setFragment(@Nullable Fragment fragment) {
+    this.fragment = fragment;
+    return (SELF) this;
+  }
+}

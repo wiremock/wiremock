@@ -1,0 +1,13 @@
+[
+{ "input": "foo://", "base": "http://example.org/foo/bar", "href": "foo://", "origin": "null", "protocol": "foo:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "", "search": "", "hash": "" },
+{ "input": "//", "base": "file:///tmp/mock/path", "href": "file:///", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "http:", "base": "http://example.org/foo/bar", "href": "http://example.org/foo/bar", "origin": "http://example.org", "protocol": "http:", "username": "", "password": "", "host": "example.org", "hostname": "example.org", "port": "", "pathname": "/foo/bar", "search": "", "searchParams": "", "hash": "" },
+{ "input": "http:", "base": "https://example.org/foo/bar", "failure": true },
+{ "input": "sc:", "base": "https://example.org/foo/bar", "href": "sc:", "origin": "null", "protocol": "sc:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "", "search": "", "searchParams": "", "hash": "" },
+{ "input": "file:", "base": "file:///test?test#test", "href": "file:///test?test", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/test", "search": "?test", "hash": "" },
+{ "input": "file:#x", "base": "file:///test?test#test", "href": "file:///test?test#x", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/test", "search": "?test", "hash": "#x" },
+{ "input": "file://", "base": "file://ape/", "href": "file:///", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "file:", "href": "file:///", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "file:#frag", "href": "file:///#frag", "protocol": "file:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "/", "search": "", "hash": "#frag" },
+{ "input": "blob:", "href": "blob:", "origin": "null", "protocol": "blob:", "username": "", "password": "", "host": "", "hostname": "", "port": "", "pathname": "", "search": "", "hash": "" }
+]
