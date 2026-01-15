@@ -157,60 +157,60 @@ public class WhatWGUrlTestManagement {
               WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<SimpleParseFailure> whatwg_valid_wiremock_invalid =
+  static final List<SimpleParseFailure> whatwg_valid_wiremock_invalid =
       (List<SimpleParseFailure>)
           readResource(
               "whatwg_valid_wiremock_invalid",
               WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<SimpleParseSuccess> whatwg_invalid_wiremock_valid =
+  static final List<SimpleParseSuccess> whatwg_invalid_wiremock_valid =
       (List<SimpleParseSuccess>)
           readResource(
               "whatwg_invalid_wiremock_valid",
               WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
   @SuppressWarnings("unchecked")
-  static List<SimpleParseFailure> whatwg_invalid_wiremock_invalid =
+  static final List<SimpleParseFailure> whatwg_invalid_wiremock_invalid =
       (List<SimpleParseFailure>)
           readResource(
               "whatwg_invalid_wiremock_invalid",
               WhatWGUrlTestManagement::mapToWireMockSnapshotTestCase);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_valid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_valid_java_valid =
       readResource("rfc3986_valid_java_valid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_valid_java_invalid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_valid_java_invalid =
       readResource("rfc3986_valid_java_invalid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_valid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_valid =
       readResource("rfc3986_invalid_java_valid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_invalid_java_invalid =
       readResource("rfc3986_invalid_java_invalid", WhatWGUrlTestManagement::mapToWhatWgUrlTestCase);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_valid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_valid =
       concat(rfc3986_valid_java_valid, rfc3986_valid_java_invalid);
 
-  static List<? extends WhatWGUrlTestCase> rfc3986_invalid =
+  static final List<? extends WhatWGUrlTestCase> rfc3986_invalid =
       concat(rfc3986_invalid_java_valid, rfc3986_invalid_java_invalid);
 
-  static List<? extends WhatWGUrlTestCase> java_valid =
+  static final List<? extends WhatWGUrlTestCase> java_valid =
       concat(rfc3986_valid_java_valid, rfc3986_invalid_java_valid);
 
-  static List<? extends WhatWGUrlTestCase> java_invalid =
+  static final List<? extends WhatWGUrlTestCase> java_invalid =
       concat(rfc3986_valid_java_invalid, rfc3986_invalid_java_invalid);
 
-  public static List<? extends WireMockSnapshotTestCase> whatwg_valid =
+  public static final List<? extends WireMockSnapshotTestCase> whatwg_valid =
       concat(whatwg_valid_wiremock_valid, whatwg_valid_wiremock_invalid);
 
-  static List<? extends WireMockSnapshotTestCase> whatwg_invalid =
+  static final List<? extends WireMockSnapshotTestCase> whatwg_invalid =
       concat(whatwg_invalid_wiremock_valid, whatwg_invalid_wiremock_invalid);
 
-  public static List<? extends SimpleParseSuccess> wiremock_valid =
+  public static final List<? extends SimpleParseSuccess> wiremock_valid =
       concat(whatwg_valid_wiremock_valid, whatwg_invalid_wiremock_valid);
 
-  public static List<? extends SimpleParseFailure> wiremock_invalid =
+  public static final List<? extends SimpleParseFailure> wiremock_invalid =
       concat(whatwg_valid_wiremock_invalid, whatwg_invalid_wiremock_invalid);
 
   private static JsonNode readLocalJson() {

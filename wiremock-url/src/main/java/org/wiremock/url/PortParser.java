@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 final class PortParser implements StringParser<Port> {
 
-  static PortParser INSTANCE = new PortParser();
+  static final PortParser INSTANCE = new PortParser();
 
   static final int MAX_PORT = Integer.MAX_VALUE;
 

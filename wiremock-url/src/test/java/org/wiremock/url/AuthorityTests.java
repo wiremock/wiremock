@@ -69,7 +69,7 @@ public class AuthorityTests {
             testCase("test%20server:8080", expectation(null, "test%20server", "8080")),
             testCase("caf%C3%A9.com:8080", expectation(null, "caf%C3%A9.com", "8080")));
 
-    static List<AuthorityParseTestCase> validAuthoritiesWithUserInfo =
+    static final List<AuthorityParseTestCase> validAuthoritiesWithUserInfo =
         List.of(
             testCase(
                 "user:password@www.example.com:8080",
