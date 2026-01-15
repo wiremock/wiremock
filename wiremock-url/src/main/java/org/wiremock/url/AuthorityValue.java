@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +30,7 @@ final class AuthorityValue implements Authority {
 
   AuthorityValue(@Nullable UserInfo userInfo, Host host, @Nullable Optional<Port> maybePort) {
     this.userInfo = userInfo;
-    this.host = Objects.requireNonNull(host);
+    this.host = requireNonNull(host);
     this.maybePort = maybePort;
   }
 

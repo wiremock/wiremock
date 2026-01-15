@@ -33,6 +33,7 @@ final class SchemeValue implements Scheme {
   }
 
   @Override
+  @SuppressWarnings("DataFlowIssue")
   public Scheme normalise() {
     return Objects.requireNonNullElse(normalForm, this);
   }

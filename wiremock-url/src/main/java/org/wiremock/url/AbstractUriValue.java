@@ -17,21 +17,22 @@ package org.wiremock.url;
 
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("NullableProblems") // IntelliJ is getting it wrong I think
-abstract non-sealed class AbstractUriValue<NORMALISED extends @NonNull Uri> implements Uri {
+@NullUnmarked
+abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Uri {
 
   protected final @Nullable Scheme scheme;
   protected final @Nullable Authority authority;
-  protected final Path path;
+  protected final @NonNull Path path;
   protected final @Nullable Query query;
   protected final @Nullable Fragment fragment;
 
   AbstractUriValue(
       @Nullable Scheme scheme,
       @Nullable Authority authority,
-      Path path,
+      @NonNull Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
     this.scheme = scheme;
@@ -42,19 +43,17 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends @NonNull Uri> impl
   }
 
   @Override
-  @Nullable
-  public Scheme getScheme() {
+  public @Nullable Scheme getScheme() {
     return scheme;
   }
 
   @Override
-  @Nullable
-  public Authority getAuthority() {
+  public @Nullable Authority getAuthority() {
     return authority;
   }
 
   @Override
-  public Path getPath() {
+  public @NonNull Path getPath() {
     return path;
   }
 
@@ -70,7 +69,7 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends @NonNull Uri> impl
 
   @Override
   @SuppressWarnings("unchecked")
-  public NORMALISED normalise() {
+  public @NonNull NORMALISED normalise() {
     Scheme normalisedScheme = scheme != null ? scheme.normalise() : null;
     Authority normalisedAuthority = getNormalisedAuthority(normalisedScheme);
     Path normalisedPath = path.normalise();

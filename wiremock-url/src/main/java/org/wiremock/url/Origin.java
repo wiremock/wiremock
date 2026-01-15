@@ -69,7 +69,6 @@ public interface Origin extends ServersideAbsoluteUrl {
    */
   @Override
   @Deprecated // no point ever calling on this subtype
-  @SuppressWarnings("DeprecatedIsStillUsed")
   default Path getPath() {
     return Path.EMPTY;
   }

@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -81,5 +82,64 @@ public non-sealed interface RelativeUrl extends Url {
    */
   static RelativeUrl parse(String relativeRef) throws IllegalRelativeUrl {
     return RelativeUrlParser.INSTANCE.parse(relativeRef);
+  }
+
+  /**
+   * Creates a builder initialized with the values from this URL.
+   *
+   * @return a builder
+   */
+  default Builder thaw() {
+    return builder(this);
+  }
+
+  /**
+   * Transforms this URL by applying modifications via a builder.
+   *
+   * @param consumer a function that modifies the builder
+   * @return the transformed URL
+   */
+  default RelativeUrl transform(Consumer<Builder> consumer) {
+    var builder = thaw();
+    consumer.accept(builder);
+    return builder.build();
+  }
+
+  /**
+   * Creates a new builder
+   *
+   * @return a new builder
+   */
+  static Builder builder() {
+    return new RelativeUrlBuilder();
+  }
+
+  /**
+   * Creates a builder initialized with the values from the given URL.
+   *
+   * @param url the URL to copy values from
+   * @return a new builder
+   */
+  static Builder builder(RelativeUrl url) {
+    return new RelativeUrlBuilder(url);
+  }
+
+  interface Builder extends Uri.Mutator {
+
+    Builder setAuthority(@Nullable Authority authority);
+
+    Builder setUserInfo(@Nullable UserInfo userInfo);
+
+    Builder setHost(Host host);
+
+    Builder setPort(@Nullable Port port);
+
+    Builder setPath(Path path);
+
+    Builder setQuery(@Nullable Query query);
+
+    Builder setFragment(@Nullable Fragment fragment);
+
+    RelativeUrl build();
   }
 }

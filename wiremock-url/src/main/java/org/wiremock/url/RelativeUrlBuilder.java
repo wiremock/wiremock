@@ -15,11 +15,25 @@
  */
 package org.wiremock.url;
 
-public final class IllegalScheme extends IllegalUriPart {
+import org.wiremock.url.RelativeUrl.Builder;
 
-  public IllegalScheme(String illegalScheme) {
-    super(
-        illegalScheme,
-        "Illegal scheme `" + illegalScheme + "`; Scheme must match " + SchemeParser.schemeRegex);
+final class RelativeUrlBuilder extends AbstractUriMutator<Builder> implements Builder {
+
+  RelativeUrlBuilder() {}
+
+  RelativeUrlBuilder(RelativeUrl url) {
+    super(url);
+  }
+
+  @Override
+  public RelativeUrl build() {
+    if (authority == null && (userInfo != null || port != null)) {
+      throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
+    }
+    if (authority == null && fragment == null) {
+      return new PathAndQueryValue(path, query);
+    } else {
+      return new RelativeUrlValue(authority, path, query, fragment);
+    }
   }
 }

@@ -479,7 +479,7 @@ class AbsoluteUrlTests {
     void can_change_a_urls_scheme() {
 
       var uri = AbsoluteUrl.parse("https://user@example.com:8443/path?query#fragment");
-      var transformed = AbsoluteUrl.transform(uri, builder -> builder.setScheme(Scheme.wss));
+      var transformed = uri.transform(builder -> builder.setScheme(Scheme.wss));
 
       assertThat(transformed)
           .isEqualTo(AbsoluteUrl.parse("wss://user@example.com:8443/path?query#fragment"));

@@ -35,6 +35,7 @@ public interface Segment extends PercentEncoded<Segment> {
   Segment DOT = new SegmentValue(".");
 
   /** A dot-dot segment ({@code ..}) representing the parent directory. */
+  @SuppressWarnings("unused")
   Segment DOT_DOT = new SegmentValue("..");
 
   /**

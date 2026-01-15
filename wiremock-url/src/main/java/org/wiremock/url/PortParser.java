@@ -48,7 +48,7 @@ final class PortParser implements StringParser<Port> {
         return of(port);
       } else {
         validate(port);
-        return new PortValue(port, stringForm, isNormalForm);
+        return new PortValue(port, stringForm, false);
       }
 
     } catch (NumberFormatException e) {

@@ -28,8 +28,8 @@ import java.io.ByteArrayOutputStream;
  * meaning in URIs. Characters are encoded as a percent sign ({@code %}) followed by two hexadecimal
  * digits representing the byte value.
  *
- * <p>Implementations must provide a {@link #toString()} method that returns the percent-encoded
- * string representation.
+ * <p>Implementations must provide a {@link Object#toString()} method that returns the
+ * percent-encoded string representation.
  *
  * <p>Implementations must be immutable and thread-safe.
  *

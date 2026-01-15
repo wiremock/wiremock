@@ -73,7 +73,6 @@ public interface HostAndPort extends Authority {
    */
   @Override
   @Nullable
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated // no point ever calling on this subtype
   default UserInfo getUserInfo() {
     return null;

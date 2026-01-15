@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
@@ -26,7 +28,7 @@ final class HostAndPortValue implements HostAndPort {
   private final @Nullable Port port;
 
   HostAndPortValue(Host host, @Nullable Port port) {
-    this.host = Objects.requireNonNull(host);
+    this.host = requireNonNull(host);
     this.port = port;
   }
 

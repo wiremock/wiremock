@@ -15,14 +15,18 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings({"NullableProblems", "unchecked"})
-abstract class AbstractUriMutator<@NonNull SELF extends Uri.Mutator> implements Uri.Mutator {
+@NullUnmarked
+@SuppressWarnings("unchecked")
+abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutator {
 
-  @Nullable protected Scheme scheme = null;
-  @Nullable protected UserInfo userInfo = null;
+  protected Scheme scheme = null;
+  protected UserInfo userInfo = null;
   @Nullable protected Port port = null;
   @Nullable protected Authority authority = null;
   protected Path path = Path.ROOT;
@@ -39,19 +43,19 @@ abstract class AbstractUriMutator<@NonNull SELF extends Uri.Mutator> implements 
     this.fragment = uri.getFragment();
   }
 
-  public SELF setScheme(@Nullable Scheme scheme) {
+  public @NonNull SELF setScheme(Scheme scheme) {
     this.scheme = scheme;
     return (SELF) this;
   }
 
-  public SELF setAuthority(@Nullable Authority authority) {
+  public @NonNull SELF setAuthority(Authority authority) {
     this.authority = authority;
     this.userInfo = null;
     this.port = null;
     return (SELF) this;
   }
 
-  public SELF setUserInfo(@Nullable UserInfo userInfo) {
+  public @NonNull SELF setUserInfo(@Nullable UserInfo userInfo) {
     if (this.authority == null) {
       this.userInfo = userInfo;
       return (SELF) this;
@@ -60,7 +64,7 @@ abstract class AbstractUriMutator<@NonNull SELF extends Uri.Mutator> implements 
     }
   }
 
-  public SELF setHost(Host host) {
+  public @NonNull SELF setHost(@NonNull Host host) {
     if (this.authority == null) {
       return setAuthority(Authority.of(userInfo, host, port));
     } else {
@@ -68,7 +72,7 @@ abstract class AbstractUriMutator<@NonNull SELF extends Uri.Mutator> implements 
     }
   }
 
-  public SELF setPort(@Nullable Port port) {
+  public @NonNull SELF setPort(@Nullable Port port) {
     if (this.authority == null) {
       this.port = port;
       return (SELF) this;
@@ -77,17 +81,17 @@ abstract class AbstractUriMutator<@NonNull SELF extends Uri.Mutator> implements 
     }
   }
 
-  public SELF setPath(Path path) {
-    this.path = path;
+  public @NonNull SELF setPath(@NonNull Path path) {
+    this.path = requireNonNull(path);
     return (SELF) this;
   }
 
-  public SELF setQuery(@Nullable Query query) {
+  public @NonNull SELF setQuery(@Nullable Query query) {
     this.query = query;
     return (SELF) this;
   }
 
-  public SELF setFragment(@Nullable Fragment fragment) {
+  public @NonNull SELF setFragment(@Nullable Fragment fragment) {
     this.fragment = fragment;
     return (SELF) this;
   }

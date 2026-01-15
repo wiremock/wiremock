@@ -109,7 +109,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @return the URL with the resolved path
    */
   default AbsoluteUrl resolve(Path other) {
-    return transform(this, builder -> builder.setPath(getPath().resolve(other)));
+    return this.transform(builder -> builder.setPath(getPath().resolve(other)));
   }
 
   /**
@@ -138,7 +138,9 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @return the transformed URL
    */
   default AbsoluteUrl transform(Consumer<Builder> consumer) {
-    return transform(this, consumer);
+    var builder = builder(this);
+    consumer.accept(builder);
+    return builder.build();
   }
 
   /**
@@ -171,19 +173,6 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    */
   static Builder builder(AbsoluteUrl url) {
     return new AbsoluteUrlBuilder(url);
-  }
-
-  /**
-   * Transforms a URL by applying modifications via a builder.
-   *
-   * @param uri the URL to transform
-   * @param consumer a function that modifies the builder
-   * @return the transformed URL
-   */
-  static AbsoluteUrl transform(AbsoluteUrl uri, Consumer<Builder> consumer) {
-    var builder = builder(uri);
-    consumer.accept(builder);
-    return builder.build();
   }
 
   interface Builder extends Uri.Mutator {

@@ -31,6 +31,10 @@ final class AbsoluteUriBuilder extends AbstractUriMutator<Builder> implements Bu
     super(uri);
   }
 
+  public Builder setScheme(Scheme scheme) {
+    return super.setScheme(requireNonNull(scheme));
+  }
+
   @Override
   public AbsoluteUri build() {
     if (authority == null && (userInfo != null || port != null)) {
