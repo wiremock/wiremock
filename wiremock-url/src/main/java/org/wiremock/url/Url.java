@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents a URL reference, which is the subset of URI references that are <b>not</b> full
  * (absolute) URIs without an authority - what we call {@link OpaqueUri}s. The name {@link Url} is
@@ -40,6 +42,30 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
    */
   default PathAndQuery getPathAndQuery() {
     return new PathAndQueryValue(getPath(), getQuery());
+  }
+
+  /**
+   * Creates a builder initialized with the values from this URL.
+   *
+   * @return a builder
+   */
+  Builder thaw();
+
+  interface Builder extends Uri.Mutator {
+
+    Builder setUserInfo(@Nullable UserInfo userInfo);
+
+    Builder setHost(Host host);
+
+    Builder setPort(@Nullable Port port);
+
+    Builder setPath(Path path);
+
+    Builder setQuery(@Nullable Query query);
+
+    Builder setFragment(@Nullable Fragment fragment);
+
+    Url build();
   }
 
   /**

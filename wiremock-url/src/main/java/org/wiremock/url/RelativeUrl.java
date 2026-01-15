@@ -89,6 +89,7 @@ public non-sealed interface RelativeUrl extends Url {
    *
    * @return a builder
    */
+  @Override
   default Builder thaw() {
     return builder(this);
   }
@@ -124,7 +125,7 @@ public non-sealed interface RelativeUrl extends Url {
     return new RelativeUrlBuilder(url);
   }
 
-  interface Builder extends Uri.Mutator {
+  interface Builder extends Url.Builder {
 
     Builder setAuthority(@Nullable Authority authority);
 

@@ -127,6 +127,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    *
    * @return a builder
    */
+  @Override
   default Builder thaw() {
     return builder(this);
   }
@@ -138,7 +139,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @return the transformed URL
    */
   default AbsoluteUrl transform(Consumer<Builder> consumer) {
-    var builder = builder(this);
+    var builder = thaw();
     consumer.accept(builder);
     return builder.build();
   }
@@ -175,7 +176,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
     return new AbsoluteUrlBuilder(url);
   }
 
-  interface Builder extends Uri.Mutator {
+  interface Builder extends Url.Builder {
 
     Builder setScheme(Scheme scheme);
 
