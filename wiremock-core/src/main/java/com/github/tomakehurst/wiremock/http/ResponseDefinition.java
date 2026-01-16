@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
@@ -131,12 +132,12 @@ public class ResponseDefinition {
     } else if (base64Body != null) {
       entityDefinition = BinaryEntityDefinition.fromBase64(base64Body);
     } else if (bodyFileName != null) {
-      entityDefinition = TextEntityDefinition.builder().withFilePath(bodyFileName).build();
+      entityDefinition = TextEntityDefinition.builder().setFilePath(bodyFileName).build();
     }
 
     Charset charset = headers == null ? null : headers.getContentTypeHeader().charset();
     if (entityDefinition instanceof TextEntityDefinition textEntityDefinition && charset != null) {
-      return textEntityDefinition.transform(builder -> builder.withCharset(charset));
+      return textEntityDefinition.withCharset(charset);
     }
 
     return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
@@ -326,14 +327,18 @@ public class ResponseDefinition {
     return statusMessage;
   }
 
-  @JsonInclude(
-      value = JsonInclude.Include.CUSTOM,
-      valueFilter = DefaultEntityDefinitionFilter.class)
+  @JsonInclude(value = CUSTOM, valueFilter = DefaultEntityDefinitionFilter.class)
   public EntityDefinition getBody() {
     if (v3Style && !(body instanceof SimpleStringEntityDefinition)) {
       return null;
     }
 
+    return body;
+  }
+
+  // Always returns the body entity, even if this is v3 stylex
+  @JsonIgnore
+  public EntityDefinition getBodyEntity() {
     return body;
   }
 
@@ -640,7 +645,12 @@ public class ResponseDefinition {
     }
 
     public Builder setBodyFileName(String bodyFileName) {
-      this.body = TextEntityDefinition.builder().withFilePath(bodyFileName).build();
+      if (body instanceof TextEntityDefinition textEntity) {
+        this.body = textEntity.transform(b -> b.setFilePath(bodyFileName));
+      } else if (body instanceof BinaryEntityDefinition binaryEntity) {
+        this.body = binaryEntity.transform(b -> b.setFilePath(bodyFileName));
+      }
+
       return this;
     }
 

@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -445,20 +446,24 @@ public class WireMock {
     return new LogicalOr(matchers);
   }
 
-  public static TextEntityDefinition.Builder text(String text) {
-    return new TextEntityDefinition.Builder().withBody(text);
+  public static TextEntityDefinition.Builder textEntity(String text) {
+    return new TextEntityDefinition.Builder().setData(text);
   }
 
-  public static TextEntityDefinition.Builder text() {
+  public static TextEntityDefinition.Builder textEntity() {
     return new TextEntityDefinition.Builder();
   }
 
-  public static BinaryEntityDefinition.Builder binary(byte[] data) {
-    return new BinaryEntityDefinition.Builder().withBody(data);
+  public static BinaryEntityDefinition.Builder binaryEntity(byte[] data) {
+    return new BinaryEntityDefinition.Builder().setBody(data);
   }
 
-  public static BinaryEntityDefinition.Builder binary() {
+  public static BinaryEntityDefinition.Builder binaryEntity() {
     return new BinaryEntityDefinition.Builder();
+  }
+
+  public static JsonEntityDefinition jsonEntity(Object data) {
+    return new JsonEntityDefinition(data);
   }
 
   public void saveMappings() {

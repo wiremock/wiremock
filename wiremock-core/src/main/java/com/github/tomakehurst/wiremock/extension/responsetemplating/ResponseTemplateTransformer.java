@@ -87,7 +87,7 @@ public class ResponseTemplateTransformer
         applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
       } else if (!responseDefinition.getBody().isInline()) {
         HandlebarsOptimizedTemplate filePathTemplate =
-            templateEngine.getUncachedTemplate(responseDefinition.getBodyFileName());
+            templateEngine.getUncachedTemplate(responseDefinition.getBodyEntity().getFilePath());
         String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
 
         boolean disableBodyFileTemplating =
@@ -205,9 +205,9 @@ public class ResponseTemplateTransformer
     EntityDefinition body =
         isJsonBody
             ? TextEntityDefinition.builder()
-                .withFormat(FormatType.JSON)
-                .withCharset(StandardCharsets.UTF_8)
-                .withBody(bodyString)
+                .setFormat(FormatType.JSON)
+                .setCharset(StandardCharsets.UTF_8)
+                .setData(bodyString)
                 .build()
             : TextEntityDefinition.full(bodyString);
 

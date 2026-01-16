@@ -82,12 +82,12 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBody(String body) {
-    builder.setBody(new TextEntityDefinition.Builder().withBody(body).build());
+    builder.setBody(new TextEntityDefinition.Builder().setData(body).build());
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    builder.setBody(new BinaryEntityDefinition.Builder().withBody(body).build());
+    builder.setBody(new BinaryEntityDefinition.Builder().setBody(body).build());
     return this;
   }
 

@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.text;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
@@ -27,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
@@ -55,7 +55,7 @@ public class ResponseDefinitionTest {
         new ResponseDefinition(
             222,
             null,
-            text("blah").build(),
+            WireMock.textEntity("blah").build(),
             null,
             null,
             "name.json",
@@ -311,7 +311,7 @@ public class ResponseDefinitionTest {
         new ResponseDefinition(
             200,
             "my status message",
-            text("my body").build(),
+            WireMock.textEntity("my body").build(),
             false,
             new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2")),
             new HttpHeaders(httpHeader("additional-header-1", "h1v1", "h1v2")),

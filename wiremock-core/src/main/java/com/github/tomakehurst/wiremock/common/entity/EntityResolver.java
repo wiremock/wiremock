@@ -57,14 +57,8 @@ public class EntityResolver {
   }
 
   private String resolveTextEntityData(TextEntityDefinition definition) {
-    Object data = definition.getData();
-
-    if (data instanceof String s) {
-      return s;
-    }
-
-    if (data != null) {
-      return Json.write(data);
+    if (definition.isInline()) {
+      return definition.getDataAsString();
     }
 
     String filePath = definition.getFilePath();

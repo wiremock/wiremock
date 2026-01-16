@@ -157,15 +157,7 @@ public class StubResponseRenderer implements ResponseRenderer {
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
-    //    if (responseDefinition.specifiesBodyFile()) {
-    //      final InputStreamSource bodyStreamSource =
-    //          filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
-    //      responseBuilder.body(bodyStreamSource);
-    //    } else if (responseDefinition.specifiesBodyContent()) {
-    //      responseBuilder.body(responseDefinition.getByteBody());
-    //    }
-
-    responseBuilder.body(entityResolver.resolve(responseDefinition.getBody()));
+    responseBuilder.body(entityResolver.resolve(responseDefinition.getBodyEntity()));
 
     return responseBuilder;
   }

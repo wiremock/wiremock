@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[{\"id\":456,\"name\":\"bob\"},{\"id\":123,\"name\":\"alice\"},{\"id\":321,\"name\":\"sam\"}]"));
   }

@@ -36,11 +36,11 @@ public class MessageDefinition {
   }
 
   public static MessageDefinition fromString(String message) {
-    return new MessageDefinition(TextEntityDefinition.full(message));
+    return new MessageDefinition(TextEntityDefinition.simple(message));
   }
 
   public static MessageDefinition fromBytes(byte[] data) {
-    return new MessageDefinition(WireMock.binary().withBody(data).build());
+    return new MessageDefinition(WireMock.binaryEntity().setBody(data).build());
   }
 
   public EntityDefinition getBody() {

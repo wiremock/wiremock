@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.DEFAULT_COMPRESSION;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -32,6 +34,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 public class Entity {
 
@@ -42,7 +45,7 @@ public class Entity {
   private final EncodingType encoding;
   private final FormatType format;
   private final Charset charset;
-  private final CompressionType compression;
+  @NonNull private final CompressionType compression;
   private final InputStreamSource streamSource;
 
   public Entity(
@@ -54,7 +57,7 @@ public class Entity {
     this.encoding = encoding;
     this.format = format;
     this.charset = charset;
-    this.compression = compression;
+    this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
     this.streamSource = streamSource;
   }
 

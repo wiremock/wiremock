@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public class InMemoryMappingsTest {
             .getResponseDefinition();
 
     assertThat(response.getStatus(), is(201));
-    assertThat(response.getBody(), is("Desired content"));
+    assertThat(response.getBody().getDataAsString(), is("Desired content"));
   }
 
   @Test
@@ -161,11 +161,19 @@ public class InMemoryMappingsTest {
     Request secondGet = aRequest("secondGet").withMethod(GET).withUrl("/scenario/resource").build();
 
     assertThat(
-        mappings.serveFor(ServeEvent.of(firstGet)).getResponseDefinition().getBody(),
+        mappings
+            .serveFor(ServeEvent.of(firstGet))
+            .getResponseDefinition()
+            .getBody()
+            .getDataAsString(),
         is("Initial content"));
     mappings.serveFor(ServeEvent.of(put));
     assertThat(
-        mappings.serveFor(ServeEvent.of(secondGet)).getResponseDefinition().getBody(),
+        mappings
+            .serveFor(ServeEvent.of(secondGet))
+            .getResponseDefinition()
+            .getBody()
+            .getDataAsString(),
         is("Modified content"));
   }
 
@@ -183,7 +191,11 @@ public class InMemoryMappingsTest {
     Request request = aRequest().withMethod(GET).withUrl("/scenario/resource").build();
 
     assertThat(
-        mappings.serveFor(ServeEvent.of(request)).getResponseDefinition().getBody(),
+        mappings
+            .serveFor(ServeEvent.of(request))
+            .getResponseDefinition()
+            .getBody()
+            .getDataAsString(),
         is("Expected content"));
   }
 
@@ -238,7 +250,7 @@ public class InMemoryMappingsTest {
                         .withUrl("/scenario/resource")
                         .build()))
             .getResponseDefinition();
-    assertThat(response.getBody(), is("Desired content"));
+    assertThat(response.getBody().getDataAsString(), is("Desired content"));
   }
 
   @Test
@@ -261,7 +273,11 @@ public class InMemoryMappingsTest {
     Request request = aRequest().withMethod(POST).withUrl("/scenario/resource").build();
     mappings.serveFor(ServeEvent.of(request));
     assertThat(
-        mappings.serveFor(ServeEvent.of(request)).getResponseDefinition().getBody(),
+        mappings
+            .serveFor(ServeEvent.of(request))
+            .getResponseDefinition()
+            .getBody()
+            .getDataAsString(),
         is("Modified content"));
 
     mappings.reset();
@@ -272,7 +288,11 @@ public class InMemoryMappingsTest {
     mappings.addMapping(thirdMapping);
 
     assertThat(
-        mappings.serveFor(ServeEvent.of(request)).getResponseDefinition().getBody(),
+        mappings
+            .serveFor(ServeEvent.of(request))
+            .getResponseDefinition()
+            .getBody()
+            .getDataAsString(),
         is("Starting content"));
   }
 

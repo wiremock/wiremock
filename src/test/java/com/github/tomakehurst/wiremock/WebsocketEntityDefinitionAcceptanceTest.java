@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.binary;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
@@ -151,7 +151,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(binary().withBody(responseBytes))));
+                    .withMessage(binaryEntity().setBody(responseBytes))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-response-test");
@@ -181,7 +181,8 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(binary().withDataStore("binaryStore").withDataRef("binaryKey"))));
+                    .withMessage(
+                        binaryEntity().setDataStore("binaryStore").setDataRef("binaryKey"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-store-test");
@@ -233,7 +234,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(binary().withFilePath("binary-body.bin"))));
+                    .withMessage(binaryEntity().setFilePath("binary-body.bin"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-file-body-test");

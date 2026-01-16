@@ -131,7 +131,7 @@ public class Response {
     private int status = HTTP_OK;
     private String statusMessage;
     private HttpHeaders headers = new HttpHeaders();
-    private Entity body;
+    private Entity body = Entity.EMPTY;
     private boolean configured = true;
     private Fault fault;
     private boolean fromProxy;

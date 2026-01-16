@@ -59,7 +59,7 @@ public class SendMessageAction implements MessageAction {
   }
 
   public static SendMessageAction toOriginatingChannel(String messageBody) {
-    return toOriginatingChannel(TextEntityDefinition.full(messageBody));
+    return toOriginatingChannel(TextEntityDefinition.simple(messageBody));
   }
 
   public static SendMessageAction toMatchingChannels(
@@ -73,7 +73,7 @@ public class SendMessageAction implements MessageAction {
 
   public static SendMessageAction toMatchingChannels(
       String messageBody, RequestPattern targetChannelPattern) {
-    return toMatchingChannels(TextEntityDefinition.full(messageBody), targetChannelPattern);
+    return toMatchingChannels(TextEntityDefinition.simple(messageBody), targetChannelPattern);
   }
 
   public MessageDefinition getMessage() {

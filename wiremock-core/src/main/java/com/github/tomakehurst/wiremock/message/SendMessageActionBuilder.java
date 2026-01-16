@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.text;
+import static com.github.tomakehurst.wiremock.client.WireMock.textEntity;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
@@ -27,25 +27,25 @@ import java.util.List;
 
 public class SendMessageActionBuilder {
 
-  private TextEntityDefinition.Builder textEntityBuilder = text();
+  private TextEntityDefinition.Builder textEntityBuilder = textEntity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
 
   public SendMessageActionBuilder() {}
 
   public SendMessageActionBuilder withBody(String message) {
-    this.textEntityBuilder.withBody(message);
+    this.textEntityBuilder.setData(message);
     return this;
   }
 
   public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
-    textEntityBuilder.withDataStore(storeName);
-    textEntityBuilder.withDataRef(key);
+    textEntityBuilder.setDataStore(storeName);
+    textEntityBuilder.setDataRef(key);
     return this;
   }
 
   public SendMessageActionBuilder withBodyFromFile(String filePath) {
-    textEntityBuilder.withFilePath(filePath);
+    textEntityBuilder.setFilePath(filePath);
     return this;
   }
 

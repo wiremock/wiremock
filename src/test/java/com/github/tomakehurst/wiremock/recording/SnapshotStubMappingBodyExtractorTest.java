@@ -46,7 +46,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
     final StubMapping modifiedStub = bodyExtractor.extractInPlace(stubMapping);
     assertThat(
-        modifiedStub.getResponse().getBodyFileName(),
+        modifiedStub.getResponse().getBody().getFilePath(),
         is("get-foo-" + stubMapping.getId() + ".txt"));
     assertThat(modifiedStub.getResponse().getBody().isInline(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes

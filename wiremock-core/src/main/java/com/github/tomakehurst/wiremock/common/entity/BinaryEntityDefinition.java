@@ -44,7 +44,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
   private final String filePath;
 
   public static EntityDefinition fromBase64(String base64) {
-    return new Builder().withBodyBase64(base64).build();
+    return new Builder().setBodyBase64(base64).build();
   }
 
   public BinaryEntityDefinition(
@@ -125,7 +125,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
       return transform(
-          builder -> builder.withBody(Gzip.unGzip(getDataAsBytes())).withCompression(NONE));
+          builder -> builder.setBody(Gzip.unGzip(getDataAsBytes())).setCompression(NONE));
     }
 
     if (compression != NONE) {
@@ -194,37 +194,36 @@ public class BinaryEntityDefinition extends EntityDefinition {
       this.filePath = entity.filePath;
     }
 
-    public Builder withCompression(CompressionType compression) {
+    public Builder setCompression(CompressionType compression) {
       this.compression = compression;
       return this;
     }
 
-    public Builder withDataStore(String dataStore) {
+    public Builder setDataStore(String dataStore) {
       this.dataStore = dataStore;
       return this;
     }
 
-    public Builder withDataRef(String dataRef) {
+    public Builder setDataRef(String dataRef) {
       this.dataRef = dataRef;
       return this;
     }
 
-    public Builder withBody(byte[] data) {
+    public Builder setBody(byte[] data) {
       this.data = data;
       return this;
     }
 
-    public Builder withBodyBase64(String base64Data) {
+    public Builder setBodyBase64(String base64Data) {
       this.data = Encoding.decodeBase64(base64Data);
       return this;
     }
 
-    public Builder withFilePath(String filePath) {
+    public Builder setFilePath(String filePath) {
       this.filePath = filePath;
       return this;
     }
 
-    @Override
     public BinaryEntityDefinition build() {
       return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
     }

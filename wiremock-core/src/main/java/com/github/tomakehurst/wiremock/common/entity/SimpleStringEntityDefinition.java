@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 public class SimpleStringEntityDefinition extends TextEntityDefinition {
 
@@ -28,6 +28,15 @@ public class SimpleStringEntityDefinition extends TextEntityDefinition {
 
   @JsonCreator
   public SimpleStringEntityDefinition(String text) {
-    super(FormatType.TEXT, StandardCharsets.UTF_8, CompressionType.NONE, null, null, text, null);
+    this(text, DEFAULT_CHARSET);
+  }
+
+  SimpleStringEntityDefinition(String text, Charset charset) {
+    super(FormatType.TEXT, charset, CompressionType.NONE, null, null, text, null);
+  }
+
+  @Override
+  public TextEntityDefinition withCharset(Charset charset) {
+    return new SimpleStringEntityDefinition(getText(), charset);
   }
 }

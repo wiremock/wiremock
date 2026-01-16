@@ -58,7 +58,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
-    assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"success\"}"));
   }
 
   @Test
@@ -99,7 +99,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody(), is("One Two Three "));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("One Two Three "));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("one: 1 two: 2 three: 3 "));
   }
 
   @Test
@@ -300,7 +300,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
 
-    assertThat(responseDefinition.getBody(), is("abc"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("abc"));
   }
 
   @Test

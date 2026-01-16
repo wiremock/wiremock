@@ -59,7 +59,7 @@ public class TextEntityDefinition extends EntityDefinition {
   }
 
   public static TextEntityDefinition full(String text) {
-    return new Builder().withBody(text).build();
+    return new Builder().setData(text).build();
   }
 
   public static TextEntityDefinition simple(String text) {
@@ -193,7 +193,7 @@ public class TextEntityDefinition extends EntityDefinition {
   public TextEntityDefinition decompress() {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
-      return transform(builder -> builder.withBody(Gzip.unGzip(data)).withCompression(NONE));
+      return transform(builder -> builder.setData(Gzip.unGzip(data)).setCompression(NONE));
     }
 
     if (compression != NONE) {
@@ -205,6 +205,10 @@ public class TextEntityDefinition extends EntityDefinition {
 
   public String getFilePath() {
     return filePath;
+  }
+
+  public TextEntityDefinition withCharset(Charset charset) {
+    return transform(builder -> builder.setCharset(charset));
   }
 
   public TextEntityDefinition transform(Consumer<Builder> transformer) {
@@ -263,13 +267,13 @@ public class TextEntityDefinition extends EntityDefinition {
   }
 
   public static class Builder implements EntityDefinition.Builder<TextEntityDefinition> {
-    private FormatType format;
-    private Charset charset = DEFAULT_CHARSET;
-    private CompressionType compression = NONE;
-    private String dataStore;
-    private String dataRef;
-    private byte[] data;
-    private String filePath;
+    protected FormatType format;
+    protected Charset charset = DEFAULT_CHARSET;
+    protected CompressionType compression = NONE;
+    protected String dataStore;
+    protected String dataRef;
+    protected byte[] data;
+    protected String filePath;
 
     public Builder(TextEntityDefinition entity) {
       this.format = entity.format;
@@ -283,42 +287,40 @@ public class TextEntityDefinition extends EntityDefinition {
 
     public Builder() {}
 
-    public Builder withFormat(FormatType format) {
+    public Builder setFormat(FormatType format) {
       this.format = format;
       return this;
     }
 
-    public Builder withCharset(Charset charset) {
+    public Builder setCharset(Charset charset) {
       this.charset = charset;
       return this;
     }
 
-    public Builder withCompression(CompressionType compression) {
+    public Builder setCompression(CompressionType compression) {
       this.compression = compression;
       return this;
     }
 
-    public Builder withDataStore(String dataStore) {
+    public Builder setDataStore(String dataStore) {
       this.dataStore = dataStore;
       return this;
     }
 
-    public Builder withDataRef(String dataRef) {
+    public Builder setDataRef(String dataRef) {
       this.dataRef = dataRef;
       return this;
     }
 
-    public Builder withBody(String data) {
-      this.data = Strings.bytesFromString(data, charset);
+    public Builder setData(Object data) {
+      this.data =
+          data instanceof String s
+              ? Strings.bytesFromString(s, charset)
+              : data instanceof byte[] b ? b : null;
       return this;
     }
 
-    public Builder withBody(byte[] data) {
-      this.data = data;
-      return this;
-    }
-
-    public Builder withFilePath(String filePath) {
+    public Builder setFilePath(String filePath) {
       this.filePath = filePath;
       return this;
     }

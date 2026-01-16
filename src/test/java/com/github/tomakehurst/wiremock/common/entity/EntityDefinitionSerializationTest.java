@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.binary;
-import static com.github.tomakehurst.wiremock.client.WireMock.text;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
+import static com.github.tomakehurst.wiremock.client.WireMock.textEntity;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -31,10 +31,10 @@ public class EntityDefinitionSerializationTest {
   @Test
   void textEntityDefinitionSerializesWithLowercaseEnums() {
     TextEntityDefinition entity =
-        text()
-            .withFormat(FormatType.XML)
-            .withCompression(CompressionType.GZIP)
-            .withBody("test data")
+        textEntity()
+            .setFormat(FormatType.XML)
+            .setCompression(CompressionType.GZIP)
+            .setData("test data")
             .build();
 
     String json = Json.write(entity);
@@ -72,7 +72,7 @@ public class EntityDefinitionSerializationTest {
 
   @Test
   void textEntityDefinitionWithDefaultsOmitsEnums() {
-    TextEntityDefinition entity = text().withBody("test data").build();
+    TextEntityDefinition entity = textEntity().setData("test data").build();
 
     String json = Json.write(entity);
 
@@ -88,10 +88,10 @@ public class EntityDefinitionSerializationTest {
   @Test
   void textEntityDefinitionRoundTripSerialization() {
     TextEntityDefinition original =
-        text()
-            .withFormat(FormatType.JSON)
-            .withCompression(CompressionType.GZIP)
-            .withBody("{\"key\":\"value\"}")
+        textEntity()
+            .setFormat(FormatType.JSON)
+            .setCompression(CompressionType.GZIP)
+            .setData("{\"key\":\"value\"}")
             .build();
 
     String json = Json.write(original);
@@ -104,7 +104,7 @@ public class EntityDefinitionSerializationTest {
   void binaryEntityDefinitionSerializesWithLowercaseEnums() {
     byte[] data = {1, 2, 3, 4, 5};
     BinaryEntityDefinition entity =
-        binary().withCompression(CompressionType.DEFLATE).withBody(data).build();
+        binaryEntity().setCompression(CompressionType.DEFLATE).setBody(data).build();
 
     String json = Json.write(entity);
 
@@ -146,7 +146,7 @@ public class EntityDefinitionSerializationTest {
   void binaryEntityDefinitionRoundTripSerialization() {
     byte[] data = {1, 2, 3, 4, 5, 6, 7, 8};
     BinaryEntityDefinition original =
-        binary().withCompression(CompressionType.BROTLI).withBody(data).build();
+        binaryEntity().setCompression(CompressionType.BROTLI).setBody(data).build();
 
     String json = Json.write(original);
     EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
