@@ -138,7 +138,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @param consumer a function that modifies the builder
    * @return the transformed URL
    */
-  default AbsoluteUrl transform(Consumer<Builder> consumer) {
+  default AbsoluteUrl transform(Consumer<Url.Mutator> consumer) {
     var builder = thaw();
     consumer.accept(builder);
     return builder.build();

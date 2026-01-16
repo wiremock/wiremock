@@ -33,12 +33,12 @@ final class AbsoluteUrlBuilder extends AbstractUriMutator<Builder> implements Bu
 
   @Override
   public Builder setScheme(Scheme scheme) {
-    return super.setScheme(requireNonNull(scheme));
+    return super.doSetScheme(requireNonNull(scheme));
   }
 
   @Override
   public Builder setAuthority(Authority authority) {
-    return super.setAuthority(requireNonNull(authority));
+    return super.doSetAuthority(requireNonNull(authority));
   }
 
   @Override

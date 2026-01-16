@@ -15,18 +15,16 @@
  */
 package org.wiremock.url;
 
-import org.wiremock.url.RelativeUrl.Builder;
+final class UrlBuilder extends AbstractUriMutator<Url.Builder> implements Url.Builder {
 
-final class RelativeUrlBuilder extends AbstractUriMutator<Builder> implements Builder {
+  UrlBuilder() {}
 
-  RelativeUrlBuilder() {}
-
-  RelativeUrlBuilder(RelativeUrl url) {
+  UrlBuilder(Url url) {
     super(url);
   }
 
   @Override
-  public RelativeUrl build() {
+  public Url build() {
     if (authority == null && (userInfo != null || port != null)) {
       throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
     }
@@ -35,5 +33,15 @@ final class RelativeUrlBuilder extends AbstractUriMutator<Builder> implements Bu
     } else {
       return new RelativeUrlValue(authority, path, query, fragment);
     }
+  }
+
+  @Override
+  public Url.Builder setScheme(Scheme scheme) {
+    return super.doSetScheme(scheme);
+  }
+
+  @Override
+  public Url.Builder setAuthority(Authority authority) {
+    return super.doSetAuthority(authority);
   }
 }

@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.wiremock.url.AbsoluteUriBuilder.buildUri;
 
+import org.jspecify.annotations.Nullable;
 import org.wiremock.url.Uri.Builder;
 
 final class UriBuilder extends AbstractUriMutator<Builder> implements Builder {
@@ -27,6 +28,16 @@ final class UriBuilder extends AbstractUriMutator<Builder> implements Builder {
 
   UriBuilder(Uri uri) {
     super(uri);
+  }
+
+  @Override
+  public Builder setScheme(@Nullable Scheme scheme) {
+    return super.doSetScheme(scheme);
+  }
+
+  @Override
+  public Builder setAuthority(@Nullable Authority authority) {
+    return super.doSetAuthority(authority);
   }
 
   @Override

@@ -43,12 +43,12 @@ abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutat
     this.fragment = uri.getFragment();
   }
 
-  public @NonNull SELF setScheme(Scheme scheme) {
+  protected @NonNull SELF doSetScheme(@Nullable Scheme scheme) {
     this.scheme = scheme;
     return (SELF) this;
   }
 
-  public @NonNull SELF setAuthority(Authority authority) {
+  protected @NonNull SELF doSetAuthority(@Nullable Authority authority) {
     this.authority = authority;
     this.userInfo = null;
     this.port = null;
@@ -60,15 +60,15 @@ abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutat
       this.userInfo = userInfo;
       return (SELF) this;
     } else {
-      return setAuthority(Authority.of(userInfo, authority.getHost(), authority.getPort()));
+      return doSetAuthority(Authority.of(userInfo, authority.getHost(), authority.getPort()));
     }
   }
 
   public @NonNull SELF setHost(@NonNull Host host) {
     if (this.authority == null) {
-      return setAuthority(Authority.of(userInfo, host, port));
+      return doSetAuthority(Authority.of(userInfo, host, port));
     } else {
-      return setAuthority(Authority.of(authority.getUserInfo(), host, authority.getPort()));
+      return doSetAuthority(Authority.of(authority.getUserInfo(), host, authority.getPort()));
     }
   }
 
@@ -77,7 +77,7 @@ abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutat
       this.port = port;
       return (SELF) this;
     } else {
-      return setAuthority(Authority.of(authority.getUserInfo(), authority.getHost(), port));
+      return doSetAuthority(Authority.of(authority.getUserInfo(), authority.getHost(), port));
     }
   }
 

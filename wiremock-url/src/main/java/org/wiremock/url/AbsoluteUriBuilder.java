@@ -32,7 +32,12 @@ final class AbsoluteUriBuilder extends AbstractUriMutator<Builder> implements Bu
   }
 
   public Builder setScheme(Scheme scheme) {
-    return super.setScheme(requireNonNull(scheme));
+    return super.doSetScheme(requireNonNull(scheme));
+  }
+
+  @Override
+  public Builder setAuthority(@Nullable Authority authority) {
+    return super.doSetAuthority(authority);
   }
 
   @Override
