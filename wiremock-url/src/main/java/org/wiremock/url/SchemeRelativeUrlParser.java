@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,17 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+final class SchemeRelativeUrlParser implements StringParser<SchemeRelativeUrl> {
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+  static final SchemeRelativeUrlParser INSTANCE = new SchemeRelativeUrlParser();
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
+  @Override
+  public SchemeRelativeUrl parse(String stringForm) throws IllegalSchemeRelativeUrl {
+    var uri = UriParser.INSTANCE.parse(stringForm);
+    if (uri instanceof SchemeRelativeUrl schemeRelativeUrl) {
+      return schemeRelativeUrl;
+    } else {
+      throw new IllegalSchemeRelativeUrl(stringForm);
+    }
   }
 }

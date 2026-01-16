@@ -18,6 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.Scheme.file;
+import static org.wiremock.url.Scheme.wss;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -307,6 +309,89 @@ class UrlTests {
     Stream<DynamicTest> already_normalised_invariants() {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
           alreadyNormalisedUrlReferences);
+    }
+  }
+
+  @Nested
+  class Transform {
+
+    @Test
+    void can_change_an_absolute_urls_scheme() {
+
+      Url url = Url.parse("https://user@example.com:8443/path?query#fragment");
+      Url transformed = url.transform(it -> it.setScheme(wss));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(Url.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void can_set_a_scheme_relative_urls_scheme() {
+
+      Url url = Url.parse("//user@example.com:8443/path?query#fragment");
+      Url transformed = url.transform(it -> it.setScheme(wss));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(Url.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void can_set_a_relative_urls_scheme_with_authority() {
+
+      Url url = Url.parse("/path?query#fragment");
+      Url transformed =
+          url.transform(it -> it.setScheme(wss).setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(Url.parse("wss://www.example.com/path?query#fragment"));
+    }
+
+    @Test
+    void cannot_set_a_relative_urls_scheme_without_authority() {
+
+      Url url = Url.parse("/path?query#fragment");
+      assertThatExceptionOfType(IllegalUrl.class)
+          .isThrownBy(() -> url.transform(it -> it.setScheme(file)))
+          .withMessage("Illegal url: `file:/path?query#fragment`; a url has an authority")
+          .withNoCause()
+          .extracting(IllegalUrl::getIllegalValue)
+          .isEqualTo("file:/path?query#fragment");
+    }
+
+    @Test
+    void can_change_an_absolute_urls_authority() {
+
+      Url url = Url.parse("https://user@example.com:8443/path?query#fragment");
+      Url transformed = url.transform(it -> it.setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(Url.parse("https://www.example.com/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_a_scheme_relative_urls_authority() {
+
+      Url url = Url.parse("//user@example.com:8443/path?query#fragment");
+      Url transformed = url.transform(it -> it.setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(SchemeRelativeUrl.class)
+          .isEqualTo(Url.parse("//www.example.com/path?query#fragment"));
+    }
+
+    @Test
+    void can_set_a_relative_urls_authority() {
+
+      Url url = Url.parse("/path?query#fragment");
+      Url transformed = url.transform(it -> it.setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(SchemeRelativeUrl.class)
+          .isEqualTo(Url.parse("//www.example.com/path?query#fragment"));
     }
   }
 }

@@ -124,6 +124,7 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Ur
             ServersideAbsoluteUrl.class,
             AbsoluteUrl.class,
             OpaqueUri.class,
+            SchemeRelativeUrl.class,
             RelativeUrl.class,
             PathAndQuery.class)
         && Objects.equals(getScheme(), other.getScheme())

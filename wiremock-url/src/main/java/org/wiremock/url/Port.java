@@ -20,7 +20,7 @@ package org.wiremock.url;
  *
  * <p>An implementation must be immutable (and hence threadsafe)
  *
- * <p>Implementations must enforce that 1 <= port <= 65,535
+ * <p>Implementations must enforce that 1 &lt;= port &lt;= 65,535
  *
  * <p>Implementations should be equal to any other Port implementation with the same text
  * representation. Implementations are <b>NOT</b> equal if they have different string

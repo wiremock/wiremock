@@ -17,9 +17,17 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+public class IllegalSchemeRelativeUrl extends IllegalAbsoluteUrl {
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
+  public IllegalSchemeRelativeUrl(String url) {
+    this(url, null);
+  }
+
+  public IllegalSchemeRelativeUrl(String url, @Nullable IllegalUriPart cause) {
+    this(url, "Illegal scheme relative url: `" + url + "`", cause);
+  }
+
+  public IllegalSchemeRelativeUrl(String url, String message, @Nullable IllegalUriPart cause) {
+    super(url, message, cause);
   }
 }

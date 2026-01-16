@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Lists.concat;
+import static org.wiremock.url.Scheme.https;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
 
 import java.util.List;
@@ -223,6 +224,45 @@ class RelativeUrlTests {
     Stream<DynamicTest> already_normalised_invariants() {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(
           alreadyNormalisedUrlReferences);
+    }
+  }
+
+  @Nested
+  class Transform {
+
+    @Test
+    void can_transform_a_relative_url() {
+      RelativeUrl base = RelativeUrl.parse("//example.com/path");
+      Url transformed = base.transform(b -> b.setScheme(https).setQuery(Query.parse("a=b")));
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .hasToString("https://example.com/path?a=b");
+    }
+
+    @Test
+    void can_transform_a_path_and_query() {
+      RelativeUrl base = RelativeUrl.parse("/path?a=b");
+      Url transformed =
+          base.transform(b -> b.setScheme(https).setAuthority(Authority.parse("example.com")));
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .hasToString("https://example.com/path?a=b");
+    }
+
+    @Test
+    void can_pointlessly_set_scheme_to_null() {
+      var url = RelativeUrl.parse("//example.com/path#fragment");
+      Url transformed = url.transform(it -> it.setScheme(null));
+      assertThat(transformed).isInstanceOf(SchemeRelativeUrl.class).isEqualTo(url);
+    }
+
+    @Test
+    void can_set_authority_to_null() {
+      var url = RelativeUrl.parse("//example.com/path#fragment");
+      Url transformed = url.transform(it -> it.setAuthority(null));
+      assertThat(transformed)
+          .isInstanceOf(RelativeUrl.class)
+          .isEqualTo(RelativeUrl.parse("/path#fragment"));
     }
   }
 }

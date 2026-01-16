@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,21 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+public interface UriBaseBuilder<SELF extends UriBaseBuilder<SELF>> {
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
-  }
+  SELF setAuthority(Authority authority);
+
+  SELF setUserInfo(@Nullable UserInfo userInfo);
+
+  SELF setHost(Host host);
+
+  SELF setPort(@Nullable Port port);
+
+  SELF setPath(Path path);
+
+  SELF setQuery(@Nullable Query query);
+
+  SELF setFragment(@Nullable Fragment fragment);
+
+  Uri build();
 }

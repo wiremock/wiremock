@@ -16,7 +16,6 @@
 package org.wiremock.url;
 
 import java.util.function.Consumer;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a full URI as defined in <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC
@@ -50,84 +49,91 @@ public sealed interface AbsoluteUri extends Uri
   @Override
   AbsoluteUri normalise();
 
+  default AbsoluteUrl resolve(UrlWithAuthority other) {
+    if (other instanceof AbsoluteUrl otherUrl) {
+      return otherUrl.normalise();
+    } else {
+      var builder = AbsoluteUrl.builder(this.getScheme(), other.getAuthority().normalise());
+
+      Path otherPath = other.getPath();
+      Path path = otherPath.isEmpty() ? Path.ROOT : otherPath.normalise();
+      builder.setPath(path);
+
+      Query otherQuery = other.getQuery();
+      builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
+
+      Fragment otherFragment = other.getFragment();
+      builder.setFragment(otherFragment != null ? otherFragment.normalise() : null);
+
+      return builder.build();
+    }
+  }
+
   default AbsoluteUri resolve(Uri other) {
     if (other instanceof AbsoluteUri otherUri) {
       return otherUri.normalise();
     } else {
-      return transform(
-          this,
-          builder -> {
-            Authority otherAuthority = other.getAuthority();
-            Path otherPath = other.getPath();
-            Query otherQuery = other.getQuery();
-            Fragment otherFragment = other.getFragment();
+      var builder = builder(this);
 
-            if (otherAuthority != null) {
-              builder.setAuthority(otherAuthority.normalise());
-              Path path = otherPath.isEmpty() ? Path.ROOT : otherPath.normalise();
-              builder.setPath(path);
-              builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
-            } else if (otherPath.isEmpty()) {
-              builder.setPath(this.normalise().getPath());
-              if (otherQuery != null) {
-                builder.setQuery(otherQuery.normalise());
-              }
-            } else {
-              if (otherPath.isAbsolute()) {
-                builder.setPath(otherPath.normalise());
-              } else {
-                builder.setPath(this.normalise().getPath().resolve(otherPath));
-              }
-              builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
-            }
-            otherFragment = otherFragment != null ? otherFragment.normalise() : null;
-            builder.setFragment(otherFragment);
-          });
+      Authority otherAuthority = other.getAuthority();
+      Path otherPath = other.getPath();
+      Query otherQuery = other.getQuery();
+      Fragment otherFragment = other.getFragment();
+
+      if (otherAuthority != null) {
+        builder.setAuthority(otherAuthority.normalise());
+        Path path = otherPath.isEmpty() ? Path.ROOT : otherPath.normalise();
+        builder.setPath(path);
+        builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
+      } else if (otherPath.isEmpty()) {
+        builder.setPath(this.normalise().getPath());
+        if (otherQuery != null) {
+          builder.setQuery(otherQuery.normalise());
+        }
+      } else {
+        if (otherPath.isAbsolute()) {
+          builder.setPath(otherPath.normalise());
+        } else {
+          builder.setPath(this.normalise().getPath().resolve(otherPath));
+        }
+        builder.setQuery(otherQuery != null ? otherQuery.normalise() : null);
+      }
+      otherFragment = otherFragment != null ? otherFragment.normalise() : null;
+      builder.setFragment(otherFragment);
+
+      return builder.build();
     }
   }
 
-  static Builder builder(Scheme scheme) {
+  default AbsoluteUri.Transformer<?> thaw() {
+    return new AbsoluteUriTransformer(this);
+  }
+
+  default AbsoluteUri transform(Consumer<Uri.Transformer<?>> mutator) {
+    var transformer = thaw();
+    mutator.accept(transformer);
+    return transformer.build();
+  }
+
+  static AbsoluteUri.Builder<?> builder(Scheme scheme) {
     return new AbsoluteUriBuilder(scheme);
   }
 
-  static Builder builder(AbsoluteUri uri) {
+  static AbsoluteUri.Builder<?> builder(AbsoluteUri uri) {
     return new AbsoluteUriBuilder(uri);
-  }
-
-  static AbsoluteUri transform(AbsoluteUri uri, Consumer<Builder> consumer) {
-    var builder = builder(uri);
-    consumer.accept(builder);
-    return builder.build();
   }
 
   static AbsoluteUri parse(String uriString) {
     return AbsoluteUriParser.INSTANCE.parse(uriString);
   }
 
-  interface Builder extends Mutator {
-
-    Builder setScheme(Scheme scheme);
-
-    Builder setAuthority(@Nullable Authority authority);
-
+  interface Builder<SELF extends Builder<SELF>> extends UriBaseBuilder<SELF> {
     @Override
-    Builder setUserInfo(@Nullable UserInfo userInfo);
+    AbsoluteUri build();
+  }
 
+  interface Transformer<SELF extends Transformer<SELF>> extends Uri.Transformer<SELF> {
     @Override
-    Builder setHost(Host host);
-
-    @Override
-    Builder setPort(@Nullable Port port);
-
-    @Override
-    Builder setPath(Path path);
-
-    @Override
-    Builder setQuery(@Nullable Query query);
-
-    @Override
-    Builder setFragment(@Nullable Fragment fragment);
-
     AbsoluteUri build();
   }
 }

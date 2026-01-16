@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.wiremock.url.AbsoluteUri.transform;
+import static org.wiremock.url.Scheme.wss;
 
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -188,7 +188,7 @@ public class AbsoluteUriTests {
     @Test
     void can_build_an_absolute_uri() {
 
-      var uri =
+      AbsoluteUri uri =
           AbsoluteUri.builder(Scheme.https)
               .setAuthority(Authority.parse("example.com"))
               .setPath(Path.parse("/path"))
@@ -217,17 +217,7 @@ public class AbsoluteUriTests {
               AbsoluteUri.parse("https://user:password@example.com:8443/path?query#fragment"));
     }
 
-    @Test
-    void can_change_a_urls_scheme() {
-
-      var uri = AbsoluteUri.parse("https://user@example.com:8443/path?query#fragment");
-      var transformed = transform(uri, builder -> builder.setScheme(Scheme.wss));
-
-      assertThat(transformed)
-          .isEqualTo(AbsoluteUri.parse("wss://user@example.com:8443/path?query#fragment"));
-    }
-
-    private static final List<AbsoluteUri.Builder> authorityBuilders =
+    private static final List<AbsoluteUri.Builder<?>> authorityBuilders =
         List.of(
             AbsoluteUri.builder(Scheme.https)
                 .setHost(Host.parse("example.com"))
@@ -256,7 +246,7 @@ public class AbsoluteUriTests {
 
     @ParameterizedTest
     @FieldSource("authorityBuilders")
-    void can_set_authority_fields_in_any_order(AbsoluteUri.Builder builder) {
+    void can_set_authority_fields_in_any_order(AbsoluteUri.Builder<?> builder) {
       var uri =
           builder
               .setPath(Path.parse("/path"))
@@ -344,6 +334,58 @@ public class AbsoluteUriTests {
                       .build())
           .withMessage("Cannot construct a uri with a userinfo or port but no host")
           .withNoCause();
+    }
+  }
+
+  @Nested
+  class Transform {
+
+    @Test
+    void can_change_an_absolute_uris_scheme() {
+
+      AbsoluteUri absoluteUri =
+          AbsoluteUri.parse("https://user@example.com:8443/path?query#fragment");
+      AbsoluteUri transformed = absoluteUri.transform(it -> it.setScheme(wss));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(AbsoluteUri.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_an_absolute_uris_authority() {
+
+      AbsoluteUri absoluteUri =
+          AbsoluteUri.parse("https://user@example.com:8443/path?query#fragment");
+      AbsoluteUri transformed =
+          absoluteUri.transform(it -> it.setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(AbsoluteUri.parse("https://www.example.com/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_an_opaque_uris_scheme() {
+
+      AbsoluteUri absoluteUri = AbsoluteUri.parse("file:/path?query#fragment");
+      AbsoluteUri transformed = absoluteUri.transform(it -> it.setScheme(wss));
+
+      assertThat(transformed)
+          .isInstanceOf(OpaqueUri.class)
+          .isEqualTo(AbsoluteUri.parse("wss:/path?query#fragment"));
+    }
+
+    @Test
+    void can_change_an_opaque_uris_authority() {
+
+      AbsoluteUri absoluteUri = AbsoluteUri.parse("file:/path?query#fragment");
+      AbsoluteUri transformed =
+          absoluteUri.transform(it -> it.setAuthority(Authority.parse("www.example.com")));
+
+      assertThat(transformed)
+          .isInstanceOf(AbsoluteUrl.class)
+          .isEqualTo(AbsoluteUri.parse("file://www.example.com/path?query#fragment"));
     }
   }
 }

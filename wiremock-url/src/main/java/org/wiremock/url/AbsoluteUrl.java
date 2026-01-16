@@ -16,7 +16,6 @@
 package org.wiremock.url;
 
 import java.util.function.Consumer;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a Uniform Resource Locator (URL) as defined in <a
@@ -33,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>
  */
-public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
+public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
 
   /**
    * Returns the authority component of this URL.
@@ -83,6 +82,11 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
     return (ServersideAbsoluteUrl) transform(builder -> builder.setFragment(null));
   }
 
+  @Override
+  default SchemeRelativeUrl getSchemeRelativeUrl() {
+    return (SchemeRelativeUrl) Url.builder(this).setScheme(null).build();
+  }
+
   /**
    * Returns a normalised form of this URL.
    *
@@ -128,21 +132,21 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @return a builder
    */
   @Override
-  default Builder thaw() {
-    return builder(this);
+  default AbsoluteUrl.Transformer thaw() {
+    return new AbsoluteUrlTransformer(this);
   }
 
   /**
-   * Transforms this URL by applying modifications via a builder.
+   * Transforms this URL by applying modifications via a transformer.
    *
-   * @param consumer a function that modifies the builder
+   * @param mutator a function that modifies the transformer
    * @return the transformed URL
    */
   @Override
-  default AbsoluteUrl transform(Consumer<Url.Mutator> consumer) {
-    var builder = thaw();
-    consumer.accept(builder);
-    return builder.build();
+  default AbsoluteUrl transform(Consumer<Uri.Transformer<?>> mutator) {
+    var transformer = thaw();
+    mutator.accept(transformer);
+    return transformer.build();
   }
 
   /**
@@ -163,7 +167,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @param authority the authority
    * @return a new builder
    */
-  static Builder builder(Scheme scheme, Authority authority) {
+  static AbsoluteUrl.Builder builder(Scheme scheme, Authority authority) {
     return new AbsoluteUrlBuilder(scheme, authority);
   }
 
@@ -173,36 +177,19 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @param url the URL to copy values from
    * @return a new builder
    */
-  static Builder builder(AbsoluteUrl url) {
+  static AbsoluteUrl.Builder builder(AbsoluteUrl url) {
     return new AbsoluteUrlBuilder(url);
   }
 
-  interface Builder extends Url.Builder {
+  interface Builder extends UriBaseBuilder<Builder> {
+
+    AbsoluteUrl.Builder setScheme(Scheme scheme);
 
     @Override
-    Builder setScheme(Scheme scheme);
+    AbsoluteUrl build();
+  }
 
-    @Override
-    Builder setAuthority(Authority authority);
-
-    @Override
-    Builder setUserInfo(@Nullable UserInfo userInfo);
-
-    @Override
-    Builder setHost(Host host);
-
-    @Override
-    Builder setPort(@Nullable Port port);
-
-    @Override
-    Builder setPath(Path path);
-
-    @Override
-    Builder setQuery(@Nullable Query query);
-
-    @Override
-    Builder setFragment(@Nullable Fragment fragment);
-
+  interface Transformer extends Url.Transformer<Transformer>, AbsoluteUri.Transformer<Transformer> {
     @Override
     AbsoluteUrl build();
   }

@@ -15,7 +15,6 @@
  */
 package org.wiremock.url;
 
-import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -188,7 +187,7 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
    *
    * @return a new builder
    */
-  static Builder builder() {
+  static Uri.Builder builder() {
     return new UriBuilder();
   }
 
@@ -198,62 +197,18 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
    * @param uri the URI reference to copy values from
    * @return a new builder
    */
-  static Builder builder(Uri uri) {
+  static Uri.Builder builder(Uri uri) {
     return new UriBuilder(uri);
   }
 
-  /**
-   * Transforms a URI reference by applying modifications via a builder.
-   *
-   * @param uri the URI reference to transform
-   * @param consumer a function that modifies the builder
-   * @return the transformed URI reference
-   */
-  static Uri transform(Uri uri, Consumer<Builder> consumer) {
-    var builder = builder(uri);
-    consumer.accept(builder);
-    return builder.build();
+  interface Builder extends UriBaseBuilder<Builder> {
+    Uri.Builder setScheme(@Nullable Scheme scheme);
+
+    @Override
+    Uri.Builder setAuthority(@Nullable Authority authority);
   }
 
-  interface Mutator {
-
-    Mutator setUserInfo(@Nullable UserInfo userInfo);
-
-    Mutator setHost(Host host);
-
-    Mutator setPort(@Nullable Port port);
-
-    Mutator setPath(Path path);
-
-    Mutator setQuery(@Nullable Query query);
-
-    Mutator setFragment(@Nullable Fragment fragment);
-  }
-
-  interface Builder extends Mutator {
-
-    Builder setScheme(@Nullable Scheme scheme);
-
-    Builder setAuthority(@Nullable Authority authority);
-
-    @Override
-    Builder setUserInfo(@Nullable UserInfo userInfo);
-
-    @Override
-    Builder setHost(Host host);
-
-    @Override
-    Builder setPort(@Nullable Port port);
-
-    @Override
-    Builder setPath(Path path);
-
-    @Override
-    Builder setQuery(@Nullable Query query);
-
-    @Override
-    Builder setFragment(@Nullable Fragment fragment);
-
-    Uri build();
+  interface Transformer<SELF extends Transformer<SELF>> extends UriBaseBuilder<SELF> {
+    SELF setScheme(Scheme scheme);
   }
 }

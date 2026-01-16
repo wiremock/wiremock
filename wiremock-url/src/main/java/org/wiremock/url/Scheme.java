@@ -52,8 +52,20 @@ public interface Scheme {
     return normalise().equals(this);
   }
 
+  default AbsoluteUri resolve(Uri other) {
+    return asUri().resolve(other);
+  }
+
+  default AbsoluteUrl resolve(UrlWithAuthority other) {
+    return asUri().resolve(other);
+  }
+
+  private OpaqueUri asUri() {
+    return OpaqueUri.of(this, Path.EMPTY);
+  }
+
   /**
-   * Parses & registers a scheme
+   * Parses &amp; registers a scheme
    *
    * <p>Unlike register, returns a scheme with the same casing as the scheme param, but {@code
    * canonical()} will return the canonical (lower case) version, which may already have been

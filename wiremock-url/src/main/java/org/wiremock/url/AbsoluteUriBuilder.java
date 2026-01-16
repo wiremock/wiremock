@@ -16,12 +16,34 @@
 package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
-import static org.wiremock.url.AbsoluteUrlBuilder.buildUrl;
 
 import org.jspecify.annotations.Nullable;
 
-final class AbsoluteUriBuilder extends AbstractUriMutator<AbsoluteUri.Builder>
-    implements AbsoluteUri.Builder {
+final class AbsoluteUriTransformer extends AbstractUriBaseBuilder<AbsoluteUriTransformer>
+    implements AbsoluteUri.Transformer<AbsoluteUriTransformer> {
+
+  public AbsoluteUriTransformer(AbsoluteUri absoluteUri) {
+    super(absoluteUri);
+  }
+
+  @Override
+  public AbsoluteUriTransformer setScheme(Scheme scheme) {
+    return super.doSetScheme(requireNonNull(scheme));
+  }
+
+  @Override
+  public AbsoluteUriTransformer setAuthority(Authority authority) {
+    return super.doSetAuthority(requireNonNull(authority));
+  }
+
+  @Override
+  public AbsoluteUri build() {
+    return (AbsoluteUri) super.build();
+  }
+}
+
+final class AbsoluteUriBuilder extends AbstractUriBaseBuilder<AbsoluteUriBuilder>
+    implements AbsoluteUri.Builder<AbsoluteUriBuilder> {
 
   AbsoluteUriBuilder(Scheme scheme) {
     this.scheme = scheme;
@@ -31,34 +53,17 @@ final class AbsoluteUriBuilder extends AbstractUriMutator<AbsoluteUri.Builder>
     super(uri);
   }
 
-  @Override
-  public AbsoluteUri.Builder setScheme(Scheme scheme) {
+  public AbsoluteUriBuilder setScheme(Scheme scheme) {
     return super.doSetScheme(requireNonNull(scheme));
   }
 
   @Override
-  public AbsoluteUri.Builder setAuthority(@Nullable Authority authority) {
+  public AbsoluteUriBuilder setAuthority(@Nullable Authority authority) {
     return super.doSetAuthority(authority);
   }
 
   @Override
   public AbsoluteUri build() {
-    if (authority == null && (userInfo != null || port != null)) {
-      throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
-    }
-    return buildUri(requireNonNull(scheme), authority, path, query, fragment);
-  }
-
-  static AbsoluteUri buildUri(
-      Scheme scheme,
-      @Nullable Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    if (authority == null) {
-      return OpaqueUri.of(scheme, path, query, fragment);
-    } else {
-      return buildUrl(scheme, authority, path, query, fragment);
-    }
+    return (AbsoluteUri) super.build();
   }
 }

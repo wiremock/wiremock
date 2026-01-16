@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,17 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
+public sealed interface UrlWithAuthority extends Url permits SchemeRelativeUrl, AbsoluteUrl {
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+  /**
+   * Returns the authority component of this URL.
+   *
+   * <p>URLs always have an authority component (unlike relative references and URNs).
+   *
+   * @return the authority component, never {@code null}
+   */
+  @Override
+  Authority getAuthority();
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
-  }
+  SchemeRelativeUrl getSchemeRelativeUrl();
 }

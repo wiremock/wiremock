@@ -17,9 +17,30 @@ package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jspecify.annotations.Nullable;
+final class AbsoluteUrlTransformer extends AbstractUriBaseBuilder<AbsoluteUrl.Transformer>
+    implements AbsoluteUrl.Transformer {
 
-final class AbsoluteUrlBuilder extends AbstractUriMutator<AbsoluteUrl.Builder>
+  AbsoluteUrlTransformer(AbsoluteUrl url) {
+    super(url);
+  }
+
+  @Override
+  public AbsoluteUrl.Transformer setScheme(Scheme scheme) {
+    return super.doSetScheme(requireNonNull(scheme));
+  }
+
+  @Override
+  public AbsoluteUrl.Transformer setAuthority(Authority authority) {
+    return super.doSetAuthority(requireNonNull(authority));
+  }
+
+  @Override
+  public AbsoluteUrl build() {
+    return (AbsoluteUrl) super.build();
+  }
+}
+
+final class AbsoluteUrlBuilder extends AbstractUriBaseBuilder<AbsoluteUrl.Builder>
     implements AbsoluteUrl.Builder {
 
   AbsoluteUrlBuilder(Scheme scheme, Authority authority) {
@@ -43,26 +64,6 @@ final class AbsoluteUrlBuilder extends AbstractUriMutator<AbsoluteUrl.Builder>
 
   @Override
   public AbsoluteUrl build() {
-    return buildUrl(requireNonNull(scheme), requireNonNull(authority), path, query, fragment);
-  }
-
-  static AbsoluteUrl buildUrl(
-      Scheme scheme,
-      Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    if (scheme.isNormalForm()
-        && authority instanceof HostAndPort hostAndPort
-        && hostAndPort.isNormalForm(scheme)
-        && path.isEmpty()
-        && query == null
-        && fragment == null) {
-      return new OriginValue(scheme, hostAndPort);
-    } else if (fragment == null) {
-      return new ServersideAbsoluteUrlValue(scheme, authority, path, query);
-    } else {
-      return new AbsoluteUrlValue(scheme, authority, path, query, fragment);
-    }
+    return (AbsoluteUrl) super.build();
   }
 }

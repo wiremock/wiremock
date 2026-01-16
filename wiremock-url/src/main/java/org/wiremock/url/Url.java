@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * @see AbsoluteUrl
  * @see RelativeUrl
  */
-public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
+public sealed interface Url extends Uri permits RelativeUrl, UrlWithAuthority {
 
   /**
    * Returns the path and query components combined.
@@ -46,26 +46,33 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
   }
 
   /**
-   * Creates a builder initialized with the values from this URL.
+   * Creates a transformer initialized with the values from this URL.
    *
-   * @return a builder
+   * @return a transformer
    */
-  default Builder thaw() {
-    return builder(this);
-  }
-
-  default Url transform(Consumer<Mutator> mutator) {
-    var builder = thaw();
-    mutator.accept(builder);
-    return builder.build();
+  default Url.Transformer<?> thaw() {
+    return new UrlTransformer(this);
   }
 
   /**
-   * Creates a new builder with the given scheme and authority.
+   * Convenience method for transforming a Url
+   *
+   * @param mutator a function to mutate the transformer
+   * @return the transformed Url
+   * @throws IllegalUrl if scheme is set and Authority is not set
+   */
+  default Url transform(Consumer<Uri.Transformer<?>> mutator) {
+    var transformer = thaw();
+    mutator.accept(transformer);
+    return transformer.build();
+  }
+
+  /**
+   * Creates a new builder
    *
    * @return a new builder
    */
-  static Builder builder() {
+  static Url.Builder builder() {
     return new UrlBuilder();
   }
 
@@ -75,56 +82,8 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
    * @param url the URL to copy values from
    * @return a new builder
    */
-  static Builder builder(Url url) {
+  static Url.Builder builder(Url url) {
     return new UrlBuilder(url);
-  }
-
-  interface Mutator extends Uri.Mutator {
-
-    Mutator setScheme(Scheme scheme);
-
-    Mutator setAuthority(Authority authority);
-
-    @Override
-    Mutator setUserInfo(@Nullable UserInfo userInfo);
-
-    @Override
-    Mutator setHost(Host host);
-
-    @Override
-    Mutator setPort(@Nullable Port port);
-
-    @Override
-    Mutator setPath(Path path);
-
-    @Override
-    Mutator setQuery(@Nullable Query query);
-
-    @Override
-    Mutator setFragment(@Nullable Fragment fragment);
-  }
-
-  interface Builder extends Url.Mutator {
-
-    @Override
-    Builder setUserInfo(@Nullable UserInfo userInfo);
-
-    @Override
-    Builder setHost(Host host);
-
-    @Override
-    Builder setPort(@Nullable Port port);
-
-    @Override
-    Builder setPath(Path path);
-
-    @Override
-    Builder setQuery(@Nullable Query query);
-
-    @Override
-    Builder setFragment(@Nullable Fragment fragment);
-
-    Url build();
   }
 
   /**
@@ -136,5 +95,30 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
    */
   static Url parse(String url) throws IllegalUri {
     return UrlParser.INSTANCE.parse(url);
+  }
+
+  interface Builder extends UriBaseBuilder<Builder> {
+
+    Url.Builder setScheme(@Nullable Scheme scheme);
+
+    @Override
+    Url.Builder setAuthority(@Nullable Authority authority);
+
+    /**
+     * @return the built Url
+     * @throws IllegalUrl if scheme is set and Authority is not set
+     */
+    @Override
+    Url build() throws IllegalUrl;
+  }
+
+  interface Transformer<SELF extends Transformer<SELF>> extends Uri.Transformer<SELF> {
+
+    /**
+     * @return the transformed Url
+     * @throws IllegalUrl if scheme is set and Authority is not set
+     */
+    @Override
+    Url build() throws IllegalUrl;
   }
 }

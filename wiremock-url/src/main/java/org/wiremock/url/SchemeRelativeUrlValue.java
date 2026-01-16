@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,23 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jspecify.annotations.Nullable;
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+class SchemeRelativeUrlValue extends AbstractUriValue<SchemeRelativeUrl>
+    implements SchemeRelativeUrl {
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
+  protected final Authority nonNullAuthority;
+
+  SchemeRelativeUrlValue(
+      Authority authority, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+    super(null, authority, path, query, fragment);
+    this.nonNullAuthority = requireNonNull(authority);
+  }
+
+  @Override
+  public Authority getAuthority() {
+    return nonNullAuthority;
   }
 }

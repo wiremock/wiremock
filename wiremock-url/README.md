@@ -43,11 +43,16 @@ The library provides:
 - **Uri**: Either an Absolute URI (an Absolute URL or an Opaque URI), or a Relative URL
 - **AbsoluteUri**: Either an Absolute URL or an Opaque URI
 - **Url**: Either an Absolute URL or a Relative URL. `AbsoluteUrl.resolve(Url)` can return
-  `AbsoluteUrl` because is guaranteed to produce an `AbsoluteUrl`, whereas
+  `AbsoluteUrl` because it is guaranteed to produce an `AbsoluteUrl`, whereas
   `AbsoluteUrl.resolve(Uri)` can only  return `AbsoluteUri` because it may produce an `OpaqueUri`.
+- **UrlWithAuthority**: Either an Absolute URL or a Scheme Relative URL.
+  `Scheme.resolve(UrlWithAuthority)` can return `AbsoluteUrl` because it is guaranteed to produce an
+  `AbsoluteUrl`, whereas `Scheme.resolve(Url)` can only return `AbsoluteUri` because it may produce
+  an `OpaqueUri` (a `Url` may not contain an `Authority`).
 - **AbsoluteUrl**: A URI with a scheme and an authority, e.g. `http://example.com/foo?q#f`
 - **RelativeUrl**: A relative reference, lacking a scheme and possibly an authority.
   e.g. `//example.com/foo?q#f` or `/foo?q#f`
+- **SchemeRelativeUrl**: A specialisation of `RelativeUrl` that has an authority.
 - **OpaqueURI**: A URI with a scheme but no authority, e.g. `mailto:me@example.com` or `file:/home`
 - **PathAndQuery**: A specialisation of `RelativeUrl` that contains neither an authority nor a
   fragment. Used in the request line of an HTTP request.
@@ -101,12 +106,22 @@ class AbsoluteUri {
 }
 
 class RelativeUrl {
-<<Interface>>
+  <<Interface>>
+
+}
+
+class UrlWithAuthority {
+  <<Sealed_Interface>>
+
+}
+
+class SchemeRelativeUrl {
+  <<Interface>>
 
 }
 
 class AbsoluteUrl {
-<<Interface>>
+  <<Interface>>
 
 }
 
@@ -116,27 +131,30 @@ class OpaqueUri {
 }
 
 class PathAndQuery {
-<<Interface>>
+  <<Interface>>
 
 }
 
 class ServersideAbsoluteUrl {
-<<Interface>>
+  <<Interface>>
 
 }
 
 class Origin {
-<<Interface>>
+  <<Interface>>
 
 }
 
 Uri <|-- Url 
 Uri <|-- AbsoluteUri
 Url <|-- RelativeUrl
-Url <|-- AbsoluteUrl
-AbsoluteUri <|-- AbsoluteUrl 
+AbsoluteUri <|-- AbsoluteUrl
 AbsoluteUri <|-- OpaqueUri 
 RelativeUrl <|-- PathAndQuery 
+Url <|-- UrlWithAuthority
+UrlWithAuthority <|-- SchemeRelativeUrl 
+UrlWithAuthority <|-- AbsoluteUrl 
+RelativeUrl <|-- SchemeRelativeUrl
 AbsoluteUrl <|-- ServersideAbsoluteUrl
 ServersideAbsoluteUrl <|-- Origin
 ```

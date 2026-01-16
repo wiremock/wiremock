@@ -20,7 +20,8 @@ import static java.util.Objects.requireNonNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutator {
+abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
+    implements UriBaseBuilder<SELF> {
 
   protected @Nullable Scheme scheme = null;
   protected @Nullable UserInfo userInfo = null;
@@ -30,9 +31,9 @@ abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutat
   protected @Nullable Query query = null;
   protected @Nullable Fragment fragment = null;
 
-  AbstractUriMutator() {}
+  AbstractUriBaseBuilder() {}
 
-  AbstractUriMutator(Uri uri) {
+  AbstractUriBaseBuilder(Uri uri) {
     this.scheme = uri.getScheme();
     this.authority = uri.getAuthority();
     this.path = uri.getPath();
@@ -97,6 +98,37 @@ abstract class AbstractUriMutator<SELF extends Uri.Mutator> implements Uri.Mutat
   public @NonNull SELF setFragment(@Nullable Fragment fragment) {
     this.fragment = fragment;
     return getSelf();
+  }
+
+  @Override
+  public Uri build() {
+    if (authority == null && (userInfo != null || port != null)) {
+      throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
+    }
+    if (scheme == null) {
+      if (authority == null && fragment == null) {
+        return new PathAndQueryValue(path, query);
+      } else if (authority != null) {
+        return new SchemeRelativeUrlValue(authority, path, query, fragment);
+      } else {
+        return new RelativeUrlValue(path, query, fragment);
+      }
+    } else if (authority == null) {
+      return OpaqueUri.of(scheme, path, query, fragment);
+    } else {
+      if (scheme.isNormalForm()
+          && authority instanceof HostAndPort hostAndPort
+          && hostAndPort.isNormalForm(scheme)
+          && path.isEmpty()
+          && query == null
+          && fragment == null) {
+        return new OriginValue(scheme, hostAndPort);
+      } else if (fragment == null) {
+        return new ServersideAbsoluteUrlValue(scheme, authority, path, query);
+      } else {
+        return new AbsoluteUrlValue(scheme, authority, path, query, fragment);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")

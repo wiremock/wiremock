@@ -400,16 +400,6 @@ public class UriTests {
       assertThat(uri).isEqualTo(Uri.parse("//user:password@example.com:8443/path?query#fragment"));
     }
 
-    @Test
-    void can_change_a_urls_scheme() {
-
-      var uri = Uri.parse("https://user@example.com:8443/path?query#fragment");
-      var transformed = Uri.transform(uri, builder -> builder.setScheme(Scheme.wss));
-
-      assertThat(transformed)
-          .isEqualTo(Uri.parse("wss://user@example.com:8443/path?query#fragment"));
-    }
-
     private static final List<Uri.Builder> authorityBuilders =
         List.of(
             Uri.builder()
@@ -439,7 +429,7 @@ public class UriTests {
 
     @ParameterizedTest
     @FieldSource("authorityBuilders")
-    void can_set_authority_fields_in_any_order(Uri.Builder builder) {
+    void can_set_authority_fields_in_any_order(UriBuilder builder) {
       var uri =
           builder
               .setPath(Path.parse("/path"))

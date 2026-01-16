@@ -15,11 +15,9 @@
  */
 package org.wiremock.url;
 
-import static org.wiremock.url.AbsoluteUriBuilder.buildUri;
-
 import org.jspecify.annotations.Nullable;
 
-final class UriBuilder extends AbstractUriMutator<Uri.Builder> implements Uri.Builder {
+final class UriBuilder extends AbstractUriBaseBuilder<Uri.Builder> implements Uri.Builder {
 
   UriBuilder() {
     super();
@@ -37,19 +35,5 @@ final class UriBuilder extends AbstractUriMutator<Uri.Builder> implements Uri.Bu
   @Override
   public Uri.Builder setAuthority(@Nullable Authority authority) {
     return super.doSetAuthority(authority);
-  }
-
-  @Override
-  public Uri build() {
-    if (authority == null && (userInfo != null || port != null)) {
-      throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
-    }
-    if (scheme == null) {
-      if (authority == null && fragment == null) {
-        return new PathAndQueryValue(path, query);
-      } else {
-        return new RelativeUrlValue(authority, path, query, fragment);
-      }
-    } else return buildUri(scheme, authority, path, query, fragment);
   }
 }

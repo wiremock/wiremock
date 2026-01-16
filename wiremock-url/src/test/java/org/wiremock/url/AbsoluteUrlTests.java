@@ -21,6 +21,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
 import static org.wiremock.url.Lists.concat;
 import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.Scheme.wss;
 import static org.wiremock.url.UriExpectation.expectation;
 import static org.wiremock.url.UriParseTestCase.testCase;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
@@ -465,7 +466,7 @@ class AbsoluteUrlTests {
     @Test
     void can_build_an_absolute_uri() {
 
-      var uri =
+      AbsoluteUrl uri =
           AbsoluteUrl.builder(Scheme.https, Authority.parse("example.com"))
               .setPath(Path.parse("/path"))
               .setQuery(Query.parse("query"))
@@ -473,16 +474,6 @@ class AbsoluteUrlTests {
               .build();
 
       assertThat(uri).isEqualTo(Uri.parse("https://example.com/path?query#fragment"));
-    }
-
-    @Test
-    void can_change_a_urls_scheme() {
-
-      var uri = AbsoluteUrl.parse("https://user@example.com:8443/path?query#fragment");
-      var transformed = uri.transform(builder -> builder.setScheme(Scheme.wss));
-
-      assertThat(transformed)
-          .isEqualTo(AbsoluteUrl.parse("wss://user@example.com:8443/path?query#fragment"));
     }
 
     @Test
@@ -514,6 +505,20 @@ class AbsoluteUrlTests {
 
       assertThat(uri).isEqualTo(AbsoluteUrl.parse("https://user@example.com:88443/"));
     }
+  }
+
+  @Nested
+  class Transform {
+
+    @Test
+    void can_change_a_urls_scheme() {
+
+      AbsoluteUrl uri = AbsoluteUrl.parse("https://user@example.com:8443/path?query#fragment");
+      AbsoluteUrl transformed = uri.thaw().setScheme(wss).build();
+
+      assertThat(transformed)
+          .isEqualTo(AbsoluteUrl.parse("wss://user@example.com:8443/path?query#fragment"));
+    }
 
     @Test
     void can_change_authority() {
@@ -540,10 +545,23 @@ class AbsoluteUrlTests {
     }
 
     @Test
-    void can_thaw_a_url() {
-      var url = AbsoluteUrl.parse("https://example.com/foo#fragment");
-      var mutated = url.thaw().setScheme(Scheme.wss).build();
-      assertThat(mutated).isEqualTo(AbsoluteUrl.parse("wss://example.com/foo#fragment"));
+    void cannot_set_scheme_to_null() {
+      var url = AbsoluteUrl.parse("https://example.com/path#fragment");
+
+      assertThatExceptionOfType(NullPointerException.class)
+          .isThrownBy(() -> url.transform(it -> it.setScheme(null)))
+          .withMessage(null)
+          .withNoCause();
+    }
+
+    @Test
+    void cannot_set_authority_to_null() {
+      var url = AbsoluteUrl.parse("https://example.com/path#fragment");
+
+      assertThatExceptionOfType(NullPointerException.class)
+          .isThrownBy(() -> url.transform(it -> it.setAuthority(null)))
+          .withMessage(null)
+          .withNoCause();
     }
   }
 

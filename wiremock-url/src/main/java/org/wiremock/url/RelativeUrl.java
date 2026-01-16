@@ -88,8 +88,8 @@ public non-sealed interface RelativeUrl extends Url {
    *
    * @return a new builder
    */
-  static Url.Builder builder() {
-    return new UrlBuilder();
+  static RelativeUrl.Builder builder() {
+    return new RelativeUrlBuilder();
   }
 
   /**
@@ -98,7 +98,16 @@ public non-sealed interface RelativeUrl extends Url {
    * @param url the URL to copy values from
    * @return a new builder
    */
-  static Url.Builder builder(RelativeUrl url) {
-    return new UrlBuilder(url);
+  static RelativeUrl.Builder builder(RelativeUrl url) {
+    return new RelativeUrlBuilder(url);
+  }
+
+  interface Builder extends UriBaseBuilder<Builder> {
+
+    @Override
+    RelativeUrl.Builder setAuthority(@Nullable Authority authority);
+
+    @Override
+    RelativeUrl build();
   }
 }
