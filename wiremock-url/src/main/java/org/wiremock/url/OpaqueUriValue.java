@@ -27,7 +27,7 @@ final class OpaqueUriValue extends AbstractAbsoluteUriValue<OpaqueUri> implement
   @Override
   public OpaqueUri normalise() {
 
-    Scheme normalisedScheme = scheme.normalise();
+    Scheme normalisedScheme = nonNullScheme.normalise();
     Path normalisedPath = path.normalise();
     if (normalisedPath.isEmpty()) {
       normalisedPath = Path.ROOT;
@@ -48,7 +48,7 @@ final class OpaqueUriValue extends AbstractAbsoluteUriValue<OpaqueUri> implement
     Query normalisedQuery = query == null ? null : query.normalise();
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
 
-    if (scheme.equals(normalisedScheme)
+    if (nonNullScheme.equals(normalisedScheme)
         && path.equals(normalisedPath)
         && Objects.equals(query, normalisedQuery)
         && Objects.equals(fragment, normalisedFragment)) {

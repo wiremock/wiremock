@@ -34,6 +34,7 @@ public interface Fragment extends PercentEncoded<Fragment> {
    *
    * @return a normalised fragment
    */
+  @Override
   Fragment normalise();
 
   /**

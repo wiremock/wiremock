@@ -40,6 +40,7 @@ public interface Port extends Normalisable<Port> {
 
   int getIntValue();
 
+  @Override
   boolean isNormalForm();
 
   /**

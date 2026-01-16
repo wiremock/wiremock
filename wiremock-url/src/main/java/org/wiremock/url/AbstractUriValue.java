@@ -17,22 +17,20 @@ package org.wiremock.url;
 
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
-@NullUnmarked
 abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Uri {
 
   protected final @Nullable Scheme scheme;
   protected final @Nullable Authority authority;
-  protected final @NonNull Path path;
+  protected final Path path;
   protected final @Nullable Query query;
   protected final @Nullable Fragment fragment;
 
   AbstractUriValue(
       @Nullable Scheme scheme,
       @Nullable Authority authority,
-      @NonNull Path path,
+      Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
     this.scheme = scheme;
@@ -53,7 +51,7 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Ur
   }
 
   @Override
-  public @NonNull Path getPath() {
+  public Path getPath() {
     return path;
   }
 
@@ -68,7 +66,7 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Ur
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("NullableProblems")
   public @NonNull NORMALISED normalise() {
     Scheme normalisedScheme = scheme != null ? scheme.normalise() : null;
     Authority normalisedAuthority = getNormalisedAuthority(normalisedScheme);
@@ -78,22 +76,26 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Ur
     }
     Query normalisedQuery = query == null ? null : query.normalise();
     Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
-    if (Objects.equals(normalisedScheme, scheme)
-        && Objects.equals(normalisedAuthority, authority)
-        && Objects.equals(normalisedPath, path)
-        && Objects.equals(normalisedQuery, query)
-        && Objects.equals(normalisedFragment, fragment)) {
-      return (NORMALISED) this;
-    } else {
-      return (NORMALISED)
-          Uri.builder()
-              .setScheme(normalisedScheme)
-              .setAuthority(normalisedAuthority)
-              .setPath(normalisedPath)
-              .setQuery(normalisedQuery)
-              .setFragment(normalisedFragment)
-              .build();
-    }
+    var uri =
+        (Objects.equals(normalisedScheme, scheme)
+                && Objects.equals(normalisedAuthority, authority)
+                && Objects.equals(normalisedPath, path)
+                && Objects.equals(normalisedQuery, query)
+                && Objects.equals(normalisedFragment, fragment))
+            ? this
+            : Uri.builder()
+                .setScheme(normalisedScheme)
+                .setAuthority(normalisedAuthority)
+                .setPath(normalisedPath)
+                .setQuery(normalisedQuery)
+                .setFragment(normalisedFragment)
+                .build();
+    return getNormalised(uri);
+  }
+
+  @SuppressWarnings("unchecked")
+  private NORMALISED getNormalised(Uri uri) {
+    return (NORMALISED) uri;
   }
 
   private @Nullable Authority getNormalisedAuthority(@Nullable Scheme normalisedScheme) {

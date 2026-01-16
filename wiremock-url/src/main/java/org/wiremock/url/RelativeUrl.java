@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 public non-sealed interface RelativeUrl extends Url {
 
   /**
-   * {@implSpec} Implementations must ALWAYS return null
+   * Implementations must ALWAYS return null
    *
    * @deprecated This always returns null so you have no reason to ever call it
    * @return null

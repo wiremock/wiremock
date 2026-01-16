@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUri>
     extends AbstractUriValue<NORMALISED> implements AbsoluteUri {
 
-  protected final Scheme scheme;
+  protected final Scheme nonNullScheme;
 
   AbstractAbsoluteUriValue(
       Scheme scheme,
@@ -31,11 +31,11 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
       @Nullable Query query,
       @Nullable Fragment fragment) {
     super(scheme, authority, path, query, fragment);
-    this.scheme = requireNonNull(scheme);
+    this.nonNullScheme = requireNonNull(scheme);
   }
 
   @Override
   public Scheme getScheme() {
-    return scheme;
+    return nonNullScheme;
   }
 }

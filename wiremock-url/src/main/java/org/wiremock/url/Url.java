@@ -15,8 +15,8 @@
  */
 package org.wiremock.url;
 
-import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a URL reference, which is the subset of URI references that are <b>not</b> full
@@ -85,31 +85,43 @@ public sealed interface Url extends Uri permits RelativeUrl, AbsoluteUrl {
 
     Mutator setAuthority(Authority authority);
 
+    @Override
     Mutator setUserInfo(@Nullable UserInfo userInfo);
 
+    @Override
     Mutator setHost(Host host);
 
+    @Override
     Mutator setPort(@Nullable Port port);
 
+    @Override
     Mutator setPath(Path path);
 
+    @Override
     Mutator setQuery(@Nullable Query query);
 
+    @Override
     Mutator setFragment(@Nullable Fragment fragment);
   }
 
   interface Builder extends Url.Mutator {
 
+    @Override
     Builder setUserInfo(@Nullable UserInfo userInfo);
 
+    @Override
     Builder setHost(Host host);
 
+    @Override
     Builder setPort(@Nullable Port port);
 
+    @Override
     Builder setPath(Path path);
 
+    @Override
     Builder setQuery(@Nullable Query query);
 
+    @Override
     Builder setFragment(@Nullable Fragment fragment);
 
     Url build();

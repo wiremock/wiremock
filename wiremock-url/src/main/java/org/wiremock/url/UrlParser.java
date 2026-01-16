@@ -22,8 +22,8 @@ final class UrlParser implements StringParser<Url> {
   @Override
   public Url parse(String stringForm) {
     var uri = UriParser.INSTANCE.parse(stringForm);
-    if (uri instanceof Url) {
-      return (Url) uri;
+    if (uri instanceof Url url) {
+      return url;
     } else {
       throw new IllegalUrl(stringForm, "Illegal url: `" + uri + "`; a url has an authority");
     }

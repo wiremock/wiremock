@@ -22,8 +22,8 @@ final class HostAndPortParser implements StringParser<HostAndPort> {
   @Override
   public HostAndPort parse(String stringForm) throws ParseException {
     var authority = Authority.parse(stringForm);
-    if (authority instanceof HostAndPort) {
-      return (HostAndPort) authority;
+    if (authority instanceof HostAndPort hostAndPort) {
+      return hostAndPort;
     } else {
       throw new IllegalHostAndPort(stringForm);
     }

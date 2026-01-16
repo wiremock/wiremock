@@ -168,7 +168,7 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
         && (authority == null
             || (scheme == null ? authority.isNormalForm() : authority.isNormalForm(scheme)))
         && (path.isNormalForm() && path.toString().startsWith("/"))
-        && (query == null || (query.isNormalForm()))
+        && (query == null || query.isNormalForm())
         && (fragment == null || fragment.isNormalForm());
   }
 
@@ -236,16 +236,22 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
 
     Builder setAuthority(@Nullable Authority authority);
 
+    @Override
     Builder setUserInfo(@Nullable UserInfo userInfo);
 
+    @Override
     Builder setHost(Host host);
 
+    @Override
     Builder setPort(@Nullable Port port);
 
+    @Override
     Builder setPath(Path path);
 
+    @Override
     Builder setQuery(@Nullable Query query);
 
+    @Override
     Builder setFragment(@Nullable Fragment fragment);
 
     Uri build();

@@ -138,6 +138,7 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
    * @param consumer a function that modifies the builder
    * @return the transformed URL
    */
+  @Override
   default AbsoluteUrl transform(Consumer<Url.Mutator> consumer) {
     var builder = thaw();
     consumer.accept(builder);
@@ -178,22 +179,31 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, Url {
 
   interface Builder extends Url.Builder {
 
+    @Override
     Builder setScheme(Scheme scheme);
 
+    @Override
     Builder setAuthority(Authority authority);
 
+    @Override
     Builder setUserInfo(@Nullable UserInfo userInfo);
 
+    @Override
     Builder setHost(Host host);
 
+    @Override
     Builder setPort(@Nullable Port port);
 
+    @Override
     Builder setPath(Path path);
 
+    @Override
     Builder setQuery(@Nullable Query query);
 
+    @Override
     Builder setFragment(@Nullable Fragment fragment);
 
+    @Override
     AbsoluteUrl build();
   }
 }

@@ -19,20 +19,20 @@ import static java.util.Objects.requireNonNull;
 
 final class OriginValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl> implements Origin {
 
-  private final HostAndPort authority;
+  private final HostAndPort hostAndPort;
 
   OriginValue(Scheme scheme, HostAndPort authority) {
     super(scheme, authority, Path.EMPTY, null, null);
-    this.authority = requireNonNull(authority);
+    this.hostAndPort = requireNonNull(authority);
   }
 
   @Override
   public ServersideAbsoluteUrl normalise() {
-    return new ServersideAbsoluteUrlValue(scheme, authority, Path.ROOT, null);
+    return new ServersideAbsoluteUrlValue(nonNullScheme, hostAndPort, Path.ROOT, null);
   }
 
   @Override
   public HostAndPort getAuthority() {
-    return authority;
+    return hostAndPort;
   }
 }

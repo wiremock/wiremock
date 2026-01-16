@@ -66,7 +66,7 @@ public interface HostAndPort extends Authority {
   }
 
   /**
-   * {@implSpec} Implementations must ALWAYS return null
+   * Implementations must ALWAYS return null
    *
    * @deprecated This always returns null so you have no reason to ever call it
    * @return null
@@ -79,7 +79,7 @@ public interface HostAndPort extends Authority {
   }
 
   /**
-   * {@implSpec} Implementations must ALWAYS return this
+   * Implementations must ALWAYS return this
    *
    * @deprecated This always returns this so you have no reason to ever call it
    * @return this
@@ -113,5 +113,6 @@ public interface HostAndPort extends Authority {
    * @param canonicalScheme the canonical scheme to use for normalization
    * @return a normalized host and port
    */
+  @Override
   HostAndPort normalise(Scheme canonicalScheme);
 }

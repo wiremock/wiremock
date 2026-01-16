@@ -110,7 +110,7 @@ public interface Authority extends Normalisable<Authority> {
     //noinspection OptionalAssignedToNull
     return (getUserInfo() == null || getUserInfo().isNormalForm())
         && getHost().isNormalForm()
-        && (maybePort == null || maybePort.isPresent() && maybePort.get().isNormalForm());
+        && (maybePort == null || (maybePort.isPresent() && maybePort.get().isNormalForm()));
   }
 
   /**
@@ -127,9 +127,9 @@ public interface Authority extends Normalisable<Authority> {
     Optional<Port> maybePort = getMaybePort();
     //noinspection OptionalAssignedToNull
     return maybePort == null
-        || maybePort.isPresent()
+        || (maybePort.isPresent()
             && maybePort.get().isNormalForm()
-            && !maybePort.get().equals(scheme.getDefaultPort());
+            && !maybePort.get().equals(scheme.getDefaultPort()));
   }
 
   /**

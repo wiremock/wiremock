@@ -28,10 +28,12 @@ import org.jspecify.annotations.Nullable;
  */
 public non-sealed interface OpaqueUri extends AbsoluteUri {
 
+  @Override
   default boolean isAbsoluteUrl() {
     return false;
   }
 
+  @Override
   default boolean isOpaqueUri() {
     return true;
   }

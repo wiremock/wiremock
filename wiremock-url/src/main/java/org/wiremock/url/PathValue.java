@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -182,8 +184,7 @@ final class PathValue implements Path {
       segments =
           Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
     }
-    //noinspection DataFlowIssue
-    return segments;
+    return requireNonNull(segments);
   }
 
   @Override

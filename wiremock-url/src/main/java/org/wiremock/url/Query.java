@@ -49,5 +49,6 @@ public interface Query extends PercentEncoded<Query> {
     return QueryParser.INSTANCE.encode(unencoded);
   }
 
+  @Override
   Query normalise();
 }

@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -32,7 +33,7 @@ final class SchemeParser implements StringParser<Scheme> {
     if (!schemeRegex.matcher(schemeString).matches()) {
       throw new IllegalScheme(schemeString);
     }
-    String canonicalSchemeString = schemeString.toLowerCase();
+    String canonicalSchemeString = schemeString.toLowerCase(Locale.ROOT);
     return knownSchemes.computeIfAbsent(
         canonicalSchemeString, (key) -> new SchemeValue(key, null, defaultPort));
   }
@@ -48,7 +49,7 @@ final class SchemeParser implements StringParser<Scheme> {
   }
 
   private Scheme getCanonicalScheme(String schemeString) throws IllegalScheme {
-    String canonicalSchemeString = schemeString.toLowerCase();
+    String canonicalSchemeString = schemeString.toLowerCase(Locale.ROOT);
     var existingCanonical = knownSchemes.get(canonicalSchemeString);
     if (existingCanonical != null) {
       return existingCanonical;

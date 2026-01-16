@@ -110,16 +110,22 @@ public sealed interface AbsoluteUri extends Uri
 
     Builder setAuthority(@Nullable Authority authority);
 
+    @Override
     Builder setUserInfo(@Nullable UserInfo userInfo);
 
+    @Override
     Builder setHost(Host host);
 
+    @Override
     Builder setPort(@Nullable Port port);
 
+    @Override
     Builder setPath(Path path);
 
+    @Override
     Builder setQuery(@Nullable Query query);
 
+    @Override
     Builder setFragment(@Nullable Fragment fragment);
 
     AbsoluteUri build();

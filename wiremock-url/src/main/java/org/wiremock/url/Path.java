@@ -78,6 +78,7 @@ public interface Path extends PercentEncoded<Path> {
    * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2">RFC 3986 Section
    *     6.2.2</a>
    */
+  @Override
   Path normalise();
 
   /**
@@ -95,6 +96,7 @@ public interface Path extends PercentEncoded<Path> {
    *
    * @return {@code true} if this path is empty
    */
+  @Override
   default boolean isEmpty() {
     return this.equals(Path.EMPTY);
   }

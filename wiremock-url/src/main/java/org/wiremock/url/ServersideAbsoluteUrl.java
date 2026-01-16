@@ -18,7 +18,7 @@ package org.wiremock.url;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Represents an Absolute URL (a URL without am {@link Fragment} as defined in <a
+ * Represents an Absolute URL (a URL without an {@link Fragment}) as defined in <a
  * href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.3">RFC 3986 Section 4.3</a>. The
  * name {@link ServersideAbsoluteUrl} is used in preference to AbsoluteUrl because {@link
  * AbsoluteUrl} is more familiarly used by developers to mean a URL that is not relative, rather
@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 public interface ServersideAbsoluteUrl extends AbsoluteUrl {
 
   /**
-   * {@implSpec} Implementations must ALWAYS return null
+   * Implementations must ALWAYS return null
    *
    * @deprecated This always returns null so you have no reason to ever call it
    * @return null
@@ -59,6 +59,7 @@ public interface ServersideAbsoluteUrl extends AbsoluteUrl {
    *
    * @return this
    */
+  @Override
   @Deprecated // no point ever calling on this subtype
   default ServersideAbsoluteUrl getServersideAbsoluteUrl() {
     return this;

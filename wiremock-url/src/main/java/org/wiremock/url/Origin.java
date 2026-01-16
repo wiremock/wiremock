@@ -49,7 +49,7 @@ public interface Origin extends ServersideAbsoluteUrl {
   HostAndPort getAuthority();
 
   /**
-   * {@implSpec} Implementations must ALWAYS return {@link PathAndQuery#EMPTY}
+   * Implementations must ALWAYS return {@link PathAndQuery#EMPTY}
    *
    * @deprecated This always returns empty so you have no reason to ever call it
    * @return {@link PathAndQuery#EMPTY}
@@ -62,7 +62,7 @@ public interface Origin extends ServersideAbsoluteUrl {
   }
 
   /**
-   * {@implSpec} Implementations must ALWAYS return {@link Path#EMPTY}
+   * Implementations must ALWAYS return {@link Path#EMPTY}
    *
    * @deprecated This always returns empty so you have no reason to ever call it
    * @return {@link Path#EMPTY}
@@ -74,7 +74,7 @@ public interface Origin extends ServersideAbsoluteUrl {
   }
 
   /**
-   * {@implSpec} Implementations must ALWAYS return null
+   * Implementations must ALWAYS return null
    *
    * @deprecated This always returns null so you have no reason to ever call it
    * @return null
@@ -99,6 +99,7 @@ public interface Origin extends ServersideAbsoluteUrl {
    *
    * @return this
    */
+  @Override
   @Deprecated // no point ever calling on this subtype
   default Origin getOrigin() {
     return this;

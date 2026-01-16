@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
     extends AbstractAbsoluteUriValue<NORMALISED> implements AbsoluteUrl {
 
-  protected final Authority authority;
+  protected final Authority nonNullAuthority;
 
   AbstractAbsoluteUrlValue(
       Scheme scheme,
@@ -31,11 +31,11 @@ abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
       @Nullable Query query,
       @Nullable Fragment fragment) {
     super(scheme, authority, path, query, fragment);
-    this.authority = requireNonNull(authority);
+    this.nonNullAuthority = requireNonNull(authority);
   }
 
   @Override
   public Authority getAuthority() {
-    return authority;
+    return nonNullAuthority;
   }
 }

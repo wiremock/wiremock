@@ -19,9 +19,9 @@ import static java.util.Objects.requireNonNull;
 import static org.wiremock.url.AbsoluteUrlBuilder.buildUrl;
 
 import org.jspecify.annotations.Nullable;
-import org.wiremock.url.AbsoluteUri.Builder;
 
-final class AbsoluteUriBuilder extends AbstractUriMutator<Builder> implements Builder {
+final class AbsoluteUriBuilder extends AbstractUriMutator<AbsoluteUri.Builder>
+    implements AbsoluteUri.Builder {
 
   AbsoluteUriBuilder(Scheme scheme) {
     this.scheme = scheme;
@@ -31,12 +31,13 @@ final class AbsoluteUriBuilder extends AbstractUriMutator<Builder> implements Bu
     super(uri);
   }
 
-  public Builder setScheme(Scheme scheme) {
+  @Override
+  public AbsoluteUri.Builder setScheme(Scheme scheme) {
     return super.doSetScheme(requireNonNull(scheme));
   }
 
   @Override
-  public Builder setAuthority(@Nullable Authority authority) {
+  public AbsoluteUri.Builder setAuthority(@Nullable Authority authority) {
     return super.doSetAuthority(authority);
   }
 

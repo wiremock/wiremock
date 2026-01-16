@@ -68,5 +68,6 @@ public interface Host extends PercentEncoded<Host> {
    *
    * @return {@code true} if this is in normal form
    */
+  @Override
   boolean isNormalForm();
 }
