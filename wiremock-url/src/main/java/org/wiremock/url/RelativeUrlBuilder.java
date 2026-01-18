@@ -16,6 +16,35 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.RelativeUrl.Transformer;
+
+class RelativeUrlTransformer extends AbstractUriBaseBuilder<RelativeUrl.Transformer>
+    implements RelativeUrl.Transformer {
+
+  public RelativeUrlTransformer(RelativeUrl relativeUrl) {
+    super(relativeUrl);
+  }
+
+  @Override
+  public Transformer setScheme(@Nullable Scheme scheme) {
+    return super.doSetScheme(scheme);
+  }
+
+  @Override
+  public Transformer setAuthority(@Nullable Authority authority) {
+    return super.doSetAuthority(authority);
+  }
+
+  @Override
+  public Url build() {
+    Uri uri = super.build();
+    if (uri instanceof Url url) {
+      return url;
+    } else {
+      throw new IllegalUrl(uri.toString(), "Illegal url: `" + uri + "`; a url has an authority");
+    }
+  }
+}
 
 class RelativeUrlBuilder extends AbstractUriBaseBuilder<RelativeUrl.Builder>
     implements RelativeUrl.Builder {

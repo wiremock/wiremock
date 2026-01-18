@@ -204,13 +204,13 @@ public class AuthorityTests {
             changeTest("example.com:", "example.com"),
             changeTest("user@example.com:", "user@example.com"));
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @FieldSource("withoutPortTestCases")
     void withoutPortRemovesPort(AuthorityChangeTestCase testCase) {
       assertThat(testCase.original.withoutPort()).isEqualTo(testCase.expected);
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @FieldSource("withoutPortTestCases")
     void withPortNullRemovesPort(AuthorityChangeTestCase testCase) {
       assertThat(testCase.original.withPort(null)).isEqualTo(testCase.expected);
@@ -221,13 +221,13 @@ public class AuthorityTests {
             changeTest("example.com", "example.com"),
             changeTest("user@example.com", "user@example.com"));
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @FieldSource("unchangedWithoutPortTestCases")
     void withoutPortDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
       assertThat(testCase.original.withoutPort()).isSameAs(testCase.original);
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @FieldSource("unchangedWithoutPortTestCases")
     void withPortNullDoesNothingIfNoPort(AuthorityChangeTestCase testCase) {
       assertThat(testCase.original.withPort(null)).isSameAs(testCase.original);

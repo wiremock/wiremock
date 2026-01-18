@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Lists.concat;
+import static org.wiremock.url.Scheme.file;
 import static org.wiremock.url.Scheme.https;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
 
@@ -252,17 +253,29 @@ class RelativeUrlTests {
     @Test
     void can_pointlessly_set_scheme_to_null() {
       var url = RelativeUrl.parse("//example.com/path#fragment");
-      Url transformed = url.transform(it -> it.setScheme(null));
+      Url transformed = url.thaw().setScheme(null).build();
       assertThat(transformed).isInstanceOf(SchemeRelativeUrl.class).isEqualTo(url);
     }
 
     @Test
     void can_set_authority_to_null() {
       var url = RelativeUrl.parse("//example.com/path#fragment");
-      Url transformed = url.transform(it -> it.setAuthority(null));
+      Url transformed = url.thaw().setAuthority(null).build();
       assertThat(transformed)
           .isInstanceOf(RelativeUrl.class)
           .isEqualTo(RelativeUrl.parse("/path#fragment"));
+    }
+
+    @Test
+    void cannot_set_scheme_without_authority() {
+
+      RelativeUrl url = RelativeUrl.parse("/path?query#fragment");
+      assertThatExceptionOfType(IllegalUrl.class)
+          .isThrownBy(() -> url.transform(it -> it.setScheme(file)))
+          .withMessage("Illegal url: `file:/path?query#fragment`; a url has an authority")
+          .withNoCause()
+          .extracting(IllegalUrl::getIllegalValue)
+          .isEqualTo("file:/path?query#fragment");
     }
   }
 }

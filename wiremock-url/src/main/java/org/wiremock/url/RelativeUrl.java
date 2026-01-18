@@ -72,6 +72,11 @@ public non-sealed interface RelativeUrl extends Url {
   @Override
   RelativeUrl normalise();
 
+  @Override
+  default RelativeUrl.Transformer thaw() {
+    return new RelativeUrlTransformer(this);
+  }
+
   /**
    * Parses a string into a relative reference.
    *
@@ -109,5 +114,14 @@ public non-sealed interface RelativeUrl extends Url {
 
     @Override
     RelativeUrl build();
+  }
+
+  interface Transformer extends Url.Transformer<RelativeUrl.Transformer> {
+
+    @Override
+    RelativeUrl.Transformer setScheme(@Nullable Scheme scheme);
+
+    @Override
+    RelativeUrl.Transformer setAuthority(@Nullable Authority authority);
   }
 }
