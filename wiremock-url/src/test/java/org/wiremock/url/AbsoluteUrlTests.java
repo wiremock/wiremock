@@ -579,4 +579,16 @@ class AbsoluteUrlTests {
     assertThat(url.getServersideAbsoluteUrl())
         .isEqualTo(ServersideAbsoluteUrl.parse("https://example.com/"));
   }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "https://example.com/",
+        "https://example.com/#fragment",
+        "https://example.com:443/#fragment"
+      })
+  void get_origin_always_returns(String urlString) {
+    var url = AbsoluteUrl.parse(urlString);
+    assertThat(url.getOrigin()).isEqualTo(Origin.parse("https://example.com"));
+  }
 }

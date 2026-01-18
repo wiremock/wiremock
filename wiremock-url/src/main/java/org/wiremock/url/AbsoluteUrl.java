@@ -70,7 +70,8 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
    * @return the origin
    */
   default Origin getOrigin() {
-    return Origin.of(getScheme(), getAuthority().getHostAndPort());
+    var normalised = normalise();
+    return Origin.of(normalised.getScheme(), normalised.getAuthority().getHostAndPort());
   }
 
   /**
