@@ -241,7 +241,7 @@ class AbsoluteUrlTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<Uri>> normalisationCases =
+    static final List<NormalisationCase<AbsoluteUri>> normalisationCases =
         Stream.<Pair<String, String>>of(
                 // Scheme normalization - uppercase to lowercase
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
@@ -355,7 +355,7 @@ class AbsoluteUrlTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<Uri> alreadyNormalisedUrlReferences =
+    static final List<AbsoluteUri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
  */
-public sealed interface AbsoluteUri extends Uri
+public sealed interface AbsoluteUri extends Uri, Normalisable<AbsoluteUri>
     permits AbsoluteUrl, AbstractAbsoluteUriValue, OpaqueUri {
 
   @Override
@@ -48,6 +48,21 @@ public sealed interface AbsoluteUri extends Uri
 
   @Override
   AbsoluteUri normalise();
+
+  @Override
+  default boolean isNormalForm() {
+    var scheme = getScheme();
+    var authority = getAuthority();
+    var path = getPath();
+    var query = getQuery();
+    var fragment = getFragment();
+    return scheme.isNormalForm()
+        && (authority == null || authority.isNormalForm(scheme))
+        && path.isNormalForm()
+        && path.toString().startsWith("/")
+        && (query == null || query.isNormalForm())
+        && (fragment == null || fragment.isNormalForm());
+  }
 
   default AbsoluteUrl resolve(UrlWithAuthority other) {
     if (other instanceof AbsoluteUrl otherUrl) {

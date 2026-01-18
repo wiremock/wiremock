@@ -321,7 +321,9 @@ public class WhatWGUrlTestManagement {
     try {
       Uri inputUriRef = Uri.parse(input);
       inputExpectation = toExpectation(inputUriRef);
-      normalisedInputExpectation = toExpectation(inputUriRef.normalise());
+      Uri inputNormalised =
+          inputUriRef instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : inputUriRef;
+      normalisedInputExpectation = toExpectation(inputNormalised);
     } catch (IllegalUri e) {
       inputExpectation = expectation(testCase, input, false);
       normalisedInputExpectation = expectation(testCase, input, true);
@@ -334,7 +336,9 @@ public class WhatWGUrlTestManagement {
       try {
         Uri baseUriRef = Uri.parse(base);
         baseExpectation = toExpectation(baseUriRef);
-        baseNormalised = toExpectation(baseUriRef.normalise());
+        Uri base2 =
+            baseUriRef instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : baseUriRef;
+        baseNormalised = toExpectation(base2);
       } catch (IllegalUri e) {
         baseExpectation = expectation(testCase, base, false);
         baseNormalised = expectation(testCase, base, true);

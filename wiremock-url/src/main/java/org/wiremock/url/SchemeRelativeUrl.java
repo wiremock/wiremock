@@ -33,14 +33,6 @@ public non-sealed interface SchemeRelativeUrl extends RelativeUrl, UrlWithAuthor
   @Override
   Authority getAuthority();
 
-  /**
-   * Returns a normalised form of this scheme relative url.
-   *
-   * @return a normalised scheme relative url
-   */
-  @Override
-  SchemeRelativeUrl normalise();
-
   @Override
   default SchemeRelativeUrl getSchemeRelativeUrl() {
     return this;

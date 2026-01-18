@@ -24,15 +24,10 @@ import static org.wiremock.url.Scheme.https;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
 
 import java.util.List;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
-import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
 class RelativeUrlTests {
 
@@ -183,48 +178,6 @@ class RelativeUrlTests {
           .withMessage("Illegal relative url: `" + illegalRelativeUrl + "`")
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo(illegalRelativeUrl);
-    }
-  }
-
-  @Nested
-  class Normalise {
-
-    static final List<NormalisationCase<Uri>> normalisationCases =
-        Stream.of(
-                // Protocol-relative URLs - host normalization
-                Pair.of("//EXAMPLE.COM:8080", "//example.com:8080/"),
-                Pair.of("//EXAMPLE.COM:08080", "//example.com:8080/"),
-                Pair.of(
-                    "//EXAMPLE.com:8080/p ath?q uery#fr agment",
-                    "//example.com:8080/p%20ath?q%20uery#fr%20agment"),
-                Pair.of(
-                    "//example.com:8080/p ath?q uery#fr agment",
-                    "//example.com:8080/p%20ath?q%20uery#fr%20agment"),
-                Pair.of("//example.com:8080/p ath", "//example.com:8080/p%20ath"),
-                Pair.of("//example.com:8080/?q uery", "//example.com:8080/?q%20uery"),
-                Pair.of("//example.com:8080/#fr agment", "//example.com:8080/#fr%20agment"),
-                Pair.of("#fr agment", "/#fr%20agment"),
-                Pair.of("//example.com:8080#fr agment", "//example.com:8080/#fr%20agment"),
-                Pair.of("//example.com:08080", "//example.com:8080/"))
-            .map(
-                it ->
-                    new NormalisationCase<>(
-                        RelativeUrl.parse(it.getLeft()), RelativeUrl.parse(it.getRight())))
-            .toList();
-
-    @TestFactory
-    Stream<DynamicTest> normalises_uri_reference_correctly() {
-      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(
-          normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
-    }
-
-    static final List<Uri> alreadyNormalisedUrlReferences =
-        normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
-
-    @TestFactory
-    Stream<DynamicTest> already_normalised_invariants() {
-      return NormalisableInvariantTests.generateNormalisedInvariantTests(
-          alreadyNormalisedUrlReferences);
     }
   }
 

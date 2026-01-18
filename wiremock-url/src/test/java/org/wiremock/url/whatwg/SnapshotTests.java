@@ -137,7 +137,8 @@ public class SnapshotTests {
   void wiremock_valid(SimpleParseSuccess testCase) {
 
     var inputUriRef = parseReference(testCase, testCase.input());
-    Uri inputNormalised = inputUriRef.normalise();
+    Uri inputNormalised =
+        inputUriRef instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : inputUriRef;
 
     var baseUri = parseUri(testCase, testCase.base());
     var baseNormalised = baseUri != null ? baseUri.normalise() : null;
@@ -223,7 +224,8 @@ public class SnapshotTests {
   private void registerUpdatedSuccess(WireMockSnapshotTestCase testCase) {
     String input = testCase.input();
     Uri inputUriRef = Uri.parse(input);
-    final Uri inputNormalised = inputUriRef.normalise();
+    Uri inputNormalised =
+        inputUriRef instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : inputUriRef;
 
     final UriReferenceExpectation inputExpected = toExpectation(inputUriRef);
     final UriReferenceExpectation inputNormalisedExpected = toExpectation(inputNormalised);

@@ -16,10 +16,9 @@
 package org.wiremock.url;
 
 import java.util.Objects;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Uri {
+abstract non-sealed class AbstractUriValue implements Uri {
 
   protected final @Nullable Scheme scheme;
   protected final @Nullable Authority authority;
@@ -63,46 +62,6 @@ abstract non-sealed class AbstractUriValue<NORMALISED extends Uri> implements Ur
   @Override
   public @Nullable Fragment getFragment() {
     return fragment;
-  }
-
-  @Override
-  @SuppressWarnings("NullableProblems")
-  public @NonNull NORMALISED normalise() {
-    Scheme normalisedScheme = scheme != null ? scheme.normalise() : null;
-    Authority normalisedAuthority = getNormalisedAuthority(normalisedScheme);
-    Path normalisedPath = path.normalise();
-    if (normalisedPath.isEmpty()) {
-      normalisedPath = Path.ROOT;
-    }
-    Query normalisedQuery = query == null ? null : query.normalise();
-    Fragment normalisedFragment = fragment == null ? null : fragment.normalise();
-    var uri =
-        (Objects.equals(normalisedScheme, scheme)
-                && Objects.equals(normalisedAuthority, authority)
-                && Objects.equals(normalisedPath, path)
-                && Objects.equals(normalisedQuery, query)
-                && Objects.equals(normalisedFragment, fragment))
-            ? this
-            : Uri.builder()
-                .setScheme(normalisedScheme)
-                .setAuthority(normalisedAuthority)
-                .setPath(normalisedPath)
-                .setQuery(normalisedQuery)
-                .setFragment(normalisedFragment)
-                .build();
-    return getNormalised(uri);
-  }
-
-  @SuppressWarnings("unchecked")
-  private NORMALISED getNormalised(Uri uri) {
-    return (NORMALISED) uri;
-  }
-
-  private @Nullable Authority getNormalisedAuthority(@Nullable Scheme normalisedScheme) {
-    if (authority == null) {
-      return null;
-    }
-    return normalisedScheme == null ? authority.normalise() : authority.normalise(normalisedScheme);
   }
 
   @Override

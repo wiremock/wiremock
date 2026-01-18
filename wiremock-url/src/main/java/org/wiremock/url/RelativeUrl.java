@@ -64,14 +64,6 @@ public non-sealed interface RelativeUrl extends Url {
     return false;
   }
 
-  /**
-   * Returns a normalised form of this relative reference.
-   *
-   * @return a normalised relative reference
-   */
-  @Override
-  RelativeUrl normalise();
-
   @Override
   default RelativeUrl.Transformer thaw() {
     return new RelativeUrlTransformer(this);

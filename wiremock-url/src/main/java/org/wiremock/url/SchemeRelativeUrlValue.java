@@ -19,8 +19,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.jspecify.annotations.Nullable;
 
-class SchemeRelativeUrlValue extends AbstractUriValue<SchemeRelativeUrl>
-    implements SchemeRelativeUrl {
+class SchemeRelativeUrlValue extends AbstractUriValue implements SchemeRelativeUrl {
 
   protected final Authority nonNullAuthority;
 

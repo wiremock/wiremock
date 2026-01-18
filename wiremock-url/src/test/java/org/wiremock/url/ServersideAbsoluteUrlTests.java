@@ -164,7 +164,7 @@ class ServersideAbsoluteUrlTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<Uri>> normalisationCases =
+    static final List<NormalisationCase<AbsoluteUri>> normalisationCases =
         Stream.<Pair<String, String>>of(
                 Pair.of("HTTPS://EXAMPLE.COM:8080", "https://example.com:8080/"),
                 Pair.of("HTTPS://EXAMPLE.COM:08080", "https://example.com:8080/"),
@@ -262,7 +262,7 @@ class ServersideAbsoluteUrlTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<Uri> alreadyNormalisedUrlReferences =
+    static final List<AbsoluteUri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

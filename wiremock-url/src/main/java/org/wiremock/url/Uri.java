@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
  */
-public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, AbstractUriValue, Url {
+public sealed interface Uri permits AbsoluteUri, AbstractUriValue, Url {
 
   /**
    * Returns the scheme component of this URI, or {@code null} if it is a URI Reference and so there
@@ -142,33 +142,6 @@ public sealed interface Uri extends Normalisable<Uri> permits AbsoluteUri, Abstr
     Port definedPort = getPort();
     Scheme scheme = getScheme();
     return definedPort != null ? definedPort : (scheme != null ? scheme.getDefaultPort() : null);
-  }
-
-  /**
-   * Returns a normalised form of this URI reference.
-   *
-   * <p>Normalization includes canonicalizing the scheme to lowercase, normalizing the host,
-   * removing dot segments from the path, and normalizing percent-encoding.
-   *
-   * @return a normalised URI reference
-   * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-6">RFC 3986 Section 6</a>
-   */
-  @Override
-  Uri normalise();
-
-  @Override
-  default boolean isNormalForm() {
-    var scheme = getScheme();
-    var authority = getAuthority();
-    var path = getPath();
-    var query = getQuery();
-    var fragment = getFragment();
-    return (scheme == null || scheme.isNormalForm())
-        && (authority == null
-            || (scheme == null ? authority.isNormalForm() : authority.isNormalForm(scheme)))
-        && (path.isNormalForm() && path.toString().startsWith("/"))
-        && (query == null || query.isNormalForm())
-        && (fragment == null || fragment.isNormalForm());
   }
 
   /**

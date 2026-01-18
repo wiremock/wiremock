@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class PathAndQueryValue extends AbstractUriValue<PathAndQuery> implements PathAndQuery {
+final class PathAndQueryValue extends AbstractUriValue implements PathAndQuery {
 
   PathAndQueryValue(Path path, @Nullable Query query) {
     super(null, null, path, query, null);

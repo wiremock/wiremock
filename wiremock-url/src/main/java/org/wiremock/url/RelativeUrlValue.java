@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class RelativeUrlValue extends AbstractUriValue<RelativeUrl> implements RelativeUrl {
+final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
 
   RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(null, null, path, query, fragment);

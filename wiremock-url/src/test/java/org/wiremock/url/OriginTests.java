@@ -104,7 +104,7 @@ public class OriginTests {
   @Nested
   class Normalise {
 
-    static final List<NormalisationCase<Uri>> normalisationCases =
+    static final List<NormalisationCase<AbsoluteUri>> normalisationCases =
         Stream.of(
                 Pair.of("http://example.com", "http://example.com/"),
                 Pair.of("http://example.com:8080", "http://example.com:8080/"))
@@ -120,7 +120,7 @@ public class OriginTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<Uri> alreadyNormalisedUrlReferences =
+    static final List<AbsoluteUri> alreadyNormalisedUrlReferences =
         normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
 
     @TestFactory

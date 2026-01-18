@@ -139,7 +139,7 @@ public record SuccessWhatWGUrlTestCase(
         report("base", base);
         resolved = base.resolve(input);
       } else {
-        resolved = input.normalise();
+        resolved = input instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : input;
       }
       report("resolved", resolved);
       throw e;

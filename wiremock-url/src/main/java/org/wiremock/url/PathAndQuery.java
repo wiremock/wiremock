@@ -57,14 +57,6 @@ public interface PathAndQuery extends RelativeUrl {
   }
 
   /**
-   * Returns a normalised form of this path and query.
-   *
-   * @return a normalised path and query
-   */
-  @Override
-  PathAndQuery normalise();
-
-  /**
    * Parses a string into a path and query.
    *
    * @param pathAndQuery the string to parse

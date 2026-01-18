@@ -36,7 +36,8 @@ public class NormalisedAreJavaUrisTests {
   @FieldSource("wiremock_valid")
   void normalised_are_all_valid_java_uris(SimpleParseSuccess testCase) {
     var inputUriRef = Uri.parse(testCase.input());
-    Uri inputNormalised = inputUriRef.normalise();
+    Uri inputNormalised =
+        inputUriRef instanceof AbsoluteUri absoluteUri ? absoluteUri.normalise() : inputUriRef;
 
     var baseUri = parseUri(testCase.base());
     var baseNormalised = baseUri != null ? baseUri.normalise() : null;
@@ -47,7 +48,7 @@ public class NormalisedAreJavaUrisTests {
 
     Assertions.assertDoesNotThrow(
         () -> {
-          if (hasJavaValidAuthority(inputNormalised)) {
+          if (inputNormalised instanceof AbsoluteUri && hasJavaValidAuthority(inputNormalised)) {
             URI.create(inputNormalised.toString());
           }
           if (baseNormalised != null) {
