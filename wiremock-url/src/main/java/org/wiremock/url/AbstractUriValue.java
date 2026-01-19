@@ -20,22 +20,14 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-abstract non-sealed class AbstractUriValue extends MemoisedParsedString implements Uri {
+abstract non-sealed class AbstractUriValue implements Uri {
 
   protected final @Nullable Scheme scheme;
   protected final @Nullable Authority authority;
   protected final Path path;
   protected final @Nullable Query query;
   protected final @Nullable Fragment fragment;
-
-  AbstractUriValue(
-      @Nullable Scheme scheme,
-      @Nullable Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    this(null, scheme, authority, path, query, fragment);
-  }
+  private final MemoisedToString toString;
 
   AbstractUriValue(
       @Nullable String stringValue,
@@ -44,7 +36,7 @@ abstract non-sealed class AbstractUriValue extends MemoisedParsedString implemen
       Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
-    super(stringValue);
+    this.toString = new MemoisedToString(stringValue, this::buildString);
     this.scheme = scheme;
     this.authority = authority;
     this.path = requireNonNull(path);
@@ -123,7 +115,11 @@ abstract non-sealed class AbstractUriValue extends MemoisedParsedString implemen
   }
 
   @Override
-  String buildString() {
+  public String toString() {
+    return toString.toString();
+  }
+
+  private String buildString() {
     StringBuilder result = new StringBuilder();
     if (getScheme() != null) {
       result.append(getScheme()).append(":");
