@@ -84,7 +84,6 @@ final class Constants {
     return charSet;
   }
 
-  @SuppressWarnings("SameParameterValue")
   static boolean[] remove(boolean[] original, char... toRemove) {
     boolean[] result = new boolean[original.length];
     System.arraycopy(original, 0, result, 0, original.length);

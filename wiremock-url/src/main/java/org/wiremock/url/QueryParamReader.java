@@ -27,7 +27,6 @@ import org.jspecify.annotations.Nullable;
  * {@link QueryParamKey} or {@link QueryParamValue}, so must be called with an <b>unencoded</b>
  * value.
  */
-@SuppressWarnings("unused")
 public interface QueryParamReader {
 
   List<Entry<QueryParamKey, @Nullable QueryParamValue>> getEntries();
