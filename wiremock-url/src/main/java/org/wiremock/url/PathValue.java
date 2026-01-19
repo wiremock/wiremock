@@ -30,15 +30,16 @@ import org.jspecify.annotations.Nullable;
 final class PathValue implements Path {
 
   private final String path;
-  private final boolean isNormalForm;
+  private final MemoisedNormalisable<Path> memoisedNormalisable;
 
   PathValue(String path) {
-    this(path, false);
+    this(path, null);
   }
 
-  PathValue(String path, boolean isNormalForm) {
+  PathValue(String path, @Nullable Boolean isNormalForm) {
     this.path = path;
-    this.isNormalForm = isNormalForm;
+    this.memoisedNormalisable =
+        new MemoisedNormalisable<>(this, isNormalForm, this::isNormalFormWork, this::normaliseWork);
   }
 
   @Override
@@ -57,8 +58,12 @@ final class PathValue implements Path {
    */
   @Override
   public Path normalise() {
-    if (isNormalForm || this.equals(ROOT) || this.equals(EMPTY)) {
-      return this;
+    return memoisedNormalisable.normalise();
+  }
+
+  private @Nullable Path normaliseWork() {
+    if (this.equals(ROOT) || this.equals(EMPTY)) {
+      return null;
     }
     var inputBuffer = new StringBuilder(path);
     var outputBuffer = new StringBuilder();
@@ -101,7 +106,7 @@ final class PathValue implements Path {
     }
     var outStr = PathParser.INSTANCE.encode2(outputBuffer.toString());
     if (outStr.equals(path)) {
-      return this;
+      return null;
     } else if (outStr.equals(ROOT.toString())) {
       return ROOT;
     } else {
@@ -111,7 +116,11 @@ final class PathValue implements Path {
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || normalise().equals(this);
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean isNormalFormWork() {
+    return normalise().equals(this);
   }
 
   private static int getEndOfFirstSegment(StringBuilder inputBuffer) {

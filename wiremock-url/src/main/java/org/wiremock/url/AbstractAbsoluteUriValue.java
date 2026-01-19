@@ -25,6 +25,7 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
     extends AbstractUriValue implements AbsoluteUri {
 
   protected final Scheme nonNullScheme;
+  private final MemoisedNormalisable<AbsoluteUri> memoisedNormalisable;
 
   AbstractAbsoluteUriValue(
       @Nullable String stringValue,
@@ -35,6 +36,8 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
       @Nullable Fragment fragment) {
     super(stringValue, scheme, authority, path, query, fragment);
     this.nonNullScheme = requireNonNull(scheme);
+    this.memoisedNormalisable =
+        new MemoisedNormalisable<>(this, this::doIsNormalForm, this::doNormalise);
   }
 
   @Override
@@ -45,6 +48,10 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
   @Override
   @SuppressWarnings("NullableProblems")
   public @NonNull NORMALISED normalise() {
+    return getNormalised(memoisedNormalisable.normalise());
+  }
+
+  private AbsoluteUri doNormalise() {
     Scheme normalisedScheme = scheme != null ? scheme.normalise() : null;
     Authority normalisedAuthority = getNormalisedAuthority(normalisedScheme);
     Path normalisedPath = path.normalise();
@@ -73,6 +80,15 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
   @SuppressWarnings("unchecked")
   private NORMALISED getNormalised(Uri uri) {
     return (NORMALISED) uri;
+  }
+
+  @Override
+  public boolean isNormalForm() {
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean doIsNormalForm() {
+    return AbsoluteUri.super.isNormalForm();
   }
 
   private @Nullable Authority getNormalisedAuthority(@Nullable Scheme normalisedScheme) {

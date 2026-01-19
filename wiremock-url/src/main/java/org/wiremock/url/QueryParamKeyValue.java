@@ -16,19 +16,21 @@
 package org.wiremock.url;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 class QueryParamKeyValue implements QueryParamKey {
 
   private final String stringForm;
-  private final boolean isNormalForm;
+  private final MemoisedNormalisable<QueryParamKey> memoisedNormalisable;
 
   public QueryParamKeyValue(String stringForm) {
-    this(stringForm, false);
+    this(stringForm, null);
   }
 
-  QueryParamKeyValue(String stringForm, boolean isNormalForm) {
+  QueryParamKeyValue(String stringForm, @Nullable Boolean isNormalForm) {
     this.stringForm = stringForm;
-    this.isNormalForm = isNormalForm;
+    this.memoisedNormalisable =
+        new MemoisedNormalisable<>(this, isNormalForm, this::isNormalFormWork, this::normaliseWork);
   }
 
   @Override
@@ -54,22 +56,20 @@ class QueryParamKeyValue implements QueryParamKey {
 
   @Override
   public QueryParamKey normalise() {
-    if (isNormalForm) {
-      return this;
-    }
+    return memoisedNormalisable.normalise();
+  }
 
+  private @Nullable QueryParamKey normaliseWork() {
     String result = Constants.normalise(stringForm, QueryParamKeyParser.queryParamKeyCharSet);
-
-    if (result == null) {
-      return this;
-    } else {
-      return new QueryParamKeyValue(result, true);
-    }
+    return result != null ? new QueryParamKeyValue(result, true) : null;
   }
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm
-        || Constants.isNormalForm(stringForm, QueryParamKeyParser.queryParamKeyCharSet);
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean isNormalFormWork() {
+    return Constants.isNormalForm(stringForm, QueryParamKeyParser.queryParamKeyCharSet);
   }
 }

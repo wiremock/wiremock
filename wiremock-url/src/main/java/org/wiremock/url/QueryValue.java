@@ -31,21 +31,23 @@ final class QueryValue implements Query {
 
   private final String query;
   private volatile @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries;
-  private final boolean isNormalForm;
+  private final MemoisedNormalisable<Query> memoisedNormalisable;
 
   QueryValue(String query) {
-    this(query, false);
+    this(query, null);
   }
 
-  QueryValue(String query, boolean isNormalForm) {
+  QueryValue(String query, @Nullable Boolean isNormalForm) {
     this(query, null, isNormalForm);
   }
 
   QueryValue(List<Entry<QueryParamKey, @Nullable QueryParamValue>> params) {
-    this(params, false);
+    this(params, null);
   }
 
-  QueryValue(List<Entry<QueryParamKey, @Nullable QueryParamValue>> params, boolean isNormalForm) {
+  QueryValue(
+      List<Entry<QueryParamKey, @Nullable QueryParamValue>> params,
+      @Nullable Boolean isNormalForm) {
     this(joinToString(params), Collections.unmodifiableList(params), isNormalForm);
   }
 
@@ -62,10 +64,11 @@ final class QueryValue implements Query {
   private QueryValue(
       String query,
       @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries,
-      boolean isNormalForm) {
+      @Nullable Boolean isNormalForm) {
     this.query = query;
     this.paramEntries = paramEntries;
-    this.isNormalForm = isNormalForm;
+    this.memoisedNormalisable =
+        new MemoisedNormalisable<>(this, isNormalForm, this::isNormalFormWork, this::normaliseWork);
   }
 
   @Override
@@ -75,10 +78,10 @@ final class QueryValue implements Query {
 
   @Override
   public Query normalise() {
-    if (isNormalForm) {
-      return this;
-    }
+    return memoisedNormalisable.normalise();
+  }
 
+  private @Nullable Query normaliseWork() {
     var currentParams = getEntries();
     List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> normalised =
         currentParams.stream()
@@ -95,7 +98,7 @@ final class QueryValue implements Query {
             .toList();
 
     if (normalised.equals(currentParams)) {
-      return this;
+      return null;
     } else {
       return new QueryValue(normalised, true);
     }
@@ -115,13 +118,16 @@ final class QueryValue implements Query {
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm
-        || getEntries().stream()
-            .allMatch(
-                entry -> {
-                  QueryParamValue value = entry.getValue();
-                  return entry.getKey().isNormalForm() && (value == null || value.isNormalForm());
-                });
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean isNormalFormWork() {
+    return getEntries().stream()
+        .allMatch(
+            entry -> {
+              QueryParamValue value = entry.getValue();
+              return entry.getKey().isNormalForm() && (value == null || value.isNormalForm());
+            });
   }
 
   @Override

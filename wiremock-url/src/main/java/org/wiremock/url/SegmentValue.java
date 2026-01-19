@@ -16,19 +16,21 @@
 package org.wiremock.url;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 final class SegmentValue implements Segment {
 
   private final String stringForm;
-  private final boolean isNormalForm;
+  private final MemoisedNormalisable<Segment> memoisedNormalisable;
 
   SegmentValue(String stringForm) {
-    this(stringForm, false);
+    this(stringForm, null);
   }
 
-  SegmentValue(String stringForm, boolean isNormalForm) {
+  SegmentValue(String stringForm, @Nullable Boolean isNormalForm) {
     this.stringForm = stringForm;
-    this.isNormalForm = isNormalForm;
+    this.memoisedNormalisable =
+        new MemoisedNormalisable<>(this, isNormalForm, this::isNormalFormWork, this::normaliseWork);
   }
 
   @Override
@@ -54,21 +56,20 @@ final class SegmentValue implements Segment {
 
   @Override
   public Segment normalise() {
-    if (isNormalForm) {
-      return this;
-    }
+    return memoisedNormalisable.normalise();
+  }
 
+  private @Nullable Segment normaliseWork() {
     String result = Constants.normalise(stringForm, SegmentParser.segmentCharSet);
-
-    if (result == null) {
-      return this;
-    } else {
-      return new SegmentValue(result, true);
-    }
+    return result != null ? new SegmentValue(result, true) : null;
   }
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean isNormalFormWork() {
+    return Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
   }
 }
