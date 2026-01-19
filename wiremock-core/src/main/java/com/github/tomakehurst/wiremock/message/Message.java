@@ -17,19 +17,18 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(using = Message.MessageDeserializer.class)
 public class Message {
@@ -84,9 +83,9 @@ public class Message {
     return getBodyAsString();
   }
 
-  static class MessageDeserializer extends JsonDeserializer<Message> {
+  static class MessageDeserializer extends ValueDeserializer<Message> {
     @Override
-    public Message deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Message deserialize(JsonParser p, DeserializationContext ctxt) {
       String text = p.getValueAsString();
       if (text == null) {
         return new Message(null);

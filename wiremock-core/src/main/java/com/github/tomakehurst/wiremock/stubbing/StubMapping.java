@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.common.Prioritisable;
@@ -34,6 +33,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.stream.Collectors;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
 public class MatchesXPathPattern extends PathPattern {

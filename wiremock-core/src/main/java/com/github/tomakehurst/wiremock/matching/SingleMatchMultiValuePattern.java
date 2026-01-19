@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(as = SingleMatchMultiValuePattern.class)
 public class SingleMatchMultiValuePattern extends MultiValuePattern {

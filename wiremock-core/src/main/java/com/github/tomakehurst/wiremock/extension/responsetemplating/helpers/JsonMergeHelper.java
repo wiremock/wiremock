@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 class JsonMergeHelper extends HandlebarsHelper<Object> {
 
@@ -64,12 +63,11 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
         options.hash.containsKey("removeNulls") && (boolean) options.hash.get("removeNulls");
 
     merge((ObjectNode) baseJson, (ObjectNode) jsonToMerge, removeNulls);
-    return Json.getObjectMapper().writeValueAsString(baseJson);
+    return Json.getJsonMapper().writeValueAsString(baseJson);
   }
 
   private void merge(ObjectNode base, ObjectNode other, boolean removeNulls) {
-    for (Iterator<Map.Entry<String, JsonNode>> it = other.fields(); it.hasNext(); ) {
-      Map.Entry<String, JsonNode> child = it.next();
+    for (Map.Entry<String, JsonNode> child : other.properties()) {
       String fieldName = child.getKey();
       JsonNode childNodeToMerge = child.getValue();
       if (childNodeToMerge instanceof ObjectNode) {

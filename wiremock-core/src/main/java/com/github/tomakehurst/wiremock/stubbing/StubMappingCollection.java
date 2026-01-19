@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
 @JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.BeanDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsNoneOf;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsOneOf;
-import java.io.IOException;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ArrayNode;
 
-public class RequestMethodJsonDeserializer extends JsonDeserializer<RequestMethod> {
+public class RequestMethodJsonDeserializer extends ValueDeserializer<RequestMethod> {
 
   @Override
   public RequestMethod deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException, JacksonException {
+      throws JacksonException {
     JsonNode rootNode = parser.readValueAsTree();
     RequestMethod requestMethod;
     if (rootNode.has(IsOneOf.NAME)) {
@@ -47,7 +45,7 @@ public class RequestMethodJsonDeserializer extends JsonDeserializer<RequestMetho
       Set<RequestMethod> methods = toRequestMethodSet(itemsNode);
       requestMethod = new IsNoneOf(methods);
     } else {
-      requestMethod = RequestMethod.fromString(rootNode.asText());
+      requestMethod = RequestMethod.fromString(rootNode.asString());
     }
 
     return requestMethod;
@@ -55,8 +53,9 @@ public class RequestMethodJsonDeserializer extends JsonDeserializer<RequestMetho
 
   private static Set<RequestMethod> toRequestMethodSet(ArrayNode itemsNode) {
     return StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(itemsNode.elements(), Spliterator.ORDERED), false)
-        .map(JsonNode::asText)
+            Spliterators.spliteratorUnknownSize(itemsNode.values().iterator(), Spliterator.ORDERED),
+            false)
+        .map(JsonNode::asString)
         .map(RequestMethod::fromString)
         .collect(Collectors.toSet());
   }

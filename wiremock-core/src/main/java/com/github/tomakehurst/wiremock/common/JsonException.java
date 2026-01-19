@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
 
 public class JsonException extends InvalidInputException {
 
@@ -28,23 +28,23 @@ public class JsonException extends InvalidInputException {
     super(errors);
   }
 
-  public static JsonException fromJackson(JsonProcessingException processingException) {
+  public static JsonException fromJackson(JacksonException processingException) {
     Throwable rootCause = getRootCause(processingException);
 
     String message = rootCause.getMessage();
     if (rootCause instanceof PatternSyntaxException) {
       PatternSyntaxException patternSyntaxException = (PatternSyntaxException) rootCause;
       message = patternSyntaxException.getMessage();
-    } else if (rootCause instanceof JsonMappingException) {
-      message = ((JsonMappingException) rootCause).getOriginalMessage();
+    } else if (rootCause instanceof DatabindException) {
+      message = ((DatabindException) rootCause).getOriginalMessage();
     } else if (rootCause instanceof InvalidInputException) {
       message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
     }
 
     String pointer = null;
-    if (processingException instanceof JsonMappingException) {
+    if (processingException instanceof DatabindException) {
       List<String> nodes =
-          ((JsonMappingException) processingException)
+          ((DatabindException) processingException)
               .getPath().stream().map(TO_NODE_NAMES).collect(Collectors.toList());
       pointer = "/" + String.join("/", nodes);
     }
@@ -60,7 +60,9 @@ public class JsonException extends InvalidInputException {
     return e;
   }
 
-  private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES =
+  private static final Function<DatabindException.Reference, String> TO_NODE_NAMES =
       input ->
-          input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
+          input.getPropertyName() != null
+              ? input.getPropertyName()
+              : String.valueOf(input.getIndex());
 }

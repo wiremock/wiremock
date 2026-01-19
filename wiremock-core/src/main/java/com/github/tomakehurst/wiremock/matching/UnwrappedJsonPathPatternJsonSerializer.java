@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class UnwrappedJsonPathPatternJsonSerializer extends JsonPathPatternJsonSerializer {
 
   @Override
   public void serialize(
-      MatchesJsonPathPattern value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException {
+      MatchesJsonPathPattern value, JsonGenerator gen, SerializationContext serializers) {
     this.serializePathPattern(value, gen, serializers);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junitpioneer.jupiter.json.JsonSource;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
 
@@ -175,15 +179,22 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[]"));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenInputJsonIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.readTree(
+                "[ { \"id\": 456, \"name\": \"bob\" }, { \"id\": 123, \"name\": \"alice\" }, { \"id\": 321, \"name\": \"sam\" } ]"),
+            mapper.readTree("{ \"id\": 456, \"name\": \"bob\" }"),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenInputJsonIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[ { id: 456, name: 'bob' }, { id: 123, name: 'alice' }, { id: 321, name: 'sam' } ]]",
-    "{ id: 456, name: 'bob' }",
-    "true",
-    "null",
-    "123",
-  })
   void returnsAnErrorWhenInputJsonIsNotAString(Object inputJson) throws IOException {
     Handlebars handleBars =
         new Handlebars()
@@ -291,15 +302,21 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[ERROR: Item-to-add JSON is not valid JSON ('" + block + "')]"));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenItemToAddIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.readTree("[ { \"id\": 456, \"name\": \"bob\" } ]"),
+            mapper.readTree("{ \"id\": 456, \"name\": \"bob\" }"),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenItemToAddIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[ { id: 456, name: 'bob' } ]]",
-    "{ id: 456, name: 'bob' }",
-    "true",
-    "null",
-    "123",
-  })
   void returnsAnErrorWhenItemToAddIsNotAString(Object item) throws IOException {
     Handlebars handleBars =
         new Handlebars()
@@ -337,16 +354,22 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[ERROR: Item-to-add JSON is not valid JSON ('" + item + "')]"));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenMaxItemsIsNotAnInteger() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            nodeFactory.numberNode(1.23),
+            nodeFactory.booleanNode(true),
+            nodeFactory.stringNode("not a number"),
+            nodeFactory.stringNode("1"),
+            nodeFactory.objectNode(),
+            nodeFactory.arrayNode()));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenMaxItemsIsNotAnInteger")
   @ParameterizedTest
-  @JsonSource({
-    "1.23",
-    "true",
-    "'not a number'",
-    "'1'",
-    "{}",
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[]]",
-  })
   void returnsAnErrorWhenMaxItemsIsNotAnInteger(Object maxItems) throws IOException {
     Handlebars handleBars =
         new Handlebars()
@@ -384,16 +407,22 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[ERROR: maxItems option integer must be positive]"));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenFlattenOptionIsNotABoolean() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            nodeFactory.numberNode(1.23),
+            nodeFactory.stringNode("true"),
+            nodeFactory.stringNode("not a number"),
+            nodeFactory.numberNode(1),
+            nodeFactory.objectNode(),
+            nodeFactory.arrayNode()));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenFlattenOptionIsNotABoolean")
   @ParameterizedTest
-  @JsonSource({
-    "1.23",
-    "'true'",
-    "'not a number'",
-    "1",
-    "{}",
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[]]",
-  })
   void returnsAnErrorWhenFlattenOptionIsNotABoolean(Object flatten) throws IOException {
     Handlebars handleBars =
         new Handlebars()
@@ -438,15 +467,21 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is(expectedOutput));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenJsonpathOptionIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            nodeFactory.numberNode(1),
+            nodeFactory.numberNode(1.23),
+            nodeFactory.booleanNode(true),
+            nodeFactory.objectNode(),
+            nodeFactory.arrayNode()));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenJsonpathOptionIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    "1",
-    "1.23",
-    "true",
-    "{}",
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[]]",
-  })
   void returnsAnErrorWhenJsonpathOptionIsNotAString(Object jsonPath) throws IOException {
     Handlebars handleBars =
         new Handlebars()

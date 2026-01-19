@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
 @JsonDeserialize()

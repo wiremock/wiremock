@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
 public class ResponseDefinitionBodyMatcherDeserializer
-    extends JsonDeserializer<ResponseDefinitionBodyMatcher> {
+    extends ValueDeserializer<ResponseDefinitionBodyMatcher> {
   @Override
   public ResponseDefinitionBodyMatcher deserialize(
-      JsonParser parser, DeserializationContext context) throws IOException {
+      JsonParser parser, DeserializationContext context) {
     JsonNode rootNode = parser.readValueAsTree();
     return new ResponseDefinitionBodyMatcher(
         parseJsonNode(rootNode.get("textSizeThreshold")),

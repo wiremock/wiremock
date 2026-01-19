@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.databind.json.JsonMapper;
 
 @SuppressWarnings("rawtypes")
 public class LoggedRequestTest {
@@ -198,8 +197,9 @@ public class LoggedRequestTest {
   }
 
   @Test
-  void queryParametersAreDeserialized() throws IOException {
-    LoggedRequest req = new ObjectMapper().readValue(JSON_PARAMS_EXAMPLE, LoggedRequest.class);
+  void queryParametersAreDeserialized() {
+    LoggedRequest req =
+        JsonMapper.builder().build().readValue(JSON_PARAMS_EXAMPLE, LoggedRequest.class);
 
     assertEquals("test-param-1", req.queryParameter("test-param-1").key());
     assertEquals("value-1", req.queryParameter("test-param-1").firstValue());

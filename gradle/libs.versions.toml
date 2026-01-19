@@ -1,6 +1,6 @@
 [versions]
 jetty = "12.1.5"
-jackson = "2.20.1"
+jackson = "3.0.3"
 xmlUnit = "2.11.0"
 jsonUnit = "5.1.0"
 junitJupiter = "5.14.2"
@@ -39,11 +39,10 @@ jetty-io = { module = "org.eclipse.jetty:jetty-io" }
 jetty-util = { module = "org.eclipse.jetty:jetty-util" }
 
 # Jackson dependencies
-jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
+jackson-bom = { module = "tools.jackson:jackson-bom", version.ref = "jackson" }
+jackson-core = { module = "tools.jackson.core:jackson-core" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 
 # Guava
 guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
@@ -93,7 +92,7 @@ handlebars-helpers = { module = "com.github.jknack:handlebars-helpers", version.
 commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.6.0" }
 
 # JSON Schema
-json-schema-validator = { module = "com.networknt:json-schema-validator", version = "1.5.9" }
+json-schema-validator = { module = "com.networknt:json-schema-validator", version = "3.0.0" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }

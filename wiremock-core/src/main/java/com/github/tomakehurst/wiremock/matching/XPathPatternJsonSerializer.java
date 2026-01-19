@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.util.NameTransformer;
-import java.io.IOException;
 import java.util.Map;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.util.NameTransformer;
 
 public class XPathPatternJsonSerializer extends PathPatternJsonSerializer<MatchesXPathPattern> {
 
   @Override
-  public JsonSerializer<MatchesXPathPattern> unwrappingSerializer(NameTransformer unwrapper) {
+  public ValueSerializer<MatchesXPathPattern> unwrappingSerializer(NameTransformer unwrapper) {
     return new UnwrappedXPathPatternJsonSerializer();
   }
 
   @Override
   protected void serializeAdditionalFields(
-      MatchesXPathPattern value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException {
+      MatchesXPathPattern value, JsonGenerator gen, SerializationContext serializers) {
     if (value.getXPathNamespaces() != null && !value.getXPathNamespaces().isEmpty()) {
-      gen.writeObjectFieldStart("xPathNamespaces");
+      gen.writeObjectPropertyStart("xPathNamespaces");
       for (Map.Entry<String, String> namespace : value.getXPathNamespaces().entrySet()) {
-        gen.writeStringField(namespace.getKey(), namespace.getValue());
+        gen.writeStringProperty(namespace.getKey(), namespace.getValue());
       }
       gen.writeEndObject();
     }

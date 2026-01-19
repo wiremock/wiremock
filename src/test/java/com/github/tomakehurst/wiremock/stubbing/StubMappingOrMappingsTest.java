@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.tomakehurst.wiremock.common.Json;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 public class StubMappingOrMappingsTest {
 
@@ -48,13 +49,19 @@ public class StubMappingOrMappingsTest {
     MismatchedInputException mismatchedInputException =
         assertThrows(
             MismatchedInputException.class,
-            () -> Json.getObjectMapper().readValue(stubMappingsJson, StubMappingCollection.class));
+            () -> Json.getJsonMapper().readValue(stubMappingsJson, StubMappingCollection.class));
     assertThat(
-        ((JsonParser) mismatchedInputException.getProcessor())
-            .getParsingContext()
-            .pathAsPointer()
-            .toString(),
-        is("/mappings/1/response/status"));
+        mismatchedInputException.getPath().stream()
+            .map(
+                reference -> {
+                  if (reference.getIndex() == -1) {
+                    return reference.getPropertyName();
+                  } else {
+                    return String.valueOf(reference.getIndex());
+                  }
+                })
+            .collect(Collectors.joining("/")),
+        is("mappings/1/response/status"));
   }
 
   @Test
@@ -70,12 +77,11 @@ public class StubMappingOrMappingsTest {
     MismatchedInputException mismatchedInputException =
         assertThrows(
             MismatchedInputException.class,
-            () -> Json.getObjectMapper().readValue(stubMappingJson, StubMapping.class));
+            () -> Json.getJsonMapper().readValue(stubMappingJson, StubMapping.class));
     assertThat(
-        ((JsonParser) mismatchedInputException.getProcessor())
-            .getParsingContext()
-            .pathAsPointer()
-            .toString(),
-        is("/response/status"));
+        mismatchedInputException.getPath().stream()
+            .map(JacksonException.Reference::getPropertyName)
+            .collect(Collectors.joining("/")),
+        is("response/status"));
   }
 }

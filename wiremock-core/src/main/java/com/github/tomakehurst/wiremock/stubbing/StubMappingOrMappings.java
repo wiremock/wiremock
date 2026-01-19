@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 @JsonDeserialize(using = StubMappingOrMappingsJsonDeserializer.class)
 public interface StubMappingOrMappings {
@@ -42,7 +42,7 @@ class StubMappingOrMappingsJsonDeserializer extends StdDeserializer<StubMappingO
 
   @Override
   public StubMappingOrMappings deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
+      throws JacksonException {
     JsonNode rootNode = parser.readValueAsTree();
     Class<? extends StubMappingOrMappings> clazz;
     if (rootNode.has("mappings")) {

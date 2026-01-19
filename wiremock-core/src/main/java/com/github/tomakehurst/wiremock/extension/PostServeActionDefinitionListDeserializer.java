@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.github.tomakehurst.wiremock.common.Json;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 public class PostServeActionDefinitionListDeserializer
-    extends JsonDeserializer<List<PostServeActionDefinition>> {
+    extends ValueDeserializer<List<PostServeActionDefinition>> {
 
   @Override
   public List<PostServeActionDefinition> deserialize(
-      JsonParser parser, DeserializationContext context) throws IOException {
+      JsonParser parser, DeserializationContext context) {
 
     JsonToken currentToken = parser.currentToken();
 
@@ -44,7 +43,7 @@ public class PostServeActionDefinitionListDeserializer
   }
 
   @SuppressWarnings("unchecked")
-  private List<PostServeActionDefinition> deserializeFromMap(JsonParser parser) throws IOException {
+  private List<PostServeActionDefinition> deserializeFromMap(JsonParser parser) {
     Map<String, Object> map = parser.readValueAs(Map.class);
 
     List<PostServeActionDefinition> result = new ArrayList<>();
@@ -56,8 +55,7 @@ public class PostServeActionDefinitionListDeserializer
     return result;
   }
 
-  private List<PostServeActionDefinition> deserializeFromArray(JsonParser parser)
-      throws IOException {
+  private List<PostServeActionDefinition> deserializeFromArray(JsonParser parser) {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> list = parser.readValueAs(List.class);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.IOException;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 public final class Json {
 
@@ -38,22 +36,25 @@ public final class Json {
 
   public static class PublicView {}
 
-  private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
-      new InheritableThreadLocal<ObjectMapper>() {
+  private static final InheritableThreadLocal<JsonMapper> jsonMapperHolder =
+      new InheritableThreadLocal<>() {
         @Override
-        protected ObjectMapper initialValue() {
-          ObjectMapper objectMapper = new ObjectMapper();
-          objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-          objectMapper.configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, false);
-          objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-          objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-          objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
-          objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
-          objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
-          objectMapper.registerModule(new JavaTimeModule());
-          objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-          objectMapper.enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
-          return objectMapper;
+        protected JsonMapper initialValue() {
+          return JsonMapper.builder()
+              .configureForJackson2()
+              .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_NULL))
+              .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(Include.NON_NULL))
+              // enable
+              .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+              .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+              .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+              .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+              .enable(StreamReadFeature.IGNORE_UNDEFINED)
+              .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+              .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+              // disable
+              .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+              .build();
         }
       };
 
@@ -61,27 +62,27 @@ public final class Json {
 
   public static <T> T read(byte[] stream, Class<T> clazz) throws IOException {
     try {
-      ObjectMapper mapper = getObjectMapper();
+      JsonMapper mapper = getJsonMapper();
       return mapper.readValue(stream, clazz);
-    } catch (JsonProcessingException processingException) {
+    } catch (JacksonException processingException) {
       throw JsonException.fromJackson(processingException);
     }
   }
 
   public static <T> T read(String json, Class<T> clazz) {
     try {
-      ObjectMapper mapper = getObjectMapper();
+      JsonMapper mapper = getJsonMapper();
       return mapper.readValue(json, clazz);
-    } catch (JsonProcessingException processingException) {
+    } catch (JacksonException processingException) {
       throw JsonException.fromJackson(processingException);
     }
   }
 
   public static <T> T read(String json, TypeReference<T> typeRef) {
     try {
-      ObjectMapper mapper = getObjectMapper();
+      JsonMapper mapper = getJsonMapper();
       return mapper.readValue(json, typeRef);
-    } catch (JsonProcessingException processingException) {
+    } catch (JacksonException processingException) {
       throw JsonException.fromJackson(processingException);
     }
   }
@@ -95,29 +96,21 @@ public final class Json {
   }
 
   public static <T> String write(T object, Class<?> view) {
-    try {
-      ObjectMapper mapper = getObjectMapper();
-      ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
-      if (view != null) {
-        objectWriter = objectWriter.withView(view);
-      }
-      return objectWriter.writeValueAsString(object);
-    } catch (IOException ioe) {
-      return throwUnchecked(ioe, String.class);
+    JsonMapper mapper = getJsonMapper();
+    ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
+    if (view != null) {
+      objectWriter = objectWriter.withView(view);
     }
+    return objectWriter.writeValueAsString(object);
   }
 
-  public static ObjectMapper getObjectMapper() {
-    return objectMapperHolder.get();
+  public static JsonMapper getJsonMapper() {
+    return jsonMapperHolder.get();
   }
 
   public static byte[] toByteArray(Object object) {
-    try {
-      ObjectMapper mapper = getObjectMapper();
-      return mapper.writeValueAsBytes(object);
-    } catch (IOException ioe) {
-      return throwUnchecked(ioe, byte[].class);
-    }
+    JsonMapper mapper = getJsonMapper();
+    return mapper.writeValueAsBytes(object);
   }
 
   public static JsonNode node(String json) {
@@ -134,10 +127,10 @@ public final class Json {
     }
 
     int acc = 1;
-    if (node.isContainerNode()) {
+    if (node.isContainer()) {
       for (JsonNode child : node) {
         acc++;
-        if (child.isContainerNode()) {
+        if (child.isContainer()) {
           acc += deepSize(child);
         }
       }
@@ -147,23 +140,19 @@ public final class Json {
   }
 
   public static String prettyPrint(String json) {
-    ObjectMapper mapper = getObjectMapper();
-    try {
-      return mapper
-          .writerWithDefaultPrettyPrinter()
-          .writeValueAsString(mapper.readValue(json, JsonNode.class));
-    } catch (IOException e) {
-      return throwUnchecked(e, String.class);
-    }
+    JsonMapper mapper = getJsonMapper();
+    return mapper
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(mapper.readValue(json, JsonNode.class));
   }
 
   public static <T> T mapToObject(Map<String, Object> map, Class<T> targetClass) {
-    ObjectMapper mapper = getObjectMapper();
+    JsonMapper mapper = getJsonMapper();
     return mapper.convertValue(map, targetClass);
   }
 
   public static <T> Map<String, Object> objectToMap(T theObject) {
-    ObjectMapper mapper = getObjectMapper();
+    JsonMapper mapper = getJsonMapper();
     return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
   }
 
