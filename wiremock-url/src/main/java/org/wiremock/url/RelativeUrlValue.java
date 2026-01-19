@@ -19,8 +19,9 @@ import org.jspecify.annotations.Nullable;
 
 final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
 
-  RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, null, path, query, fragment);
+  RelativeUrlValue(
+      @Nullable String stringValue, Path path, @Nullable Query query, @Nullable Fragment fragment) {
+    super(stringValue, null, null, path, query, fragment);
     if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
       throw new IllegalRelativeUrl(
           this.toString(),

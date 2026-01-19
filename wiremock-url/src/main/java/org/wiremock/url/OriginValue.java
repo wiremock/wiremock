@@ -17,13 +17,19 @@ package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
 
+import org.jspecify.annotations.Nullable;
+
 final class OriginValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl> implements Origin {
 
   private final HostAndPort hostAndPort;
 
-  OriginValue(Scheme scheme, HostAndPort authority) {
-    super(scheme, authority, Path.EMPTY, null, null);
+  OriginValue(@Nullable String stringValue, Scheme scheme, HostAndPort authority) {
+    super(stringValue, scheme, authority, Path.EMPTY, null, null);
     this.hostAndPort = requireNonNull(authority);
+  }
+
+  OriginValue(Scheme scheme, HostAndPort authority) {
+    this(null, scheme, authority);
   }
 
   @Override

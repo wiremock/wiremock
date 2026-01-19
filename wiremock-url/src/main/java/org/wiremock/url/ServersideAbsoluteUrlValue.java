@@ -20,7 +20,16 @@ import org.jspecify.annotations.Nullable;
 final class ServersideAbsoluteUrlValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl>
     implements ServersideAbsoluteUrl {
 
+  ServersideAbsoluteUrlValue(
+      @Nullable String stringValue,
+      Scheme scheme,
+      Authority authority,
+      Path path,
+      @Nullable Query query) {
+    super(stringValue, scheme, authority, path, query, null);
+  }
+
   ServersideAbsoluteUrlValue(Scheme scheme, Authority authority, Path path, @Nullable Query query) {
-    super(scheme, authority, path, query, null);
+    this(null, scheme, authority, path, query);
   }
 }

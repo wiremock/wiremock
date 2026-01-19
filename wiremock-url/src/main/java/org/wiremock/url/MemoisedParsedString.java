@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,23 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class AbsoluteUrlValue extends AbstractAbsoluteUrlValue<AbsoluteUrl> implements AbsoluteUrl {
+abstract class MemoisedParsedString {
 
-  AbsoluteUrlValue(
-      @Nullable String stringValue,
-      Scheme scheme,
-      Authority authority,
-      Path path,
-      @Nullable Query query,
-      @Nullable Fragment fragment) {
-    super(stringValue, scheme, authority, path, query, fragment);
+  private volatile @Nullable String memoised;
+
+  MemoisedParsedString(@Nullable String stringValue) {
+    this.memoised = stringValue;
   }
+
+  @Override
+  public final String toString() {
+    String s = memoised;
+    if (s == null) {
+      s = buildString();
+      memoised = s;
+    }
+    return s;
+  }
+
+  abstract String buildString();
 }

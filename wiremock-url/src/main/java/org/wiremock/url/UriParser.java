@@ -51,13 +51,14 @@ final class UriParser implements StringParser<Uri> {
       var authority = extractAuthorityOrNull(result);
       var path = PathParser.INSTANCE.parse(result.group("path"));
 
-      return Uri.builder()
+      UriBuilder uriBuilder = new UriBuilder();
+      uriBuilder
           .setScheme(scheme)
           .setAuthority(authority)
           .setPath(path)
           .setQuery(query)
-          .setFragment(fragment)
-          .build();
+          .setFragment(fragment);
+      return uriBuilder.build(stringForm);
     } catch (IllegalUriPart illegalPart) {
       throw new IllegalUri(stringForm, illegalPart);
     }

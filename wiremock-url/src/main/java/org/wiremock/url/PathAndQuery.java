@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 public interface PathAndQuery extends RelativeUrl {
 
   /** An empty path and query with no components. */
-  PathAndQuery EMPTY = new PathAndQueryValue(Path.EMPTY, null);
+  PathAndQuery EMPTY = new PathAndQueryValue("", Path.EMPTY, null);
 
   /**
    * Implementations must ALWAYS return null

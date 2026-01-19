@@ -117,8 +117,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
     return getSelf();
   }
 
-  @Override
-  public Uri build() {
+  Uri build(@Nullable String stringForm) {
     if (authority == null && (userInfo != null || port != null)) {
       throw new IllegalStateException("Cannot construct a uri with a userinfo or port but no host");
     }
@@ -127,14 +126,14 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
     }
     if (scheme == null) {
       if (authority == null && fragment == null) {
-        return new PathAndQueryValue(path, query);
+        return new PathAndQueryValue(stringForm, path, query);
       } else if (authority != null) {
-        return new SchemeRelativeUrlValue(authority, path, query, fragment);
+        return new SchemeRelativeUrlValue(stringForm, authority, path, query, fragment);
       } else {
-        return new RelativeUrlValue(path, query, fragment);
+        return new RelativeUrlValue(stringForm, path, query, fragment);
       }
     } else if (authority == null) {
-      return OpaqueUri.of(scheme, path, query, fragment);
+      return new OpaqueUriValue(stringForm, scheme, path, query, fragment);
     } else {
       if (scheme.isNormalForm()
           && authority instanceof HostAndPort hostAndPort
@@ -142,13 +141,18 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
           && path.isEmpty()
           && query == null
           && fragment == null) {
-        return new OriginValue(scheme, hostAndPort);
+        return new OriginValue(stringForm, scheme, hostAndPort);
       } else if (fragment == null) {
-        return new ServersideAbsoluteUrlValue(scheme, authority, path, query);
+        return new ServersideAbsoluteUrlValue(stringForm, scheme, authority, path, query);
       } else {
-        return new AbsoluteUrlValue(scheme, authority, path, query, fragment);
+        return new AbsoluteUrlValue(stringForm, scheme, authority, path, query, fragment);
       }
     }
+  }
+
+  @Override
+  public Uri build() {
+    return build(null);
   }
 
   @SuppressWarnings("unchecked")

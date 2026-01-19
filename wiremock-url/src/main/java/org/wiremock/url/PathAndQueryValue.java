@@ -19,8 +19,8 @@ import org.jspecify.annotations.Nullable;
 
 final class PathAndQueryValue extends AbstractUriValue implements PathAndQuery {
 
-  PathAndQueryValue(Path path, @Nullable Query query) {
-    super(null, null, path, query, null);
+  PathAndQueryValue(@Nullable String stringValue, Path path, @Nullable Query query) {
+    super(stringValue, null, null, path, query, null);
     if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
       throw new IllegalPathAndQuery(
           this.toString(),
@@ -33,5 +33,9 @@ final class PathAndQueryValue extends AbstractUriValue implements PathAndQuery {
                   + path
                   + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
     }
+  }
+
+  PathAndQueryValue(Path path, @Nullable Query query) {
+    this(null, path, query);
   }
 }

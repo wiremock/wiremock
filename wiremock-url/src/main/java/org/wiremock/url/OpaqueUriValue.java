@@ -20,8 +20,17 @@ import org.jspecify.annotations.Nullable;
 
 final class OpaqueUriValue extends AbstractAbsoluteUriValue<OpaqueUri> implements OpaqueUri {
 
+  OpaqueUriValue(
+      @Nullable String stringValue,
+      Scheme scheme,
+      Path path,
+      @Nullable Query query,
+      @Nullable Fragment fragment) {
+    super(stringValue, scheme, null, path, query, fragment);
+  }
+
   OpaqueUriValue(Scheme scheme, Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(scheme, null, path, query, fragment);
+    this(null, scheme, path, query, fragment);
   }
 
   @Override

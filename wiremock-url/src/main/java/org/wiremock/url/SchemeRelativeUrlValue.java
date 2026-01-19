@@ -24,8 +24,12 @@ class SchemeRelativeUrlValue extends AbstractUriValue implements SchemeRelativeU
   protected final Authority nonNullAuthority;
 
   SchemeRelativeUrlValue(
-      Authority authority, Path path, @Nullable Query query, @Nullable Fragment fragment) {
-    super(null, authority, path, query, fragment);
+      @Nullable String stringValue,
+      Authority authority,
+      Path path,
+      @Nullable Query query,
+      @Nullable Fragment fragment) {
+    super(stringValue, null, authority, path, query, fragment);
     this.nonNullAuthority = requireNonNull(authority);
 
     if (!path.isEmpty() && !path.isAbsolute()) {

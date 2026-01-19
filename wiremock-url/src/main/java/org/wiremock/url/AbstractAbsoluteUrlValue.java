@@ -25,12 +25,13 @@ abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
   protected final Authority nonNullAuthority;
 
   AbstractAbsoluteUrlValue(
+      @Nullable String stringValue,
       Scheme scheme,
       Authority authority,
       Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
-    super(scheme, authority, path, query, fragment);
+    super(stringValue, scheme, authority, path, query, fragment);
     this.nonNullAuthority = requireNonNull(authority);
 
     if (!path.isEmpty() && !path.isAbsolute()) {

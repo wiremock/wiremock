@@ -21,14 +21,23 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "ClassCanBeRecord"})
-final class AuthorityValue implements Authority {
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
+final class AuthorityValue extends MemoisedParsedString implements Authority {
 
   private final @Nullable UserInfo userInfo;
   private final Host host;
   private final @Nullable Optional<Port> maybePort;
 
   AuthorityValue(@Nullable UserInfo userInfo, Host host, @Nullable Optional<Port> maybePort) {
+    this(null, userInfo, host, maybePort);
+  }
+
+  AuthorityValue(
+      @Nullable String stringValue,
+      @Nullable UserInfo userInfo,
+      Host host,
+      @Nullable Optional<Port> maybePort) {
+    super(stringValue);
     this.userInfo = userInfo;
     this.host = requireNonNull(host);
     this.maybePort = maybePort;
@@ -47,7 +56,7 @@ final class AuthorityValue implements Authority {
   }
 
   @Override
-  public String toString() {
+  String buildString() {
     StringBuilder result = new StringBuilder();
     if (userInfo != null) {
       result.append(userInfo).append('@');

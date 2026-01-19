@@ -27,12 +27,13 @@ abstract non-sealed class AbstractAbsoluteUriValue<NORMALISED extends AbsoluteUr
   protected final Scheme nonNullScheme;
 
   AbstractAbsoluteUriValue(
+      @Nullable String stringValue,
       Scheme scheme,
       @Nullable Authority authority,
       Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
-    super(scheme, authority, path, query, fragment);
+    super(stringValue, scheme, authority, path, query, fragment);
     this.nonNullScheme = requireNonNull(scheme);
   }
 

@@ -58,7 +58,7 @@ final class AuthorityParser implements StringParser<Authority> {
         //noinspection OptionalAssignedToNull
         return HostAndPort.of(host, maybePort != null ? maybePort.orElse(null) : null);
       } else {
-        return new AuthorityValue(userInfo, host, maybePort);
+        return new AuthorityValue(rawAuthority, userInfo, host, maybePort);
       }
     } catch (IllegalUriPart cause) {
       throw new IllegalAuthority(rawAuthority, cause);
