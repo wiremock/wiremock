@@ -24,6 +24,10 @@ public final class IllegalPathAndQuery extends IllegalRelativeUrl {
   }
 
   public IllegalPathAndQuery(String pathAndQuery, @Nullable IllegalUriPart cause) {
-    super(pathAndQuery, "Illegal path and query: `" + pathAndQuery + "`", cause);
+    this(pathAndQuery, "Illegal path and query: `" + pathAndQuery + "`", cause);
+  }
+
+  public IllegalPathAndQuery(String pathAndQuery, String message, @Nullable IllegalUriPart cause) {
+    super(pathAndQuery, message, cause);
   }
 }

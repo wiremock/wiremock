@@ -48,45 +48,19 @@ final class UriParser implements StringParser<Uri> {
       var fragmentString = result.group("fragment");
       var fragment = fragmentString == null ? null : Fragment.parse(fragmentString);
 
-      var hierarchicalPart = extractHierarchicalPart(scheme == null, result, stringForm);
+      var authority = extractAuthorityOrNull(result);
+      var path = PathParser.INSTANCE.parse(result.group("path"));
+
       return Uri.builder()
           .setScheme(scheme)
-          .setAuthority(hierarchicalPart.authority)
-          .setPath(hierarchicalPart.path)
+          .setAuthority(authority)
+          .setPath(path)
           .setQuery(query)
           .setFragment(fragment)
           .build();
     } catch (IllegalUriPart illegalPart) {
       throw new IllegalUri(stringForm, illegalPart);
     }
-  }
-
-  private HierarchicalPart extractHierarchicalPart(
-      boolean isRelative, Matcher matcher, String stringForm) {
-    var authority = extractAuthorityOrNull(matcher);
-    var pathStr = matcher.group("path");
-    var path = PathParser.INSTANCE.parse(pathStr);
-
-    if (isRelative) {
-      if (authority == null) {
-        if (!path.isAbsolute()
-            && !path.isEmpty()
-            && path.getSegments().get(0).toString().contains(":")) {
-          throw new IllegalRelativeUrl(
-              stringForm,
-              new IllegalPath(
-                  path.toString(),
-                  "path `" + path + "` may not contain a colon (`:`) in the first segment"));
-        }
-      } else {
-        if (!path.isAbsolute() && !path.isEmpty()) {
-          throw new IllegalRelativeUrl(
-              stringForm,
-              new IllegalPath(path.toString(), "path `" + path + "` must be absolute or empty"));
-        }
-      }
-    }
-    return new HierarchicalPart(authority, path);
   }
 
   @Nullable
@@ -98,6 +72,4 @@ final class UriParser implements StringParser<Uri> {
       return AuthorityParser.INSTANCE.parse(authorityStr);
     }
   }
-
-  record HierarchicalPart(@Nullable Authority authority, Path path) {}
 }

@@ -73,18 +73,6 @@
   },
   {
     "input" : "#",
-    "base" : "http://example.org/foo/bar",
-    "inputExpected" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
-    "inputNormalised" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
-    "baseExpected" : { "stringValue" : "http://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
-    "baseNormalised" : { "stringValue" : "http://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "http://example.org/foo/bar#", "type" : "AbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : "" },
-    "origin" : { "stringValue" : "http://example.org", "type" : "Origin", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "#", "base" : "http://example.org/foo/bar", "href" : "http://example.org/foo/bar#", "origin" : "http://example.org", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.org", "hostname" : "example.org", "port" : "", "pathname" : "/foo/bar", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "#",
     "base" : "test:test",
     "inputExpected" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
     "inputNormalised" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
@@ -105,6 +93,18 @@
     "resolved" : { "stringValue" : "test:test?test#", "type" : "OpaqueUri", "scheme" : "test", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test", "query" : "test", "fragment" : "" },
     "origin" : null,
     "source" : { "input" : "#", "base" : "test:test?test", "href" : "test:test?test#", "origin" : "null", "protocol" : "test:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "test", "search" : "?test", "hash" : "" },
+    "matchesWhatWg" : true
+  },
+  {
+    "input" : "#",
+    "base" : "http://example.org/foo/bar",
+    "inputExpected" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
+    "inputNormalised" : { "stringValue" : "#", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "" },
+    "baseExpected" : { "stringValue" : "http://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "http://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "http://example.org/foo/bar#", "type" : "AbsoluteUrl", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : "" },
+    "origin" : { "stringValue" : "http://example.org", "type" : "Origin", "scheme" : "http", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "#", "base" : "http://example.org/foo/bar", "href" : "http://example.org/foo/bar#", "origin" : "http://example.org", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.org", "hostname" : "example.org", "port" : "", "pathname" : "/foo/bar", "search" : "", "hash" : "" },
     "matchesWhatWg" : true
   },
   {
@@ -145,6 +145,30 @@
   },
   {
     "input" : "#i",
+    "base" : "sc:sd",
+    "inputExpected" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
+    "inputNormalised" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
+    "baseExpected" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "sc:sd#i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : "i" },
+    "origin" : null,
+    "source" : { "input" : "#i", "base" : "sc:sd", "href" : "sc:sd#i", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "sd", "search" : "", "hash" : "#i" },
+    "matchesWhatWg" : true
+  },
+  {
+    "input" : "#i",
+    "base" : "sc:sd/sd",
+    "inputExpected" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
+    "inputNormalised" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
+    "baseExpected" : { "stringValue" : "sc:sd/sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "sc:sd/sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "sc:sd/sd#i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : "i" },
+    "origin" : null,
+    "source" : { "input" : "#i", "base" : "sc:sd/sd", "href" : "sc:sd/sd#i", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "sd/sd", "search" : "", "hash" : "#i" },
+    "matchesWhatWg" : true
+  },
+  {
+    "input" : "#i",
     "base" : "sc:///pa/pa",
     "inputExpected" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
     "inputNormalised" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
@@ -177,30 +201,6 @@
     "resolved" : { "stringValue" : "sc:/pa/pa#i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/pa/pa", "query" : null, "fragment" : "i" },
     "origin" : null,
     "source" : { "input" : "#i", "base" : "sc:/pa/pa", "href" : "sc:/pa/pa#i", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "/pa/pa", "search" : "", "hash" : "#i" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "#i",
-    "base" : "sc:sd",
-    "inputExpected" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
-    "inputNormalised" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
-    "baseExpected" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
-    "baseNormalised" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "sc:sd#i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : "i" },
-    "origin" : null,
-    "source" : { "input" : "#i", "base" : "sc:sd", "href" : "sc:sd#i", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "sd", "search" : "", "hash" : "#i" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "#i",
-    "base" : "sc:sd/sd",
-    "inputExpected" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
-    "inputNormalised" : { "stringValue" : "#i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "i" },
-    "baseExpected" : { "stringValue" : "sc:sd/sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : null },
-    "baseNormalised" : { "stringValue" : "sc:sd/sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "sc:sd/sd#i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/sd", "query" : null, "fragment" : "i" },
-    "origin" : null,
-    "source" : { "input" : "#i", "base" : "sc:sd/sd", "href" : "sc:sd/sd#i", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "sd/sd", "search" : "", "hash" : "#i" },
     "matchesWhatWg" : true
   },
   {
@@ -241,18 +241,6 @@
   },
   {
     "input" : "#x",
-    "base" : "file:///test?test#test",
-    "inputExpected" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
-    "inputNormalised" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
-    "baseExpected" : { "stringValue" : "file:///test?test#test", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "test" },
-    "baseNormalised" : { "stringValue" : "file:///test?test#test", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "test" },
-    "resolved" : { "stringValue" : "file:///test?test#x", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "x" },
-    "origin" : { "stringValue" : "file://", "type" : "Origin", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "#x", "base" : "file:///test?test#test", "href" : "file:///test?test#x", "protocol" : "file:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "/test", "search" : "?test", "hash" : "#x" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "#x",
     "base" : "mailto:x@x.com",
     "inputExpected" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
     "inputNormalised" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
@@ -261,6 +249,18 @@
     "resolved" : { "stringValue" : "mailto:x@x.com#x", "type" : "OpaqueUri", "scheme" : "mailto", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "x@x.com", "query" : null, "fragment" : "x" },
     "origin" : null,
     "source" : { "input" : "#x", "base" : "mailto:x@x.com", "href" : "mailto:x@x.com#x", "origin" : "null", "protocol" : "mailto:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "x@x.com", "search" : "", "hash" : "#x" },
+    "matchesWhatWg" : true
+  },
+  {
+    "input" : "#x",
+    "base" : "file:///test?test#test",
+    "inputExpected" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
+    "inputNormalised" : { "stringValue" : "#x", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : "x" },
+    "baseExpected" : { "stringValue" : "file:///test?test#test", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "test" },
+    "baseNormalised" : { "stringValue" : "file:///test?test#test", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "test" },
+    "resolved" : { "stringValue" : "file:///test?test#x", "type" : "AbsoluteUrl", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "/test", "query" : "test", "fragment" : "x" },
+    "origin" : { "stringValue" : "file://", "type" : "Origin", "scheme" : "file", "authority" : "", "userInfo" : null, "username" : null, "password" : null, "host" : "", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "#x", "base" : "file:///test?test#test", "href" : "file:///test?test#x", "protocol" : "file:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "/test", "search" : "?test", "hash" : "#x" },
     "matchesWhatWg" : true
   },
   {

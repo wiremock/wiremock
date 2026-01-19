@@ -21,5 +21,17 @@ final class PathAndQueryValue extends AbstractUriValue implements PathAndQuery {
 
   PathAndQueryValue(Path path, @Nullable Query query) {
     super(null, null, path, query, null);
+    if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
+      throw new IllegalPathAndQuery(
+          this.toString(),
+          "Illegal path and query: `"
+              + this
+              + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
+          new IllegalPath(
+              path.toString(),
+              "Illegal path: `"
+                  + path
+                  + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+    }
   }
 }

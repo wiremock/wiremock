@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class PathAndQueryTests {
 
@@ -170,6 +171,29 @@ class PathAndQueryTests {
           .withMessage("Illegal path and query: `" + illegalPathAndQuery + "`")
           .extracting(IllegalPathAndQuery::getIllegalValue)
           .isEqualTo(illegalPathAndQuery);
+    }
+  }
+
+  @Nested
+  class Transform {
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "/path?query",
+          "/path",
+        })
+    void cannot_set_path_with_colon_in_first_segment_when_no_authority(String relativeUrl) {
+      RelativeUrl url = RelativeUrl.parse(relativeUrl);
+      var query = url.transform(it -> it.setPath(Path.EMPTY)).toString();
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse("foo:bar"))))
+          .withMessage(
+              "Illegal path and query: `foo:bar"
+                  + query
+                  + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo("foo:bar" + query);
     }
   }
 }

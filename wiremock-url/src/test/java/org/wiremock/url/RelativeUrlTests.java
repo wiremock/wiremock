@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class RelativeUrlTests {
 
@@ -229,6 +230,23 @@ class RelativeUrlTests {
           .withNoCause()
           .extracting(IllegalUrl::getIllegalValue)
           .isEqualTo("file:/path?query#fragment");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "/path?query#fragment",
+          "/path?query",
+          "/path",
+        })
+    void cannot_set_path_with_colon_in_first_segment_when_no_authority() {
+      RelativeUrl url = RelativeUrl.parse("/path?query#fragment");
+      assertThatExceptionOfType(IllegalRelativeUrl.class)
+          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse("foo:bar"))))
+          .withMessage(
+              "Illegal relative url: `foo:bar?query#fragment` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo("foo:bar?query#fragment");
     }
   }
 }

@@ -505,6 +505,20 @@ class AbsoluteUrlTests {
 
       assertThat(uri).isEqualTo(AbsoluteUrl.parse("https://user@example.com:88443/"));
     }
+
+    @Test
+    void rejects_relative_path() {
+      assertThatExceptionOfType(IllegalAbsoluteUrl.class)
+          .isThrownBy(
+              () ->
+                  AbsoluteUrl.builder(Scheme.https, Authority.parse("example.com"))
+                      .setPath(Path.parse("relative"))
+                      .build())
+          .withMessage(
+              "Illegal absolute url: `https://example.comrelative` - an absolute url's path must be absolute or empty, was `relative`")
+          .extracting(IllegalUrl::getIllegalValue)
+          .isEqualTo("https://example.comrelative");
+    }
   }
 
   @Nested
