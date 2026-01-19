@@ -101,6 +101,18 @@ final class QueryValue implements Query {
     }
   }
 
+  private volatile @Nullable Map<QueryParamKey, List<@Nullable QueryParamValue>> asMap = null;
+
+  @Override
+  public Map<QueryParamKey, List<@Nullable QueryParamValue>> asMap() {
+    Map<QueryParamKey, List<@Nullable QueryParamValue>> local = asMap;
+    if (local == null) {
+      local = Query.super.asMap();
+      asMap = local;
+    }
+    return local;
+  }
+
   @Override
   public boolean isNormalForm() {
     return isNormalForm

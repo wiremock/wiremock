@@ -37,7 +37,8 @@ public interface QueryParamReader {
   }
 
   default List<@Nullable QueryParamValue> get(QueryParamKey key) {
-    return getEntries().stream().filter(e -> e.getKey().equals(key)).map(Entry::getValue).toList();
+    List<@Nullable QueryParamValue> result = asMap().get(key.normalise());
+    return result != null ? result : List.of();
   }
 
   default boolean contains(String key) {
@@ -45,18 +46,19 @@ public interface QueryParamReader {
   }
 
   default boolean contains(QueryParamKey key) {
-    return getEntries().stream().anyMatch(e -> e.getKey().equals(key));
+    return asMap().containsKey(key.normalise());
   }
 
   default Set<QueryParamKey> getKeys() {
-    return getEntries().stream().map(Entry::getKey).collect(Collectors.toSet());
+    return asMap().keySet();
   }
 
   default Map<QueryParamKey, List<@Nullable QueryParamValue>> asMap() {
     return getEntries().stream()
         .collect(
             Collectors.groupingBy(
-                Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toList())));
+                entry -> entry.getKey().normalise(),
+                Collectors.mapping(Entry::getValue, Collectors.toList())));
   }
 
   default @Nullable QueryParamValue getFirst(String key) {
@@ -64,12 +66,7 @@ public interface QueryParamReader {
   }
 
   default @Nullable QueryParamValue getFirst(QueryParamKey key) {
-    var head =
-        getEntries().stream()
-            .filter(e -> e.getKey().equals(key))
-            .map(Entry::getValue)
-            .limit(1)
-            .toList();
-    return head.isEmpty() ? null : head.get(0);
+    List<@Nullable QueryParamValue> values = get(key);
+    return values.isEmpty() ? null : values.get(0);
   }
 }

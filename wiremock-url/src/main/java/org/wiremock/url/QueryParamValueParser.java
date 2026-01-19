@@ -42,6 +42,6 @@ class QueryParamValueParser implements PercentEncodedStringParser<QueryParamValu
 
   @Override
   public QueryParamValue encode(String unencoded) {
-    return new QueryParamValueValue(Constants.encode(unencoded, queryParamValueCharSet));
+    return new QueryParamValueValue(Constants.encode(unencoded, queryParamValueCharSet), true);
   }
 }
