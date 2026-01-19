@@ -3,7 +3,7 @@ jetty = "12.1.5"
 jackson = "2.20.1"
 xmlUnit = "2.11.0"
 jsonUnit = "5.1.0"
-junitJupiter = "5.14.1"
+junitJupiter = "5.14.2"
 handlebars = "4.5.0"
 slf4j = "2.0.17"
 hamcrest = "3.0"
@@ -52,7 +52,7 @@ guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 
 # HTTP Client
 apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
-apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
+apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4" }
 
 # OkHttp
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
