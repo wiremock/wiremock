@@ -16,6 +16,8 @@
 package org.wiremock.url;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Represents the path component of a URI as defined in <a
@@ -51,27 +53,6 @@ public interface Path extends PercentEncoded<Path> {
   List<Segment> getSegments();
 
   /**
-   * Parses a string into a path.
-   *
-   * @param path the string to parse
-   * @return the parsed path
-   * @throws IllegalPath if the string is not a valid path
-   */
-  static Path parse(String path) throws IllegalPath {
-    return PathParser.INSTANCE.parse(path);
-  }
-
-  /**
-   * Encodes a string into a valid path with proper percent-encoding.
-   *
-   * @param unencoded the unencoded string
-   * @return the encoded path
-   */
-  static Path encode(String unencoded) {
-    return PathParser.INSTANCE.encode(unencoded);
-  }
-
-  /**
    * Returns a normalised form of this path with dot segments removed.
    *
    * @return a normalised path
@@ -99,5 +80,34 @@ public interface Path extends PercentEncoded<Path> {
   @Override
   default boolean isEmpty() {
     return this.equals(Path.EMPTY);
+  }
+
+  /**
+   * Parses a string into a path.
+   *
+   * @param path the string to parse
+   * @return the parsed path
+   * @throws IllegalPath if the string is not a valid path
+   */
+  static Path parse(String path) throws IllegalPath {
+    return PathParser.INSTANCE.parse(path);
+  }
+
+  /**
+   * Encodes a string into a valid path with proper percent-encoding.
+   *
+   * @param unencoded the unencoded string
+   * @return the encoded path
+   */
+  static Path encode(String unencoded) {
+    return PathParser.INSTANCE.encode(unencoded);
+  }
+
+  static Path of(List<Segment> segments) {
+    return of(segments.stream());
+  }
+
+  static Path of(Stream<Segment> segments) {
+    return new PathValue(segments.map(Object::toString).collect(Collectors.joining("/")));
   }
 }

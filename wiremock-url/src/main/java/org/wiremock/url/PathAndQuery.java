@@ -66,4 +66,12 @@ public interface PathAndQuery extends RelativeUrl {
   static PathAndQuery parse(String pathAndQuery) throws IllegalPathAndQuery {
     return PathAndQueryParser.INSTANCE.parse(pathAndQuery);
   }
+
+  static PathAndQuery of(Path path) {
+    return of(path, null);
+  }
+
+  static PathAndQuery of(Path path, @Nullable Query query) {
+    return new PathAndQueryValue(path, query);
+  }
 }
