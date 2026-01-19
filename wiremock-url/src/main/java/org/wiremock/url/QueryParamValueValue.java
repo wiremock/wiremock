@@ -18,7 +18,7 @@ package org.wiremock.url;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-class QueryParamValueValue implements QueryParamValue {
+final class QueryParamValueValue implements QueryParamValue {
 
   private final String stringForm;
   private final MemoisedNormalisable<QueryParamValue> memoisedNormalisable;

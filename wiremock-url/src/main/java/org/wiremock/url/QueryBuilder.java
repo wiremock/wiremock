@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import org.jspecify.annotations.Nullable;
 
-class QueryBuilder implements Query.Builder {
+final class QueryBuilder implements Query.Builder {
 
   private final List<Entry<QueryParamKey, @Nullable QueryParamValue>> mutableParams;
 

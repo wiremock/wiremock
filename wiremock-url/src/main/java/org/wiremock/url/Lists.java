@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
-public class Lists {
+public final class Lists {
   static <T> List<@Nullable T> of(@Nullable T value, @Nullable T[] otherValues) {
     var values = new ArrayList<@Nullable T>(1 + otherValues.length);
     values.add(value);

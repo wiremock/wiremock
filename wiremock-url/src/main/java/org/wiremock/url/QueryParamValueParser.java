@@ -21,7 +21,7 @@ import static org.wiremock.url.QueryParser.queryCharSet;
 
 import java.util.regex.Pattern;
 
-class QueryParamValueParser implements PercentEncodedStringParser<QueryParamValue> {
+final class QueryParamValueParser implements PercentEncodedStringParser<QueryParamValue> {
 
   static final QueryParamValueParser INSTANCE = new QueryParamValueParser();
 

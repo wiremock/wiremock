@@ -18,7 +18,7 @@ package org.wiremock.url;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.RelativeUrl.Transformer;
 
-class RelativeUrlTransformer extends AbstractUriBaseBuilder<RelativeUrl.Transformer>
+final class RelativeUrlTransformer extends AbstractUriBaseBuilder<RelativeUrl.Transformer>
     implements RelativeUrl.Transformer {
 
   public RelativeUrlTransformer(RelativeUrl relativeUrl) {
@@ -46,7 +46,7 @@ class RelativeUrlTransformer extends AbstractUriBaseBuilder<RelativeUrl.Transfor
   }
 }
 
-class RelativeUrlBuilder extends AbstractUriBaseBuilder<RelativeUrl.Builder>
+final class RelativeUrlBuilder extends AbstractUriBaseBuilder<RelativeUrl.Builder>
     implements RelativeUrl.Builder {
 
   public RelativeUrlBuilder() {
