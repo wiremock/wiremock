@@ -21,5 +21,13 @@ final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
 
   RelativeUrlValue(Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(null, null, path, query, fragment);
+    if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
+      throw new IllegalRelativeUrl(
+          this.toString(),
+          "Illegal relative url: `"+ this +"` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
+          new IllegalPath(
+              path.toString(),
+              "Illegal path: `" + path + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+    }
   }
 }

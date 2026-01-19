@@ -32,6 +32,13 @@ abstract class AbstractAbsoluteUrlValue<NORMALISED extends AbsoluteUrl>
       @Nullable Fragment fragment) {
     super(scheme, authority, path, query, fragment);
     this.nonNullAuthority = requireNonNull(authority);
+
+    if (!path.isEmpty() && !path.isAbsolute()) {
+      throw new IllegalAbsoluteUrl(
+          this.toString(),
+          "Illegal absolute url: `"+ this +"` - an absolute url's path must be absolute or empty, was `"+path+"`",
+          new IllegalPath(path.toString(), "Illegal path: `" + path + "` - must be absolute or empty"));
+    }
   }
 
   @Override

@@ -27,6 +27,13 @@ class SchemeRelativeUrlValue extends AbstractUriValue implements SchemeRelativeU
       Authority authority, Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(null, authority, path, query, fragment);
     this.nonNullAuthority = requireNonNull(authority);
+
+    if (!path.isEmpty() && !path.isAbsolute()) {
+      throw new IllegalSchemeRelativeUrl(
+          this.toString(),
+          "Illegal scheme relative url: `"+ this +"` - a scheme relative url's path must be absolute or empty, was `"+path+"`",
+          new IllegalPath(path.toString(), "Illegal path: `" + path + "` - must be absolute or empty"));
+    }
   }
 
   @Override

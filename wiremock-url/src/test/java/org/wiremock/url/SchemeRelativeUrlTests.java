@@ -16,10 +16,14 @@
 package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Scheme.https;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class SchemeRelativeUrlTests {
 
@@ -49,6 +53,16 @@ class SchemeRelativeUrlTests {
       assertThat(transformed)
           .isInstanceOf(RelativeUrl.class)
           .isEqualTo(RelativeUrl.parse("/path#fragment"));
+    }
+
+    @Test
+    void rejects_setting_relative_path() {
+      SchemeRelativeUrl url = SchemeRelativeUrl.parse("//example.com/path");
+      assertThatExceptionOfType(IllegalUrl.class)
+          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse("relative"))))
+          .withMessage("Illegal scheme relative url: `//example.comrelative` - a scheme relative url's path must be absolute or empty, was `relative`")
+          .extracting(IllegalUrl::getIllegalValue)
+          .isEqualTo("//example.comrelative");
     }
   }
 }
