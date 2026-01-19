@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.util.Arrays;
 import java.util.Objects;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
 
 public class Body {
 

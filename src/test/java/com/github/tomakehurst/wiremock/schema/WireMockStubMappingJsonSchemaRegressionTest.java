@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,19 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 class WireMockStubMappingJsonSchemaRegressionTest {
 
@@ -46,15 +47,16 @@ class WireMockStubMappingJsonSchemaRegressionTest {
     JsonNode schemaJson = Json.node(loadResourceAsString(SCHEMA_PATH));
     assertNotNull(schemaJson, "Schema file not found: " + SCHEMA_PATH);
 
-    SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().build();
-    SpecVersion.VersionFlag version =
-        SpecVersion.VersionFlag.fromId(schemaJson.get("$schema").textValue()).orElseThrow();
+    SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().build();
+    Dialect version = Dialects.getDraft202012();
 
-    final JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(version);
+    final SchemaRegistry schemaFactory =
+        SchemaRegistry.withDialect(
+            version, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
     JsonNode metaSchemaJson =
         Json.node(loadResourceAsString(URI.create(version.getId()).getPath().substring(1)));
-    final JsonSchema metaSchema = schemaFactory.getSchema(metaSchemaJson, schemaValidatorsConfig);
+    final Schema metaSchema = schemaFactory.getSchema(metaSchemaJson);
 
     assertThat(metaSchema.validate(schemaJson), is(empty()));
   }

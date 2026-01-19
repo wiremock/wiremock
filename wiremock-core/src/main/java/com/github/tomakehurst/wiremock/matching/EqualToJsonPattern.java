@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -28,6 +27,7 @@ import net.javacrumbs.jsonunit.core.internal.Diff;
 import net.javacrumbs.jsonunit.core.listener.Difference;
 import net.javacrumbs.jsonunit.core.listener.DifferenceContext;
 import net.javacrumbs.jsonunit.core.listener.DifferenceListener;
+import tools.jackson.databind.JsonNode;
 
 public class EqualToJsonPattern extends StringValuePattern {
 
@@ -151,7 +151,7 @@ public class EqualToJsonPattern extends StringValuePattern {
   }
 
   private static int deepSize(Object nodeObj) {
-    JsonNode jsonNode = Json.getObjectMapper().convertValue(nodeObj, JsonNode.class);
+    JsonNode jsonNode = Json.getJsonMapper().convertValue(nodeObj, JsonNode.class);
     return Json.deepSize(jsonNode);
   }
 }

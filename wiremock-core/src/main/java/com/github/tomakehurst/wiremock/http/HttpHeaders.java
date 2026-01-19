@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Arrays.asList;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -27,6 +25,8 @@ import com.google.common.collect.MultimapBuilder;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)

@@ -1,17 +1,18 @@
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.ObjectNode
+import tools.jackson.dataformat.yaml.YAMLMapper
 
 buildscript {
   repositories {
     mavenCentral()
   }
   dependencies {
-    classpath "com.fasterxml.jackson.core:jackson-core:2.18.3"
-    classpath "com.fasterxml.jackson.core:jackson-databind:2.18.3"
-    classpath "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3"
+    classpath "tools.jackson.core:jackson-core:3.0.3"
+    classpath "tools.jackson.core:jackson-databind:3.0.3"
+    classpath "tools.jackson.dataformat:jackson-dataformat-yaml:3.0.3"
   }
 }
 
@@ -78,7 +79,7 @@ sourceSets {
  * </pre>
  */
 private String doBuildStubMappingSchema() {
-  def jsonMapper = new ObjectMapper()
+  def jsonMapper = JsonMapper.builder().build();
   def document = jsonMapper.createObjectNode()
   document.put("title", "WireMock stub mapping")
   document.put("type", "object")
@@ -86,7 +87,7 @@ private String doBuildStubMappingSchema() {
   // Only draft-07 is supported by schema-store.org so we bump up to this despite strictly being on 04 within our OpenAPI version
   document.put("\$schema", "http://json-schema.org/draft-07/schema#")
 
-  def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
+  def yamlMapper = YAMLMapper.builder().build()
 
   def schemas = new ArrayList<Tuple>()
   file('src/main/resources/swagger/schemas').listFiles().toList().sort { it.name }.each { file ->
@@ -160,14 +161,14 @@ private static String removePrefix(String input, String prefix) {
 }
 
 private String doBuildMessageStubMappingSchema() {
-  def jsonMapper = new ObjectMapper()
+  def jsonMapper = JsonMapper.builder().build()
   def document = jsonMapper.createObjectNode()
   document.put("title", "WireMock message stub mapping")
   document.put("type", "object")
 
   document.put("\$schema", "http://json-schema.org/draft-07/schema#")
 
-  def yamlMapper = new ObjectMapper(YAMLFactory.builder().build())
+  def yamlMapper = YAMLMapper.builder().build()
 
   def schemas = new ArrayList<Tuple>()
   file('src/main/resources/swagger/schemas').listFiles().toList().sort { it.name }.each { file ->

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 // Matches the size of the body of a ResponseDefinition, for use by the Snapshot API when
 // determining if the body

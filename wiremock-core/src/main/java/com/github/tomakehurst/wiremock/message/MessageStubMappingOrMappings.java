@@ -16,13 +16,12 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
 import java.util.List;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 @JsonDeserialize(using = MessageStubMappingOrMappingsJsonDeserializer.class)
 public interface MessageStubMappingOrMappings {
@@ -42,8 +41,7 @@ class MessageStubMappingOrMappingsJsonDeserializer
   }
 
   @Override
-  public MessageStubMappingOrMappings deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
+  public MessageStubMappingOrMappings deserialize(JsonParser parser, DeserializationContext ctxt) {
     JsonNode rootNode = parser.readValueAsTree();
     Class<? extends MessageStubMappingOrMappings> clazz;
     if (rootNode.has("messageMappings")) {

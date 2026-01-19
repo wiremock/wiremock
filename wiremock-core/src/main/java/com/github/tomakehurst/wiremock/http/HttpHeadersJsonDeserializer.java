@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
+public class HttpHeadersJsonDeserializer extends ValueDeserializer<HttpHeaders> {
 
   @Override
-  public HttpHeaders deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException {
+  public HttpHeaders deserialize(JsonParser parser, DeserializationContext context) {
     JsonNode rootNode = parser.readValueAsTree();
-    Iterable<Map.Entry<String, JsonNode>> all = rootNode::fields;
     List<HttpHeader> headers =
-        StreamSupport.stream(all.spliterator(), false)
+        rootNode.properties().stream()
             .map(entry -> createHttpHeader(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
     return new HttpHeaders(headers);
@@ -42,14 +37,11 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
 
   private static HttpHeader createHttpHeader(String key, JsonNode fieldValue) {
     if (fieldValue.isArray()) {
-      Iterable<JsonNode> all = fieldValue::elements;
       List<String> headerValues =
-          StreamSupport.stream(all.spliterator(), false)
-              .map(JsonNode::textValue)
-              .collect(Collectors.toList());
+          fieldValue.values().stream().map(JsonNode::stringValue).collect(Collectors.toList());
       return new HttpHeader(key, headerValues);
     } else {
-      return new HttpHeader(key, fieldValue.textValue());
+      return new HttpHeader(key, fieldValue.stringValue());
     }
   }
 

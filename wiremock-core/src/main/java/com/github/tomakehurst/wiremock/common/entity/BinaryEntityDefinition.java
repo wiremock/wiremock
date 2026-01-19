@@ -20,10 +20,10 @@ import static java.util.Arrays.asList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.util.Base64;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(as = BinaryEntityDefinition.class)
 public class BinaryEntityDefinition extends EntityDefinition {

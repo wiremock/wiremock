@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,33 @@ import com.github.jknack.handlebars.Handlebars;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junitpioneer.jupiter.json.JsonSource;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 public class JsonSortHelperTest extends HandlebarsHelperTestBase {
 
+  private static Stream<Arguments> provideInputsForErrorsIfInputJsonIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.readTree(
+                "[ { \"id\": 456, \"name\": \"bob\" }, { \"id\": 123, \"name\": \"alice\" }, { \"id\": 321, \"name\": \"sam\" } ]"),
+            mapper.readTree("{ \"id\": 456, \"name\": \"bob\" }"),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForErrorsIfInputJsonIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[ { id: 456, name: 'bob' }, { id: 123, name: 'alice' }, { id: 321, name: 'sam' } ]]",
-    "{ id: 456, name: 'bob' }",
-    "true",
-    "null",
-    "123",
-  })
   void errorsIfInputJsonIsNotAString(Object inputJson) throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     Map<String, Object> context = new HashMap<>();
@@ -68,15 +79,21 @@ public class JsonSortHelperTest extends HandlebarsHelperTestBase {
     assertThat(output, is("[ERROR: A single JSONPath expression parameter must be supplied]"));
   }
 
+  private static Stream<Arguments> provideInputsForErrorsIfJsonpathExpressionIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.createObjectNode(),
+            mapper.createArrayNode(),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForErrorsIfJsonpathExpressionIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    "{}",
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[]]",
-    "true",
-    "null",
-    "123",
-  })
   void errorsIfJsonpathExpressionIsNotAString(Object jsonPath) throws IOException {
     Handlebars handleBars = getHandlebarsWithJsonSort();
     Map<String, Object> context = new HashMap<>();

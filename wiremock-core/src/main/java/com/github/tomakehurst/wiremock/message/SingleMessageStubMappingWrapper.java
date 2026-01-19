@@ -19,11 +19,11 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize()
 class SingleMessageStubMappingWrapper implements MessageStubMappingOrMappings {

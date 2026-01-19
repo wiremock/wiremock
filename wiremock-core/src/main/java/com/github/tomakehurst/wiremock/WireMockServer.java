@@ -171,7 +171,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public void start() {
     // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
-    Json.getObjectMapper();
+    Json.getJsonMapper();
     try {
       httpServer.start();
     } catch (Exception e) {

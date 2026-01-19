@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.ser.BeanSerializerFactory;
 
-public abstract class PathPatternJsonSerializer<T extends PathPattern> extends JsonSerializer<T> {
+public abstract class PathPatternJsonSerializer<T extends PathPattern> extends ValueSerializer<T> {
 
   @Override
-  public void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException {
+  public void serialize(T value, JsonGenerator gen, SerializationContext serializers) {
     gen.writeStartObject();
     this.serializePathPattern(value, gen, serializers);
     gen.writeEndObject();
   }
 
-  protected void serializePathPattern(T value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException {
+  protected void serializePathPattern(
+      T value, JsonGenerator gen, SerializationContext serializers) {
     if (value.isSimple()) {
-      gen.writeStringField(value.getName(), value.getExpected());
+      gen.writeStringProperty(value.getName(), value.getExpected());
     } else {
       AdvancedPathPattern advancedPathPattern =
           new AdvancedPathPattern(value.getExpected(), value.getValuePattern());
-      gen.writeFieldName(value.getName());
+      gen.writeName(value.getName());
 
       JavaType javaType = serializers.getConfig().constructType(advancedPathPattern.getClass());
-      JsonSerializer<Object> serializer =
+      ValueSerializer<Object> serializer =
           BeanSerializerFactory.instance.createSerializer(serializers, javaType);
       serializer.serialize(advancedPathPattern, gen, serializers);
     }
@@ -50,5 +48,5 @@ public abstract class PathPatternJsonSerializer<T extends PathPattern> extends J
   }
 
   protected abstract void serializeAdditionalFields(
-      T value, JsonGenerator gen, SerializerProvider serializers) throws IOException;
+      T value, JsonGenerator gen, SerializationContext serializers);
 }

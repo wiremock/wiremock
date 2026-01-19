@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ArrayNode;
 
-public class ListOrStringDeserialiser<T> extends JsonDeserializer<ListOrSingle<T>> {
+public class ListOrStringDeserialiser<T> extends ValueDeserializer<ListOrSingle<T>> {
 
   @Override
   @SuppressWarnings("unchecked")
   public ListOrSingle<T> deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws JacksonException {
     JsonNode rootNode = parser.readValueAsTree();
     if (rootNode.isArray()) {
       ArrayNode arrayNode = (ArrayNode) rootNode;
       List<T> items = new ArrayList<>();
-      for (Iterator<JsonNode> i = arrayNode.elements(); i.hasNext(); ) {
-        JsonNode node = i.next();
+      for (JsonNode node : arrayNode.values()) {
         Object value = getValue(node);
         items.add((T) value);
       }
@@ -49,10 +46,10 @@ public class ListOrStringDeserialiser<T> extends JsonDeserializer<ListOrSingle<T
   }
 
   private static Object getValue(JsonNode node) {
-    return node.isTextual()
-        ? node.textValue()
+    return node.isString()
+        ? node.stringValue()
         : node.isNumber()
             ? node.numberValue()
-            : node.isBoolean() ? node.booleanValue() : node.textValue();
+            : node.isBoolean() ? node.booleanValue() : node.stringValue();
   }
 }

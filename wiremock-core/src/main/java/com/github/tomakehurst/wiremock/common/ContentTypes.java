@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import static com.github.tomakehurst.wiremock.common.Strings.substringAfterLast;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
 import static java.util.Arrays.asList;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.databind.JsonNode;
 
 public class ContentTypes {
 

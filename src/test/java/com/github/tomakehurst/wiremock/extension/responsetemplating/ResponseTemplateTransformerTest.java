@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1308,7 +1308,7 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{#parseJson 'json'}}{ \"thing{{/parseJson}}");
 
     assertEquals(
-        "[ERROR] Unexpected end-of-input in field name\n"
+        "[ERROR] Unexpected end-of-input in property name\n"
             + " at [Source: (String)\"{ \"thing\"; line: 1, column: 9]",
         result);
   }

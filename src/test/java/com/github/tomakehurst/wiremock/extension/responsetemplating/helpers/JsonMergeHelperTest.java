@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,15 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junitpioneer.jupiter.json.JsonSource;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
 
@@ -100,15 +104,22 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
     assertThat(resolveInlineMerge(baseJson, jsonToMerge), is(expectedOutput));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenBaseJsonIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.readTree(
+                "[ { \"id\": 456, \"name\": \"bob\" }, { \"id\": 123, \"name\": \"alice\" }, { \"id\": 321, \"name\": \"sam\" } ]"),
+            mapper.readTree("{ \"id\": 456, \"name\": \"bob\" }"),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenBaseJsonIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[ { \"id\": 456, \"name\": \"bob\" }, { \"id\": 123, \"name\": \"alice\" }, { \"id\": 321, \"name\": \"sam\" } ]]",
-    "{ \"id\": 456, \"name\": \"bob\" }",
-    "true",
-    "null",
-    "123",
-  })
   void returnsAnErrorWhenBaseJsonIsNotAString(Object baseJson) throws IOException {
     assertThat(
         resolveInlineMerge(baseJson, "{\"id\":321,\"name\":\"sam\"}"),
@@ -174,15 +185,21 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
         is("[ERROR: JSON to merge is not valid JSON ('" + block + "')]"));
   }
 
+  private static Stream<Arguments> provideInputsForReturnsAnErrorWhenJsonToMergeIsNotAString() {
+    final JsonMapper mapper = JsonMapper.builder().build();
+    final JsonNodeFactory nodeFactory = mapper.getNodeFactory();
+
+    return Stream.of(
+        Arguments.of(
+            mapper.readTree("[ { \"id\": 456, \"name\": \"bob\" } ]"),
+            mapper.readTree("{ \"id\": 456, \"name\": \"bob\" }"),
+            nodeFactory.booleanNode(true),
+            nodeFactory.nullNode(),
+            nodeFactory.numberNode(123)));
+  }
+
+  @MethodSource("provideInputsForReturnsAnErrorWhenJsonToMergeIsNotAString")
   @ParameterizedTest
-  @JsonSource({
-    // have to double wrap arrays because @JsonSource unwraps them.
-    "[[ { id: 456, name: 'bob' } ]]",
-    "{ id: 456, name: 'bob' }",
-    "true",
-    "null",
-    "123",
-  })
   void returnsAnErrorWhenJsonToMergeIsNotAString(Object jsonToMerge) throws IOException {
     assertThat(
         resolveInlineMerge("{\"id\":456,\"name\":\"bob\"}", jsonToMerge),

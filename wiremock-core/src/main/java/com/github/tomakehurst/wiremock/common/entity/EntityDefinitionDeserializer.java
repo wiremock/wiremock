@@ -15,11 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefinition> {
 
@@ -28,18 +27,17 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
   }
 
   @Override
-  public EntityDefinition deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
+  public EntityDefinition deserialize(JsonParser parser, DeserializationContext ctxt) {
     JsonNode node = parser.readValueAsTree();
 
     Class<? extends EntityDefinition> targetClass;
-    if (node.isTextual()) {
+    if (node.isString()) {
       targetClass = StringEntityDefinition.class;
     } else if (node.isObject()) {
       JsonNode encodingNode = node.get("encoding");
       if (encodingNode != null
-          && encodingNode.isTextual()
-          && EncodingType.BINARY.value().equals(encodingNode.textValue())) {
+          && encodingNode.isString()
+          && EncodingType.BINARY.value().equals(encodingNode.stringValue())) {
         targetClass = BinaryEntityDefinition.class;
       } else {
         // Default to TextEntityDefinition for text encoding or when encoding is not specified

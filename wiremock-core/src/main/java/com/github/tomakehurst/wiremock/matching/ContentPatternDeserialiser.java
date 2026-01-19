@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
+public class ContentPatternDeserialiser extends ValueDeserializer<ContentPattern<?>> {
 
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException, JsonProcessingException {
+      throws JacksonException {
     JsonNode rootNode = parser.readValueAsTree();
 
     if (rootNode.has("binaryEqualTo")) {

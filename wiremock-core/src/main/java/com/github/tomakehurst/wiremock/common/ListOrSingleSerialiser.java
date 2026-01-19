@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.io.IOException;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.type.CollectionType;
+import tools.jackson.databind.type.TypeFactory;
 
-public class ListOrSingleSerialiser extends JsonSerializer<ListOrSingle<Object>> {
+public class ListOrSingleSerialiser extends ValueSerializer<ListOrSingle<Object>> {
 
   @Override
   public void serialize(
-      ListOrSingle<Object> value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException, JsonProcessingException {
+      ListOrSingle<Object> value, JsonGenerator gen, SerializationContext serializers)
+      throws JacksonException {
     if (value.isEmpty()) {
       gen.writeStartArray();
       gen.writeEndArray();
@@ -38,12 +37,13 @@ public class ListOrSingleSerialiser extends JsonSerializer<ListOrSingle<Object>>
 
     Object firstValue = value.getFirst();
     if (value.isSingle()) {
-      JsonSerializer<Object> serializer = serializers.findValueSerializer(firstValue.getClass());
+      ValueSerializer<Object> serializer = serializers.findValueSerializer(firstValue.getClass());
       serializer.serialize(firstValue, gen, serializers);
     } else {
       CollectionType type =
-          TypeFactory.defaultInstance().constructCollectionType(List.class, firstValue.getClass());
-      JsonSerializer<Object> serializer = serializers.findValueSerializer(type);
+          TypeFactory.createDefaultInstance()
+              .constructCollectionType(List.class, firstValue.getClass());
+      ValueSerializer<Object> serializer = serializers.findValueSerializer(type);
       serializer.serialize(value, gen, serializers);
     }
   }

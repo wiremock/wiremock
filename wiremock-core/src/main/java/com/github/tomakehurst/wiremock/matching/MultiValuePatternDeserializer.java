@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-public class MultiValuePatternDeserializer extends JsonDeserializer<MultiValuePattern> {
+public class MultiValuePatternDeserializer extends ValueDeserializer<MultiValuePattern> {
 
   @Override
-  public MultiValuePattern deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
+  public MultiValuePattern deserialize(JsonParser parser, DeserializationContext ctxt) {
     JsonNode rootNode = parser.readValueAsTree();
-    final ObjectMapper mapper = (ObjectMapper) parser.getCodec();
     if (rootNode.has(ExactMatchMultiValuePattern.JSON_KEY)) {
-      return mapper.treeToValue(rootNode, ExactMatchMultiValuePattern.class);
+      return ctxt.readTreeAsValue(rootNode, ExactMatchMultiValuePattern.class);
     } else if (rootNode.has(IncludesMatchMultiValuePattern.JSON_KEY)) {
-      return mapper.treeToValue(rootNode, IncludesMatchMultiValuePattern.class);
+      return ctxt.readTreeAsValue(rootNode, IncludesMatchMultiValuePattern.class);
     } else {
-      return mapper.treeToValue(rootNode, SingleMatchMultiValuePattern.class);
+      return ctxt.readTreeAsValue(rootNode, SingleMatchMultiValuePattern.class);
     }
   }
 }

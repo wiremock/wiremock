@@ -59,7 +59,8 @@ import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
-import com.networknt.schema.SpecVersion;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -1327,13 +1328,13 @@ public class WireMock {
 
     public static final JsonSchemaVersion DEFAULT = V202012;
 
-    public SpecVersion.VersionFlag toVersionFlag() {
+    public Dialect toVersionFlag() {
       return switch (this) {
-        case V4 -> SpecVersion.VersionFlag.V4;
-        case V6 -> SpecVersion.VersionFlag.V6;
-        case V7 -> SpecVersion.VersionFlag.V7;
-        case V201909 -> SpecVersion.VersionFlag.V201909;
-        case V202012 -> SpecVersion.VersionFlag.V202012;
+        case V4 -> Dialects.getDraft4();
+        case V6 -> Dialects.getDraft6();
+        case V7 -> Dialects.getDraft7();
+        case V201909 -> Dialects.getDraft201909();
+        case V202012 -> Dialects.getDraft202012();
       };
     }
   }
