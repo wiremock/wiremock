@@ -105,7 +105,7 @@ public non-sealed interface RelativeUrl extends Url {
     RelativeUrl.Builder setAuthority(@Nullable Authority authority);
 
     @Override
-    RelativeUrl build();
+    RelativeUrl build() throws IllegalRelativeUrl;
   }
 
   interface Transformer extends Url.Transformer<RelativeUrl.Transformer> {

@@ -138,7 +138,7 @@ public sealed interface AbsoluteUri extends Uri, Normalisable<AbsoluteUri>
     return new AbsoluteUriBuilder(uri);
   }
 
-  static AbsoluteUri parse(String uriString) {
+  static AbsoluteUri parse(String uriString) throws IllegalAbsoluteUri {
     return AbsoluteUriParser.INSTANCE.parse(uriString);
   }
 

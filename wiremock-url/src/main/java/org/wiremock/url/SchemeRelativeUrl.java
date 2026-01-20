@@ -45,7 +45,7 @@ public non-sealed interface SchemeRelativeUrl extends RelativeUrl, UrlWithAuthor
    * @return the parsed path and query
    * @throws IllegalPathAndQuery if the string is not a valid path and query
    */
-  static SchemeRelativeUrl parse(String pathAndQuery) throws IllegalPathAndQuery {
+  static SchemeRelativeUrl parse(String pathAndQuery) throws IllegalSchemeRelativeUrl {
     return SchemeRelativeUrlParser.INSTANCE.parse(pathAndQuery);
   }
 }

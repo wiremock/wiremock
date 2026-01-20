@@ -41,7 +41,7 @@ public interface UserInfo extends PercentEncoded<UserInfo> {
    * @return the parsed user info
    * @throws IllegalUserInfo if the string is not valid user info
    */
-  static UserInfo parse(String userInfoString) {
+  static UserInfo parse(String userInfoString) throws IllegalUserInfo {
     return UserInfoParser.INSTANCE.parse(userInfoString);
   }
 

@@ -15,13 +15,9 @@
  */
 package org.wiremock.url;
 
-public interface QueryParamKey extends PercentEncoded<QueryParamKey> {
+public class IllegalQueryParamValue extends IllegalUriPart {
 
-  static QueryParamKey parse(String key) throws IllegalQueryParamKey {
-    return QueryParamKeyParser.INSTANCE.parse(key);
-  }
-
-  static QueryParamKey encode(String key) {
-    return QueryParamKeyParser.INSTANCE.encode(key);
+  public IllegalQueryParamValue(String stringForm) {
+    super(stringForm, "Illegal query param value: `" + stringForm + "`");
   }
 }

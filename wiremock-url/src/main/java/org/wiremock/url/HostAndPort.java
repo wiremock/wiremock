@@ -61,7 +61,7 @@ public interface HostAndPort extends Authority {
    * @return the parsed host and port
    * @throws IllegalHostAndPort if the string is not a valid host and port
    */
-  static HostAndPort parse(String hostAndPortStr) {
+  static HostAndPort parse(String hostAndPortStr) throws IllegalAuthority {
     return HostAndPortParser.INSTANCE.parse(hostAndPortStr);
   }
 

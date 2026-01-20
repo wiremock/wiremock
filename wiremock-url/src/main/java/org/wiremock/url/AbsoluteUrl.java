@@ -101,9 +101,9 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
    *
    * @param other the URL to resolve
    * @return the resolved absolute URL
-   * @throws IllegalAbsoluteUrl if the string is not a valid absolute URL
+   * @throws IllegalUrl if the other is not a valid URL
    */
-  default AbsoluteUrl resolve(String other) {
+  default AbsoluteUrl resolve(String other) throws IllegalUrl {
     return resolve(Url.parse(other));
   }
 

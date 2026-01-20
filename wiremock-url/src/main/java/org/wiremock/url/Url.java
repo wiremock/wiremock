@@ -61,7 +61,7 @@ public sealed interface Url extends Uri permits RelativeUrl, UrlWithAuthority {
    * @return the transformed Url
    * @throws IllegalUrl if scheme is set and Authority is not set
    */
-  default Url transform(Consumer<Uri.Transformer<?>> mutator) {
+  default Url transform(Consumer<Uri.Transformer<?>> mutator) throws IllegalUri {
     var transformer = thaw();
     mutator.accept(transformer);
     return transformer.build();
@@ -109,7 +109,7 @@ public sealed interface Url extends Uri permits RelativeUrl, UrlWithAuthority {
      * @throws IllegalUrl if scheme is set and Authority is not set
      */
     @Override
-    Url build() throws IllegalUrl;
+    Url build() throws IllegalUri;
   }
 
   interface Transformer<SELF extends Transformer<SELF>> extends Uri.Transformer<SELF> {
@@ -119,6 +119,6 @@ public sealed interface Url extends Uri permits RelativeUrl, UrlWithAuthority {
      * @throws IllegalUrl if scheme is set and Authority is not set
      */
     @Override
-    Url build() throws IllegalUrl;
+    Url build() throws IllegalUri;
   }
 }
