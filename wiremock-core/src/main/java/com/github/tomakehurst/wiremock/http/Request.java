@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameter;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Collection;
@@ -54,7 +56,9 @@ public interface Request {
   PathAndQuery getPathAndQueryWithoutPrefix();
 
   @Deprecated // use getTypedAbsoluteUrl()
-  String getAbsoluteUrl();
+  default String getAbsoluteUrl() {
+    return getTypedAbsoluteUrl().toString();
+  }
 
   @JsonIgnore
   AbsoluteUrl getTypedAbsoluteUrl();
@@ -87,8 +91,10 @@ public interface Request {
     return PathParams.empty();
   }
 
-  @Deprecated // use getPathOrQuery().getQueryOrEmpty().get(String)
-  QueryParameter queryParameter(String key);
+  @Deprecated // use getPathAndQueryWithoutPrefix().getQueryOrEmpty().get(key)
+  default QueryParameter queryParameter(String key) {
+    return toQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
+  }
 
   FormParameter formParameter(String key);
 

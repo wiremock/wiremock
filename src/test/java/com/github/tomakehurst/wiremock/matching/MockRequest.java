@@ -22,7 +22,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.MultipartParserLoader;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -240,12 +239,6 @@ public class MockRequest implements Request {
   @Override
   public Map<String, Cookie> getCookies() {
     return cookies;
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    Map<String, QueryParameter> queryParams = Urls.splitQueryFromUrl(url);
-    return queryParams.get(key);
   }
 
   @Override

@@ -38,10 +38,6 @@ public class Urls {
 
   private Urls() {}
 
-  public static Map<String, QueryParameter> splitQueryFromUrl(String url) {
-    return toQueryParameterMap(Url.parse(url).getQueryOrEmpty());
-  }
-
   public static Map<String, QueryParameter> toQueryParameterMap(Query query) {
     if (query.isEmpty()) {
       return Collections.emptyMap();
@@ -57,7 +53,7 @@ public class Urls {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
-  public static @NonNull QueryParameter getQueryParameter(Query query, String key) {
+  public static @NonNull QueryParameter toQueryParameter(Query query, String key) {
     List<@Nullable QueryParamValue> values = query.get(key);
     return new QueryParameter(key, toStrings(values));
   }

@@ -33,9 +33,11 @@ import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
@@ -305,10 +307,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return MatchResult.aggregate(
           queryParams.entrySet().stream()
               .map(
-                  queryParamPattern ->
-                      queryParamPattern
-                          .getValue()
-                          .match(request.queryParameter(queryParamPattern.getKey())))
+                  queryParamPattern -> {
+                    QueryParameter queryParameter =
+                        Urls.toQueryParameter(
+                            request.getPathAndQueryWithoutPrefix().getQueryOrEmpty(),
+                            queryParamPattern.getKey());
+                    return queryParamPattern.getValue().match(queryParameter);
+                  })
               .collect(toList()));
     }
 

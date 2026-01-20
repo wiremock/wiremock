@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.getQueryParameter;
 import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameterMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -304,11 +303,6 @@ public class LoggedRequest implements Request {
   @JsonIgnore
   public Set<String> getAllHeaderKeys() {
     return headers.keys();
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    return getQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
   }
 
   @Override

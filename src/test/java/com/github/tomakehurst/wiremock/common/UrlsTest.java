@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.Url;
 
 public class UrlsTest {
 
@@ -30,14 +31,16 @@ public class UrlsTest {
 
   @Test
   public void copesWithEqualsInParamValues() {
-    params = Urls.splitQueryFromUrl("/thing?param1=one&param2=one==two=three");
+    params =
+        Urls.toQueryParameterMap(
+            Url.parse("/thing?param1=one&param2=one==two=three").getQueryOrEmpty());
     assertThat(params.get("param1").firstValue(), is("one"));
     assertThat(params.get("param2").firstValue(), is("one==two=three"));
   }
 
   @Test
   public void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
-    params = Urls.splitQueryFromUrl("/thing?param1&param2&param3");
+    params = Urls.toQueryParameterMap(Url.parse("/thing?param1&param2&param3").getQueryOrEmpty());
     assertThat(params.get("param1").firstValue(), is(""));
     assertThat(params.get("param2").firstValue(), is(""));
     assertThat(params.get("param3").firstValue(), is(""));
@@ -45,7 +48,9 @@ public class UrlsTest {
 
   @Test
   public void supportsMultiValuedParameters() {
-    params = Urls.splitQueryFromUrl("/thing?param1=1&param2=two&param1=2&param1=3");
+    params =
+        Urls.toQueryParameterMap(
+            Url.parse("/thing?param1=1&param2=two&param1=2&param1=3").getQueryOrEmpty());
     assertThat(params.size(), is(2));
     assertThat(params.get("param1").isSingleValued(), is(false));
     assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
@@ -55,8 +60,10 @@ public class UrlsTest {
   public void supportsOffsetDateTimeParameterValues() {
     OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-05-01T09:30:00.000Z");
     params =
-        Urls.splitQueryFromUrl(
-            "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z");
+        Urls.toQueryParameterMap(
+            Url.parse(
+                    "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z")
+                .getQueryOrEmpty());
     for (QueryParameter queryParameter : params.values()) {
       for (String parameterValue : queryParameter.values()) {
         assert (offsetDateTime.isEqual(OffsetDateTime.parse(parameterValue)));
@@ -66,13 +73,15 @@ public class UrlsTest {
 
   @Test
   public void doesNotAttemptToDoubleDecodeSplitQueryString() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/thing?q=a%25b");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/thing?q=a%25b").getQueryOrEmpty());
     assertThat(query.get("q").firstValue(), is("a%b"));
   }
 
   @Test
   public void splitsQueryFromUrl() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b?one=1&one=11&two=2");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/a/b?one=1&one=11&two=2").getQueryOrEmpty());
 
     List<String> oneValues = query.get("one").values();
     assertThat(oneValues, hasItems("1", "11"));
@@ -82,7 +91,8 @@ public class UrlsTest {
 
   @Test
   public void splitsQueryFromUrlWithTrailingSlash() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?one=1&one=11&two=2");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/a/b/?one=1&one=11&two=2").getQueryOrEmpty());
 
     List<String> oneValues = query.get("one").values();
     assertThat(oneValues, hasItems("1", "11"));
@@ -92,19 +102,22 @@ public class UrlsTest {
 
   @Test
   public void splitQueryFromUrlHandlesUrlThatEndsWithQuestionMark() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/a/b/?").getQueryOrEmpty());
     assertThat(query.isEmpty(), is(true));
   }
 
   @Test
   public void splitQueryFromUrlReturnsEmptyWhenNoQuery() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/a/b").getQueryOrEmpty());
     assertThat(query.isEmpty(), is(true));
   }
 
   @Test
   public void splitQueryFromUrlReturnsEmptyWhenTrailingSlashAndNoQuery() {
-    Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/");
+    Map<String, QueryParameter> query =
+        Urls.toQueryParameterMap(Url.parse("/a/b/").getQueryOrEmpty());
     assertThat(query.isEmpty(), is(true));
   }
 }

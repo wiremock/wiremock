@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.getQueryParameter;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -273,11 +272,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     return Maps.transformValues(
         builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    return getQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
   }
 
   @Override

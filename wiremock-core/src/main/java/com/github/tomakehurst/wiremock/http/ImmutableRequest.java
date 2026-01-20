@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.github.tomakehurst.wiremock.common.Urls;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -153,11 +152,6 @@ public class ImmutableRequest implements Request {
   @Override
   public Set<String> getAllHeaderKeys() {
     return headers.keys();
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    return Urls.getQueryParameter(pathAndQuery.getQueryOrEmpty(), key);
   }
 
   @Override
