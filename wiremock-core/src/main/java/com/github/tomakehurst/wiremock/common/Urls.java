@@ -30,9 +30,9 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Query;
 import org.wiremock.url.QueryParamValue;
-import org.wiremock.url.Url;
 
 public class Urls {
 
@@ -62,7 +62,7 @@ public class Urls {
     return values.stream().map(value -> value != null ? value.decode() : "").toList();
   }
 
-  public static String urlToPathParts(Url uri) {
+  public static String urlToPathParts(PathAndQuery uri) {
     List<String> uriPathNodes =
         uri.getPath().getSegments().stream()
             .filter(s -> !s.isEmpty())

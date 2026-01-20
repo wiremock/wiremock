@@ -74,16 +74,16 @@ public class PathTemplate {
     renderer = rendererBuilder.build();
   }
 
-  public boolean matches(Path path) {
-    return parser.matches(path);
-  }
-
   public boolean matches(String url) {
     return matches(PathAndQuery.parse(url).getPath());
   }
 
+  public boolean matches(Path path) {
+    return parser.matches(path);
+  }
+
   public PathParams parse(String url) {
-    return parser.parse(Path.parse(url));
+    return parse(PathAndQuery.parse(url).getPath());
   }
 
   public PathParams parse(Path url) {

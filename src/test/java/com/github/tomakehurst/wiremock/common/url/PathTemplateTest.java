@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,15 @@ class PathTemplateTest {
     PathTemplate template = new PathTemplate("/things/{id}");
 
     PathParams pathParams = template.parse("/things/11-22-33");
+
+    assertThat(pathParams.get("id"), is("11-22-33"));
+  }
+
+  @Test
+  void ignoresQueryParameterWhenParsing() {
+    PathTemplate template = new PathTemplate("/things/{id}");
+
+    PathParams pathParams = template.parse("/things/11-22-33?a=b");
 
     assertThat(pathParams.get("id"), is("11-22-33"));
   }
@@ -251,7 +260,7 @@ class PathTemplateTest {
   }
 
   @Test
-  void ignoresQueryParameter() {
+  void ignoresQueryParameterWhenMatching() {
     PathTemplate pathTemplate = new PathTemplate("/things/{thingId}/stuff");
     assertTrue(pathTemplate.matches("/things/123/stuff?query=param"));
   }

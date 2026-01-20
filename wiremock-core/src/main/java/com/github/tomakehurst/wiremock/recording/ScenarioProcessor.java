@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.wiremock.url.Url;
+import org.wiremock.url.PathAndQuery;
 
 class ScenarioProcessor {
 
@@ -76,7 +76,7 @@ class ScenarioProcessor {
             + scenarioIndex
             + "-"
             + Urls.urlToPathParts(
-                Url.parse(
+                PathAndQuery.parse(
                     getFirstNonNull(
                         firstScenario.getRequest().getUrl(),
                         firstScenario.getRequest().getUrlPath())));
