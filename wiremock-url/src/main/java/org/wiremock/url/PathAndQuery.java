@@ -56,6 +56,12 @@ public interface PathAndQuery extends RelativeUrl {
     return null;
   }
 
+  @Override
+  @Deprecated // no point ever calling on this subtype
+  default PathAndQuery getPathAndQuery() {
+    return this;
+  }
+
   /**
    * Parses a string into a path and query.
    *
