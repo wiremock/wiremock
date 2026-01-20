@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.countMatches;
 import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -96,14 +98,11 @@ public class RequestWrapper implements Request {
     return absoluteUrl.substring(relativeStartIndex);
   }
 
-  private volatile PathAndQuery pathAndQuery = null;
+  private final Lazy<PathAndQuery> pathAndQuery = lazy(() -> PathAndQuery.parse(getUrl()));
 
   @Override
   public PathAndQuery getPathAndQueryWithoutPrefix() {
-    if (pathAndQuery == null) {
-      pathAndQuery = PathAndQuery.parse(getUrl());
-    }
-    return pathAndQuery;
+    return pathAndQuery.get();
   }
 
   @Override
@@ -115,14 +114,12 @@ public class RequestWrapper implements Request {
     return delegate.getAbsoluteUrl();
   }
 
-  private volatile AbsoluteUrl typedAbsoluteUrl = null;
+  private final Lazy<AbsoluteUrl> typedAbsoluteUrl =
+      lazy(() -> AbsoluteUrl.parse(getAbsoluteUrl()));
 
   @Override
   public AbsoluteUrl getTypedAbsoluteUrl() {
-    if (typedAbsoluteUrl == null) {
-      typedAbsoluteUrl = AbsoluteUrl.parse(getAbsoluteUrl());
-    }
-    return typedAbsoluteUrl;
+    return typedAbsoluteUrl.get();
   }
 
   @Override

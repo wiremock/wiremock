@@ -79,18 +79,8 @@ public class ImmutableRequest implements Request {
   }
 
   @Override
-  public String getUrl() {
-    return pathAndQuery.toString();
-  }
-
-  @Override
   public PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery;
-  }
-
-  @Override
-  public String getAbsoluteUrl() {
-    return absoluteUrl.toString();
   }
 
   @Override
