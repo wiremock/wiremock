@@ -331,7 +331,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     if (url.getClass().equals(UrlPathTemplatePattern.class) && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      if (!pathTemplate.matches(request.getPathAndQuery().toString())) {
+      if (!pathTemplate.matches(request.getPathAndQuery().getPath())) {
         return MatchResult.noMatch();
       }
 

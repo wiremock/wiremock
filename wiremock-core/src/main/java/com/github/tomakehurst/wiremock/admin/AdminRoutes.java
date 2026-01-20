@@ -154,7 +154,7 @@ public class AdminRoutes {
 
   public AdminTask taskFor(final RequestMethod method, final Path path) {
     return routes.entrySet().stream()
-        .filter(entry -> entry.getKey().matches(method, path.toString()))
+        .filter(entry -> entry.getKey().matches(method, path))
         .map(Entry::getValue)
         .findFirst()
         .orElseGet(NotFoundAdminTask::new);

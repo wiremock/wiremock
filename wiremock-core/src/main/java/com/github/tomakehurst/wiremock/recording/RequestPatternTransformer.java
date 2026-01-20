@@ -50,8 +50,8 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
     // TODO: could be changed to always use urlPathEqualTo in next major release.
     var urlMatcher =
         queryParameters.isEmpty()
-            ? urlEqualTo(pathAndQuery.toString())
-            : urlPathEqualTo(pathAndQuery.getPath().toString());
+            ? urlEqualTo(pathAndQuery)
+            : urlPathEqualTo(pathAndQuery.getPath());
     final RequestPatternBuilder builder =
         new RequestPatternBuilder(request.getMethod(), urlMatcher);
 

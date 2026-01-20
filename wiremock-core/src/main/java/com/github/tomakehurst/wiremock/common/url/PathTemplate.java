@@ -74,8 +74,12 @@ public class PathTemplate {
     renderer = rendererBuilder.build();
   }
 
+  public boolean matches(Path path) {
+    return parser.matches(path);
+  }
+
   public boolean matches(String url) {
-    return parser.matches(PathAndQuery.parse(url).getPath().toString());
+    return matches(PathAndQuery.parse(url).getPath());
   }
 
   public PathParams parse(String url) {
@@ -130,8 +134,8 @@ class Parser {
     this.templateParameters = templateParameters;
   }
 
-  boolean matches(String url) {
-    Matcher matcher = templatePattern.matcher(url);
+  boolean matches(Path path) {
+    Matcher matcher = templatePattern.matcher(path.toString());
     return matcher.matches();
   }
 
