@@ -46,7 +46,9 @@ public interface Request {
   }
 
   @Deprecated // use getPathAndQuery()
-  String getUrl();
+  default String getUrl() {
+    return getPathAndQuery().toString();
+  }
 
   @JsonIgnore
   PathAndQuery getPathAndQuery();
