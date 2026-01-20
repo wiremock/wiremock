@@ -17,7 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.SchemeRegistry.https;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

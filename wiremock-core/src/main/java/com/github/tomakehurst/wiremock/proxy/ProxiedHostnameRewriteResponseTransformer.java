@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock.proxy;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
+import static org.wiremock.url.SchemeRegistry.https;
+import static org.wiremock.url.SchemeRegistry.ws;
+import static org.wiremock.url.SchemeRegistry.wss;
 
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Gzip;
@@ -344,6 +347,6 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
   }
 
   private static Scheme getWebSocketScheme(AbsoluteUrl proxyUrl) {
-    return proxyUrl.getScheme().equals(Scheme.https) ? Scheme.wss : Scheme.ws;
+    return proxyUrl.getScheme().equals(https) ? wss : ws;
   }
 }

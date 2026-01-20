@@ -160,56 +160,56 @@ class SchemeTests {
 
     @Test
     void http_scheme_has_port_80() {
-      assertThat(Scheme.http.toString()).isEqualTo("http");
-      assertThat(Scheme.http.getDefaultPort()).isEqualTo(Port.of(80));
-      assertThat(Scheme.http.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.http.toString()).isEqualTo("http");
+      assertThat(SchemeRegistry.http.getDefaultPort()).isEqualTo(Port.of(80));
+      assertThat(SchemeRegistry.http.isNormalForm()).isTrue();
     }
 
     @Test
     void https_scheme_has_port_443() {
-      assertThat(Scheme.https.toString()).isEqualTo("https");
-      assertThat(Scheme.https.getDefaultPort()).isEqualTo(Port.of(443));
-      assertThat(Scheme.https.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.https.toString()).isEqualTo("https");
+      assertThat(SchemeRegistry.https.getDefaultPort()).isEqualTo(Port.of(443));
+      assertThat(SchemeRegistry.https.isNormalForm()).isTrue();
     }
 
     @Test
     void ftp_scheme_has_port_21() {
-      assertThat(Scheme.ftp.toString()).isEqualTo("ftp");
-      assertThat(Scheme.ftp.getDefaultPort()).isEqualTo(Port.of(21));
-      assertThat(Scheme.ftp.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.ftp.toString()).isEqualTo("ftp");
+      assertThat(SchemeRegistry.ftp.getDefaultPort()).isEqualTo(Port.of(21));
+      assertThat(SchemeRegistry.ftp.isNormalForm()).isTrue();
     }
 
     @Test
     void ssh_scheme_has_port_22() {
-      assertThat(Scheme.ssh.toString()).isEqualTo("ssh");
-      assertThat(Scheme.ssh.getDefaultPort()).isEqualTo(Port.of(22));
-      assertThat(Scheme.ssh.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.ssh.toString()).isEqualTo("ssh");
+      assertThat(SchemeRegistry.ssh.getDefaultPort()).isEqualTo(Port.of(22));
+      assertThat(SchemeRegistry.ssh.isNormalForm()).isTrue();
     }
 
     @Test
     void file_scheme_has_no_default_port() {
-      assertThat(Scheme.file.toString()).isEqualTo("file");
-      assertThat(Scheme.file.getDefaultPort()).isNull();
-      assertThat(Scheme.file.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.file.toString()).isEqualTo("file");
+      assertThat(SchemeRegistry.file.getDefaultPort()).isNull();
+      assertThat(SchemeRegistry.file.isNormalForm()).isTrue();
     }
 
     @Test
     void mailto_scheme_has_no_default_port() {
-      assertThat(Scheme.mailto.toString()).isEqualTo("mailto");
-      assertThat(Scheme.mailto.getDefaultPort()).isNull();
-      assertThat(Scheme.mailto.isNormalForm()).isTrue();
+      assertThat(SchemeRegistry.mailto.toString()).isEqualTo("mailto");
+      assertThat(SchemeRegistry.mailto.getDefaultPort()).isNull();
+      assertThat(SchemeRegistry.mailto.isNormalForm()).isTrue();
     }
 
     @Test
     void parsing_http_returns_predefined_instance() {
       Scheme parsed = Scheme.parse("http");
-      assertThat(parsed).isSameAs(Scheme.http);
+      assertThat(parsed).isSameAs(SchemeRegistry.http);
     }
 
     @Test
     void parsing_https_returns_predefined_instance() {
       Scheme parsed = Scheme.parse("https");
-      assertThat(parsed).isSameAs(Scheme.https);
+      assertThat(parsed).isSameAs(SchemeRegistry.https);
     }
   }
 

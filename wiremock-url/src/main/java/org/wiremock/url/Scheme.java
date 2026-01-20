@@ -35,16 +35,6 @@ import org.wiremock.stringparser.ParsedString;
  */
 public interface Scheme extends ParsedString {
 
-  Scheme http = register("http", Port.of(80));
-  Scheme https = register("https", Port.of(443));
-  Scheme ws = register("ws", Port.of(80));
-  Scheme wss = register("wss", Port.of(443));
-  Scheme file = register("file");
-  Scheme ftp = register("ftp", Port.of(21));
-  Scheme sftp = register("sftp", Port.of(22));
-  Scheme ssh = register("ssh", Port.of(22));
-  Scheme mailto = register("mailto");
-
   Scheme normalise();
 
   @Nullable Port getDefaultPort();

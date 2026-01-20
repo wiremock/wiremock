@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Lists.concat;
-import static org.wiremock.url.Scheme.file;
-import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.SchemeRegistry.file;
+import static org.wiremock.url.SchemeRegistry.https;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
 
 import java.util.List;

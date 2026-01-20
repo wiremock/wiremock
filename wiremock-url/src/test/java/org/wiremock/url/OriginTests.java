@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.Lists.concat;
-import static org.wiremock.url.Scheme.http;
+import static org.wiremock.url.SchemeRegistry.http;
 import static org.wiremock.url.ServersideAbsoluteUrlTests.Parse.illegalServersideAbsoluteUrls;
 
 import java.util.List;

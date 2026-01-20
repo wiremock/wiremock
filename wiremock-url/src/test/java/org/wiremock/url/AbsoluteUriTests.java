@@ -19,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.wiremock.url.Scheme.wss;
+import static org.wiremock.url.SchemeRegistry.https;
+import static org.wiremock.url.SchemeRegistry.wss;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -334,7 +335,7 @@ public class AbsoluteUriTests {
     void can_build_an_absolute_uri() {
 
       AbsoluteUri uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setAuthority(Authority.parse("example.com"))
               .setPath(Path.parse("/path"))
               .setQuery(Query.parse("query"))
@@ -348,7 +349,7 @@ public class AbsoluteUriTests {
     void can_build_an_absolute_uri_with_separate_authority_parts() {
 
       var uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setHost(Host.parse("example.com"))
               .setUserInfo(UserInfo.parse("user:password"))
               .setPort(Port.of(8443))
@@ -364,27 +365,27 @@ public class AbsoluteUriTests {
 
     private static final List<AbsoluteUri.Builder<?>> authorityBuilders =
         List.of(
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setHost(Host.parse("example.com"))
                 .setUserInfo(UserInfo.parse("user:password"))
                 .setPort(Port.of(8443)),
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setHost(Host.parse("example.com"))
                 .setPort(Port.of(8443))
                 .setUserInfo(UserInfo.parse("user:password")),
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setPort(Port.of(8443))
                 .setHost(Host.parse("example.com"))
                 .setUserInfo(UserInfo.parse("user:password")),
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setPort(Port.of(8443))
                 .setUserInfo(UserInfo.parse("user:password"))
                 .setHost(Host.parse("example.com")),
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setUserInfo(UserInfo.parse("user:password"))
                 .setPort(Port.of(8443))
                 .setHost(Host.parse("example.com")),
-            AbsoluteUri.builder(Scheme.https)
+            AbsoluteUri.builder(https)
                 .setUserInfo(UserInfo.parse("user:password"))
                 .setHost(Host.parse("example.com"))
                 .setPort(Port.of(8443)));
@@ -406,7 +407,7 @@ public class AbsoluteUriTests {
     @Test
     void setting_user_info_after_authority_works() {
       var uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setAuthority(Authority.parse("user@example.com:8443"))
               .setUserInfo(UserInfo.parse("me:passwd"))
               .build();
@@ -417,7 +418,7 @@ public class AbsoluteUriTests {
     @Test
     void setting_host_after_authority_works() {
       var uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setAuthority(Authority.parse("user@www.example.com:8443"))
               .setHost(Host.parse("example.com"))
               .build();
@@ -428,7 +429,7 @@ public class AbsoluteUriTests {
     @Test
     void setting_port_after_authority_works() {
       var uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setAuthority(Authority.parse("user@example.com:8443"))
               .setPort(Port.of(88443))
               .build();
@@ -439,7 +440,7 @@ public class AbsoluteUriTests {
     @Test
     void authority_overrides_user_info_and_port() {
       var uri =
-          AbsoluteUri.builder(Scheme.https)
+          AbsoluteUri.builder(https)
               .setUserInfo(UserInfo.parse("me:passwd"))
               .setPort(Port.of(88443))
               .setAuthority(Authority.parse("user@example.com:8443"))
@@ -452,10 +453,7 @@ public class AbsoluteUriTests {
     void build_fails_if_user_info_set_and_host_or_authority_not() {
       assertThatIllegalStateException()
           .isThrownBy(
-              () ->
-                  AbsoluteUri.builder(Scheme.https)
-                      .setUserInfo(UserInfo.parse("me:passwd"))
-                      .build())
+              () -> AbsoluteUri.builder(https).setUserInfo(UserInfo.parse("me:passwd")).build())
           .withMessage("Cannot construct a uri with a userinfo or port but no host")
           .withNoCause();
     }
@@ -463,7 +461,7 @@ public class AbsoluteUriTests {
     @Test
     void build_fails_if_port_set_and_host_or_authority_not() {
       assertThatIllegalStateException()
-          .isThrownBy(() -> AbsoluteUri.builder(Scheme.https).setPort(Port.of(88443)).build())
+          .isThrownBy(() -> AbsoluteUri.builder(https).setPort(Port.of(88443)).build())
           .withMessage("Cannot construct a uri with a userinfo or port but no host")
           .withNoCause();
     }
@@ -473,7 +471,7 @@ public class AbsoluteUriTests {
       assertThatIllegalStateException()
           .isThrownBy(
               () ->
-                  AbsoluteUri.builder(Scheme.https)
+                  AbsoluteUri.builder(https)
                       .setUserInfo(UserInfo.parse("me:passwd"))
                       .setPort(Port.of(88443))
                       .build())

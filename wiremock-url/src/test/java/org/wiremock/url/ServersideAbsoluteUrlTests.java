@@ -20,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
 import static org.wiremock.url.Lists.concat;
-import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.SchemeRegistry.file;
+import static org.wiremock.url.SchemeRegistry.https;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -80,7 +81,7 @@ class ServersideAbsoluteUrlTests {
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
       assertThat(fileUri).isNotInstanceOf(Origin.class);
 
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
+      assertThat(fileUri.getScheme()).isEqualTo(file);
 
       assertThat(fileUri.getAuthority()).isEqualTo(HostAndPort.EMPTY);
       assertThat(fileUri.getUserInfo()).isNull();
@@ -106,7 +107,7 @@ class ServersideAbsoluteUrlTests {
       assertThat(fileUri).isInstanceOf(ServersideAbsoluteUrl.class);
       assertThat(fileUri).isNotInstanceOf(Origin.class);
 
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
+      assertThat(fileUri.getScheme()).isEqualTo(file);
 
       assertThat(fileUri.getAuthority()).isEqualTo(Authority.parse("user@remote"));
       assertThat(fileUri.getUserInfo()).isEqualTo(UserInfo.parse("user"));

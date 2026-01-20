@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT_SEGMENT;
-import static org.wiremock.url.Scheme.https;
+import static org.wiremock.url.SchemeRegistry.https;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;

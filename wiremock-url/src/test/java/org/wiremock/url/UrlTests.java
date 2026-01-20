@@ -18,8 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.wiremock.url.Scheme.file;
-import static org.wiremock.url.Scheme.wss;
+import static org.wiremock.url.SchemeRegistry.file;
+import static org.wiremock.url.SchemeRegistry.wss;
 
 import java.util.List;
 import java.util.stream.Stream;

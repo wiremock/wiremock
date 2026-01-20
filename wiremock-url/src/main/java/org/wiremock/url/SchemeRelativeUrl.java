@@ -34,6 +34,7 @@ public non-sealed interface SchemeRelativeUrl extends RelativeUrl, UrlWithAuthor
   Authority getAuthority();
 
   @Override
+  @Deprecated // no point ever calling
   default SchemeRelativeUrl getSchemeRelativeUrl() {
     return this;
   }

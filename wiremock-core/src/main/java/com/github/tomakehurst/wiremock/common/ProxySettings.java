@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
-import static org.wiremock.url.Scheme.http;
+import static org.wiremock.url.SchemeRegistry.http;
 
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.IllegalUri;

@@ -20,8 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
 import static org.wiremock.url.Lists.concat;
-import static org.wiremock.url.Scheme.https;
-import static org.wiremock.url.Scheme.wss;
+import static org.wiremock.url.SchemeRegistry.https;
 import static org.wiremock.url.UriExpectation.expectation;
 import static org.wiremock.url.UriParseTestCase.testCase;
 import static org.wiremock.url.UrlTests.Parse.illegalUrls;
@@ -467,7 +466,7 @@ class AbsoluteUrlTests {
     void can_build_an_absolute_uri() {
 
       AbsoluteUrl uri =
-          AbsoluteUrl.builder(Scheme.https, Authority.parse("example.com"))
+          AbsoluteUrl.builder(https, Authority.parse("example.com"))
               .setPath(Path.parse("/path"))
               .setQuery(Query.parse("query"))
               .setFragment(Fragment.parse("fragment"))
@@ -479,7 +478,7 @@ class AbsoluteUrlTests {
     @Test
     void setting_user_info_after_authority_works() {
       var uri =
-          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@example.com:8443"))
+          AbsoluteUrl.builder(https, Authority.parse("user@example.com:8443"))
               .setUserInfo(UserInfo.parse("me:passwd"))
               .build();
 
@@ -489,7 +488,7 @@ class AbsoluteUrlTests {
     @Test
     void setting_host_after_authority_works() {
       var uri =
-          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@www.example.com:8443"))
+          AbsoluteUrl.builder(https, Authority.parse("user@www.example.com:8443"))
               .setHost(Host.parse("example.com"))
               .build();
 
@@ -499,7 +498,7 @@ class AbsoluteUrlTests {
     @Test
     void setting_port_after_authority_works() {
       var uri =
-          AbsoluteUrl.builder(Scheme.https, Authority.parse("user@example.com:8443"))
+          AbsoluteUrl.builder(https, Authority.parse("user@example.com:8443"))
               .setPort(Port.of(88443))
               .build();
 
@@ -511,7 +510,7 @@ class AbsoluteUrlTests {
       assertThatExceptionOfType(IllegalAbsoluteUrl.class)
           .isThrownBy(
               () ->
-                  AbsoluteUrl.builder(Scheme.https, Authority.parse("example.com"))
+                  AbsoluteUrl.builder(https, Authority.parse("example.com"))
                       .setPath(Path.parse("relative"))
                       .build())
           .withMessage(
@@ -528,7 +527,7 @@ class AbsoluteUrlTests {
     void can_change_a_urls_scheme() {
 
       AbsoluteUrl uri = AbsoluteUrl.parse("https://user@example.com:8443/path?query#fragment");
-      AbsoluteUrl transformed = uri.thaw().setScheme(wss).build();
+      AbsoluteUrl transformed = uri.thaw().setScheme(SchemeRegistry.wss).build();
 
       assertThat(transformed)
           .isEqualTo(AbsoluteUrl.parse("wss://user@example.com:8443/path?query#fragment"));

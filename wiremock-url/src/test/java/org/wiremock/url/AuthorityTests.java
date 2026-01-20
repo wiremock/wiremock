@@ -18,6 +18,8 @@ package org.wiremock.url;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.wiremock.url.SchemeRegistry.file;
+import static org.wiremock.url.SchemeRegistry.http;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -590,7 +592,7 @@ public class AuthorityTests {
     @Test
     void normalise_with_scheme_removes_default_port() {
       Authority authority = Authority.parse("example.com:80");
-      Authority normalised = authority.normalise(Scheme.http);
+      Authority normalised = authority.normalise(http);
       assertThat(normalised).isEqualTo(Authority.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -598,7 +600,7 @@ public class AuthorityTests {
     @Test
     void normalise_with_scheme_keeps_non_default_port() {
       Authority authority = Authority.parse("example.com:8080");
-      Authority normalised = authority.normalise(Scheme.http);
+      Authority normalised = authority.normalise(http);
       assertThat(normalised).isEqualTo(Authority.parse("example.com:8080"));
       assertThat(normalised.getPort()).isEqualTo(Port.of(8080));
     }
@@ -606,14 +608,14 @@ public class AuthorityTests {
     @Test
     void normalise_with_scheme_returns_same_instance_when_already_normalised() {
       Authority authority = Authority.parse("example.com:8080");
-      Authority normalised = authority.normalise(Scheme.http);
+      Authority normalised = authority.normalise(http);
       assertThat(normalised).isSameAs(authority);
     }
 
     @Test
     void normalise_with_scheme_normalises_host_and_removes_default_port() {
       Authority authority = Authority.parse("EXAMPLE.COM:80");
-      Authority normalised = authority.normalise(Scheme.http);
+      Authority normalised = authority.normalise(http);
       assertThat(normalised).isEqualTo(Authority.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -621,7 +623,7 @@ public class AuthorityTests {
     @Test
     void normalise_with_userInfo_and_scheme_removes_default_port() {
       Authority authority = Authority.parse("user:password@example.com:80");
-      Authority normalised = authority.normalise(Scheme.http);
+      Authority normalised = authority.normalise(http);
       assertThat(normalised).isEqualTo(Authority.parse("user:password@example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -630,14 +632,14 @@ public class AuthorityTests {
     @ValueSource(strings = {"example.com", "example.com:8080"})
     void is_normal_form_with_http_scheme_returns_true(String authorityString) {
       var authority = Authority.parse(authorityString);
-      assertThat(authority.isNormalForm(Scheme.http)).isTrue();
+      assertThat(authority.isNormalForm(http)).isTrue();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"example.com:", "example.com:80"})
     void is_normal_form_with_http_scheme_returns_false(String authorityString) {
       var authority = Authority.parse(authorityString);
-      assertThat(authority.isNormalForm(Scheme.http)).isFalse();
+      assertThat(authority.isNormalForm(http)).isFalse();
     }
 
     @ParameterizedTest
@@ -648,13 +650,13 @@ public class AuthorityTests {
         })
     void is_normal_form_with_file_scheme_returns_true(String authorityString) {
       var authority = Authority.parse(authorityString);
-      assertThat(authority.isNormalForm(Scheme.file)).isTrue();
+      assertThat(authority.isNormalForm(file)).isTrue();
     }
 
     @Test
     void is_normal_form_with_file_scheme_returns_false() {
       var authority = Authority.parse("example.com:");
-      assertThat(authority.isNormalForm(Scheme.file)).isFalse();
+      assertThat(authority.isNormalForm(file)).isFalse();
     }
 
     static final List<NormalisationCase<Authority>> normalisationCases =

@@ -17,6 +17,8 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.wiremock.url.SchemeRegistry.http;
+import static org.wiremock.url.SchemeRegistry.https;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -130,7 +132,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_removes_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -138,7 +140,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_keeps_non_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
       assertThat(normalised.getPort()).isEqualTo(Port.of(8080));
     }
@@ -146,14 +148,14 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_returns_same_instance_when_already_normalised() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(http);
       assertThat(normalised).isSameAs(hostAndPort);
     }
 
     @Test
     void normalise_with_scheme_normalises_host_and_removes_default_port() {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:80");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(http);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -161,7 +163,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_normalises_host_and_port() {
       HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:00443");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.https);
+      HostAndPort normalised = hostAndPort.normalise(https);
       assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
       assertThat(normalised.getPort()).isNull();
     }
@@ -176,7 +178,7 @@ class HostAndPortTests {
     @Test
     void normalise_with_scheme_without_port_returns_same_instance() {
       HostAndPort hostAndPort = HostAndPort.parse("example.com");
-      HostAndPort normalised = hostAndPort.normalise(Scheme.http);
+      HostAndPort normalised = hostAndPort.normalise(http);
       assertThat(normalised).isSameAs(hostAndPort);
     }
 

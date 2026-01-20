@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.wiremock.url.AbsoluteUriTests.Parse.illegalAbsoluteUris;
 import static org.wiremock.url.Lists.concat;
+import static org.wiremock.url.SchemeRegistry.file;
+import static org.wiremock.url.SchemeRegistry.mailto;
 
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +41,7 @@ class OpaqueUriTests {
       assertThat(mailtoUri.toString()).isEqualTo("mailto:joan@example.com");
       assertThat(mailtoUri).isInstanceOf(OpaqueUri.class);
 
-      assertThat(mailtoUri.getScheme()).isEqualTo(Scheme.mailto);
+      assertThat(mailtoUri.getScheme()).isEqualTo(mailto);
 
       assertThat(mailtoUri.getAuthority()).isNull();
       assertThat(mailtoUri.getUserInfo()).isNull();
@@ -96,7 +98,7 @@ class OpaqueUriTests {
       assertThat(fileUri.toString()).isEqualTo("file:/home/me/some/dir");
       assertThat(fileUri).isInstanceOf(OpaqueUri.class);
 
-      assertThat(fileUri.getScheme()).isEqualTo(Scheme.file);
+      assertThat(fileUri.getScheme()).isEqualTo(file);
 
       assertThat(fileUri.getAuthority()).isNull();
       assertThat(fileUri.getUserInfo()).isNull();
