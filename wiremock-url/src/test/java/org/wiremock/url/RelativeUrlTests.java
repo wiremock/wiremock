@@ -248,5 +248,22 @@ class RelativeUrlTests {
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo("foo:bar?query#fragment");
     }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "//", "///", "//foo", "//foo/", "///foo/",
+        })
+    void cannot_set_path_with_double_slash_when_no_authority(String illegalPath) {
+      RelativeUrl url = RelativeUrl.parse("/path?query#fragment");
+      assertThatExceptionOfType(IllegalRelativeUrl.class)
+          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse(illegalPath))))
+          .withMessage(
+              "Illegal relative url: `"
+                  + illegalPath
+                  + "?query#fragment` - a relative url without authority's path may not start with //, as that would make it an authority")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo(illegalPath + "?query#fragment");
+    }
   }
 }

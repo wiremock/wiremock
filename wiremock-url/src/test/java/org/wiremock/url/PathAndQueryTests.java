@@ -191,9 +191,45 @@ class PathAndQueryTests {
           .withMessage(
               "Illegal path and query: `foo:bar"
                   + query
-                  + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous")
+                  + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as that implies a scheme")
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo("foo:bar" + query);
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "//", "///", "//foo", "//foo/", "///foo/",
+        })
+    void cannot_set_path_with_double_slash_when_no_authority(String illegalPath) {
+      PathAndQuery url = PathAndQuery.parse("/path?query");
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse(illegalPath))))
+          .withMessage(
+              "Illegal path and query: `"
+                  + illegalPath
+                  + "?query` - a relative url without authority's path may not start with //, as that would make it an authority")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo(illegalPath + "?query");
+    }
+  }
+
+  @Nested
+  class Of {
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "//", "///", "//foo", "//foo/", "///foo/",
+        })
+    void cannot_set_path_with_double_slash_when_no_authority(String illegalPath) {
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(() -> PathAndQuery.of(Path.parse(illegalPath)))
+          .withMessage(
+              "Illegal path and query: `"
+                  + illegalPath
+                  + "` - a relative url without authority's path may not start with //, as that would make it an authority")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo(illegalPath);
     }
   }
 }

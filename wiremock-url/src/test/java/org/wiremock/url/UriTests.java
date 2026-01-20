@@ -365,5 +365,30 @@ public class UriTests {
           .withMessage("Cannot construct a uri with a userinfo or port but no host")
           .withNoCause();
     }
+
+    @Test
+    void build_fails_if_path_is_set_to_double_slash_and_no_authority() {
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(() -> Uri.builder().setPath(Path.parse("//")).build())
+          .withMessage(
+              "Illegal path and query: `//` - a relative url without authority's path may not start with //, as that would make it an authority")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo("//");
+    }
+
+    @Test
+    void build_fails_if_path_is_set_to_double_slash_and_no_authority_with_fragment() {
+      assertThatExceptionOfType(IllegalPathAndQuery.class)
+          .isThrownBy(
+              () ->
+                  Uri.builder()
+                      .setPath(Path.parse("//"))
+                      .setFragment(Fragment.parse("frag"))
+                      .build())
+          .withMessage(
+              "Illegal relative url: `//#frag` - a relative url without authority's path may not start with //, as that would make it an authority")
+          .extracting(IllegalRelativeUrl::getIllegalValue)
+          .isEqualTo("//#frag");
+    }
   }
 }

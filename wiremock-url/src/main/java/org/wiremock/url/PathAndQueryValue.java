@@ -21,17 +21,30 @@ final class PathAndQueryValue extends AbstractUriValue implements PathAndQuery {
 
   PathAndQueryValue(@Nullable String stringValue, Path path, @Nullable Query query) {
     super(stringValue, null, null, path, query, null);
-    if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
-      throw new IllegalPathAndQuery(
-          this.toString(),
-          "Illegal path and query: `"
-              + this
-              + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
-          new IllegalPath(
-              path.toString(),
-              "Illegal path: `"
-                  + path
-                  + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+    if (!path.isEmpty()) {
+      if (path.getSegments().get(0).toString().contains(":")) {
+        throw new IllegalPathAndQuery(
+            this.toString(),
+            "Illegal path and query: `"
+                + this
+                + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as that implies a scheme",
+            new IllegalPath(
+                path.toString(),
+                "Illegal path: `"
+                    + path
+                    + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+      } else if (path.toString().startsWith("//")) {
+        throw new IllegalPathAndQuery(
+            this.toString(),
+            "Illegal path and query: `"
+                + this
+                + "` - a relative url without authority's path may not start with //, as that would make it an authority",
+            new IllegalPath(
+                path.toString(),
+                "Illegal path: `"
+                    + path
+                    + "` - may not start with // in a relative url with no authority"));
+      }
     }
   }
 

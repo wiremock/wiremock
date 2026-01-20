@@ -22,17 +22,30 @@ final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
   RelativeUrlValue(
       @Nullable String stringValue, Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(stringValue, null, null, path, query, fragment);
-    if (!path.isEmpty() && path.getSegments().get(0).toString().contains(":")) {
-      throw new IllegalRelativeUrl(
-          this.toString(),
-          "Illegal relative url: `"
-              + this
-              + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
-          new IllegalPath(
-              path.toString(),
-              "Illegal path: `"
-                  + path
-                  + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+    if (!path.isEmpty()) {
+      if (path.getSegments().get(0).toString().contains(":")) {
+        throw new IllegalRelativeUrl(
+            this.toString(),
+            "Illegal relative url: `"
+                + this
+                + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
+            new IllegalPath(
+                path.toString(),
+                "Illegal path: `"
+                    + path
+                    + "` - may not contain a colon (`:`) in the first segment of a relative url with no authority"));
+      } else if (path.toString().startsWith("//")) {
+        throw new IllegalPathAndQuery(
+            this.toString(),
+            "Illegal relative url: `"
+                + this
+                + "` - a relative url without authority's path may not start with //, as that would make it an authority",
+            new IllegalPath(
+                path.toString(),
+                "Illegal path: `"
+                    + path
+                    + "` - may not start with // in a relative url with no authority"));
+      }
     }
   }
 }
