@@ -132,7 +132,7 @@ public class ResponseDefinition {
     } else if (base64Body != null) {
       entityDefinition = BinaryEntityDefinition.fromBase64(base64Body);
     } else if (bodyFileName != null) {
-      entityDefinition = TextEntityDefinition.builder().setFilePath(bodyFileName).build();
+      entityDefinition = BinaryEntityDefinition.builder().setFilePath(bodyFileName).build();
     }
 
     Charset charset = headers == null ? null : headers.getContentTypeHeader().charset();
@@ -645,7 +645,9 @@ public class ResponseDefinition {
     }
 
     public Builder setBodyFileName(String bodyFileName) {
-      if (body instanceof TextEntityDefinition textEntity) {
+      if (body instanceof EmptyEntityDefinition) {
+        this.body = new BinaryEntityDefinition.Builder().setFilePath(bodyFileName).build();
+      } else if (body instanceof TextEntityDefinition textEntity) {
         this.body = textEntity.transform(b -> b.setFilePath(bodyFileName));
       } else if (body instanceof BinaryEntityDefinition binaryEntity) {
         this.body = binaryEntity.transform(b -> b.setFilePath(bodyFileName));

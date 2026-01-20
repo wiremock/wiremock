@@ -47,6 +47,10 @@ public class BinaryEntityDefinition extends EntityDefinition {
     return new Builder().setBodyBase64(base64).build();
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BinaryEntityDefinition(
       // encoding is accepted for deserialization but ignored (always BINARY)
       @JsonProperty("encoding") EncodingType ignored,
@@ -75,7 +79,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
       return Encoding.decodeBase64(s);
     }
 
-    return new byte[0];
+    return null;
   }
 
   @Override
@@ -200,28 +204,40 @@ public class BinaryEntityDefinition extends EntityDefinition {
     }
 
     public Builder setDataStore(String dataStore) {
+      resetDataAndRefs();
       this.dataStore = dataStore;
       return this;
     }
 
     public Builder setDataRef(String dataRef) {
+      resetDataAndRefs();
       this.dataRef = dataRef;
       return this;
     }
 
     public Builder setBody(byte[] data) {
+      resetDataAndRefs();
       this.data = data;
       return this;
     }
 
     public Builder setBodyBase64(String base64Data) {
+      resetDataAndRefs();
       this.data = Encoding.decodeBase64(base64Data);
       return this;
     }
 
     public Builder setFilePath(String filePath) {
+      resetDataAndRefs();
       this.filePath = filePath;
       return this;
+    }
+
+    private void resetDataAndRefs()  {
+      this.data = null;
+      this.dataStore = null;
+      this.dataRef = null;
+      this.filePath = null;
     }
 
     public BinaryEntityDefinition build() {

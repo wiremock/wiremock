@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -285,7 +284,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 services ->
                     List.of(
                         new ResponseTemplateTransformer(
-                            services.getTemplateEngine(), true, services.getFiles(), emptyList()) {
+                            services.getTemplateEngine(), true, services.getFiles()) {
                           @Override
                           protected Map<String, Object> addExtraModelElements(
                               Request request,

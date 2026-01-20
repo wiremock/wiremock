@@ -43,17 +43,11 @@ public class ResponseTemplateTransformer
   private final FileSource files;
   private final TemplateEngine templateEngine;
 
-  private final List<TemplateModelDataProviderExtension> templateModelDataProviders;
-
   public ResponseTemplateTransformer(
-      TemplateEngine templateEngine,
-      boolean global,
-      FileSource files,
-      List<TemplateModelDataProviderExtension> templateModelDataProviders) {
+      TemplateEngine templateEngine, boolean global, FileSource files) {
     this.templateEngine = templateEngine;
     this.global = global;
     this.files = files;
-    this.templateModelDataProviders = templateModelDataProviders;
   }
 
   @Override
@@ -79,19 +73,25 @@ public class ResponseTemplateTransformer
       final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
 
-      if (responseDefinition.getBody() instanceof TextEntityDefinition textBody) {
-        boolean isJsonBody = textBody.getFormat() == FormatType.JSON;
-        HandlebarsOptimizedTemplate bodyTemplate =
-            templateEngine.getTemplate(
-                HttpTemplateCacheKey.forInlineBody(responseDefinition), textBody.getDataAsString());
-        applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
-      } else if (!responseDefinition.getBody().isInline()) {
+      final EntityDefinition body = responseDefinition.getBody();
+
+      if (body.isInline()) {
+        if (body instanceof TextEntityDefinition textBody) {
+          boolean isJsonBody = textBody.getFormat() == FormatType.JSON;
+          HandlebarsOptimizedTemplate bodyTemplate =
+              templateEngine.getTemplate(
+                  HttpTemplateCacheKey.forInlineBody(responseDefinition),
+                  textBody.getDataAsString());
+          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
+        }
+      } else if (body.isFromFile()) {
         HandlebarsOptimizedTemplate filePathTemplate =
             templateEngine.getUncachedTemplate(responseDefinition.getBodyEntity().getFilePath());
         String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
 
         boolean disableBodyFileTemplating =
             parameters.getBoolean("disableBodyFileTemplating", false);
+
         if (disableBodyFileTemplating) {
           newResponseDefBuilder.withBodyFile(compiledFilePath);
         } else {
@@ -104,9 +104,38 @@ public class ResponseTemplateTransformer
         }
       }
 
-      {
-        List<HttpHeader> newResponseHeaders =
-            responseDefinition.getHeaders().all().stream()
+      List<HttpHeader> newResponseHeaders =
+          responseDefinition.getHeaders().all().stream()
+              .map(
+                  header -> {
+                    ArrayList<String> valueListBuilder = new ArrayList<>();
+                    int index = 0;
+                    for (String headerValue : header.values()) {
+                      HandlebarsOptimizedTemplate template =
+                          templateEngine.getTemplate(
+                              HttpTemplateCacheKey.forHeader(
+                                  responseDefinition, header.key(), index++),
+                              headerValue);
+                      valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                    }
+
+                    return new HttpHeader(header.key(), valueListBuilder);
+                  })
+              .collect(Collectors.toList());
+      newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
+
+      if (responseDefinition.getProxyBaseUrl() != null) {
+        HandlebarsOptimizedTemplate proxyBaseUrlTemplate =
+            templateEngine.getTemplate(
+                HttpTemplateCacheKey.forProxyUrl(responseDefinition),
+                responseDefinition.getProxyBaseUrl());
+        String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
+
+        ResponseDefinitionBuilder.ProxyResponseDefinitionBuilder newProxyResponseDefBuilder =
+            newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
+
+        List<HttpHeader> newProxyResponseResponseHeaders =
+            responseDefinition.getAdditionalProxyRequestHeaders().all().stream()
                 .map(
                     header -> {
                       ArrayList<String> valueListBuilder = new ArrayList<>();
@@ -119,44 +148,11 @@ public class ResponseTemplateTransformer
                                 headerValue);
                         valueListBuilder.add(uncheckedApplyTemplate(template, model));
                       }
-
                       return new HttpHeader(header.key(), valueListBuilder);
                     })
                 .collect(Collectors.toList());
-        newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
-      }
-
-      if (responseDefinition.getProxyBaseUrl() != null) {
-        HandlebarsOptimizedTemplate proxyBaseUrlTemplate =
-            templateEngine.getTemplate(
-                HttpTemplateCacheKey.forProxyUrl(responseDefinition),
-                responseDefinition.getProxyBaseUrl());
-        String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
-
-        ResponseDefinitionBuilder.ProxyResponseDefinitionBuilder newProxyResponseDefBuilder =
-            newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
-
-        {
-          List<HttpHeader> newResponseHeaders =
-              responseDefinition.getAdditionalProxyRequestHeaders().all().stream()
-                  .map(
-                      header -> {
-                        ArrayList<String> valueListBuilder = new ArrayList<>();
-                        int index = 0;
-                        for (String headerValue : header.values()) {
-                          HandlebarsOptimizedTemplate template =
-                              templateEngine.getTemplate(
-                                  HttpTemplateCacheKey.forHeader(
-                                      responseDefinition, header.key(), index++),
-                                  headerValue);
-                          valueListBuilder.add(uncheckedApplyTemplate(template, model));
-                        }
-                        return new HttpHeader(header.key(), valueListBuilder);
-                      })
-                  .collect(Collectors.toList());
-          newProxyResponseDefBuilder.withAdditionalRequestHeaders(
-              new HttpHeaders(newResponseHeaders));
-        }
+        newProxyResponseDefBuilder.withAdditionalRequestHeaders(
+            new HttpHeaders(newProxyResponseResponseHeaders));
 
         return newProxyResponseDefBuilder.build();
       } else {

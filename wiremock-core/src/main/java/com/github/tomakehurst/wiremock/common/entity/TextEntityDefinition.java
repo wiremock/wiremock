@@ -91,9 +91,10 @@ public class TextEntityDefinition extends EntityDefinition {
 
     if (asList(FormatType.values()).contains(format)) {
       this.format = format;
-    } else if (data != null) {
-      String dataStr = data instanceof String s ? s : new String(this.data, this.charset);
-      this.format = detectFormat(dataStr);
+    } else if (data instanceof String s) {
+      this.format = detectFormat(s);
+    } else if (this.data != null) {
+      this.format = detectFormat(Strings.stringFromBytes(this.data, this.charset));
     } else {
       this.format = DEFAULT_FORMAT;
     }
@@ -303,16 +304,19 @@ public class TextEntityDefinition extends EntityDefinition {
     }
 
     public Builder setDataStore(String dataStore) {
+      resetDataAndRefs();
       this.dataStore = dataStore;
       return this;
     }
 
     public Builder setDataRef(String dataRef) {
+      resetDataAndRefs();
       this.dataRef = dataRef;
       return this;
     }
 
     public Builder setData(Object data) {
+      resetDataAndRefs();
       this.data =
           data instanceof String s
               ? Strings.bytesFromString(s, charset)
@@ -321,8 +325,16 @@ public class TextEntityDefinition extends EntityDefinition {
     }
 
     public Builder setFilePath(String filePath) {
+      resetDataAndRefs();
       this.filePath = filePath;
       return this;
+    }
+
+    private void resetDataAndRefs()  {
+      this.data = null;
+      this.dataStore = null;
+      this.dataRef = null;
+      this.filePath = null;
     }
 
     @Override

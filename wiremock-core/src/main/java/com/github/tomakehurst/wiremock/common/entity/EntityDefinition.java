@@ -65,6 +65,11 @@ public abstract class EntityDefinition {
   }
 
   @JsonIgnore
+  public boolean isFromFile() {
+    return getFilePath() != null;
+  }
+
+  @JsonIgnore
   public abstract String getDataAsString();
 
   @JsonIgnore
