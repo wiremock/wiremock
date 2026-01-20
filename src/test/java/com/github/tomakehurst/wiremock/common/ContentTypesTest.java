@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.PathAndQuery;
 
 class ContentTypesTest {
 
@@ -73,7 +74,7 @@ class ContentTypesTest {
   void correctlyDeterminesFileExtensionWhenDotsInPath() {
     String fileExtension =
         ContentTypes.determineFileExtension(
-            "http://some.host/path.with.dots/and/several/segments",
+            PathAndQuery.parse("/path.with.dots/and/several/segments"),
             ContentTypeHeader.absent(),
             new byte[] {});
 
@@ -84,7 +85,9 @@ class ContentTypesTest {
   void correctlyDeterminesFileExtensionFromUrl() {
     String fileExtension =
         ContentTypes.determineFileExtension(
-            "http://some.host/path.with.dots/image.png", ContentTypeHeader.absent(), new byte[] {});
+            PathAndQuery.parse("/path.with.dots/image.png"),
+            ContentTypeHeader.absent(),
+            new byte[] {});
 
     assertThat(fileExtension, is("png"));
   }

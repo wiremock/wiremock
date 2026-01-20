@@ -57,7 +57,7 @@ public class RequestLine {
   }
 
   public static RequestLine fromRequest(final Request request) {
-    var query = request.getTypedAbsoluteUrl().getQueryOrEmpty();
+    var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     Map<String, ListOrSingle<String>> adaptedQuery =
         query.asMap().entrySet().stream()
             .map(
