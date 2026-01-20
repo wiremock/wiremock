@@ -91,8 +91,8 @@ public class RequestLine {
     return getPathSegments().toString();
   }
 
-  public PathAndQuery getUrl() {
-    return url;
+  public String getUrl() {
+    return url.toString();
   }
 
   public Map<String, ListOrSingle<String>> getQuery() {

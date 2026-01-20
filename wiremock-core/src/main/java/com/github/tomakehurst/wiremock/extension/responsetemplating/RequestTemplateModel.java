@@ -73,7 +73,7 @@ public class RequestTemplateModel {
   }
 
   public String getUrl() {
-    return requestLine.getUrl().toString();
+    return requestLine.getUrl();
   }
 
   public Map<String, ListOrSingle<String>> getQuery() {
