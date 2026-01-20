@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class RelativeUrlParser implements StringParser<RelativeUrl> {
+import org.wiremock.stringparser.StringParser;
 
-  static final RelativeUrlParser INSTANCE = new RelativeUrlParser();
+public final class RelativeUrlParser implements StringParser<RelativeUrl> {
+
+  public static final RelativeUrlParser INSTANCE = new RelativeUrlParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public RelativeUrlParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<RelativeUrl> getType() {
+    return RelativeUrl.class;
+  }
 
   @Override
   public RelativeUrl parse(String stringForm) {
-    var uri = UriParser.INSTANCE.parse(stringForm);
+    var uri = uriParser.parse(stringForm);
     if (uri instanceof RelativeUrl relativeUrl) {
       return relativeUrl;
     } else {

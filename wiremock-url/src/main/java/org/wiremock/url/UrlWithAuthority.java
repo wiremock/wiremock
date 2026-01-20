@@ -28,4 +28,15 @@ public sealed interface UrlWithAuthority extends Url permits SchemeRelativeUrl, 
   Authority getAuthority();
 
   SchemeRelativeUrl getSchemeRelativeUrl();
+
+  /**
+   * Parses a string into a URL with an authority.
+   *
+   * @param url the string to parse
+   * @return the parsed URI reference
+   * @throws IllegalUrl if the string is not a valid URI reference
+   */
+  static UrlWithAuthority parse(String url) throws IllegalUrl {
+    return UrlWithAuthorityParser.INSTANCE.parse(url);
+  }
 }

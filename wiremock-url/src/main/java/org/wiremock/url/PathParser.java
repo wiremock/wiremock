@@ -22,15 +22,20 @@ import static org.wiremock.url.Constants.pcharCharSet;
 
 import java.util.regex.Pattern;
 
-final class PathParser implements PercentEncodedStringParser<Path> {
+public final class PathParser implements PercentEncodedStringParser<Path> {
 
-  static final PathParser INSTANCE = new PathParser();
+  public static final PathParser INSTANCE = new PathParser();
 
   static final String pathRegex = "[^#?" + alwaysIllegal + "]*";
   private final Pattern pathPattern = Pattern.compile("^" + pathRegex + "$");
 
   @Override
-  public PathValue parse(String stringForm) {
+  public Class<Path> getType() {
+    return Path.class;
+  }
+
+  @Override
+  public Path parse(String stringForm) {
     if (pathPattern.matcher(stringForm).matches()) {
       return new PathValue(stringForm);
     } else {

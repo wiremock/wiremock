@@ -17,14 +17,20 @@ package org.wiremock.url;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.wiremock.stringparser.StringParser;
 
-final class PortParser implements StringParser<Port> {
+public final class PortParser implements StringParser<Port> {
 
-  static final PortParser INSTANCE = new PortParser();
+  public static final PortParser INSTANCE = new PortParser();
 
   static final int MAX_PORT = Integer.MAX_VALUE;
 
   private final Map<Integer, PortValue> portsByInt = new ConcurrentHashMap<>();
+
+  @Override
+  public Class<Port> getType() {
+    return Port.class;
+  }
 
   PortValue of(int port) throws IllegalPort {
     return portsByInt.computeIfAbsent(

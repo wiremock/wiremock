@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class UrlParser implements StringParser<Url> {
+import org.wiremock.stringparser.StringParser;
 
-  static final UrlParser INSTANCE = new UrlParser();
+public final class UrlParser implements StringParser<Url> {
+
+  public static final UrlParser INSTANCE = new UrlParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public UrlParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<Url> getType() {
+    return Url.class;
+  }
 
   @Override
   public Url parse(String stringForm) {
-    var uri = UriParser.INSTANCE.parse(stringForm);
+    var uri = uriParser.parse(stringForm);
     if (uri instanceof Url url) {
       return url;
     } else {

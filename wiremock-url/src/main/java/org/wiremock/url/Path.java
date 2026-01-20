@@ -18,6 +18,7 @@ package org.wiremock.url;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents the path component of a URI as defined in <a
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3">RFC 3986 Section 3.3</a>
  */
-public interface Path extends PercentEncoded<Path> {
+public interface Path extends PercentEncoded<Path>, ParsedString {
 
   /** An empty path with no segments. */
   Path EMPTY = new PathValue("", true);

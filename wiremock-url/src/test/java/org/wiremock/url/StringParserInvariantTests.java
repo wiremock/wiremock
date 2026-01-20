@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
+import org.wiremock.stringparser.ParsedString;
+import org.wiremock.stringparser.StringParser;
 
 /**
  * Reusable test utility for verifying StringParser invariants.
@@ -63,7 +65,7 @@ public class StringParserInvariantTests {
    * @param <T> the type returned by the parser
    * @return a Stream of DynamicTest instances
    */
-  public static <T> Stream<DynamicTest> generateInvariantTests(
+  public static <T extends ParsedString> Stream<DynamicTest> generateInvariantTests(
       StringParser<T> parser, Collection<String> validStrings) {
     List<DynamicTest> tests = new ArrayList<>();
 

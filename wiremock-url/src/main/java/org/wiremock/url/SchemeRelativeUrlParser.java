@@ -15,13 +15,27 @@
  */
 package org.wiremock.url;
 
-final class SchemeRelativeUrlParser implements StringParser<SchemeRelativeUrl> {
+import org.wiremock.stringparser.StringParser;
 
-  static final SchemeRelativeUrlParser INSTANCE = new SchemeRelativeUrlParser();
+public final class SchemeRelativeUrlParser implements StringParser<SchemeRelativeUrl> {
+
+  public static final SchemeRelativeUrlParser INSTANCE =
+      new SchemeRelativeUrlParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public SchemeRelativeUrlParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<SchemeRelativeUrl> getType() {
+    return SchemeRelativeUrl.class;
+  }
 
   @Override
   public SchemeRelativeUrl parse(String stringForm) throws IllegalSchemeRelativeUrl {
-    var uri = UriParser.INSTANCE.parse(stringForm);
+    var uri = uriParser.parse(stringForm);
     if (uri instanceof SchemeRelativeUrl schemeRelativeUrl) {
       return schemeRelativeUrl;
     } else {

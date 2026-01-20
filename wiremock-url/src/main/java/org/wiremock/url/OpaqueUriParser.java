@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class OpaqueUriParser implements StringParser<OpaqueUri> {
+import org.wiremock.stringparser.StringParser;
 
-  static final OpaqueUriParser INSTANCE = new OpaqueUriParser();
+public final class OpaqueUriParser implements StringParser<OpaqueUri> {
+
+  public static final OpaqueUriParser INSTANCE = new OpaqueUriParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public OpaqueUriParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<OpaqueUri> getType() {
+    return OpaqueUri.class;
+  }
 
   @Override
   public OpaqueUri parse(String stringForm) throws IllegalOpaqueUri {
-    var uri = UriParser.INSTANCE.parse(stringForm);
+    var uri = uriParser.parse(stringForm);
     if (uri instanceof OpaqueUri opaqueUri) {
       return opaqueUri;
     } else {

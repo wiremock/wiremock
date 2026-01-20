@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class OriginParser implements StringParser<Origin> {
+import org.wiremock.stringparser.StringParser;
 
-  static final OriginParser INSTANCE = new OriginParser();
+public final class OriginParser implements StringParser<Origin> {
+
+  public static final OriginParser INSTANCE = new OriginParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public OriginParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<Origin> getType() {
+    return Origin.class;
+  }
 
   @Override
   public Origin parse(String url) throws IllegalOrigin {
-    var uri = UriParser.INSTANCE.parse(url);
+    var uri = uriParser.parse(url);
     if (uri instanceof Origin origin) {
       return origin;
     } else {

@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.wiremock.url.Constants.multiplePctEncodedPattern;
 
 import java.io.ByteArrayOutputStream;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents a string that may contain percent-encoded characters as defined in <a
@@ -35,7 +36,8 @@ import java.io.ByteArrayOutputStream;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.1">RFC 3986 Section 2.1</a>
  */
-public interface PercentEncoded<SELF extends PercentEncoded<SELF>> extends Normalisable<SELF> {
+public interface PercentEncoded<SELF extends PercentEncoded<SELF>>
+    extends Normalisable<SELF>, ParsedString {
 
   /**
    * Decodes all percent-encoded sequences in this string.

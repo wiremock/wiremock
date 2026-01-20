@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents the username portion of user information in a URI authority.
  *
@@ -25,7 +27,7 @@ package org.wiremock.url;
  *
  * @see UserInfo
  */
-public interface Username extends PercentEncoded<Username> {
+public interface Username extends PercentEncoded<Username>, ParsedString {
 
   /**
    * Parses a string into a username.

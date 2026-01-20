@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class AbsoluteUriParser implements StringParser<AbsoluteUri> {
+import org.wiremock.stringparser.StringParser;
 
-  static final AbsoluteUriParser INSTANCE = new AbsoluteUriParser();
+public final class AbsoluteUriParser implements StringParser<AbsoluteUri> {
+
+  public static final AbsoluteUriParser INSTANCE = new AbsoluteUriParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public AbsoluteUriParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<AbsoluteUri> getType() {
+    return AbsoluteUri.class;
+  }
 
   @Override
   public AbsoluteUri parse(String uriString) throws IllegalAbsoluteUri {
-    var uri = UriParser.INSTANCE.parse(uriString);
+    var uri = uriParser.parse(uriString);
     if (uri instanceof AbsoluteUri absoluteUri) {
       return absoluteUri;
     } else {

@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents a valid URI scheme.
@@ -32,7 +33,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>An implementation's toString should return the String used when it was created.
  */
-public interface Scheme {
+public interface Scheme extends ParsedString {
 
   Scheme http = register("http", Port.of(80));
   Scheme https = register("https", Port.of(443));
@@ -80,7 +81,7 @@ public interface Scheme {
    *     [a-zA-Z][a-zA-Z0-9+\-.]{0,255}}
    */
   static Scheme parse(String scheme) throws IllegalScheme {
-    return SchemeParser.INSTANCE.parse(scheme);
+    return SchemeRegistry.INSTANCE.parse(scheme);
   }
 
   /**
@@ -117,6 +118,6 @@ public interface Scheme {
    *     [a-zA-Z][a-zA-Z0-9+\-.]{0,255}}
    */
   static Scheme register(String schemeString, @Nullable Port defaultPort) throws IllegalScheme {
-    return SchemeParser.INSTANCE.register(schemeString, defaultPort);
+    return SchemeRegistry.INSTANCE.register(schemeString, defaultPort);
   }
 }

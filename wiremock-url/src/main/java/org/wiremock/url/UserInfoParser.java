@@ -19,13 +19,18 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-final class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
+public final class UserInfoParser implements PercentEncodedStringParser<UserInfo> {
 
-  static final UserInfoParser INSTANCE = new UserInfoParser();
+  public static final UserInfoParser INSTANCE = new UserInfoParser();
 
   static final String userInfoRegex = "(?:[" + unreserved + subDelims + ":]|" + pctEncoded + ")*";
 
   private final Pattern userInfoPattern = Pattern.compile("^" + userInfoRegex + "$");
+
+  @Override
+  public Class<UserInfo> getType() {
+    return UserInfo.class;
+  }
 
   @Override
   public UserInfo parse(String stringForm) {

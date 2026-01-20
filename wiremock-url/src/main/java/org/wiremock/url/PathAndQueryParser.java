@@ -15,13 +15,26 @@
  */
 package org.wiremock.url;
 
-final class PathAndQueryParser implements StringParser<PathAndQuery> {
+import org.wiremock.stringparser.StringParser;
 
-  static final PathAndQueryParser INSTANCE = new PathAndQueryParser();
+public final class PathAndQueryParser implements StringParser<PathAndQuery> {
+
+  public static final PathAndQueryParser INSTANCE = new PathAndQueryParser(UriParser.INSTANCE);
+
+  private final UriParser uriParser;
+
+  public PathAndQueryParser(UriParser uriParser) {
+    this.uriParser = uriParser;
+  }
+
+  @Override
+  public Class<PathAndQuery> getType() {
+    return PathAndQuery.class;
+  }
 
   @Override
   public PathAndQuery parse(String stringForm) {
-    var uri = UriParser.INSTANCE.parse(stringForm);
+    var uri = uriParser.parse(stringForm);
     if (uri instanceof PathAndQuery pathAndQuery) {
       return pathAndQuery;
     } else {

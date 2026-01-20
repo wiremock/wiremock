@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents a URI reference as defined in <a
@@ -32,7 +33,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.1">RFC 3986 Section 4.1</a>
  */
-public sealed interface Uri permits AbsoluteUri, AbstractUriValue, Url {
+public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUriValue, Url {
 
   /**
    * Returns the scheme component of this URI, or {@code null} if it is a URI Reference and so there

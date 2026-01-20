@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents the user information component of a URI authority as defined in <a
@@ -32,7 +33,7 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1">RFC 3986 Section
  *     3.2.1</a>
  */
-public interface UserInfo extends PercentEncoded<UserInfo> {
+public interface UserInfo extends PercentEncoded<UserInfo>, ParsedString {
 
   /**
    * Parses a string into user info.

@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents a single segment of a path.
  *
@@ -26,7 +28,7 @@ package org.wiremock.url;
  *
  * @see Path
  */
-public interface Segment extends PercentEncoded<Segment> {
+public interface Segment extends PercentEncoded<Segment>, ParsedString {
 
   /** An empty path segment. */
   Segment EMPTY = new SegmentValue("");

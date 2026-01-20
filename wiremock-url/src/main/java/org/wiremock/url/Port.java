@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents a valid network port.
  *
@@ -36,7 +38,7 @@ package org.wiremock.url;
  * <p>An implementation's hashCode() is based on the string representation, ensuring consistency
  * with equals.
  */
-public interface Port extends Normalisable<Port> {
+public interface Port extends Normalisable<Port>, ParsedString {
 
   int getIntValue();
 

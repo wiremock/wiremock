@@ -20,6 +20,9 @@ public final class IllegalScheme extends IllegalUriPart {
   public IllegalScheme(String illegalScheme) {
     super(
         illegalScheme,
-        "Illegal scheme `" + illegalScheme + "`; Scheme must match " + SchemeParser.schemeRegex);
+        "Illegal scheme `"
+            + illegalScheme
+            + "`; Scheme must match "
+            + DefaultSchemeRegistry.schemeRegex);
   }
 }

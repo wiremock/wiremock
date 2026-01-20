@@ -20,6 +20,7 @@ import static org.wiremock.url.QueryValue.encodeValues;
 import java.util.List;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents the query component of a URI as defined in <a
@@ -32,7 +33,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.4">RFC 3986 Section 3.4</a>
  */
-public interface Query extends PercentEncoded<Query>, QueryParamReader {
+public interface Query extends PercentEncoded<Query>, QueryParamReader, ParsedString {
 
   Query EMPTY = QueryValue.EMPTY;
 

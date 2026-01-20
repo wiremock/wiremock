@@ -23,12 +23,17 @@ import static org.wiremock.url.Constants.unreservedCharSet;
 
 import java.util.regex.Pattern;
 
-final class SegmentParser implements PercentEncodedStringParser<Segment> {
+public final class SegmentParser implements PercentEncodedStringParser<Segment> {
 
-  static final SegmentParser INSTANCE = new SegmentParser();
+  public static final SegmentParser INSTANCE = new SegmentParser();
 
   private static final String segmentRegex = "[^#?/" + alwaysIllegal + "]*";
   private static final Pattern segmentPattern = Pattern.compile("^" + segmentRegex + "$");
+
+  @Override
+  public Class<Segment> getType() {
+    return Segment.class;
+  }
 
   @Override
   public Segment parse(String stringForm) {

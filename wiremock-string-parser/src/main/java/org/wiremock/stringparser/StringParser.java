@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.url;
+package org.wiremock.stringparser;
 
-import org.jspecify.annotations.Nullable;
+/**
+ * A {@link StringParser} produces instances of {@link ParsedString}. The contract is that {@link
+ * ParsedString#toString()} will return a String equal to the one passed to {@link
+ * StringParser#parse(String)} to create it.
+ *
+ * <p>Serialization libraries can depend on this contract to serialize and deserialize subtypes of
+ * {@link ParsedString}.
+ */
+public interface StringParser<T extends ParsedString> {
+  Class<T> getType();
 
-public abstract class ParseException extends IllegalArgumentException {
-
-  private final String illegalValue;
-
-  public ParseException(String illegalValue, String message, @Nullable Throwable cause) {
-    super(message, cause);
-    this.illegalValue = illegalValue;
-  }
-
-  public String getIllegalValue() {
-    return illegalValue;
-  }
+  T parse(String stringForm) throws ParseException;
 }

@@ -22,9 +22,9 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class HostParser implements PercentEncodedStringParser<Host> {
+public final class HostParser implements PercentEncodedStringParser<Host> {
 
-  static final HostParser INSTANCE = new HostParser();
+  public static final HostParser INSTANCE = new HostParser();
 
   static final String ipv6Address = "(?<ipv6Address>[0-9A-Fa-f:.]+)";
   static final String ipvFuture = "v[0-9A-Fa-f]\\.[" + unreserved + subDelims + ":]+";
@@ -34,6 +34,11 @@ final class HostParser implements PercentEncodedStringParser<Host> {
   static final String hostRegex = ipLiteral + "|" + registeredName;
 
   private final Pattern hostPattern = Pattern.compile("^" + hostRegex + "$");
+
+  @Override
+  public Class<Host> getType() {
+    return Host.class;
+  }
 
   @Override
   public Host parse(String stringForm) throws IllegalHost {

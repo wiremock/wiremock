@@ -15,9 +15,17 @@
  */
 package org.wiremock.url;
 
-final class HostAndPortParser implements StringParser<HostAndPort> {
+import org.wiremock.stringparser.ParseException;
+import org.wiremock.stringparser.StringParser;
 
-  static final HostAndPortParser INSTANCE = new HostAndPortParser();
+public final class HostAndPortParser implements StringParser<HostAndPort> {
+
+  public static final HostAndPortParser INSTANCE = new HostAndPortParser();
+
+  @Override
+  public Class<HostAndPort> getType() {
+    return HostAndPort.class;
+  }
 
   @Override
   public HostAndPort parse(String stringForm) throws ParseException {

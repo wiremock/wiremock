@@ -419,6 +419,6 @@ class SchemeTests {
   @TestFactory
   Stream<DynamicTest> invariants() {
     return StringParserInvariantTests.generateInvariantTests(
-        SchemeParser.INSTANCE, OfMethod.validSchemes().toList());
+        SchemeRegistry.INSTANCE, OfMethod.validSchemes().toList());
   }
 }

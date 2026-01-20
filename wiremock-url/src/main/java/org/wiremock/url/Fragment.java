@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents the fragment component of a URI as defined in <a
  * href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.5">RFC 3986 Section 3.5</a>.
@@ -27,7 +29,7 @@ package org.wiremock.url;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.5">RFC 3986 Section 3.5</a>
  */
-public interface Fragment extends PercentEncoded<Fragment> {
+public interface Fragment extends PercentEncoded<Fragment>, ParsedString {
 
   /**
    * Returns a normalised form of this fragment.

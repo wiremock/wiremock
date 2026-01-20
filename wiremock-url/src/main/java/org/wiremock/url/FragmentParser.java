@@ -17,9 +17,14 @@ package org.wiremock.url;
 
 import static org.wiremock.url.Constants.*;
 
-final class FragmentParser implements PercentEncodedStringParser<Fragment> {
+public final class FragmentParser implements PercentEncodedStringParser<Fragment> {
 
-  static final FragmentParser INSTANCE = new FragmentParser();
+  public static final FragmentParser INSTANCE = new FragmentParser();
+
+  @Override
+  public Class<Fragment> getType() {
+    return Fragment.class;
+  }
 
   @Override
   public Fragment parse(String stringForm) {

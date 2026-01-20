@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.StringParser;
+
 public interface PercentEncodedStringParser<T extends PercentEncoded<T>> extends StringParser<T> {
   T encode(String unencoded);
 }

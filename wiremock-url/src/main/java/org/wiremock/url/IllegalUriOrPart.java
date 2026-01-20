@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParseException;
 
 public abstract sealed class IllegalUriOrPart extends ParseException
     permits IllegalUriPart, IllegalUri {

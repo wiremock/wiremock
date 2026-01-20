@@ -93,11 +93,13 @@ public class ParsePerformanceBenchmark {
                   new URI(uriStr);
                   return false;
                 } catch (URISyntaxException ignored) {
+                  // means we can't parse it
                 }
                 try {
                   Uri.parse(uriStr);
                   return false;
                 } catch (IllegalUri ignored) {
+                  // means we can't parse it
                 }
                 return true;
               })

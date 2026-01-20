@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents the password portion of user information in a URI authority.
  *
@@ -29,7 +31,7 @@ package org.wiremock.url;
  *
  * @see UserInfo
  */
-public interface Password extends PercentEncoded<Password> {
+public interface Password extends PercentEncoded<Password>, ParsedString {
 
   /**
    * Parses a string into a password.

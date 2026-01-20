@@ -18,6 +18,7 @@ package org.wiremock.url;
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.ParsedString;
 
 /**
  * Represents the authority component of a URI as defined in <a
@@ -30,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2">RFC 3986 Section 3.2</a>
  */
-public interface Authority extends Normalisable<Authority> {
+public interface Authority extends Normalisable<Authority>, ParsedString {
 
   /**
    * Returns the user info component, or {@code null} if there is no user info.

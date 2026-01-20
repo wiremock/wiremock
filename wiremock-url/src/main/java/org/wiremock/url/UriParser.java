@@ -18,14 +18,30 @@ package org.wiremock.url;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.StringParser;
 
-final class UriParser implements StringParser<Uri> {
+public final class UriParser implements StringParser<Uri> {
 
-  static final UriParser INSTANCE = new UriParser();
+  public static final UriParser INSTANCE = new UriParser();
 
-  private final Pattern regex =
+  private static final Pattern regex =
       Pattern.compile(
           "^(?:(?<scheme>[^:/?#]+):)?(?://(?<authority>[^/?#]*))?(?<path>[^?#]*)(?:\\?(?<query>[^#]*))?(?:#(?<fragment>.*))?");
+
+  private final SchemeRegistry schemeRegistry;
+
+  public UriParser() {
+    this(SchemeRegistry.INSTANCE);
+  }
+
+  public UriParser(SchemeRegistry schemeRegistry) {
+    this.schemeRegistry = schemeRegistry;
+  }
+
+  @Override
+  public Class<Uri> getType() {
+    return Uri.class;
+  }
 
   @Override
   public Uri parse(String stringForm) {
@@ -40,7 +56,7 @@ final class UriParser implements StringParser<Uri> {
       }
 
       var schemeString = result.group("scheme");
-      var scheme = schemeString == null ? null : Scheme.parse(schemeString);
+      var scheme = schemeString == null ? null : schemeRegistry.parse(schemeString);
 
       var queryString = result.group("query");
       var query = queryString == null ? null : Query.parse(queryString);

@@ -22,8 +22,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.stringparser.StringParser;
 
-final class AuthorityParser implements StringParser<Authority> {
+public final class AuthorityParser implements StringParser<Authority> {
 
   public static final AuthorityParser INSTANCE = new AuthorityParser();
 
@@ -35,6 +36,11 @@ final class AuthorityParser implements StringParser<Authority> {
           + ")(?<colonAndPort>:(?<port>[0-9]+)?)?";
 
   private final Pattern authorityPattern = Pattern.compile("^" + authorityRegex + "$");
+
+  @Override
+  public Class<Authority> getType() {
+    return Authority.class;
+  }
 
   @Override
   public Authority parse(String stringForm) throws IllegalAuthority {

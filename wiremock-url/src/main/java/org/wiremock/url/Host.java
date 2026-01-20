@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import org.wiremock.stringparser.ParsedString;
+
 /**
  * Represents the host component of a URI as defined in <a
  * href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2">RFC 3986 Section 3.2.2</a>.
@@ -27,7 +29,7 @@ package org.wiremock.url;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2">RFC 3986 Section
  *     3.2.2</a>
  */
-public interface Host extends PercentEncoded<Host> {
+public interface Host extends PercentEncoded<Host>, ParsedString {
 
   Host EMPTY = new HostValue("", true);
 

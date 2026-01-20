@@ -21,15 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
-final class SchemeParser implements StringParser<Scheme> {
-
-  static final SchemeParser INSTANCE = new SchemeParser();
+public final class DefaultSchemeRegistry implements SchemeRegistry {
 
   static final Pattern schemeRegex = Pattern.compile("[a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
 
   private final Map<String, Scheme> knownSchemes = new ConcurrentHashMap<>();
 
-  Scheme register(String schemeString, @Nullable Port defaultPort) throws IllegalScheme {
+  @Override
+  public Scheme register(String schemeString, @Nullable Port defaultPort) throws IllegalScheme {
     if (!schemeRegex.matcher(schemeString).matches()) {
       throw new IllegalScheme(schemeString);
     }

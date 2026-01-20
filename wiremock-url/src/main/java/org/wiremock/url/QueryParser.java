@@ -19,12 +19,17 @@ import static org.wiremock.url.Constants.*;
 
 import java.util.regex.Pattern;
 
-final class QueryParser implements PercentEncodedStringParser<Query> {
+public final class QueryParser implements PercentEncodedStringParser<Query> {
 
-  static final QueryParser INSTANCE = new QueryParser();
+  public static final QueryParser INSTANCE = new QueryParser();
 
   static final String queryRegex = "[^#" + alwaysIllegal + "]*";
   private final Pattern queryPattern = Pattern.compile("^" + queryRegex + "$");
+
+  @Override
+  public Class<Query> getType() {
+    return Query.class;
+  }
 
   @Override
   public Query parse(String stringForm) throws IllegalQuery {

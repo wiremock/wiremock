@@ -21,13 +21,18 @@ import static org.wiremock.url.QueryParser.queryCharSet;
 
 import java.util.regex.Pattern;
 
-final class QueryParamValueParser implements PercentEncodedStringParser<QueryParamValue> {
+public final class QueryParamValueParser implements PercentEncodedStringParser<QueryParamValue> {
 
-  static final QueryParamValueParser INSTANCE = new QueryParamValueParser();
+  public static final QueryParamValueParser INSTANCE = new QueryParamValueParser();
 
   private static final String queryParamValueRegex = "[^#&" + alwaysIllegal + "]*";
   private static final Pattern queryParamValuePattern =
       Pattern.compile("^" + queryParamValueRegex + "$");
+
+  @Override
+  public Class<QueryParamValue> getType() {
+    return QueryParamValue.class;
+  }
 
   @Override
   public QueryParamValue parse(String stringForm) {
