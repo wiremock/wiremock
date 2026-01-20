@@ -112,7 +112,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         .append(" - ")
         .append(request.getMethod())
         .append(" ")
-        .append(request.getPathAndQuery());
+        .append(request.getPathAndQueryWithoutPrefix());
 
     if (request.isBrowserProxyRequest()) {
       sb.append(" (via browser proxy request)");

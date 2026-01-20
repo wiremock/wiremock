@@ -37,8 +37,8 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
-    return target.getPathAndQuery();
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
+    return target.getPathAndQueryWithoutPrefix();
   }
 
   @Override

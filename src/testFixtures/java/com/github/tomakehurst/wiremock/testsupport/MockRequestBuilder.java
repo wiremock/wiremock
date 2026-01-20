@@ -123,7 +123,7 @@ public class MockRequestBuilder {
     final Request request =
         mockName == null ? Mockito.mock(Request.class) : Mockito.mock(Request.class, mockName);
     when(request.getUrl()).thenReturn(url);
-    when(request.getPathAndQuery()).thenReturn(PathAndQuery.parse(url));
+    when(request.getPathAndQueryWithoutPrefix()).thenReturn(PathAndQuery.parse(url));
     when(request.getMethod()).thenReturn(method);
     when(request.getClientIp()).thenReturn(clientIp);
     for (HttpHeader header : headers.all()) {

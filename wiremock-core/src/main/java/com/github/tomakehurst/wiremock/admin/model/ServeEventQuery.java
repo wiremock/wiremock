@@ -49,7 +49,7 @@ public class ServeEventQuery {
   private static final QueryParamKey MATCHING_STUB_KEY = QueryParamKey.encode("matchingStub");
 
   public static ServeEventQuery fromRequest(Request request) {
-    Query query = request.getPathAndQuery().getQueryOrEmpty();
+    Query query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     final List<@Nullable QueryParamValue> unmatchedParameter = query.get(UNMATCHED_KEY);
     boolean unmatched = unmatchedParameter.contains(TRUE_PARAM_VALUE);
 

@@ -36,7 +36,7 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
   }
 
   public static <T> LimitAndOffsetPaginator<T> fromRequest(List<T> source, Request request) {
-    var query = request.getPathAndQuery().getQueryOrEmpty();
+    var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     return new LimitAndOffsetPaginator<>(
         source, Conversions.toInt(query, "limit"), Conversions.toInt(query, "offset"));
   }

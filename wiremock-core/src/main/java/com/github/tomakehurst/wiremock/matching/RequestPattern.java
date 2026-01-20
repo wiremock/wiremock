@@ -156,7 +156,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(weight(portMatches(request), 10.0));
             requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
             requestPartMatchResults.add(
-                weight(RequestPattern.this.url.match(request.getPathAndQuery().toString()), 10.0));
+                weight(
+                    RequestPattern.this.url.match(
+                        request.getPathAndQueryWithoutPrefix().toString()),
+                    10.0));
             requestPartMatchResults.add(
                 weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
 
@@ -331,11 +334,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     if (url.getClass().equals(UrlPathTemplatePattern.class) && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      if (!pathTemplate.matches(request.getPathAndQuery().getPath())) {
+      if (!pathTemplate.matches(request.getPathAndQueryWithoutPrefix().getPath())) {
         return MatchResult.noMatch();
       }
 
-      final PathParams requestPathParams = pathTemplate.parse(request.getPathAndQuery().getPath());
+      final PathParams requestPathParams =
+          pathTemplate.parse(request.getPathAndQueryWithoutPrefix().getPath());
       return MatchResult.aggregate(
           pathParams.entrySet().stream()
               .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))

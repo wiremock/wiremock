@@ -46,8 +46,8 @@ public class RequestIdDecorator implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
-    return request.getPathAndQuery();
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
+    return request.getPathAndQueryWithoutPrefix();
   }
 
   @Override

@@ -71,12 +71,15 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     if (!authenticator.authenticate(request)) {
       notifier()
           .info(
-              "Authentication failed for " + request.getMethod() + " " + request.getPathAndQuery());
+              "Authentication failed for "
+                  + request.getMethod()
+                  + " "
+                  + request.getPathAndQueryWithoutPrefix());
       return initialServeEvent.withResponseDefinition(ResponseDefinition.notAuthorised());
     }
 
     notifier().info("Admin request received:\n" + formatRequest(request));
-    Path path = withoutAdminRoot(request.getPathAndQuery().getPath());
+    Path path = withoutAdminRoot(request.getPathAndQueryWithoutPrefix().getPath());
 
     try {
       AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);

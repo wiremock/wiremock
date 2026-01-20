@@ -150,7 +150,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     return responseDef.getProxyBaseUrl()
         + removeStart(
-            serveEvent.getRequest().getPathAndQuery().toString(),
+            serveEvent.getRequest().getPathAndQueryWithoutPrefix().toString(),
             responseDef.getProxyUrlPrefixToRemove());
   }
 

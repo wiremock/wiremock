@@ -73,7 +73,7 @@ public class RequestLine {
         request.getScheme(),
         request.getHost(),
         request.getPort(),
-        request.getPathAndQuery(),
+        request.getPathAndQueryWithoutPrefix(),
         request.getClientIp(),
         adaptedQuery,
         request.getPathParameters());

@@ -45,13 +45,13 @@ public interface Request {
     Body getBody();
   }
 
-  @Deprecated // use getPathAndQuery()
+  @Deprecated // use getPathAndQueryWithoutPrefix()
   default String getUrl() {
-    return getPathAndQuery().toString();
+    return getPathAndQueryWithoutPrefix().toString();
   }
 
   @JsonIgnore
-  PathAndQuery getPathAndQuery();
+  PathAndQuery getPathAndQueryWithoutPrefix();
 
   @Deprecated // use getTypedAbsoluteUrl()
   String getAbsoluteUrl();

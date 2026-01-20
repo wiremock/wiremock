@@ -43,7 +43,7 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
   /** Returns a RequestPatternBuilder matching a given Request */
   @Override
   public RequestPatternBuilder apply(Request request) {
-    PathAndQuery pathAndQuery = request.getPathAndQuery();
+    PathAndQuery pathAndQuery = request.getPathAndQueryWithoutPrefix();
     var queryParameters = pathAndQuery.getQueryOrEmpty().asMap();
     // urlEqualTo is used when there are no query parameters to be as least disruptive to existing
     // behaviour as possible.

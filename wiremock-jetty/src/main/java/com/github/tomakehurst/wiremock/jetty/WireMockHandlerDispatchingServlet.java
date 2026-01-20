@@ -326,7 +326,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       HttpServletResponse httpServletResponse,
       Request request)
       throws ServletException, IOException {
-    String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getPathAndQuery();
+    String forwardUrl =
+        wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getPathAndQueryWithoutPrefix();
     RequestDispatcher dispatcher =
         httpServletRequest.getRequestDispatcher(decode(forwardUrl, UTF_8));
     dispatcher.forward(httpServletRequest, httpServletResponse);

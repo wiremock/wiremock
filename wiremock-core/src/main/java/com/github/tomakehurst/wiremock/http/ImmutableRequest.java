@@ -85,7 +85,7 @@ public class ImmutableRequest implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery;
   }
 

@@ -52,8 +52,8 @@ public class RequestPathParamsDecorator implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
-    return request.getPathAndQuery();
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
+    return request.getPathAndQueryWithoutPrefix();
   }
 
   @Override
@@ -122,7 +122,7 @@ public class RequestPathParamsDecorator implements Request {
 
   @Override
   public PathParams getPathParameters() {
-    return pathTemplate.parse(getPathAndQuery().getPath());
+    return pathTemplate.parse(getPathAndQueryWithoutPrefix().getPath());
   }
 
   @Override

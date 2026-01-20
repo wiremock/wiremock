@@ -99,7 +99,7 @@ public class RequestWrapper implements Request {
   private volatile PathAndQuery pathAndQuery = null;
 
   @Override
-  public PathAndQuery getPathAndQuery() {
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
     if (pathAndQuery == null) {
       pathAndQuery = PathAndQuery.parse(getUrl());
     }

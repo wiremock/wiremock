@@ -93,7 +93,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery.get();
   }
 
@@ -277,7 +277,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    return getQueryParameter(getPathAndQuery().getQueryOrEmpty(), key);
+    return getQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
   }
 
   @Override

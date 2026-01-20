@@ -164,7 +164,7 @@ public class MockRequest implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
     return PathAndQuery.parse(getUrl());
   }
 

@@ -84,7 +84,7 @@ public class LoggedRequest implements Request {
         request.getScheme(),
         request.getHost(),
         request.getPort(),
-        request.getPathAndQuery(),
+        request.getPathAndQueryWithoutPrefix(),
         request.getTypedAbsoluteUrl(),
         request.getMethod(),
         request.getClientIp(),
@@ -196,7 +196,7 @@ public class LoggedRequest implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQuery() {
+  public PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery;
   }
 
@@ -308,7 +308,7 @@ public class LoggedRequest implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    return getQueryParameter(getPathAndQuery().getQueryOrEmpty(), key);
+    return getQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
   }
 
   @Override

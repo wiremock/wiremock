@@ -256,7 +256,7 @@ public class Diff {
   private void addQueryParametersSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     final Map<String, MultiValuePattern> queryParameters = requestPattern.getQueryParameters();
     {
-      var query = request.getPathAndQuery().getQueryOrEmpty();
+      var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
 
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
         String key = entry.getKey();
@@ -288,7 +288,7 @@ public class Diff {
           (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
       final PathParams requestPathParameterValues =
-          pathTemplate.parse(request.getPathAndQuery().getPath());
+          pathTemplate.parse(request.getPathAndQueryWithoutPrefix().getPath());
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();
@@ -313,7 +313,11 @@ public class Diff {
       UrlPattern urlPattern, List<DiffLine<?>> diffLineList) {
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
-        new DiffLine<>("URL", urlPattern, request.getPathAndQuery().toString(), printedUrlPattern);
+        new DiffLine<>(
+            "URL",
+            urlPattern,
+            request.getPathAndQueryWithoutPrefix().toString(),
+            printedUrlPattern);
     diffLineList.addAll(toDiffDescriptionLines(urlSection));
     diffLineList.add(SPACER);
     return urlSection;

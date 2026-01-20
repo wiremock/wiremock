@@ -41,7 +41,7 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   }
 
   public static LimitAndSinceDatePaginator fromRequest(List<ServeEvent> source, Request request) {
-    Query query = request.getPathAndQuery().getQueryOrEmpty();
+    Query query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     return new LimitAndSinceDatePaginator(source, toInt(query, "limit"), toDate(query, "since"));
   }
 
