@@ -48,6 +48,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   private final HttpServletRequest request;
   private final Lazy<String> url;
+  private final Lazy<PathAndQuery> pathAndQuery;
   private final Lazy<byte[]> body;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
@@ -64,6 +65,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     this.url = Lazy.lazy(this::adaptUrl);
+    this.pathAndQuery = Lazy.lazy(this::adaptPathAndQuery);
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.body = Lazy.lazy(this::adaptBody);
@@ -90,15 +92,14 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return withQueryStringIfPresent(url);
   }
 
-  private volatile PathAndQuery pathAndQuery = null;
-
   @Override
   public PathAndQuery getPathAndQuery() {
-    if (pathAndQuery == null) {
-      String urlString = getUrl();
-      pathAndQuery = urlString != null ? PathAndQuery.parse(urlString) : null;
-    }
-    return pathAndQuery;
+    return pathAndQuery.get();
+  }
+
+  private PathAndQuery adaptPathAndQuery() {
+    String urlString = getUrl();
+    return urlString != null ? PathAndQuery.parse(urlString) : null;
   }
 
   @Override
