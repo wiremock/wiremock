@@ -15,6 +15,7 @@
  */
 package org.wiremock.url;
 
+import java.util.regex.Pattern;
 import org.wiremock.stringparser.StringParser;
 
 public final class PathAndQueryParser implements StringParser<PathAndQuery> {
@@ -32,13 +33,25 @@ public final class PathAndQueryParser implements StringParser<PathAndQuery> {
     return PathAndQuery.class;
   }
 
+  private static final Pattern regex =
+      Pattern.compile("^(?<path>/[^?#]*|)(?:\\?(?<query>[^#]*))?$");
+
   @Override
   public PathAndQuery parse(String stringForm) {
-    var uri = uriParser.parse(stringForm);
-    if (uri instanceof PathAndQuery pathAndQuery) {
-      return pathAndQuery;
-    } else {
-      throw new IllegalPathAndQuery(stringForm);
+    try {
+      var result = regex.matcher(stringForm);
+      if (!result.matches()) {
+        throw new IllegalPathAndQuery(stringForm);
+      }
+
+      var path = PathParser.INSTANCE.parse(result.group("path"));
+
+      var queryString = result.group("query");
+      var query = queryString == null ? null : Query.parse(queryString);
+
+      return PathAndQuery.of(path, query);
+    } catch (IllegalUriPart illegalPart) {
+      throw new IllegalUri(stringForm, illegalPart);
     }
   }
 }

@@ -59,10 +59,10 @@ class PathAndQueryTests {
     }
 
     @Test
-    void parses_relative_path_correctly() {
-      var pathAndQuery = PathAndQuery.parse("relative");
+    void parses_path_with_double_slash_correctly() {
+      var pathAndQuery = PathAndQuery.parse("//relative");
 
-      assertThat(pathAndQuery.toString()).isEqualTo("relative");
+      assertThat(pathAndQuery.toString()).isEqualTo("//relative");
       assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
 
       assertThat(pathAndQuery.getScheme()).isNull();
@@ -72,7 +72,7 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getHost()).isNull();
       assertThat(pathAndQuery.getPort()).isNull();
 
-      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("relative"));
+      assertThat(pathAndQuery.getPath()).isEqualTo(Path.parse("//relative"));
       assertThat(pathAndQuery.getQuery()).isNull();
 
       assertThat(pathAndQuery.getFragment()).isNull();
@@ -134,26 +134,18 @@ class PathAndQueryTests {
     }
 
     @Test
-    void rejects_illegal_uri() {
-      IllegalUri exception =
-          assertThatExceptionOfType(IllegalUri.class)
-              .isThrownBy(() -> PathAndQuery.parse("not a :uri"))
-              .actual();
-      assertThat(exception.getMessage()).isEqualTo("Illegal uri: `not a :uri`");
-      assertThat(exception.getIllegalValue()).isEqualTo("not a :uri");
-
-      IllegalScheme cause =
-          assertThat(exception.getCause()).asInstanceOf(type(IllegalScheme.class)).actual();
-      assertThat(cause.getMessage())
-          .isEqualTo("Illegal scheme `not a `; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
-      assertThat(cause.getIllegalValue()).isEqualTo("not a ");
-      assertThat(cause.getCause()).isNull();
+    void rejects_illegal_path_and_query() {
+      assertThatExceptionOfType(IllegalUri.class)
+          .isThrownBy(() -> PathAndQuery.parse("not a :uri"))
+          .withMessage("Illegal path and query: `not a :uri`")
+          .withNoCause();
     }
 
     static final List<? extends String> illegalPathAndQueries =
         concat(
             illegalRelativeUrls,
             List.of(
+                "relative",
                 "//example.com/path?query#fragment",
                 "/path?query#fragment",
                 "/path#fragment",
@@ -184,12 +176,12 @@ class PathAndQueryTests {
           "/path",
         })
     void cannot_set_path_with_colon_in_first_segment_when_no_authority(String relativeUrl) {
-      RelativeUrl url = RelativeUrl.parse(relativeUrl);
-      var query = url.transform(it -> it.setPath(Path.EMPTY)).toString();
-      assertThatExceptionOfType(IllegalPathAndQuery.class)
-          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse("foo:bar"))))
+      PathAndQuery pathAndQuery = PathAndQuery.parse(relativeUrl);
+      var query = pathAndQuery.transform(it -> it.setPath(Path.EMPTY)).toString();
+      assertThatExceptionOfType(IllegalRelativeUrl.class)
+          .isThrownBy(() -> pathAndQuery.transform(it -> it.setPath(Path.parse("foo:bar"))))
           .withMessage(
-              "Illegal path and query: `foo:bar"
+              "Illegal relative url: `foo:bar"
                   + query
                   + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as that implies a scheme")
           .extracting(IllegalRelativeUrl::getIllegalValue)
@@ -201,16 +193,14 @@ class PathAndQueryTests {
         strings = {
           "//", "///", "//foo", "//foo/", "///foo/",
         })
-    void cannot_set_path_with_double_slash_when_no_authority(String illegalPath) {
-      PathAndQuery url = PathAndQuery.parse("/path?query");
-      assertThatExceptionOfType(IllegalPathAndQuery.class)
-          .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse(illegalPath))))
-          .withMessage(
-              "Illegal path and query: `"
-                  + illegalPath
-                  + "?query` - a relative url without authority's path may not start with //, as that would make it an authority")
-          .extracting(IllegalRelativeUrl::getIllegalValue)
-          .isEqualTo(illegalPath + "?query");
+    void can_set_path_with_double_slash_when_no_authority(String legalPath) {
+      PathAndQuery original = PathAndQuery.parse("/path?query");
+      Url transformed = original.transform(it -> it.setPath(Path.parse(legalPath)));
+      PathAndQuery transfo =
+          assertThat(transformed).asInstanceOf(type(PathAndQuery.class)).actual();
+      assertThat(transfo.toString()).isEqualTo(legalPath + "?query");
+      assertThat(transfo.getPath().toString()).isEqualTo(legalPath);
+      assertThat(transfo.getQuery()).hasToString("query");
     }
   }
 
@@ -219,17 +209,13 @@ class PathAndQueryTests {
     @ParameterizedTest
     @ValueSource(
         strings = {
-          "//", "///", "//foo", "//foo/", "///foo/",
+          "//", "///", "//foo", "//foo/", "///foo/", "", "/", "/foo",
         })
-    void cannot_set_path_with_double_slash_when_no_authority(String illegalPath) {
-      assertThatExceptionOfType(IllegalPathAndQuery.class)
-          .isThrownBy(() -> PathAndQuery.of(Path.parse(illegalPath)))
-          .withMessage(
-              "Illegal path and query: `"
-                  + illegalPath
-                  + "` - a relative url without authority's path may not start with //, as that would make it an authority")
-          .extracting(IllegalRelativeUrl::getIllegalValue)
-          .isEqualTo(illegalPath);
+    void can_set_path_with_double_slash_when_no_authority(String legalPath) {
+      PathAndQuery pathAndQuery = PathAndQuery.of(Path.parse(legalPath));
+      assertThat(pathAndQuery.toString()).isEqualTo(legalPath);
+      assertThat(pathAndQuery.getPath().toString()).isEqualTo(legalPath);
+      assertThat(pathAndQuery.getQuery()).isNull();
     }
   }
 }

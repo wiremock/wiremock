@@ -106,7 +106,7 @@ public class UriTests {
       var pathAndQuery = Uri.parse("relative");
 
       assertThat(pathAndQuery.toString()).isEqualTo("relative");
-      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+      assertThat(pathAndQuery).isInstanceOf(RelativeUrl.class);
     }
 
     @Test
@@ -367,13 +367,10 @@ public class UriTests {
     }
 
     @Test
-    void build_fails_if_path_is_set_to_double_slash_and_no_authority() {
-      assertThatExceptionOfType(IllegalPathAndQuery.class)
-          .isThrownBy(() -> Uri.builder().setPath(Path.parse("//")).build())
-          .withMessage(
-              "Illegal path and query: `//` - a relative url without authority's path may not start with //, as that would make it an authority")
-          .extracting(IllegalRelativeUrl::getIllegalValue)
-          .isEqualTo("//");
+    void build_with_path_set_to_double_slash_and_no_authority_returns_path_and_query() {
+      Uri uri = Uri.builder().setPath(Path.parse("//")).build();
+      assertThat(uri).isInstanceOf(PathAndQuery.class);
+      assertThat(uri.getPath()).hasToString("//");
     }
 
     @Test
@@ -386,7 +383,7 @@ public class UriTests {
                       .setFragment(Fragment.parse("frag"))
                       .build())
           .withMessage(
-              "Illegal relative url: `//#frag` - a relative url without authority's path may not start with //, as that would make it an authority")
+              "Illegal relative url: `//#frag` - a relative url without authority's path may not start with //, as that would make the first segment an authority")
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo("//#frag");
     }

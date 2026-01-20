@@ -99,7 +99,7 @@ class UrlTests {
       var pathAndQuery = Url.parse("relative");
 
       assertThat(pathAndQuery.toString()).isEqualTo("relative");
-      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+      assertThat(pathAndQuery).isInstanceOf(RelativeUrl.class);
     }
 
     @Test

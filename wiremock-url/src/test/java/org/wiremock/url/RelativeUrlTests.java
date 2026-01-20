@@ -97,10 +97,11 @@ class RelativeUrlTests {
 
     @Test
     void parses_relative_path_correctly() {
-      var pathAndQuery = RelativeUrl.parse("relative");
+      var relativeUrl = RelativeUrl.parse("relative");
 
-      assertThat(pathAndQuery.toString()).isEqualTo("relative");
-      assertThat(pathAndQuery).isInstanceOf(PathAndQuery.class);
+      assertThat(relativeUrl).hasToString("relative");
+      assertThat(relativeUrl).isInstanceOf(RelativeUrl.class);
+      assertThat(relativeUrl.getPath()).hasToString("relative");
     }
 
     @Test
@@ -244,7 +245,7 @@ class RelativeUrlTests {
       assertThatExceptionOfType(IllegalRelativeUrl.class)
           .isThrownBy(() -> url.transform(it -> it.setPath(Path.parse("foo:bar"))))
           .withMessage(
-              "Illegal relative url: `foo:bar?query#fragment` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous")
+              "Illegal relative url: `foo:bar?query#fragment` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as that implies a scheme")
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo("foo:bar?query#fragment");
     }
@@ -261,7 +262,7 @@ class RelativeUrlTests {
           .withMessage(
               "Illegal relative url: `"
                   + illegalPath
-                  + "?query#fragment` - a relative url without authority's path may not start with //, as that would make it an authority")
+                  + "?query#fragment` - a relative url without authority's path may not start with //, as that would make the first segment an authority")
           .extracting(IllegalRelativeUrl::getIllegalValue)
           .isEqualTo(illegalPath + "?query#fragment");
     }

@@ -125,7 +125,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
       setQuery(queryBuilder);
     }
     if (scheme == null) {
-      if (authority == null && fragment == null) {
+      if (authority == null && fragment == null && (path.isEmpty() || path.isAbsolute())) {
         return new PathAndQueryValue(stringForm, path, query);
       } else if (authority != null) {
         return new SchemeRelativeUrlValue(stringForm, authority, path, query, fragment);

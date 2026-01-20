@@ -28,7 +28,7 @@ final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
             this.toString(),
             "Illegal relative url: `"
                 + this
-                + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as this is ambiguous",
+                + "` - a relative url without authority's path may not contain a colon (`:`) in the first segment, as that implies a scheme",
             new IllegalPath(
                 path.toString(),
                 "Illegal path: `"
@@ -39,7 +39,7 @@ final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
             this.toString(),
             "Illegal relative url: `"
                 + this
-                + "` - a relative url without authority's path may not start with //, as that would make it an authority",
+                + "` - a relative url without authority's path may not start with //, as that would make the first segment an authority",
             new IllegalPath(
                 path.toString(),
                 "Illegal path: `"
