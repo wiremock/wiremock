@@ -288,6 +288,11 @@ public class LoggedRequest implements Request {
   }
 
   @Override
+  public QueryParameter queryParameter(String key) {
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+  }
+
+  @Override
   public FormParameter formParameter(String key) {
     return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
   }
