@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RemoteMappingsLoader {
 
@@ -49,9 +48,7 @@ public class RemoteMappingsLoader {
 
   public void load() {
     List<TextFile> mappingFiles =
-        mappingsFileSource.listFilesRecursively().stream()
-            .filter(byFileExtension("json"))
-            .collect(Collectors.toList());
+        mappingsFileSource.listFilesRecursively().stream().filter(byFileExtension("json")).toList();
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingOrMappings stubCollection =

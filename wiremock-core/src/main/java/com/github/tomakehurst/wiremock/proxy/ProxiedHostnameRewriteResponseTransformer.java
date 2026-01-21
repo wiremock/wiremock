@@ -146,13 +146,6 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
     return new HttpHeaders(filteredHeaders);
   }
 
-  private static String getMimeType(Response response) {
-    HttpHeaders responseHeaders = response.getHeaders();
-    return responseHeaders != null && responseHeaders.getContentTypeHeader() != null
-        ? responseHeaders.getContentTypeHeader().mimeTypePart()
-        : null;
-  }
-
   /**
    * This method can be used to pull substitution data from other sources such as stub metadata
    *

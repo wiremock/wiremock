@@ -639,7 +639,17 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setBody(EntityDefinition body) {
+    public Builder setBody(String body) {
+      return isV3Style()
+          ? setBody(TextEntityDefinition.simple(body))
+          : setBody(new TextEntityDefinition.Builder().setData(body).build());
+    }
+
+    public Builder setBody(byte[] body) {
+      return setBody(new BinaryEntityDefinition.Builder().setBody(body).build());
+    }
+
+    public Builder setBody(EntityDefinition<?> body) {
       this.body = body;
       return this;
     }
