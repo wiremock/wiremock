@@ -103,7 +103,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
         new DiffEventData(
             responseDefinition.getStatus(),
             contentTypeHeader,
-            serveEvent.getResponse().getBodyAsString()));
+            responseDefinition.getBodyEntity().getDataAsString()));
   }
 
   @Override

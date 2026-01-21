@@ -30,6 +30,7 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -466,20 +467,53 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothDataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> textEntity().setData("data").setFilePath("path").build());
+        () -> new TextEntityDefinition(null, null, null, null, null, "data", "path"));
   }
 
   @Test
   void rejectsEntityWithBothDataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> textEntity().setData("data").setDataStoreRef("store", "key").build());
+        () -> new TextEntityDefinition(null, null, null, "store", "key", "data", null));
   }
 
   @Test
   void rejectsEntityWithBothFilePathAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> textEntity().setFilePath("data").setDataStoreRef("store", "key").build());
+        () -> new TextEntityDefinition(null, null, null, "store", "key", null, "path"));
+  }
+
+  @Test
+  void builderClearsFilePathAndStoreRefWhenSettingData() {
+    TextEntityDefinition entity =
+        textEntity().setFilePath("path").setDataStoreRef("store", "key").setData("data").build();
+
+    assertThat(entity.getData(), is("data"));
+    assertThat(entity.getFilePath(), nullValue());
+    assertThat(entity.getDataStore(), nullValue());
+    assertThat(entity.getDataRef(), nullValue());
+  }
+
+  @Test
+  void builderClearsDataAndStoreRefWhenSettingFilePath() {
+    TextEntityDefinition entity =
+        textEntity().setData("data").setDataStoreRef("store", "key").setFilePath("path").build();
+
+    assertThat(entity.getFilePath(), is("path"));
+    assertThat(entity.getData(), nullValue());
+    assertThat(entity.getDataStore(), nullValue());
+    assertThat(entity.getDataRef(), nullValue());
+  }
+
+  @Test
+  void builderClearsDataAndFilePathWhenSettingStoreRef() {
+    TextEntityDefinition entity =
+        textEntity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
+
+    assertThat(entity.getDataStore(), is("store"));
+    assertThat(entity.getDataRef(), is("key"));
+    assertThat(entity.getData(), nullValue());
+    assertThat(entity.getFilePath(), nullValue());
   }
 }
