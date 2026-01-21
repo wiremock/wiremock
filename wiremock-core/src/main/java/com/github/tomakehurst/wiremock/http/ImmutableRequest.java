@@ -26,14 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Port;
 
 public class ImmutableRequest implements Request {
 
-  private final AbsoluteUrl absoluteUrl;
-  private final PathAndQuery pathAndQuery;
+  private final @NonNull AbsoluteUrl absoluteUrl;
+  private final @NonNull PathAndQuery pathAndQuery;
   private final RequestMethod method;
   private final String protocol;
   private final String scheme;
@@ -52,7 +53,7 @@ public class ImmutableRequest implements Request {
   }
 
   protected ImmutableRequest(
-      String absoluteUrl,
+      @NonNull String absoluteUrl,
       RequestMethod method,
       String protocol,
       String clientIp,
@@ -60,7 +61,7 @@ public class ImmutableRequest implements Request {
       byte[] body,
       boolean multipart,
       boolean browserProxyRequest) {
-    this.absoluteUrl = AbsoluteUrl.parse(requireNonNull(absoluteUrl));
+    this.absoluteUrl = AbsoluteUrl.parse(absoluteUrl);
     this.pathAndQuery = this.absoluteUrl.getPathAndQuery();
     this.method = requireNonNull(method);
     this.protocol = protocol;
@@ -79,12 +80,22 @@ public class ImmutableRequest implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQueryWithoutPrefix() {
+  public @NonNull String getUrl() {
+    return pathAndQuery.toString();
+  }
+
+  @Override
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery;
   }
 
   @Override
-  public AbsoluteUrl getTypedAbsoluteUrl() {
+  public @NonNull String getAbsoluteUrl() {
+    return absoluteUrl.toString();
+  }
+
+  @Override
+  public @NonNull AbsoluteUrl getTypedAbsoluteUrl() {
     return absoluteUrl;
   }
 

@@ -16,6 +16,8 @@ dependencies {
     api(libs.jetty.util)
     api(libs.jetty.websocket.jetty.api)
 
+    api(libs.jspecify)
+
     implementation(libs.jetty.alpn.server)
     implementation(libs.jetty.ee11.servlets)
     implementation(libs.jetty.http)

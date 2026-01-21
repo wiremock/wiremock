@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
@@ -48,20 +50,21 @@ public interface Request {
   }
 
   @Deprecated // use getPathAndQueryWithoutPrefix()
-  default String getUrl() {
-    return getPathAndQueryWithoutPrefix().toString();
-  }
+  @NonNull String getUrl();
 
   @JsonIgnore
-  PathAndQuery getPathAndQueryWithoutPrefix();
+  default @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return PathAndQuery.parse(getUrl());
+  }
 
   @Deprecated // use getTypedAbsoluteUrl()
-  default String getAbsoluteUrl() {
-    return getTypedAbsoluteUrl().toString();
-  }
+  @Nullable String getAbsoluteUrl();
 
   @JsonIgnore
-  AbsoluteUrl getTypedAbsoluteUrl();
+  default @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
+    String absoluteUrl = getAbsoluteUrl();
+    return absoluteUrl != null ? AbsoluteUrl.parse(absoluteUrl) : null;
+  }
 
   RequestMethod getMethod();
 
@@ -92,8 +95,9 @@ public interface Request {
   }
 
   @Deprecated // use getPathAndQueryWithoutPrefix().getQueryOrEmpty().get(key)
-  default QueryParameter queryParameter(String key) {
-    return toQueryParameter(getPathAndQueryWithoutPrefix().getQueryOrEmpty(), key);
+  default @Nullable QueryParameter queryParameter(String key) {
+    PathAndQuery pathAndQuery = getPathAndQueryWithoutPrefix();
+    return toQueryParameter(pathAndQuery.getQueryOrEmpty(), key);
   }
 
   FormParameter formParameter(String key);

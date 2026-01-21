@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
@@ -47,21 +49,21 @@ public class RequestPathParamsDecorator implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return request.getUrl();
   }
 
   @Override
-  public PathAndQuery getPathAndQueryWithoutPrefix() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
     return request.getPathAndQueryWithoutPrefix();
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @Nullable String getAbsoluteUrl() {
     return request.getAbsoluteUrl();
   }
 
-  public AbsoluteUrl getTypedAbsoluteUrl() {
+  public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
     return request.getTypedAbsoluteUrl();
   }
 
@@ -122,7 +124,8 @@ public class RequestPathParamsDecorator implements Request {
 
   @Override
   public PathParams getPathParameters() {
-    return pathTemplate.parse(getPathAndQueryWithoutPrefix().getPath());
+    PathAndQuery pathAndQuery = getPathAndQueryWithoutPrefix();
+    return pathAndQuery != null ? pathTemplate.parse(pathAndQuery.getPath()) : PathParams.empty();
   }
 
   @Override

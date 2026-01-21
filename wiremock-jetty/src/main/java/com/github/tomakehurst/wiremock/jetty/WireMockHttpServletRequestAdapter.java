@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
+import org.jspecify.annotations.NonNull;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
@@ -46,8 +47,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
-  private final Lazy<String> url;
-  private final Lazy<PathAndQuery> pathAndQuery;
+  private final Lazy<@NonNull String> url;
+  private final Lazy<@NonNull PathAndQuery> pathAndQuery;
+  private final Lazy<@NonNull String> absoluteUrl;
+  private final Lazy<@NonNull AbsoluteUrl> typedAbsoluteUrl;
   private final Lazy<byte[]> body;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
@@ -65,6 +68,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     this.url = Lazy.lazy(this::adaptUrl);
     this.pathAndQuery = Lazy.lazy(this::adaptPathAndQuery);
+    this.absoluteUrl = Lazy.lazy(this::adaptAbsoluteUrl);
+    this.typedAbsoluteUrl = Lazy.lazy(this::adaptTypedAbsoluteUrl);
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.body = Lazy.lazy(this::adaptBody);
@@ -73,11 +78,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return url.get();
   }
 
-  private String adaptUrl() {
+  private @NonNull String adaptUrl() {
     String url = request.getRequestURI();
 
     String contextPath = request.getContextPath();
@@ -92,28 +97,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public PathAndQuery getPathAndQueryWithoutPrefix() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery.get();
   }
 
-  private PathAndQuery adaptPathAndQuery() {
-    String urlString = getUrl();
-    return urlString != null ? PathAndQuery.parse(urlString) : null;
+  private @NonNull PathAndQuery adaptPathAndQuery() {
+    return PathAndQuery.parse(getUrl());
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @NonNull String getAbsoluteUrl() {
+    return absoluteUrl.get();
+  }
+
+  private @NonNull String adaptAbsoluteUrl() {
     return withQueryStringIfPresent(request.getRequestURL().toString());
   }
 
-  private volatile AbsoluteUrl typedAbsoluteUrl = null;
-
   @Override
-  public AbsoluteUrl getTypedAbsoluteUrl() {
-    if (typedAbsoluteUrl == null) {
-      typedAbsoluteUrl = AbsoluteUrl.parse(getAbsoluteUrl());
-    }
-    return typedAbsoluteUrl;
+  public @NonNull AbsoluteUrl getTypedAbsoluteUrl() {
+    return typedAbsoluteUrl.get();
+  }
+
+  private @NonNull AbsoluteUrl adaptTypedAbsoluteUrl() {
+    return AbsoluteUrl.parse(getAbsoluteUrl());
   }
 
   private String withQueryStringIfPresent(String url) {

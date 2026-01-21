@@ -31,6 +31,8 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
@@ -41,7 +43,7 @@ public class LoggedRequest implements Request {
   private final String scheme;
   private final String host;
   private final int port;
-  private final PathAndQuery pathAndQuery;
+  private final @NonNull PathAndQuery pathAndQuery;
   private final AbsoluteUrl absoluteUrl;
   private final String clientIp;
   private final RequestMethod method;
@@ -82,8 +84,8 @@ public class LoggedRequest implements Request {
 
   @JsonCreator
   LoggedRequest(
-      @JsonProperty("url") String url,
-      @JsonProperty("absoluteUrl") String absoluteUrl,
+      @JsonProperty("url") @NonNull String url,
+      @JsonProperty("absoluteUrl") @Nullable String absoluteUrl,
       @JsonProperty("method") RequestMethod method,
       @JsonProperty("clientIp") String clientIp,
       @JsonProperty("headers") HttpHeaders headers,
@@ -99,7 +101,7 @@ public class LoggedRequest implements Request {
         null,
         null,
         null,
-        url != null ? PathAndQuery.parse(url) : null,
+        PathAndQuery.parse(url),
         absoluteUrl != null ? AbsoluteUrl.parse(absoluteUrl) : null,
         method,
         clientIp,
@@ -119,8 +121,8 @@ public class LoggedRequest implements Request {
       String scheme,
       String host,
       Integer port,
-      PathAndQuery pathAndQuery,
-      AbsoluteUrl absoluteUrl,
+      @NonNull PathAndQuery pathAndQuery,
+      @Nullable AbsoluteUrl absoluteUrl,
       RequestMethod method,
       String clientIp,
       HttpHeaders headers,
@@ -143,6 +145,7 @@ public class LoggedRequest implements Request {
     } else {
       this.scheme = this.absoluteUrl.getScheme().toString();
       this.host = this.absoluteUrl.getHost().toString();
+      //noinspection DataFlowIssue - getResolvedPort should never return null for a url we support
       this.port = this.absoluteUrl.getResolvedPort().getIntValue();
     }
 
@@ -152,10 +155,7 @@ public class LoggedRequest implements Request {
     this.headers = headers;
     this.pathParams = pathParams;
     this.cookies = cookies;
-    this.queryParams =
-        this.pathAndQuery != null
-            ? toQueryParameterMap(this.pathAndQuery.getQueryOrEmpty())
-            : Collections.emptyMap();
+    this.queryParams = toQueryParameterMap(this.pathAndQuery.getQueryOrEmpty());
     this.formParameters = formParameters;
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
@@ -172,22 +172,22 @@ public class LoggedRequest implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return pathAndQuery.toString();
   }
 
   @Override
-  public PathAndQuery getPathAndQueryWithoutPrefix() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
     return pathAndQuery;
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @Nullable String getAbsoluteUrl() {
     return absoluteUrl != null ? absoluteUrl.toString() : null;
   }
 
   @Override
-  public AbsoluteUrl getTypedAbsoluteUrl() {
+  public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
     return absoluteUrl;
   }
 

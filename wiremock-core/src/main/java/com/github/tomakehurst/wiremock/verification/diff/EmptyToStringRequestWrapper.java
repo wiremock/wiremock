@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
@@ -32,22 +34,22 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return target.getUrl();
   }
 
   @Override
-  public PathAndQuery getPathAndQueryWithoutPrefix() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
     return target.getPathAndQueryWithoutPrefix();
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @Nullable String getAbsoluteUrl() {
     return target.getAbsoluteUrl();
   }
 
   @Override
-  public AbsoluteUrl getTypedAbsoluteUrl() {
+  public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
     return target.getTypedAbsoluteUrl();
   }
 
