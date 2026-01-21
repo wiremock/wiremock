@@ -124,7 +124,8 @@ public class WireMockApp implements StubServer, Admin {
             this,
             options,
             stores,
-            options.filesRoot().child(FILES_ROOT));
+            options.filesRoot().child(FILES_ROOT),
+            entityResolver);
     extensions.load();
 
     Map<String, RequestMatcherExtension> customMatchers =

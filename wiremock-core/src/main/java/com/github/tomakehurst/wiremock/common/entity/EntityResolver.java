@@ -30,7 +30,7 @@ public class EntityResolver {
     this.stores = stores;
   }
 
-  public Entity resolve(EntityDefinition definition) {
+  public Entity resolve(EntityDefinition<?> definition) {
     if (definition instanceof BinaryEntityDefinition binaryDef) {
       byte[] bytes = resolveBinaryEntityData(binaryDef);
 
@@ -95,7 +95,7 @@ public class EntityResolver {
     String filePath = definition.getFilePath();
     if (filePath != null && stores != null) {
       BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).orElse(new byte[0]);
+      return filesBlobStore.get(filePath).orElse(null);
     }
 
     String dataStore = definition.getDataStore();

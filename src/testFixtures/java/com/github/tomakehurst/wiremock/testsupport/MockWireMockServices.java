@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,18 @@ import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.google.common.base.Suppliers;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class MockWireMockServices implements WireMockServices {
 
-  private FileSource fileSource = new NoFileSource();
+  private final TestStores stores = new TestStores();
 
   private Map<String, Helper<?>> helpers = emptyMap();
   private Long maxCacheEntries = null;
@@ -50,17 +54,17 @@ public class MockWireMockServices implements WireMockServices {
 
   @Override
   public Stores getStores() {
-    return null;
+    return stores;
   }
 
   @Override
   public FileSource getFiles() {
-    return fileSource;
+    return new BlobStoreFileSource(stores.getFilesBlobStore());
   }
 
   @Override
   public EntityResolver getEntityResolver() {
-    return null;
+    return new EntityResolver(getStores());
   }
 
   @Override
@@ -89,7 +93,7 @@ public class MockWireMockServices implements WireMockServices {
   }
 
   public MockWireMockServices setFileSource(FileSource fileSource) {
-    this.fileSource = fileSource;
+    stores.setFileSource(fileSource);
     return this;
   }
 
@@ -101,5 +105,23 @@ public class MockWireMockServices implements WireMockServices {
   public MockWireMockServices setMaxCacheEntries(Long maxCacheEntries) {
     this.maxCacheEntries = maxCacheEntries;
     return this;
+  }
+
+  public static class TestStores extends DefaultStores {
+
+    private FileSource fileSource = new NoFileSource();
+
+    public TestStores() {
+      super(new NoFileSource());
+    }
+
+    @Override
+    public BlobStore getFilesBlobStore() {
+      return new FileSourceBlobStore(fileSource);
+    }
+
+    public void setFileSource(FileSource fileSource) {
+      this.fileSource = fileSource;
+    }
   }
 }

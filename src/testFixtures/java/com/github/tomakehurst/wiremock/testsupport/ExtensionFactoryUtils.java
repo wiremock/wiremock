@@ -33,7 +33,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), global, services.getFiles())));
+                        services.getTemplateEngine(),
+                        global,
+                        services.getFiles(),
+                        services.getEntityResolver())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(
@@ -44,7 +47,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), global, services.getFiles())));
+                        services.getTemplateEngine(),
+                        global,
+                        services.getFiles(),
+                        services.getEntityResolver())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(Long maxCacheEntries) {
@@ -54,7 +60,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), false, services.getFiles())));
+                        services.getTemplateEngine(),
+                        false,
+                        services.getFiles(),
+                        services.getEntityResolver())));
   }
 
   public static Extension buildExtension(

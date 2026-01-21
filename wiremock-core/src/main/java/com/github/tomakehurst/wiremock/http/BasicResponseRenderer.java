@@ -32,7 +32,7 @@ public class BasicResponseRenderer implements ResponseRenderer {
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    Entity body = entityResolver.resolve(responseDefinition.getBody());
+    Entity body = entityResolver.resolve(responseDefinition.getBodyEntity());
     return response()
         .status(responseDefinition.getStatus())
         .headers(responseDefinition.getHeaders())

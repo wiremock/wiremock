@@ -19,11 +19,14 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
 @JsonInclude(NON_NULL)
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
@@ -34,7 +37,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
       @JsonSubTypes.Type(JsonEntityDefinition.class),
       @JsonSubTypes.Type(BinaryEntityDefinition.class)
     })
-public abstract class EntityDefinition {
+public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
+
+  public static final Charset DEFAULT_CHARSET = UTF_8;
+  public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
 
   protected static void assertValidParameterCombination(
       Object data, String filePath, String dataStore, String dataRef) {
@@ -81,7 +87,7 @@ public abstract class EntityDefinition {
     return compression == NONE || compression == GZIP;
   }
 
-  public abstract <SELF> SELF decompress();
+  public abstract SELF decompress();
 
   public String getFilePath() {
     if (FILES_ROOT.equals(getDataStore()) && getDataRef() != null) {
@@ -95,7 +101,65 @@ public abstract class EntityDefinition {
 
   public abstract String getDataRef();
 
-  public interface Builder<T extends EntityDefinition> {
+  public abstract <B extends Builder<SELF>> SELF transform(Consumer<B> transformer);
+
+  public interface Builder<T extends EntityDefinition<T>> {
+
+    Builder<T> setCompression(CompressionType compression);
+
+    Builder<T> setDataStoreRef(String storeName, String key);
+
+    Builder<T> setFilePath(String filePath);
+
     T build();
+  }
+
+  public abstract static class BaseBuilder<SELF extends Builder<T>, T extends EntityDefinition<T>>
+      implements Builder<T> {
+
+    protected CompressionType compression = NONE;
+    protected String dataStore;
+    protected String dataRef;
+    protected String filePath;
+
+    public BaseBuilder() {}
+
+    protected BaseBuilder(
+        CompressionType compression, String dataStore, String dataRef, String filePath) {
+      this.compression = compression;
+      this.dataStore = dataStore;
+      this.dataRef = dataRef;
+      this.filePath = filePath;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SELF setCompression(CompressionType compression) {
+      this.compression = compression;
+      return (SELF) this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SELF setFilePath(String filePath) {
+      resetDataAndRefs();
+      this.filePath = filePath;
+      return (SELF) this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SELF setDataStoreRef(String storeName, String key) {
+      resetDataAndRefs();
+      this.dataStore = storeName;
+      this.dataRef = key;
+      return (SELF) this;
+    }
+
+    protected void resetDataAndRefs() {
+      this.dataStore = null;
+      this.dataRef = null;
+      this.filePath = null;
+    }
   }
 }

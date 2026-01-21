@@ -23,7 +23,6 @@ import static com.github.tomakehurst.wiremock.common.entity.FormatType.JSON;
 import static com.github.tomakehurst.wiremock.common.entity.FormatType.TEXT;
 import static com.github.tomakehurst.wiremock.common.entity.FormatType.XML;
 import static com.github.tomakehurst.wiremock.common.entity.FormatType.YAML;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,11 +39,9 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 @JsonDeserialize(as = TextEntityDefinition.class)
-public class TextEntityDefinition extends EntityDefinition {
+public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition> {
 
-  public static final Charset DEFAULT_CHARSET = UTF_8;
   public static final FormatType DEFAULT_FORMAT = TEXT;
-  public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
 
   @NonNull private final FormatType format;
   @NonNull private final Charset charset;
@@ -194,7 +191,8 @@ public class TextEntityDefinition extends EntityDefinition {
   public TextEntityDefinition decompress() {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
-      return transform(builder -> builder.setData(Gzip.unGzip(data)).setCompression(NONE));
+      return this.<Builder>transform(
+          builder -> builder.setData(Gzip.unGzip(data)).setCompression(NONE));
     }
 
     if (compression != NONE) {
@@ -209,12 +207,16 @@ public class TextEntityDefinition extends EntityDefinition {
   }
 
   public TextEntityDefinition withCharset(Charset charset) {
-    return transform(builder -> builder.setCharset(charset));
+    return this.<Builder>transform(builder -> builder.setCharset(charset));
   }
 
-  public TextEntityDefinition transform(Consumer<Builder> transformer) {
+  @Override
+  public <B extends EntityDefinition.Builder<TextEntityDefinition>> TextEntityDefinition transform(
+      Consumer<B> transformer) {
     final Builder builder = toBuilder();
-    transformer.accept(builder);
+    @SuppressWarnings("unchecked")
+    final B typedBuilder = (B) builder;
+    transformer.accept(typedBuilder);
     return builder.build();
   }
 
@@ -267,23 +269,16 @@ public class TextEntityDefinition extends EntityDefinition {
     }
   }
 
-  public static class Builder implements EntityDefinition.Builder<TextEntityDefinition> {
+  public static class Builder extends EntityDefinition.BaseBuilder<Builder, TextEntityDefinition> {
     protected FormatType format;
     protected Charset charset = DEFAULT_CHARSET;
-    protected CompressionType compression = NONE;
-    protected String dataStore;
-    protected String dataRef;
     protected byte[] data;
-    protected String filePath;
 
     public Builder(TextEntityDefinition entity) {
+      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
       this.format = entity.format;
       this.charset = entity.charset;
-      this.compression = entity.compression;
-      this.dataStore = entity.dataStore;
-      this.dataRef = entity.dataRef;
       this.data = entity.data;
-      this.filePath = entity.filePath;
     }
 
     public Builder() {}
@@ -298,23 +293,6 @@ public class TextEntityDefinition extends EntityDefinition {
       return this;
     }
 
-    public Builder setCompression(CompressionType compression) {
-      this.compression = compression;
-      return this;
-    }
-
-    public Builder setDataStore(String dataStore) {
-      resetDataAndRefs();
-      this.dataStore = dataStore;
-      return this;
-    }
-
-    public Builder setDataRef(String dataRef) {
-      resetDataAndRefs();
-      this.dataRef = dataRef;
-      return this;
-    }
-
     public Builder setData(Object data) {
       resetDataAndRefs();
       this.data =
@@ -324,17 +302,10 @@ public class TextEntityDefinition extends EntityDefinition {
       return this;
     }
 
-    public Builder setFilePath(String filePath) {
-      resetDataAndRefs();
-      this.filePath = filePath;
-      return this;
-    }
-
-    private void resetDataAndRefs()  {
+    @Override
+    protected void resetDataAndRefs() {
+      super.resetDataAndRefs();
       this.data = null;
-      this.dataStore = null;
-      this.dataRef = null;
-      this.filePath = null;
     }
 
     @Override

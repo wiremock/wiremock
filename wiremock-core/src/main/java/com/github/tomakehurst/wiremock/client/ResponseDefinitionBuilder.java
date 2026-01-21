@@ -91,7 +91,7 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
-  public ResponseDefinitionBuilder withResponseBody(EntityDefinition body) {
+  public ResponseDefinitionBuilder withBody(EntityDefinition<?> body) {
     builder.setBody(body);
     return this;
   }

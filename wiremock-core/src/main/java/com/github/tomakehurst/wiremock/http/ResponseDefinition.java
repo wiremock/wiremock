@@ -648,9 +648,12 @@ public class ResponseDefinition {
       if (body instanceof EmptyEntityDefinition) {
         this.body = new BinaryEntityDefinition.Builder().setFilePath(bodyFileName).build();
       } else if (body instanceof TextEntityDefinition textEntity) {
-        this.body = textEntity.transform(b -> b.setFilePath(bodyFileName));
+        this.body =
+            textEntity.<TextEntityDefinition.Builder>transform(b -> b.setFilePath(bodyFileName));
       } else if (body instanceof BinaryEntityDefinition binaryEntity) {
-        this.body = binaryEntity.transform(b -> b.setFilePath(bodyFileName));
+        this.body =
+            binaryEntity.<BinaryEntityDefinition.Builder>transform(
+                b -> b.setFilePath(bodyFileName));
       }
 
       return this;

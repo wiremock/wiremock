@@ -473,13 +473,13 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothDataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> textEntity().setData("data").setDataStore("store").setDataRef("key").build());
+        () -> textEntity().setData("data").setDataStoreRef("store", "key").build());
   }
 
   @Test
   void rejectsEntityWithBothFilePathAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> textEntity().setFilePath("data").setDataStore("store").setDataRef("key").build());
+        () -> textEntity().setFilePath("data").setDataStoreRef("store", "key").build());
   }
 }

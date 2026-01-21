@@ -49,7 +49,7 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
 
   @Override
   public MatchResult match(ResponseDefinition responseDefinition) {
-    if (!responseDefinition.getBody().isInline()) {
+    if (!responseDefinition.getBodyEntity().isInline()) {
       return MatchResult.noMatch();
     } else if (ContentTypes.determineIsTextFromMimeType(
         responseDefinition.getHeaders().getContentTypeHeader().mimeTypePart())) {

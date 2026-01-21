@@ -18,10 +18,11 @@ package com.github.tomakehurst.wiremock.common.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
 @JsonSerialize(as = EmptyEntityDefinition.class)
 @JsonDeserialize(as = EmptyEntityDefinition.class)
-public class EmptyEntityDefinition extends EntityDefinition {
+public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinition> {
 
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
@@ -73,5 +74,11 @@ public class EmptyEntityDefinition extends EntityDefinition {
   @Override
   public String getDataRef() {
     return null;
+  }
+
+  @Override
+  public <B extends EntityDefinition.Builder<EmptyEntityDefinition>>
+      EmptyEntityDefinition transform(Consumer<B> transformer) {
+    return this;
   }
 }

@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 
 @JsonSerialize(as = BinaryEntityDefinition.class)
 @JsonDeserialize(as = BinaryEntityDefinition.class)
-public class BinaryEntityDefinition extends EntityDefinition {
+public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinition> {
 
   public static final CompressionType DEFAULT_COMPRESSION = NONE;
 
@@ -128,7 +128,7 @@ public class BinaryEntityDefinition extends EntityDefinition {
   public BinaryEntityDefinition decompress() {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
-      return transform(
+      return this.<Builder>transform(
           builder -> builder.setBody(Gzip.unGzip(getDataAsBytes())).setCompression(NONE));
     }
 
@@ -143,9 +143,13 @@ public class BinaryEntityDefinition extends EntityDefinition {
     return filePath;
   }
 
-  public BinaryEntityDefinition transform(Consumer<Builder> transformer) {
+  @Override
+  public <B extends EntityDefinition.Builder<BinaryEntityDefinition>>
+      BinaryEntityDefinition transform(Consumer<B> transformer) {
     final Builder builder = toBuilder();
-    transformer.accept(builder);
+    @SuppressWarnings("unchecked")
+    final B typedBuilder = (B) builder;
+    transformer.accept(typedBuilder);
     return builder.build();
   }
 
@@ -181,38 +185,16 @@ public class BinaryEntityDefinition extends EntityDefinition {
     }
   }
 
-  public static class Builder implements EntityDefinition.Builder<BinaryEntityDefinition> {
-    private CompressionType compression;
-    private String dataStore;
-    private String dataRef;
+  public static class Builder
+      extends EntityDefinition.BaseBuilder<Builder, BinaryEntityDefinition> {
+
     private byte[] data;
-    private String filePath;
 
     public Builder() {}
 
     public Builder(BinaryEntityDefinition entity) {
-      this.compression = entity.compression;
-      this.dataStore = entity.dataStore;
-      this.dataRef = entity.dataRef;
+      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
       this.data = entity.data;
-      this.filePath = entity.filePath;
-    }
-
-    public Builder setCompression(CompressionType compression) {
-      this.compression = compression;
-      return this;
-    }
-
-    public Builder setDataStore(String dataStore) {
-      resetDataAndRefs();
-      this.dataStore = dataStore;
-      return this;
-    }
-
-    public Builder setDataRef(String dataRef) {
-      resetDataAndRefs();
-      this.dataRef = dataRef;
-      return this;
     }
 
     public Builder setBody(byte[] data) {
@@ -227,17 +209,10 @@ public class BinaryEntityDefinition extends EntityDefinition {
       return this;
     }
 
-    public Builder setFilePath(String filePath) {
-      resetDataAndRefs();
-      this.filePath = filePath;
-      return this;
-    }
-
-    private void resetDataAndRefs()  {
+    @Override
+    protected void resetDataAndRefs() {
+      super.resetDataAndRefs();
       this.data = null;
-      this.dataStore = null;
-      this.dataRef = null;
-      this.filePath = null;
     }
 
     public BinaryEntityDefinition build() {

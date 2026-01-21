@@ -20,8 +20,9 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.DEFAULT_COMPRESSION;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
@@ -40,7 +41,11 @@ public class Entity {
 
   public static Entity EMPTY =
       new Entity(
-          EncodingType.TEXT, FormatType.TEXT, UTF_8, CompressionType.NONE, StreamSources.empty());
+          EncodingType.TEXT,
+          FormatType.TEXT,
+          DEFAULT_CHARSET,
+          CompressionType.NONE,
+          StreamSources.empty());
 
   private final EncodingType encoding;
   private final FormatType format;
@@ -101,6 +106,12 @@ public class Entity {
     return this;
   }
 
+  @JsonIgnore
+  public String getDataAsString() {
+    return Exceptions.uncheck(
+        () -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET), String.class);
+  }
+
   public byte[] getData() {
     return getData(UNLIMITED);
   }
@@ -158,7 +169,7 @@ public class Entity {
             final byte[] transformedCompressed =
                 compression == GZIP
                     ? Gzip.gzip(transformed)
-                    : Strings.bytesFromString(transformed, UTF_8);
+                    : Strings.bytesFromString(transformed, DEFAULT_CHARSET);
 
             builder.setBody(transformedCompressed);
           });
@@ -264,7 +275,7 @@ public class Entity {
     }
 
     public Builder setBody(String text) {
-      return setBody(text, UTF_8);
+      return setBody(text, DEFAULT_CHARSET);
     }
 
     public Builder setBody(String text, Charset charset) {
@@ -273,7 +284,8 @@ public class Entity {
     }
 
     public String getDataAsString() {
-      return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), UTF_8), String.class);
+      return Exceptions.uncheck(
+          () -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET), String.class);
     }
 
     public byte[] getData() {

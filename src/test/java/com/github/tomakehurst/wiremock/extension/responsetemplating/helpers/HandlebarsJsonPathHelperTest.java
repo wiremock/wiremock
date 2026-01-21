@@ -284,7 +284,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 services ->
                     List.of(
                         new ResponseTemplateTransformer(
-                            services.getTemplateEngine(), true, services.getFiles()) {
+                            services.getTemplateEngine(),
+                            true,
+                            services.getFiles(),
+                            services.getEntityResolver()) {
                           @Override
                           protected Map<String, Object> addExtraModelElements(
                               Request request,

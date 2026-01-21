@@ -21,8 +21,9 @@ import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.JsonException;
-import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.*;
@@ -30,7 +31,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,13 +41,18 @@ public class ResponseTemplateTransformer
 
   private final boolean global;
   private final FileSource files;
+  private final EntityResolver entityResolver;
   private final TemplateEngine templateEngine;
 
   public ResponseTemplateTransformer(
-      TemplateEngine templateEngine, boolean global, FileSource files) {
+      TemplateEngine templateEngine,
+      boolean global,
+      FileSource files,
+      EntityResolver entityResolver) {
     this.templateEngine = templateEngine;
     this.global = global;
     this.files = files;
+    this.entityResolver = entityResolver;
   }
 
   @Override
@@ -73,36 +78,32 @@ public class ResponseTemplateTransformer
       final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
 
-      final EntityDefinition body = responseDefinition.getBody();
-
-      if (body.isInline()) {
-        if (body instanceof TextEntityDefinition textBody) {
-          boolean isJsonBody = textBody.getFormat() == FormatType.JSON;
-          HandlebarsOptimizedTemplate bodyTemplate =
-              templateEngine.getTemplate(
-                  HttpTemplateCacheKey.forInlineBody(responseDefinition),
-                  textBody.getDataAsString());
-          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
-        }
-      } else if (body.isFromFile()) {
+      EntityDefinition<?> bodyDefinition = responseDefinition.getBodyEntity();
+      HttpTemplateCacheKey templateCacheKey;
+      if (bodyDefinition.isFromFile()) {
         HandlebarsOptimizedTemplate filePathTemplate =
             templateEngine.getUncachedTemplate(responseDefinition.getBodyEntity().getFilePath());
-        String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
-
-        boolean disableBodyFileTemplating =
-            parameters.getBoolean("disableBodyFileTemplating", false);
-
-        if (disableBodyFileTemplating) {
-          newResponseDefBuilder.withBodyFile(compiledFilePath);
-        } else {
-          TextFile file = files.getTextFileNamed(compiledFilePath);
-          HandlebarsOptimizedTemplate bodyTemplate =
-              templateEngine.getTemplate(
-                  HttpTemplateCacheKey.forFileBody(responseDefinition, compiledFilePath),
-                  file.readContentsAsString());
-          applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
-        }
+        String interpolatedFilePath = uncheckedApplyTemplate(filePathTemplate, model);
+        bodyDefinition =
+            bodyDefinition.transform(builder -> builder.setFilePath(interpolatedFilePath));
+        templateCacheKey =
+            HttpTemplateCacheKey.forFileBody(responseDefinition, interpolatedFilePath);
+      } else {
+        templateCacheKey = HttpTemplateCacheKey.forInlineBody(responseDefinition);
       }
+
+      final Entity initialBody = entityResolver.resolve(bodyDefinition);
+
+      final boolean bodyIsInlineOrTemplatingPermitted =
+          bodyDefinition.isInline() || !parameters.getBoolean("disableBodyFileTemplating", false);
+
+      if (bodyIsInlineOrTemplatingPermitted) {
+        final HandlebarsOptimizedTemplate bodyTemplate =
+            templateEngine.getTemplate(templateCacheKey, initialBody.getDataAsString());
+
+        bodyDefinition = applyTemplateToBodyEntity(model, bodyTemplate);
+      }
+      newResponseDefBuilder.withBody(bodyDefinition);
 
       List<HttpHeader> newResponseHeaders =
           responseDefinition.getHeaders().all().stream()
@@ -192,23 +193,29 @@ public class ResponseTemplateTransformer
     return Collections.emptyMap();
   }
 
-  private void applyTemplatedResponseBody(
-      ResponseDefinitionBuilder newResponseDefBuilder,
-      Map<String, Object> model,
-      HandlebarsOptimizedTemplate bodyTemplate,
-      boolean isJsonBody) {
+  private TextEntityDefinition applyTemplateToBodyEntity(
+      Map<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-    EntityDefinition body =
-        isJsonBody
-            ? TextEntityDefinition.builder()
-                .setFormat(FormatType.JSON)
-                .setCharset(StandardCharsets.UTF_8)
-                .setData(bodyString)
-                .build()
-            : TextEntityDefinition.full(bodyString);
-
-    newResponseDefBuilder.withResponseBody(body);
+    return TextEntityDefinition.builder().setFormat(FormatType.JSON).setData(bodyString).build();
   }
+
+  //    private void applyTemplatedResponseBody(
+  //            ResponseDefinitionBuilder newResponseDefBuilder,
+  //            Map<String, Object> model,
+  //            HandlebarsOptimizedTemplate bodyTemplate,
+  //            boolean isJsonBody) {
+  //        String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
+  //        EntityDefinition<?> body =
+  //                isJsonBody
+  //                        ? TextEntityDefinition.builder()
+  //                        .setFormat(FormatType.JSON)
+  //                        .setCharset(StandardCharsets.UTF_8)
+  //                        .setData(bodyString)
+  //                        .build()
+  //                        : TextEntityDefinition.full(bodyString);
+  //
+  //        newResponseDefBuilder.withResponseBody(body);
+  //    }
 
   private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {
     return template.apply(context);

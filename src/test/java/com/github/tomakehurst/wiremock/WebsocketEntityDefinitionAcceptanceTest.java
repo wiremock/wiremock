@@ -55,22 +55,6 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     assertThat(response, is("hello world"));
   }
 
-  //  @Test
-  //  void textEntityDefinitionWithObjectDataSerializesToJson() {
-  //    Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-  //    messageStubFor(
-  //        message()
-  //            .withName("Object data stub")
-  //            .withBody(equalTo("trigger"))
-  //            .willTriggerActions(sendMessage().withBody(objectData).onOriginatingChannel()));
-  //
-  //    WebsocketTestClient testClient = new WebsocketTestClient();
-  //    String url = websocketUrl("/object-data-test");
-  //
-  //    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
-  //    assertThat(response, jsonEquals("{\"name\":\"John\",\"age\":30}"));
-  //  }
-
   @Test
   void textEntityDefinitionWithDataStoreResolvesFromStore() {
     wireMockServer
@@ -181,8 +165,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(
-                        binaryEntity().setDataStore("binaryStore").setDataRef("binaryKey"))));
+                    .withMessage(binaryEntity().setDataStoreRef("binaryStore", "binaryKey"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-store-test");

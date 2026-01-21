@@ -23,11 +23,12 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SendMessageActionBuilder {
 
-  private TextEntityDefinition.Builder textEntityBuilder = textEntity();
+  private final TextEntityDefinition.Builder textEntityBuilder = textEntity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
 
@@ -39,8 +40,7 @@ public class SendMessageActionBuilder {
   }
 
   public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
-    textEntityBuilder.setDataStore(storeName);
-    textEntityBuilder.setDataRef(key);
+    textEntityBuilder.setDataStoreRef(storeName, key);
     return this;
   }
 
@@ -55,9 +55,7 @@ public class SendMessageActionBuilder {
   }
 
   public SendMessageActionBuilder withTransformers(String... transformerNames) {
-    for (String name : transformerNames) {
-      this.transformers.add(name);
-    }
+    this.transformers.addAll(Arrays.asList(transformerNames));
     return this;
   }
 
@@ -71,7 +69,7 @@ public class SendMessageActionBuilder {
     return this;
   }
 
-  private EntityDefinition resolveBody() {
+  private EntityDefinition<?> resolveBody() {
     return textEntityBuilder.build();
   }
 
@@ -127,7 +125,7 @@ public class SendMessageActionBuilder {
       this.transformerParameters = transformerParameters;
     }
 
-    public SendMessageAction withMessage(EntityDefinition body) {
+    public SendMessageAction withMessage(EntityDefinition<?> body) {
       return new SendMessageAction(
           new MessageDefinition(body), channelTarget, transformers, transformerParameters);
     }

@@ -68,8 +68,7 @@ public class Extensions implements WireMockServices {
       Options options,
       Stores stores,
       FileSource files,
-      EntityResolver entityResolver
-  ) {
+      EntityResolver entityResolver) {
     this.extensionDeclarations = extensionDeclarations;
     this.admin = admin;
     this.options = options;
@@ -178,7 +177,10 @@ public class Extensions implements WireMockServices {
     if (options.getResponseTemplatingEnabled()) {
       final ResponseTemplateTransformer responseTemplateTransformer =
           new ResponseTemplateTransformer(
-              getTemplateEngine(), options.getResponseTemplatingGlobal(), getFiles());
+              getTemplateEngine(),
+              options.getResponseTemplatingGlobal(),
+              getFiles(),
+              getEntityResolver());
       loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
 
       final MessageTemplateTransformer messageTemplateTransformer =
