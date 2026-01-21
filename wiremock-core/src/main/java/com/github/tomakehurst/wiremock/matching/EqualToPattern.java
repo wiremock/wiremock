@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,34 @@ public class EqualToPattern extends StringValuePattern {
         return normalisedLevenshteinDistance(expectedValue, value);
       }
     };
+  }
+
+  @Override
+  public MatchResult match(final String value, final MatcherContext context) {
+    final String resolvedExpected = resolveExpectedValue(context);
+    return new MatchResult() {
+      @Override
+      public boolean isExactMatch() {
+        return shouldMatchCaseInsensitive()
+            ? value != null && value.equalsIgnoreCase(resolvedExpected)
+            : Objects.equals(resolvedExpected, value);
+      }
+
+      @Override
+      public double getDistance() {
+        return normalisedLevenshteinDistance(resolvedExpected, value);
+      }
+    };
+  }
+
+  private String resolveExpectedValue(MatcherContext context) {
+    if (context != null
+        && expectedValue != null
+        && expectedValue.contains("{{")
+        && expectedValue.contains("}}")) {
+      return context.renderTemplate(expectedValue);
+    }
+    return expectedValue;
   }
 
   private boolean shouldMatchCaseInsensitive() {

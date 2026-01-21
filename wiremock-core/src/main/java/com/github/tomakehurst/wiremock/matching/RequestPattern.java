@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -150,6 +151,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         new RequestMatcher() {
           @Override
           public MatchResult match(Request request) {
+            // Create context for templating
+            TemplateEngine templateEngine = TemplateEngine.defaultTemplateEngine();
+            Map<String, Object> model = templateEngine.buildModelForRequest(request);
+            MatcherContext matcherContext = new MatcherContext(templateEngine, model);
+
             final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
             requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
@@ -170,7 +176,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
             requestPartMatchResults.add(weight(allPathParamsMatch(request)));
             requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
-            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
+            requestPartMatchResults.add(weight(allQueryParamsMatch(request, matcherContext)));
+            //            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
             requestPartMatchResults.add(weight(allFormParamsMatch(request)));
             requestPartMatchResults.add(weight(allCookiesMatch(request)));
             requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
@@ -307,6 +314,21 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                       queryParamPattern
                           .getValue()
                           .match(request.queryParameter(queryParamPattern.getKey())))
+              .collect(toList()));
+    }
+
+    return MatchResult.exactMatch();
+  }
+
+  private MatchResult allQueryParamsMatch(final Request request, MatcherContext context) {
+    if (!queryParams.isEmpty()) {
+      return MatchResult.aggregate(
+          queryParams.entrySet().stream()
+              .map(
+                  queryParamPattern ->
+                      queryParamPattern
+                          .getValue()
+                          .match(request.queryParameter(queryParamPattern.getKey()), context))
               .collect(toList()));
     }
 

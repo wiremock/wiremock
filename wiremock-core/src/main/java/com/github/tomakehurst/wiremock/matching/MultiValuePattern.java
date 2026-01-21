@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JsonDeserialize(using = MultiValuePatternDeserializer.class)
 public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue> {
@@ -37,8 +36,14 @@ public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue>
 
   protected static MatchResult getBestMatch(
       final StringValuePattern valuePattern, List<String> values) {
+    List<MatchResult> allResults = values.stream().map(valuePattern::match).toList();
+    return min(allResults, Comparator.comparingDouble(MatchResult::getDistance));
+  }
+
+  protected static MatchResult getBestMatch(
+      final StringValuePattern valuePattern, List<String> values, MatcherContext context) {
     List<MatchResult> allResults =
-        values.stream().map(valuePattern::match).collect(Collectors.toList());
+        values.stream().map(v -> valuePattern.match(v, context)).toList();
     return min(allResults, Comparator.comparingDouble(MatchResult::getDistance));
   }
 }

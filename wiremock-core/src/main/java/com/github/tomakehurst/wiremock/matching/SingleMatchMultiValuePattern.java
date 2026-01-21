@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
   public MatchResult match(MultiValue multiValue) {
     List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
     return getBestMatch(valuePattern, values);
+  }
+
+  public MatchResult match(MultiValue multiValue, MatcherContext context) {
+    List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
+    return getBestMatch(valuePattern, values, context);
   }
 
   @JsonValue

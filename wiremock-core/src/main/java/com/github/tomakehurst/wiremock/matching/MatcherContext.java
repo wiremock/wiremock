@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-public interface ValueMatcher<T> {
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import java.util.Map;
 
-  MatchResult match(T value);
+public record MatcherContext(TemplateEngine templateEngine, Map<String, Object> model) {
 
-  default MatchResult match(T value, MatcherContext context) {
-    return match(value);
+  public String renderTemplate(String template) {
+    return templateEngine.getUncachedTemplate(template).apply(model);
   }
 }
