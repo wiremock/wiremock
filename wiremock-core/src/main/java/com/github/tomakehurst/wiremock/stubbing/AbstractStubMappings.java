@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,10 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MatcherContext;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -49,6 +51,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final Map<String, ServeEventListener> serveEventListeners;
+  protected final TemplateEngine templateEngine;
 
   public AbstractStubMappings(
       StubMappingStore store,
@@ -58,7 +61,8 @@ public abstract class AbstractStubMappings implements StubMappings {
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
-      Map<String, ServeEventListener> serveEventListeners) {
+      Map<String, ServeEventListener> serveEventListeners,
+      TemplateEngine templateEngine) {
     this.store = store;
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
@@ -67,6 +71,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
     this.serveEventListeners = serveEventListeners;
+    this.templateEngine = templateEngine;
   }
 
   @Override
@@ -74,11 +79,13 @@ public abstract class AbstractStubMappings implements StubMappings {
     initialServeEvent = initialServeEvent.withIdDecoratedRequest();
     final LoggedRequest request = initialServeEvent.getRequest();
 
+    MatcherContext matcherContext = new MatcherContext(templateEngine, request);
+
     final List<SubEvent> subEvents = new LinkedList<>();
 
     StubMapping matchingStub =
         store
-            .findAllMatchingRequest(request, customMatchers, subEvents::add)
+            .findAllMatchingRequest(request, customMatchers, matcherContext, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()

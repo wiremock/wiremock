@@ -15,12 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Map;
 
-public record MatcherContext(TemplateEngine templateEngine, Map<String, Object> model) {
+public class MatcherContext {
+
+  private final TemplateEngine templateEngine;
+  private final Lazy<Map<String, Object>> model;
+
+  public MatcherContext(TemplateEngine templateEngine, Request request) {
+    this.templateEngine = templateEngine;
+    this.model = Lazy.lazy(() -> templateEngine.buildModelForRequest(request));
+  }
 
   public String renderTemplate(String template) {
-    return templateEngine.getUncachedTemplate(template).apply(model);
+    return templateEngine.getUncachedTemplate(template).apply(model.get());
   }
 }

@@ -63,19 +63,7 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
 
   @Override
   public MatchResult match(final String value) {
-    return new MatchResult() {
-      @Override
-      public boolean isExactMatch() {
-        return shouldMatchCaseInsensitive()
-            ? value != null && value.equalsIgnoreCase(expectedValue)
-            : Objects.equals(expectedValue, value);
-      }
-
-      @Override
-      public double getDistance() {
-        return normalisedLevenshteinDistance(expectedValue, value);
-      }
-    };
+    return match(value, null);
   }
 
   @Override

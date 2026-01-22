@@ -215,6 +215,10 @@ public class WireMock {
     return new EqualToPattern(value, true);
   }
 
+  public static StringValuePattern equalToTemplated(String value) {
+    return new EqualToPattern(value, null, true);
+  }
+
   public static StringValuePattern equalToJson(String value) {
     return new EqualToJsonPattern(value, null, null);
   }

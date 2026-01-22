@@ -36,7 +36,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -149,15 +148,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     this.matcher =
         new RequestMatcher() {
+
           @Override
           public MatchResult match(Request request) {
+            return match(request, null);
+          }
 
-            MatcherContext matcherContext = null;
-            if (anyMatcherNeedsTemplating()) {
-              TemplateEngine templateEngine = TemplateEngine.defaultTemplateEngine();
-              Map<String, Object> model = templateEngine.buildModelForRequest(request);
-              matcherContext = new MatcherContext(templateEngine, model);
-            }
+          @Override
+          public MatchResult match(Request request, MatcherContext matcherContext) {
 
             final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
@@ -202,14 +200,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         };
   }
 
-  private boolean anyMatcherNeedsTemplating() {
-    // For now, only check query params - expand later
-    return queryParams.values().stream()
-        .filter(mvp -> mvp instanceof SingleMatchMultiValuePattern)
-        .map(mvp -> ((SingleMatchMultiValuePattern) mvp).getValuePattern())
-        .anyMatch(p -> p instanceof TemplateAware ta && ta.isTemplated());
-  }
-
   public static final RequestPattern ANYTHING =
       newRequestPattern(RequestMethod.ANY, anyUrl()).build();
 
@@ -229,8 +219,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
+    return match(request, customMatchers, null);
+  }
+
+  public MatchResult match(
+      Request request,
+      Map<String, RequestMatcherExtension> customMatchers,
+      MatcherContext context) {
     request = RequestPathParamsDecorator.decorate(request, this);
-    final MatchResult standardMatchResult = matcher.match(request);
+    final MatchResult standardMatchResult = matcher.match(request, context);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
           getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
