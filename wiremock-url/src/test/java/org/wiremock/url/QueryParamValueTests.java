@@ -389,4 +389,12 @@ class QueryParamValueTests {
       assertThat(value.isEmpty()).isFalse();
     }
   }
+
+  @Nested
+  class Initialisation extends AbstractEncodableInitialisationTests {
+    Initialisation() {
+      super(
+          "org.wiremock.url.QueryParamValue", EMPTY, "org.wiremock.url.QueryParamValueParser", "");
+    }
+  }
 }

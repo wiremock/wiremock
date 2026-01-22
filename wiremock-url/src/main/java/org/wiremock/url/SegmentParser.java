@@ -21,6 +21,7 @@ import static org.wiremock.url.Constants.include;
 import static org.wiremock.url.Constants.subDelimCharSet;
 import static org.wiremock.url.Constants.unreservedCharSet;
 
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public final class SegmentParser implements PercentEncodedStringParser<Segment> {
@@ -37,6 +38,10 @@ public final class SegmentParser implements PercentEncodedStringParser<Segment> 
 
   @Override
   public Segment parse(String stringForm) {
+    return build(stringForm, () -> buildSafely(stringForm));
+  }
+
+  private Segment buildSafely(String stringForm) {
     if (segmentPattern.matcher(stringForm).matches()) {
       return new SegmentValue(stringForm);
     } else {
@@ -49,6 +54,16 @@ public final class SegmentParser implements PercentEncodedStringParser<Segment> 
 
   @Override
   public Segment encode(String unencoded) {
-    return new SegmentValue(Constants.encode(unencoded, segmentCharSet), true);
+    return build(
+        unencoded, () -> new SegmentValue(Constants.encode(unencoded, segmentCharSet), true));
+  }
+
+  Segment build(String stringForm, Supplier<Segment> builder) {
+    return switch (stringForm) {
+      case "" -> Segment.EMPTY;
+      case "." -> Segment.DOT;
+      case ".." -> Segment.DOT_DOT;
+      default -> builder.get();
+    };
   }
 }

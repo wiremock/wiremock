@@ -207,4 +207,55 @@ class HostAndPortTests {
           alreadyNormalisedAuthorities);
     }
   }
+
+  @Nested
+  class Initialisation extends AbstractInitialisationTests {
+    Initialisation() {
+      super("org.wiremock.url.HostAndPort", EMPTY, "org.wiremock.url.HostAndPortParser", "");
+    }
+
+    @Test
+    void of_initialises_as_expected() throws Exception {
+      try (IsolatedClassLoader classLoader = new IsolatedClassLoader()) {
+
+        var emptyHost = classLoader.load("org.wiremock.url.Host").field(EMPTY);
+        var empty =
+            classLoader
+                .load("org.wiremock.url.HostAndPort")
+                .invoke(
+                    "of",
+                    Pair.of("org.wiremock.url.Host", emptyHost),
+                    Pair.of("org.wiremock.url.Port", null));
+        assertThat(empty).hasToString("");
+
+        assertStaticFieldInitialised(classLoader);
+      }
+    }
+  }
+
+  @Nested
+  class AuthorityInitialisation extends AbstractInitialisationTests {
+    AuthorityInitialisation() {
+      super("org.wiremock.url.HostAndPort", EMPTY, "org.wiremock.url.AuthorityParser", "");
+    }
+
+    @Test
+    void of_initialises_as_expected() throws Exception {
+      try (IsolatedClassLoader classLoader = new IsolatedClassLoader()) {
+
+        var emptyHost = classLoader.load("org.wiremock.url.Host").field(EMPTY);
+        var empty =
+            classLoader
+                .load("org.wiremock.url.Authority")
+                .invoke(
+                    "of",
+                    Pair.of("org.wiremock.url.UserInfo", null),
+                    Pair.of("org.wiremock.url.Host", emptyHost),
+                    Pair.of("org.wiremock.url.Port", null));
+        assertThat(empty).hasToString("");
+
+        assertStaticFieldInitialised(classLoader);
+      }
+    }
+  }
 }

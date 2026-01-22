@@ -36,7 +36,11 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
 
   @Override
   public Path parse(String stringForm) {
-    if (pathPattern.matcher(stringForm).matches()) {
+    if (stringForm.isEmpty()) {
+      return Path.EMPTY;
+    } else if (stringForm.equals("/")) {
+      return Path.ROOT;
+    } else if (pathPattern.matcher(stringForm).matches()) {
       return new PathValue(stringForm);
     } else {
       throw new IllegalPath(stringForm);
@@ -49,7 +53,13 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
 
   @Override
   public Path encode(String unencoded) {
-    return new PathValue(Constants.encode(unencoded, pathCharSet), true);
+    if (unencoded.isEmpty()) {
+      return Path.EMPTY;
+    } else if (unencoded.equals("/")) {
+      return Path.ROOT;
+    } else {
+      return new PathValue(Constants.encode(unencoded, pathCharSet), true);
+    }
   }
 
   String normalisePercentEncoded(String unencoded) {

@@ -20,19 +20,22 @@ import static org.wiremock.url.Constants.pctEncodedPattern;
 import static org.wiremock.url.Strings.transform;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 final class HostValue implements Host {
 
   private final String host;
-  private final boolean isNormalForm;
+  private final MemoisedNormalisable<Host> normalisable;
 
   HostValue(String host) {
-    this(host, false);
+    this(host, null);
   }
 
-  HostValue(String host, boolean isNormalForm) {
+  @SuppressWarnings("DataFlowIssue")
+  HostValue(String host, @Nullable Boolean isNormalForm) {
     this.host = host;
-    this.isNormalForm = isNormalForm;
+    this.normalisable =
+        new MemoisedNormalisable<>(this, isNormalForm, this::doIsNormalForm, this::doNormalise);
   }
 
   @Override
@@ -42,29 +45,26 @@ final class HostValue implements Host {
 
   @Override
   public Host normalise() {
+    return normalisable.normalise();
+  }
 
-    if (isNormalForm) {
-      return this;
-    }
-
+  private @Nullable Host doNormalise() {
     String normalised =
         transform(
             host,
             pctEncodedPattern,
             matched -> matched.toUpperCase(ROOT),
             unmatched -> unmatched.toLowerCase(ROOT));
-    if (normalised.equals(host)) {
-      return this;
-    } else if (normalised.isEmpty()) {
-      return Host.EMPTY;
-    } else {
-      return new HostValue(normalised, true);
-    }
+    return normalised.equals(host) ? null : new HostValue(normalised, true);
   }
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || normalise().equals(this);
+    return normalisable.isNormalForm();
+  }
+
+  private boolean doIsNormalForm() {
+    return normalise().equals(this);
   }
 
   @Override

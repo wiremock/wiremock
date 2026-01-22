@@ -398,4 +398,11 @@ class QueryParamKeyTests {
       assertThat(key.isEmpty()).isFalse();
     }
   }
+
+  @Nested
+  class Initialisation extends AbstractEncodableInitialisationTests {
+    Initialisation() {
+      super("org.wiremock.url.QueryParamKey", EMPTY, "org.wiremock.url.QueryParamKeyParser", "");
+    }
+  }
 }

@@ -46,7 +46,11 @@ public final class QueryParser implements PercentEncodedStringParser<Query> {
 
   @Override
   public Query encode(String unencoded) {
-    var result = Constants.encode(unencoded, queryCharSet);
-    return new QueryValue(result, true);
+    if (unencoded.isEmpty()) {
+      return Query.EMPTY;
+    } else {
+      var result = Constants.encode(unencoded, queryCharSet);
+      return new QueryValue(result);
+    }
   }
 }

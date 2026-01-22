@@ -538,4 +538,12 @@ class HostTests {
       assertThat(host.toString()).isEqualTo("255.255.255.255");
     }
   }
+
+  @Nested
+  class Initialisation extends AbstractEncodableInitialisationTests {
+
+    Initialisation() {
+      super("org.wiremock.url.Host", EMPTY, "org.wiremock.url.HostParser", "");
+    }
+  }
 }

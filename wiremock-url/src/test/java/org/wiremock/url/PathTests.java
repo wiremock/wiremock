@@ -367,4 +367,20 @@ public class PathTests {
   static Entry<Path, Path> entry(String nonNormalised, String normalised) {
     return Map.entry(Path.parse(nonNormalised), Path.parse(normalised));
   }
+
+  @Nested
+  class EmptyInitialisation extends AbstractEncodableInitialisationTests {
+
+    EmptyInitialisation() {
+      super("org.wiremock.url.Path", EMPTY, "org.wiremock.url.PathParser", "");
+    }
+  }
+
+  @Nested
+  class RootInitialisation extends AbstractEncodableInitialisationTests {
+
+    RootInitialisation() {
+      super("org.wiremock.url.Path", "ROOT", "org.wiremock.url.PathParser", "/");
+    }
+  }
 }

@@ -371,4 +371,12 @@ class FragmentTests {
       assertThat(parsed.toString()).isEqualTo(stringForm);
     }
   }
+
+  @Nested
+  class Initialisation extends AbstractEncodableInitialisationTests {
+
+    Initialisation() {
+      super("org.wiremock.url.Fragment", EMPTY, "org.wiremock.url.FragmentParser", "");
+    }
+  }
 }

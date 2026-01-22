@@ -194,4 +194,25 @@ class SegmentTests {
       return NormalisableInvariantTests.generateNormalisedInvariantTests(alreadyNormalised);
     }
   }
+
+  @Nested
+  class EmptyInitialisation extends AbstractEncodableInitialisationTests {
+    EmptyInitialisation() {
+      super("org.wiremock.url.Segment", EMPTY, "org.wiremock.url.SegmentParser", "");
+    }
+  }
+
+  @Nested
+  class DotInitialisation extends AbstractEncodableInitialisationTests {
+    DotInitialisation() {
+      super("org.wiremock.url.Segment", "DOT", "org.wiremock.url.SegmentParser", ".");
+    }
+  }
+
+  @Nested
+  class DotDotInitialisation extends AbstractEncodableInitialisationTests {
+    DotDotInitialisation() {
+      super("org.wiremock.url.Segment", "DOT_DOT", "org.wiremock.url.SegmentParser", "..");
+    }
+  }
 }

@@ -27,6 +27,7 @@ final class SegmentValue implements Segment {
     this(stringForm, null);
   }
 
+  @SuppressWarnings("DataFlowIssue")
   SegmentValue(String stringForm, @Nullable Boolean isNormalForm) {
     this.stringForm = stringForm;
     this.memoisedNormalisable =
@@ -61,7 +62,9 @@ final class SegmentValue implements Segment {
 
   private @Nullable Segment normaliseWork() {
     String result = Constants.normalise(stringForm, SegmentParser.segmentCharSet);
-    return result != null ? new SegmentValue(result, true) : null;
+    return result != null
+        ? SegmentParser.INSTANCE.build(result, () -> new SegmentValue(result, true))
+        : null;
   }
 
   @Override

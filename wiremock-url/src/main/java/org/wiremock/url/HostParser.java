@@ -67,10 +67,10 @@ public final class HostParser implements PercentEncodedStringParser<Host> {
 
   @Override
   public Host encode(String unencoded) {
-    var result = Constants.encode(unencoded, hostCharSet);
     if (unencoded.isEmpty()) {
       return Host.EMPTY;
     } else {
+      var result = Constants.encode(unencoded, hostCharSet);
       return new HostValue(result, true);
     }
   }

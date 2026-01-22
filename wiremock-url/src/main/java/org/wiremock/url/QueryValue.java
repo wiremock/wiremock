@@ -29,8 +29,6 @@ import org.jspecify.annotations.Nullable;
 
 final class QueryValue implements Query {
 
-  static final Query EMPTY = new QueryValue("", List.of(), true);
-
   private final String query;
   private final Lazy<List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>>> paramEntries;
   private final MemoisedNormalisable<Query> memoisedNormalisable;
@@ -63,7 +61,7 @@ final class QueryValue implements Query {
         .collect(Collectors.joining("&"));
   }
 
-  private QueryValue(
+  QueryValue(
       String query,
       @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries,
       @Nullable Boolean isNormalForm) {
@@ -85,7 +83,7 @@ final class QueryValue implements Query {
 
   private @Nullable Query normaliseWork() {
     String result = Constants.simpleNormalise(query, QueryParser.queryCharSet);
-    return result != null ? (result.equals(query) ? this : new QueryValue(result, true)) : null;
+    return result != null ? new QueryValue(result, true) : null;
   }
 
   @Override

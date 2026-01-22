@@ -28,14 +28,22 @@ public final class FragmentParser implements PercentEncodedStringParser<Fragment
 
   @Override
   public Fragment parse(String stringForm) {
-    return new FragmentValue(stringForm);
+    if (stringForm.isEmpty()) {
+      return Fragment.EMPTY;
+    } else {
+      return new FragmentValue(stringForm);
+    }
   }
 
   static final boolean[] fragmentCharSet = combine(pcharCharSet, include('/', '?'));
 
   @Override
   public Fragment encode(String unencoded) {
-    var result = Constants.encode(unencoded, fragmentCharSet);
-    return new FragmentValue(result, true);
+    if (unencoded.isEmpty()) {
+      return Fragment.EMPTY;
+    } else {
+      var result = Constants.encode(unencoded, fragmentCharSet);
+      return new FragmentValue(result, true);
+    }
   }
 }

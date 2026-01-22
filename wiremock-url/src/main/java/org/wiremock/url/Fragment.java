@@ -31,6 +31,8 @@ import org.wiremock.stringparser.ParsedString;
  */
 public interface Fragment extends PercentEncoded<Fragment>, ParsedString {
 
+  Fragment EMPTY = new FragmentValue("", true);
+
   /**
    * Returns a normalised form of this fragment.
    *

@@ -21,6 +21,7 @@ import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generate
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -926,7 +927,7 @@ class QueryTests {
     @Test
     void with_adds_null_value() {
       Query original = Query.parse("a=1");
-      List<@Nullable QueryParamValue> nullValue = Arrays.asList((QueryParamValue) null);
+      List<@Nullable QueryParamValue> nullValue = Collections.singletonList(null);
       Query updated = original.with(QueryParamKey.encode("b"), nullValue);
       assertThat(updated.toString()).isEqualTo("a=1&b");
     }
@@ -1242,6 +1243,25 @@ class QueryTests {
               .transform(b -> b.append("c", "3"))
               .transform(b -> b.remove("a"));
       assertThat(updated.toString()).isEqualTo("b=2&c=3");
+    }
+  }
+
+  @Nested
+  class Initialisation extends AbstractEncodableInitialisationTests {
+    Initialisation() {
+      super("org.wiremock.url.Query", EMPTY, "org.wiremock.url.QueryParser", "");
+    }
+
+    @Test
+    @SuppressWarnings("DataFlowIssue")
+    void buildEmptyWorks() throws Throwable {
+      try (IsolatedClassLoader classLoader = new IsolatedClassLoader()) {
+        var emptyQuery =
+            classLoader.load("org.wiremock.url.Query").invoke("builder").invoke("build");
+        assertThat(emptyQuery).hasToString("");
+
+        assertStaticFieldInitialised(classLoader);
+      }
     }
   }
 }

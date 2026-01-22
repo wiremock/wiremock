@@ -36,7 +36,9 @@ public final class QueryParamKeyParser implements PercentEncodedStringParser<Que
 
   @Override
   public QueryParamKey parse(String stringForm) {
-    if (queryParamKeyPattern.matcher(stringForm).matches()) {
+    if (stringForm.isEmpty()) {
+      return QueryParamKey.EMPTY;
+    } else if (queryParamKeyPattern.matcher(stringForm).matches()) {
       return new QueryParamKeyValue(stringForm);
     } else {
       throw new IllegalSegment(stringForm);
@@ -47,6 +49,8 @@ public final class QueryParamKeyParser implements PercentEncodedStringParser<Que
 
   @Override
   public QueryParamKey encode(String unencoded) {
-    return new QueryParamKeyValue(Constants.encode(unencoded, queryParamKeyCharSet), true);
+    return unencoded.isEmpty()
+        ? QueryParamKey.EMPTY
+        : new QueryParamKeyValue(Constants.encode(unencoded, queryParamKeyCharSet), true);
   }
 }

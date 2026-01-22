@@ -35,7 +35,7 @@ import org.wiremock.stringparser.ParsedString;
  */
 public interface Query extends PercentEncoded<Query>, QueryParamReader, ParsedString {
 
-  Query EMPTY = QueryValue.EMPTY;
+  Query EMPTY = new QueryValue("", List.of(), true);
 
   /**
    * Parses a string into a query.
