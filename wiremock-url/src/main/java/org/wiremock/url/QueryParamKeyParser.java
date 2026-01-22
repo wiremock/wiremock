@@ -43,7 +43,7 @@ public final class QueryParamKeyParser implements PercentEncodedStringParser<Que
     }
   }
 
-  static final boolean[] queryParamKeyCharSet = remove(queryCharSet, '&', '=');
+  static final boolean[] queryParamKeyCharSet = remove(queryCharSet, '&', '=', '+');
 
   @Override
   public QueryParamKey encode(String unencoded) {

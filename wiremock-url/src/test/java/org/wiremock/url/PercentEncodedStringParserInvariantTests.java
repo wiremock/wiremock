@@ -46,22 +46,4 @@ public class PercentEncodedStringParserInvariantTests {
                       assertThat(decoded).isEqualTo(original);
                     })));
   }
-
-  static <T extends PercentEncoded<T>>
-      Stream<DynamicTest> generateNormaliseDecodeEncodeInvariantTests(
-          PercentEncodedStringParser<T> parser, Stream<String> encodedForms) {
-    return encodedForms.map(
-        original ->
-            dynamicTest(
-                "Original (encoded) -> Normalise -> Decode -> Encode `"
-                    + original
-                    + "` produces the normalised value",
-                () -> {
-                  T encoded = parser.parse(original);
-                  T normalisedEncoded = encoded.normalise();
-                  String decoded = normalisedEncoded.decode();
-                  T reEncoded = parser.encode(decoded);
-                  assertThat(reEncoded).isEqualTo(normalisedEncoded);
-                }));
-  }
 }

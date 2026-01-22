@@ -15,8 +15,8 @@
  */
 package org.wiremock.url;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
-import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateNormaliseDecodeEncodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
 
@@ -109,27 +110,36 @@ class SegmentTests {
       return generateEncodeDecodeInvariantTests(SegmentParser.INSTANCE, decoded);
     }
 
-    @TestFactory
-    Stream<DynamicTest> normalise_decode_encode_invariants() {
+    static final List<CodecCase> codedCases =
+        List.of(
+            new CodecCase("", ""),
+            new CodecCase("segment", "segment"),
+            new CodecCase("%3F", "?"),
+            new CodecCase("seg%3Fment", "seg?ment"),
+            new CodecCase("%3Fsegment", "?segment"),
+            new CodecCase("segment%3F", "segment?"),
+            new CodecCase("%23", "#"),
+            new CodecCase("seg%23ment", "seg#ment"),
+            new CodecCase("%23segment", "#segment"),
+            new CodecCase("segment%23", "segment#"),
+            new CodecCase("%2F", "/"),
+            new CodecCase("seg%2Fment", "seg/ment"),
+            new CodecCase("%2Fsegment", "/segment"),
+            new CodecCase("segment%2F", "segment/"));
 
-      var encoded =
-          Stream.of(
-              "",
-              "segment",
-              "%3F",
-              "seg%3Fment",
-              "%3Fsegment",
-              "segment%3F",
-              "%23",
-              "seg%23ment",
-              "%23segment",
-              "segment%23",
-              "%2F",
-              "seg%2Fment",
-              "%2Fsegment",
-              "segment%2F");
+    @ParameterizedTest
+    @FieldSource("codedCases")
+    void encodes_percent_encoded_correctly(CodecCase testCase) {
+      var encoded = Segment.encode(testCase.decoded());
+      assertThat(encoded.toString()).isEqualTo(testCase.encoded());
+      assertThat(encoded.decode()).isEqualTo(testCase.decoded());
+    }
 
-      return generateNormaliseDecodeEncodeInvariantTests(SegmentParser.INSTANCE, encoded);
+    @ParameterizedTest
+    @FieldSource("codedCases")
+    void decodes_percent_encoded_correctly(CodecCase testCase) {
+      var encoded = Segment.parse(testCase.encoded());
+      assertThat(encoded.decode()).isEqualTo(testCase.decoded());
     }
   }
 

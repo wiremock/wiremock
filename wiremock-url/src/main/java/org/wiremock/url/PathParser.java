@@ -45,14 +45,14 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
 
   private static final boolean[] charactersToLeaveAsIs = include('/');
 
-  private static final boolean[] pathCharSet = combine(pcharCharSet, charactersToLeaveAsIs);
+  static final boolean[] pathCharSet = combine(pcharCharSet, charactersToLeaveAsIs);
 
   @Override
   public Path encode(String unencoded) {
     return new PathValue(Constants.encode(unencoded, pathCharSet), true);
   }
 
-  String encode2(String unencoded) {
+  String normalisePercentEncoded(String unencoded) {
     String result = Constants.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
     return result != null ? result : unencoded;
   }

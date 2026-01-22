@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.Constants.multiplePctEncodedPattern;
+
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
@@ -39,6 +41,12 @@ final class QueryParamKeyValue implements QueryParamKey {
   }
 
   @Override
+  public String decode() {
+    return Strings.transform(
+        stringForm.replace('+', ' '), multiplePctEncodedPattern, PercentEncoded::decodeCharacters);
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -60,7 +68,8 @@ final class QueryParamKeyValue implements QueryParamKey {
   }
 
   private @Nullable QueryParamKey normaliseWork() {
-    String result = Constants.normalise(stringForm, QueryParamKeyParser.queryParamKeyCharSet);
+    String result =
+        Constants.normalise(stringForm.replace('+', ' '), QueryParamKeyParser.queryParamKeyCharSet);
     return result != null ? new QueryParamKeyValue(result, true) : null;
   }
 

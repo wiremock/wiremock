@@ -70,7 +70,7 @@ public interface PercentEncoded<SELF extends PercentEncoded<SELF>>
     return toString().isEmpty();
   }
 
-  private static String decodeCharacters(String percentEncodings) {
+  static String decodeCharacters(String percentEncodings) {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
     for (int i = 0; i < percentEncodings.length(); ) {

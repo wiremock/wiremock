@@ -295,19 +295,9 @@ class AbsoluteUrlTests {
                 Pair.of("http://example.com?a=%1f&b=%1a", "http://example.com/?a=%1F&b=%1A"),
                 Pair.of("http://example.com?key=%ab", "http://example.com/?key=%AB"),
 
-                // Percent encoding - decode unreserved in query
-                Pair.of("http://example.com?key=%41", "http://example.com/?key=A"),
-                Pair.of("http://example.com?%61=%62", "http://example.com/?a=b"),
-                Pair.of("http://example.com?key=%7E", "http://example.com/?key=~"),
-
                 // Percent encoding - uppercase hex in fragment
                 Pair.of("http://example.com#%1f", "http://example.com/#%1F"),
                 Pair.of("http://example.com#%ab", "http://example.com/#%AB"),
-
-                // Percent encoding - decode unreserved in fragment
-                Pair.of("http://example.com#%41", "http://example.com/#A"),
-                Pair.of("http://example.com#%7E", "http://example.com/#~"),
-                Pair.of("http://example.com#%61%62%63", "http://example.com/#abc"),
 
                 // Combined normalizations - scheme + host + port
                 Pair.of("HTTP://EXAMPLE.COM:80", "http://example.com/"),
@@ -319,9 +309,9 @@ class AbsoluteUrlTests {
                 Pair.of("HTTP://EXAMPLE.COM:80/%1f", "http://example.com/%1F"),
                 Pair.of("HTTPS://EXAMPLE.COM:443/PATH", "https://example.com/PATH"),
                 Pair.of("HTTP://EXAMPLE.COM/%41%42", "http://example.com/AB"),
-                Pair.of("HTTPS://EXAMPLE.COM:0443/path?key=%41", "https://example.com/path?key=A"),
                 Pair.of("HTTP://EXAMPLE.COM:080/%1f?a=%1f#%1f", "http://example.com/%1F?a=%1F#%1F"),
-                Pair.of("HTTPS://EXAMPLE.COM:443/%61?%62=%63#%64", "https://example.com/a?b=c#d"),
+                Pair.of(
+                    "HTTPS://EXAMPLE.COM:443/%61?%62=%63#%64", "https://example.com/a?%62=%63#%64"),
 
                 // Path with percent encoding variations
                 Pair.of("http://example.com/%41/%42/%43", "http://example.com/A/B/C"),
@@ -330,7 +320,7 @@ class AbsoluteUrlTests {
                 Pair.of("http://example.com/%7Euser/docs", "http://example.com/~user/docs"),
 
                 // Query and fragment combinations
-                Pair.of("http://example.com?%41=%42#%43", "http://example.com/?A=B#C"),
+                Pair.of("http://example.com?%41=%42#%43", "http://example.com/?%41=%42#%43"),
                 Pair.of("http://example.com?key=%1f#%1f", "http://example.com/?key=%1F#%1F"),
 
                 // Multiple ports in different contexts
@@ -354,8 +344,13 @@ class AbsoluteUrlTests {
           normalisationCases.stream().filter(t -> !t.normalForm().equals(t.notNormal())).toList());
     }
 
-    static final List<AbsoluteUri> alreadyNormalisedUrlReferences =
-        normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList();
+    static final List<String> alreadyNormalised =
+        List.of("http://example.com/?%41=%42#%43", "http://example.com/?%61=%62");
+
+    static final List<? extends AbsoluteUri> alreadyNormalisedUrlReferences =
+        Lists.concat(
+            normalisationCases.stream().map(NormalisationCase::normalForm).distinct().toList(),
+            alreadyNormalised.stream().map(AbsoluteUri::parse).toList());
 
     @TestFactory
     Stream<DynamicTest> already_normalised_invariants() {

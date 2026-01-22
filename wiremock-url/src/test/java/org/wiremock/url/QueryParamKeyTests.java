@@ -18,7 +18,6 @@ package org.wiremock.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
-import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateNormaliseDecodeEncodeInvariantTests;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -272,18 +271,6 @@ class QueryParamKeyTests {
               .sorted();
 
       return generateEncodeDecodeInvariantTests(QueryParamKeyParser.INSTANCE, decoded);
-    }
-
-    @TestFactory
-    Stream<DynamicTest> normalise_decode_encode_invariants() {
-      var encoded =
-          Stream.concat(decodeCases.stream(), encodeCases.stream())
-              .map(CodecCase::encoded)
-              .collect(Collectors.toSet())
-              .stream()
-              .sorted();
-
-      return generateNormaliseDecodeEncodeInvariantTests(QueryParamKeyParser.INSTANCE, encoded);
     }
   }
 

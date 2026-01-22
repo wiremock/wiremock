@@ -167,9 +167,7 @@ class FragmentTests {
                 Pair.of("%ff", "%FF"),
                 Pair.of("%fF", "%FF"),
                 Pair.of("%Ff", "%FF"),
-                Pair.of("%41", "A"),
-                Pair.of("%5A", "Z"),
-                Pair.of("%5a", "Z"),
+                Pair.of("%5a", "%5A"),
                 Pair.of("\u0001control", "%01control"))
             .map(
                 testCase ->
@@ -194,7 +192,9 @@ class FragmentTests {
             "section?detail",
             "section%20name",
             "caf%C3%A9",
-            "test%22quote");
+            "test%22quote",
+            "%5A",
+            "%41");
 
     @TestFactory
     Stream<DynamicTest> already_normalised_invariants() {
@@ -272,20 +272,6 @@ class FragmentTests {
               .sorted();
 
       return generateEncodeDecodeInvariantTests(FragmentParser.INSTANCE, decoded);
-    }
-
-    @TestFactory
-    Stream<DynamicTest> normalise_decode_encode_invariants() {
-
-      var encoded =
-          Stream.concat(decodeCases.stream(), encodeCases.stream())
-              .map(CodecCase::encoded)
-              .collect(Collectors.toSet())
-              .stream()
-              .sorted();
-
-      return PercentEncodedStringParserInvariantTests.generateNormaliseDecodeEncodeInvariantTests(
-          FragmentParser.INSTANCE, encoded);
     }
   }
 

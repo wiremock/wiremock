@@ -56,26 +56,43 @@ public class NormalisableInvariantTests {
       T normalForm = testCase.normalForm;
       tests.add(
           dynamicTest(
-              "Non-normal : `"
-                  + notNormal
-                  + "` is not normal form but can be normalised to `"
-                  + normalForm
-                  + "`",
+              "non-normal : `" + notNormal + "` is not normal form",
               () -> {
                 assertThat(notNormal.isNormalForm()).describedAs(notNormal.toString()).isFalse();
+              }));
+      tests.add(
+          dynamicTest(
+              "normal : `" + normalForm + "` is in normal form",
+              () -> {
                 assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
-
+              }));
+      tests.add(
+          dynamicTest(
+              "non-normal : `" + notNormal + "` when normalised is not equal to the original",
+              () -> {
                 var normalised = notNormal.normalise();
                 assertThat(normalised).isNotEqualTo(notNormal);
+              }));
+      tests.add(
+          dynamicTest(
+              "non-normal : `" + notNormal + "` when normalised is in normal form",
+              () -> {
+                var normalised = notNormal.normalise();
                 assertThat(normalised.isNormalForm()).describedAs(normalised.toString()).isTrue();
+              }));
+      tests.add(
+          dynamicTest(
+              "Non-normal : `" + notNormal + "` normalises to `" + normalForm + "`",
+              () -> {
+                var normalised = notNormal.normalise();
                 assertThat(normalised).isEqualTo(normalForm);
-
+              }));
+      tests.add(
+          dynamicTest(
+              "Non-normal : `" + notNormal + "` normalised twice is the same as normalised once",
+              () -> {
+                var normalised = notNormal.normalise();
                 assertThat(normalised.normalise()).isEqualTo(normalised);
-
-                // check that the optimisations have not changed anything
-                assertThat(notNormal.isNormalForm()).describedAs(notNormal.toString()).isFalse();
-                assertThat(normalised.isNormalForm()).describedAs(normalised.toString()).isTrue();
-                assertThat(normalForm.isNormalForm()).describedAs(normalForm.toString()).isTrue();
               }));
     }
     return tests.stream();

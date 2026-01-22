@@ -226,6 +226,16 @@ class QueryTests {
       assertThat(parsed.contains("")).isTrue();
     }
 
+    @Test
+    void plus_in_query_decoded_in_query_param_value() {
+      var query = Query.parse("a+2=b+1");
+      assertThat(query).hasToString("a+2=b+1");
+      assertThat(query.decode()).isEqualTo("a+2=b+1");
+
+      var value = query.getFirst("a 2");
+      assertThat(value).hasToString("b+1").extracting(QueryParamValue::decode).isEqualTo("b 1");
+    }
+
     @TestFactory
     Stream<DynamicTest> invariants() {
       return StringParserInvariantTests.generateInvariantTests(
@@ -258,6 +268,26 @@ class QueryTests {
   @Nested
   class Normalise {
 
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "a b", "a+b", "a%20b",
+        })
+    void query_param_key_normalises(String input) {
+      var key = QueryParamKey.parse(input);
+      assertThat(key.normalise()).hasToString("a%20b");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "a b", "a+b", "a%20b",
+        })
+    void query_param_value_normalises(String input) {
+      var value = QueryParamValue.parse(input);
+      assertThat(value.normalise()).hasToString("a%20b");
+    }
+
     record NormalisationCase(String input, String expected) {}
 
     static final List<NormalisationCase> normalisationCases =
@@ -271,10 +301,6 @@ class QueryTests {
             new NormalisationCase("%ff", "%FF"),
             new NormalisationCase("%fF", "%FF"),
             new NormalisationCase("%Ff", "%FF"),
-            new NormalisationCase("%41", "A"),
-            new NormalisationCase("%5A", "Z"),
-            new NormalisationCase("%5a", "Z"),
-            new NormalisationCase("a&b%3D1%262=c%3D2%263=4&", "a&b%3D1%262=c=2%263=4&"),
             new NormalisationCase("key=}value{", "key=%7Dvalue%7B"));
 
     static final List<String> alreadyNormalisedQueries =
@@ -288,7 +314,9 @@ class QueryTests {
             "path=/api/v1",
             "q=search%20term",
             "name=%C3%A9ric",
-            "q=test'quote");
+            "q=test'quote",
+            "%41",
+            "a&b%3D1%262=c%3D2%263=4&");
 
     @TestFactory
     Stream<DynamicTest> normalises_query_correctly() {
@@ -345,6 +373,62 @@ class QueryTests {
     void decodes_percent_encoded_query_correctly(CodecCase testCase) {
       Query query = Query.parse(testCase.encoded());
       assertThat(query.decode()).isEqualTo(testCase.decoded());
+    }
+
+    @Test
+    void encode_does_not_encode_pluses() {
+      Query query = Query.encode("a+b");
+      assertThat(query).hasToString("a+b");
+      assertThat(query.decode()).isEqualTo("a+b");
+    }
+
+    @Test
+    void encode_encodes_spaces_as_percent20() {
+      Query query = Query.encode("a b");
+      assertThat(query).hasToString("a%20b");
+      assertThat(query.decode()).isEqualTo("a b");
+    }
+
+    @Test
+    void query_param_key_encode_encodes_pluses() {
+      var key = QueryParamKey.encode("a+b");
+      assertThat(key).hasToString("a%2Bb");
+      assertThat(key.decode()).isEqualTo("a+b");
+    }
+
+    @Test
+    void query_param_key_encode_encodes_spaces_as_percent20() {
+      var key = QueryParamKey.encode("a b");
+      assertThat(key).hasToString("a%20b");
+      assertThat(key.decode()).isEqualTo("a b");
+    }
+
+    @Test
+    void query_param_key_decode_decodes_pluses_as_spaces() {
+      var key = QueryParamKey.parse("a+b");
+      assertThat(key).hasToString("a+b");
+      assertThat(key.decode()).isEqualTo("a b");
+    }
+
+    @Test
+    void query_param_value_encode_encodes_pluses() {
+      var value = QueryParamValue.encode("a+b");
+      assertThat(value).hasToString("a%2Bb");
+      assertThat(value.decode()).isEqualTo("a+b");
+    }
+
+    @Test
+    void query_param_value_encode_encodes_spaces_as_percent20() {
+      var value = QueryParamValue.encode("a b");
+      assertThat(value).hasToString("a%20b");
+      assertThat(value.decode()).isEqualTo("a b");
+    }
+
+    @Test
+    void query_param_value_decode_decodes_pluses_as_spaces() {
+      var value = QueryParamValue.parse("a+b");
+      assertThat(value).hasToString("a+b");
+      assertThat(value.decode()).isEqualTo("a b");
     }
 
     @TestFactory

@@ -82,26 +82,17 @@ final class QueryValue implements Query {
   }
 
   private @Nullable Query normaliseWork() {
-    var currentParams = getEntries();
-    List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> normalised =
-        currentParams.stream()
-            .map(
-                entry -> {
-                  var value = entry.getValue();
-                  @SuppressWarnings("UnnecessaryLocalVariable")
-                  // it's not unnecessary, the compiler needs it
-                  Entry<QueryParamKey, @Nullable QueryParamValue> normalEntry =
-                      new SimpleEntry<>(
-                          entry.getKey().normalise(), (value != null ? value.normalise() : value));
-                  return normalEntry;
-                })
-            .toList();
+    String result = Constants.simpleNormalise(query, QueryParser.queryCharSet);
+    return result != null ? (result.equals(query) ? this : new QueryValue(result, true)) : null;
+  }
 
-    if (normalised.equals(currentParams)) {
-      return null;
-    } else {
-      return new QueryValue(normalised, true);
-    }
+  @Override
+  public boolean isNormalForm() {
+    return memoisedNormalisable.isNormalForm();
+  }
+
+  private boolean isNormalFormWork() {
+    return Constants.isSimpleNormalForm(query, QueryParser.queryCharSet);
   }
 
   private volatile @Nullable Map<QueryParamKey, List<@Nullable QueryParamValue>> asMap = null;
@@ -114,20 +105,6 @@ final class QueryValue implements Query {
       asMap = local;
     }
     return local;
-  }
-
-  @Override
-  public boolean isNormalForm() {
-    return memoisedNormalisable.isNormalForm();
-  }
-
-  private boolean isNormalFormWork() {
-    return getEntries().stream()
-        .allMatch(
-            entry -> {
-              QueryParamValue value = entry.getValue();
-              return entry.getKey().isNormalForm() && (value == null || value.isNormalForm());
-            });
   }
 
   @Override

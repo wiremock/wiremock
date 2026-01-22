@@ -104,7 +104,7 @@ final class PathValue implements Path {
       outputBuffer.append(inputBuffer, 0, endOfFirstSegment);
       inputBuffer.replace(0, endOfFirstSegment, "");
     }
-    var outStr = PathParser.INSTANCE.encode2(outputBuffer.toString());
+    var outStr = PathParser.INSTANCE.normalisePercentEncoded(outputBuffer.toString());
     if (outStr.equals(path)) {
       return null;
     } else if (outStr.equals(ROOT.toString())) {

@@ -156,8 +156,84 @@ final class Constants {
     }
   }
 
-  static boolean isNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
+  @Nullable
+  static String simpleNormalise(String original, boolean[] charactersThatDoNotNeedEncoding) {
+    StringBuilder result = new StringBuilder();
+    boolean changed = false;
 
+    for (int i = 0; i < original.length(); i++) {
+      char c = original.charAt(i);
+
+      // Handle percent-encoded sequences
+      if (c == '%' && i + 2 < original.length()) {
+        char maybeFirstHexDigit = original.charAt(i + 1);
+        char maybeSecondHexDigit = original.charAt(i + 2);
+        if (isHexDigit(maybeFirstHexDigit) && isHexDigit(maybeSecondHexDigit)) {
+          // Decode the percent-encoded character
+          int decodedValue =
+              (hexDigitToInt(maybeFirstHexDigit) << 4) | hexDigitToInt(maybeSecondHexDigit);
+          char decodedChar = (char) decodedValue;
+
+          // Keep it encoded but uppercase the hex digits
+          char firstHexDigitUpper = toUpperCase(maybeFirstHexDigit);
+          char secondHexDigitUpper = toUpperCase(maybeSecondHexDigit);
+          result.append(c).append(firstHexDigitUpper).append(secondHexDigitUpper);
+          if (maybeFirstHexDigit != firstHexDigitUpper
+              || maybeSecondHexDigit != secondHexDigitUpper) {
+            changed = true;
+          }
+          i += 2;
+          continue;
+        }
+      }
+
+      // Check if character needs encoding
+      if (isIn(charactersThatDoNotNeedEncoding, c)) {
+        result.append(c);
+      } else {
+        // Encode as UTF-8 bytes
+        appendPercentEncoded(c, result);
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      return null;
+    } else {
+      return result.toString();
+    }
+  }
+
+  static boolean isSimpleNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
+    for (int i = 0; i < original.length(); i++) {
+      char c = original.charAt(i);
+
+      // Check percent-encoded sequences
+      if (c == '%' && i + 2 < original.length()) {
+        char firstHexDigit = original.charAt(i + 1);
+        char secondHexDigit = original.charAt(i + 2);
+
+        if (isHexDigit(firstHexDigit) && isHexDigit(secondHexDigit)) {
+          // Must be uppercase hex digits
+          if (!isUpperCaseHexDigit(firstHexDigit) || !isUpperCaseHexDigit(secondHexDigit)) {
+            return false;
+          }
+
+          i += 2;
+          continue;
+        }
+      }
+
+      if (!isIn(charactersThatDoNotNeedEncoding, c)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static boolean isNormalForm(
+      String original, boolean[] charactersThatDoNotNeedEncoding, boolean[] charactersToLeaveAsIs) {
     for (int i = 0; i < original.length(); i++) {
       char c = original.charAt(i);
 
@@ -177,7 +253,8 @@ final class Constants {
           char decodedChar = (char) decodedValue;
 
           // If the decoded character is unreserved, it should not be percent-encoded
-          if (isIn(charactersThatDoNotNeedEncoding, decodedChar)) {
+          if (isIn(charactersThatDoNotNeedEncoding, decodedChar)
+              && !isIn(charactersToLeaveAsIs, decodedChar)) {
             return false;
           }
 
@@ -186,13 +263,16 @@ final class Constants {
         }
       }
 
-      // Check if character needs encoding per WhatWG fragment percent-encode set
-      if (c >= charactersThatDoNotNeedEncoding.length || !charactersThatDoNotNeedEncoding[c]) {
+      if (!isIn(charactersThatDoNotNeedEncoding, c) && !isIn(charactersToLeaveAsIs, c)) {
         return false;
       }
     }
 
     return true;
+  }
+
+  static boolean isNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
+    return isNormalForm(original, charactersThatDoNotNeedEncoding, empty);
   }
 
   private static boolean isHexDigit(char c) {
