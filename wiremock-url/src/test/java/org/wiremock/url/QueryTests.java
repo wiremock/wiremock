@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -182,6 +184,39 @@ class QueryTests {
       assertThat(parsed.getFirst(QueryParamKey.parse("not_present"))).isNull();
     }
 
+    private static final List<Pair<Query, QueryParamKey>> normalisedKeyTestCases =
+        Stream.of(
+                Pair.of("a b=c", "a b"),
+                Pair.of("a b=c", "a%20b"),
+                Pair.of("a b=c", "a+b"),
+                Pair.of("a%20b=c", "a b"),
+                Pair.of("a%20b=c", "a%20b"),
+                Pair.of("a%20b=c", "a+b"),
+                Pair.of("a+b=c", "a b"),
+                Pair.of("a+b=c", "a%20b"),
+                Pair.of("a+b=c", "a+b"))
+            .map(
+                testCase ->
+                    Pair.of(
+                        Query.parse(testCase.getLeft()), QueryParamKey.parse(testCase.getRight())))
+            .toList();
+
+    @ParameterizedTest
+    @FieldSource("normalisedKeyTestCases")
+    void can_get_with_normalised_key(Pair<Query, QueryParamKey> testCase) {
+      var query = testCase.getLeft();
+      var key = testCase.getRight();
+      assertThat(query.get(key)).isEqualTo(List.of(QueryParamValue.parse("c")));
+    }
+
+    @ParameterizedTest
+    @FieldSource("normalisedKeyTestCases")
+    void can_get_first_with_normalised_key(Pair<Query, QueryParamKey> testCase) {
+      var query = testCase.getLeft();
+      var key = testCase.getRight();
+      assertThat(query.getFirst(key)).isEqualTo(QueryParamValue.parse("c"));
+    }
+
     @Test
     void get_keys_returns_all_keys() {
       Query parsed = Query.parse("x=1&y&x&y=2&z");
@@ -234,6 +269,56 @@ class QueryTests {
 
       var value = query.getFirst("a 2");
       assertThat(value).hasToString("b+1").extracting(QueryParamValue::decode).isEqualTo("b 1");
+    }
+
+    @Test
+    void as_decoded_map_returns_decoded_keys_and_values() {
+      var query = Query.parse("a%20b=c%20d&e+f=g+h&plain=value");
+      var decoded = query.asDecodedMap();
+      assertThat(decoded)
+          .containsEntry("a b", List.of("c d"))
+          .containsEntry("e f", List.of("g h"))
+          .containsEntry("plain", List.of("value"));
+    }
+
+    @Test
+    void as_decoded_map_groups_multiple_values() {
+      var query = Query.parse("key=first&key=second&key=third");
+      var decoded = query.asDecodedMap();
+      assertThat(decoded).containsEntry("key", List.of("first", "second", "third"));
+    }
+
+    @Test
+    void as_decoded_map_returns_empty_string_for_null_values() {
+      var query = Query.parse("key1&key2=value&key1=second");
+      var decoded = query.asDecodedMap();
+      assertThat(decoded)
+          .containsEntry("key1", List.of("", "second"))
+          .containsEntry("key2", List.of("value"));
+    }
+
+    @Test
+    void can_get_first_decoded() {
+      var query = Query.parse("a+b=c");
+      Assertions.assertThat(query.getFirstDecoded("a b")).isEqualTo("c");
+    }
+
+    @Test
+    void get_first_decoded_returns_empty_string_for_key_without_value() {
+      var query = Query.parse("a&a=ignored");
+      Assertions.assertThat(query.getFirstDecoded("a")).isEqualTo("");
+    }
+
+    @Test
+    void get_decoded_returns_empty_strings_for_keys_without_value() {
+      var query = Query.parse("a&a=second&a=");
+      Assertions.assertThat(query.getDecoded("a")).isEqualTo(List.of("", "second", ""));
+    }
+
+    @Test
+    void get_decoded_returns_empty_list_for_missing_key() {
+      var query = Query.parse("a&a=second&a=");
+      Assertions.assertThat(query.getDecoded("b")).isEqualTo(List.of());
     }
 
     @TestFactory

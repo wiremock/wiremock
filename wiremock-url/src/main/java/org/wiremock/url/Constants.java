@@ -169,11 +169,6 @@ final class Constants {
         char maybeFirstHexDigit = original.charAt(i + 1);
         char maybeSecondHexDigit = original.charAt(i + 2);
         if (isHexDigit(maybeFirstHexDigit) && isHexDigit(maybeSecondHexDigit)) {
-          // Decode the percent-encoded character
-          int decodedValue =
-              (hexDigitToInt(maybeFirstHexDigit) << 4) | hexDigitToInt(maybeSecondHexDigit);
-          char decodedChar = (char) decodedValue;
-
           // Keep it encoded but uppercase the hex digits
           char firstHexDigitUpper = toUpperCase(maybeFirstHexDigit);
           char secondHexDigitUpper = toUpperCase(maybeSecondHexDigit);

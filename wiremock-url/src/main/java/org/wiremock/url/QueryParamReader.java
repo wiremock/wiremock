@@ -68,4 +68,55 @@ public interface QueryParamReader {
     List<@Nullable QueryParamValue> values = get(key);
     return values.isEmpty() ? null : values.get(0);
   }
+
+  /**
+   * Returns a map of all query parameters with decoded keys and values.
+   *
+   * <p>Both keys and values are percent-decoded using UTF-8 encoding. Null values (keys without
+   * values) are represented as empty strings.
+   *
+   * @return a map where keys are decoded parameter names and values are lists of decoded parameter
+   *     values
+   * @see #asMap()
+   */
+  default Map<String, List<String>> asDecodedMap() {
+    return asMap().entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                entry -> entry.getKey().decode(),
+                entry ->
+                    entry.getValue().stream()
+                        .map(value -> value != null ? value.decode() : "")
+                        .collect(Collectors.toList())));
+  }
+
+  /**
+   * Returns all decoded values for the given key.
+   *
+   * <p>The key is matched against decoded parameter names. Values are percent-decoded using UTF-8
+   * encoding. Null values (keys without values) are represented as empty strings.
+   *
+   * @param key the unencoded parameter name to look up
+   * @return a list of decoded values, or an empty list if the key is not present
+   * @see #get(String)
+   */
+  default List<String> getDecoded(String key) {
+    var result = asDecodedMap().get(key);
+    return result != null ? result : List.of();
+  }
+
+  /**
+   * Returns the first decoded value for the given key.
+   *
+   * <p>The key is matched against decoded parameter names. The value is percent-decoded using UTF-8
+   * encoding. If the key exists but has no value, an empty string is returned.
+   *
+   * @param key the unencoded parameter name to look up
+   * @return the first decoded value, or {@code null} if the key is not present
+   * @see #getFirst(String)
+   */
+  default @Nullable String getFirstDecoded(String key) {
+    List<String> result = getDecoded(key);
+    return result.isEmpty() ? null : result.get(0);
+  }
 }

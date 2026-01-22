@@ -16,43 +16,21 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Query;
-import org.wiremock.url.QueryParamValue;
 
 public class Urls {
 
   private Urls() {}
 
   public static Map<String, QueryParameter> toQueryParameterMap(Query query) {
-    if (query.isEmpty()) {
-      return Collections.emptyMap();
-    }
-
-    return query.asMap().entrySet().stream()
-        .map(
-            e -> {
-              var key = e.getKey().decode();
-              var values = toStrings(e.getValue());
-              return Map.entry(key, new QueryParameter(key, values));
-            })
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-  }
-
-  public static @NonNull QueryParameter toQueryParameter(Query query, String key) {
-    List<@Nullable QueryParamValue> values = query.get(key);
-    return new QueryParameter(key, toStrings(values));
-  }
-
-  public static @NonNull List<String> toStrings(List<@Nullable QueryParamValue> values) {
-    return values.stream().map(value -> value != null ? value.decode() : "").toList();
+    return query.asDecodedMap().entrySet().stream()
+        .collect(
+            Collectors.toMap(Entry::getKey, e -> new QueryParameter(e.getKey(), e.getValue())));
   }
 
   public static String urlToPathParts(PathAndQuery uri) {

@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.github.tomakehurst.wiremock.common.Urls.toStrings;
-
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -59,14 +57,8 @@ public class RequestLine {
   public static RequestLine fromRequest(final Request request) {
     var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     Map<String, ListOrSingle<String>> adaptedQuery =
-        query.asMap().entrySet().stream()
-            .map(
-                e -> {
-                  var key = e.getKey().decode();
-                  var values = toStrings(e.getValue());
-                  return Map.entry(key, ListOrSingle.of(values));
-                })
-            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        query.asDecodedMap().entrySet().stream()
+            .collect(Collectors.toMap(Entry::getKey, e -> ListOrSingle.of(e.getValue())));
 
     return new RequestLine(
         request.getMethod(),

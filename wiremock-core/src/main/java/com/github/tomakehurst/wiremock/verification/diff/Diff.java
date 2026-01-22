@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
-import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameter;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -261,7 +260,7 @@ public class Diff {
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
-        QueryParameter queryParameter = toQueryParameter(query, key);
+        QueryParameter queryParameter = new QueryParameter(key, query.getDecoded(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =

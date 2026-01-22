@@ -44,7 +44,7 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
   @Override
   public RequestPatternBuilder apply(Request request) {
     PathAndQuery pathAndQuery = request.getPathAndQueryWithoutPrefix();
-    var queryParameters = pathAndQuery.getQueryOrEmpty().asMap();
+    var queryParameters = pathAndQuery.getQueryOrEmpty().asDecodedMap();
     // urlEqualTo is used when there are no query parameters to be as least disruptive to existing
     // behaviour as possible.
     // TODO: could be changed to always use urlPathEqualTo in next major release.
@@ -57,12 +57,9 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
 
     queryParameters.forEach(
         (name, parameters) -> {
-          var decodedValues =
-              parameters.stream()
-                  .map(value -> value != null ? value.decode() : "")
-                  .toArray(String[]::new);
+          var decodedValues = parameters.toArray(String[]::new);
           builder.withQueryParam(
-              name.decode(),
+              name,
               decodedValues.length == 1
                   ? MultiValuePattern.of(equalTo(decodedValues[0]))
                   : havingExactly(decodedValues));

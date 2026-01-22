@@ -20,13 +20,7 @@ import org.wiremock.stringparser.StringParser;
 
 public final class PathAndQueryParser implements StringParser<PathAndQuery> {
 
-  public static final PathAndQueryParser INSTANCE = new PathAndQueryParser(UriParser.INSTANCE);
-
-  private final UriParser uriParser;
-
-  public PathAndQueryParser(UriParser uriParser) {
-    this.uriParser = uriParser;
-  }
+  public static final PathAndQueryParser INSTANCE = new PathAndQueryParser();
 
   @Override
   public Class<PathAndQuery> getType() {
