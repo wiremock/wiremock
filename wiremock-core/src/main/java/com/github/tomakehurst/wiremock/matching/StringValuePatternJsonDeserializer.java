@@ -248,8 +248,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     String operand = equalToNode.textValue();
     Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
+    Boolean templated = fromNullable(rootNode.findValue("templated"));
 
-    return new EqualToPattern(operand, ignoreCase);
+    return new EqualToPattern(operand, ignoreCase, templated);
   }
 
   private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {

@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import org.junit.jupiter.api.Test;
 
 public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
@@ -27,7 +28,7 @@ public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
   void matchesQueryParameterAgainstAnotherQueryParameter() {
     stubFor(
         get(urlPathEqualTo("/test"))
-            .withQueryParam("param2", equalTo("{{request.query.param1}}"))
+            .withQueryParam("param2", new EqualToPattern("{{request.query.param1}}", null, true))
             .willReturn(ok()));
 
     // Should NOT match: param1=foo, but param2=bar (not equal)

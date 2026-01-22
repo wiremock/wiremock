@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,21 @@ public class EqualToPatternTest {
     assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
     assertThat(stringValuePattern.getValue(), is("something"));
     assertThat(((EqualToPattern) stringValuePattern).getCaseInsensitive(), is(true));
+  }
+
+  @Test
+  public void correctlyDeserialisesEqualToFromJsonWithTemplated() {
+    StringValuePattern stringValuePattern =
+        Json.read(
+            "{                              \n"
+                + "  \"equalTo\": \"{{request.query.param1}}\",   \n"
+                + "  \"templated\": true     \n"
+                + "}",
+            StringValuePattern.class);
+
+    assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
+    assertThat(stringValuePattern.getValue(), is("{{request.query.param1}}"));
+    assertThat(((EqualToPattern) stringValuePattern).isTemplated(), is(true));
   }
 
   @Test

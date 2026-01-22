@@ -151,10 +151,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         new RequestMatcher() {
           @Override
           public MatchResult match(Request request) {
-            // Create context for templating
-            TemplateEngine templateEngine = TemplateEngine.defaultTemplateEngine();
-            Map<String, Object> model = templateEngine.buildModelForRequest(request);
-            MatcherContext matcherContext = new MatcherContext(templateEngine, model);
+
+            MatcherContext matcherContext = null;
+            if (anyMatcherNeedsTemplating()) {
+              TemplateEngine templateEngine = TemplateEngine.defaultTemplateEngine();
+              Map<String, Object> model = templateEngine.buildModelForRequest(request);
+              matcherContext = new MatcherContext(templateEngine, model);
+            }
 
             final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
@@ -177,7 +180,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(weight(allPathParamsMatch(request)));
             requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
             requestPartMatchResults.add(weight(allQueryParamsMatch(request, matcherContext)));
-            //            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
             requestPartMatchResults.add(weight(allFormParamsMatch(request)));
             requestPartMatchResults.add(weight(allCookiesMatch(request)));
             requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
@@ -198,6 +200,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             return "request-matcher";
           }
         };
+  }
+
+  private boolean anyMatcherNeedsTemplating() {
+    // For now, only check query params - expand later
+    return queryParams.values().stream()
+        .filter(mvp -> mvp instanceof SingleMatchMultiValuePattern)
+        .map(mvp -> ((SingleMatchMultiValuePattern) mvp).getValuePattern())
+        .anyMatch(p -> p instanceof TemplateAware ta && ta.isTemplated());
   }
 
   public static final RequestPattern ANYTHING =
@@ -305,20 +315,20 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return combinedHeaders;
   }
 
-  private MatchResult allQueryParamsMatch(final Request request) {
-    if (!queryParams.isEmpty()) {
-      return MatchResult.aggregate(
-          queryParams.entrySet().stream()
-              .map(
-                  queryParamPattern ->
-                      queryParamPattern
-                          .getValue()
-                          .match(request.queryParameter(queryParamPattern.getKey())))
-              .collect(toList()));
-    }
-
-    return MatchResult.exactMatch();
-  }
+  //  private MatchResult allQueryParamsMatch(final Request request) {
+  //    if (!queryParams.isEmpty()) {
+  //      return MatchResult.aggregate(
+  //          queryParams.entrySet().stream()
+  //              .map(
+  //                  queryParamPattern ->
+  //                      queryParamPattern
+  //                          .getValue()
+  //                          .match(request.queryParameter(queryParamPattern.getKey())))
+  //              .collect(toList()));
+  //    }
+  //
+  //    return MatchResult.exactMatch();
+  //  }
 
   private MatchResult allQueryParamsMatch(final Request request, MatcherContext context) {
     if (!queryParams.isEmpty()) {
