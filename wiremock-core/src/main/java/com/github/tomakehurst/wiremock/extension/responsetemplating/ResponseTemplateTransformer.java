@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
+import static com.github.tomakehurst.wiremock.common.entity.TextFormat.JSON;
 
 import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -24,7 +26,6 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
@@ -196,26 +197,9 @@ public class ResponseTemplateTransformer
   private TextEntityDefinition applyTemplateToBodyEntity(
       Map<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-    return TextEntityDefinition.builder().setFormat(FormatType.JSON).setData(bodyString).build();
+    return (TextEntityDefinition)
+        EntityDefinition.builder().setEncoding(TEXT).setFormat(JSON).setData(bodyString).build();
   }
-
-  //    private void applyTemplatedResponseBody(
-  //            ResponseDefinitionBuilder newResponseDefBuilder,
-  //            Map<String, Object> model,
-  //            HandlebarsOptimizedTemplate bodyTemplate,
-  //            boolean isJsonBody) {
-  //        String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-  //        EntityDefinition<?> body =
-  //                isJsonBody
-  //                        ? TextEntityDefinition.builder()
-  //                        .setFormat(FormatType.JSON)
-  //                        .setCharset(StandardCharsets.UTF_8)
-  //                        .setData(bodyString)
-  //                        .build()
-  //                        : TextEntityDefinition.full(bodyString);
-  //
-  //        newResponseDefBuilder.withResponseBody(body);
-  //    }
 
   private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {
     return template.apply(context);

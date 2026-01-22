@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static java.util.Arrays.asList;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.BINARY;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 @JsonSerialize(as = BinaryEntityDefinition.class)
 @JsonDeserialize(as = BinaryEntityDefinition.class)
@@ -37,18 +36,13 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
 
   public static final CompressionType DEFAULT_COMPRESSION = NONE;
 
-  private final CompressionType compression;
   private final String dataStore;
   private final String dataRef;
   private final byte[] data;
   private final String filePath;
 
-  public static EntityDefinition fromBase64(String base64) {
-    return new Builder().setBodyBase64(base64).build();
-  }
-
-  public static Builder builder() {
-    return new Builder();
+  public static BinaryEntityDefinition fromBase64(String base64) {
+    return (BinaryEntityDefinition) builder().setEncoding(BINARY).setBodyBase64(base64).build();
   }
 
   public BinaryEntityDefinition(
@@ -60,14 +54,27 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
       @JsonProperty("data") Object data,
       @JsonProperty("filePath") String filePath) {
 
+    super(compression != null ? compression : tryToGuessCompressionType(data));
+
     assertValidParameterCombination(data, filePath, dataStore, dataRef);
 
-    this.compression =
-        asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
     this.dataRef = dataRef;
     this.data = resolveData(data);
     this.filePath = filePath;
+  }
+
+  private static CompressionType tryToGuessCompressionType(Object data) {
+    if (data instanceof byte[] bytes) {
+      return Gzip.isGzipped(bytes) ? GZIP : NONE;
+    }
+
+    if (data instanceof String s) {
+      byte[] bytes = Encoding.decodeBase64(s);
+      return Gzip.isGzipped(bytes) ? GZIP : NONE;
+    }
+
+    return null;
   }
 
   private byte[] resolveData(Object data) {
@@ -84,13 +91,13 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
 
   @Override
   public EncodingType getEncoding() {
-    return EncodingType.BINARY;
+    return BINARY;
   }
 
   @Override
   @JsonIgnore
-  public FormatType getFormat() {
-    return FormatType.BASE64;
+  public TextFormat getFormat() {
+    return TextFormat.BASE64;
   }
 
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
@@ -123,38 +130,8 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
     return data;
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public BinaryEntityDefinition decompress() {
-    final CompressionType compression = getCompression();
-    if (compression == GZIP) {
-      return this.<Builder>transform(
-          builder -> builder.setBody(Gzip.unGzip(getDataAsBytes())).setCompression(NONE));
-    }
-
-    if (compression != NONE) {
-      throw new IllegalStateException("Cannot decompress body with compression " + compression);
-    }
-
-    return this;
-  }
-
   public String getFilePath() {
     return filePath;
-  }
-
-  @Override
-  public <B extends EntityDefinition.Builder<BinaryEntityDefinition>>
-      BinaryEntityDefinition transform(Consumer<B> transformer) {
-    final Builder builder = toBuilder();
-    @SuppressWarnings("unchecked")
-    final B typedBuilder = (B) builder;
-    transformer.accept(typedBuilder);
-    return builder.build();
-  }
-
-  public Builder toBuilder() {
-    return new Builder(this);
   }
 
   @Override
@@ -178,6 +155,7 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
     return Json.write(this);
   }
 
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public static class DefaultCompressionFilter {
     @Override
     public boolean equals(Object obj) {
@@ -185,38 +163,38 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
     }
   }
 
-  public static class Builder
-      extends EntityDefinition.BaseBuilder<Builder, BinaryEntityDefinition> {
-
-    private byte[] data;
-
-    public Builder() {}
-
-    public Builder(BinaryEntityDefinition entity) {
-      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
-      this.data = entity.data;
-    }
-
-    public Builder setBody(byte[] data) {
-      resetDataAndRefs();
-      this.data = data;
-      return this;
-    }
-
-    public Builder setBodyBase64(String base64Data) {
-      resetDataAndRefs();
-      this.data = Encoding.decodeBase64(base64Data);
-      return this;
-    }
-
-    @Override
-    protected void resetDataAndRefs() {
-      super.resetDataAndRefs();
-      this.data = null;
-    }
-
-    public BinaryEntityDefinition build() {
-      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
-    }
-  }
+  //  public static class Builder
+  //      extends EntityDefinition.BaseBuilder<Builder, BinaryEntityDefinition> {
+  //
+  //    private byte[] data;
+  //
+  //    public Builder() {}
+  //
+  //    public Builder(BinaryEntityDefinition entity) {
+  //      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
+  //      this.data = entity.data;
+  //    }
+  //
+  //    public Builder setData(byte[] data) {
+  //      resetDataAndRefs();
+  //      this.data = data;
+  //      return this;
+  //    }
+  //
+  //    public Builder setBodyBase64(String base64Data) {
+  //      resetDataAndRefs();
+  //      this.data = Encoding.decodeBase64(base64Data);
+  //      return this;
+  //    }
+  //
+  //    @Override
+  //    protected void resetDataAndRefs() {
+  //      super.resetDataAndRefs();
+  //      this.data = null;
+  //    }
+  //
+  //    public BinaryEntityDefinition build() {
+  //      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
+  //    }
+  //  }
 }

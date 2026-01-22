@@ -16,47 +16,38 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static com.github.tomakehurst.wiremock.common.entity.FormatType.HTML;
-import static com.github.tomakehurst.wiremock.common.entity.FormatType.JSON;
-import static com.github.tomakehurst.wiremock.common.entity.FormatType.TEXT;
-import static com.github.tomakehurst.wiremock.common.entity.FormatType.XML;
-import static com.github.tomakehurst.wiremock.common.entity.FormatType.YAML;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
+import static com.github.tomakehurst.wiremock.common.entity.TextFormat.HTML;
+import static com.github.tomakehurst.wiremock.common.entity.TextFormat.JSON;
+import static com.github.tomakehurst.wiremock.common.entity.TextFormat.XML;
+import static com.github.tomakehurst.wiremock.common.entity.TextFormat.YAML;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 @JsonDeserialize(as = TextEntityDefinition.class)
 public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition> {
 
-  public static final FormatType DEFAULT_FORMAT = TEXT;
+  public static final TextFormat DEFAULT_FORMAT = TextFormat.TEXT;
 
-  @NonNull private final FormatType format;
-  @NonNull private final Charset charset;
-  @NonNull private final CompressionType compression;
+  @NonNull private final TextFormat format;
+  @NonNull protected final Charset charset;
   private final String dataStore;
   private final String dataRef;
   private final byte[] data;
   private final String filePath;
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   public static TextEntityDefinition full(String text) {
-    return new Builder().setData(text).build();
+    return (TextEntityDefinition) builder().setEncoding(TEXT).setData(text).build();
   }
 
   public static TextEntityDefinition simple(String text) {
@@ -68,7 +59,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
   }
 
   public TextEntityDefinition(
-      @JsonProperty("format") FormatType format,
+      @JsonProperty("format") TextFormat format,
       @JsonProperty("charset") Charset charset,
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
@@ -76,17 +67,17 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
       @JsonProperty("data") Object data,
       @JsonProperty("filePath") String filePath) {
 
+    super(compression);
+
     assertValidParameterCombination(data, filePath, dataStore, dataRef);
 
     this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
-    this.compression =
-        asList(CompressionType.values()).contains(compression) ? compression : DEFAULT_COMPRESSION;
     this.dataStore = dataStore;
     this.dataRef = dataRef;
     this.data = resolveData(data);
     this.filePath = filePath;
 
-    if (asList(FormatType.values()).contains(format)) {
+    if (asList(TextFormat.values()).contains(format)) {
       this.format = format;
     } else if (data instanceof String s) {
       this.format = detectFormat(s);
@@ -97,14 +88,14 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     }
   }
 
-  private FormatType detectFormat(String data) {
+  private TextFormat detectFormat(String data) {
     if (data == null || data.isEmpty()) {
-      return TEXT;
+      return TextFormat.TEXT;
     }
 
     String trimmed = data.trim();
     if (trimmed.isEmpty()) {
-      return TEXT;
+      return TextFormat.TEXT;
     }
 
     char firstChar = trimmed.charAt(0);
@@ -126,7 +117,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
       return YAML;
     }
 
-    return TEXT;
+    return TextFormat.TEXT;
   }
 
   private byte[] resolveData(Object data) {
@@ -144,11 +135,11 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
   @Override
   @JsonIgnore
   public EncodingType getEncoding() {
-    return EncodingType.TEXT;
+    return TEXT;
   }
 
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultFormatFilter.class)
-  public FormatType getFormat() {
+  public TextFormat getFormat() {
     return format;
   }
 
@@ -186,42 +177,12 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     return data;
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public TextEntityDefinition decompress() {
-    final CompressionType compression = getCompression();
-    if (compression == GZIP) {
-      return this.<Builder>transform(
-          builder -> builder.setData(Gzip.unGzip(data)).setCompression(NONE));
-    }
-
-    if (compression != NONE) {
-      throw new IllegalStateException("Cannot decompress body with compression " + compression);
-    }
-
-    return this;
-  }
-
   public String getFilePath() {
     return filePath;
   }
 
   public TextEntityDefinition withCharset(Charset charset) {
-    return this.<Builder>transform(builder -> builder.setCharset(charset));
-  }
-
-  @Override
-  public <B extends EntityDefinition.Builder<TextEntityDefinition>> TextEntityDefinition transform(
-      Consumer<B> transformer) {
-    final Builder builder = toBuilder();
-    @SuppressWarnings("unchecked")
-    final B typedBuilder = (B) builder;
-    transformer.accept(typedBuilder);
-    return builder.build();
-  }
-
-  public Builder toBuilder() {
-    return new Builder(this);
+    return (TextEntityDefinition) transform(builder -> builder.setCharset(charset));
   }
 
   @Override
@@ -248,6 +209,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     return Json.write(this);
   }
 
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public static class DefaultFormatFilter {
     @Override
     public boolean equals(Object obj) {
@@ -255,6 +217,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     }
   }
 
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public static class DefaultCharsetFilter {
     @Override
     public boolean equals(Object obj) {
@@ -262,6 +225,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     }
   }
 
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
   public static class DefaultCompressionFilter {
     @Override
     public boolean equals(Object obj) {
@@ -269,49 +233,50 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     }
   }
 
-  public static class Builder extends EntityDefinition.BaseBuilder<Builder, TextEntityDefinition> {
-    protected FormatType format;
-    protected Charset charset = DEFAULT_CHARSET;
-    protected byte[] data;
-
-    public Builder(TextEntityDefinition entity) {
-      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
-      this.format = entity.format;
-      this.charset = entity.charset;
-      this.data = entity.data;
-    }
-
-    public Builder() {}
-
-    public Builder setFormat(FormatType format) {
-      this.format = format;
-      return this;
-    }
-
-    public Builder setCharset(Charset charset) {
-      this.charset = charset;
-      return this;
-    }
-
-    public Builder setData(Object data) {
-      resetDataAndRefs();
-      this.data =
-          data instanceof String s
-              ? Strings.bytesFromString(s, charset)
-              : data instanceof byte[] b ? b : null;
-      return this;
-    }
-
-    @Override
-    protected void resetDataAndRefs() {
-      super.resetDataAndRefs();
-      this.data = null;
-    }
-
-    @Override
-    public TextEntityDefinition build() {
-      return new TextEntityDefinition(
-          format, charset, compression, dataStore, dataRef, data, filePath);
-    }
-  }
+  //  public static class Builder extends EntityDefinition.BaseBuilder<Builder,
+  // TextEntityDefinition> {
+  //    protected TextFormat format;
+  //    protected Charset charset = DEFAULT_CHARSET;
+  //    protected byte[] data;
+  //
+  //    public Builder(TextEntityDefinition entity) {
+  //      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
+  //      this.format = entity.format;
+  //      this.charset = entity.charset;
+  //      this.data = entity.data;
+  //    }
+  //
+  //    public Builder() {}
+  //
+  //    public Builder setFormat(TextFormat format) {
+  //      this.format = format;
+  //      return this;
+  //    }
+  //
+  //    public Builder setCharset(Charset charset) {
+  //      this.charset = charset;
+  //      return this;
+  //    }
+  //
+  //    public Builder setData(Object data) {
+  //      resetDataAndRefs();
+  //      this.data =
+  //          data instanceof String s
+  //              ? Strings.bytesFromString(s, charset)
+  //              : data instanceof byte[] b ? b : null;
+  //      return this;
+  //    }
+  //
+  //    @Override
+  //    protected void resetDataAndRefs() {
+  //      super.resetDataAndRefs();
+  //      this.data = null;
+  //    }
+  //
+  //    @Override
+  //    public TextEntityDefinition build() {
+  //      return new TextEntityDefinition(
+  //          format, charset, compression, dataStore, dataRef, data, filePath);
+  //    }
+  //  }
 }

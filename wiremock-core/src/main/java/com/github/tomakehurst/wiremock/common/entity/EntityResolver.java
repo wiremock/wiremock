@@ -15,12 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static java.util.Base64.getDecoder;
-
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
+
+import static java.util.Base64.getDecoder;
 
 public class EntityResolver {
 
@@ -31,92 +33,43 @@ public class EntityResolver {
   }
 
   public Entity resolve(EntityDefinition<?> definition) {
-    if (definition instanceof BinaryEntityDefinition binaryDef) {
-      byte[] bytes = resolveBinaryEntityData(binaryDef);
-
-      return Entity.builder()
-          .setEncoding(EncodingType.BINARY)
-          .setFormat(FormatType.BASE64)
-          .setCompression(binaryDef.getCompression())
-          .setBody(bytes)
-          .build();
+    if (definition instanceof EmptyEntityDefinition) {
+      return Entity.EMPTY;
     }
 
-    if (definition instanceof TextEntityDefinition textDef) {
-      String resolvedData = resolveTextEntityData(textDef);
-      return Entity.builder()
-          .setEncoding(EncodingType.TEXT)
-          .setFormat(textDef.getFormat())
-          .setCharset(textDef.getCharset())
-          .setCompression(textDef.getCompression())
-          .setBody(resolvedData)
-          .build();
+    InputStreamSource bodySource = resolveEntityData(definition);
+    final Entity.Builder builder = Entity.builder()
+            .setEncoding(definition.getEncoding())
+            .setCompression(definition.getCompression())
+            .setFormat(definition.getFormat())
+            .setDataStreamSource(bodySource);
+
+    if (definition instanceof TextEntityDefinition textEntityDefinition) {
+      builder.setCharset(textEntityDefinition.getCharset());
     }
 
-    return Entity.EMPTY;
+    return builder.build();
   }
 
-  private String resolveTextEntityData(TextEntityDefinition definition) {
+  private InputStreamSource resolveEntityData(EntityDefinition<?> definition) {
     if (definition.isInline()) {
-      return definition.getDataAsString();
+      return StreamSources.forBytes(definition.getDataAsBytes());
     }
 
     String filePath = definition.getFilePath();
     if (filePath != null && stores != null) {
       BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).map(Strings::stringFromBytes).orElse(null);
+      return filesBlobStore.getStreamSource(filePath);
     }
 
     String dataStore = definition.getDataStore();
     String dataRef = definition.getDataRef();
     if (dataStore != null && dataRef != null && stores != null) {
       return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof String s) {
-                  return s;
-                }
-                return Json.write(value);
-              })
-          .orElse(null);
+              .getBlobStore(dataStore)
+              .getStreamSource(dataRef);
     }
 
     return null;
-  }
-
-  private byte[] resolveBinaryEntityData(BinaryEntityDefinition definition) {
-    byte[] data = definition.getDataAsBytes();
-    if (data != null) {
-      return data;
-    }
-
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).orElse(null);
-    }
-
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof byte[] bytes) {
-                  return bytes;
-                }
-                if (value instanceof String s) {
-                  return getDecoder().decode(s);
-                }
-                return new byte[0];
-              })
-          .orElse(new byte[0]);
-    }
-
-    return new byte[0];
   }
 }

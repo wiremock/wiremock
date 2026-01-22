@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -86,7 +87,8 @@ public class Response {
   }
 
   public String getBodyAsString() {
-    return Strings.stringFromBytes(getBodyAsBytes(), headers.getContentTypeHeader().charset());
+    return Strings.stringFromBytes(
+        getBodyAsBytes(), headers.getContentTypeHeader().charset().orElse(DEFAULT_CHARSET));
   }
 
   public boolean hasInlineBody() {
@@ -168,11 +170,11 @@ public class Response {
     }
 
     public Builder body(String text) {
-      return body(Entity.builder().setBody(text).build());
+      return body(Entity.builder().setData(text).build());
     }
 
     public Builder body(byte[] data) {
-      return body(Entity.builder().setBody(data).build());
+      return body(Entity.builder().setData(data).build());
     }
 
     public Builder body(Entity body) {

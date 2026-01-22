@@ -130,7 +130,7 @@ public class SendMessageActionBuilder {
           new MessageDefinition(body), channelTarget, transformers, transformerParameters);
     }
 
-    public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {
+    public SendMessageAction withMessage(EntityDefinition.Builder bodyBuilder) {
       return withMessage(bodyBuilder.build());
     }
   }

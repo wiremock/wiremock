@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.common.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
 
 @JsonSerialize(as = EmptyEntityDefinition.class)
 @JsonDeserialize(as = EmptyEntityDefinition.class)
@@ -26,23 +25,22 @@ public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinitio
 
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
+  protected EmptyEntityDefinition() {
+    super(CompressionType.NONE);
+  }
+
   @Override
   public EncodingType getEncoding() {
     return EncodingType.BINARY;
   }
 
   @Override
-  public FormatType getFormat() {
+  public TextFormat getFormat() {
     return null;
   }
 
   public Charset getCharset() {
     return null;
-  }
-
-  @Override
-  public CompressionType getCompression() {
-    return CompressionType.NONE;
   }
 
   @Override
@@ -61,12 +59,6 @@ public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinitio
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public EmptyEntityDefinition decompress() {
-    return this;
-  }
-
-  @Override
   public String getDataStore() {
     return null;
   }
@@ -74,11 +66,5 @@ public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinitio
   @Override
   public String getDataRef() {
     return null;
-  }
-
-  @Override
-  public <B extends EntityDefinition.Builder<EmptyEntityDefinition>>
-      EmptyEntityDefinition transform(Consumer<B> transformer) {
-    return this;
   }
 }

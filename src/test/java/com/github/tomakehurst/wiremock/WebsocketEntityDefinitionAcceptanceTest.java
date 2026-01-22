@@ -135,7 +135,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(binaryEntity().setBody(responseBytes))));
+                    .withMessage(binaryEntity().setData(responseBytes))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-response-test");

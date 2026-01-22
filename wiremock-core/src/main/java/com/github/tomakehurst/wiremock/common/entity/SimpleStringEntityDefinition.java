@@ -32,7 +32,7 @@ public class SimpleStringEntityDefinition extends TextEntityDefinition {
   }
 
   SimpleStringEntityDefinition(String text, Charset charset) {
-    super(FormatType.TEXT, charset, CompressionType.NONE, null, null, text, null);
+    super(TextFormat.TEXT, charset, CompressionType.NONE, null, null, text, null);
   }
 
   @Override

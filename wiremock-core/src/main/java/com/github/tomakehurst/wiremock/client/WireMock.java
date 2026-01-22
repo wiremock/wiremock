@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.BINARY;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.isOneOf;
@@ -31,9 +33,8 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -446,20 +447,20 @@ public class WireMock {
     return new LogicalOr(matchers);
   }
 
-  public static TextEntityDefinition.Builder textEntity(String text) {
-    return new TextEntityDefinition.Builder().setData(text);
+  public static EntityDefinition.Builder textEntity(String text) {
+    return EntityDefinition.builder().setEncoding(TEXT).setData(text);
   }
 
-  public static TextEntityDefinition.Builder textEntity() {
-    return new TextEntityDefinition.Builder();
+  public static EntityDefinition.Builder textEntity() {
+    return EntityDefinition.builder().setEncoding(TEXT);
   }
 
-  public static BinaryEntityDefinition.Builder binaryEntity(byte[] data) {
-    return new BinaryEntityDefinition.Builder().setBody(data);
+  public static EntityDefinition.Builder binaryEntity(byte[] data) {
+    return EntityDefinition.builder().setEncoding(BINARY).setData(data);
   }
 
-  public static BinaryEntityDefinition.Builder binaryEntity() {
-    return new BinaryEntityDefinition.Builder();
+  public static EntityDefinition.Builder binaryEntity() {
+    return EntityDefinition.builder().setEncoding(BINARY);
   }
 
   public static JsonEntityDefinition jsonEntity(Object data) {

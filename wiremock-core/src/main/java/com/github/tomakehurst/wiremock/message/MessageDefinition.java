@@ -40,7 +40,7 @@ public class MessageDefinition {
   }
 
   public static MessageDefinition fromBytes(byte[] data) {
-    return new MessageDefinition(WireMock.binaryEntity().setBody(data).build());
+    return new MessageDefinition(WireMock.binaryEntity().setData(data).build());
   }
 
   public EntityDefinition getBody() {

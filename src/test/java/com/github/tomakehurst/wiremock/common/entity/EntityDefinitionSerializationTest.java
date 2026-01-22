@@ -30,9 +30,9 @@ public class EntityDefinitionSerializationTest {
 
   @Test
   void textEntityDefinitionSerializesWithLowercaseEnums() {
-    TextEntityDefinition entity =
+    EntityDefinition<?> entity =
         textEntity()
-            .setFormat(FormatType.XML)
+            .setFormat(TextFormat.XML)
             .setCompression(CompressionType.GZIP)
             .setData("test data")
             .build();
@@ -65,14 +65,14 @@ public class EntityDefinitionSerializationTest {
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
     TextEntityDefinition textEntity = (TextEntityDefinition) entity;
-    assertThat(textEntity.getFormat(), is(FormatType.YAML));
+    assertThat(textEntity.getFormat(), is(TextFormat.YAML));
     assertThat(textEntity.getCompression(), is(CompressionType.BROTLI));
     assertThat(textEntity.getData(), is("test data"));
   }
 
   @Test
   void textEntityDefinitionWithDefaultsOmitsEnums() {
-    TextEntityDefinition entity = textEntity().setData("test data").build();
+    EntityDefinition<?> entity = textEntity().setData("test data").build();
 
     String json = Json.write(entity);
 
@@ -87,9 +87,9 @@ public class EntityDefinitionSerializationTest {
 
   @Test
   void textEntityDefinitionRoundTripSerialization() {
-    TextEntityDefinition original =
+    EntityDefinition<?> original =
         textEntity()
-            .setFormat(FormatType.JSON)
+            .setFormat(TextFormat.JSON)
             .setCompression(CompressionType.GZIP)
             .setData("{\"key\":\"value\"}")
             .build();
@@ -103,8 +103,8 @@ public class EntityDefinitionSerializationTest {
   @Test
   void binaryEntityDefinitionSerializesWithLowercaseEnums() {
     byte[] data = {1, 2, 3, 4, 5};
-    BinaryEntityDefinition entity =
-        binaryEntity().setCompression(CompressionType.DEFLATE).setBody(data).build();
+    EntityDefinition<?> entity =
+        binaryEntity().setCompression(CompressionType.DEFLATE).setData(data).build();
 
     String json = Json.write(entity);
 
@@ -145,8 +145,8 @@ public class EntityDefinitionSerializationTest {
   @Test
   void binaryEntityDefinitionRoundTripSerialization() {
     byte[] data = {1, 2, 3, 4, 5, 6, 7, 8};
-    BinaryEntityDefinition original =
-        binaryEntity().setCompression(CompressionType.BROTLI).setBody(data).build();
+    EntityDefinition<?> original =
+        binaryEntity().setCompression(CompressionType.BROTLI).setData(data).build();
 
     String json = Json.write(original);
     EntityDefinition deserialized = Json.read(json, EntityDefinition.class);

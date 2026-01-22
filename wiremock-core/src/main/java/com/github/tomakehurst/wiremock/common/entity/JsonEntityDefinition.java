@@ -27,7 +27,7 @@ public class JsonEntityDefinition extends TextEntityDefinition {
   private final JsonNode data;
 
   public JsonEntityDefinition(Object data) {
-    super(FormatType.JSON, UTF_8, NONE, null, null, null, null);
+    super(TextFormat.JSON, UTF_8, NONE, null, null, null, null);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
   }
 
@@ -49,34 +49,5 @@ public class JsonEntityDefinition extends TextEntityDefinition {
   @Override
   public byte[] getDataAsBytes() {
     return Json.toByteArray(data);
-  }
-
-  @Override
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
-  public static class Builder extends TextEntityDefinition.Builder {
-    private JsonNode data;
-
-    public Builder() {}
-
-    public Builder(JsonEntityDefinition entity) {
-      this.data = entity.data;
-    }
-
-    public JsonNode getData() {
-      return data;
-    }
-
-    @Override
-    public Builder setData(Object data) {
-      this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
-      return this;
-    }
-
-    public JsonEntityDefinition build() {
-      return new JsonEntityDefinition(data);
-    }
   }
 }

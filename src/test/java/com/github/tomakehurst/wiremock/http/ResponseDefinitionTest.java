@@ -32,10 +32,10 @@ import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextFormat;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -394,11 +394,11 @@ public class ResponseDefinitionTest {
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(TextEntityDefinition.class));
 
-    assertThat(body.getData(), is("<my-data/>"));
+    assertThat(body.getDataAsString(), is("<my-data/>"));
     assertThat(body.isInline(), is(true));
     assertThat(body.getCompression(), is(CompressionType.NONE));
     assertThat(body.getEncoding(), is(EncodingType.TEXT));
-    assertThat(body.getFormat(), is(FormatType.XML));
+    assertThat(body.getFormat(), is(TextFormat.XML));
     assertThat(((TextEntityDefinition) body).getCharset(), is(StandardCharsets.UTF_16));
   }
 
@@ -419,7 +419,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    EntityDefinition body = responseDefinition.getBody();
+    EntityDefinition<?> body = responseDefinition.getBody();
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(JsonEntityDefinition.class));
 
@@ -428,7 +428,7 @@ public class ResponseDefinitionTest {
     assertThat(body.isInline(), is(true));
     assertThat(body.getCompression(), is(CompressionType.NONE));
     assertThat(body.getEncoding(), is(EncodingType.TEXT));
-    assertThat(body.getFormat(), is(FormatType.JSON));
+    assertThat(body.getFormat(), is(TextFormat.JSON));
 
     assertThat(jsonBody.getDataAsJson().get("key").textValue(), is("value"));
   }
@@ -453,6 +453,26 @@ public class ResponseDefinitionTest {
     assertThat(
         ((TextEntityDefinition) responseDefinition.getBody()).getCharset(),
         is(StandardCharsets.UTF_16));
+  }
+
+  @Test
+  void takesContentEncodingFromHeaderWhenAvailable() {
+    var json =
+        // language=JSON
+        """
+            {
+              "headers": {
+                "Content-Encoding": "gzip"
+              },
+              "body": {
+                "data": "compressed"
+              }
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    assertThat(responseDefinition.getBodyEntity().getCompression(), is(CompressionType.GZIP));
   }
 
   @Test

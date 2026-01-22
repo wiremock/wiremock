@@ -42,20 +42,20 @@ public class Entity {
   public static Entity EMPTY =
       new Entity(
           EncodingType.TEXT,
-          FormatType.TEXT,
+          TextFormat.TEXT,
           DEFAULT_CHARSET,
           CompressionType.NONE,
           StreamSources.empty());
 
   private final EncodingType encoding;
-  private final FormatType format;
+  private final TextFormat format;
   private final Charset charset;
   @NonNull private final CompressionType compression;
   private final InputStreamSource streamSource;
 
   public Entity(
       EncodingType encoding,
-      FormatType format,
+      TextFormat format,
       Charset charset,
       CompressionType compression,
       InputStreamSource streamSource) {
@@ -70,7 +70,7 @@ public class Entity {
     return encoding;
   }
 
-  public FormatType getFormat() {
+  public TextFormat getFormat() {
     return format;
   }
 
@@ -95,7 +95,7 @@ public class Entity {
       return transform(
           builder ->
               builder
-                  .setStreamSource(StreamSources.decompressingGzip(streamSource))
+                  .setDataStreamSource(StreamSources.decompressingGzip(streamSource))
                   .setCompression(NONE));
     }
 
@@ -109,7 +109,7 @@ public class Entity {
   @JsonIgnore
   public String getDataAsString() {
     return Exceptions.uncheck(
-        () -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET), String.class);
+        () -> Strings.stringFromBytes(getData(), charset), String.class);
   }
 
   public byte[] getData() {
@@ -162,16 +162,16 @@ public class Entity {
             final String plainText =
                 compression == GZIP
                     ? Gzip.unGzipToString(getData())
-                    : Strings.stringFromBytes(getData());
+                    : getDataAsString();
 
             final String transformed = transformer.apply(plainText);
 
             final byte[] transformedCompressed =
                 compression == GZIP
                     ? Gzip.gzip(transformed)
-                    : Strings.bytesFromString(transformed, DEFAULT_CHARSET);
+                    : Strings.bytesFromString(transformed, charset);
 
-            builder.setBody(transformedCompressed);
+            builder.setData(transformedCompressed);
           });
     }
 
@@ -210,7 +210,7 @@ public class Entity {
   public static class Builder {
 
     private EncodingType encoding;
-    private FormatType format;
+    private TextFormat format;
     private Charset charset;
     private CompressionType compression;
     private InputStreamSource streamSource;
@@ -233,11 +233,11 @@ public class Entity {
       return this;
     }
 
-    public FormatType getFormat() {
+    public TextFormat getFormat() {
       return format;
     }
 
-    public Builder setFormat(FormatType format) {
+    public Builder setFormat(TextFormat format) {
       this.format = format;
       return this;
     }
@@ -260,26 +260,24 @@ public class Entity {
       return this;
     }
 
-    public InputStreamSource getStreamSource() {
+    public Builder setData(byte[] bytes) {
+      return setDataStreamSource(StreamSources.forBytes(bytes));
+    }
+
+    public Builder setData(String text) {
+      return setData(text, DEFAULT_CHARSET);
+    }
+
+    public Builder setData(String text, Charset charset) {
+      return setDataStreamSource(StreamSources.forString(text, charset));
+    }
+
+    public InputStreamSource getDataStreamSource() {
       return streamSource;
     }
 
-    public Builder setStreamSource(InputStreamSource streamSource) {
+    public Builder setDataStreamSource(InputStreamSource streamSource) {
       this.streamSource = streamSource;
-      return this;
-    }
-
-    public Builder setBody(byte[] bytes) {
-      this.streamSource = StreamSources.forBytes(bytes);
-      return this;
-    }
-
-    public Builder setBody(String text) {
-      return setBody(text, DEFAULT_CHARSET);
-    }
-
-    public Builder setBody(String text, Charset charset) {
-      this.streamSource = StreamSources.forString(text, charset);
       return this;
     }
 

@@ -18,25 +18,34 @@ package com.github.tomakehurst.wiremock.common.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public class FormatType {
+public class TextFormat {
 
-  public static final FormatType JSON = new FormatType("json");
-  public static final FormatType HTML = new FormatType("html");
-  public static final FormatType TEXT = new FormatType("text");
-  public static final FormatType XML = new FormatType("xml");
-  public static final FormatType YAML = new FormatType("yaml");
-  public static final FormatType CSV = new FormatType("csv");
-  public static final FormatType BASE64 = new FormatType("base64");
+  public static final TextFormat JSON = new TextFormat("json");
+  public static final TextFormat HTML = new TextFormat("html");
+  public static final TextFormat TEXT = new TextFormat("text");
+  public static final TextFormat XML = new TextFormat("xml");
+  public static final TextFormat YAML = new TextFormat("yaml");
+  public static final TextFormat CSV = new TextFormat("csv");
+  public static final TextFormat BASE64 = new TextFormat("base64");
 
   private final String type;
 
-  public FormatType(String type) {
+  public TextFormat(String type) {
     this.type = type;
   }
 
   @JsonCreator
-  public static FormatType fromString(String value) {
-    return new FormatType(value);
+  public static TextFormat fromString(String value) {
+    return new TextFormat(value);
+  }
+
+  public static TextFormat fromMimeType(String mimeType) {
+    if (mimeType == null) {
+      return TEXT;
+    }
+
+    MimeType parsed = MimeType.parse(mimeType);
+    return fromString(parsed.getType());
   }
 
   @JsonValue
@@ -49,7 +58,7 @@ public class FormatType {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    FormatType that = (FormatType) o;
+    TextFormat that = (TextFormat) o;
 
     return type.equals(that.type);
   }
@@ -64,7 +73,7 @@ public class FormatType {
     return type;
   }
 
-  public static FormatType[] values() {
-    return new FormatType[] {JSON, HTML, TEXT, XML, YAML, CSV, BASE64};
+  public static TextFormat[] values() {
+    return new TextFormat[] {JSON, HTML, TEXT, XML, YAML, CSV, BASE64};
   }
 }

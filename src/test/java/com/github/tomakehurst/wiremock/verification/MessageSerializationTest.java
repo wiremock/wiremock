@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
@@ -34,8 +35,9 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.TextFormat;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RegexPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -515,7 +517,7 @@ public class MessageSerializationTest {
   void textEntityDefinitionWithStringDataSerializesToJson() {
     TextEntityDefinition entityDef =
         new TextEntityDefinition(
-            FormatType.TEXT, UTF_8, CompressionType.NONE, null, null, "hello world", null);
+            TextFormat.TEXT, UTF_8, CompressionType.NONE, null, null, "hello world", null);
 
     String json = Json.write(entityDef);
 
@@ -586,14 +588,14 @@ public class MessageSerializationTest {
     String matchBase64 = java.util.Base64.getEncoder().encodeToString(matchBytes);
     String responseBase64 = java.util.Base64.getEncoder().encodeToString(responseBytes);
 
-    BinaryEntityDefinition binaryBody = WireMock.binaryEntity().setBody(responseBytes).build();
+    EntityDefinition<?> body = binaryEntity().setData(responseBytes).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
             .withName("Binary stub")
             .withBody(binaryEqualTo(matchBytes))
-            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
+            .triggersAction(SendMessageAction.toOriginatingChannel(body))
             .build();
 
     String json = Json.write(stub);
@@ -690,7 +692,7 @@ public class MessageSerializationTest {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
     String base64Data = java.util.Base64.getEncoder().encodeToString(data);
 
-    BinaryEntityDefinition entityDef = WireMock.binaryEntity().setBody(data).build();
+    EntityDefinition<?> entityDef = binaryEntity().setData(data).build();
 
     String json = Json.write(entityDef);
 
@@ -711,7 +713,7 @@ public class MessageSerializationTest {
   void binaryEntityDefinitionRoundTripsViaMessageStubMapping() {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
 
-    BinaryEntityDefinition original = WireMock.binaryEntity().setBody(data).build();
+    EntityDefinition<?> original = binaryEntity().setData(data).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()

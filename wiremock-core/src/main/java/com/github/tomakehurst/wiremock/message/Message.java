@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
+import com.github.tomakehurst.wiremock.common.entity.TextFormat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -109,7 +109,7 @@ public class Message {
         return this;
       }
 
-      this.body = Entity.builder().setBody(text).build();
+      this.body = Entity.builder().setData(text).build();
       return this;
     }
 
@@ -122,8 +122,8 @@ public class Message {
       this.body =
           Entity.builder()
               .setEncoding(EncodingType.BINARY)
-              .setFormat(FormatType.BASE64)
-              .setBody(data)
+              .setFormat(TextFormat.BASE64)
+              .setData(data)
               .build();
 
       return this;
@@ -142,7 +142,7 @@ public class Message {
         return new Message(null);
       }
 
-      Entity entity = Entity.builder().setBody(text).build();
+      Entity entity = Entity.builder().setData(text).build();
       return new Message(entity);
     }
   }
