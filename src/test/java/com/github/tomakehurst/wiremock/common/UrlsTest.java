@@ -19,7 +19,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -54,21 +53,6 @@ public class UrlsTest {
     assertThat(params.size(), is(2));
     assertThat(params.get("param1").isSingleValued(), is(false));
     assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
-  }
-
-  @Test
-  public void supportsOffsetDateTimeParameterValues() {
-    OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-05-01T09:30:00.000Z");
-    params =
-        Urls.toQueryParameterMap(
-            Url.parse(
-                    "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z")
-                .getQueryOrEmpty());
-    for (QueryParameter queryParameter : params.values()) {
-      for (String parameterValue : queryParameter.values()) {
-        assert (offsetDateTime.isEqual(OffsetDateTime.parse(parameterValue)));
-      }
-    }
   }
 
   @Test

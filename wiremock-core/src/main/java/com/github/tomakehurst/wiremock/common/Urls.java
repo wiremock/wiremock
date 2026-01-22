@@ -15,14 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.net.URLDecoder;
-import java.text.ParsePosition;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,31 +64,5 @@ public class Urls {
     int nodeCount = uriPathNodes.size();
 
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
-  }
-
-  public static String decode(String encoded) {
-    if (!isISOOffsetDateTime(encoded)) {
-      return URLDecoder.decode(encoded, UTF_8);
-    }
-    return encoded;
-  }
-
-  private static boolean isISOOffsetDateTime(String encoded) {
-    /*
-    First we try to soft parse the string using a ParsePosition. This avoids the cost of
-    exception handling in the case of a non-date string. If the soft parse succeeds, we
-    then do a full parse to ensure the string is a valid date.
-     */
-    ParsePosition pos = new ParsePosition(0);
-    TemporalAccessor temporalAccessor = ISO_OFFSET_DATE_TIME.parseUnresolved(encoded, pos);
-    if (temporalAccessor == null || pos.getIndex() != encoded.length()) {
-      return false;
-    }
-    try {
-      ISO_OFFSET_DATE_TIME.parse(encoded);
-      return true;
-    } catch (DateTimeParseException e) {
-      return false;
-    }
   }
 }

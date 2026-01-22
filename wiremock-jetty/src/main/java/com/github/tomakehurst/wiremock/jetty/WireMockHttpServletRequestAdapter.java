@@ -27,13 +27,14 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Lazy;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
@@ -274,7 +275,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     jakarta.servlet.http.Cookie[] cookies =
         getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
-      builder.put(cookie.getName(), Urls.decode(cookie.getValue()));
+      builder.put(cookie.getName(), URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8));
     }
 
     return Maps.transformValues(
