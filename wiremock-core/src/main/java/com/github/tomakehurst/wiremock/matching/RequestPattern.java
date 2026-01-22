@@ -312,21 +312,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return combinedHeaders;
   }
 
-  //  private MatchResult allQueryParamsMatch(final Request request) {
-  //    if (!queryParams.isEmpty()) {
-  //      return MatchResult.aggregate(
-  //          queryParams.entrySet().stream()
-  //              .map(
-  //                  queryParamPattern ->
-  //                      queryParamPattern
-  //                          .getValue()
-  //                          .match(request.queryParameter(queryParamPattern.getKey())))
-  //              .collect(toList()));
-  //    }
-  //
-  //    return MatchResult.exactMatch();
-  //  }
-
   private MatchResult allQueryParamsMatch(final Request request, MatcherContext context) {
     if (!queryParams.isEmpty()) {
       return MatchResult.aggregate(
