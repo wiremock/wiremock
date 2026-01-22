@@ -171,7 +171,7 @@ class QueryTests {
       Query parsed = Query.parse("x=1&y&x&y=2&z");
       assertThat(parsed.get("x")).isEqualTo(values("1", null));
       assertThat(parsed.getFirst("x")).isEqualTo(QueryParamValue.parse("1"));
-      assertThat(parsed.getFirst("y")).isNull();
+      assertThat(parsed.getFirst("y")).isEqualTo(QueryParamValue.EMPTY);
       assertThat(parsed.getFirst("not_present")).isNull();
     }
 
@@ -180,7 +180,7 @@ class QueryTests {
       Query parsed = Query.parse("x=1&y&x&y=2&z");
       assertThat(parsed.get(QueryParamKey.parse("x"))).isEqualTo(values("1", null));
       assertThat(parsed.getFirst(QueryParamKey.parse("x"))).isEqualTo(QueryParamValue.parse("1"));
-      assertThat(parsed.getFirst(QueryParamKey.parse("y"))).isNull();
+      assertThat(parsed.getFirst(QueryParamKey.parse("y"))).isEqualTo(QueryParamValue.EMPTY);
       assertThat(parsed.getFirst(QueryParamKey.parse("not_present"))).isNull();
     }
 
@@ -228,7 +228,7 @@ class QueryTests {
     @Test
     void get_first_with_percent_encoded_key_returns_value() {
       Query parsed = Query.parse("a&b%3D1%262=c%3D2%263=4&");
-      assertThat(parsed.getFirst("a")).isNull();
+      assertThat(parsed.getFirst("a")).hasToString("");
       assertThat(parsed.getFirst("b=1&2")).hasToString("c%3D2%263=4");
     }
 
@@ -256,7 +256,7 @@ class QueryTests {
       Query parsed = Query.parse("&");
       assertThat(parsed.getEntries()).isEqualTo(List.of(flatEntry("", null), flatEntry("", null)));
       assertThat(parsed.get("")).isEqualTo(values(null, null));
-      assertThat(parsed.getFirst("")).isEqualTo(null);
+      assertThat(parsed.getFirst("")).isEqualTo(QueryParamValue.EMPTY);
       assertThat(parsed.getKeys()).isEqualTo(Set.of(QueryParamKey.parse("")));
       assertThat(parsed.contains("")).isTrue();
     }
@@ -658,7 +658,7 @@ class QueryTests {
     void appends_key_with_null_value() {
       Query query = Query.builder().append("key", null).build();
       assertThat(query.toString()).isEqualTo("key");
-      assertThat(query.getFirst("key")).isNull();
+      assertThat(query.getFirst("key")).hasToString("");
     }
 
     @Test

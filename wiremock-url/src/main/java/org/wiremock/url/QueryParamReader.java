@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static java.util.Objects.requireNonNullElse;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,7 +39,7 @@ public interface QueryParamReader {
 
   default List<@Nullable QueryParamValue> get(QueryParamKey key) {
     List<@Nullable QueryParamValue> result = asMap().get(key.normalise());
-    return result != null ? result : List.of();
+    return requireNonNullElse(result, List.of());
   }
 
   default boolean contains(String key) {
@@ -66,7 +68,7 @@ public interface QueryParamReader {
 
   default @Nullable QueryParamValue getFirst(QueryParamKey key) {
     List<@Nullable QueryParamValue> values = get(key);
-    return values.isEmpty() ? null : values.get(0);
+    return values.isEmpty() ? null : requireNonNullElse(values.get(0), QueryParamValue.EMPTY);
   }
 
   /**

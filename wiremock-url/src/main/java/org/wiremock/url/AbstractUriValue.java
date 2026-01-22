@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
+import static org.wiremock.url.Lazy.lazy;
 
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -27,7 +28,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
   protected final Path path;
   protected final @Nullable Query query;
   protected final @Nullable Fragment fragment;
-  private final MemoisedToString toString;
+  private final Lazy<String> toString;
 
   AbstractUriValue(
       @Nullable String stringValue,
@@ -36,7 +37,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
       Path path,
       @Nullable Query query,
       @Nullable Fragment fragment) {
-    this.toString = new MemoisedToString(stringValue, this::buildString);
+    this.toString = lazy(stringValue, this::buildString);
     this.scheme = scheme;
     this.authority = authority;
     this.path = requireNonNull(path);
@@ -116,7 +117,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
 
   @Override
   public String toString() {
-    return toString.toString();
+    return toString.get();
   }
 
   private String buildString() {

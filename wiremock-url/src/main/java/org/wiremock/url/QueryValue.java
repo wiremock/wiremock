@@ -15,6 +15,8 @@
  */
 package org.wiremock.url;
 
+import static org.wiremock.url.Lazy.lazy;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +32,7 @@ final class QueryValue implements Query {
   static final Query EMPTY = new QueryValue("", List.of(), true);
 
   private final String query;
-  private volatile @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries;
+  private final Lazy<List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>>> paramEntries;
   private final MemoisedNormalisable<Query> memoisedNormalisable;
 
   QueryValue(String query) {
@@ -66,7 +68,7 @@ final class QueryValue implements Query {
       @Nullable List<Map.Entry<QueryParamKey, @Nullable QueryParamValue>> paramEntries,
       @Nullable Boolean isNormalForm) {
     this.query = query;
-    this.paramEntries = paramEntries;
+    this.paramEntries = lazy(paramEntries, this::parseEntries);
     this.memoisedNormalisable =
         new MemoisedNormalisable<>(this, isNormalForm, this::isNormalFormWork, this::normaliseWork);
   }
@@ -130,22 +132,19 @@ final class QueryValue implements Query {
 
   @Override
   public List<Entry<QueryParamKey, @Nullable QueryParamValue>> getEntries() {
-    var entries = paramEntries;
-    if (entries != null) {
-      return entries;
-    } else {
-      var result = new ArrayList<Map.Entry<QueryParamKey, @Nullable QueryParamValue>>();
-      var keyValuePairStrs = query.split("&", -1);
-      for (String keyValuePairStr : keyValuePairStrs) {
-        var keyValuePair = keyValuePairStr.split("=", 2);
-        var key = new QueryParamKeyValue(keyValuePair[0]);
-        var value = keyValuePair.length == 2 ? new QueryParamValueValue(keyValuePair[1]) : null;
-        result.add(new SimpleEntry<>(key, value));
-      }
-      var unmodifiableResult = Collections.unmodifiableList(result);
-      paramEntries = unmodifiableResult;
-      return unmodifiableResult;
+    return paramEntries.get();
+  }
+
+  private List<Entry<QueryParamKey, @Nullable QueryParamValue>> parseEntries() {
+    var keyValuePairStrs = query.split("&", -1);
+    var result = new ArrayList<Entry<QueryParamKey, @Nullable QueryParamValue>>();
+    for (String keyValuePairStr : keyValuePairStrs) {
+      var keyValuePair = keyValuePairStr.split("=", 2);
+      var key = new QueryParamKeyValue(keyValuePair[0]);
+      var value = keyValuePair.length == 2 ? new QueryParamValueValue(keyValuePair[1]) : null;
+      result.add(new SimpleEntry<>(key, value));
     }
+    return Collections.unmodifiableList(result);
   }
 
   static List<@Nullable QueryParamValue> encodeValues(

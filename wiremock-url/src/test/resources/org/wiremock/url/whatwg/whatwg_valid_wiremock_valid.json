@@ -1557,7 +1557,7 @@
     "resolved" : { "stringValue" : "blob:/", "type" : "OpaqueUri", "scheme" : "blob", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "blob:", "href" : "blob:", "origin" : "null", "protocol" : "blob:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
+    "matchesWhatWg" : false
   },
   {
     "input" : "blob:about:blank",
@@ -5781,7 +5781,7 @@
     "resolved" : { "stringValue" : "sc:/", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "sc:", "base" : "https://example.org/foo/bar", "href" : "sc:", "origin" : "null", "protocol" : "sc:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "", "search" : "", "searchParams" : "", "hash" : "" },
-    "matchesWhatWg" : true
+    "matchesWhatWg" : false
   },
   {
     "input" : "sc://#",

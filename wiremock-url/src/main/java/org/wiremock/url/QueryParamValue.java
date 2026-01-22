@@ -19,6 +19,8 @@ import org.wiremock.stringparser.ParsedString;
 
 public interface QueryParamValue extends PercentEncoded<QueryParamValue>, ParsedString {
 
+  QueryParamValue EMPTY = new QueryParamValueValue("");
+
   static QueryParamValue parse(String key) throws IllegalQueryParamValue {
     return QueryParamValueParser.INSTANCE.parse(key);
   }

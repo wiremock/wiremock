@@ -15,7 +15,7 @@
  */
 package org.wiremock.url;
 
-import static java.util.Objects.requireNonNull;
+import static org.wiremock.url.Lazy.lazy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -185,15 +185,15 @@ final class PathValue implements Path {
     return result.normalise();
   }
 
-  private volatile @Nullable List<Segment> segments = null;
+  private final Lazy<List<Segment>> segments = lazy(this::buildSegments);
 
   @Override
   public List<Segment> getSegments() {
-    if (segments == null) {
-      segments =
-          Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
-    }
-    return requireNonNull(segments);
+    return segments.get();
+  }
+
+  private List<Segment> buildSegments() {
+    return Arrays.stream(path.split("/", -1)).map(s -> (Segment) new SegmentValue(s)).toList();
   }
 
   @Override

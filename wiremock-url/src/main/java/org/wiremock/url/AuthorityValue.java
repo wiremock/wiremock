@@ -16,6 +16,7 @@
 package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
+import static org.wiremock.url.Lazy.lazy;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +28,7 @@ final class AuthorityValue implements Authority {
   private final @Nullable UserInfo userInfo;
   private final Host host;
   private final @Nullable Optional<Port> maybePort;
-  private final MemoisedToString toString;
+  private final Lazy<String> toString;
 
   AuthorityValue(@Nullable UserInfo userInfo, Host host, @Nullable Optional<Port> maybePort) {
     this(null, userInfo, host, maybePort);
@@ -38,7 +39,7 @@ final class AuthorityValue implements Authority {
       @Nullable UserInfo userInfo,
       Host host,
       @Nullable Optional<Port> maybePort) {
-    this.toString = new MemoisedToString(stringValue, this::buildString);
+    this.toString = lazy(stringValue, this::buildString);
     this.userInfo = userInfo;
     this.host = requireNonNull(host);
     this.maybePort = maybePort;
@@ -58,7 +59,7 @@ final class AuthorityValue implements Authority {
 
   @Override
   public String toString() {
-    return toString.toString();
+    return toString.get();
   }
 
   private String buildString() {
