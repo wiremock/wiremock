@@ -17,4 +17,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 public interface TemplateAware {
   boolean isTemplated();
+
+  String resolveExpectedValue(MatcherContext context);
 }

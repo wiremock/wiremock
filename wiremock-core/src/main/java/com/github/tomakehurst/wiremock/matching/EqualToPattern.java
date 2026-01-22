@@ -84,7 +84,8 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
     };
   }
 
-  private String resolveExpectedValue(MatcherContext context) {
+  @Override
+  public String resolveExpectedValue(MatcherContext context) {
     if (isTemplated() && context != null) {
       return context.renderTemplate(expectedValue);
     }
