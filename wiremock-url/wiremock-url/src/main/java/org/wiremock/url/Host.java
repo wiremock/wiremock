@@ -32,6 +32,7 @@ import org.wiremock.stringparser.ParsedString;
 public interface Host extends PercentEncoded<Host>, ParsedString {
 
   Host EMPTY = new HostValue("", true);
+  Host LOCALHOST = new HostValue("localhost", true);
 
   /**
    * Returns a normalised form of this host.
