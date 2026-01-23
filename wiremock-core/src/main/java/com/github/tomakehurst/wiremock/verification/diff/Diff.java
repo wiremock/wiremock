@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACE
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
@@ -256,13 +255,12 @@ public class Diff {
   private void addQueryParametersSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
     final Map<String, MultiValuePattern> queryParameters = requestPattern.getQueryParameters();
     {
-      Map<String, QueryParameter> requestQueryParams = Urls.splitQueryFromUrl(request.getUrl());
+      var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
 
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
-        QueryParameter queryParameter =
-            getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+        QueryParameter queryParameter = new QueryParameter(key, query.getDecoded(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
@@ -289,7 +287,7 @@ public class Diff {
           (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
       final PathParams requestPathParameterValues =
-          pathTemplate.parse(Urls.getPath(request.getUrl()));
+          pathTemplate.parse(request.getPathAndQueryWithoutPrefix().getPath());
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();
@@ -314,7 +312,11 @@ public class Diff {
       UrlPattern urlPattern, List<DiffLine<?>> diffLineList) {
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
-        new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
+        new DiffLine<>(
+            "URL",
+            urlPattern,
+            request.getPathAndQueryWithoutPrefix().toString(),
+            printedUrlPattern);
     diffLineList.addAll(toDiffDescriptionLines(urlSection));
     diffLineList.add(SPACER);
     return urlSection;

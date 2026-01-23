@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
+import org.wiremock.url.AbsoluteUrl;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
@@ -149,7 +149,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     }
 
     return responseDef.getProxyBaseUrl()
-        + removeStart(serveEvent.getRequest().getUrl(), responseDef.getProxyUrlPrefixToRemove());
+        + removeStart(
+            serveEvent.getRequest().getPathAndQueryWithoutPrefix().toString(),
+            responseDef.getProxyUrlPrefixToRemove());
   }
 
   private Response proxyResponseError(String type, Request request, Exception e) {
@@ -158,7 +160,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         .body(
             type
                 + " failure trying to make a proxied request from WireMock to "
-                + request.getAbsoluteUrl()
+                + request.getTypedAbsoluteUrl()
                 + "\r\n"
                 + e.getMessage())
         .build();
@@ -227,7 +229,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     } else if (hostHeaderValue != null) {
       requestBuilder.withHeader(key, hostHeaderValue);
     } else if (response.getProxyBaseUrl() != null) {
-      requestBuilder.withHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
+      AbsoluteUrl url = AbsoluteUrl.parse(response.getProxyBaseUrl());
+      requestBuilder.withHeader(key, url.getAuthority().getHostAndPort().toString());
     }
   }
 

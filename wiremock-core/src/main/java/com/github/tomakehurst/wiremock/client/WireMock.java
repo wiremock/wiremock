@@ -67,6 +67,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.wiremock.url.Path;
+import org.wiremock.url.PathAndQuery;
 
 @SuppressWarnings("unused")
 public class WireMock {
@@ -508,12 +510,20 @@ public class WireMock {
     return admin.getStubMapping(id);
   }
 
+  public static UrlPattern urlEqualTo(PathAndQuery testUrl) {
+    return urlEqualTo(testUrl.toString());
+  }
+
   public static UrlPattern urlEqualTo(String testUrl) {
     return new UrlPattern(equalTo(testUrl), false);
   }
 
   public static UrlPattern urlMatching(String urlRegex) {
     return new UrlPattern(matching(urlRegex), true);
+  }
+
+  public static UrlPathPattern urlPathEqualTo(Path testUrl) {
+    return urlPathEqualTo(testUrl.toString());
   }
 
   public static UrlPathPattern urlPathEqualTo(String testUrl) {

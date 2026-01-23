@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.ImmutableBiMap;
 import java.util.Collections;
 import java.util.Map.Entry;
+import org.wiremock.url.Path;
 
 public class AdminRoutes {
 
@@ -151,7 +152,7 @@ public class AdminRoutes {
     }
   }
 
-  public AdminTask taskFor(final RequestMethod method, final String path) {
+  public AdminTask taskFor(final RequestMethod method, final Path path) {
     return routes.entrySet().stream()
         .filter(entry -> entry.getKey().matches(method, path))
         .map(Entry::getValue)

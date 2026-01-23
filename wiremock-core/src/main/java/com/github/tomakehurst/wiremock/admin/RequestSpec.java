@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import org.wiremock.url.Path;
 
 public class RequestSpec {
 
@@ -54,7 +55,7 @@ public class RequestSpec {
     return uriTemplate.render(pathParams);
   }
 
-  public boolean matches(RequestMethod method, String path) {
+  public boolean matches(RequestMethod method, Path path) {
     return (this.method.equals(ANY) || this.method.equals(method)) && uriTemplate.matches(path);
   }
 

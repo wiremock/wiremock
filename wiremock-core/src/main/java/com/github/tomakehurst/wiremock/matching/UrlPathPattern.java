@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.common.Urls;
+import org.wiremock.url.PathAndQuery;
 
 public class UrlPathPattern extends UrlPattern {
 
@@ -29,7 +29,7 @@ public class UrlPathPattern extends UrlPattern {
       return MatchResult.noMatch();
     }
 
-    String path = Urls.getPath(url);
+    String path = PathAndQuery.parse(url).getPath().toString();
     return super.match(path);
   }
 

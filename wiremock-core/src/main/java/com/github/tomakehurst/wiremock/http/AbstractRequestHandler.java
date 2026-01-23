@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         .append(" - ")
         .append(request.getMethod())
         .append(" ")
-        .append(request.getUrl());
+        .append(request.getPathAndQueryWithoutPrefix());
 
     if (request.isBrowserProxyRequest()) {
       sb.append(" (via browser proxy request)");

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.wiremock.url.Query;
 
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
@@ -40,8 +41,8 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   }
 
   public static LimitAndSinceDatePaginator fromRequest(List<ServeEvent> source, Request request) {
-    return new LimitAndSinceDatePaginator(
-        source, toInt(request.queryParameter("limit")), toDate(request.queryParameter("since")));
+    Query query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
+    return new LimitAndSinceDatePaginator(source, toInt(query, "limit"), toDate(query, "since"));
   }
 
   @Override

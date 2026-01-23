@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class EmptyToStringRequestWrapper implements Request {
 
@@ -30,13 +34,23 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return target.getUrl();
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return target.getPathAndQueryWithoutPrefix();
+  }
+
+  @Override
+  public @Nullable String getAbsoluteUrl() {
     return target.getAbsoluteUrl();
+  }
+
+  @Override
+  public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
+    return target.getTypedAbsoluteUrl();
   }
 
   @Override

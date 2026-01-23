@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.wiremock.url.PathAndQuery;
 
 class SnapshotStubMappingBodyExtractor {
   private final BlobStore filesBlobStore;
@@ -40,12 +41,13 @@ class SnapshotStubMappingBodyExtractor {
   StubMapping extractInPlace(StubMapping stubMapping) {
     byte[] body = stubMapping.getResponse().getByteBody();
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
+    PathAndQuery pathAndQuery =
+        PathAndQuery.parse(
+            getFirstNonNull(
+                stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()));
     String extension =
         ContentTypes.determineFileExtension(
-            getFirstNonNull(
-                stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()),
-            responseHeaders.getContentTypeHeader(),
-            body);
+            pathAndQuery, responseHeaders.getContentTypeHeader(), body);
 
     FilenameMaker filenameMaker = new FilenameMaker("default", extension);
     String bodyFileName = filenameMaker.filenameFor(stubMapping);

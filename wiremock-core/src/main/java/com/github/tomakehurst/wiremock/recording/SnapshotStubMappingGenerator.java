@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
+import org.wiremock.url.PathAndQuery;
 
 /**
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
@@ -57,14 +57,14 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
     final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
     final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
 
-    URI uri = URI.create(event.getRequest().getUrl());
+    PathAndQuery url = event.getRequest().getPathAndQueryWithoutPrefix();
     FilenameMaker filenameMaker = new FilenameMaker();
 
     return StubMapping.builder()
         .setRequest(requestPattern)
         .setResponse(responseDefinition)
         .setPersistent(markStubsPersistent ? true : null)
-        .setName(filenameMaker.sanitizeUrl(uri.getPath()))
+        .setName(filenameMaker.sanitizeUrl(url.getPath()))
         .build();
   }
 }

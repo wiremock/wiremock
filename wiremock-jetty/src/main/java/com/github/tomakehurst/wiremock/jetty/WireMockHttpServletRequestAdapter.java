@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -28,26 +27,32 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Lazy;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
+import org.jspecify.annotations.NonNull;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
-  private final Lazy<String> url;
+  private final Lazy<@NonNull String> url;
+  private final Lazy<@NonNull PathAndQuery> pathAndQuery;
+  private final Lazy<@NonNull String> absoluteUrl;
+  private final Lazy<@NonNull AbsoluteUrl> typedAbsoluteUrl;
   private final Lazy<byte[]> body;
-  private final Lazy<Map<String, QueryParameter>> query;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
   private final Lazy<Collection<Part>> multiParts;
@@ -63,7 +68,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     this.url = Lazy.lazy(this::adaptUrl);
-    this.query = Lazy.lazy(() -> splitQuery(request.getQueryString()));
+    this.pathAndQuery = Lazy.lazy(this::adaptPathAndQuery);
+    this.absoluteUrl = Lazy.lazy(this::adaptAbsoluteUrl);
+    this.typedAbsoluteUrl = Lazy.lazy(this::adaptTypedAbsoluteUrl);
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.body = Lazy.lazy(this::adaptBody);
@@ -72,11 +79,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return url.get();
   }
 
-  private String adaptUrl() {
+  private @NonNull String adaptUrl() {
     String url = request.getRequestURI();
 
     String contextPath = request.getContextPath();
@@ -91,8 +98,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return pathAndQuery.get();
+  }
+
+  private @NonNull PathAndQuery adaptPathAndQuery() {
+    return PathAndQuery.parse(getUrl());
+  }
+
+  @Override
+  public @NonNull String getAbsoluteUrl() {
+    return absoluteUrl.get();
+  }
+
+  private @NonNull String adaptAbsoluteUrl() {
     return withQueryStringIfPresent(request.getRequestURL().toString());
+  }
+
+  @Override
+  public @NonNull AbsoluteUrl getTypedAbsoluteUrl() {
+    return typedAbsoluteUrl.get();
+  }
+
+  private @NonNull AbsoluteUrl adaptTypedAbsoluteUrl() {
+    return AbsoluteUrl.parse(getAbsoluteUrl());
   }
 
   private String withQueryStringIfPresent(String url) {
@@ -246,17 +275,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
     jakarta.servlet.http.Cookie[] cookies =
         getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
-      builder.put(cookie.getName(), Urls.decode(cookie.getValue()));
+      builder.put(cookie.getName(), URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8));
     }
 
     return Maps.transformValues(
         builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    Map<String, QueryParameter> queryParams = query.get();
-    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -612,6 +612,65 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
     assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void matchesQueryParamsWithUnencodedSpacesRequestedAsPluses() {
+    stubFor(
+        get(urlPathEqualTo("/query"))
+            .withQueryParam("param-one", equalTo("one two three ?"))
+            .willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/query?param-one=one+two+three+%3F");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void matchesPathWithSpacesAsPlusesRequestedAsPluses() {
+    stubFor(get(urlPathEqualTo("/path+with+spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path+with+spaces");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void doesNotMatchPathWithEncodedSpacesRequestedAsPluses() {
+    stubFor(get(urlPathEqualTo("/path%20with%20spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path+with+spaces");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void doesNotMatchPathWithSpacesRequestedAsPluses() {
+    stubFor(get(urlPathEqualTo("/path with spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path+with+spaces");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void matchesPathWithSpacesAsPlusesRequestedAsEncodedSpaces() {
+    stubFor(get(urlPathEqualTo("/path+with+spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path%20with%20spaces");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void doesNotMatchPathWithEncodedSpacesRequestedAsEncodedSpaces() {
+    stubFor(get(urlPathEqualTo("/path%20with%20spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path%20with%20spaces");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void doesNotMatchPathWithSpacesRequestedAsEncodedSpaces() {
+    stubFor(get(urlPathEqualTo("/path with spaces")).willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/path%20with%20spaces");
+    assertThat(response.statusCode(), is(404));
   }
 
   @Test

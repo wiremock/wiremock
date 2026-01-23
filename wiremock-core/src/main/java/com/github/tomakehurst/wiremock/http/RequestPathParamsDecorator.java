@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class RequestPathParamsDecorator implements Request {
 
@@ -45,13 +49,22 @@ public class RequestPathParamsDecorator implements Request {
   }
 
   @Override
-  public String getUrl() {
+  public @NonNull String getUrl() {
     return request.getUrl();
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return request.getPathAndQueryWithoutPrefix();
+  }
+
+  @Override
+  public @Nullable String getAbsoluteUrl() {
     return request.getAbsoluteUrl();
+  }
+
+  public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
+    return request.getTypedAbsoluteUrl();
   }
 
   @Override
@@ -111,7 +124,8 @@ public class RequestPathParamsDecorator implements Request {
 
   @Override
   public PathParams getPathParameters() {
-    return pathTemplate.parse(getUrl());
+    PathAndQuery pathAndQuery = getPathAndQueryWithoutPrefix();
+    return pathAndQuery != null ? pathTemplate.parse(pathAndQuery.getPath()) : PathParams.empty();
   }
 
   @Override

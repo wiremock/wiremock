@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@ import static java.util.Locale.US;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.*;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class DateTimeParser {
 
@@ -72,9 +74,24 @@ public class DateTimeParser {
     return new DateTimeParser(dateTimeFormatter, false, false);
   }
 
+  private static final Pattern OFFSET_SPACE_PATTERN =
+      Pattern.compile("([0-5]\\d:[0-5]\\d(?::[0-5]\\d)?(?:\\.\\d+)?) ([0-2]\\d)");
+
   public ZonedDateTime parseZonedDateTime(String dateTimeString) {
     if (dateTimeFormatter != null) {
-      return ZonedDateTime.parse(dateTimeString, dateTimeFormatter);
+      try {
+        return ZonedDateTime.parse(dateTimeString, dateTimeFormatter);
+      } catch (DateTimeParseException parseException) {
+        // Some of our users pass dates in query params without encoding the `+`, so it gets turned
+        // into a space - to be nice to them we try changing it back and reparsing
+        var matcher = OFFSET_SPACE_PATTERN.matcher(dateTimeString);
+        if (matcher.find()) {
+          String zonedDateTimeStringWithSpaceForPlus = matcher.replaceFirst("$1+$2");
+          return ZonedDateTime.parse(zonedDateTimeStringWithSpaceForPlus, dateTimeFormatter);
+        } else {
+          throw parseException;
+        }
+      }
     }
 
     if (isUnix) {

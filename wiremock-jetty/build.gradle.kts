@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     api(project(":wiremock-core"))
+    api(project(":wiremock-url"))
 
     api(libs.jakarta.servlet.api)
 
@@ -14,6 +15,8 @@ dependencies {
     api(libs.jetty.server)
     api(libs.jetty.util)
     api(libs.jetty.websocket.jetty.api)
+
+    api(libs.jspecify)
 
     implementation(libs.jetty.alpn.server)
     implementation(libs.jetty.ee11.servlets)

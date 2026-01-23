@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Query;
 
 public interface Request {
 
@@ -43,9 +48,22 @@ public interface Request {
     Body getBody();
   }
 
-  String getUrl();
+  @Deprecated // use getPathAndQueryWithoutPrefix()
+  @NonNull String getUrl();
 
-  String getAbsoluteUrl();
+  @JsonIgnore
+  default @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return PathAndQuery.parse(getUrl());
+  }
+
+  @Deprecated // use getTypedAbsoluteUrl()
+  @Nullable String getAbsoluteUrl();
+
+  @JsonIgnore
+  default @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
+    String absoluteUrl = getAbsoluteUrl();
+    return absoluteUrl != null ? AbsoluteUrl.parse(absoluteUrl) : null;
+  }
 
   RequestMethod getMethod();
 
@@ -75,7 +93,12 @@ public interface Request {
     return PathParams.empty();
   }
 
-  QueryParameter queryParameter(String key);
+  @Deprecated // use getPathAndQueryWithoutPrefix().getQueryOrEmpty().get(key)
+  default @Nullable QueryParameter queryParameter(String key) {
+    PathAndQuery pathAndQuery = getPathAndQueryWithoutPrefix();
+    Query query = pathAndQuery.getQueryOrEmpty();
+    return new QueryParameter(key, query.getDecoded(key));
+  }
 
   FormParameter formParameter(String key);
 

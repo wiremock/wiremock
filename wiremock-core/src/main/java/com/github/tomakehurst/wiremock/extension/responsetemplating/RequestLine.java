@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import org.wiremock.url.PathAndQuery;
 
 public class RequestLine {
   private final RequestMethod method;
@@ -32,7 +30,7 @@ public class RequestLine {
   private final String host;
   private final int port;
   private final Map<String, ListOrSingle<String>> query;
-  private final String url;
+  private final PathAndQuery url;
   private final String clientIp;
 
   private final PathParams pathParams;
@@ -42,7 +40,7 @@ public class RequestLine {
       String scheme,
       String host,
       int port,
-      String url,
+      PathAndQuery url,
       String clientIp,
       Map<String, ListOrSingle<String>> query,
       PathParams pathParams) {
@@ -57,20 +55,17 @@ public class RequestLine {
   }
 
   public static RequestLine fromRequest(final Request request) {
-    Map<String, QueryParameter> rawQuery = Urls.splitQueryFromUrl(request.getUrl());
+    var query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     Map<String, ListOrSingle<String>> adaptedQuery =
-        rawQuery.entrySet().stream()
-            .map(entry -> Map.entry(entry.getKey(), ListOrSingle.of(entry.getValue().values())))
-            .collect(
-                Collectors.toMap(
-                    Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        query.asDecodedMap().entrySet().stream()
+            .collect(Collectors.toMap(Entry::getKey, e -> ListOrSingle.of(e.getValue())));
 
     return new RequestLine(
         request.getMethod(),
         request.getScheme(),
         request.getHost(),
         request.getPort(),
-        request.getUrl(),
+        request.getPathAndQueryWithoutPrefix(),
         request.getClientIp(),
         adaptedQuery,
         request.getPathParameters());
@@ -89,7 +84,7 @@ public class RequestLine {
   }
 
   public String getUrl() {
-    return url;
+    return url.toString();
   }
 
   public Map<String, ListOrSingle<String>> getQuery() {
