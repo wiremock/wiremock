@@ -124,7 +124,7 @@ jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.1.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.2.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 sonarqube = { id = "org.sonarqube", version = "7.2.2.6593" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
