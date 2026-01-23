@@ -30,7 +30,7 @@
     "inputNormalised" : { "stringValue" : "../i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "../i", "query" : null, "fragment" : null },
     "baseExpected" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
     "baseNormalised" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "sc:sd/i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/i", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "sc:i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "i", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "../i", "base" : "sc:sd", "failure" : true },
     "matchesWhatWg" : false
@@ -267,10 +267,10 @@
     "input" : "http:",
     "base" : "https://example.org/foo/bar",
     "inputExpected" : { "stringValue" : "http:", "type" : "OpaqueUri", "scheme" : "http", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http:/", "type" : "OpaqueUri", "scheme" : "http", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "inputNormalised" : { "stringValue" : "http:", "type" : "OpaqueUri", "scheme" : "http", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : null },
     "baseExpected" : { "stringValue" : "https://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
     "baseNormalised" : { "stringValue" : "https://example.org/foo/bar", "type" : "ServersideAbsoluteUrl", "scheme" : "https", "authority" : "example.org", "userInfo" : null, "username" : null, "password" : null, "host" : "example.org", "port" : null, "path" : "/foo/bar", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "http:/", "type" : "OpaqueUri", "scheme" : "http", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "http:", "type" : "OpaqueUri", "scheme" : "http", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "http:", "base" : "https://example.org/foo/bar", "failure" : true },
     "matchesWhatWg" : false
@@ -1650,7 +1650,7 @@
     "inputNormalised" : { "stringValue" : "i", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "i", "query" : null, "fragment" : null },
     "baseExpected" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
     "baseNormalised" : { "stringValue" : "sc:sd", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "sc:sd/i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "sd/i", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "sc:i", "type" : "OpaqueUri", "scheme" : "sc", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "i", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "i", "base" : "sc:sd", "failure" : true },
     "matchesWhatWg" : false
@@ -1770,7 +1770,7 @@
     "inputNormalised" : { "stringValue" : "test-a-colon-b.html", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test-a-colon-b.html", "query" : null, "fragment" : null },
     "baseExpected" : { "stringValue" : "a:b", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "b", "query" : null, "fragment" : null },
     "baseNormalised" : { "stringValue" : "a:b", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "b", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "a:b/test-a-colon-b.html", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "b/test-a-colon-b.html", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "a:test-a-colon-b.html", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test-a-colon-b.html", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "test-a-colon-b.html", "base" : "a:b", "failure" : true },
     "matchesWhatWg" : false
@@ -1781,8 +1781,8 @@
     "inputExpected" : { "stringValue" : "test-a-colon.html", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test-a-colon.html", "query" : null, "fragment" : null },
     "inputNormalised" : { "stringValue" : "test-a-colon.html", "type" : "RelativeUrl", "scheme" : null, "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test-a-colon.html", "query" : null, "fragment" : null },
     "baseExpected" : { "stringValue" : "a:", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "baseNormalised" : { "stringValue" : "a:/", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/", "query" : null, "fragment" : null },
-    "resolved" : { "stringValue" : "a:/test-a-colon.html", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "/test-a-colon.html", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "a:", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "a:test-a-colon.html", "type" : "OpaqueUri", "scheme" : "a", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "test-a-colon.html", "query" : null, "fragment" : null },
     "origin" : null,
     "source" : { "input" : "test-a-colon.html", "base" : "a:", "failure" : true },
     "matchesWhatWg" : false

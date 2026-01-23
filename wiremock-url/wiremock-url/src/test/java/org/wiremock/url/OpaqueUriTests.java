@@ -175,5 +175,62 @@ class OpaqueUriTests {
       var opaqueUri = OpaqueUri.parse("non-spec:/..//p");
       assertThat(opaqueUri.normalise()).isEqualTo(OpaqueUri.parse("non-spec:/p"));
     }
+
+    @Test
+    void resolve_empty_path_with_query() {
+      var opaqueUri = OpaqueUri.parse("file:/foo?t");
+      var resolved = opaqueUri.resolve(RelativeUrl.parse("?r"));
+      assertThat(resolved).hasToString("file:/foo?r");
+    }
+
+    @Test
+    void resolve_empty_path_no_query() {
+      var opaqueUri = OpaqueUri.parse("file:/foo?t");
+      var resolved = opaqueUri.resolve(RelativeUrl.parse(""));
+      assertThat(resolved).hasToString("file:/foo?t");
+    }
+
+    @Test
+    void resolve_absolute_path_with_query() {
+      var opaqueUri = OpaqueUri.parse("file:/foo?t");
+      var resolved = opaqueUri.resolve(RelativeUrl.parse("/new?r"));
+      assertThat(resolved).hasToString("file:/new?r");
+    }
+
+    @Test
+    void resolve_absolute_path_no_query() {
+      var opaqueUri = OpaqueUri.parse("file:/foo?t");
+      var resolved = opaqueUri.resolve(RelativeUrl.parse("/new"));
+      assertThat(resolved).hasToString("file:/new");
+    }
+
+    private static final List<ResolveCase> resolveCases =
+        List.of(
+            resolveCase("", "bar", "bar"),
+            resolveCase("", "bar/", "bar/"),
+            resolveCase("foo", "bar", "bar"),
+            resolveCase("foo", "bar/", "bar/"),
+            resolveCase("foo/", "bar", "foo/bar"),
+            resolveCase("foo/", "bar/", "foo/bar/"),
+            resolveCase("/", "bar", "/bar"),
+            resolveCase("/", "bar/", "/bar/"),
+            resolveCase("/foo", "bar", "/bar"),
+            resolveCase("/foo", "bar/", "/bar/"),
+            resolveCase("/foo/", "bar", "/foo/bar"),
+            resolveCase("/foo/", "bar/", "/foo/bar/"));
+
+    @ParameterizedTest
+    @FieldSource("resolveCases")
+    void resolve_relative_path(ResolveCase resolveCase) {
+      var opaqueUri = OpaqueUri.parse("opaque:" + resolveCase.initialPath + "?t");
+      var resolved = opaqueUri.resolve(RelativeUrl.parse(resolveCase.relativePath + "?r"));
+      assertThat(resolved).hasToString("opaque:" + resolveCase.expectedPath + "?r");
+    }
+
+    static ResolveCase resolveCase(String initialPath, String relativePath, String expectedPath) {
+      return new ResolveCase(initialPath, relativePath, expectedPath);
+    }
+
+    record ResolveCase(String initialPath, String relativePath, String expectedPath) {}
   }
 }

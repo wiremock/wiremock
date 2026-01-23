@@ -38,9 +38,6 @@ final class OpaqueUriValue extends AbstractAbsoluteUriValue<OpaqueUri> implement
 
     Scheme normalisedScheme = nonNullScheme.normalise();
     Path normalisedPath = path.normalise();
-    if (normalisedPath.isEmpty()) {
-      normalisedPath = Path.ROOT;
-    }
 
     /*
     `whatever:/..//` is a URI without an Authority.

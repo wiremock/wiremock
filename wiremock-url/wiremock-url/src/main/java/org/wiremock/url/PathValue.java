@@ -177,10 +177,13 @@ final class PathValue implements Path {
       result = this;
     } else if (other.isAbsolute()) {
       result = other;
-    } else if (this.path.endsWith("/")) {
-      result = PathParser.INSTANCE.parse(this.path + other);
     } else {
-      result = PathParser.INSTANCE.parse(this.path + "/../" + other);
+      var lastIndexOfSlash = this.path.lastIndexOf('/');
+      if (lastIndexOfSlash == -1) {
+        result = other;
+      } else {
+        result = PathParser.INSTANCE.parse(this.path.substring(0, lastIndexOfSlash + 1) + other);
+      }
     }
     return result.normalise();
   }

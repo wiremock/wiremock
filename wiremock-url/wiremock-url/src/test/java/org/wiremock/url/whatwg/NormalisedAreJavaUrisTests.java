@@ -15,12 +15,15 @@
  */
 package org.wiremock.url.whatwg;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.net.URI;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.wiremock.url.AbsoluteUri;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.Authority;
@@ -28,6 +31,32 @@ import org.wiremock.url.Origin;
 import org.wiremock.url.Uri;
 
 public class NormalisedAreJavaUrisTests {
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "sc:foo",
+        "file:///",
+        "file://localhost",
+        "file://localhost/",
+        "sc:?",
+        "sc:foo?",
+        "file://?",
+        "file://#frag",
+        "file:///?",
+        "file://localhost?",
+        "file://localhost/?",
+      })
+  void java_valid_uris(String validUri) {
+    assertDoesNotThrow(() -> URI.create(validUri));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"sc:", "file://", "sc:#frag"})
+  void java_invalid_uris(String invalidUri) {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> URI.create(invalidUri));
+  }
 
   private static final List<? extends SimpleParseSuccess> wiremock_valid =
       WhatWGUrlTestManagement.wiremock_valid;
@@ -46,18 +75,18 @@ public class NormalisedAreJavaUrisTests {
 
     Origin origin = resolved instanceof AbsoluteUrl resolvedUrl ? resolvedUrl.getOrigin() : null;
 
-    Assertions.assertDoesNotThrow(
+    assertDoesNotThrow(
         () -> {
-          if (inputNormalised instanceof AbsoluteUri && hasJavaValidAuthority(inputNormalised)) {
+          if (inputNormalised instanceof AbsoluteUri && notJavaEdgeCase(inputNormalised)) {
             URI.create(inputNormalised.toString());
           }
-          if (baseNormalised != null) {
+          if (baseNormalised != null && notJavaEdgeCase(baseNormalised)) {
             URI.create(baseNormalised.toString());
           }
-          if (hasJavaValidAuthority(resolved)) {
+          if (notJavaEdgeCase(resolved)) {
             URI.create(resolved.toString());
           }
-          if (origin != null && hasJavaValidAuthority(origin)) {
+          if (origin != null && notJavaEdgeCase(origin)) {
             URI.create(origin.toString());
           }
         });
@@ -70,8 +99,19 @@ public class NormalisedAreJavaUrisTests {
     return AbsoluteUri.parse(input);
   }
 
-  private static boolean hasJavaValidAuthority(Uri uri) {
+  private static boolean notJavaEdgeCase(Uri uri) {
+    return !isJavaEdgeCase(uri);
+  }
+
+  private static boolean isJavaEdgeCase(Uri uri) {
     Authority authority = uri.getAuthority();
-    return authority == null || !authority.toString().isEmpty();
+    boolean edgeCase1 = authority == null && uri.getPath().isEmpty() && uri.getQuery() == null;
+    boolean edgeCase2 =
+        authority != null
+            && authority.toString().isEmpty()
+            && uri.getPath().isEmpty()
+            && uri.getQuery() == null
+            && uri.getFragment() == null;
+    return edgeCase1 || edgeCase2;
   }
 }

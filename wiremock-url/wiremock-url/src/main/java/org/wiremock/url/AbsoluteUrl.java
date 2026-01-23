@@ -113,8 +113,10 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
    * @param other the path to resolve
    * @return the URL with the resolved path
    */
+  @Override
   default AbsoluteUrl resolve(Path other) {
-    return this.transform(builder -> builder.setPath(getPath().resolve(other)));
+    var relative = RelativeUrl.builder().setPath(other).build();
+    return resolve(relative);
   }
 
   /**

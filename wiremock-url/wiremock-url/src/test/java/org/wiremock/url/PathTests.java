@@ -286,6 +286,59 @@ public class PathTests {
     void resolvePathSingle() {
       resolvePath(entry("", "/b/c/d;p"));
     }
+
+    private static final List<ResolveCase> resolveCases =
+        List.of(
+            resolveCase("", "", ""),
+            resolveCase("", "bar/", "bar/"),
+            resolveCase("", "bar", "bar"),
+            resolveCase("", "/", "/"),
+            resolveCase("", "/bar", "/bar"),
+            resolveCase("foo/", "", "foo/"),
+            resolveCase("foo/", "bar/", "foo/bar/"),
+            resolveCase("foo/", "bar", "foo/bar"),
+            resolveCase("foo/", "/", "/"),
+            resolveCase("foo/", "/bar", "/bar"),
+            resolveCase("foo", "", "foo"),
+            resolveCase("foo", "bar/", "bar/"),
+            resolveCase("foo", "bar", "bar"),
+            resolveCase("foo", "/", "/"),
+            resolveCase("foo", "/bar", "/bar"),
+            resolveCase("/", "", "/"),
+            resolveCase("/", "bar/", "/bar/"),
+            resolveCase("/", "bar", "/bar"),
+            resolveCase("/", "/", "/"),
+            resolveCase("/", "/bar", "/bar"),
+            resolveCase("/foo", "", "/foo"),
+            resolveCase("/foo", "bar/", "/bar/"),
+            resolveCase("/foo", "bar", "/bar"),
+            resolveCase("/foo", "/", "/"),
+            resolveCase("/foo", "/bar", "/bar"));
+
+    @ParameterizedTest
+    @FieldSource("resolveCases")
+    void paths_are_resolved(ResolveCase resolveCase) {
+      assertThat(resolveCase.initial().resolve(resolveCase.other()))
+          .isEqualTo(resolveCase.expected());
+    }
+
+    static ResolveCase resolveCase(String initialStr, String otherStr, String expectedStr) {
+      return new ResolveCase(initialStr, otherStr, expectedStr);
+    }
+
+    record ResolveCase(String initialStr, String otherStr, String expectedStr) {
+      Path initial() {
+        return Path.parse(initialStr);
+      }
+
+      Path other() {
+        return Path.parse(otherStr);
+      }
+
+      Path expected() {
+        return Path.parse(expectedStr);
+      }
+    }
   }
 
   @Nested
