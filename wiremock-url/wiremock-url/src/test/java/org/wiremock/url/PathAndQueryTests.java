@@ -218,4 +218,23 @@ class PathAndQueryTests {
       assertThat(pathAndQuery.getQuery()).isNull();
     }
   }
+
+  @Test
+  void path_and_query_may_not_be_equal_to_relative_url_with_same_string_representation() {
+
+    var stringForm = "//example.com/path";
+
+    PathAndQuery pathAndQuery = PathAndQuery.parse(stringForm);
+    RelativeUrl relativeUrl = RelativeUrl.parse(stringForm);
+
+    assertThat(pathAndQuery).isNotEqualTo(relativeUrl);
+    assertThat(relativeUrl).isNotEqualTo(pathAndQuery);
+
+    var baseUrl = AbsoluteUrl.parse("https://www.example.com/other/");
+
+    assertThat(baseUrl.resolve(pathAndQuery))
+        .isEqualTo(AbsoluteUrl.parse("https://www.example.com//example.com/path"));
+    assertThat(baseUrl.resolve(relativeUrl))
+        .isEqualTo(AbsoluteUrl.parse("https://example.com/path"));
+  }
 }
