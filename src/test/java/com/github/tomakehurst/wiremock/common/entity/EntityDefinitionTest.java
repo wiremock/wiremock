@@ -466,21 +466,21 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothDataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, null, null, "data", "path"));
+        () -> new TextEntityDefinition(null, null, null, null, null, DataFormat.plain, "data", "path"));
   }
 
   @Test
   void rejectsEntityWithBothDataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, "store", "key", "data", null));
+        () -> new TextEntityDefinition(null, null, null, "store", "key", DataFormat.plain, "data", null));
   }
 
   @Test
   void rejectsEntityWithBothFilePathAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, "store", "key", null, "path"));
+        () -> new TextEntityDefinition(null, null, null, "store", "key", null, null, "path"));
   }
 
   @Test

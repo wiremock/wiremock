@@ -43,6 +43,7 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
   @NonNull protected final Charset charset;
   private final String dataStore;
   private final String dataRef;
+  private final DataFormat dataFormat;
   private final byte[] data;
   private final String filePath;
 
@@ -64,16 +65,18 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
       @JsonProperty("dataRef") String dataRef,
+      @JsonProperty("dataFormat") DataFormat dataFormat,
       @JsonProperty("data") Object data,
       @JsonProperty("filePath") String filePath) {
 
-    super(compression);
+    super(compression, format);
 
     assertValidParameterCombination(data, filePath, dataStore, dataRef);
 
     this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
     this.dataStore = dataStore;
     this.dataRef = dataRef;
+    this.dataFormat = dataFormat;
     this.data = resolveData(data);
     this.filePath = filePath;
 
@@ -136,6 +139,12 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
   @JsonIgnore
   public EncodingType getEncoding() {
     return TEXT;
+  }
+
+  @Override
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultDataFormatFilter.class)
+  public DataFormat getDataFormat() {
+    return dataFormat;
   }
 
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultFormatFilter.class)
@@ -230,6 +239,14 @@ public class TextEntityDefinition extends EntityDefinition<TextEntityDefinition>
     @Override
     public boolean equals(Object obj) {
       return DEFAULT_COMPRESSION.equals(obj);
+    }
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class DefaultDataFormatFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DataFormat.plain.equals(obj);
     }
   }
 

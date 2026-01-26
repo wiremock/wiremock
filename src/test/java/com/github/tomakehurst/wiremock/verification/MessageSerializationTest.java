@@ -515,9 +515,15 @@ public class MessageSerializationTest {
 
   @Test
   void textEntityDefinitionWithStringDataSerializesToJson() {
-    TextEntityDefinition entityDef =
-        new TextEntityDefinition(
-            TextFormat.TEXT, UTF_8, CompressionType.NONE, null, null, "hello world", null);
+//    TextEntityDefinition entityDef =
+//        new TextEntityDefinition(
+//            TextFormat.TEXT, UTF_8, CompressionType.NONE, null, null, "hello world", null);
+    final EntityDefinition<?> entityDef = EntityDefinition.builder()
+            .setFormat(TextFormat.TEXT)
+            .setCharset(UTF_8)
+            .setCompression(CompressionType.NONE)
+            .setData("hello world")
+            .build();
 
     String json = Json.write(entityDef);
 

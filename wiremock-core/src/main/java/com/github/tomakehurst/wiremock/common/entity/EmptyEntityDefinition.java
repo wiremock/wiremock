@@ -26,12 +26,17 @@ public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinitio
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
   protected EmptyEntityDefinition() {
-    super(CompressionType.NONE);
+    super(CompressionType.NONE, null);
   }
 
   @Override
   public EncodingType getEncoding() {
     return EncodingType.BINARY;
+  }
+
+  @Override
+  public DataFormat getDataFormat() {
+    return DataFormat.plain;
   }
 
   @Override

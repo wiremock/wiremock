@@ -32,11 +32,16 @@ public class SimpleStringEntityDefinition extends TextEntityDefinition {
   }
 
   SimpleStringEntityDefinition(String text, Charset charset) {
-    super(TextFormat.TEXT, charset, CompressionType.NONE, null, null, text, null);
+    super(TextFormat.TEXT, charset, CompressionType.NONE, null, null, DataFormat.plain, text, null);
   }
 
   @Override
-  public TextEntityDefinition withCharset(Charset charset) {
+  public DataFormat getDataFormat() {
+    return DataFormat.plain;
+  }
+
+  @Override
+  public SimpleStringEntityDefinition withCharset(Charset charset) {
     return new SimpleStringEntityDefinition(getText(), charset);
   }
 }

@@ -15,10 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static com.github.tomakehurst.wiremock.common.entity.EncodingType.BINARY;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,8 +23,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
+
 import java.util.Arrays;
 import java.util.Objects;
+
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.EncodingType.BINARY;
 
 @JsonSerialize(as = BinaryEntityDefinition.class)
 @JsonDeserialize(as = BinaryEntityDefinition.class)
@@ -46,15 +47,18 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
   }
 
   public BinaryEntityDefinition(
-      // encoding is accepted for deserialization but ignored (always BINARY)
       @JsonProperty("encoding") EncodingType ignored,
+      @JsonProperty("format") TextFormat format,
       @JsonProperty("compression") CompressionType compression,
       @JsonProperty("dataStore") String dataStore,
       @JsonProperty("dataRef") String dataRef,
       @JsonProperty("data") Object data,
       @JsonProperty("filePath") String filePath) {
 
-    super(compression != null ? compression : tryToGuessCompressionType(data));
+    super(
+            compression != null ? compression : tryToGuessCompressionType(data),
+            format
+    );
 
     assertValidParameterCombination(data, filePath, dataStore, dataRef);
 
@@ -94,12 +98,6 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
     return BINARY;
   }
 
-  @Override
-  @JsonIgnore
-  public TextFormat getFormat() {
-    return TextFormat.BASE64;
-  }
-
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
   public CompressionType getCompression() {
     return compression;
@@ -113,6 +111,12 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
   @Override
   public String getDataRef() {
     return dataRef;
+  }
+
+  @Override
+  @JsonIgnore
+  public DataFormat getDataFormat() {
+    return DataFormat.base64;
   }
 
   @Override
@@ -162,39 +166,4 @@ public class BinaryEntityDefinition extends EntityDefinition<BinaryEntityDefinit
       return DEFAULT_COMPRESSION.equals(obj);
     }
   }
-
-  //  public static class Builder
-  //      extends EntityDefinition.BaseBuilder<Builder, BinaryEntityDefinition> {
-  //
-  //    private byte[] data;
-  //
-  //    public Builder() {}
-  //
-  //    public Builder(BinaryEntityDefinition entity) {
-  //      super(entity.compression, entity.dataStore, entity.dataRef, entity.filePath);
-  //      this.data = entity.data;
-  //    }
-  //
-  //    public Builder setData(byte[] data) {
-  //      resetDataAndRefs();
-  //      this.data = data;
-  //      return this;
-  //    }
-  //
-  //    public Builder setBodyBase64(String base64Data) {
-  //      resetDataAndRefs();
-  //      this.data = Encoding.decodeBase64(base64Data);
-  //      return this;
-  //    }
-  //
-  //    @Override
-  //    protected void resetDataAndRefs() {
-  //      super.resetDataAndRefs();
-  //      this.data = null;
-  //    }
-  //
-  //    public BinaryEntityDefinition build() {
-  //      return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
-  //    }
-  //  }
 }

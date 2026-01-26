@@ -50,9 +50,11 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
   public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
 
   @NonNull protected final CompressionType compression;
+  protected final TextFormat textFormat;
 
-  protected EntityDefinition(@NonNull CompressionType compression) {
+  protected EntityDefinition(@NonNull CompressionType compression, TextFormat textFormat) {
     this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
+      this.textFormat = textFormat;
   }
 
   protected static void assertValidParameterCombination(
@@ -75,14 +77,18 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
     return this instanceof EmptyEntityDefinition;
   }
 
-  public CompressionType getCompression() {
+  @NonNull public CompressionType getCompression() {
     return compression;
   }
 
-  public abstract EncodingType getEncoding();
+  public TextFormat getFormat() {
+    return textFormat;
+  }
 
-  public abstract TextFormat getFormat();
+  @NonNull public abstract EncodingType getEncoding();
 
+
+  public abstract DataFormat getDataFormat();
   public abstract Object getData();
 
   @JsonIgnore
@@ -126,16 +132,13 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
   }
 
   @SuppressWarnings("unchecked")
-  public SELF withCompression(CompressionType compressionType) {
-    return (SELF) transform(b -> b.setCompression(compressionType));
-  }
-
-  @SuppressWarnings("unchecked")
   public SELF decompress() {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
       return (SELF)
-          transform(builder -> builder.setData(Gzip.unGzip(getDataAsBytes())).setCompression(NONE));
+          transform(builder -> builder
+                  .setData(Gzip.unGzip(getDataAsBytes()))
+                  .setCompression(NONE));
     }
 
     if (compression != NONE) {
@@ -155,13 +158,15 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
 
   public static class Builder {
 
-    private EncodingType encoding;
+    private EncodingType encoding = EncodingType.TEXT;
     private CompressionType compression = NONE;
 
     protected TextFormat format;
     protected Charset charset = DEFAULT_CHARSET;
+
     private byte[] data;
     private Object jsonData;
+
     private String dataStore;
     private String dataRef;
     private String filePath;
@@ -299,12 +304,14 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       }
 
       if (encoding == EncodingType.TEXT) {
+        var dataFormat = compression == NONE ? DataFormat.plain : DataFormat.base64;
+        var formattedData = dataFormat == DataFormat.base64 ? Encoding.encodeBase64(data) : data;
         return v3Style
             ? new SimpleStringEntityDefinition(Strings.stringFromBytes(data, charset))
             : new TextEntityDefinition(
-                format, charset, compression, dataStore, dataRef, data, filePath);
+                format, charset, compression, dataStore, dataRef, dataFormat, formattedData, filePath);
       } else {
-        return new BinaryEntityDefinition(null, compression, dataStore, dataRef, data, filePath);
+        return new BinaryEntityDefinition(null, format, compression, dataStore, dataRef, data, filePath);
       }
     }
   }

@@ -61,7 +61,7 @@ public class Entity {
       InputStreamSource streamSource) {
     this.encoding = encoding;
     this.format = format;
-    this.charset = charset;
+    this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
     this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
     this.streamSource = streamSource;
   }
@@ -83,7 +83,7 @@ public class Entity {
   }
 
   public boolean isCompressed() {
-    return compression != null && compression != NONE;
+    return compression != NONE;
   }
 
   public boolean isDecompressible() {

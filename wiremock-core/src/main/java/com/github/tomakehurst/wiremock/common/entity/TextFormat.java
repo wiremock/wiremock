@@ -26,7 +26,6 @@ public class TextFormat {
   public static final TextFormat XML = new TextFormat("xml");
   public static final TextFormat YAML = new TextFormat("yaml");
   public static final TextFormat CSV = new TextFormat("csv");
-  public static final TextFormat BASE64 = new TextFormat("base64");
 
   private final String type;
 
@@ -74,6 +73,6 @@ public class TextFormat {
   }
 
   public static TextFormat[] values() {
-    return new TextFormat[] {JSON, HTML, TEXT, XML, YAML, CSV, BASE64};
+    return new TextFormat[] {JSON, HTML, TEXT, XML, YAML, CSV};
   }
 }

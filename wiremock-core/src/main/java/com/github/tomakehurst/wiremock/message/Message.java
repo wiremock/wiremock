@@ -122,7 +122,6 @@ public class Message {
       this.body =
           Entity.builder()
               .setEncoding(EncodingType.BINARY)
-              .setFormat(TextFormat.BASE64)
               .setData(data)
               .build();
 

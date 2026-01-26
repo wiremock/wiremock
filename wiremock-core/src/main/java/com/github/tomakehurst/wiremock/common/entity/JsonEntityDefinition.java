@@ -27,8 +27,13 @@ public class JsonEntityDefinition extends TextEntityDefinition {
   private final JsonNode data;
 
   public JsonEntityDefinition(Object data) {
-    super(TextFormat.JSON, UTF_8, NONE, null, null, null, null);
+    super(TextFormat.JSON, UTF_8, NONE, null, null, null, null, null);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
+  }
+
+  @Override
+  public DataFormat getDataFormat() {
+    return DataFormat.json;
   }
 
   @Override
