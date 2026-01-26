@@ -25,10 +25,10 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.Test;
 
-public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
+public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  void matchesQueryParameterAgainstAnotherQueryParameter() {
+  void matchesQueryParameterEqualToAnotherQueryParameter() {
     stubFor(
         get(urlPathEqualTo("/test"))
             .withQueryParam("param2", equalToTemplated("{{request.query.param1}}"))
@@ -42,7 +42,7 @@ public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void doesNotMatchQueryParameterIfTemplatingNotEnabled() {
+  void doesNotMatchEqualToQueryParameterIfTemplatingNotEnabled() {
     stubFor(
         get(urlPathEqualTo("/test"))
             .withQueryParam("param2", equalTo("{{request.query.param1}}"))
@@ -53,7 +53,7 @@ public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void matchesQueryParameterUsingUpperHelper() {
+  void matchesEqualToQueryParameterUsingUpperHelper() {
     stubFor(
         get(urlPathEqualTo("/test"))
             .withQueryParam("param2", equalToTemplated("{{upper request.query.param1}}"))
@@ -64,7 +64,7 @@ public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void matchesQueryParameterFromJsonStubWithTemplating() {
+  void matchesEqualToQueryParameterFromJsonStubWithTemplating() {
     String json =
         """
           {
@@ -95,7 +95,7 @@ public class TemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void doesNotMatchQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+  void doesNotMatchEqualToQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
     String json =
         """
           {
