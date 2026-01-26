@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Map;
 
@@ -32,11 +31,7 @@ public class ServeContext {
   }
 
   public String renderTemplate(String template) {
-    TemplateEngine templateEngine = services.getTemplateEngine();
-    return templateEngine.getUncachedTemplate(template).apply(model.get());
-  }
-
-  public WireMockServices getServices() {
-    return services;
+    // Use the template string as the key to leverage the TemplateEngine's internal cache
+    return services.getTemplateEngine().getTemplate(template, template).apply(model.get());
   }
 }
