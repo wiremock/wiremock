@@ -188,13 +188,14 @@ public class EqualToXmlPattern extends StringValuePattern {
           appendSubEvent(SubEvent.warning(e.getMessage()));
 
           notifier()
-              .info(() ->
-                  "Failed to process XML. "
-                      + e.getMessage()
-                      + "\nExpected:\n"
-                      + expectedValue
-                      + "\n\nActual:\n"
-                      + value);
+              .info(
+                  () ->
+                      "Failed to process XML. "
+                          + e.getMessage()
+                          + "\nExpected:\n"
+                          + expectedValue
+                          + "\n\nActual:\n"
+                          + value);
           return false;
         }
       }
@@ -232,21 +233,23 @@ public class EqualToXmlPattern extends StringValuePattern {
           diff = diffBuilder.build();
         } catch (XMLUnitException e) {
           notifier()
-              .info(() ->
-                  "Failed to process XML. "
-                      + e.getMessage()
-                      + "\nExpected:\n"
-                      + expectedValue
-                      + "\n\nActual:\n"
-                      + value);
+              .info(
+                  () ->
+                      "Failed to process XML. "
+                          + e.getMessage()
+                          + "\nExpected:\n"
+                          + expectedValue
+                          + "\n\nActual:\n"
+                          + value);
           return 1.0;
         }
 
         notifier()
-            .info(() ->
-                StreamSupport.stream(diff.getDifferences().spliterator(), false)
-                    .map(Object::toString)
-                    .collect(Collectors.joining("\n")));
+            .info(
+                () ->
+                    StreamSupport.stream(diff.getDifferences().spliterator(), false)
+                        .map(Object::toString)
+                        .collect(Collectors.joining("\n")));
 
         return differences.doubleValue() / totalComparisons.doubleValue();
       }

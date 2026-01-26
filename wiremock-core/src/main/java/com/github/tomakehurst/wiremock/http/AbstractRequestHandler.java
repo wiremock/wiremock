@@ -82,13 +82,14 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
     if (logRequests()) {
       notifier()
-          .info(() ->
-              "Request received:\n"
-                  + formatRequest(request)
-                  + "\n\nMatched response definition:\n"
-                  + responseDefinition
-                  + "\n\nResponse:\n"
-                  + response);
+          .info(
+              () ->
+                  "Request received:\n"
+                      + formatRequest(request)
+                      + "\n\nMatched response definition:\n"
+                      + responseDefinition
+                      + "\n\nResponse:\n"
+                      + response);
     }
 
     for (RequestListener listener : listeners) {
