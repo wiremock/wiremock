@@ -26,6 +26,9 @@ final class OriginValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl> 
   OriginValue(@Nullable String stringValue, Scheme scheme, HostAndPort authority) {
     super(stringValue, scheme, authority, Path.EMPTY, null, null);
     this.hostAndPort = requireNonNull(authority);
+    if (!authority.isNormalForm(scheme)) {
+      throw new IllegalOrigin(toString());
+    }
   }
 
   OriginValue(Scheme scheme, HostAndPort authority) {
@@ -33,8 +36,8 @@ final class OriginValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl> 
   }
 
   @Override
-  public ServersideAbsoluteUrl normalise() {
-    return new ServersideAbsoluteUrlValue(nonNullScheme, hostAndPort, Path.ROOT, null);
+  public BaseUrl normalise() {
+    return (BaseUrl) transform(b -> b.setPath(Path.ROOT));
   }
 
   @Override

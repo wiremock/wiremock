@@ -23,7 +23,7 @@ final class RelativeUrlValue extends AbstractUriValue implements RelativeUrl {
       @Nullable String stringValue, Path path, @Nullable Query query, @Nullable Fragment fragment) {
     super(stringValue, null, null, path, query, fragment);
     if (!path.isEmpty()) {
-      if (path.getSegments().get(0).toString().contains(":")) {
+      if (path.getFirstSegment().toString().contains(":")) {
         throw new IllegalRelativeUrl(
             this.toString(),
             "Illegal relative url: `"

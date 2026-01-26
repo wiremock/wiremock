@@ -546,4 +546,12 @@ class HostTests {
       super("org.wiremock.url.Host", EMPTY, "org.wiremock.url.HostParser", "");
     }
   }
+
+  @Nested
+  class LocalhostInitialisation extends AbstractEncodableInitialisationTests {
+
+    LocalhostInitialisation() {
+      super("org.wiremock.url.Host", "LOCALHOST", "org.wiremock.url.HostParser", "localhost");
+    }
+  }
 }

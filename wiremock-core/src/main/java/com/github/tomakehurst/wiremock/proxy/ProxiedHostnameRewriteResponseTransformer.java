@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.Host;
 import org.wiremock.url.HostAndPort;
-import org.wiremock.url.Origin;
 import org.wiremock.url.Path;
 import org.wiremock.url.Port;
+import org.wiremock.url.Query;
 import org.wiremock.url.Scheme;
 import org.wiremock.url.Url;
 
@@ -171,13 +171,18 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
    */
   private static SubstitutionData getSubstitutionData(ServeEvent serveEvent) {
 
-    Origin proxyUrl = serveEvent.getRequest().getTypedAbsoluteUrl().getOrigin();
+    AbsoluteUrl proxyUrl =
+        serveEvent
+            .getRequest()
+            .getTypedAbsoluteUrl()
+            .transform(b -> b.setPath(Path.EMPTY).setQuery((Query) null));
     var proxyDefaultPort = proxyUrl.getScheme().getDefaultPort();
     var proxyActualPort = proxyUrl.getResolvedPort();
     var proxyWsScheme = getWebSocketScheme(proxyUrl);
 
-    Origin originUrl =
-        AbsoluteUrl.parse(serveEvent.getResponseDefinition().getProxyBaseUrl()).getOrigin();
+    AbsoluteUrl originUrl =
+        AbsoluteUrl.parse(serveEvent.getResponseDefinition().getProxyBaseUrl())
+            .transform(b -> b.setPath(Path.EMPTY).setQuery((Query) null));
     var originDefaultPort = originUrl.getScheme().getDefaultPort();
     var originActualPort = originUrl.getResolvedPort();
     var originWsScheme = getWebSocketScheme(originUrl);

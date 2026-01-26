@@ -58,6 +58,10 @@ The library provides:
   fragment. Used in the request line of an HTTP request.
 - **ServersideAbsoluteUrl**: A specialisation of `AbsoluteUrl` that contains no fragment. Used in
   the request line of an HTTP request when using an HTTP proxy.
+- **BaseUrl**: A specialisation of `AbsoluteUrl` whose path is either empty or ends with a slash,
+  and which has neither a query nor a fragment. Typically used as a configuration parameter, as
+  you can always resolve a relative path (and query and fragment) onto it and it will effectively be
+  appended to the base url.
 - **Origin**: A specialisation of `AbsoluteUrl` which contains only a normalised scheme, host and
   (optional) port. Used as the origin for a user agent doing content security.
 
@@ -140,6 +144,11 @@ class ServersideAbsoluteUrl {
 
 }
 
+class BaseUrl {
+  <<Interface>>
+
+}
+
 class Origin {
   <<Interface>>
 
@@ -156,7 +165,8 @@ UrlWithAuthority <|-- SchemeRelativeUrl
 UrlWithAuthority <|-- AbsoluteUrl 
 RelativeUrl <|-- SchemeRelativeUrl
 AbsoluteUrl <|-- ServersideAbsoluteUrl
-ServersideAbsoluteUrl <|-- Origin
+ServersideAbsoluteUrl <|-- BaseUrl
+BaseUrl <|-- Origin
 ```
 ## Design Goals
 
