@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.reflect.Constructor;
@@ -25,8 +26,32 @@ import java.util.Objects;
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
+  private Boolean templated;
+
   protected StringValuePattern(String expectedValue) {
     super(expectedValue);
+  }
+
+  public boolean isTemplated() {
+    return templated != null && templated;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean getTemplated() {
+    return templated;
+  }
+
+  public String resolveExpectedValue(ServeContext context) {
+    if (isTemplated() && context != null) {
+      return context.renderTemplate(expectedValue);
+    }
+    return expectedValue;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends StringValuePattern> T templated() {
+    this.templated = true;
+    return (T) this;
   }
 
   @JsonIgnore
@@ -85,11 +110,12 @@ public abstract class StringValuePattern extends ContentPattern<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     StringValuePattern that = (StringValuePattern) o;
-    return Objects.equals(expectedValue, that.expectedValue);
+    return Objects.equals(expectedValue, that.expectedValue)
+        && Objects.equals(templated, that.templated);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(expectedValue);
+    return Objects.hash(expectedValue, templated);
   }
 }

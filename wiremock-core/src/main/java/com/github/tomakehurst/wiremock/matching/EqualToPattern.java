@@ -17,26 +17,18 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Strings.normalisedLevenshteinDistance;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
-public class EqualToPattern extends StringValuePattern implements TemplateAware {
+public class EqualToPattern extends StringValuePattern {
 
   private final Boolean caseInsensitive;
-  private final Boolean templated;
 
   public EqualToPattern(
       @JsonProperty("equalTo") String testValue,
-      @JsonProperty("caseInsensitive") Boolean caseInsensitive,
-      @JsonProperty("templated") Boolean templated) {
+      @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
     super(testValue);
     this.caseInsensitive = caseInsensitive;
-    this.templated = templated;
-  }
-
-  public EqualToPattern(String testValue, Boolean caseInsensitive) {
-    this(testValue, caseInsensitive, null);
   }
 
   public EqualToPattern(String expectedValue) {
@@ -49,16 +41,6 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
 
   public Boolean getCaseInsensitive() {
     return caseInsensitive;
-  }
-
-  @Override
-  public boolean isTemplated() {
-    return templated != null && templated;
-  }
-
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  public Boolean getTemplated() {
-    return templated;
   }
 
   @Override
@@ -82,14 +64,6 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
         return normalisedLevenshteinDistance(resolvedExpected, value);
       }
     };
-  }
-
-  @Override
-  public String resolveExpectedValue(ServeContext context) {
-    if (isTemplated() && context != null) {
-      return context.renderTemplate(expectedValue);
-    }
-    return expectedValue;
   }
 
   private boolean shouldMatchCaseInsensitive() {

@@ -23,104 +23,108 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTestBase {
 
-  @Test
-  void matchesQueryParameterEqualToAnotherQueryParameter() {
-    stubFor(
-        get(urlPathEqualTo("/test"))
-            .withQueryParam("param2", equalToTemplated("{{request.query.param1}}"))
-            .willReturn(ok()));
+  @Nested
+  class EqualToQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterEqualToAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", equalTo("{{request.query.param1}}").templated())
+              .willReturn(ok()));
 
-    // Should NOT match: param1=foo, but param2=bar (not equal)
-    assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+      // Should NOT match: param1=foo, but param2=bar (not equal)
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
 
-    // Should match: param1=foo and param2=foo (equal)
-    assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
-  }
+      // Should match: param1=foo and param2=foo (equal)
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+    }
 
-  @Test
-  void doesNotMatchEqualToQueryParameterIfTemplatingNotEnabled() {
-    stubFor(
-        get(urlPathEqualTo("/test"))
-            .withQueryParam("param2", equalTo("{{request.query.param1}}"))
-            .willReturn(ok()));
+    @Test
+    void doesNotMatchEqualToQueryParameterIfTemplatingNotEnabled() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", equalTo("{{request.query.param1}}"))
+              .willReturn(ok()));
 
-    // Should not match even though they are equal as templating not enabled
-    assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(404));
-  }
+      // Should not match even though they are equal as templating not enabled
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(404));
+    }
 
-  @Test
-  void matchesEqualToQueryParameterUsingUpperHelper() {
-    stubFor(
-        get(urlPathEqualTo("/test"))
-            .withQueryParam("param2", equalToTemplated("{{upper request.query.param1}}"))
-            .willReturn(ok()));
+    @Test
+    void matchesEqualToQueryParameterUsingUpperHelper() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", equalTo("{{upper request.query.param1}}").templated())
+              .willReturn(ok()));
 
-    // param2 should match the uppercase version of param1
-    assertThat(testClient.get("/test?param1=hello&param2=HELLO").statusCode(), is(200));
-  }
+      // param2 should match the uppercase version of param1
+      assertThat(testClient.get("/test?param1=hello&param2=HELLO").statusCode(), is(200));
+    }
 
-  @Test
-  void matchesEqualToQueryParameterFromJsonStubWithTemplating() {
-    String json =
-        """
-          {
-            "request": {
-              "urlPath": "/test",
-              "method": "GET",
-              "queryParameters": {
-                "param2": {
-                  "equalTo": "{{request.query.param1}}",
-                  "templated": true
+    @Test
+    void matchesEqualToQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalTo": "{{request.query.param1}}",
+                    "templated": true
+                  }
                 }
+              },
+              "response": {
+                "status": 200
               }
-            },
-            "response": {
-              "status": 200
             }
-          }
-          """;
+            """;
 
-    // Parse the JSON into a StubMapping object
-    StubMapping stubMapping = Json.read(json, StubMapping.class);
+      // Parse the JSON into a StubMapping object
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
 
-    // Add the stub mapping to WireMock using importStubs
-    WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+      // Add the stub mapping to WireMock using importStubs
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
 
-    assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(200));
-    assertThat(testClient.get("/test?param1=hello&param2=wrong").statusCode(), is(404));
-  }
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=wrong").statusCode(), is(404));
+    }
 
-  @Test
-  void doesNotMatchEqualToQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
-    String json =
-        """
-          {
-            "request": {
-              "urlPath": "/test",
-              "method": "GET",
-              "queryParameters": {
-                "param2": {
-                  "equalTo": "{{request.query.param1}}",
-                  "templated": false
+    @Test
+    void doesNotMatchEqualToQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalTo": "{{request.query.param1}}",
+                    "templated": false
+                  }
                 }
+              },
+              "response": {
+                "status": 200
               }
-            },
-            "response": {
-              "status": 200
             }
-          }
-          """;
+            """;
 
-    // Parse the JSON into a StubMapping object
-    StubMapping stubMapping = Json.read(json, StubMapping.class);
+      // Parse the JSON into a StubMapping object
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
 
-    // Add the stub mapping to WireMock using importStubs
-    WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+      // Add the stub mapping to WireMock using importStubs
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
 
-    assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(404));
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(404));
+    }
   }
 }

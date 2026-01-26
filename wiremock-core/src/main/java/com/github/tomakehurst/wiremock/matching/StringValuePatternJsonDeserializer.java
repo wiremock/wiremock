@@ -193,6 +193,18 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
+    StringValuePattern pattern = doBuildStringValuePattern(rootNode);
+
+    JsonNode templatedNode = rootNode.findValue("templated");
+    if (templatedNode != null && templatedNode.asBoolean()) {
+      pattern.templated();
+    }
+
+    return pattern;
+  }
+
+  private StringValuePattern doBuildStringValuePattern(JsonNode rootNode)
+      throws JsonMappingException {
     Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
     if (patternClass.equals(AbsentPattern.class)) {
       return AbsentPattern.ABSENT;
@@ -248,9 +260,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     String operand = equalToNode.textValue();
     Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
-    Boolean templated = fromNullable(rootNode.findValue("templated"));
 
-    return new EqualToPattern(operand, ignoreCase, templated);
+    return new EqualToPattern(operand, ignoreCase);
   }
 
   private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {
