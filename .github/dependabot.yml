@@ -9,6 +9,10 @@ updates:
 
 - package-ecosystem: gradle
   directory: "/wiremock-url"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
   ignore:
     - dependency-name: "com.fasterxml.jackson.core:jackson-core"
     - dependency-name: "com.fasterxml.jackson.core:jackson-databind"
