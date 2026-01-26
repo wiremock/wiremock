@@ -16,7 +16,7 @@ dependencies {
 
   implementation(project(":wiremock-string-parser"))
 
-  compileOnly(platform("com.fasterxml.jackson:jackson-bom:2.13.5"))
+  compileOnly(platform("com.fasterxml.jackson:jackson-bom:2.21.0"))
   compileOnly("com.fasterxml.jackson.core:jackson-databind")
   compileOnly("org.jspecify:jspecify:1.0.0")
   compileOnly("org.jetbrains:annotations:26.0.2-1")
