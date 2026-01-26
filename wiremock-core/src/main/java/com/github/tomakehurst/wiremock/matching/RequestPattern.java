@@ -156,7 +156,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           }
 
           @Override
-          public MatchResult match(Request request, MatcherContext matcherContext) {
+          public MatchResult match(Request request, ServeContext matcherContext) {
 
             final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
@@ -227,9 +227,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public MatchResult match(
-      Request request,
-      Map<String, RequestMatcherExtension> customMatchers,
-      MatcherContext context) {
+      Request request, Map<String, RequestMatcherExtension> customMatchers, ServeContext context) {
     request = RequestPathParamsDecorator.decorate(request, this);
     final MatchResult standardMatchResult = matcher.match(request, context);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
@@ -316,7 +314,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return combinedHeaders;
   }
 
-  private MatchResult allQueryParamsMatch(final Request request, MatcherContext context) {
+  private MatchResult allQueryParamsMatch(final Request request, ServeContext context) {
     if (!queryParams.isEmpty()) {
       return MatchResult.aggregate(
           queryParams.entrySet().stream()

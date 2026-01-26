@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
@@ -37,7 +37,7 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
       Map<String, ServeEventListener> serveEventListeners,
-      TemplateEngine templateEngine) {
+      WireMockServices wireMockServices) {
     super(
         store,
         scenarios,
@@ -47,6 +47,6 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
         filesBlobStore,
         stubLifecycleListeners,
         serveEventListeners,
-        templateEngine);
+        wireMockServices);
   }
 }

@@ -40,7 +40,7 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
     return getBestMatch(valuePattern, values);
   }
 
-  public MatchResult match(MultiValue multiValue, MatcherContext context) {
+  public MatchResult match(MultiValue multiValue, ServeContext context) {
     List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
     return getBestMatch(valuePattern, values, context);
   }

@@ -16,21 +16,27 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Map;
 
-public class MatcherContext {
+public class ServeContext {
 
-  private final TemplateEngine templateEngine;
+  private final WireMockServices services;
   private final Lazy<Map<String, Object>> model;
 
-  public MatcherContext(TemplateEngine templateEngine, Request request) {
-    this.templateEngine = templateEngine;
-    this.model = Lazy.lazy(() -> templateEngine.buildModelForRequest(request));
+  public ServeContext(WireMockServices services, Request request) {
+    this.services = services;
+    this.model = Lazy.lazy(() -> services.getTemplateEngine().buildModelForRequest(request));
   }
 
   public String renderTemplate(String template) {
+    TemplateEngine templateEngine = services.getTemplateEngine();
     return templateEngine.getUncachedTemplate(template).apply(model.get());
+  }
+
+  public WireMockServices getServices() {
+    return services;
   }
 }

@@ -41,7 +41,7 @@ public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue>
   }
 
   protected static MatchResult getBestMatch(
-      final StringValuePattern valuePattern, List<String> values, MatcherContext context) {
+      final StringValuePattern valuePattern, List<String> values, ServeContext context) {
     List<MatchResult> allResults =
         values.stream().map(v -> valuePattern.match(v, context)).toList();
     return min(allResults, Comparator.comparingDouble(MatchResult::getDistance));

@@ -29,11 +29,10 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.*;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.MatcherContext;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.ServeContext;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
@@ -51,7 +50,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final Map<String, ServeEventListener> serveEventListeners;
-  protected final TemplateEngine templateEngine;
+  protected final WireMockServices wireMockServices;
 
   public AbstractStubMappings(
       StubMappingStore store,
@@ -62,7 +61,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
       Map<String, ServeEventListener> serveEventListeners,
-      TemplateEngine templateEngine) {
+      WireMockServices wireMockServices) {
     this.store = store;
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
@@ -71,7 +70,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
     this.serveEventListeners = serveEventListeners;
-    this.templateEngine = templateEngine;
+    this.wireMockServices = wireMockServices;
   }
 
   @Override
@@ -79,13 +78,13 @@ public abstract class AbstractStubMappings implements StubMappings {
     initialServeEvent = initialServeEvent.withIdDecoratedRequest();
     final LoggedRequest request = initialServeEvent.getRequest();
 
-    MatcherContext matcherContext = new MatcherContext(templateEngine, request);
+    ServeContext serveContext = new ServeContext(wireMockServices, request);
 
     final List<SubEvent> subEvents = new LinkedList<>();
 
     StubMapping matchingStub =
         store
-            .findAllMatchingRequest(request, customMatchers, matcherContext, subEvents::add)
+            .findAllMatchingRequest(request, customMatchers, serveContext, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()

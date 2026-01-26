@@ -67,7 +67,7 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
   }
 
   @Override
-  public MatchResult match(final String value, final MatcherContext context) {
+  public MatchResult match(final String value, final ServeContext context) {
     final String resolvedExpected = resolveExpectedValue(context);
     return new MatchResult() {
       @Override
@@ -85,7 +85,7 @@ public class EqualToPattern extends StringValuePattern implements TemplateAware 
   }
 
   @Override
-  public String resolveExpectedValue(MatcherContext context) {
+  public String resolveExpectedValue(ServeContext context) {
     if (isTemplated() && context != null) {
       return context.renderTemplate(expectedValue);
     }

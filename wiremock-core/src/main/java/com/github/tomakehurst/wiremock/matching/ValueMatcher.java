@@ -19,7 +19,7 @@ public interface ValueMatcher<T> {
 
   MatchResult match(T value);
 
-  default MatchResult match(T value, MatcherContext context) {
+  default MatchResult match(T value, ServeContext context) {
     return match(value);
   }
 }

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.store.InMemoryStubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import java.util.Collections;
@@ -33,6 +33,6 @@ public class InMemoryStubMappings extends StoreBackedStubMappings {
         new FileSourceBlobStore(new SingleRootFileSource(".")),
         Collections.emptyList(),
         Collections.emptyMap(),
-        TemplateEngine.defaultTemplateEngine());
+        Extensions.NONE);
   }
 }
