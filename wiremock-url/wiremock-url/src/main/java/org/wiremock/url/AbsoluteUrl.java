@@ -83,6 +83,20 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
     return (ServersideAbsoluteUrl) transform(builder -> builder.setFragment(null));
   }
 
+  /**
+   * Returns this URL as a base URL, by removing the query and fragment and ensuring the path is
+   * either empty or ends with /
+   *
+   * @return the origin
+   */
+  default BaseUrl toBaseUrl() {
+    return (BaseUrl)
+        transform(
+            builder -> {
+              builder.setPath(getPath().toBasePath()).setQuery((Query) null).setFragment(null);
+            });
+  }
+
   @Override
   default SchemeRelativeUrl getSchemeRelativeUrl() {
     return (SchemeRelativeUrl) Url.builder(this).setScheme(null).build();

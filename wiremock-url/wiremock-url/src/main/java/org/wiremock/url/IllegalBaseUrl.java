@@ -17,15 +17,13 @@ package org.wiremock.url;
 
 import org.jspecify.annotations.Nullable;
 
-final class ServersideAbsoluteUrlValue extends AbstractAbsoluteUrlValue<ServersideAbsoluteUrl>
-    implements ServersideAbsoluteUrl {
+public class IllegalBaseUrl extends IllegalServersideAbsoluteUrl {
 
-  ServersideAbsoluteUrlValue(
-      @Nullable String stringValue,
-      Scheme scheme,
-      Authority authority,
-      Path path,
-      @Nullable Query query) {
-    super(stringValue, scheme, authority, path, query, null);
+  public IllegalBaseUrl(String url, String message) {
+    this(url, message, null);
+  }
+
+  public IllegalBaseUrl(String url, String message, @Nullable IllegalUriPart cause) {
+    super(url, message, cause);
   }
 }

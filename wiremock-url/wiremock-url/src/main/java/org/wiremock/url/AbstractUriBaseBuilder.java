@@ -142,6 +142,9 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
           && fragment == null) {
         return new OriginValue(stringForm, scheme, hostAndPort);
       } else if (fragment == null) {
+        if (query == null && path.isBase()) {
+          return new BaseUrlValue(stringForm, scheme, authority, path);
+        }
         return new ServersideAbsoluteUrlValue(stringForm, scheme, authority, path, query);
       } else {
         return new AbsoluteUrlValue(stringForm, scheme, authority, path, query, fragment);

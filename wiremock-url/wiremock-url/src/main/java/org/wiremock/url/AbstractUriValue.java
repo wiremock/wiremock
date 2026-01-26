@@ -18,6 +18,7 @@ package org.wiremock.url;
 import static java.util.Objects.requireNonNull;
 import static org.wiremock.url.Lazy.lazy;
 
+import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
@@ -70,6 +71,17 @@ abstract non-sealed class AbstractUriValue implements Uri {
     return fragment;
   }
 
+  private static final List<Class<? extends Uri>> URI_TYPES =
+      List.of(
+          Origin.class,
+          BaseUrl.class,
+          ServersideAbsoluteUrl.class,
+          AbsoluteUrl.class,
+          OpaqueUri.class,
+          SchemeRelativeUrl.class,
+          RelativeUrl.class,
+          PathAndQuery.class);
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -82,16 +94,7 @@ abstract non-sealed class AbstractUriValue implements Uri {
 
     Class<? extends Uri> oneClass = ((Uri) this).getClass();
     Class<? extends Uri> otherClass = other.getClass();
-    return shareSameSuperTypes(
-            oneClass,
-            otherClass,
-            Origin.class,
-            ServersideAbsoluteUrl.class,
-            AbsoluteUrl.class,
-            OpaqueUri.class,
-            SchemeRelativeUrl.class,
-            RelativeUrl.class,
-            PathAndQuery.class)
+    return shareSameSuperTypes(oneClass, otherClass, URI_TYPES)
         && Objects.equals(getScheme(), other.getScheme())
         && Objects.equals(getAuthority(), other.getAuthority())
         && Objects.equals(getPath(), other.getPath())
@@ -100,8 +103,8 @@ abstract non-sealed class AbstractUriValue implements Uri {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private static boolean shareSameSuperTypes(
-      Class<?> oneClass, Class<?> otherClass, Class<?>... types) {
+  private static <T> boolean shareSameSuperTypes(
+      Class<? extends T> oneClass, Class<? extends T> otherClass, List<Class<? extends T>> types) {
     for (Class<?> type : types) {
       if (oneClass.isAssignableFrom(type) != otherClass.isAssignableFrom(type)) {
         return false;

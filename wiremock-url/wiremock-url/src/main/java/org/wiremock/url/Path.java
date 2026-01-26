@@ -47,11 +47,49 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
   boolean isAbsolute();
 
   /**
+   * Returns {@code true} if this path is not absolute (does not start with {@code /}).
+   *
+   * @return {@code true} if this is a relative path
+   */
+  default boolean isRelative() {
+    return !isAbsolute();
+  }
+
+  /**
+   * Returns {@code true} if this path is a base path (empty, or ends with {@code /}). e.g. {@code
+   * /base/}
+   *
+   * @return {@code true} if this is a base path
+   */
+  default boolean isBase() {
+    return getLastSegment().isEmpty();
+  }
+
+  /**
+   * Returns {@code true} if this path is a leaf path (last segment is not empty). e.g. {@code
+   * /segment/leaf}
+   *
+   * @return {@code true} if this is a leaf path
+   */
+  default boolean isLeaf() {
+    return !isBase();
+  }
+
+  /**
    * Returns the segments of this path.
    *
    * @return the list of path segments, never {@code null}
    */
   List<Segment> getSegments();
+
+  default Segment getFirstSegment() {
+    return getSegments().get(0);
+  }
+
+  default Segment getLastSegment() {
+    List<Segment> segments = getSegments();
+    return segments.get(segments.size() - 1);
+  }
 
   /**
    * Returns a normalised form of this path with dot segments removed.
@@ -81,6 +119,14 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
   @Override
   default boolean isEmpty() {
     return this.equals(Path.EMPTY);
+  }
+
+  default Path toBasePath() {
+    if (isEmpty() || getLastSegment().isEmpty()) {
+      return this;
+    } else {
+      return parse(this + "/");
+    }
   }
 
   /**

@@ -20,6 +20,7 @@ import org.wiremock.stringparser.jackson2.ParsedStringModule;
 import org.wiremock.url.AbsoluteUriParser;
 import org.wiremock.url.AbsoluteUrlParser;
 import org.wiremock.url.AuthorityParser;
+import org.wiremock.url.BaseUrlParser;
 import org.wiremock.url.FragmentParser;
 import org.wiremock.url.HostAndPortParser;
 import org.wiremock.url.HostParser;
@@ -65,6 +66,7 @@ public class WireMockUrlModule extends ParsedStringModule {
             new ServersideAbsoluteUrlParser(uriParser),
             new UrlParser(uriParser),
             new UrlWithAuthorityParser(uriParser),
+            new BaseUrlParser(uriParser),
             PathAndQueryParser.INSTANCE,
             AuthorityParser.INSTANCE,
             FragmentParser.INSTANCE,
