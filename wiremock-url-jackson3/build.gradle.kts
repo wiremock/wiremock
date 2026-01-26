@@ -34,7 +34,7 @@ dependencies {
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
 
-  annotationProcessor("com.uber.nullaway:nullaway:0.12.15")
+  annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 
