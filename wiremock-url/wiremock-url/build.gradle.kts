@@ -42,7 +42,7 @@ dependencies {
   jmh(libs.commons.lang)
 
   annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
-  errorprone("com.google.errorprone:error_prone_core:2.42.0")
+  errorprone("com.google.errorprone:error_prone_core:2.46.0")
 }
 
 tasks.compileJava {
