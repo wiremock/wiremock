@@ -11,10 +11,10 @@ tasks.jar {
 }
 
 dependencies {
-  api(project(":wiremock-url"))
-  api(project(":wiremock-string-parser-jackson3"))
+  api(project(":wiremock-url:wiremock-url"))
+  api(project(":wiremock-url:wiremock-string-parser-jackson3"))
 
-  implementation(project(":wiremock-string-parser"))
+  implementation(project(":wiremock-url:wiremock-string-parser"))
   compileOnly(platform("tools.jackson:jackson-bom:3.0.4"))
 
   compileOnly("tools.jackson.core:jackson-databind")
