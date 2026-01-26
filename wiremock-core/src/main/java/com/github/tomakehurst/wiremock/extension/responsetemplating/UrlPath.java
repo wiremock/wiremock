@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
-
-import com.github.tomakehurst.wiremock.common.Urls;
-import java.net.URI;
 import java.util.ArrayList;
+import org.wiremock.url.Path;
+import org.wiremock.url.PathAndQuery;
 
 public class UrlPath extends ArrayList<String> {
 
   private final String originalPath;
 
-  public UrlPath(String url) {
-    originalPath = URI.create(url).getPath();
-    Urls.getPathSegments(originalPath)
+  public UrlPath(PathAndQuery url) {
+    Path path = url.getPath();
+    originalPath = path.toString();
+    path.getSegments()
         .forEach(
             pathNode -> {
-              if (isNotEmpty(pathNode)) {
-                add(pathNode);
+              if (!pathNode.isEmpty()) {
+                add(pathNode.toString());
               }
             });
   }

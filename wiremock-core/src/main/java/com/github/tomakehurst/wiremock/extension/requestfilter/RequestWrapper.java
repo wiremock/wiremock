@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.Strings.countMatches;
-import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
+import static java.util.Objects.requireNonNull;
 
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class RequestWrapper implements Request {
 
@@ -85,22 +89,34 @@ public class RequestWrapper implements Request {
   }
 
   @Override
-  public String getUrl() {
-    String absoluteUrl = getAbsoluteUrl();
-    int relativeStartIndex =
-        countMatches(absoluteUrl, '/') >= 3
-            ? ordinalIndexOf(absoluteUrl, "/", 3)
-            : absoluteUrl.length();
-    return absoluteUrl.substring(relativeStartIndex);
+  public @NonNull String getAbsoluteUrl() {
+    String absoluteUrl = requireNonNull(delegate.getAbsoluteUrl());
+    if (absoluteUrlTransformer != null) {
+      return absoluteUrlTransformer.transform(absoluteUrl);
+    }
+
+    return absoluteUrl;
+  }
+
+  private final Lazy<@NonNull AbsoluteUrl> typedAbsoluteUrl =
+      lazy(() -> AbsoluteUrl.parse(getAbsoluteUrl()));
+
+  @Override
+  public @NonNull AbsoluteUrl getTypedAbsoluteUrl() {
+    return typedAbsoluteUrl.get();
+  }
+
+  private final Lazy<@NonNull PathAndQuery> pathAndQuery =
+      lazy(() -> getTypedAbsoluteUrl().getPathAndQuery());
+
+  @Override
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return pathAndQuery.get();
   }
 
   @Override
-  public String getAbsoluteUrl() {
-    if (absoluteUrlTransformer != null) {
-      return absoluteUrlTransformer.transform(delegate.getAbsoluteUrl());
-    }
-
-    return delegate.getAbsoluteUrl();
+  public @NonNull String getUrl() {
+    return pathAndQuery.get().toString();
   }
 
   @Override

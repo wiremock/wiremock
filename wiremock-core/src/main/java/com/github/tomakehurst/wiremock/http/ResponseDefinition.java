@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,7 +209,9 @@ public class ResponseDefinition {
   }
 
   public static ResponseDefinition browserProxy(Request originalRequest) {
-    return new Builder().setBrowserProxyUrl(originalRequest.getAbsoluteUrl()).build();
+    return new Builder()
+        .setBrowserProxyUrl(originalRequest.getTypedAbsoluteUrl().toString())
+        .build();
   }
 
   public static ResponseDefinition copyOf(ResponseDefinition original) {

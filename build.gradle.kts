@@ -26,6 +26,7 @@ dependencies {
   api(project(":wiremock-core"))
   api(project(":wiremock-jetty"))
   implementation(project(":wiremock-httpclient-apache5"))
+  implementation(project(":wiremock-url"))
 
   implementation(libs.jopt.simple)
 

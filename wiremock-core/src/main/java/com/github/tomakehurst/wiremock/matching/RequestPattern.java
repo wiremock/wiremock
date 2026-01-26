@@ -33,10 +33,10 @@ import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.RequestPathParamsDecorator;
@@ -47,6 +47,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.jspecify.annotations.NonNull;
+import org.wiremock.url.Query;
 
 @JsonInclude(Include.NON_NULL)
 public class RequestPattern implements NamedValueMatcher<Request> {
@@ -164,7 +165,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(weight(portMatches(request), 10.0));
             requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
             requestPartMatchResults.add(
-                weight(RequestPattern.this.url.match(request.getUrl()), 10.0));
+                weight(
+                    RequestPattern.this.url.match(
+                        request.getPathAndQueryWithoutPrefix().toString()),
+                    10.0));
             requestPartMatchResults.add(
                 weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
 
@@ -317,10 +321,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       return MatchResult.aggregate(
           queryParams.entrySet().stream()
               .map(
-                  queryParamPattern ->
-                      queryParamPattern
-                          .getValue()
-                          .match(request.queryParameter(queryParamPattern.getKey()), context))
+                  queryParamPattern -> {
+                    Query query = request.getPathAndQueryWithoutPrefix().getQueryOrEmpty();
+                    String key = queryParamPattern.getKey();
+                    QueryParameter queryParameter = new QueryParameter(key, query.getDecoded(key));
+                    return queryParamPattern.getValue().match(queryParameter, context);
+                  })
               .collect(toList()));
     }
 
@@ -346,11 +352,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     if (url.getClass().equals(UrlPathTemplatePattern.class) && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      if (!pathTemplate.matches(request.getUrl())) {
+      if (!pathTemplate.matches(request.getPathAndQueryWithoutPrefix().getPath())) {
         return MatchResult.noMatch();
       }
 
-      final PathParams requestPathParams = pathTemplate.parse(Urls.getPath(request.getUrl()));
+      final PathParams requestPathParams =
+          pathTemplate.parse(request.getPathAndQueryWithoutPrefix().getPath());
       return MatchResult.aggregate(
           pathParams.entrySet().stream()
               .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))

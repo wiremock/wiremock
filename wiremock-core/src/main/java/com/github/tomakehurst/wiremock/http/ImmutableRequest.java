@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,22 @@ import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.github.tomakehurst.wiremock.common.Urls;
-import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import org.jspecify.annotations.NonNull;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Port;
 
 public class ImmutableRequest implements Request {
 
-  private final String absoluteUrl;
-  private final Map<String, QueryParameter> queryParams;
+  private final @NonNull AbsoluteUrl absoluteUrl;
+  private final @NonNull PathAndQuery pathAndQuery;
   private final RequestMethod method;
   private final String protocol;
   private final String scheme;
@@ -45,7 +53,7 @@ public class ImmutableRequest implements Request {
   }
 
   protected ImmutableRequest(
-      String absoluteUrl,
+      @NonNull String absoluteUrl,
       RequestMethod method,
       String protocol,
       String clientIp,
@@ -53,15 +61,15 @@ public class ImmutableRequest implements Request {
       byte[] body,
       boolean multipart,
       boolean browserProxyRequest) {
-    this.absoluteUrl = requireNonNull(absoluteUrl);
-    this.queryParams = Urls.splitQueryFromUrl(absoluteUrl);
+    this.absoluteUrl = AbsoluteUrl.parse(absoluteUrl);
+    this.pathAndQuery = this.absoluteUrl.getPathAndQuery();
     this.method = requireNonNull(method);
     this.protocol = protocol;
 
-    final URI uri = URI.create(absoluteUrl);
-    this.scheme = uri.getScheme();
-    this.host = uri.getHost();
-    this.port = uri.getPort();
+    this.scheme = this.absoluteUrl.getScheme().toString();
+    this.host = this.absoluteUrl.getAuthority().getHost().toString();
+    Port maybePort = this.absoluteUrl.getPort();
+    this.port = maybePort != null ? maybePort.getIntValue() : -1;
 
     this.clientIp = clientIp;
     this.headers = headers;
@@ -72,12 +80,22 @@ public class ImmutableRequest implements Request {
   }
 
   @Override
-  public String getUrl() {
-    return Urls.getPathAndQuery(absoluteUrl);
+  public @NonNull String getUrl() {
+    return pathAndQuery.toString();
   }
 
   @Override
-  public String getAbsoluteUrl() {
+  public @NonNull PathAndQuery getPathAndQueryWithoutPrefix() {
+    return pathAndQuery;
+  }
+
+  @Override
+  public @NonNull String getAbsoluteUrl() {
+    return absoluteUrl.toString();
+  }
+
+  @Override
+  public @NonNull AbsoluteUrl getTypedAbsoluteUrl() {
     return absoluteUrl;
   }
 
@@ -135,11 +153,6 @@ public class ImmutableRequest implements Request {
   @Override
   public Set<String> getAllHeaderKeys() {
     return headers.keys();
-  }
-
-  @Override
-  public QueryParameter queryParameter(String key) {
-    return queryParams.get(key);
   }
 
   @Override

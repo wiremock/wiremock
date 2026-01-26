@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.wiremock.url.PathAndQuery;
 
 class ScenarioProcessor {
 
@@ -76,7 +76,7 @@ class ScenarioProcessor {
             + scenarioIndex
             + "-"
             + Urls.urlToPathParts(
-                URI.create(
+                PathAndQuery.parse(
                     getFirstNonNull(
                         firstScenario.getRequest().getUrl(),
                         firstScenario.getRequest().getUrlPath())));

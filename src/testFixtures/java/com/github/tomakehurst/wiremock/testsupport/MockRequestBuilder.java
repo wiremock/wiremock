@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import org.mockito.Mockito;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.PathAndQuery;
 
 public class MockRequestBuilder {
 
@@ -121,6 +123,7 @@ public class MockRequestBuilder {
     final Request request =
         mockName == null ? Mockito.mock(Request.class) : Mockito.mock(Request.class, mockName);
     when(request.getUrl()).thenReturn(url);
+    when(request.getPathAndQueryWithoutPrefix()).thenReturn(PathAndQuery.parse(url));
     when(request.getMethod()).thenReturn(method);
     when(request.getClientIp()).thenReturn(clientIp);
     for (HttpHeader header : headers.all()) {
@@ -153,6 +156,8 @@ public class MockRequestBuilder {
     when(request.getBodyAsString()).thenReturn(body);
     when(request.getBodyAsBase64()).thenReturn(bodyAsBase64);
     when(request.getAbsoluteUrl()).thenReturn("http://localhost:8080" + url);
+    when(request.getTypedAbsoluteUrl())
+        .thenReturn(AbsoluteUrl.parse("http://localhost:8080" + url));
     when(request.isBrowserProxyRequest()).thenReturn(browserProxyRequest);
     when(request.isMultipart()).thenReturn(multiparts != null && !multiparts.isEmpty());
     when(request.getParts()).thenReturn(multiparts);

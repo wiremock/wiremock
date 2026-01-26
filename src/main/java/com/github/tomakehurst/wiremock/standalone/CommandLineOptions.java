@@ -49,13 +49,13 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.*;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.wiremock.url.AbsoluteUrl;
 
 public class CommandLineOptions implements Options {
 
@@ -701,9 +701,14 @@ public class CommandLineOptions implements Options {
 
   @Override
   public String proxyHostHeader() {
-    return optionSet.hasArgument(PROXY_ALL)
-        ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getAuthority()
-        : null;
+    return optionSet.hasArgument(PROXY_ALL) ? getHostAndPort() : null;
+  }
+
+  private String getHostAndPort() {
+    return AbsoluteUrl.parse((String) optionSet.valueOf(PROXY_ALL))
+        .getAuthority()
+        .getHostAndPort()
+        .toString();
   }
 
   @Override

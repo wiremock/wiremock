@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import static java.util.Arrays.asList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Segment;
 
 public class ContentTypes {
 
@@ -71,7 +72,7 @@ public class ContentTypes {
           ".*x-www-form-urlencoded.*");
 
   public static String determineFileExtension(
-      String url, ContentTypeHeader contentTypeHeader, byte[] responseBody) {
+      PathAndQuery pathAndQuery, ContentTypeHeader contentTypeHeader, byte[] responseBody) {
     if (contentTypeHeader.isPresent()) {
       if (contentTypeHeader.mimeTypePart().contains("json")) {
         return "json";
@@ -89,8 +90,8 @@ public class ContentTypes {
       }
     }
 
-    String path = URI.create(url).getPath();
-    String lastPathSegment = substringAfterLast(path, "/");
+    List<Segment> path = pathAndQuery.getPath().getSegments();
+    String lastPathSegment = path.isEmpty() ? "" : path.get(path.size() - 1).toString();
     if (lastPathSegment.indexOf('.') != -1) {
       return substringAfterLast(lastPathSegment, ".");
     }
@@ -114,14 +115,11 @@ public class ContentTypes {
 
   public static String determineTextFileExtension(String content) {
     TextType textType = determineTextType(content);
-    switch (textType) {
-      case JSON:
-        return "json";
-      case XML:
-        return "xml";
-      default:
-        return "txt";
-    }
+    return switch (textType) {
+      case JSON -> "json";
+      case XML -> "xml";
+      default -> "txt";
+    };
   }
 
   public static boolean determineIsTextFromExtension(String extension) {

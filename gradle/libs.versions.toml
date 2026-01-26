@@ -38,6 +38,8 @@ jetty-http = { module = "org.eclipse.jetty:jetty-http" }
 jetty-io = { module = "org.eclipse.jetty:jetty-io" }
 jetty-util = { module = "org.eclipse.jetty:jetty-util" }
 
+# Apache Commons dependencies
+apache-commons-text = { module = "org.apache.commons:commons-text", version = "1.15.0" }
 # Jackson dependencies
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
@@ -51,6 +53,12 @@ guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 # HTTP Client
 apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
 apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4" }
+
+# OkHttp
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+
+okio = { module = "com.squareup.okio:okio", version = "3.16.4" }
 
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
@@ -111,7 +119,7 @@ archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" 
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }
 android-json = { module = "com.vaadin.external.google:android-json", version = "0.0.20131108.vaadin1" }
-assertj-core = { module = "org.assertj:assertj-core", version = "3.27.6" }
+assertj-core = { module = "org.assertj:assertj-core", version = "3.27.7" }
 
 # JMH
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
@@ -124,7 +132,7 @@ jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.1.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.2.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 sonarqube = { id = "org.sonarqube", version = "7.2.2.6593" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
