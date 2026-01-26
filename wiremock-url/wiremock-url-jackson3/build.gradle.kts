@@ -15,21 +15,16 @@ dependencies {
   api(project(":wiremock-url:wiremock-string-parser-jackson3"))
 
   implementation(project(":wiremock-url:wiremock-string-parser"))
-  compileOnly(platform("tools.jackson:jackson-bom:3.0.4"))
 
-  compileOnly("tools.jackson.core:jackson-databind")
   compileOnly("org.jspecify:jspecify:1.0.0")
-  compileOnly("org.jetbrains:annotations:26.0.2-1")
 
+  testImplementation("tools.jackson.core:jackson-databind:3.0.0")
   testImplementation(platform("org.junit:junit-bom:6.0.1"))
   testImplementation(libs.junit.jupiter.api)
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.assertj.core)
 
   testImplementation("io.github.classgraph:classgraph:4.8.184")
-
-  testImplementation(platform("tools.jackson:jackson-bom:3.0.4"))
-  testImplementation("tools.jackson.core:jackson-databind")
 
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

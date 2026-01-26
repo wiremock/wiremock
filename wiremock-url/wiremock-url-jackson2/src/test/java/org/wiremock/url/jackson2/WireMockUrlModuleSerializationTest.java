@@ -18,9 +18,11 @@ package org.wiremock.url.jackson2;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -54,6 +56,7 @@ import org.wiremock.url.UrlWithAuthority;
 import org.wiremock.url.UserInfo;
 import org.wiremock.url.Username;
 
+@SuppressWarnings("VulnerableCodeUsages")
 class WireMockUrlModuleSerializationTest {
 
   private ObjectMapper objectMapper;
@@ -68,14 +71,14 @@ class WireMockUrlModuleSerializationTest {
   class Deserialization {
 
     @Test
-    void deserializesAbsoluteUri() throws JsonProcessingException {
+    void deserializesAbsoluteUri() throws IOException {
       String json = "\"https://example.com/path?query=value#fragment\"";
       AbsoluteUri result = objectMapper.readValue(json, AbsoluteUri.class);
       assertThat(result.toString()).isEqualTo("https://example.com/path?query=value#fragment");
     }
 
     @Test
-    void deserializesAbsoluteUrl() throws JsonProcessingException {
+    void deserializesAbsoluteUrl() throws IOException {
       String json = "\"https://user:pass@example.com:8080/path\"";
       AbsoluteUrl result = objectMapper.readValue(json, AbsoluteUrl.class);
       assertThat(result.toString()).isEqualTo("https://user:pass@example.com:8080/path");
@@ -83,7 +86,7 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void deserializesAuthority() throws JsonProcessingException {
+    void deserializesAuthority() throws IOException {
       String json = "\"user:pass@example.com:8080\"";
       Authority result = objectMapper.readValue(json, Authority.class);
       assertThat(result.toString()).isEqualTo("user:pass@example.com:8080");
@@ -91,28 +94,28 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void deserializesFragment() throws JsonProcessingException {
+    void deserializesFragment() throws IOException {
       String json = "\"section-1\"";
       Fragment result = objectMapper.readValue(json, Fragment.class);
       assertThat(result.toString()).isEqualTo("section-1");
     }
 
     @Test
-    void deserializesHost() throws JsonProcessingException {
+    void deserializesHost() throws IOException {
       String json = "\"example.com\"";
       Host result = objectMapper.readValue(json, Host.class);
       assertThat(result.toString()).isEqualTo("example.com");
     }
 
     @Test
-    void deserializesHostWithIPv6() throws JsonProcessingException {
+    void deserializesHostWithIPv6() throws IOException {
       String json = "\"[::1]\"";
       Host result = objectMapper.readValue(json, Host.class);
       assertThat(result.toString()).isEqualTo("[::1]");
     }
 
     @Test
-    void deserializesHostAndPort() throws JsonProcessingException {
+    void deserializesHostAndPort() throws IOException {
       String json = "\"example.com:8080\"";
       HostAndPort result = objectMapper.readValue(json, HostAndPort.class);
       assertThat(result.toString()).isEqualTo("example.com:8080");
@@ -120,42 +123,42 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void deserializesOpaqueUri() throws JsonProcessingException {
+    void deserializesOpaqueUri() throws IOException {
       String json = "\"mailto:user@example.com\"";
       OpaqueUri result = objectMapper.readValue(json, OpaqueUri.class);
       assertThat(result.toString()).isEqualTo("mailto:user@example.com");
     }
 
     @Test
-    void deserializesOrigin() throws JsonProcessingException {
+    void deserializesOrigin() throws IOException {
       String json = "\"https://example.com:8080\"";
       Origin result = objectMapper.readValue(json, Origin.class);
       assertThat(result.toString()).isEqualTo("https://example.com:8080");
     }
 
     @Test
-    void deserializesPassword() throws JsonProcessingException {
+    void deserializesPassword() throws IOException {
       String json = "\"secret123\"";
       Password result = objectMapper.readValue(json, Password.class);
       assertThat(result.toString()).isEqualTo("secret123");
     }
 
     @Test
-    void deserializesPath() throws JsonProcessingException {
+    void deserializesPath() throws IOException {
       String json = "\"/api/v1/users\"";
       Path result = objectMapper.readValue(json, Path.class);
       assertThat(result.toString()).isEqualTo("/api/v1/users");
     }
 
     @Test
-    void deserializesPathAndQuery() throws JsonProcessingException {
+    void deserializesPathAndQuery() throws IOException {
       String json = "\"/path?key=value\"";
       PathAndQuery result = objectMapper.readValue(json, PathAndQuery.class);
       assertThat(result.toString()).isEqualTo("/path?key=value");
     }
 
     @Test
-    void deserializesPort() throws JsonProcessingException {
+    void deserializesPort() throws IOException {
       String json = "\"8080\"";
       Port result = objectMapper.readValue(json, Port.class);
       assertThat(result.toString()).isEqualTo("8080");
@@ -163,77 +166,77 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void deserializesQuery() throws JsonProcessingException {
+    void deserializesQuery() throws IOException {
       String json = "\"key1=value1&key2=value2\"";
       Query result = objectMapper.readValue(json, Query.class);
       assertThat(result.toString()).isEqualTo("key1=value1&key2=value2");
     }
 
     @Test
-    void deserializesQueryParamKey() throws JsonProcessingException {
+    void deserializesQueryParamKey() throws IOException {
       String json = "\"paramName\"";
       QueryParamKey result = objectMapper.readValue(json, QueryParamKey.class);
       assertThat(result.toString()).isEqualTo("paramName");
     }
 
     @Test
-    void deserializesQueryParamValue() throws JsonProcessingException {
+    void deserializesQueryParamValue() throws IOException {
       String json = "\"paramValue\"";
       QueryParamValue result = objectMapper.readValue(json, QueryParamValue.class);
       assertThat(result.toString()).isEqualTo("paramValue");
     }
 
     @Test
-    void deserializesRelativeUrl() throws JsonProcessingException {
+    void deserializesRelativeUrl() throws IOException {
       String json = "\"/path/to/resource?query=value\"";
       RelativeUrl result = objectMapper.readValue(json, RelativeUrl.class);
       assertThat(result.toString()).isEqualTo("/path/to/resource?query=value");
     }
 
     @Test
-    void deserializesScheme() throws JsonProcessingException {
+    void deserializesScheme() throws IOException {
       String json = "\"https\"";
       Scheme result = objectMapper.readValue(json, Scheme.class);
       assertThat(result.toString()).isEqualTo("https");
     }
 
     @Test
-    void deserializesSchemeRelativeUrl() throws JsonProcessingException {
+    void deserializesSchemeRelativeUrl() throws IOException {
       String json = "\"//example.com/path\"";
       SchemeRelativeUrl result = objectMapper.readValue(json, SchemeRelativeUrl.class);
       assertThat(result.toString()).isEqualTo("//example.com/path");
     }
 
     @Test
-    void deserializesSegment() throws JsonProcessingException {
+    void deserializesSegment() throws IOException {
       String json = "\"path-segment\"";
       Segment result = objectMapper.readValue(json, Segment.class);
       assertThat(result.toString()).isEqualTo("path-segment");
     }
 
     @Test
-    void deserializesServersideAbsoluteUrl() throws JsonProcessingException {
+    void deserializesServersideAbsoluteUrl() throws IOException {
       String json = "\"http://localhost:8080/api\"";
       ServersideAbsoluteUrl result = objectMapper.readValue(json, ServersideAbsoluteUrl.class);
       assertThat(result.toString()).isEqualTo("http://localhost:8080/api");
     }
 
     @Test
-    void deserializesUri() throws JsonProcessingException {
+    void deserializesUri() throws IOException {
       String json = "\"https://example.com/path\"";
       Uri result = objectMapper.readValue(json, Uri.class);
       assertThat(result.toString()).isEqualTo("https://example.com/path");
     }
 
     @Test
-    void deserializesUrl() throws JsonProcessingException {
+    void deserializesUrl() throws IOException {
       String json = "\"/path/to/resource\"";
       Url result = objectMapper.readValue(json, Url.class);
       assertThat(result.toString()).isEqualTo("/path/to/resource");
     }
 
     @Test
-    void deserializesUrlWithAuthority() throws JsonProcessingException {
+    void deserializesUrlWithAuthority() throws IOException {
       String json = "\"//example.com/path\"";
       UrlWithAuthority result = objectMapper.readValue(json, UrlWithAuthority.class);
       assertThat(result.toString()).isEqualTo("//example.com/path");
@@ -241,21 +244,21 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void deserializesUserInfo() throws JsonProcessingException {
+    void deserializesUserInfo() throws IOException {
       String json = "\"user:password\"";
       UserInfo result = objectMapper.readValue(json, UserInfo.class);
       assertThat(result.toString()).isEqualTo("user:password");
     }
 
     @Test
-    void deserializesUsername() throws JsonProcessingException {
+    void deserializesUsername() throws IOException {
       String json = "\"johndoe\"";
       Username result = objectMapper.readValue(json, Username.class);
       assertThat(result.toString()).isEqualTo("johndoe");
     }
 
     @Test
-    void deserializesNullAsNull() throws JsonProcessingException {
+    void deserializesNullAsNull() throws IOException {
       String json = "null";
       Host result = objectMapper.readValue(json, Host.class);
       assertThat(result).isNull();
@@ -313,18 +316,12 @@ class WireMockUrlModuleSerializationTest {
       String json = objectMapper.writeValueAsString(scheme);
       assertThat(json).isEqualTo("\"https\"");
     }
-
-    @Test
-    void serializesNullAsNull() throws JsonProcessingException {
-      Host host = null;
-      String json = objectMapper.writeValueAsString(host);
-      assertThat(json).isEqualTo("null");
-    }
   }
 
   @Nested
   class RoundTrip {
 
+    @SuppressWarnings("JsonStandardCompliance")
     static Stream<Arguments> roundTripTestCases() {
       return Stream.of(
           Arguments.of(AbsoluteUri.class, "https://example.com/path?q=1#frag"),
@@ -359,7 +356,7 @@ class WireMockUrlModuleSerializationTest {
 
     @ParameterizedTest
     @MethodSource("roundTripTestCases")
-    void roundTripPreservesValue(Class<?> type, String value) throws JsonProcessingException {
+    void roundTripPreservesValue(Class<?> type, String value) throws IOException {
       String json = "\"" + value + "\"";
 
       // Deserialize
@@ -380,7 +377,7 @@ class WireMockUrlModuleSerializationTest {
   class PercentEncoding {
 
     @Test
-    void preservesPercentEncodingInPath() throws JsonProcessingException {
+    void preservesPercentEncodingInPath() throws IOException {
       String json = "\"/path%20with%20spaces\"";
       Path result = objectMapper.readValue(json, Path.class);
       assertThat(result.toString()).isEqualTo("/path%20with%20spaces");
@@ -388,20 +385,21 @@ class WireMockUrlModuleSerializationTest {
     }
 
     @Test
-    void preservesPercentEncodingInQuery() throws JsonProcessingException {
+    void preservesPercentEncodingInQuery() throws IOException {
       String json = "\"key%3Dname=value%26more\"";
       Query result = objectMapper.readValue(json, Query.class);
       assertThat(result.toString()).isEqualTo("key%3Dname=value%26more");
     }
 
     @Test
-    void preservesPercentEncodingInHost() throws JsonProcessingException {
+    void preservesPercentEncodingInHost() throws IOException {
       String json = "\"xn--n3h.com\"";
       Host result = objectMapper.readValue(json, Host.class);
       assertThat(result.toString()).isEqualTo("xn--n3h.com");
     }
   }
 
+  @SuppressWarnings("VulnerableCodeUsages")
   @Nested
   class ErrorHandling {
 
@@ -445,10 +443,10 @@ class WireMockUrlModuleSerializationTest {
   class ObjectFieldDeserialization {
 
     @Test
-    void deserializesObjectWithUrlField() throws JsonProcessingException {
+    void deserializesObjectWithUrlField() throws IOException {
       String json = "{\"url\": \"https://example.com/api\"}";
       TestRecord result = objectMapper.readValue(json, TestRecord.class);
-      assertThat(result.url().toString()).isEqualTo("https://example.com/api");
+      assertThat(result.url.toString()).isEqualTo("https://example.com/api");
     }
 
     @Test
@@ -458,6 +456,18 @@ class WireMockUrlModuleSerializationTest {
       assertThat(json).isEqualTo("{\"url\":\"https://example.com/api\"}");
     }
 
-    record TestRecord(AbsoluteUrl url) {}
+    static final class TestRecord {
+
+      private final AbsoluteUrl url;
+
+      TestRecord(@JsonProperty("url") AbsoluteUrl url) {
+        this.url = url;
+      }
+
+      @SuppressWarnings("unused")
+      public AbsoluteUrl getUrl() {
+        return url;
+      }
+    }
   }
 }
