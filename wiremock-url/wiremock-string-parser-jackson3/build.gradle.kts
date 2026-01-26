@@ -13,11 +13,8 @@ tasks.jar {
 dependencies {
   api("org.jspecify:jspecify:1.0.0")
   api(project(":wiremock-url:wiremock-string-parser"))
-  api("tools.jackson.core:jackson-core")
-  api("tools.jackson.core:jackson-databind")
-
-  compileOnly(platform("tools.jackson:jackson-bom:3.0.4"))
-  compileOnly("org.jetbrains:annotations:26.0.2-1")
+  api("tools.jackson.core:jackson-core:3.0.0")
+  api("tools.jackson.core:jackson-databind:3.0.0")
 
   annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")

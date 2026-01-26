@@ -1,3 +1,5 @@
+@file:Suppress("VulnerableLibrariesLocal")
+
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 
@@ -16,21 +18,17 @@ dependencies {
 
   implementation(project(":wiremock-url:wiremock-string-parser"))
 
-  compileOnly(platform("com.fasterxml.jackson:jackson-bom:2.21.0"))
-  compileOnly("com.fasterxml.jackson.core:jackson-databind")
   compileOnly("org.jspecify:jspecify:1.0.0")
-  compileOnly("org.jetbrains:annotations:26.0.2-1")
 
+  testImplementation("com.fasterxml.jackson.core:jackson-core:2.5.0")
+  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.5.0")
+  testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.5.0")
   testImplementation(platform("org.junit:junit-bom:6.0.1"))
   testImplementation(libs.junit.jupiter.api)
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.assertj.core)
 
   testImplementation("io.github.classgraph:classgraph:4.8.184")
-
-  testImplementation(platform(libs.jackson.bom))
-  testImplementation("com.fasterxml.jackson.core:jackson-core")
-  testImplementation("com.fasterxml.jackson.core:jackson-databind")
 
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

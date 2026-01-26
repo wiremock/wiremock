@@ -120,6 +120,11 @@ public sealed interface AbsoluteUri extends Uri, Normalisable<AbsoluteUri>
     }
   }
 
+  default AbsoluteUri resolve(Path other) {
+    var relative = RelativeUrl.builder().setPath(other).build();
+    return resolve(relative);
+  }
+
   default AbsoluteUri.Transformer<?> thaw() {
     return new AbsoluteUriTransformer(this);
   }

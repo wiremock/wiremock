@@ -17,7 +17,6 @@ package org.wiremock.url;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
@@ -55,7 +54,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
-  public @NonNull SELF setUserInfo(@Nullable UserInfo userInfo) {
+  public SELF setUserInfo(@Nullable UserInfo userInfo) {
     if (this.authority == null) {
       this.userInfo = userInfo;
       return getSelf();
@@ -65,7 +64,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
-  public @NonNull SELF setHost(Host host) {
+  public SELF setHost(Host host) {
     if (this.authority == null) {
       return doSetAuthority(Authority.of(userInfo, host, port));
     } else {
@@ -74,7 +73,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
-  public @NonNull SELF setPort(@Nullable Port port) {
+  public SELF setPort(@Nullable Port port) {
     if (this.authority == null) {
       this.port = port;
       return getSelf();
@@ -84,7 +83,7 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
-  public @NonNull SELF setPath(Path path) {
+  public SELF setPath(Path path) {
     this.path = requireNonNull(path);
     return getSelf();
   }
@@ -98,21 +97,21 @@ abstract class AbstractUriBaseBuilder<SELF extends UriBaseBuilder<SELF>>
   }
 
   @Override
-  public @NonNull SELF setQuery(@Nullable Query query) {
+  public SELF setQuery(@Nullable Query query) {
     this.query = query;
     this.queryBuilder = null;
     return getSelf();
   }
 
   @Override
-  public @NonNull SELF setQuery(Query.Builder query) {
+  public SELF setQuery(Query.Builder query) {
     Query built = query.build();
     built = built.isEmpty() ? null : built;
     return setQuery(built);
   }
 
   @Override
-  public @NonNull SELF setFragment(@Nullable Fragment fragment) {
+  public SELF setFragment(@Nullable Fragment fragment) {
     this.fragment = fragment;
     return getSelf();
   }

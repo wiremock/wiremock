@@ -1,3 +1,5 @@
+@file:Suppress("VulnerableLibrariesLocal")
+
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 
@@ -13,11 +15,8 @@ tasks.jar {
 dependencies {
   api("org.jspecify:jspecify:1.0.0")
   api(project(":wiremock-url:wiremock-string-parser"))
-  api("com.fasterxml.jackson.core:jackson-core")
-  api("com.fasterxml.jackson.core:jackson-databind")
-
-  compileOnly(platform("com.fasterxml.jackson:jackson-bom:2.21.0"))
-  compileOnly("org.jetbrains:annotations:26.0.2-1")
+  api("com.fasterxml.jackson.core:jackson-core:2.5.0")
+  api("com.fasterxml.jackson.core:jackson-databind:2.5.0")
 
   annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")

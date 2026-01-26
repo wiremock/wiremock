@@ -169,4 +169,14 @@ public class OriginTests {
           .withNoCause();
     }
   }
+
+  @Nested
+  class Resolve {
+
+    @Test
+    void resolves_a_relative_path() {
+      var resolved = Origin.parse("https://example.com").resolve(Path.parse("relative/path"));
+      assertThat(resolved).isEqualTo(AbsoluteUrl.parse("https://example.com/relative/path"));
+    }
+  }
 }
