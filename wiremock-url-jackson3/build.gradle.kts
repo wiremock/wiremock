@@ -15,7 +15,7 @@ dependencies {
   api(project(":wiremock-string-parser-jackson3"))
 
   implementation(project(":wiremock-string-parser"))
-  compileOnly(platform("tools.jackson:jackson-bom:3.0.0"))
+  compileOnly(platform("tools.jackson:jackson-bom:3.0.4"))
 
   compileOnly("tools.jackson.core:jackson-databind")
   compileOnly("org.jspecify:jspecify:1.0.0")
@@ -28,7 +28,7 @@ dependencies {
 
   testImplementation("io.github.classgraph:classgraph:4.8.184")
 
-  testImplementation(platform("tools.jackson:jackson-bom:3.0.0"))
+  testImplementation(platform("tools.jackson:jackson-bom:3.0.4"))
   testImplementation("tools.jackson.core:jackson-databind")
 
   testRuntimeOnly(libs.junit.jupiter)
