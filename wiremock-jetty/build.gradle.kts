@@ -3,26 +3,33 @@ plugins {
 }
 
 dependencies {
-    api(project(":wiremock-common"))
+    api(project(":wiremock-core"))
+    api(project(":wiremock-url:wiremock-url"))
 
     api(libs.jakarta.servlet.api)
 
     api(platform(libs.jetty.bom))
-    api(platform(libs.jetty.ee10.bom))
-    api(libs.jetty.ee10.servlet)
+    api(platform(libs.jetty.ee11.bom))
+    api(libs.jetty.ee11.servlet)
     api(libs.jetty.io)
     api(libs.jetty.server)
     api(libs.jetty.util)
+    api(libs.jetty.websocket.jetty.api)
+
+    api(libs.jspecify)
 
     implementation(libs.jetty.alpn.server)
-    implementation(libs.jetty.ee10.servlets)
+    implementation(libs.jetty.ee11.servlets)
     implementation(libs.jetty.http)
     implementation(libs.jetty.http2.common)
     implementation(libs.jetty.http2.server)
 
+    implementation(libs.jetty.ee11.websocket.jetty.server)
+
+    runtimeOnly(libs.jetty.ee11.websockets)
     runtimeOnly(libs.jetty.alpn.java.client)
     runtimeOnly(libs.jetty.alpn.java.server)
-    runtimeOnly(libs.jetty.ee10.webapp)
+    runtimeOnly(libs.jetty.ee11.webapp)
 
     implementation(libs.guava)
 

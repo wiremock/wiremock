@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -65,7 +65,7 @@ public class JvmProxyConfigAcceptanceTest {
 
   @Test
   public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
 
     wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
     wireMockServer.start();

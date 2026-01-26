@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,9 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.extension.MappingsLoaderExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingFileException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DummyMappingsLoaderExtension implements MappingsLoaderExtension {
 
@@ -57,13 +56,12 @@ public class DummyMappingsLoaderExtension implements MappingsLoaderExtension {
       List<TextFile> mappingFiles =
           mappingsFileSource.listFilesRecursively().stream()
               .filter(byFileExtension("json"))
-              .collect(Collectors.toList());
+              .toList();
       for (TextFile mappingFile : mappingFiles) {
         try {
-          StubMappingCollection stubCollection =
-              Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+          StubMappingOrMappings stubCollection =
+              Json.read(mappingFile.readContentsAsString(), StubMappingOrMappings.class);
           for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-            mapping.setDirty(false);
             stubMappings.addMapping(mapping);
             StubMappingFileMetadata fileMetadata =
                 new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());

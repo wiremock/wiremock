@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,12 @@ public class SnapshotStubMappingBodyExtractorTest {
   @Test
   public void updatesStubMapping() {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
-    bodyExtractor.extractInPlace(stubMapping);
+    final StubMapping modifiedStub = bodyExtractor.extractInPlace(stubMapping);
     assertThat(
-        stubMapping.getResponse().getBodyFileName(), is("get-foo-" + stubMapping.getId() + ".txt"));
-    assertThat(stubMapping.getResponse().specifiesBodyFile(), is(true));
-    assertThat(stubMapping.getResponse().specifiesBodyContent(), is(false));
+        modifiedStub.getResponse().getBodyFileName(),
+        is("get-foo-" + stubMapping.getId() + ".txt"));
+    assertThat(modifiedStub.getResponse().specifiesBodyFile(), is(true));
+    assertThat(modifiedStub.getResponse().specifiesBodyContent(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes
     verify(filesSource).writeBinaryFile(any(String.class), any(byte[].class));
   }
@@ -76,8 +77,11 @@ public class SnapshotStubMappingBodyExtractorTest {
 
   @Test
   public void determinesFileNameProperlyWithNamedStubMapping() {
-    StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build();
-    stubMapping.setName("TEST NAME!");
+    StubMapping stubMapping =
+        WireMock.get("/foo")
+            .willReturn(okJson("{}"))
+            .build()
+            .transform(b -> b.setName("TEST NAME!"));
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("test-name-" + stubMapping.getId() + ".json", "{}");
   }

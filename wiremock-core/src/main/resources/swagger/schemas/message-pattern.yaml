@@ -1,0 +1,10 @@
+type: object
+description: Pattern for matching messages
+properties:
+  channel:
+    $ref: 'request-pattern.yaml'
+    description: Pattern to match the channel's initiating request
+  body:
+    $ref: 'content-pattern.yaml'
+    description: Pattern to match the message body
+

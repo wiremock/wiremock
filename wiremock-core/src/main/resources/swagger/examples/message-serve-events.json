@@ -1,0 +1,31 @@
+{
+  "messageServeEvents": [
+    {
+      "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+      "eventType": "RECEIVED",
+      "channelType": "websocket",
+      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "channelRequest": {
+        "url": "/ws/chat",
+        "method": "GET"
+      },
+      "message": "Hello, WebSocket!",
+      "wasMatched": true,
+      "timestamp": "2021-01-01T00:00:00Z"
+    },
+    {
+      "id": "98765432-abcd-ef12-3456-7890abcdef12",
+      "eventType": "SENT",
+      "channelType": "websocket",
+      "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "channelRequest": {
+        "url": "/ws/chat",
+        "method": "GET"
+      },
+      "message": "Echo: Hello, WebSocket!",
+      "wasMatched": true,
+      "timestamp": "2021-01-01T00:00:01Z"
+    }
+  ],
+  "messageJournalDisabled": false
+}

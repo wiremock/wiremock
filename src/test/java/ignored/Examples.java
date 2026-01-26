@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -40,6 +39,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -62,6 +62,20 @@ public class Examples extends AcceptanceTestBase {
 
     assertThat(testClient.get("/some/thing").statusCode(), is(200));
     assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
+  }
+
+  @Test
+  public void queryMethod() {
+    stubFor(
+        query(urlEqualTo("/some/thing"))
+            .withRequestBody(matching("<status>OK</status>"))
+            .willReturn(
+                aResponse().withHeader("Content-Type", "text/plain").withBody("Hello world!")));
+
+    assertThat(testClient.queryXml("/some/thing", "<status>OK</status>").statusCode(), is(200));
+    assertThat(
+        testClient.queryXml("/some/thing", "<status>OK</status>").content(), is("Hello World!"));
+    assertThat(testClient.query("/some/thing/else").statusCode(), is(404));
   }
 
   @Test

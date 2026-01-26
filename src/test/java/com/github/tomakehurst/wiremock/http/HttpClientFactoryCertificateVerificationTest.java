@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -86,7 +87,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
     client =
-        HttpClientFactory.createClient(
+        ApacheHttpClientFactory.createClient(
             1000,
             5 * 1000 * 60,
             NO_PROXY,

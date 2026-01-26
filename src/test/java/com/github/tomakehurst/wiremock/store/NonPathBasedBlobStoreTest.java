@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ class NonPathBasedBlobStoreTest {
   void canUseANonPathBasedBlobStoreTest() {
     WireMockServer wireMockServer =
         new WireMockServer(
-            wireMockConfig().fileSource(new BlobStoreFileSource(new NonPathBasedBlobStore())));
+            wireMockConfig()
+                .dynamicPort()
+                .fileSource(new BlobStoreFileSource(new NonPathBasedBlobStore())));
     try {
       wireMockServer.start();
     } finally {

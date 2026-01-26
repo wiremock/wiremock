@@ -1,0 +1,16 @@
+type: object
+description: A logged message channel
+properties:
+  id:
+    type: string
+    format: uuid
+    description: Unique identifier for this channel
+  type:
+    $ref: 'channel-type.yaml'
+  initiatingRequest:
+    $ref: 'logged-request.yaml'
+    description: The HTTP request that initiated the channel (for request-initiated channels)
+  open:
+    type: boolean
+    description: Whether the channel is currently open
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPost
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -303,6 +304,27 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  public void headersToRemoveFromProxyRequestAreUnchanged() {
+    ResponseDefinition transformedResponseDef =
+        transform(
+            mockRequest().url("/things").header("X-WM-Uri", "http://localhost:8000"),
+            aResponse()
+                .proxiedFrom("{{request.headers.X-WM-Uri}}")
+                .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}")
+                .withRemoveRequestHeader("remove-me"));
+
+    assertThat(transformedResponseDef.getProxyBaseUrl(), is("http://localhost:8000"));
+    assertThat(transformedResponseDef.getAdditionalProxyRequestHeaders(), notNullValue());
+    assertThat(
+        transformedResponseDef
+            .getAdditionalProxyRequestHeaders()
+            .getHeader("X-Origin-Url")
+            .firstValue(),
+        is("/things"));
+    assertThat(transformedResponseDef.getRemoveProxyRequestHeaders(), contains("remove-me"));
+  }
+
+  @Test
   public void jsonPathValueDefaultsToEmptyString() {
     final ResponseDefinition responseDefinition =
         transform(
@@ -323,7 +345,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void transformerParametersAreAppliedToTemplate() throws Exception {
+  public void transformerParametersAreAppliedToTemplate() {
     ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
@@ -353,7 +375,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
+  public void unknownTransformerParametersAreNotCausingIssues() {
     ResponseDefinition responseDefinition =
         transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
@@ -455,13 +477,13 @@ public class ResponseTemplateTransformerTest {
     ResponseDefinition transformedResponseDef =
         transform(
             mockRequest()
-                .scheme("http")
+                .scheme("https")
                 .host("my.domain.io")
                 .port(80)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody("baseUrl: {{{request.baseUrl}}}"));
 
-    assertThat(transformedResponseDef.getBody(), is("baseUrl: http://my.domain.io"));
+    assertThat(transformedResponseDef.getBody(), is("baseUrl: https://my.domain.io"));
   }
 
   @Test
@@ -534,9 +556,18 @@ public class ResponseTemplateTransformerTest {
   public void trimContent() {
     String body =
         transform(
-            "{{#trim}}\n" + "{\n" + "  \"data\": \"spaced out JSON\"\n" + "}\n" + "     {{/trim}}");
+            """
+            {{#trim}}
+            {
+              "data": "spaced out JSON"
+            }
+                 {{/trim}}""");
 
-    assertThat(body, is("{\n" + "  \"data\": \"spaced out JSON\"\n" + "}"));
+    assertThat(
+        body, is("""
+            {
+              "data": "spaced out JSON"
+            }"""));
   }
 
   @Test
@@ -576,15 +607,27 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void urlEncodeValue() {
+  public void urlEncodeValueInline() {
     String body = transform("{{{urlEncode 'one two'}}}");
     assertThat(body, is("one+two"));
   }
 
   @Test
-  public void urlDecodeValue() {
+  public void urlEncodeValueBlock() {
+    String body = transform("{{#urlEncode}}Content to encode{{/urlEncode}}");
+    assertThat(body, is("Content+to+encode"));
+  }
+
+  @Test
+  public void urlDecodeValueInline() {
     String body = transform("{{{urlEncode 'one+two' decode=true}}}");
     assertThat(body, is("one two"));
+  }
+
+  @Test
+  public void urlDecodeValueBlock() {
+    String body = transform("{{#urlEncode decode=true}}Content%20to%20decode{{/urlEncode}}");
+    assertThat(body, is("Content to decode"));
   }
 
   @Test
@@ -736,10 +779,11 @@ public class ResponseTemplateTransformerTest {
   void picksRandomObjectFromListVariable() {
     String body =
         transform(
-            "{{val (parseJson '{\"level\":1}') assign='one'}}\n"
-                + "{{val (parseJson '{\"level\":2}') assign='two'}}\n"
-                + "{{val (parseJson '{\"level\":3}') assign='three'}}\n"
-                + "{{lookup (pickRandom (array one two three)) 'level'}}");
+            """
+            {{val (parseJson '{"level":1}') assign='one'}}
+            {{val (parseJson '{"level":2}') assign='two'}}
+            {{val (parseJson '{"level":3}') assign='three'}}
+            {{lookup (pickRandom (array one two three)) 'level'}}""");
 
     assertThat(body.trim(), anyOf(is("1"), is("2"), is("3")));
   }
@@ -864,7 +908,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void generatesARandomDecimal() {
-    assertThat(transform("{{randomDecimal}}"), matchesPattern("[\\-0-9\\.E]+"));
+    assertThat(transform("{{randomDecimal}}"), matchesPattern("[\\-0-9.E]+"));
     assertThat(
         transformToDouble("{{randomDecimal lower=-10.1 upper=-0.9}}"),
         allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
@@ -977,12 +1021,13 @@ public class ResponseTemplateTransformerTest {
   public void parsesJsonLiteralToAMapOfMapsVariable() {
     String result =
         transform(
-            "{{#parseJson 'parsedObj'}}\n"
-                + "{\n"
-                + "  \"name\": \"transformed\"\n"
-                + "}\n"
-                + "{{/parseJson}}\n"
-                + "{{parsedObj.name}}");
+            """
+            {{#parseJson 'parsedObj'}}
+            {
+              "name": "transformed"
+            }
+            {{/parseJson}}
+            {{parsedObj.name}}""");
 
     assertThat(result, equalToCompressingWhiteSpace("transformed"));
   }
@@ -991,13 +1036,15 @@ public class ResponseTemplateTransformerTest {
   public void parsesJsonVariableToAMapOfMapsVariable() {
     String result =
         transform(
-            "{{#assign 'json'}}\n"
-                + "{\n"
-                + "  \"name\": \"transformed\"\n"
-                + "}\n"
-                + "{{/assign}}\n"
-                + "{{parseJson json 'parsedObj'}}\n"
-                + "{{parsedObj.name}}\n");
+            """
+            {{#assign 'json'}}
+            {
+              "name": "transformed"
+            }
+            {{/assign}}
+            {{parseJson json 'parsedObj'}}
+            {{parsedObj.name}}
+            """);
 
     assertThat(result, equalToCompressingWhiteSpace("transformed"));
   }
@@ -1006,12 +1053,13 @@ public class ResponseTemplateTransformerTest {
   public void parsesJsonVariableToAndReturns() {
     String result =
         transform(
-            "{{#assign 'json'}}\n"
-                + "{\n"
-                + "  \"name\": \"transformed\"\n"
-                + "}\n"
-                + "{{/assign}}\n"
-                + "{{lookup (parseJson json) 'name'}}");
+            """
+            {{#assign 'json'}}
+            {
+              "name": "transformed"
+            }
+            {{/assign}}
+            {{lookup (parseJson json) 'name'}}""");
 
     assertThat(result, equalToCompressingWhiteSpace("transformed"));
   }
@@ -1023,7 +1071,14 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void parsesEmptyJsonLiteralToAnEmptyMap() {
-    String result = transform("{{#parseJson 'parsedObj'}}\n" + "{\n" + "}\n" + "{{/parseJson}}\n");
+    String result =
+        transform(
+            """
+            {{#parseJson 'parsedObj'}}
+            {
+            }
+            {{/parseJson}}
+            """);
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
@@ -1032,11 +1087,13 @@ public class ResponseTemplateTransformerTest {
   public void parsesEmptyJsonVariableToAnEmptyMap() {
     String result =
         transform(
-            "{{#assign 'json'}}\n"
-                + "{\n"
-                + "}\n"
-                + "{{/assign}}\n"
-                + "{{parseJson json 'parsedObj'}}\n");
+            """
+            {{#assign 'json'}}
+            {
+            }
+            {{/assign}}
+            {{parseJson json 'parsedObj'}}
+            """);
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
@@ -1183,18 +1240,19 @@ public class ResponseTemplateTransformerTest {
   public void joinWithObjectBody() {
     String result =
         transform(
-            "{{#parseJson 'myThings'}}\n"
-                + "[\n"
-                + "  { \"id\": 1, \"name\": \"One\" },\n"
-                + "  { \"id\": 2, \"name\": \"Two\" },\n"
-                + "  { \"id\": 3, \"name\": \"Three\" }\n"
-                + "]\n"
-                + "{{/parseJson}}"
-                + "[{{#arrayJoin ',' myThings as |item|}}"
-                + "{\n"
-                + "\"name{{item.id}}\": \"{{item.name}}\"\n"
-                + "}\n"
-                + "{{/arrayJoin}}]");
+            """
+            {{#parseJson 'myThings'}}
+            [
+              { "id": 1, "name": "One" },
+              { "id": 2, "name": "Two" },
+              { "id": 3, "name": "Three" }
+            ]
+            {{/parseJson}}\
+            [{{#arrayJoin ',' myThings as |item|}}\
+            {
+            "name{{item.id}}": "{{item.name}}"
+            }
+            {{/arrayJoin}}]""");
 
     assertThat(
         result,
@@ -1243,6 +1301,29 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{arrayJoin ','}}");
 
     assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
+  }
+
+  @Test
+  public void jsonExceptionShouldReturnError() {
+    String result = transform("{{#parseJson 'json'}}{ \"thing{{/parseJson}}");
+
+    assertEquals(
+        "[ERROR] Unexpected end-of-input in field name\n"
+            + " at [Source: (String)\"{ \"thing\"; line: 1, column: 9]",
+        result);
+  }
+
+  @Test
+  public void nonExistentHelperShouldReturnError() {
+    String result = transform("{{nonExist thing=123}}");
+
+    assertEquals(
+        """
+              [ERROR] 1:2: could not find helper: 'nonExist'
+              {{nonExist thing=123}}
+                ^
+              """,
+        result);
   }
 
   @Test

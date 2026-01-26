@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.function.Supplier;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
@@ -60,10 +59,8 @@ public class AdminRequestHandlerTest {
             + "    }\n"
             + "}";
 
-    client.post(
-        "/__admin/mappings",
-        new StringEntity(postBody),
-        withHeader(postHeaderABCName, postHeaderABCValue));
+    client.postWithBody(
+        "/__admin/mappings", postBody, withHeader(postHeaderABCName, postHeaderABCValue));
     ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass((Class) Supplier.class);
     verify(notifier, times(1)).info(captor.capture());
     List<Supplier<String>> capturedSuppliers = captor.getAllValues();

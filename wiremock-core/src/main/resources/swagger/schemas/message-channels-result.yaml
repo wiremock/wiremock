@@ -1,0 +1,15 @@
+type: object
+description: Result containing message channels
+properties:
+  channels:
+    type: array
+    items:
+      $ref: 'logged-message-channel.yaml'
+  meta:
+    type: object
+    description: Pagination metadata
+    properties:
+      total:
+        type: integer
+        description: Total number of channels
+

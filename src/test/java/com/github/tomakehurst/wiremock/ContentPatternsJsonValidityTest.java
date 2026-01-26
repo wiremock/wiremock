@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.networknt.schema.*;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.RandomUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -345,6 +346,36 @@ public class ContentPatternsJsonValidityTest {
   void includesExactlyValidates() {
     assertThat(validate(including(equalTo("1"), containing("2"))), empty());
     assertThat(validate("{ \"includes\": \"blah\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void equalToNumberValidates() {
+    assertThat(validate(equalToNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"equalToNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void greaterThanNumberValidates() {
+    assertThat(validate(greaterThanNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"greaterThanNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void greaterThanEqualNumberValidates() {
+    assertThat(validate(greaterThanEqualNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"greaterThanEqualNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void lessThanNumberValidates() {
+    assertThat(validate(lessThanNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"lessThanNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void lessThanEqualNumberValidates() {
+    assertThat(validate(lessThanEqualNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"lessThanEqualNumber\": \"not a number\" }"), Matchers.not(empty()));
   }
 
   private static Set<ValidationMessage> validate(Object obj) {

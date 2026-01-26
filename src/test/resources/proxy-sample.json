@@ -3,6 +3,8 @@
     "method": "ANY",
     "urlPattern": "/proxy/.*"
   },
-  "response": {"proxyBaseUrl": "http://localhost:8087/something"},
+  "response": {
+    "proxyBaseUrl": "http://localhost:8087/something"
+  },
   "priority": "LOW"
 }

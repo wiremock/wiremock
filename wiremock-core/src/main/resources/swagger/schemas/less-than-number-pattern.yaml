@@ -1,0 +1,7 @@
+title: Number less than
+type: object
+properties:
+  lessThanNumber:
+    type: number
+required:
+  - lessThanNumber

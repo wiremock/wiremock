@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
       requests.add(
           () -> {
             CloseableHttpResponse response =
-                HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
+                ApacheHttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
                     .execute(new HttpGet(wireMockRule.url("/delayed")));
             int status = response.getCode();
             String body = EntityUtils.toString(response.getEntity());

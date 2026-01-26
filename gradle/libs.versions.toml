@@ -1,22 +1,21 @@
 [versions]
-jetty = "12.0.29"
-jackson = "2.20.0"
+jetty = "12.1.5"
+jackson = "2.21.0"
 xmlUnit = "2.11.0"
-jsonUnit = "5.0.0"
-junitJupiter = "5.13.4"
+jsonUnit = "5.1.0"
+junitJupiter = "5.14.2"
 handlebars = "4.5.0"
-slf4j = "1.7.36"
+slf4j = "2.0.17"
 hamcrest = "3.0"
-mockito = "5.20.0"
+mockito = "5.21.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.1"
-vanniktech-maven-publish = "0.34.0"
 
 [libraries]
 # Jetty dependencies
 jetty-bom = { module = "org.eclipse.jetty:jetty-bom", version.ref = "jetty" }
-jetty-ee10-bom = { module = "org.eclipse.jetty.ee10:jetty-ee10-bom", version.ref = "jetty" }
+jetty-ee11-bom = { module = "org.eclipse.jetty.ee11:jetty-ee11-bom", version.ref = "jetty" }
 jetty-server = { module = "org.eclipse.jetty:jetty-server" }
 jetty-proxy = { module = "org.eclipse.jetty:jetty-proxy" }
 jetty-http2-server = { module = "org.eclipse.jetty.http2:jetty-http2-server" }
@@ -24,9 +23,13 @@ jetty-alpn-server = { module = "org.eclipse.jetty:jetty-alpn-server" }
 jetty-alpn-java-server = { module = "org.eclipse.jetty:jetty-alpn-java-server" }
 jetty-alpn-java-client = { module = "org.eclipse.jetty:jetty-alpn-java-client" }
 jetty-alpn-client = { module = "org.eclipse.jetty:jetty-alpn-client" }
-jetty-ee10-servlet = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlet" }
-jetty-ee10-servlets = { module = "org.eclipse.jetty.ee10:jetty-ee10-servlets" }
-jetty-ee10-webapp = { module = "org.eclipse.jetty.ee10:jetty-ee10-webapp" }
+jetty-ee11-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet" }
+jetty-ee11-servlets = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlets" }
+jetty-ee11-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp" }
+jetty-ee11-websockets = { module = "org.eclipse.jetty.ee11.websocket:jetty-ee11-websocket-jakarta-server" }
+jetty-ee11-websocket-jetty-server = { module = "org.eclipse.jetty.ee11.websocket:jetty-ee11-websocket-jetty-server" }
+jetty-websocket-jetty-api = { module = "org.eclipse.jetty.websocket:jetty-websocket-jetty-api" }
+
 jetty-client = { module = "org.eclipse.jetty:jetty-client" }
 jetty-http2-client = { module = "org.eclipse.jetty.http2:jetty-http2-client" }
 jetty-http2-client-transport = { module = "org.eclipse.jetty.http2:jetty-http2-client-transport" }
@@ -35,6 +38,8 @@ jetty-http = { module = "org.eclipse.jetty:jetty-http" }
 jetty-io = { module = "org.eclipse.jetty:jetty-io" }
 jetty-util = { module = "org.eclipse.jetty:jetty-util" }
 
+# Apache Commons dependencies
+apache-commons-text = { module = "org.apache.commons:commons-text", version = "1.15.0" }
 # Jackson dependencies
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
@@ -46,8 +51,14 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 
 # HTTP Client
-apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.5.1" }
-apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
+apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
+apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4" }
+
+# OkHttp
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+
+okio = { module = "com.squareup.okio:okio", version = "3.16.4" }
 
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
@@ -59,7 +70,7 @@ json-unit-core = { module = "net.javacrumbs.json-unit:json-unit-core", version.r
 json-unit = { module = "net.javacrumbs.json-unit:json-unit", version.ref = "jsonUnit" }
 
 # JSON Path
-json-path = { module = "com.jayway.jsonpath:json-path", version = "2.9.0" }
+json-path = { module = "com.jayway.jsonpath:json-path", version = "2.10.0" }
 json-smart = { module = "net.minidev:json-smart", version = "2.6.0" }
 
 # SLF4J
@@ -98,29 +109,31 @@ hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest
 hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
-jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
+jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.20.0" }
-scala-library = { module = "org.scala-lang:scala-library", version = "2.13.17" }
+commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
+commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.20.0" }
+scala-library = { module = "org.scala-lang:scala-library", version = "2.13.18" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 archunit-junit5-api = { module = "com.tngtech.archunit:archunit-junit5-api", version.ref = "archunit" }
 android-json = { module = "com.vaadin.external.google:android-json", version = "0.0.20131108.vaadin1" }
-assertj-core = { module = "org.assertj:assertj-core", version = "3.27.6" }
+assertj-core = { module = "org.assertj:assertj-core", version = "3.27.7" }
 
 # JMH
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
+jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
+
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven-publish" }
-vanniktech-maven-publish-base = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktech-maven-publish" }
-spotless = { id = "com.diffplug.spotless", version = "8.0.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.2.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
-sonarqube = { id = "org.sonarqube", version = "7.0.1.6134" }
+sonarqube = { id = "org.sonarqube", version = "7.2.2.6593" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.jetty12.Jetty12HttpServer;
+import com.github.tomakehurst.wiremock.jetty.Jetty12HttpServer;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,13 +32,14 @@ public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
     setupServer(
         new WireMockConfiguration()
             .httpServerFactory(
-                (options, adminRequestHandler, stubRequestHandler) ->
+                (options, adminRequestHandler, stubRequestHandler, messageStubRequestHandler) ->
                     new Jetty12HttpServer(
                         options,
                         adminRequestHandler,
                         stubRequestHandler,
                         JettySettings.Builder.aJettySettings().build(),
-                        new InstrumentedQueuedThreadPool(options.containerThreads()))));
+                        new InstrumentedQueuedThreadPool(options.containerThreads()),
+                        messageStubRequestHandler)));
   }
 
   @Test

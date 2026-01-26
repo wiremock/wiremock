@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,10 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -62,7 +57,8 @@ public class WireMockServerTests {
 
   @Test
   public void addFilenameTemplateAsOptionAndValidFormat() {
-    Options options = options().dynamicPort().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
+    Options options =
+        options().dynamicPort().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
     WireMockServer wireMockServer = new WireMockServer(options);
     wireMockServer.start();
     assertThat(wireMockServer.getOptions(), is(options));
@@ -111,24 +107,15 @@ public class WireMockServerTests {
     assertThat(wireMockServer.baseUrl(), is(String.format("https://localhost:%d", port)));
   }
 
-  // https://github.com/tomakehurst/wiremock/issues/193
   @Test
-  public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
-    WireMockServer wireMockServer =
-        new WireMockServer(
-            DYNAMIC_PORT,
-            new SingleRootFileSource(tempDir),
-            false,
-            new ProxySettings("proxy.company.com", DYNAMIC_PORT));
-    wireMockServer.start();
-    wireMockServer.enableRecordMappings(
-        new SingleRootFileSource(tempDir + "/mappings"),
-        new SingleRootFileSource(tempDir + "/__files"));
-    wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
-
-    WireMockTestClient client = new WireMockTestClient(wireMockServer.port());
-    assertThat(
-        client.get("http://localhost:" + wireMockServer.port() + "/something").statusCode(),
-        is(200));
+  public void serverCanBeStartedFluently() {
+    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort()).startServer();
+    try {
+      int port = wireMockServer.port();
+      assertThat(wireMockServer.baseUrl(), is(String.format("http://localhost:%d", port)));
+      assertThat(new WireMockTestClient(port).get("/").statusCode(), is(404));
+    } finally {
+      wireMockServer.stop();
+    }
   }
 }

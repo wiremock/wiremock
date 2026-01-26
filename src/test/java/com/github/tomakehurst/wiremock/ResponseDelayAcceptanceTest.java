@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -67,7 +67,7 @@ public class ResponseDelayAcceptanceTest {
 
   @BeforeEach
   public void init() {
-    httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+    httpClient = ApacheHttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
     testClient = new WireMockTestClient(wireMockRule.getPort());
   }
 

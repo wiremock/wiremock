@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedDuringRecording() {
+  public void recordsNothingWhenNoServeEventsAreReceivedDuringRecording() {
     targetService.stubFor(get(urlPathMatching("/do-not-record-this/.*")).willReturn(noContent()));
 
     client.get("/do-not-record-this/1");
@@ -158,7 +158,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedAtAll() {
+  public void recordsNothingWhenNoServeEventsAreReceivedAtAll() {
     startRecording(targetBaseUrl);
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 

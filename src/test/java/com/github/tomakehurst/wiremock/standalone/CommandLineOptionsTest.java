@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -867,6 +867,62 @@ public class CommandLineOptionsTest {
     int proxyTimeout = options.proxyTimeout();
 
     assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
+  }
+
+  @Test
+  void webSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--websocket-idle-timeout", "60000");
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(60000L));
+  }
+
+  @Test
+  void defaultWebSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(Options.DEFAULT_WEBSOCKET_IDLE_TIMEOUT));
+  }
+
+  @Test
+  void webSocketMaxTextMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-text-message-size", "131072");
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(131072L));
+  }
+
+  @Test
+  void defaultWebSocketMaxTextMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE));
+  }
+
+  @Test
+  void webSocketMaxBinaryMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-binary-message-size", "262144");
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(262144L));
+  }
+
+  @Test
+  void defaultWebSocketMaxBinaryMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE));
   }
 
   @Test

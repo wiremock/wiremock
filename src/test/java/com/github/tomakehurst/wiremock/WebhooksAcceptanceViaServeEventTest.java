@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -45,13 +44,16 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest {
 
@@ -135,7 +137,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/something-async", new StringEntity("", TEXT_PLAIN));
+    client.post("/something-async");
 
     waitForRequestToTargetServer();
 
@@ -194,7 +196,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    WireMockResponse response = client.post("/request-id", new StringEntity("", TEXT_PLAIN));
+    WireMockResponse response = client.post("/request-id");
     String requestId = response.content();
 
     waitForRequestToTargetServer();
@@ -221,7 +223,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/helpers", new StringEntity("", TEXT_PLAIN));
+    client.post("/helpers");
 
     waitForRequestToTargetServer();
 
@@ -274,7 +276,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/hook", new StringEntity("", TEXT_PLAIN));
+    client.post("/hook");
 
     waitForRequestToTargetServer();
 
@@ -303,11 +305,12 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     client.postJson(
         "/templating",
-        "{\n"
-            + "  \"callbackPath\": \"/callback/123\",\n"
-            + "  \"method\": \"POST\",\n"
-            + "  \"name\": \"Tom\"\n"
-            + "}");
+        """
+        {
+          "callbackPath": "/callback/123",
+          "method": "POST",
+          "name": "Tom"
+        }""");
 
     waitForRequestToTargetServer();
 
@@ -357,11 +360,12 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     client.postJson(
         "/templating",
-        "{\n"
-            + "  \"callbackPath\": \"/callback/123\",\n"
-            + "  \"method\": \"POST\",\n"
-            + "  \"name\": \"Tom\"\n"
-            + "}");
+        """
+        {
+          "callbackPath": "/callback/123",
+          "method": "POST",
+          "name": "Tom"
+        }""");
 
     waitForRequestToTargetServer();
 
@@ -392,7 +396,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+    client.post("/delayed");
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
@@ -434,7 +438,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     verify(0, postRequestedFor(anyUrl()));
 
-    client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+    client.post("/delayed");
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
@@ -462,7 +466,7 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
                         .withHeader("X-Multi", "one", "two")
                         .withBody("{ \"result\": \"SUCCESS\" }")));
 
-    client.post("/webhook", new StringEntity("", TEXT_PLAIN));
+    client.post("/webhook");
 
     printAllInfoNotifications();
 
@@ -484,5 +488,38 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
             "body", "{ \"result\": \"SUCCESS\" }");
     assertSubEvent(subEvents.get(0), WEBHOOK_REQUEST_SUB_EVENT_NAME, expectedRequestEntries);
     assertSubEvent(subEvents.get(1), SubEvent.ERROR, expectedErrorMessage);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allHttpMethodsForWebhooks")
+  public void firesWebhookForAllHttpMethods(RequestMethod method) throws Exception {
+    String body = "{ \"test\": \"data\" }";
+    rule.stubFor(
+        post(urlPathEqualTo("/trigger-webhook"))
+            .willReturn(ok())
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withMethod(method)
+                    .withUrl(targetServer.url("/callback"))
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(body)));
+
+    client.post("/trigger-webhook");
+
+    waitForRequestToTargetServer();
+
+    // Verify the webhook was called with the correct method
+    List<LoggedRequest> requests = targetServer.findAll(anyRequestedFor(urlEqualTo("/callback")));
+    assertThat(requests, hasSize(1));
+    assertThat(requests.get(0).getMethod(), is(method));
+    if (method.hasEntity()) {
+      assertThat(requests.get(0).getBodyAsString(), is(body));
+    }
+  }
+
+  private static Stream<RequestMethod> allHttpMethodsForWebhooks() {
+    return Arrays.stream(RequestMethod.values())
+        .filter(m -> !m.equals(RequestMethod.ANY) && !m.equals(RequestMethod.GET_OR_HEAD));
   }
 }

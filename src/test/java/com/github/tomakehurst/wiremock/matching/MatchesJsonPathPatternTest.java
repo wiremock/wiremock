@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,103 @@ public class MatchesJsonPathPatternTest {
   @BeforeEach
   public void init() {
     RequestCache.disable();
+  }
+
+  @Test
+  public void matchesABasicJsonPathWhenTheExpectedElementIsAnEmptyObject() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.empty");
+    assertTrue(
+        pattern.match("{ \"empty\": {} }").isExactMatch(),
+        "Expected match when JSON attribute is an empty object");
+  }
+
+  @Test
+  public void matchesABasicJsonPathWhenTheExpectedElementIsAnEmptyArray() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.items");
+    assertTrue(
+        pattern.match("{ \"items\": [] }").isExactMatch(),
+        "Expected match when JSON attribute is an empty array (as a value, not a filter result)");
+  }
+
+  @Test
+  public void matchesNestedEmptyObject() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.outer.inner.empty");
+    assertTrue(
+        pattern.match("{ \"outer\": { \"inner\": { \"empty\": {} } } }").isExactMatch(),
+        "Expected match when nested JSON attribute is an empty object");
+  }
+
+  @Test
+  public void matchesEmptyObjectWithEqualToJsonSubmatcher() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.empty", WireMock.equalToJson("{}"));
+    assertTrue(
+        pattern.match("{ \"empty\": {} }").isExactMatch(),
+        "Expected match when empty object matches the equalToJson submatcher");
+  }
+
+  @Test
+  public void matchesEmptyArrayWithEqualToJsonSubmatcher() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.items", WireMock.equalToJson("[]"));
+    assertTrue(
+        pattern.match("{ \"items\": [] }").isExactMatch(),
+        "Expected match when empty array matches the equalToJson submatcher");
+  }
+
+  @Test
+  public void doesNotMatchEmptyObjectWhenSubMatcherExpectsDifferentValue() {
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath("$.empty", WireMock.equalToJson("{\"key\": \"value\"}"));
+    assertFalse(
+        pattern.match("{ \"empty\": {} }").isExactMatch(),
+        "Expected no match when empty object doesn't match the submatcher");
+  }
+
+  @Test
+  public void distinguishesBetweenEmptyObjectValueAndFilterResultingInEmptyArray() {
+    // Empty object as a value should match
+    StringValuePattern pattern1 = WireMock.matchingJsonPath("$.config");
+    assertTrue(
+        pattern1.match("{ \"config\": {} }").isExactMatch(), "Empty object as value should match");
+
+    // Filter that returns empty array should not match (existing behavior)
+    StringValuePattern pattern2 = WireMock.matchingJsonPath("$.items[?(@.id == 999)]");
+    assertFalse(
+        pattern2.match("{ \"items\": [{\"id\": 1}, {\"id\": 2}] }").isExactMatch(),
+        "Filter returning empty result should not match");
+  }
+
+  @Test
+  public void doesNotMatchWhenDeepScanReturnsNoResults() {
+    // Deep scan (..) is an indefinite path - empty result means no match
+    StringValuePattern pattern = WireMock.matchingJsonPath("$..missingKey");
+    assertFalse(
+        pattern.match("{ \"items\": [{\"id\": 1}, {\"id\": 2}] }").isExactMatch(),
+        "Deep scan returning no results should not match");
+  }
+
+  @Test
+  public void doesNotMatchWhenWildcardReturnsNoResults() {
+    // Wildcard [*] is an indefinite path - empty result means no match
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.items[*].tags");
+    assertFalse(
+        pattern.match("{ \"items\": [{\"id\": 1}, {\"id\": 2}] }").isExactMatch(),
+        "Wildcard returning no results should not match");
+  }
+
+  @Test
+  public void matchesDefinitePathToEmptyArrayVsIndefinitePathReturningEmpty() {
+    String json = "{ \"items\": [], \"data\": [{\"value\": 1}] }";
+
+    // Definite path to an empty array - should match (the array exists and is empty)
+    StringValuePattern definitePattern = WireMock.matchingJsonPath("$.items");
+    assertTrue(
+        definitePattern.match(json).isExactMatch(), "Definite path to empty array should match");
+
+    // Indefinite path that returns empty - should not match (no results found)
+    StringValuePattern indefinitePattern = WireMock.matchingJsonPath("$.data[?(@.value == 999)]");
+    assertFalse(
+        indefinitePattern.match(json).isExactMatch(),
+        "Indefinite path returning empty should not match");
   }
 
   @Test
@@ -501,6 +598,42 @@ public class MatchesJsonPathPatternTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void shouldSafelyHandleNullAndResultInNoMatch() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("true"));
+    String json = "{\"data\": {\"prop1\": false, \"prop2\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
+  void shouldHandleNullAndNumberMixedAndResultInNoMatch() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("100"));
+    String json = "{\"data\": {\"prop1\": 200, \"prop2\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertFalse(result.isExactMatch());
+  }
+
+  @Test
+  void shouldMatchSuccessfullyWhenExtractedValueIsNull() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("null"));
+    String json = "{\"data\": {\"prop1\": null, \"prop2\": 123}}";
+
+    MatchResult result = pattern.match(json);
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void shouldMatchSuccessfullyWhenAllExtractedValuesAreNull() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.data.*", WireMock.equalTo("null"));
+    String json = "{\"data\": {\"prop1\": null, \"prop2\": null, \"prop3\": null}}";
+
+    MatchResult result = pattern.match(json);
+    assertTrue(result.isExactMatch());
   }
 
   private static Notifier setMockNotifier() {

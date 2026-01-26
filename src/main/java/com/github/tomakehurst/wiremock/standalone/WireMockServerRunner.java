@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.r
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.lang.System.out;
@@ -27,9 +28,13 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Version;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.List;
 import java.util.Set;
 
 public class WireMockServerRunner {
@@ -49,6 +54,7 @@ public class WireMockServerRunner {
           + "----------------------------------------------------------------";
 
   private WireMockServer wireMockServer;
+  private Thread shutdownHook;
 
   public void run(String... args) {
     CommandLineOptions options = new CommandLineOptions(args);
@@ -67,11 +73,13 @@ public class WireMockServerRunner {
     filesFileSource.createIfNecessary();
     FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
     mappingsFileSource.createIfNecessary();
+    FileSource messageMappingsFileSource = fileSource.child(MESSAGE_MAPPINGS_ROOT);
+    messageMappingsFileSource.createIfNecessary();
 
     wireMockServer = new WireMockServer(options);
 
     if (options.recordMappingsEnabled()) {
-      wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
+      startRecordingWithOptions(options);
     }
 
     if (options.specifiesProxyUrl()) {
@@ -80,6 +88,12 @@ public class WireMockServerRunner {
 
     try {
       wireMockServer.start();
+
+      // Add shutdown hook to snapshot recordings before JVM exits
+      if (options.recordMappingsEnabled()) {
+        shutdownHook = new Thread(this::stopRecordingIfNecessary);
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+      }
       boolean https = options.httpsSettings().enabled();
 
       if (!options.getHttpDisabled()) {
@@ -110,22 +124,59 @@ public class WireMockServerRunner {
     }
   }
 
+  private void startRecordingWithOptions(CommandLineOptions options) {
+    RecordSpecBuilder recordSpecBuilder =
+        new RecordSpecBuilder()
+            .makeStubsPersistent(true)
+            .ignoreRepeatRequests()
+            .extractBinaryBodiesOver(0)
+            .extractTextBodiesOver(0);
+
+    List<CaseInsensitiveKey> matchingHeaders = options.matchingHeaders();
+    for (CaseInsensitiveKey header : matchingHeaders) {
+      recordSpecBuilder.captureHeader(header.value());
+    }
+
+    wireMockServer.startRecording(recordSpecBuilder);
+  }
+
   private void addProxyMapping(final String baseUrl) {
     wireMockServer.loadMappingsUsing(
         stubMappings -> {
           RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
           ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
 
-          StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-          proxyBasedMapping.setPriority(
-              10); // Make it low priority so that existing stubs will take precedence
+          StubMapping proxyBasedMapping =
+              StubMapping.builder()
+                  .setRequest(requestPattern)
+                  .setResponse(responseDef)
+                  .setPriority(10)
+                  .build();
+
           stubMappings.addMapping(proxyBasedMapping);
         });
   }
 
   public void stop() {
     if (wireMockServer != null) {
+      if (wireMockServer.getRecordingStatus().getStatus() == RecordingStatus.Recording) {
+        stopRecordingIfNecessary();
+
+        // Remove shutdown hook to prevent double snapshotting
+        if (shutdownHook != null) {
+          try {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+          } catch (IllegalStateException e) {
+          }
+        }
+      }
       wireMockServer.stop();
+    }
+  }
+
+  private void stopRecordingIfNecessary() {
+    if (wireMockServer.getRecordingStatus().getStatus() == RecordingStatus.Recording) {
+      wireMockServer.stopRecording();
     }
   }
 

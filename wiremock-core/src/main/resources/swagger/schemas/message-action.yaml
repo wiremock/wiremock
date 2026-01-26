@@ -1,0 +1,24 @@
+type: object
+description: Action to perform when a message stub is triggered
+required:
+  - type
+  - message
+properties:
+  type:
+    type: string
+    enum:
+      - send
+  message:
+    $ref: 'message-definition.yaml'
+  channelTarget:
+    $ref: 'channel-target.yaml'
+  transformers:
+    type: array
+    description: List of transformer names to apply to the message
+    items:
+      type: string
+  transformerParameters:
+    type: object
+    description: Parameters to pass to transformers
+    additionalProperties: true
+

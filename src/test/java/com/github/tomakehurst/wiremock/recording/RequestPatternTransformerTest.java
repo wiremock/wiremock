@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,17 @@ public class RequestPatternTransformerTest {
 
     RequestPatternBuilder expected =
         new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
+
+    assertEquals(
+        expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
+  }
+
+  @Test
+  public void applyIncludesQueryMethod() {
+    Request request = mockRequest().url("/foo").method(RequestMethod.QUERY);
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.QUERY, urlEqualTo("/foo"));
 
     assertEquals(
         expected.build(), new RequestPatternTransformer(null, null).apply(request).build());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
 
   public static final String MAPPING_REQUEST_WITH_UUID =
       "{ 	"
-          + "	\"uuid\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n"
+          + "	\"id\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n"
           + "	\"request\": {										\n"
           + "		\"method\": \"GET\",							\n"
           + "		\"url\": \"/a/registered/resource\"				\n"
@@ -43,7 +43,7 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
 
   public static final String MODIFY_MAPPING_REQUEST_WITH_UUID =
       "{ 	"
-          + "	\"uuid\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n"
+          + "	\"id\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n"
           + "	\"request\": {										\n"
           + "		\"method\": \"GET\",							\n"
           + "		\"url\": \"/a/registered/resource\"				\n"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,9 @@ import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -129,7 +131,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void
-      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
+      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAdditionalRequestHeaders() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -277,7 +279,7 @@ public class ProxyAcceptanceTest {
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getCode(), is(200));
@@ -294,7 +296,7 @@ public class ProxyAcceptanceTest {
     target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
     proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getCode(), is(200));
@@ -656,7 +658,7 @@ public class ProxyAcceptanceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "BLAH"})
+  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "QUERY", "BLAH"})
   void proxiesRequestBodyForAnyMethod(String method) {
     initWithDefaultConfig();
 
@@ -797,6 +799,96 @@ public class ProxyAcceptanceTest {
     Multimap<String, String> headers = response.headers();
     assertThat(headers.get("Set-Cookie").size(), is(3));
     assertThat(headers.get("Set-Cookie"), hasItems("session=1234", "ads_id=5678", "trk=t-9987"));
+  }
+
+  @Test
+  public void proxiedFromIllegalSource() {
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(aResponse().proxiedFrom("/not/an/absolute/url")));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(response.statusCode(), is(500));
+    assertThat(
+        response.content(),
+        is(
+            "The target proxy address `/not/an/absolute/url/proxied/resource?param=value` is not an absolute URL."));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  public void templatedProxiedFrom() {
+
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(
+                aResponse()
+                    .withTransformers(ResponseTemplateTransformer.NAME)
+                    .proxiedFrom("{{request.headers.X-WM-Uri}}")));
+
+    WireMockResponse response =
+        testClient.get(
+            "/proxied/resource?param=value",
+            TestHttpHeader.withHeader("X-WM-Uri", targetServiceBaseUrl));
+
+    assertThat(response.content(), is("Proxied content"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  public void templatedProxiedFromWithIllegalTemplatedSource() {
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(
+                aResponse()
+                    .withTransformers(ResponseTemplateTransformer.NAME)
+                    .proxiedFrom("{{request.headers.X-WM-Uri}}")));
+
+    WireMockResponse response =
+        testClient.get(
+            "/proxied/resource?param=value",
+            TestHttpHeader.withHeader("X-WM-Uri", "/not/an/absolute/url"));
+
+    assertThat(response.statusCode(), is(500));
+    assertThat(
+        response.content(),
+        is(
+            "The target proxy address `/not/an/absolute/url/proxied/resource?param=value` is not an absolute URL."));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
   }
 
   private void register200StubOnProxyAndTarget(String url) {

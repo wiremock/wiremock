@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.HttpAdminClient;
-import com.github.tomakehurst.wiremock.common.HttpClientUtils;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -41,8 +40,6 @@ class HttpClientTest {
           .resideOutsideOfPackage("..http..")
           .and()
           .areNotAssignableTo(HttpAdminClient.class)
-          .and()
-          .areNotAssignableTo(HttpClientUtils.class)
           .should()
           .dependOnClassesThat()
           .resideInAPackage("org.apache.hc..")

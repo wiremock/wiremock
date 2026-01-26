@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -39,7 +38,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -588,8 +586,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     proxyingTestClient.put(
         "/foo/bar", withHeader("Accept", "text/plain"), withHeader("X-Another", "blah"));
 
-    WireMockResponse response =
-        proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
     assertThat(
         response.content(),
         equalToJson(RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE, JSONCompareMode.STRICT_ORDER));
@@ -730,5 +727,47 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
                 }
             """)
             .withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
+  }
+
+  private static final String QUERY_METHOD_SNAPSHOT_REQUEST =
+      "{                                      \n"
+          + "    \"outputFormat\": \"full\",        \n"
+          + "    \"persist\": \"false\"             \n"
+          + "}                                        ";
+
+  private static final String QUERY_METHOD_SNAPSHOT_RESPONSE =
+      "{                                                           \n"
+          + "    \"mappings\": [                                         \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/search/users\",                \n"
+          + "                \"method\" : \"QUERY\",                     \n"
+          + "                \"bodyPatterns\" : [                        \n"
+          + "                    {                                       \n"
+          + "                        \"equalToJson\" : \"{\\\"name\\\":\\\"John\\\"}\",\n"
+          + "                        \"ignoreArrayOrder\" : true,        \n"
+          + "                        \"ignoreExtraElements\" : true      \n"
+          + "                    }                                       \n"
+          + "                ]                                           \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                   \n"
+          + "    ]                                                       \n"
+          + "}                                                             ";
+
+  @Test
+  public void recordsQueryMethodRequestsWithBody() {
+    proxyServerStartWithEmptyFileRoot();
+
+    // Make a QUERY request with a JSON body
+    proxyingTestClient.queryJson("/search/users", "{\"name\":\"John\"}");
+
+    String actual = proxyingTestClient.snapshot(QUERY_METHOD_SNAPSHOT_REQUEST);
+    assertThat(actual, equalToJson(QUERY_METHOD_SNAPSHOT_RESPONSE, JSONCompareMode.LENIENT));
+
+    // Should have persisted the stub mapping (2 = 1 proxy + 1 recorded)
+    assertEquals(2, proxyingService.getStubMappings().size());
   }
 }

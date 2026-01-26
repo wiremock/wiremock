@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,13 +44,14 @@ public class NearMissExampleTest {
   }
 
   @Test
-  public void showFullUnmatchedVerification() throws Exception {
+  public void showFullUnmatchedVerification() {
     client.get("/some-other-thing");
     client.get("/totally-something-else");
     client.get("/whatever");
-    client.post(
+    client.postWithBody(
         "/my-near-miss",
-        new StringEntity("{\"data\": { \"one\": 1}}", APPLICATION_JSON),
+        "{\"data\": { \"one\": 1}}",
+        APPLICATION_JSON.getMimeType(),
         withHeader("Content-Type", "application/json"),
         withHeader("X-Expected", "yes"),
         withHeader("X-Matched-1", "yes"),

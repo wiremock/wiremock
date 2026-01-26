@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,27 +36,37 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.QUERY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -71,6 +81,15 @@ class RequestPatternTest {
     RequestPattern requestPattern = newRequestPattern(PUT, urlPathEqualTo("/my/url")).build();
 
     MatchResult matchResult = requestPattern.match(mockRequest().method(PUT).url("/my/url"));
+    assertThat(matchResult.getDistance(), is(0.0));
+    assertTrue(matchResult.isExactMatch());
+  }
+
+  @Test
+  void matchesExactlyWithQueryMethod0DistanceWhenUrlAndMethodAreExactMatch() {
+    RequestPattern requestPattern = newRequestPattern(QUERY, urlPathEqualTo("/my/url")).build();
+
+    MatchResult matchResult = requestPattern.match(mockRequest().method(QUERY).url("/my/url"));
     assertThat(matchResult.getDistance(), is(0.0));
     assertTrue(matchResult.isExactMatch());
   }
@@ -677,6 +696,453 @@ class RequestPatternTest {
 
     String json = Json.write(requestPattern);
     JSONAssert.assertEquals(ALL_BODY_PATTERNS_EXAMPLE, json, true);
+  }
+
+  @Test
+  public void headersMapIsImmutable() {
+    var headers = new HashMap<String, MultiValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    headers.put("key-1", MultiValuePattern.of(equalTo("value-1")));
+    builder1.setHeaders(headers);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getHeaders(), Matchers.aMapWithSize(1));
+    assertThat(
+        requestPattern1.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    headers.clear();
+
+    assertThat(requestPattern1.getHeaders(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> requestPattern1.getHeaders().put("key-2", MultiValuePattern.of(equalTo("value-2"))));
+
+    assertThat(requestPattern1.getHeaders(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    builder1.getHeaders().clear();
+
+    assertThat(requestPattern1.getHeaders(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getHeaders().put("key-2", MultiValuePattern.of(equalTo("value-2")));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getHeaders(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThat(requestPattern2.getHeaders(), aMapWithSize(2));
+    assertThat(
+        requestPattern2.getHeaders(), hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+    assertThat(
+        requestPattern2.getHeaders(), hasEntry("key-2", MultiValuePattern.of(equalTo("value-2"))));
+  }
+
+  @Test
+  public void pathParamsMapIsImmutable() {
+    var pathParams = new HashMap<String, StringValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    builder1.setUrl(urlPathTemplate("/{key-1}"));
+    pathParams.put("key-1", equalTo("value-1"));
+    builder1.setPathParams(pathParams);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getPathParameters(), aMapWithSize(1));
+    assertThat(requestPattern1.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+
+    pathParams.clear();
+
+    assertThat(requestPattern1.getPathParameters(), aMapWithSize(1));
+    assertThat(requestPattern1.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> requestPattern1.getPathParameters().put("key-2", equalTo("value-2")));
+
+    assertThat(requestPattern1.getPathParameters(), aMapWithSize(1));
+    assertThat(requestPattern1.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+
+    builder1.getPathParams().clear();
+
+    assertThat(requestPattern1.getPathParameters(), aMapWithSize(1));
+    assertThat(requestPattern1.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getPathParams().put("key-2", equalTo("value-2"));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getPathParameters(), aMapWithSize(1));
+    assertThat(requestPattern1.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+
+    assertThat(requestPattern2.getPathParameters(), aMapWithSize(2));
+    assertThat(requestPattern2.getPathParameters(), hasEntry("key-1", equalTo("value-1")));
+    assertThat(requestPattern2.getPathParameters(), hasEntry("key-2", equalTo("value-2")));
+  }
+
+  @Test
+  public void queryParamsMapIsImmutable() {
+    var queryParameters = new HashMap<String, MultiValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    queryParameters.put("key-1", MultiValuePattern.of(equalTo("value-1")));
+    builder1.setQueryParams(queryParameters);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getQueryParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    queryParameters.clear();
+
+    assertThat(requestPattern1.getQueryParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            requestPattern1
+                .getQueryParameters()
+                .put("key-2", MultiValuePattern.of(equalTo("value-2"))));
+
+    assertThat(requestPattern1.getQueryParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    builder1.getQueryParams().clear();
+
+    assertThat(requestPattern1.getQueryParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getQueryParams().put("key-2", MultiValuePattern.of(equalTo("value-2")));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getQueryParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThat(requestPattern2.getQueryParameters(), aMapWithSize(2));
+    assertThat(
+        requestPattern2.getQueryParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+    assertThat(
+        requestPattern2.getQueryParameters(),
+        hasEntry("key-2", MultiValuePattern.of(equalTo("value-2"))));
+  }
+
+  @Test
+  public void formParamsMapIsImmutable() {
+    var formParameters = new HashMap<String, MultiValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    formParameters.put("key-1", MultiValuePattern.of(equalTo("value-1")));
+    builder1.setFormParams(formParameters);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getFormParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    formParameters.clear();
+
+    assertThat(requestPattern1.getFormParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            requestPattern1
+                .getFormParameters()
+                .put("key-2", MultiValuePattern.of(equalTo("value-2"))));
+
+    assertThat(requestPattern1.getFormParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    builder1.getFormParams().clear();
+
+    assertThat(requestPattern1.getFormParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getFormParams().put("key-2", MultiValuePattern.of(equalTo("value-2")));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getFormParameters(), aMapWithSize(1));
+    assertThat(
+        requestPattern1.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+
+    assertThat(requestPattern2.getFormParameters(), aMapWithSize(2));
+    assertThat(
+        requestPattern2.getFormParameters(),
+        hasEntry("key-1", MultiValuePattern.of(equalTo("value-1"))));
+    assertThat(
+        requestPattern2.getFormParameters(),
+        hasEntry("key-2", MultiValuePattern.of(equalTo("value-2"))));
+  }
+
+  @Test
+  public void cookiesMapIsImmutable() {
+    var cookies = new HashMap<String, StringValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    cookies.put("key-1", equalTo("value-1"));
+    builder1.setCookies(cookies);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getCookies(), aMapWithSize(1));
+    assertThat(requestPattern1.getCookies(), hasEntry("key-1", equalTo("value-1")));
+
+    cookies.clear();
+
+    assertThat(requestPattern1.getCookies(), aMapWithSize(1));
+    assertThat(requestPattern1.getCookies(), hasEntry("key-1", equalTo("value-1")));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> requestPattern1.getCookies().put("key-2", equalTo("value-2")));
+
+    assertThat(requestPattern1.getCookies(), aMapWithSize(1));
+    assertThat(requestPattern1.getCookies(), hasEntry("key-1", equalTo("value-1")));
+
+    builder1.getCookies().clear();
+
+    assertThat(requestPattern1.getCookies(), aMapWithSize(1));
+    assertThat(requestPattern1.getCookies(), hasEntry("key-1", equalTo("value-1")));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getCookies().put("key-2", equalTo("value-2"));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getCookies(), aMapWithSize(1));
+    assertThat(requestPattern1.getCookies(), hasEntry("key-1", equalTo("value-1")));
+
+    assertThat(requestPattern2.getCookies(), aMapWithSize(2));
+    assertThat(requestPattern2.getCookies(), hasEntry("key-1", equalTo("value-1")));
+    assertThat(requestPattern2.getCookies(), hasEntry("key-2", equalTo("value-2")));
+  }
+
+  @Test
+  public void bodyPatternsListIsImmutable() {
+    var bodyPatterns = new ArrayList<ContentPattern<?>>();
+    var builder1 = new RequestPattern.Builder();
+    bodyPatterns.add(equalTo("value-1"));
+    builder1.setBodyPatterns(bodyPatterns);
+
+    var requestPattern1 = builder1.build();
+    assertThat(requestPattern1.getBodyPatterns(), contains(equalTo("value-1")));
+
+    bodyPatterns.clear();
+
+    assertThat(requestPattern1.getBodyPatterns(), contains(equalTo("value-1")));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> requestPattern1.getBodyPatterns().add(equalTo("value-2")));
+
+    assertThat(requestPattern1.getBodyPatterns(), contains(equalTo("value-1")));
+
+    builder1.getBodyPatterns().clear();
+
+    assertThat(requestPattern1.getBodyPatterns(), contains(equalTo("value-1")));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getBodyPatterns().add(equalTo("value-2"));
+    var requestPattern2 = builder2.build();
+
+    assertThat(requestPattern1.getBodyPatterns(), contains(equalTo("value-1")));
+
+    assertThat(requestPattern2.getBodyPatterns(), contains(equalTo("value-1"), equalTo("value-2")));
+  }
+
+  @Test
+  public void multipartPatternsListIsImmutable() {
+    var multipartPatterns = new ArrayList<MultipartValuePattern>();
+    var builder1 = new RequestPattern.Builder();
+    multipartPatterns.add(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build());
+    builder1.setMultipartPatterns(multipartPatterns);
+
+    var requestPattern1 = builder1.build();
+    assertThat(
+        requestPattern1.getMultipartPatterns(),
+        contains(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build()));
+
+    multipartPatterns.clear();
+
+    assertThat(
+        requestPattern1.getMultipartPatterns(),
+        contains(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build()));
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> requestPattern1.getMultipartPatterns().add(aMultipart("part-2").build()));
+
+    assertThat(
+        requestPattern1.getMultipartPatterns(),
+        contains(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build()));
+
+    builder1.getMultipartPatterns().clear();
+
+    assertThat(
+        requestPattern1.getMultipartPatterns(),
+        contains(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build()));
+
+    var builder2 = requestPattern1.toBuilder();
+    builder2.getMultipartPatterns().add(aMultipart("part-2").build());
+    var requestPattern2 = builder2.build();
+
+    assertThat(
+        requestPattern1.getMultipartPatterns(),
+        contains(aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build()));
+
+    assertThat(
+        requestPattern2.getMultipartPatterns(),
+        contains(
+            aMultipart("part-1").withHeader("key-1", equalTo("value-1")).build(),
+            aMultipart("part-2").build()));
+  }
+
+  @Test
+  public void headersCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getHeaders(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setHeaders(null));
+    assertThat(builder.getHeaders(), anEmptyMap());
+    assertThat(builder.build().getHeaders(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getHeaders(), anEmptyMap());
+  }
+
+  @Test
+  public void pathParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getPathParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setPathParams(null));
+    assertThat(builder.getPathParams(), anEmptyMap());
+    assertThat(builder.build().getPathParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getPathParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void queryParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getQueryParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setQueryParams(null));
+    assertThat(builder.getQueryParams(), anEmptyMap());
+    assertThat(builder.build().getQueryParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getQueryParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void formParamsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getFormParams(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setFormParams(null));
+    assertThat(builder.getFormParams(), anEmptyMap());
+    assertThat(builder.build().getFormParameters(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getFormParameters(), anEmptyMap());
+  }
+
+  @Test
+  public void cookiesCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getCookies(), anEmptyMap());
+    assertThrows(NullPointerException.class, () -> builder.setCookies(null));
+    assertThat(builder.getCookies(), anEmptyMap());
+    assertThat(builder.build().getCookies(), anEmptyMap());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getCookies(), anEmptyMap());
+  }
+
+  @Test
+  public void bodyPatternsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getBodyPatterns(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setBodyPatterns(null));
+    assertThat(builder.getBodyPatterns(), empty());
+    assertThat(builder.build().getBodyPatterns(), empty());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getBodyPatterns(), empty());
+  }
+
+  @Test
+  public void multipartPatternsCannotBeNull() {
+    var builder = new RequestPattern.Builder();
+    assertThat(builder.getMultipartPatterns(), empty());
+    assertThrows(NullPointerException.class, () -> builder.setMultipartPatterns(null));
+    assertThat(builder.getMultipartPatterns(), empty());
+    assertThat(builder.build().getMultipartPatterns(), empty());
+    var requestPattern =
+        new RequestPattern(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null);
+    assertThat(requestPattern.getMultipartPatterns(), empty());
+  }
+
+  @ParameterizedTest
+  @MethodSource("emptyUrlPatterns")
+  public void emptyUrlPatternsAreIncludedInJson(UrlPattern urlPattern, String urlJsonFieldName) {
+    var pattern = new RequestPattern.Builder().setUrl(urlPattern).build();
+    assertThat(pattern.getUrlMatcher(), is(urlPattern));
+    assertThat(
+        Json.write(pattern),
+        jsonEquals("{\"method\": \"ANY\", \"" + urlJsonFieldName + "\": \"\"}"));
+  }
+
+  private static Stream<Arguments> emptyUrlPatterns() {
+    return Stream.of(
+        Arguments.of(urlEqualTo(""), "url"),
+        Arguments.of(urlMatching(""), "urlPattern"),
+        Arguments.of(urlPathEqualTo(""), "urlPath"),
+        Arguments.of(urlPathMatching(""), "urlPathPattern"),
+        Arguments.of(urlPathTemplate(""), "urlPathTemplate"));
+  }
+
+  @Test
+  public void emptySchemeIsIncludedInJson() {
+    var pattern = new RequestPattern.Builder().setScheme("").build();
+    assertThat(pattern.getScheme(), is(""));
+    assertThat(Json.write(pattern), jsonEquals("""
+        {"method": "ANY", "scheme": ""}"""));
   }
 
   static Matcher<ContentPattern<?>> valuePattern(

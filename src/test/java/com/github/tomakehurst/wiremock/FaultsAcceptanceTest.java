@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,11 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import java.net.SocketException;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.junit.jupiter.api.Test;
@@ -37,9 +35,9 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/connection/reset"))
             .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-    RuntimeException runtimeException =
-        assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
-    assertThat(runtimeException.getMessage(), is("java.net.SocketException: Connection reset"));
+    SocketException socketException =
+        assertThrows(SocketException.class, () -> testClient.get("/connection/reset"));
+    assertThat(socketException.getMessage(), is("Connection reset"));
   }
 
   @Test
@@ -47,7 +45,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
     stubFor(
         get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
-    getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
+    assertThrows(NoHttpResponseException.class, () -> testClient.get("/empty/response"));
   }
 
   @Test
@@ -56,8 +54,7 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/malformed/response"))
             .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 
-    getAndAssertUnderlyingExceptionInstanceClass(
-        "/malformed/response", MalformedChunkCodingException.class);
+    assertThrows(MalformedChunkCodingException.class, () -> testClient.get("/malformed/response"));
   }
 
   @Test
@@ -66,19 +63,6 @@ public class FaultsAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/random/data"))
             .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
-    getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
-  }
-
-  private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
-    boolean thrown = false;
-    try {
-      WireMockResponse response = testClient.get(url);
-      response.content();
-    } catch (Exception e) {
-      assertThat(e.getCause(), instanceOf(expectedClass));
-      thrown = true;
-    }
-
-    assertTrue(thrown, "No exception was thrown");
+    assertThrows(NoHttpResponseException.class, () -> testClient.get("/random/data"));
   }
 }

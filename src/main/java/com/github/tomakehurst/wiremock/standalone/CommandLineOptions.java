@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MESSAGE_MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -34,12 +35,13 @@ import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -47,13 +49,13 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.*;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.wiremock.url.AbsoluteUrl;
 
 public class CommandLineOptions implements Options {
 
@@ -129,6 +131,10 @@ public class CommandLineOptions implements Options {
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
   private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
   private static final String WEBHOOK_THREADPOOL_SIZE = "webhook-threadpool-size";
+  private static final String WEBSOCKET_IDLE_TIMEOUT = "websocket-idle-timeout";
+  private static final String WEBSOCKET_MAX_TEXT_MESSAGE_SIZE = "websocket-max-text-message-size";
+  private static final String WEBSOCKET_MAX_BINARY_MESSAGE_SIZE =
+      "websocket-max-binary-message-size";
 
   private final OptionSet optionSet;
 
@@ -399,6 +405,21 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(WEBHOOK_THREADPOOL_SIZE, "The size of the webhook thread pool")
         .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_IDLE_TIMEOUT,
+            "Idle timeout in milliseconds for WebSocket connections (default: 300000)")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_MAX_TEXT_MESSAGE_SIZE,
+            "Maximum size in bytes for WebSocket text messages (default: 65536)")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            WEBSOCKET_MAX_BINARY_MESSAGE_SIZE,
+            "Maximum size in bytes for WebSocket binary messages (default: 65536)")
+        .withRequiredArg();
 
     optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
@@ -432,7 +453,11 @@ public class CommandLineOptions implements Options {
     }
 
     filenameMaker = new FilenameMaker(getFilenameTemplateOption());
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
+    mappingsSource =
+        new JsonFileMappingsSource(
+            fileSource.child(MAPPINGS_ROOT),
+            fileSource.child(MESSAGE_MAPPINGS_ROOT),
+            filenameMaker);
     buildExtensions();
 
     actualHttpPort = null;
@@ -676,9 +701,14 @@ public class CommandLineOptions implements Options {
 
   @Override
   public String proxyHostHeader() {
-    return optionSet.hasArgument(PROXY_ALL)
-        ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getAuthority()
-        : null;
+    return optionSet.hasArgument(PROXY_ALL) ? getHostAndPort() : null;
+  }
+
+  private String getHostAndPort() {
+    return AbsoluteUrl.parse((String) optionSet.valueOf(PROXY_ALL))
+        .getAuthority()
+        .getHostAndPort()
+        .toString();
   }
 
   @Override
@@ -1047,5 +1077,26 @@ public class CommandLineOptions implements Options {
     return optionSet.has(WEBHOOK_THREADPOOL_SIZE)
         ? Integer.parseInt((String) optionSet.valueOf(WEBHOOK_THREADPOOL_SIZE))
         : DEFAULT_WEBHOOK_THREADPOOL_SIZE;
+  }
+
+  @Override
+  public long getWebSocketIdleTimeout() {
+    return optionSet.has(WEBSOCKET_IDLE_TIMEOUT)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_IDLE_TIMEOUT))
+        : DEFAULT_WEBSOCKET_IDLE_TIMEOUT;
+  }
+
+  @Override
+  public long getWebSocketMaxTextMessageSize() {
+    return optionSet.has(WEBSOCKET_MAX_TEXT_MESSAGE_SIZE)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_MAX_TEXT_MESSAGE_SIZE))
+        : DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE;
+  }
+
+  @Override
+  public long getWebSocketMaxBinaryMessageSize() {
+    return optionSet.has(WEBSOCKET_MAX_BINARY_MESSAGE_SIZE)
+        ? Long.parseLong((String) optionSet.valueOf(WEBSOCKET_MAX_BINARY_MESSAGE_SIZE))
+        : DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.servlet.*;
+import com.github.tomakehurst.wiremock.jetty.servlet.MultipartRequestConfigElementBuilder;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -53,6 +54,7 @@ public abstract class JettyHttpServer implements HttpServer {
   protected final Server jettyServer;
   protected final ServerConnector httpConnector;
   protected final ServerConnector httpsConnector;
+  protected final MessageStubRequestHandler messageStubRequestHandler;
 
   protected ScheduledExecutorService scheduledExecutorService;
 
@@ -61,9 +63,11 @@ public abstract class JettyHttpServer implements HttpServer {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler,
       JettySettings jettySettings,
-      ThreadPool threadPool) {
+      ThreadPool threadPool,
+      MessageStubRequestHandler messageStubRequestHandler) {
     this.options = options;
     this.jettySettings = jettySettings;
+    this.messageStubRequestHandler = messageStubRequestHandler;
 
     if (!options.getDisableStrictHttpHeaders()
         && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {

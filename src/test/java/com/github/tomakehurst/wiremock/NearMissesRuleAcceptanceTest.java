@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import ignored.ManyUnmatchedRequestsTest;
 import ignored.SingleUnmatchedRequestTest;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -81,7 +80,7 @@ public class NearMissesRuleAcceptanceTest {
       wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
       wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
 
-      client.post("/a-near-mis", new StringEntity(""));
+      client.post("/a-near-mis");
 
       assertThat(
           testNotifier.getErrorMessages(),

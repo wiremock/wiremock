@@ -1,0 +1,7 @@
+title: Number greater than or equal
+type: object
+properties:
+  greaterThanEqualNumber:
+    type: number
+required:
+  - greaterThanEqualNumber

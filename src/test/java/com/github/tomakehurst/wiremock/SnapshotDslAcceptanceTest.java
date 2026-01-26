@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,7 +87,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 aResponse().withHeader("Content-Type", "text/plain").withBody("Number one")));
 
     client.get("/one");
-    client.get("/two");
+    client.query("/two");
     client.postJson("/three", "{ \"counter\": 55 }");
 
     List<StubMapping> returnedMappings = proxyingService.snapshotRecord().getStubMappings();
@@ -98,7 +99,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.size(), is(3));
 
     assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/one"));
-    assertThat(returnedMappings.get(2).getRequest().getHeaders(), nullValue());
+    assertThat(returnedMappings.get(2).getRequest().getHeaders(), anEmptyMap());
     assertThat(returnedMappings.get(2).getRequest().getMethod(), is(RequestMethod.GET));
     assertThat(
         returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(),
@@ -106,6 +107,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
 
     assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
+    assertThat(returnedMappings.get(1).getRequest().getMethod(), is(RequestMethod.QUERY));
 
     assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/three"));
 
@@ -410,8 +412,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
               .but()
               .withHeader(parameters.getString("headerKey"), parameters.getString("headerValue"))
               .build();
-      stubMapping.setResponse(newResponse);
-      return stubMapping;
+      return stubMapping.transform(b -> b.setResponse(newResponse));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,26 @@ public class ParametersTest {
     assertThat(parameters.getString("name"), is("Mark"));
     assertThat(parameters.getInt("num"), is(12));
     assertThat(parameters.getString("date"), is("2023-01-01"));
+  }
+
+  @Test
+  public void deepMergesParameters() {
+    final Parameters initialParameters =
+        Parameters.from(
+            Map.of(
+                "one", 1,
+                "two", 2));
+    final Parameters toMerge =
+        Parameters.from(
+            Map.of(
+                "two", 22,
+                "three", 3));
+
+    final Parameters merged = initialParameters.deepMerge(toMerge);
+
+    assertThat(merged.getInt("one"), is(1));
+    assertThat(merged.getInt("two"), is(22));
+    assertThat(merged.getInt("three"), is(3));
   }
 
   public static class MyData {
