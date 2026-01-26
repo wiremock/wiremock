@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsNoneOf;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsOneOf;

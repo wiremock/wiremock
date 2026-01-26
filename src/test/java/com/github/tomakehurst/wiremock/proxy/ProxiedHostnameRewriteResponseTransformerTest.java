@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2025 Thomas Akehurst
+ * Copyright (C) 2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,8 +107,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     WireMockResponse response = testClient.get("/start");
 
     // Verify the location header has been rewritten
-    assertThat(
-        response.firstHeader(LOCATION), is("http://localhost:" + proxyingService.port() + "/end"));
+    assertThat(response.firstHeader(LOCATION), is("http://localhost:" + proxyingService.port() + "/end"));
   }
 
   @Test
@@ -167,9 +166,7 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     String responseContent = response.content();
 
     // Verify the link in the response has been rewritten
-    assertThat(
-        "{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }",
-        is(responseContent));
+    assertThat("{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }", is(responseContent));
 
     // Verify the content length header is correct
     assertThat(

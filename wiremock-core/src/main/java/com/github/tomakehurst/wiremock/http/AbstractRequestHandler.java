@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,14 +82,13 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
     if (logRequests()) {
       notifier()
-          .info(
-              () ->
-                  "Request received:\n"
-                      + formatRequest(request)
-                      + "\n\nMatched response definition:\n"
-                      + responseDefinition
-                      + "\n\nResponse:\n"
-                      + response);
+          .info(() ->
+              "Request received:\n"
+                  + formatRequest(request)
+                  + "\n\nMatched response definition:\n"
+                  + responseDefinition
+                  + "\n\nResponse:\n"
+                  + response);
     }
 
     for (RequestListener listener : listeners) {
