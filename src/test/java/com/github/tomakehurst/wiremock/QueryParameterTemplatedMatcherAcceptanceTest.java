@@ -127,4 +127,183 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(404));
     }
   }
+
+  @Nested
+  class ContainsQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterContainingAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", containing("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // Should NOT match: param2 does not contain param1's value
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+
+      // Should match: param2 contains param1's value
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(200));
+    }
+
+    @Test
+    void doesNotMatchContainsQueryParameterIfTemplatingNotEnabled() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", containing("{{request.query.param1}}"))
+              .willReturn(ok()));
+
+      // Should not match even though param2 contains param1's value, as templating not enabled
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesContainsQueryParameterUsingUpperHelper() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", containing("{{upper request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // param2 should contain the uppercase version of param1
+      assertThat(testClient.get("/test?param1=hello&param2=xHELLOx").statusCode(), is(200));
+    }
+
+    @Test
+    void matchesContainsQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "contains": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=world").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchContainsQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "contains": "{{request.query.param1}}",
+                    "templated": false
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(404));
+    }
+  }
+
+  @Nested
+  class DoesNotContainQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterNotContainingAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notContaining("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // Should match: param2 does not contain param1's value
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+
+      // Should NOT match: param2 contains param1's value
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchDoesNotContainQueryParameterIfTemplatingNotEnabled() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notContaining("{{request.query.param1}}"))
+              .willReturn(ok()));
+
+      // Without templating, the literal string "{{request.query.param1}}" is checked,
+      // which param2 does not contain, so it matches
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(200));
+    }
+
+    @Test
+    void matchesDoesNotContainQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "doesNotContain": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=hello&param2=world").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchDoesNotContainQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "doesNotContain": "{{request.query.param1}}",
+                    "templated": false
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // Without templating, checks literal "{{request.query.param1}}" which param2 doesn't contain
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(200));
+    }
+  }
 }
