@@ -99,6 +99,8 @@ public sealed interface Url extends Uri permits RelativeUrl, UrlWithAuthority {
 
   interface Builder extends UriBaseBuilder<Builder> {
 
+    @Nullable Scheme getScheme();
+
     Url.Builder setScheme(@Nullable Scheme scheme);
 
     @Override

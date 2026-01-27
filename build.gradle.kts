@@ -49,6 +49,9 @@ dependencies {
   testFixturesImplementation(libs.xmlunit.core)
   testFixturesImplementation(libs.awaitility)
 
+  testImplementation(platform(libs.okhttp.bom))
+  testImplementation(libs.okhttp)
+
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
   testImplementation(libs.apache.http5.core)

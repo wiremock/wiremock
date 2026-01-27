@@ -19,21 +19,35 @@ import org.jspecify.annotations.Nullable;
 
 public interface UriBaseBuilder<SELF extends UriBaseBuilder<SELF>> {
 
+  @Nullable Authority getAuthority();
+
   SELF setAuthority(Authority authority);
+
+  @Nullable UserInfo getUserInfo();
 
   SELF setUserInfo(@Nullable UserInfo userInfo);
 
+  @Nullable Host getHost();
+
   SELF setHost(Host host);
+
+  @Nullable Port getPort();
 
   SELF setPort(@Nullable Port port);
 
+  Path getPath();
+
   SELF setPath(Path path);
 
-  Query.Builder getQuery();
+  @Nullable Query getQuery();
 
   SELF setQuery(@Nullable Query query);
 
-  SELF setQuery(Query.Builder query);
+  Query.Builder getQueryBuilder();
+
+  SELF setQueryBuilder(Query.Builder query);
+
+  @Nullable Fragment getFragment();
 
   SELF setFragment(@Nullable Fragment fragment);
 

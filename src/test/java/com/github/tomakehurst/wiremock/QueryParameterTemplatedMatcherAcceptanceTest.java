@@ -693,10 +693,7 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
   class AbsentQueryParameterMatcherAcceptanceTest {
     @Test
     void matchesAbsentQueryParameter() {
-      stubFor(
-          get(urlPathEqualTo("/test"))
-              .withQueryParam("param2", absent())
-              .willReturn(ok()));
+      stubFor(get(urlPathEqualTo("/test")).withQueryParam("param2", absent()).willReturn(ok()));
 
       assertThat(testClient.get("/test?param1=foo").statusCode(), is(200));
       assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
