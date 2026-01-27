@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class EqualToPatternWithCaseInsensitivePrefix extends StringValuePattern 
   }
 
   @Override
-  public MatchResult match(final String value) {
+  public MatchResult match(final String value, ServeContext context) {
     return new MatchResult() {
       @Override
       public boolean isExactMatch() {
@@ -48,5 +48,10 @@ public class EqualToPatternWithCaseInsensitivePrefix extends StringValuePattern 
         return normalisedLevenshteinDistance(expectedValue, value);
       }
     };
+  }
+
+  @Override
+  public MatchResult match(final String value) {
+    return match(value, null);
   }
 }
