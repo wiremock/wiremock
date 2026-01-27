@@ -34,6 +34,7 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
     this.valuePattern = valuePattern;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(MultiValue multiValue) {
     List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);

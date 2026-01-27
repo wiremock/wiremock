@@ -34,6 +34,7 @@ public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue>
     return new SingleMatchMultiValuePattern(WireMock.absent());
   }
 
+  // TODO: remove me
   protected static MatchResult getBestMatch(
       final StringValuePattern valuePattern, List<String> values) {
     List<MatchResult> allResults = values.stream().map(valuePattern::match).toList();
