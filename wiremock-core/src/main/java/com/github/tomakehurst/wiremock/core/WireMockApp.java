@@ -170,7 +170,7 @@ public class WireMockApp implements StubServer, Admin {
             serveEventListeners,
             extensions);
     nearMissCalculator =
-        new NearMissCalculator(stubMappings, requestJournal, scenarios, customMatchers);
+        new NearMissCalculator(stubMappings, requestJournal, scenarios, customMatchers, extensions);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
@@ -238,7 +238,8 @@ public class WireMockApp implements StubServer, Admin {
             extensions);
     this.container = container;
     nearMissCalculator =
-        new NearMissCalculator(stubMappings, requestJournal, scenarios, requestMatchers);
+        new NearMissCalculator(
+            stubMappings, requestJournal, scenarios, requestMatchers, extensions);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();

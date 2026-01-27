@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ServeContext;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
@@ -30,6 +31,7 @@ public class NearMiss implements Comparable<NearMiss> {
   private final RequestPattern requestPattern;
   private final MatchResult matchResult;
   private final String scenarioState;
+  @JsonIgnore private final ServeContext serveContext;
 
   @JsonCreator
   public NearMiss(
@@ -38,20 +40,48 @@ public class NearMiss implements Comparable<NearMiss> {
       @JsonProperty("requestPattern") RequestPattern requestPattern,
       @JsonProperty("matchResult") MatchResult matchResult,
       @JsonProperty("scenarioState") String scenarioState) {
+    this(request, mapping, requestPattern, matchResult, scenarioState, null);
+  }
+
+  public NearMiss(
+      LoggedRequest request, StubMapping mapping, MatchResult matchResult, String scenarioState) {
+    this(request, mapping, null, matchResult, scenarioState, null);
+  }
+
+  public NearMiss(LoggedRequest request, RequestPattern requestPattern, MatchResult matchResult) {
+    this(request, null, requestPattern, matchResult, null, null);
+  }
+
+  public NearMiss(
+      LoggedRequest request,
+      StubMapping mapping,
+      MatchResult matchResult,
+      String scenarioState,
+      ServeContext serveContext) {
+    this(request, mapping, null, matchResult, scenarioState, serveContext);
+  }
+
+  public NearMiss(
+      LoggedRequest request,
+      RequestPattern requestPattern,
+      MatchResult matchResult,
+      ServeContext serveContext) {
+    this(request, null, requestPattern, matchResult, null, serveContext);
+  }
+
+  private NearMiss(
+      LoggedRequest request,
+      StubMapping mapping,
+      RequestPattern requestPattern,
+      MatchResult matchResult,
+      String scenarioState,
+      ServeContext serveContext) {
     this.request = request;
     this.mapping = mapping;
     this.requestPattern = requestPattern;
     this.matchResult = matchResult;
     this.scenarioState = scenarioState;
-  }
-
-  public NearMiss(
-      LoggedRequest request, StubMapping mapping, MatchResult matchResult, String scenarioState) {
-    this(request, mapping, null, matchResult, scenarioState);
-  }
-
-  public NearMiss(LoggedRequest request, RequestPattern requestPattern, MatchResult matchResult) {
-    this(request, null, requestPattern, matchResult, null);
+    this.serveContext = serveContext;
   }
 
   public LoggedRequest getRequest() {
@@ -78,10 +108,10 @@ public class NearMiss implements Comparable<NearMiss> {
   @JsonIgnore
   public Diff getDiff() {
     if (requestPattern != null) {
-      return new Diff(requestPattern, request);
+      return new Diff(requestPattern, request, serveContext);
     }
 
-    return new Diff(getStubMapping(), request, scenarioState);
+    return new Diff(getStubMapping(), request, scenarioState, serveContext);
   }
 
   @Override

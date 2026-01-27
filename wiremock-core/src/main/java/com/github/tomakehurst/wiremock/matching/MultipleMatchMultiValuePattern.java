@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,18 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
     List<MatchResult> matchResults =
         getValues().stream()
             .map(stringValuePattern -> getBestMatch(stringValuePattern, value.values()))
+            .collect(Collectors.toList());
+    return MatchResult.aggregate(matchResults);
+  }
+
+  @Override
+  public MatchResult match(MultiValue value, ServeContext context) {
+    if (!value.isPresent()) {
+      return MatchResult.of(false);
+    }
+    List<MatchResult> matchResults =
+        getValues().stream()
+            .map(stringValuePattern -> getBestMatch(stringValuePattern, value.values(), context))
             .collect(Collectors.toList());
     return MatchResult.aggregate(matchResults);
   }

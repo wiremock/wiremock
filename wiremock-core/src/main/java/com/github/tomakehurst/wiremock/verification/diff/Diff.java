@@ -46,6 +46,7 @@ import com.github.tomakehurst.wiremock.matching.MultipleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.PathPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ServeContext;
 import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
@@ -67,27 +68,39 @@ public class Diff {
   private final String scenarioName;
   private final String scenarioState;
   private final String expectedScenarioState;
+  private final ServeContext serveContext;
 
   public Diff(RequestPattern expected, Request actual) {
+    this(expected, actual, null);
+  }
+
+  public Diff(RequestPattern expected, Request actual, ServeContext serveContext) {
     this.requestPattern = expected;
     this.request = actual;
     this.stubMappingName = null;
     this.scenarioName = null;
     this.scenarioState = null;
     this.expectedScenarioState = null;
+    this.serveContext = serveContext;
   }
 
   public Diff(StubMapping expected, Request actual) {
-    this(expected, actual, null);
+    this(expected, actual, null, null);
   }
 
   public Diff(StubMapping expected, Request actual, String scenarioState) {
+    this(expected, actual, scenarioState, null);
+  }
+
+  public Diff(
+      StubMapping expected, Request actual, String scenarioState, ServeContext serveContext) {
     this.requestPattern = expected.getRequest();
     this.request = actual;
     this.stubMappingName = expected.getName();
     this.scenarioName = expected.getScenarioName();
     this.scenarioState = scenarioState;
     this.expectedScenarioState = expected.getRequiredScenarioState();
+    this.serveContext = serveContext;
   }
 
   @Override
@@ -140,7 +153,8 @@ public class Diff {
                   "Scenario",
                   new EqualToPattern(expectedScenarioState),
                   buildScenarioLine(scenarioName, scenarioState),
-                  buildScenarioLine(scenarioName, expectedScenarioState))));
+                  buildScenarioLine(scenarioName, expectedScenarioState),
+                  serveContext)));
     }
   }
 
@@ -217,7 +231,8 @@ public class Diff {
                 "Cookie",
                 pattern,
                 cookie.isPresent() ? cookie.getValue() : "",
-                "Cookie: " + key + operator + pattern.getValue());
+                "Cookie: " + key + operator + pattern.getValue(),
+                serveContext);
         diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!cookiesPattern.isEmpty()) {
@@ -243,7 +258,8 @@ public class Diff {
                 "Form data",
                 pattern,
                 formParameter,
-                "Form: " + key + operator + pattern.getExpected());
+                "Form: " + key + operator + pattern.getExpected(),
+                serveContext);
         diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!formParameters.isEmpty()) {
@@ -268,7 +284,8 @@ public class Diff {
                 "Query",
                 pattern,
                 queryParameter,
-                "Query: " + key + operator + pattern.getExpected());
+                "Query: " + key + operator + pattern.getExpected(),
+                serveContext);
         diffLineList.addAll(toDiffDescriptionLines(section));
       }
       if (!queryParameters.isEmpty()) {
@@ -300,7 +317,8 @@ public class Diff {
                 "Path parameter",
                 pattern,
                 parameterValue,
-                "Path parameter: " + parameterName + operator + pattern.getValue());
+                "Path parameter: " + parameterName + operator + pattern.getValue(),
+                serveContext);
         diffLineList.addAll(toDiffDescriptionLines(section));
       }
 
@@ -316,7 +334,8 @@ public class Diff {
             "URL",
             urlPattern,
             request.getPathAndQueryWithoutPrefix().toString(),
-            printedUrlPattern);
+            printedUrlPattern,
+            serveContext);
     diffLineList.addAll(toDiffDescriptionLines(urlSection));
     diffLineList.add(SPACER);
     return urlSection;
@@ -328,7 +347,8 @@ public class Diff {
             "HTTP method",
             requestPattern.getMethod(),
             request.getMethod(),
-            requestPattern.getMethod().getExpected());
+            requestPattern.getMethod().getExpected(),
+            serveContext);
     diffLineList.addAll(toDiffDescriptionLines(methodSection));
   }
 
@@ -336,7 +356,12 @@ public class Diff {
     if (requestPattern.getScheme() != null) {
       StringValuePattern expectedScheme = equalTo(String.valueOf(requestPattern.getScheme()));
       DiffLine<String> schemeSection =
-          new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
+          new DiffLine<>(
+              "Scheme",
+              expectedScheme,
+              request.getScheme(),
+              requestPattern.getScheme(),
+              serveContext);
       diffLineList.addAll(toDiffDescriptionLines(schemeSection));
     }
   }
@@ -346,7 +371,8 @@ public class Diff {
       StringValuePattern expectedPort = equalTo(String.valueOf(requestPattern.getPort()));
       String actualPort = String.valueOf(request.getPort());
       DiffLine<String> portSection =
-          new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
+          new DiffLine<>(
+              "Port", expectedPort, actualPort, expectedPort.getExpected(), serveContext);
       diffLineList.addAll(toDiffDescriptionLines(portSection));
     }
   }
@@ -357,7 +383,11 @@ public class Diff {
       String actualClientIp = request.getClientIp();
       DiffLine<String> clientIpSection =
           new DiffLine<>(
-              "ClientIp", expectedClientIp, actualClientIp, expectedClientIp.getExpected());
+              "ClientIp",
+              expectedClientIp,
+              actualClientIp,
+              expectedClientIp.getExpected(),
+              serveContext);
       diffLineList.addAll(toDiffDescriptionLines(clientIpSection));
     }
   }
@@ -368,7 +398,11 @@ public class Diff {
       String printedHostPatternValue = hostOperator + requestPattern.getHost().getExpected();
       DiffLine<String> hostSection =
           new DiffLine<>(
-              "Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
+              "Host",
+              requestPattern.getHost(),
+              request.getHost(),
+              printedHostPatternValue.trim(),
+              serveContext);
       diffLineList.addAll(toDiffDescriptionLines(hostSection));
     }
   }
@@ -392,7 +426,7 @@ public class Diff {
         String printedPatternValue = header.key() + operator + expected;
 
         DiffLine<MultiValue> section =
-            new DiffLine<>("Header", headerPattern, header, printedPatternValue);
+            new DiffLine<>("Header", headerPattern, header, printedPatternValue, serveContext);
         diffLineList.addAll(toDiffDescriptionLines(section));
       }
       diffLineList.add(SPACER);
@@ -421,16 +455,19 @@ public class Diff {
                           "Body",
                           pathPattern.getValuePattern(),
                           expressionResultString,
-                          printedExpectedValue)));
+                          printedExpectedValue,
+                          serveContext)));
             } else {
               diffLineList.addAll(
                   toDiffDescriptionLines(
-                      new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue)));
+                      new DiffLine<>(
+                          "Body", pathPattern, formattedBody, printedExpectedValue, serveContext)));
             }
           } else {
             diffLineList.addAll(
                 toDiffDescriptionLines(
-                    new DiffLine<>("Body", pathPattern, formattedBody, pattern.getExpected())));
+                    new DiffLine<>(
+                        "Body", pathPattern, formattedBody, pattern.getExpected(), serveContext)));
           }
         } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
           StringValuePattern stringValuePattern = (StringValuePattern) pattern;
@@ -438,13 +475,21 @@ public class Diff {
           diffLineList.addAll(
               toDiffDescriptionLines(
                   new DiffLine<>(
-                      "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue)));
+                      "Body",
+                      stringValuePattern,
+                      "\n" + formattedBody,
+                      printedPatternValue,
+                      serveContext)));
         } else {
           BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
           diffLineList.addAll(
               toDiffDescriptionLines(
                   new DiffLine<>(
-                      "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected())));
+                      "Body",
+                      nonStringPattern,
+                      formattedBody.getBytes(),
+                      pattern.getExpected(),
+                      serveContext)));
         }
       }
     }

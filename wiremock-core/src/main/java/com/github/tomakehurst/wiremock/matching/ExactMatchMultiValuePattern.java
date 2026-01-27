@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,20 @@ public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern 
     this.stringValuePatterns = valuePatterns;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(MultiValue value) {
+    return match(value, null);
+  }
 
+  @Override
+  public MatchResult match(MultiValue value, ServeContext context) {
     if (!value.isPresent()) {
       return MatchResult.of(false);
     }
     return MatchResult.aggregate(
-        MatchResult.of(stringValuePatterns.size() == value.values().size()), super.match(value));
+        MatchResult.of(stringValuePatterns.size() == value.values().size()),
+        super.match(value, context));
   }
 
   @Override

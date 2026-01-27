@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import com.github.tomakehurst.wiremock.matching.ServeContext;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import java.util.List;
 
@@ -29,13 +30,24 @@ class DiffLine<V> {
   protected final NamedValueMatcher<V> pattern;
   protected final V value;
   protected final String printedPatternValue;
+  protected final ServeContext serveContext;
 
   public DiffLine(
       String requestAttribute, NamedValueMatcher<V> pattern, V value, String printedPatternValue) {
+    this(requestAttribute, pattern, value, printedPatternValue, null);
+  }
+
+  public DiffLine(
+      String requestAttribute,
+      NamedValueMatcher<V> pattern,
+      V value,
+      String printedPatternValue,
+      ServeContext serveContext) {
     this.requestAttribute = requestAttribute;
     this.pattern = pattern;
     this.value = value;
     this.printedPatternValue = printedPatternValue;
+    this.serveContext = serveContext;
   }
 
   public String getRequestAttribute() {
@@ -55,7 +67,7 @@ class DiffLine<V> {
   }
 
   protected boolean isExactMatch() {
-    return pattern.match(value).isExactMatch();
+    return pattern.match(value, serveContext).isExactMatch();
   }
 
   public String getMessage() {
@@ -108,6 +120,6 @@ class DiffLine<V> {
   }
 
   public MatchResult getMatchResult() {
-    return pattern.match(value);
+    return pattern.match(value, serveContext);
   }
 }
