@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,7 +32,7 @@ public class WireMockServerTests {
   @TempDir public File tempDir;
 
   @Test
-  public void instantiationWithEmptyFileSource() throws IOException {
+  public void instantiationWithEmptyFileSource() {
     Options options =
         new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir));
 

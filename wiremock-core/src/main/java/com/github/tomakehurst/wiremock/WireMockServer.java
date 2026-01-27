@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.wiremock.url.Host.LOCALHOST;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
@@ -55,6 +56,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.BaseUrl;
+import org.wiremock.url.HostAndPort;
+import org.wiremock.url.Path;
+import org.wiremock.url.Port;
+import org.wiremock.url.RelativeUrl;
+import org.wiremock.url.Scheme;
+import org.wiremock.url.SchemeRegistry;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -227,19 +236,31 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   public String url(String path) {
-    if (!path.startsWith("/")) {
-      path = "/" + path;
-    }
+    return resolve(RelativeUrl.parse(path)).toString();
+  }
 
-    return String.format("%s%s", baseUrl(), path);
+  public AbsoluteUrl resolve(String pathAndQuery) {
+    return resolve(RelativeUrl.parse(pathAndQuery));
+  }
+
+  public AbsoluteUrl resolve(RelativeUrl pathAndQuery) {
+    return getBaseUrl().resolve(pathAndQuery);
+  }
+
+  public AbsoluteUrl resolve(Path path) {
+    return getBaseUrl().resolve(path);
   }
 
   public String baseUrl() {
+    return getBaseUrl().toString();
+  }
+
+  public BaseUrl getBaseUrl() {
     boolean https = options.httpsSettings().enabled();
-    String protocol = https ? "https" : "http";
+    Scheme scheme = https ? SchemeRegistry.https : SchemeRegistry.http;
     int port = https ? httpsPort() : port();
 
-    return String.format("%s://localhost:%d", protocol, port);
+    return BaseUrl.of(scheme, HostAndPort.of(LOCALHOST, Port.of(port)));
   }
 
   public boolean isRunning() {

@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import java.util.List;
 import java.util.Map;
 import org.wiremock.url.PathAndQuery;
-import org.wiremock.url.Segment;
 
 public class ContentTypes {
 
@@ -90,8 +89,7 @@ public class ContentTypes {
       }
     }
 
-    List<Segment> path = pathAndQuery.getPath().getSegments();
-    String lastPathSegment = path.isEmpty() ? "" : path.get(path.size() - 1).toString();
+    String lastPathSegment = pathAndQuery.getPath().getLastSegment().toString();
     if (lastPathSegment.indexOf('.') != -1) {
       return substringAfterLast(lastPathSegment, ".");
     }

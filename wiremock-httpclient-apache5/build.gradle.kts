@@ -7,7 +7,7 @@ dependencies {
     api(libs.apache.http5.core)
 
     api(project(":wiremock-core"))
-    implementation(project(":wiremock-url"))
+    implementation(project(":wiremock-url:wiremock-url"))
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
