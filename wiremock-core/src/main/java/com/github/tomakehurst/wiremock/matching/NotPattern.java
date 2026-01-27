@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,15 @@ public class NotPattern extends StringValuePattern {
     return unexpectedPattern;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
-    return invert(unexpectedPattern.match(value));
+    return match(value, null);
+  }
+
+  @Override
+  public MatchResult match(String value, ServeContext context) {
+    return invert(unexpectedPattern.match(value, context));
   }
 
   private MatchResult invert(final MatchResult matchResult) {
