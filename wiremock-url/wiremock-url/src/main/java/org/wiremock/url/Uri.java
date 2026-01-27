@@ -181,6 +181,9 @@ public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUr
   }
 
   interface Builder extends UriBaseBuilder<Builder> {
+
+    @Nullable Scheme getScheme();
+
     Uri.Builder setScheme(@Nullable Scheme scheme);
 
     @Override
@@ -188,6 +191,9 @@ public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUr
   }
 
   interface Transformer<SELF extends Transformer<SELF>> extends UriBaseBuilder<SELF> {
+
+    @Nullable Scheme getScheme();
+
     SELF setScheme(Scheme scheme);
   }
 }

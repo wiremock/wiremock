@@ -148,6 +148,11 @@ public sealed interface AbsoluteUri extends Uri, Normalisable<AbsoluteUri>
   }
 
   interface Builder<SELF extends Builder<SELF>> extends UriBaseBuilder<SELF> {
+
+    Scheme getScheme();
+
+    SELF setScheme(Scheme scheme);
+
     @Override
     AbsoluteUri build();
   }
