@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.Path;
 
 public class ResponseDefinitionTest {
 
@@ -65,7 +68,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition copiedResponse = copyOf(response);
 
-    assertTrue(response.equals(copiedResponse));
+    assertEquals(response, copiedResponse);
   }
 
   @Test
@@ -76,10 +79,11 @@ public class ResponseDefinitionTest {
   }
 
   private static final String STRING_BODY =
-      "{	        								\n"
-          + "		\"status\": 200,    				\n"
-          + "		\"body\": \"String content\" 		\n"
-          + "}											";
+      """
+          {
+          		"status": 200,
+          		"body": "String content"
+          }""";
 
   @Test
   public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
@@ -90,10 +94,11 @@ public class ResponseDefinitionTest {
   }
 
   private static final String JSON_BODY =
-      "{	        								\n"
-          + "		\"status\": 200,    				\n"
-          + "		\"jsonBody\": {\"name\":\"wirmock\",\"isCool\":true} \n"
-          + "}											";
+      """
+          {
+          		"status": 200,
+          		"jsonBody": {"name":"wirmock","isCool":true}
+          }""";
 
   @Test
   public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
@@ -329,11 +334,11 @@ public class ResponseDefinitionTest {
             new FixedDelayDistribution(2000),
             new ChunkedDribbleDelay(3, 200),
             "http://example.com",
-            "my-prefix",
+            Path.parse("my-prefix"),
             Fault.EMPTY_RESPONSE,
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
-            "https://browser.example.com",
+            AbsoluteUrl.parse("https://browser.example.com"),
             true);
 
     var copy = responseDefinition.toBuilder().build();
@@ -353,11 +358,11 @@ public class ResponseDefinitionTest {
     assertThat(copy.getChunkedDribbleDelay().getNumberOfChunks(), is(3));
     assertThat(copy.getChunkedDribbleDelay().getTotalDuration(), is(200));
     assertThat(copy.getProxyBaseUrl(), is("http://example.com"));
-    assertThat(copy.getProxyUrlPrefixToRemove(), is("my-prefix"));
+    assertThat(copy.getProxyUrlPrefixToRemove(), is(Path.parse("my-prefix")));
     assertThat(copy.getFault(), is(Fault.EMPTY_RESPONSE));
     assertThat(copy.getTransformers(), is(List.of("my-transformer")));
     assertThat(copy.getTransformerParameters(), is(Parameters.one("p-1", "p1v1")));
-    assertThat(copy.getBrowserProxyUrl(), is("https://browser.example.com"));
+    assertThat(copy.getBrowserProxyUrl(), is(AbsoluteUrl.parse("https://browser.example.com")));
     assertThat(copy.wasConfigured(), is(true));
   }
 }

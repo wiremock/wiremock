@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.Path;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ResponseDefinitionBuilder {
@@ -244,7 +246,7 @@ public class ResponseDefinitionBuilder {
   protected ResponseDefinition build(
       HttpHeaders additionalProxyRequestHeaders,
       List<String> removeProxyRequestHeaders,
-      String proxyUrlPrefixToRemove) {
+      @Nullable Path proxyUrlPrefixToRemove) {
     return builder
         .setAdditionalProxyRequestHeaders(additionalProxyRequestHeaders)
         .setRemoveProxyRequestHeaders(removeProxyRequestHeaders)
