@@ -306,4 +306,192 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(200));
     }
   }
+
+  @Nested
+  class MatchesQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterMatchingRegexFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", matching("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // Should match: param1 provides regex "foo" which matches param2 "foo"
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+
+      // Should NOT match: param1 provides regex "foo" which doesn't match param2 "bar"
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterMatchingRegexPatternFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", matching("{{request.query.param1}}.*").templated())
+              .willReturn(ok()));
+
+      // param1=foo, regex becomes "foo.*", param2=foobar matches
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(200));
+
+      // param1=foo, regex becomes "foo.*", param2=barfoo doesn't match
+      assertThat(testClient.get("/test?param1=foo&param2=barfoo").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchMatchesQueryParameterIfTemplatingNotEnabled() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", matching("{{request.query.param1}}"))
+              .willReturn(ok()));
+
+      // Without templating, the literal template string is treated as a regex, which is invalid.
+      // Before template-aware regex matching, this would have thrown at construction time; now it
+      // throws during matching, resulting in a 500 response.
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(500));
+    }
+
+    @Test
+    void matchesMatchesQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "matches": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=wrong").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchMatchesQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "matches": "{{request.query.param1}}",
+                    "templated": false
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // The literal "{{request.query.param1}}" is an invalid regex. This would previously have
+      // thrown at construction time, but now throws during matching, resulting in a 500 response.
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(500));
+    }
+  }
+
+  @Nested
+  class DoesNotMatchQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterNotMatchingRegexFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notMatching("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // Should match: param1 provides regex "foo" which doesn't match param2 "bar"
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+
+      // Should NOT match: param1 provides regex "foo" which matches param2 "foo"
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchDoesNotMatchQueryParameterIfTemplatingNotEnabled() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notMatching("{{request.query.param1}}"))
+              .willReturn(ok()));
+
+      // Without templating, the literal template string is treated as a regex, which is invalid.
+      // Before template-aware regex matching, this would have thrown at construction time; now it
+      // throws during matching, resulting in a 500 response.
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(500));
+    }
+
+    @Test
+    void matchesDoesNotMatchQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "doesNotMatch": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=hello&param2=world").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchDoesNotMatchQueryParameterFromJsonStubWhenTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "doesNotMatch": "{{request.query.param1}}",
+                    "templated": false
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // The literal "{{request.query.param1}}" is an invalid regex. This would previously have
+      // thrown at construction time, but now throws during matching, resulting in a 500 response.
+      assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(500));
+    }
+  }
 }

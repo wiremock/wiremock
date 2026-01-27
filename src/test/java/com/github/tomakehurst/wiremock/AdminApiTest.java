@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -544,6 +545,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  @Disabled("Because we have moved regex validation to the match method due to templating matchers")
   void returnsBadEntityStatusWhenInvalidRegexUsedInUrl() {
     WireMockResponse response =
         testClient.postJson(
@@ -565,6 +567,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  @Disabled("Because we have moved regex validation to the match method due to templating matchers")
   void returnsBadEntityStatusWhenInvalidRegexUsedInHeader() {
     WireMockResponse response =
         testClient.postJson(
@@ -589,6 +592,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  @Disabled("Because we have moved regex validation to the match method due to templating matchers")
   void returnsBadEntityStatusWhenInvalidRegexUsedInBodyPattern() {
     WireMockResponse response =
         testClient.postJson(
