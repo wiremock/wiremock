@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LogicalOr extends AbstractLogicalMatcher {
 
@@ -38,10 +37,16 @@ public class LogicalOr extends AbstractLogicalMatcher {
     return operands;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
+    return match(value, null);
+  }
+
+  @Override
+  public MatchResult match(String value, ServeContext context) {
     final List<MatchResult> matchResults =
-        operands.stream().map(matcher -> matcher.match(value)).collect(Collectors.toList());
+        operands.stream().map(matcher -> matcher.match(value, context)).toList();
 
     return new MatchResult() {
       @Override

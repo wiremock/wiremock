@@ -577,4 +577,114 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
     }
   }
+
+  @Nested
+  class AndQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesAndQueryParameterWithTemplating() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  and(
+                      containing("{{request.query.param1}}").templated(),
+                      equalTo("{{request.query.param1}}").templated()))
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesAndQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "and": [
+                      {
+                        "contains": "{{request.query.param1}}",
+                        "templated": true
+                      },
+                      {
+                        "equalTo": "{{request.query.param1}}",
+                        "templated": true
+                      }
+                    ]
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(404));
+    }
+  }
+
+  @Nested
+  class OrQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesOrQueryParameterWithTemplating() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  or(
+                      equalTo("{{request.query.param1}}").templated(),
+                      equalTo("fallback").templated()))
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=fallback").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesOrQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "or": [
+                      {
+                        "equalTo": "{{request.query.param1}}",
+                        "templated": true
+                      },
+                      {
+                        "equalTo": "fallback",
+                        "templated": true
+                      }
+                    ]
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=fallback").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+  }
 }
