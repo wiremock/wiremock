@@ -31,8 +31,14 @@ public class AnythingPattern extends StringValuePattern {
     return "anything";
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
+    return match(value, null);
+  }
+
+  @Override
+  public MatchResult match(String value, ServeContext context) {
     return MatchResult.exactMatch();
   }
 

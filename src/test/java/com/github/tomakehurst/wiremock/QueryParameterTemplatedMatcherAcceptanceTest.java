@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.Nested;
@@ -685,6 +686,86 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(200));
       assertThat(testClient.get("/test?param1=foo&param2=fallback").statusCode(), is(200));
       assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+  }
+
+  @Nested
+  class AbsentQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesAbsentQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", absent())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesAbsentQueryParameterFromJsonStub() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "absent": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=foo").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
+    }
+  }
+
+  @Nested
+  class AnythingQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesAnythingQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", new AnythingPattern())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+    }
+
+    @Test
+    void matchesAnythingQueryParameterFromJsonStub() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "anything": "anything"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
     }
   }
 }

@@ -30,8 +30,14 @@ public class AbsentPattern extends StringValuePattern {
     return true;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
+    return match(value, null);
+  }
+
+  @Override
+  public MatchResult match(String value, ServeContext context) {
     return MatchResult.of(value == null);
   }
 
