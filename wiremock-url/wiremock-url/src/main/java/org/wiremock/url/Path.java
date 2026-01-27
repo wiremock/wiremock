@@ -62,7 +62,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
    * @return {@code true} if this is a base path
    */
   default boolean isBase() {
-    return getLastSegment().isEmpty();
+    return isEmpty() || getLastSegment().isEmpty();
   }
 
   /**
@@ -121,11 +121,49 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     return this.equals(Path.EMPTY);
   }
 
+  /**
+   * @return this path with a leading slash added if not present
+   */
+  default Path toAbsolutePath() {
+    if (isAbsolute()) {
+      return this;
+    } else {
+      return parse("/" + this);
+    }
+  }
+
+  /**
+   * @return this path with any leading slash removed
+   */
+  default Path toRelativePath() {
+    if (isRelative()) {
+      return this;
+    } else {
+      String pathStr = toString();
+      return parse(pathStr.substring(1));
+    }
+  }
+
+  /**
+   * @return this path with a trailing slash added if not present and not empty
+   */
   default Path toBasePath() {
-    if (isEmpty() || getLastSegment().isEmpty()) {
+    if (isBase()) {
       return this;
     } else {
       return parse(this + "/");
+    }
+  }
+
+  /**
+   * @return this path with any trailing slash removed
+   */
+  default Path toLeafPath() {
+    if (isEmpty() || isLeaf()) {
+      return this;
+    } else {
+      String pathStr = toString();
+      return parse(pathStr.substring(0, pathStr.length() - 1));
     }
   }
 
@@ -156,5 +194,28 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
 
   static Path of(Stream<Segment> segments) {
     return new PathValue(segments.map(Object::toString).collect(Collectors.joining("/")));
+  }
+
+  default Path removePrefix(Path prefix) {
+    if (prefix.isEmpty()) {
+      return this;
+    }
+    String pathStr = toString();
+    String prefixStr = prefix.toString();
+    if (pathStr.startsWith(prefixStr)) {
+      return parse(pathStr.substring(prefixStr.length()));
+    } else {
+      return this;
+    }
+  }
+
+  default Path append(Path toAppend) {
+    if (this.isEmpty()) {
+      return toAppend;
+    }
+    if (toAppend.isEmpty()) {
+      return this;
+    }
+    return parse(this.toLeafPath().toString() + toAppend.toAbsolutePath());
   }
 }

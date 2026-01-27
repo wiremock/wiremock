@@ -15,10 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.Strings.removeStart;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -27,11 +25,12 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
 import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.IllegalUriOrPart;
+import org.wiremock.url.Path;
+import org.wiremock.url.PathAndQuery;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
@@ -81,19 +80,19 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     this.reverseProxyClient = reverseProxyClient;
   }
 
-  private static final Predicate<String> absoluteUrlMatcher =
-      Pattern.compile("^https?://[a-zA-Z0-9]", CASE_INSENSITIVE).asPredicate();
-
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
-    String proxyUrl = getProxyUrl(serveEvent);
-    if (proxyUrl == null || !absoluteUrlMatcher.test(proxyUrl)) {
+    AbsoluteUrl proxyUrl = getProxyUrl(serveEvent);
+    if (proxyUrl == null) {
       return response()
           .status(HTTP_INTERNAL_ERROR)
           .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
-          .body("The target proxy address `" + proxyUrl + "` is not an absolute URL.")
+          .body(
+              "The target proxy address `"
+                  + serveEvent.getResponseDefinition().getProxyBaseUrl()
+                  + "` is not an absolute URL.")
           .build();
     }
     final ImmutableRequest.Builder requestBuilder =
@@ -142,16 +141,36 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     }
   }
 
-  private String getProxyUrl(ServeEvent serveEvent) {
+  private AbsoluteUrl getProxyUrl(ServeEvent serveEvent) {
     final ResponseDefinition responseDef = serveEvent.getResponseDefinition();
-    if (responseDef.getBrowserProxyUrl() != null) {
-      return responseDef.getBrowserProxyUrl();
+    AbsoluteUrl browserProxyUrl = responseDef.getBrowserProxyUrl();
+    if (browserProxyUrl != null) {
+      return browserProxyUrl;
     }
 
-    return responseDef.getProxyBaseUrl()
-        + removeStart(
-            serveEvent.getRequest().getPathAndQueryWithoutPrefix().toString(),
-            responseDef.getProxyUrlPrefixToRemove());
+    String proxyBaseUrlStr = responseDef.getProxyBaseUrl();
+    if (proxyBaseUrlStr == null) {
+      return null;
+    }
+
+    try {
+      AbsoluteUrl baseUrl = AbsoluteUrl.parse(proxyBaseUrlStr).toBaseUrl();
+
+      Path prefixToRemove = responseDef.getProxyUrlPrefixToRemove();
+
+      PathAndQuery requestPathAndQuery = serveEvent.getRequest().getPathAndQueryWithoutPrefix();
+
+      var requestPathToProxy =
+          requestPathAndQuery
+              .getPath()
+              .removePrefix(prefixToRemove != null ? prefixToRemove : Path.EMPTY);
+
+      Path fullPath = baseUrl.getPath().append(requestPathToProxy);
+
+      return baseUrl.transform(b -> b.setPath(fullPath).setQuery(requestPathAndQuery.getQuery()));
+    } catch (IllegalUriOrPart e) {
+      return null;
+    }
   }
 
   private Response proxyResponseError(String type, Request request, Exception e) {

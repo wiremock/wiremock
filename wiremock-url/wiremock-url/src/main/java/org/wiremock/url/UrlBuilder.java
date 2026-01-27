@@ -35,8 +35,18 @@ final class UrlTransformer extends AbstractUriBaseBuilder<UrlTransformer>
   }
 
   @Override
+  public @Nullable Scheme getScheme() {
+    return this.scheme;
+  }
+
+  @Override
   public UrlTransformer setScheme(@Nullable Scheme scheme) {
     return super.doSetScheme(scheme);
+  }
+
+  @Override
+  public @Nullable Authority getAuthority() {
+    return this.authority;
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.Path;
 
 class ResponseDefinitionBuilderTest {
 
@@ -131,7 +132,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test
@@ -149,7 +150,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test
@@ -167,7 +168,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test

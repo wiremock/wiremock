@@ -269,7 +269,7 @@ class UrlTests {
     void can_update_query() {
       var url = Url.parse("https://example.com/?a=b");
       Url.Transformer<?> builder = url.thaw();
-      builder.getQuery().append("b", "2");
+      builder.getQueryBuilder().append("b", "2");
       Url updated = builder.build();
       assertThat(updated).hasToString("https://example.com/?a=b&b=2");
     }
@@ -278,7 +278,7 @@ class UrlTests {
     void getQuery_returns_empty_builder_when_no_query() {
       var url = Url.parse("https://example.com/");
       Url.Transformer<?> builder = url.thaw();
-      Query.Builder queryBuilder = builder.getQuery();
+      Query.Builder queryBuilder = builder.getQueryBuilder();
       assertThat(queryBuilder.build().toString()).isEmpty();
     }
 
@@ -286,7 +286,7 @@ class UrlTests {
     void getQuery_returns_builder_with_existing_params() {
       var url = Url.parse("https://example.com/?a=1&b=2");
       Url.Transformer<?> builder = url.thaw();
-      Query.Builder queryBuilder = builder.getQuery();
+      Query.Builder queryBuilder = builder.getQueryBuilder();
       Query built = queryBuilder.build();
       assertThat(built.get("a")).containsExactly(QueryParamValue.parse("1"));
       assertThat(built.get("b")).containsExactly(QueryParamValue.parse("2"));
@@ -296,8 +296,8 @@ class UrlTests {
     void getQuery_returns_same_builder_on_multiple_calls() {
       var url = Url.parse("https://example.com/?a=1");
       Url.Transformer<?> builder = url.thaw();
-      Query.Builder queryBuilder1 = builder.getQuery();
-      Query.Builder queryBuilder2 = builder.getQuery();
+      Query.Builder queryBuilder1 = builder.getQueryBuilder();
+      Query.Builder queryBuilder2 = builder.getQueryBuilder();
       assertThat(queryBuilder1).isSameAs(queryBuilder2);
     }
 
@@ -305,8 +305,8 @@ class UrlTests {
     void getQuery_modifications_reflected_in_build() {
       var url = Url.parse("https://example.com/?a=1");
       Url.Transformer<?> builder = url.thaw();
-      builder.getQuery().append("b", "2");
-      builder.getQuery().append("c", "3");
+      builder.getQueryBuilder().append("b", "2");
+      builder.getQueryBuilder().append("c", "3");
       Url updated = builder.build();
       assertThat(updated).hasToString("https://example.com/?a=1&b=2&c=3");
     }
@@ -315,7 +315,7 @@ class UrlTests {
     void setQuery_clears_query_builder() {
       var url = Url.parse("https://example.com/?a=1");
       Url.Transformer<?> builder = url.thaw();
-      builder.getQuery().append("b", "2");
+      builder.getQueryBuilder().append("b", "2");
       builder.setQuery(Query.parse("x=9"));
       Url updated = builder.build();
       assertThat(updated).hasToString("https://example.com/?x=9");
@@ -326,7 +326,7 @@ class UrlTests {
       var url = Url.parse("https://example.com/");
       Url.Transformer<?> builder = url.thaw();
       Query.Builder queryBuilder = Query.builder().append("a", "1").append("b", "2");
-      builder.setQuery(queryBuilder);
+      builder.setQueryBuilder(queryBuilder);
       Url updated = builder.build();
       assertThat(updated).hasToString("https://example.com/?a=1&b=2");
     }
@@ -335,7 +335,7 @@ class UrlTests {
     void setQuery_with_empty_builder_removes_query() {
       var url = Url.parse("https://example.com/?a=1");
       Url.Transformer<?> builder = url.thaw();
-      builder.setQuery(Query.builder());
+      builder.setQueryBuilder(Query.builder());
       Url updated = builder.build();
       assertThat(updated).hasToString("https://example.com/");
     }
@@ -353,9 +353,9 @@ class UrlTests {
     void getQuery_after_setQuery_returns_new_builder() {
       var url = Url.parse("https://example.com/?a=1");
       Url.Transformer<?> builder = url.thaw();
-      Query.Builder originalBuilder = builder.getQuery();
+      Query.Builder originalBuilder = builder.getQueryBuilder();
       builder.setQuery(Query.parse("x=9"));
-      Query.Builder newBuilder = builder.getQuery();
+      Query.Builder newBuilder = builder.getQueryBuilder();
       assertThat(newBuilder).isNotSameAs(originalBuilder);
       assertThat(newBuilder.build().get("x")).containsExactly(QueryParamValue.parse("9"));
     }
@@ -366,9 +366,9 @@ class UrlTests {
       Url updated =
           url.transform(
               builder -> {
-                builder.getQuery().append("a", "1");
-                builder.getQuery().remove("a");
-                builder.getQuery().append("b", "2");
+                builder.getQueryBuilder().append("a", "1");
+                builder.getQueryBuilder().remove("a");
+                builder.getQueryBuilder().append("b", "2");
               });
       assertThat(updated).hasToString("https://example.com/?b=2");
     }
@@ -376,11 +376,7 @@ class UrlTests {
     @Test
     void getQuery_with_put_replaces_values() {
       var url = Url.parse("https://example.com/?a=1&a=2");
-      Url updated =
-          url.transform(
-              builder -> {
-                builder.getQuery().put("a", "replaced");
-              });
+      Url updated = url.transform(builder -> builder.getQueryBuilder().put("a", "replaced"));
       assertThat(updated).hasToString("https://example.com/?a=replaced");
     }
   }

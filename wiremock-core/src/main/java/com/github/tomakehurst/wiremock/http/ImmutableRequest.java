@@ -53,7 +53,7 @@ public class ImmutableRequest implements Request {
   }
 
   protected ImmutableRequest(
-      @NonNull String absoluteUrl,
+      @NonNull AbsoluteUrl absoluteUrl,
       RequestMethod method,
       String protocol,
       String clientIp,
@@ -61,7 +61,7 @@ public class ImmutableRequest implements Request {
       byte[] body,
       boolean multipart,
       boolean browserProxyRequest) {
-    this.absoluteUrl = AbsoluteUrl.parse(absoluteUrl);
+    this.absoluteUrl = absoluteUrl;
     this.pathAndQuery = this.absoluteUrl.getPathAndQuery();
     this.method = requireNonNull(method);
     this.protocol = protocol;
@@ -216,7 +216,7 @@ public class ImmutableRequest implements Request {
   }
 
   public static class Builder {
-    private String absoluteUrl;
+    private AbsoluteUrl absoluteUrl;
     private RequestMethod requestMethod;
     private String protocol;
     private String clientIp;
@@ -225,8 +225,13 @@ public class ImmutableRequest implements Request {
     private boolean multipart;
     private boolean browserProxyRequest;
 
-    public Builder withAbsoluteUrl(String absoluteUrl) {
+    public Builder withAbsoluteUrl(AbsoluteUrl absoluteUrl) {
       this.absoluteUrl = absoluteUrl;
+      return this;
+    }
+
+    public Builder withAbsoluteUrl(String absoluteUrl) {
+      this.absoluteUrl = AbsoluteUrl.parse(absoluteUrl);
       return this;
     }
 

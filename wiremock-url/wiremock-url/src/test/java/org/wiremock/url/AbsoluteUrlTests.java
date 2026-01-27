@@ -556,6 +556,7 @@ class AbsoluteUrlTests {
     void cannot_set_scheme_to_null() {
       var url = AbsoluteUrl.parse("https://example.com/path#fragment");
 
+      //noinspection DataFlowIssue
       assertThatExceptionOfType(NullPointerException.class)
           .isThrownBy(() -> url.transform(it -> it.setScheme(null)))
           .withMessage(null)
@@ -566,6 +567,7 @@ class AbsoluteUrlTests {
     void cannot_set_authority_to_null() {
       var url = AbsoluteUrl.parse("https://example.com/path#fragment");
 
+      //noinspection DataFlowIssue
       assertThatExceptionOfType(NullPointerException.class)
           .isThrownBy(() -> url.transform(it -> it.setAuthority(null)))
           .withMessage(null)
@@ -575,7 +577,7 @@ class AbsoluteUrlTests {
     @Test
     void can_update_query() {
       var url = AbsoluteUrl.parse("https://example.com/?a=b");
-      Url updated = url.transform(builder -> builder.getQuery().append("b", "2"));
+      Url updated = url.transform(builder -> builder.getQueryBuilder().append("b", "2"));
       assertThat(updated).hasToString("https://example.com/?a=b&b=2");
     }
   }

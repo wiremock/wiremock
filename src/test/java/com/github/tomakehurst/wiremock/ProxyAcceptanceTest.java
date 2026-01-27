@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -823,8 +823,7 @@ public class ProxyAcceptanceTest {
     assertThat(response.statusCode(), is(500));
     assertThat(
         response.content(),
-        is(
-            "The target proxy address `/not/an/absolute/url/proxied/resource?param=value` is not an absolute URL."));
+        is("The target proxy address `/not/an/absolute/url` is not an absolute URL."));
     assertThat(response.firstHeader("Content-Type"), is("text/plain"));
   }
 
@@ -886,8 +885,7 @@ public class ProxyAcceptanceTest {
     assertThat(response.statusCode(), is(500));
     assertThat(
         response.content(),
-        is(
-            "The target proxy address `/not/an/absolute/url/proxied/resource?param=value` is not an absolute URL."));
+        is("The target proxy address `/not/an/absolute/url` is not an absolute URL."));
     assertThat(response.firstHeader("Content-Type"), is("text/plain"));
   }
 

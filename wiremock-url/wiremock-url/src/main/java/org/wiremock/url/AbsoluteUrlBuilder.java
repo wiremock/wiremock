@@ -43,18 +43,35 @@ final class AbsoluteUrlTransformer extends AbstractUriBaseBuilder<AbsoluteUrl.Tr
 final class AbsoluteUrlBuilder extends AbstractUriBaseBuilder<AbsoluteUrl.Builder>
     implements AbsoluteUrl.Builder {
 
+  private final Scheme nonNullScheme;
+  private final Authority nonNullAuthority;
+
   AbsoluteUrlBuilder(Scheme scheme, Authority authority) {
     this.scheme = scheme;
+    this.nonNullScheme = scheme;
     this.authority = authority;
+    this.nonNullAuthority = authority;
   }
 
   AbsoluteUrlBuilder(AbsoluteUrl url) {
     super(url);
+    this.nonNullScheme = url.getScheme();
+    this.nonNullAuthority = url.getAuthority();
+  }
+
+  @Override
+  public Scheme getScheme() {
+    return this.nonNullScheme;
   }
 
   @Override
   public AbsoluteUrl.Builder setScheme(Scheme scheme) {
     return super.doSetScheme(requireNonNull(scheme));
+  }
+
+  @Override
+  public Authority getAuthority() {
+    return this.nonNullAuthority;
   }
 
   @Override
