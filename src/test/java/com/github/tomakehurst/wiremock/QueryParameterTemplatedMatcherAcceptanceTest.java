@@ -447,8 +447,7 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
     }
 
     @Test
-    void matchesQueryParameterEqualToAnotherQueryParameterUsingNowOffset() {
-      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+    void matchesQueryParameterEqualToAnotherQueryParameterWithTruncation() {
       stubFor(
           get(urlPathEqualTo("/test"))
               .withQueryParam(
@@ -459,13 +458,43 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
                       .templated())
               .willReturn(ok()));
 
+      // Both are in the same hour (10:xx), so after truncation to first minute they match
       assertThat(
           testClient
-              .get("/test?param1=now%20-1%20hours&param2=" + now.minusHours(1).plusMinutes(5))
+              .get("/test?param1=2021-06-14T10:15:00Z&param2=2021-06-14T10:45:00Z")
               .statusCode(),
           is(200));
+      // Different hours should not match
       assertThat(
-          testClient.get("/test?param1=now%20-1%20hours&param2=" + now.minusHours(2)).statusCode(),
+          testClient
+              .get("/test?param1=2021-06-14T10:15:00Z&param2=2021-06-14T11:15:00Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterEqualToDateTimeWithTruncationUsingFixedDates() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalToDateTime("{{request.query.param1}}")
+                      .truncateExpected(DateTimeTruncation.FIRST_HOUR_OF_DAY)
+                      .truncateActual(DateTimeTruncation.FIRST_HOUR_OF_DAY)
+                      .templated())
+              .willReturn(ok()));
+
+      // Both times on the same day (June 14), so after truncation to first hour they match
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T10:30:00Z&param2=2021-06-14T18:45:00Z")
+              .statusCode(),
+          is(200));
+      // Different days (June 14 vs June 15), so after truncation they don't match
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T10:30:00Z&param2=2021-06-15T10:30:00Z")
+              .statusCode(),
           is(404));
     }
 

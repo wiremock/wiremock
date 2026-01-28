@@ -240,10 +240,14 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeParser);
 
-    final ZonedDateTime zonedExpectedDateTime =
-        expectedDateTime.isNowOffset
-            ? calculateExpectedFromNow(expectedDateTime.expectedOffset)
-            : expectedDateTime.zonedDateTime;
+    final ZonedDateTime zonedExpectedDateTime;
+    if (expectedDateTime.isNowOffset) {
+      zonedExpectedDateTime = calculateExpectedFromNow(expectedDateTime.expectedOffset);
+    } else if (truncateExpected != null && expectedDateTime.zonedDateTime != null) {
+      zonedExpectedDateTime = truncateExpected.truncate(expectedDateTime.zonedDateTime);
+    } else {
+      zonedExpectedDateTime = expectedDateTime.zonedDateTime;
+    }
 
     return getMatchResult(
         zonedExpectedDateTime, expectedDateTime.localDateTime, zonedActual, localActual);
