@@ -150,6 +150,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.matcher =
         new RequestMatcher() {
 
+          // TODO: remove me
           @Override
           public MatchResult match(Request request) {
             return match(request, null);

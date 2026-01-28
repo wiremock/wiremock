@@ -27,6 +27,7 @@ public class NegativeContainsPattern extends StringValuePattern {
     return expectedValue;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
     return match(value, null);
