@@ -99,9 +99,9 @@ public class ApacheBackedHttpClient implements HttpClient {
 
   private static @NonNull URI safelyToUri(@NonNull AbsoluteUrl absoluteUrl) {
     try {
-      return absoluteUrl.toUri();
+      return absoluteUrl.toJavaUri();
     } catch (IllegalArgumentException e) {
-      return absoluteUrl.normalise().toUri();
+      return absoluteUrl.normalise().toJavaUri();
     }
   }
 

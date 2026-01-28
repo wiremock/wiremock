@@ -167,7 +167,7 @@ public sealed interface Uri extends ParsedString permits AbsoluteUri, AbstractUr
    * @return this as a {@code java.net.URI}
    * @throws IllegalArgumentException if this is not a valid {@code java.net.URI}
    */
-  default URI toUri() throws IllegalArgumentException {
+  default URI toJavaUri() throws IllegalArgumentException {
     return URI.create(this.toString());
   }
 
