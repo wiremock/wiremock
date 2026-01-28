@@ -561,7 +561,7 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       StubMapping stubMapping = Json.read(json, StubMapping.class);
       WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
 
-      // param1=now, offset=-2 hours, truncated to first minute of hour, 
+      // param1=now, offset=-2 hours, truncated to first minute of hour,
       // So expected is (now - 2 hours) truncated to start of hour
       ZonedDateTime expected = now.minusHours(2).truncatedTo(HOURS);
       assertThat(
@@ -1037,6 +1037,85 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       // thrown at construction time, but now throws during matching, resulting in a 500 response.
       assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(500));
     }
+
+    @Test
+    void matchesQueryParameterWithComplexRegexPattern() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", matching("{{request.query.param1}}[0-9]+").templated())
+              .willReturn(ok()));
+
+      // param1=user, regex becomes "user[0-9]+", param2=user123 matches
+      assertThat(testClient.get("/test?param1=user&param2=user123").statusCode(), is(200));
+
+      // param1=user, regex becomes "user[0-9]+", param2=username doesn't match
+      assertThat(testClient.get("/test?param1=user&param2=username").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterFromJsonStubWithAppendedPattern() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "matches": "{{request.query.param1}}[A-Z]+",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=test, regex becomes "test[A-Z]+", param2=testABC matches
+      assertThat(testClient.get("/test?param1=test&param2=testABC").statusCode(), is(200));
+      // param1=test, regex becomes "test[A-Z]+", param2=test123 doesn't match
+      assertThat(testClient.get("/test?param1=test&param2=test123").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterWithTemplatedRegexInOrCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalTo("fallback").or(matching("{{request.query.param1}}.*").templated()))
+              .willReturn(ok()));
+
+      // Matches the templated regex part
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(200));
+      // Matches the literal "fallback" part
+      assertThat(testClient.get("/test?param1=hello&param2=fallback").statusCode(), is(200));
+      // Matches neither
+      assertThat(testClient.get("/test?param1=hello&param2=other").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterWithTemplatedRegexInAndCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  matching("{{request.query.param1}}.*").templated().and(matching(".*end")))
+              .willReturn(ok()));
+
+      // Matches both: starts with param1 value AND ends with "end"
+      assertThat(testClient.get("/test?param1=hello&param2=helloend").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=hello&param2=helloworldend").statusCode(), is(200));
+      // Matches first but not second
+      assertThat(testClient.get("/test?param1=hello&param2=helloworld").statusCode(), is(404));
+      // Matches second but not first
+      assertThat(testClient.get("/test?param1=hello&param2=otherend").statusCode(), is(404));
+    }
   }
 
   @Nested
@@ -1123,6 +1202,99 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       // The literal "{{request.query.param1}}" is an invalid regex. This would previously have
       // thrown at construction time, but now throws during matching, resulting in a 500 response.
       assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(500));
+    }
+
+    @Test
+    void matchesQueryParameterNotMatchingRegexPatternFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notMatching("{{request.query.param1}}.*").templated())
+              .willReturn(ok()));
+
+      // param1=foo, regex becomes "foo.*", param2=barfoo doesn't match regex, so notMatching
+      // succeeds
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+
+      // param1=foo, regex becomes "foo.*", param2=foobar matches regex, so notMatching fails
+      assertThat(testClient.get("/test?param1=foo&param2=foobar").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterNotMatchingComplexRegexPattern() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", notMatching("{{request.query.param1}}[0-9]+").templated())
+              .willReturn(ok()));
+
+      // param1=user, regex becomes "user[0-9]+", param2=username doesn't match
+      assertThat(testClient.get("/test?param1=user&param2=username").statusCode(), is(200));
+
+      // param1=user, regex becomes "user[0-9]+", param2=user123 matches regex
+      assertThat(testClient.get("/test?param1=user&param2=user123").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesDoesNotMatchQueryParameterFromJsonStubWithAppendedPattern() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "doesNotMatch": "{{request.query.param1}}[A-Z]+",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=test, regex becomes "test[A-Z]+", param2=test123 doesn't match
+      assertThat(testClient.get("/test?param1=test&param2=test123").statusCode(), is(200));
+      // param1=test, regex becomes "test[A-Z]+", param2=testABC matches regex
+      assertThat(testClient.get("/test?param1=test&param2=testABC").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterWithTemplatedNotMatchingInOrCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalTo("special").or(notMatching("{{request.query.param1}}").templated()))
+              .willReturn(ok()));
+
+      // Matches the "special" literal
+      assertThat(testClient.get("/test?param1=foo&param2=special").statusCode(), is(200));
+      // Matches notMatching (param2 doesn't match param1's value as regex)
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+      // Fails both: not "special" AND param2 matches param1 as regex
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterWithTemplatedNotMatchingInAndCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  notMatching("{{request.query.param1}}").templated().and(containing("test")))
+              .willReturn(ok()));
+
+      // Matches both: doesn't match param1 AND contains "test"
+      assertThat(testClient.get("/test?param1=foo&param2=mytest").statusCode(), is(200));
+      // Fails first condition: matches param1's value
+      assertThat(testClient.get("/test?param1=foo&param2=foo").statusCode(), is(404));
+      // Fails second condition: doesn't contain "test"
+      assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(404));
     }
   }
 
