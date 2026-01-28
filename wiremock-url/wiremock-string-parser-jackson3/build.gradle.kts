@@ -16,7 +16,7 @@ dependencies {
   api("tools.jackson.core:jackson-core:3.0.0")
   api("tools.jackson.core:jackson-databind:3.0.0")
 
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
+  annotationProcessor("com.uber.nullaway:nullaway:0.13.1")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 
