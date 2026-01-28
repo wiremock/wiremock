@@ -16,14 +16,19 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.time.temporal.ChronoUnit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -126,6 +131,631 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
 
       assertThat(testClient.get("/test?param1=hello&param2=hello").statusCode(), is(404));
+    }
+  }
+
+  @Nested
+  class DateTimeQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterAfterAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", after("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T11:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterAfterAnotherQueryParameterUsingNowOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", after("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient.get("/test?param1=now%20-2%20hours&param2=" + now.minusHours(1)).statusCode(),
+          is(200));
+      assertThat(
+          testClient.get("/test?param1=now%20-2%20hours&param2=" + now.minusHours(3)).statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterAfterAnotherQueryParameterWithTruncation() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  after("{{request.query.param1}}")
+                      .truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH)
+                      .truncateActual(DateTimeTruncation.LAST_DAY_OF_MONTH)
+                      .templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-15T12:00:00Z&param2=2021-07-02T00:00:00Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-15T12:00:00Z&param2=2021-05-02T00:00:00Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T11:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithTemplatedOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": -15,
+                    "expectedOffsetUnit": "days"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusDays(14)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusDays(16)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterBeforeAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", before("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T11:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterBeforeAnotherQueryParameterUsingCustomActualFormat() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  before("{{request.query.param1}}").actualFormat("dd/MM/yyyy").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=2021-06-14&param2=01/06/2021").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=2021-06-14&param2=01/07/2021").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterBeforeAnotherQueryParameterUsingNowOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", before("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient.get("/test?param1=now%20%2B2%20hours&param2=" + now.plusHours(1)).statusCode(),
+          is(200));
+      assertThat(
+          testClient.get("/test?param1=now%20%2B2%20hours&param2=" + now.plusHours(3)).statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterBeforeAnotherQueryParameterWithTruncation() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  before("{{request.query.param1}}")
+                      .truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH)
+                      .truncateActual(DateTimeTruncation.LAST_DAY_OF_MONTH)
+                      .templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-15T12:00:00Z&param2=2021-05-02T00:00:00Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-15T12:00:00Z&param2=2021-07-02T00:00:00Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesBeforeQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "before": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T11:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterEqualToAnotherQueryParameterAsDateTime() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam("param2", equalToDateTime("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T12:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterEqualToAnotherQueryParameterUsingUnixFormat() {
+      Instant expected = Instant.parse("2021-06-14T12:13:14Z");
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalToDateTime("{{request.query.param1}}").actualFormat("unix").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=" + expected.getEpochSecond())
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get(
+                  "/test?param1=2021-06-14T12:13:14Z&param2="
+                      + expected.minusSeconds(10).getEpochSecond())
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterEqualToAnotherQueryParameterUsingEpochFormat() {
+      Instant expected = Instant.parse("2021-06-14T12:13:14Z");
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalToDateTime("{{request.query.param1}}").actualFormat("epoch").templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=" + expected.toEpochMilli())
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get(
+                  "/test?param1=2021-06-14T12:13:14Z&param2="
+                      + expected.minusSeconds(10).toEpochMilli())
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesQueryParameterEqualToAnotherQueryParameterUsingNowOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  equalToDateTime("{{request.query.param1}}")
+                      .truncateExpected(DateTimeTruncation.FIRST_MINUTE_OF_HOUR)
+                      .truncateActual(DateTimeTruncation.FIRST_MINUTE_OF_HOUR)
+                      .templated())
+              .willReturn(ok()));
+
+      assertThat(
+          testClient
+              .get("/test?param1=now%20-1%20hours&param2=" + now.minusHours(1).plusMinutes(5))
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient.get("/test?param1=now%20-1%20hours&param2=" + now.minusHours(2)).statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesEqualToDateTimeQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalToDateTime": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T12:13:14Z")
+              .statusCode(),
+          is(200));
+      assertThat(
+          testClient
+              .get("/test?param1=2021-06-14T12:13:14Z&param2=2021-06-14T13:13:14Z")
+              .statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesBeforeQueryParameterFromJsonStubWithTemplatedOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "before": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": 15,
+                    "expectedOffsetUnit": "days"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=now, offset=+15 days, so expected is now+15 days. param2 must be BEFORE that.
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusDays(14)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusDays(16)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesEqualToDateTimeQueryParameterFromJsonStubWithTemplatedOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalToDateTime": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": -2,
+                    "expectedOffsetUnit": "hours",
+                    "truncateExpected": "first minute of hour",
+                    "truncateActual": "first minute of hour"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=now, offset=-2 hours, truncated to first minute of hour, 
+      // So expected is (now - 2 hours) truncated to start of hour
+      ZonedDateTime expected = now.minusHours(2).truncatedTo(HOURS);
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + expected.plusMinutes(30)).statusCode(),
+          is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusHours(3)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithTemplatedOffsetInMinutes() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": -30,
+                    "expectedOffsetUnit": "minutes"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=now, offset=-30 minutes, so expected is now-30 minutes. param2 must be AFTER that.
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusMinutes(20)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusMinutes(40)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesBeforeQueryParameterFromJsonStubWithTemplatedOffsetInMonths() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "before": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": 2,
+                    "expectedOffsetUnit": "months"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=now, offset=+2 months, so expected is now+2 months. param2 must be BEFORE that.
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusMonths(1)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusMonths(3)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithApplyTruncationLast() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": 1,
+                    "expectedOffsetUnit": "months",
+                    "truncateExpected": "last day of month",
+                    "applyTruncationLast": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // With applyTruncationLast=true: first add 1 month, then truncate to last day of month
+      // So if now is Feb 1st, expected becomes the last day of March (Mar 31st)
+      // param2 must be AFTER that date
+      ZonedDateTime expectedDate =
+          now.plusMonths(1)
+              .with(java.time.temporal.TemporalAdjusters.lastDayOfMonth())
+              .truncatedTo(DAYS);
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + expectedDate.plusDays(1)).statusCode(),
+          is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + expectedDate.minusDays(1)).statusCode(),
+          is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithTruncationAndOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": -7,
+                    "expectedOffsetUnit": "days",
+                    "truncateExpected": "first day of month",
+                    "truncateActual": "first day of month"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // With applyTruncationLast=false (default): first truncate to first day of month, then
+      // subtract 7 days
+      // So expected becomes first day of current month minus 7 days (last week of the previous
+      // month)
+      // Both expected and actual are truncated to first day of month for comparison
+      // param2 must be AFTER the expected month (after the previous month)
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusDays(1)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.minusMonths(2)).statusCode(), is(404));
+    }
+
+    @Test
+    void matchesAfterQueryParameterFromJsonStubWithPositiveOffset() {
+      ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "after": "{{request.query.param1}}",
+                    "templated": true,
+                    "expectedOffset": 10,
+                    "expectedOffsetUnit": "days"
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      // param1=now, offset=+10 days, so expected is now+10 days. param2 must be AFTER that.
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusDays(11)).statusCode(), is(200));
+      assertThat(
+          testClient.get("/test?param1=now&param2=" + now.plusDays(9)).statusCode(), is(404));
     }
   }
 

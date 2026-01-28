@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,10 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     } else {
       zonedDateTime = parseZonedOrNull(dateTimeSpec);
       localDateTime = parseLocalOrNull(dateTimeSpec);
-      expectedOffset = null;
+      expectedOffset =
+          expectedOffsetAmount != null && expectedOffsetUnit != null
+              ? new DateTimeOffset(expectedOffsetAmount, expectedOffsetUnit)
+              : null;
     }
 
     this.actualDateTimeFormat = actualDateFormat;
@@ -206,12 +209,30 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     return applyTruncationLast ? true : null;
   }
 
+  public Integer getExpectedOffset() {
+    return isTemplated() && expectedOffset != null ? expectedOffset.getAmount() : null;
+  }
+
+  public DateTimeUnit getExpectedOffsetUnit() {
+    return isTemplated() && expectedOffset != null ? expectedOffset.getAmountUnit() : null;
+  }
+
   private static String stringOrNull(Object obj) {
     return obj != null ? obj.toString() : null;
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String value) {
+    return match(value, null);
+  }
+
+  @Override
+  public MatchResult match(String value, ServeContext context) {
+    ExpectedDateTime expectedDateTime =
+        isTemplated() && context != null
+            ? resolveExpectedDateTime(resolveExpectedValue(context))
+            : cachedExpectedDateTime();
     final ZonedDateTime zonedActual =
         truncateActual != null
             ? truncateActual.truncate(parseZonedOrNull(value, actualDateTimeParser))
@@ -220,20 +241,42 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeParser);
 
     final ZonedDateTime zonedExpectedDateTime =
-        isNowOffset() ? calculateExpectedFromNow() : zonedDateTime;
+        expectedDateTime.isNowOffset
+            ? calculateExpectedFromNow(expectedDateTime.expectedOffset)
+            : expectedDateTime.zonedDateTime;
 
-    return getMatchResult(zonedExpectedDateTime, localDateTime, zonedActual, localActual);
+    return getMatchResult(
+        zonedExpectedDateTime, expectedDateTime.localDateTime, zonedActual, localActual);
   }
 
-  private ZonedDateTime calculateExpectedFromNow() {
+  private ExpectedDateTime cachedExpectedDateTime() {
+    if (expectedOffset != null) {
+      return new ExpectedDateTime(zonedDateTime, localDateTime, expectedOffset, true);
+    }
+
+    return new ExpectedDateTime(zonedDateTime, localDateTime, null, false);
+  }
+
+  private ExpectedDateTime resolveExpectedDateTime(String expected) {
+    if (isNowOffsetExpression(expected)) {
+      DateTimeOffset offset =
+          expectedOffset != null ? expectedOffset : DateTimeOffset.fromString(expected);
+      return new ExpectedDateTime(null, null, offset, true);
+    }
+
+    return new ExpectedDateTime(
+        parseZonedOrNull(expected), parseLocalOrNull(expected), null, false);
+  }
+
+  private ZonedDateTime calculateExpectedFromNow(DateTimeOffset offset) {
     final ZonedDateTime now = ZonedDateTime.now();
     if (applyTruncationLast) {
-      final ZonedDateTime shifted = expectedOffset.shift(now);
+      final ZonedDateTime shifted = offset.shift(now);
       return truncateExpected != null ? truncateExpected.truncate(shifted) : shifted;
     } else {
       final ZonedDateTime truncated =
           truncateExpected != null ? truncateExpected.truncate(now) : now;
-      return expectedOffset.shift(truncated);
+      return offset.shift(truncated);
     }
   }
 
@@ -243,9 +286,11 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
       ZonedDateTime zonedActual,
       LocalDateTime localActual);
 
-  private boolean isNowOffset() {
-    return expectedOffset != null;
-  }
+  private record ExpectedDateTime(
+      ZonedDateTime zonedDateTime,
+      LocalDateTime localDateTime,
+      DateTimeOffset expectedOffset,
+      boolean isNowOffset) {}
 
   private static ZonedDateTime parseZonedOrNull(String dateTimeString) {
     return parseZonedOrNull(dateTimeString, (DateTimeParser) null);
