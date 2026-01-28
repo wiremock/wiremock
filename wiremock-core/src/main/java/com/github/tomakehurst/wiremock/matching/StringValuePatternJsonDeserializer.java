@@ -394,43 +394,39 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     JsonNode expectedOffsetAmountNode = rootNode.findValue("expectedOffset");
     JsonNode expectedOffsetUnitNode = rootNode.findValue("expectedOffsetUnit");
 
-    switch (matcherName) {
-      case "before":
-        return new BeforeDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
-      case "after":
-        return new AfterDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
-      case "equalToDateTime":
-        return new EqualToDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
-      default:
-        throw new JsonMappingException(rootNode + " is not a valid match operation");
-    }
+    return switch (matcherName) {
+      case "before" -> new BeforeDateTimePattern(
+          dateTimeNode.textValue(),
+          formatNode != null ? formatNode.textValue() : null,
+          truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+          truncateActualNode != null ? truncateActualNode.textValue() : null,
+          applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
+          expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+          expectedOffsetUnitNode != null
+              ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+              : null);
+      case "after" -> new AfterDateTimePattern(
+          dateTimeNode.textValue(),
+          formatNode != null ? formatNode.textValue() : null,
+          truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+          truncateActualNode != null ? truncateActualNode.textValue() : null,
+          applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
+          expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+          expectedOffsetUnitNode != null
+              ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+              : null);
+      case "equalToDateTime" -> new EqualToDateTimePattern(
+          dateTimeNode.textValue(),
+          formatNode != null ? formatNode.textValue() : null,
+          truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+          truncateActualNode != null ? truncateActualNode.textValue() : null,
+          applyTruncationLastNode != null && applyTruncationLastNode.booleanValue(),
+          expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+          expectedOffsetUnitNode != null
+              ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+              : null);
+      default -> throw new JsonMappingException(rootNode + " is not a valid match operation");
+    };
   }
 
   private static StringValuePattern deserializeNumberPattern(
