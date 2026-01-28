@@ -1,23 +1,22 @@
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsNoneOf;
-import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsOneOf;
-import org.junit.jupiter.api.Test;
-
-import java.util.Set;
-
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsNoneOf;
+import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsOneOf;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+
 public class RequestMethodTest {
 
   @Test
   void singleMethodSerializesToString() {
-      String json = Json.write(GET);
+    String json = Json.write(GET);
 
     assertThat(json, is("\"GET\""));
   }
@@ -37,7 +36,9 @@ public class RequestMethodTest {
 
     String json = Json.write(method);
 
-    assertThat(json, jsonEquals(//language=JSON
+    assertThat(
+        json,
+        jsonEquals( // language=JSON
             """
             {
               "oneOf": ["GET", "POST"]
@@ -55,14 +56,12 @@ public class RequestMethodTest {
     IsOneOf oneOf = (IsOneOf) method;
     assertEquals(3, oneOf.getMethods().size());
     assertTrue(
-        oneOf.getMethods().stream().anyMatch(m -> m.getName().equals("GET")),
-        "Should contain GET");
+        oneOf.getMethods().stream().anyMatch(m -> m.getName().equals("GET")), "Should contain GET");
     assertTrue(
         oneOf.getMethods().stream().anyMatch(m -> m.getName().equals("POST")),
         "Should contain POST");
     assertTrue(
-        oneOf.getMethods().stream().anyMatch(m -> m.getName().equals("PUT")),
-        "Should contain PUT");
+        oneOf.getMethods().stream().anyMatch(m -> m.getName().equals("PUT")), "Should contain PUT");
   }
 
   @Test
