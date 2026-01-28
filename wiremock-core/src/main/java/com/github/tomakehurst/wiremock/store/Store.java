@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ import org.wiremock.annotations.Beta;
 public interface Store<K, V> {
 
   Stream<K> getAllKeys();
+
+  default boolean contains(K key) {
+    return getAllKeys().anyMatch(k -> k.equals(key));
+  }
 
   Optional<V> get(K key);
 

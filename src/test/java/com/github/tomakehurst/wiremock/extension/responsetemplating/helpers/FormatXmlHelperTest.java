@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
 
   @Test
@@ -47,7 +48,9 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(),
+        is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
 
   @Test
@@ -63,7 +66,8 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
 
   @Test
@@ -79,7 +83,9 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(),
+        is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
 
   @Test
@@ -94,7 +100,8 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(), is("<foo>\n  <bar>wh</bar>\n</foo>\n"));
   }
 
   @Test
@@ -109,7 +116,9 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(),
+        is("<foo>\r\n  <bar>wh</bar>\r\n</foo>\r\n"));
   }
 
   @Test
@@ -124,7 +133,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is("[ERROR: formatXml: format [traditional] should be one of [pretty, compact]]"));
   }
 
@@ -135,7 +144,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatXml should take a block of XML to format or a single parameter of type String]"));
   }
@@ -146,7 +155,8 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("[ERROR: Input is not valid XML]"));
+    assertThat(
+        responseDefinition.getBody().getDataAsString(), is("[ERROR: Input is not valid XML]"));
   }
 
   @Test
@@ -160,7 +170,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo><bar>wh</bar></foo>"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("<foo><bar>wh</bar></foo>"));
   }
 
   @Test
@@ -174,7 +184,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is("<foo><bar>wh</bar></foo>"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("<foo><bar>wh</bar></foo>"));
   }
 
   @Test
@@ -189,7 +199,7 @@ public class FormatXmlHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatXml: format [1] of type [java.lang.Integer should be a Format or a String and one of [pretty, compact]]]"));
   }

@@ -21,6 +21,7 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
@@ -75,23 +76,28 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withSimpleBody(String body) {
+    builder.setBody(EntityDefinition.simple(body));
+    return this;
+  }
+
   public ResponseDefinitionBuilder withBody(String body) {
-    builder.setBody(Body.fromOneOf(null, body, null, null));
+    builder.setBody(body);
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    builder.setBody(Body.fromOneOf(body, null, null, null));
+    builder.setBody(body);
     return this;
   }
 
-  public ResponseDefinitionBuilder withResponseBody(Body body) {
+  public ResponseDefinitionBuilder withEntityBody(EntityDefinition body) {
     builder.setBody(body);
     return this;
   }
 
   public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
-    builder.setBody(Body.fromOneOf(null, null, jsonBody, null));
+    builder.setBody(EntityDefinition.json(jsonBody));
     return this;
   }
 
@@ -183,7 +189,7 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBase64Body(String base64Body) {
-    builder.setBody(Body.fromOneOf(null, null, null, base64Body));
+    builder.setBody(EntityDefinition.fromBase64(base64Body));
     return this;
   }
 

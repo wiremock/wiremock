@@ -20,8 +20,7 @@ import static org.wiremock.url.SchemeRegistry.https;
 import static org.wiremock.url.SchemeRegistry.ws;
 import static org.wiremock.url.SchemeRegistry.wss;
 
-import com.github.tomakehurst.wiremock.common.ContentTypes;
-import com.github.tomakehurst.wiremock.common.Gzip;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -72,27 +71,18 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
 
     Response.Builder responseBuilder = Response.Builder.like(response).headers(updatedHeaders);
 
-    // Update body if applicable
-    byte[] initialBody = response.getBody();
-    if (initialBody != null
-        && initialBody.length > 0
-        && ContentTypes.determineIsTextFromMimeType(getMimeType(response))) {
-      byte[] updatedBody;
-      if (Gzip.isGzipped(initialBody)) {
-        String uncompressedBody = Gzip.unGzipToString(initialBody);
-        uncompressedBody = applySubstitutions(uncompressedBody, substitutionData);
-        updatedBody = Gzip.gzip(uncompressedBody.getBytes());
-      } else {
-        String responseBodyAsString = response.getBodyAsString();
-        responseBodyAsString = applySubstitutions(responseBodyAsString, substitutionData);
-        updatedBody = responseBodyAsString.getBytes();
-      }
-      responseBuilder.body(updatedBody);
+    final Entity initialBody = response.getBody();
+    if (initialBody != Entity.EMPTY && initialBody.isDecompressible()) {
+      var transformedBody =
+          initialBody.transformUncompressedDataString(
+              source -> applySubstitutions(source, substitutionData));
+      responseBuilder.body(transformedBody);
 
       // Update Content-Length header if present
       if (updatedHeaders.getHeader(CONTENT_LENGTH).isPresent()) {
         responseBuilder.headers(
-            setContentLengthHeader(updatedHeaders, String.valueOf(updatedBody.length)));
+            setContentLengthHeader(
+                updatedHeaders, String.valueOf(transformedBody.getData().length)));
       }
     }
 
@@ -153,13 +143,6 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
             .collect(Collectors.toList());
     filteredHeaders.add(new HttpHeader(CONTENT_LENGTH, value));
     return new HttpHeaders(filteredHeaders);
-  }
-
-  private static String getMimeType(Response response) {
-    HttpHeaders responseHeaders = response.getHeaders();
-    return responseHeaders != null && responseHeaders.getContentTypeHeader() != null
-        ? responseHeaders.getContentTypeHeader().mimeTypePart()
-        : null;
   }
 
   /**

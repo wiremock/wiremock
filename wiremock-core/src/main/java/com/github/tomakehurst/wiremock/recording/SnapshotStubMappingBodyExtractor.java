@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -54,18 +53,6 @@ class SnapshotStubMappingBodyExtractor {
 
     filesBlobStore.put(bodyFileName, body);
 
-    // used to prevent ambiguous method call error for withBody()
-    String noStringBody = null;
-    byte[] noByteBody = null;
-
-    return stubMapping.transform(
-        sm ->
-            sm.setResponse(
-                ResponseDefinitionBuilder.like(stubMapping.getResponse())
-                    .withBodyFile(bodyFileName)
-                    .withBody(noStringBody)
-                    .withBody(noByteBody)
-                    .withBase64Body(null)
-                    .build()));
+    return stubMapping.transform(sm -> sm.response(rd -> rd.setBodyFileName(bodyFileName)));
   }
 }

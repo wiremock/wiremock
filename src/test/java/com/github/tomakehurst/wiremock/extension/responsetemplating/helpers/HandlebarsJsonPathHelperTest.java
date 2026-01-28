@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -58,7 +57,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
-    assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"success\"}"));
   }
 
   @Test
@@ -70,7 +69,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
-        responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
+        responseDefinition.getBody().getDataAsString(),
+        startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
   }
 
   @Test
@@ -98,7 +98,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody(), is("One Two Three "));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("One Two Three "));
   }
 
   @Test
@@ -120,7 +120,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("one: 1 two: 2 three: 3 "));
   }
 
   @Test
@@ -143,8 +143,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                     "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
                         + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
-    assertThat(responseDefinition.getBody(), containsString("One"));
-    assertThat(responseDefinition.getBody(), not(containsString("Two")));
+    assertThat(responseDefinition.getBody().getDataAsString(), containsString("One"));
+    assertThat(responseDefinition.getBody().getDataAsString(), not(containsString("Two")));
   }
 
   @Test
@@ -284,7 +284,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 services ->
                     List.of(
                         new ResponseTemplateTransformer(
-                            services.getTemplateEngine(), true, services.getFiles(), emptyList()) {
+                            services.getTemplateEngine(),
+                            true,
+                            services.getFiles(),
+                            services.getEntityResolver()) {
                           @Override
                           protected Map<String, Object> addExtraModelElements(
                               Request request,
@@ -299,7 +302,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
 
-    assertThat(responseDefinition.getBody(), is("abc"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("abc"));
   }
 
   @Test

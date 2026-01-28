@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
 
   @Override
   public MatchResult match(ResponseDefinition responseDefinition) {
-    if (!responseDefinition.specifiesBodyContent()) {
+    if (!responseDefinition.getBodyEntity().isInline()) {
       return MatchResult.noMatch();
     } else if (ContentTypes.determineIsTextFromMimeType(
         responseDefinition.getHeaders().getContentTypeHeader().mimeTypePart())) {

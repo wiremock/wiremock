@@ -139,7 +139,8 @@ public class ApacheBackedHttpClient implements HttpClient {
 
     final HttpEntity entity = apacheResponse.getEntity();
     if (entity != null) {
-      responseBuilder.body(EntityUtils.toByteArray(entity));
+      final byte[] data = EntityUtils.toByteArray(entity);
+      responseBuilder.body(data);
     }
 
     if (apacheResponse.getReasonPhrase() != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,11 @@ public class BlobStoreFileSource implements FileSource {
   @Override
   public boolean exists() {
     return true;
+  }
+
+  @Override
+  public boolean fileExists(String name) {
+    return blobStore.contains(name);
   }
 
   @Override

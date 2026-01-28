@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.MimeType;
+import com.github.tomakehurst.wiremock.http.MimeTypes;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.ByteArrayInputStream;
@@ -245,7 +245,7 @@ public class WireMockTestClient {
   }
 
   public WireMockResponse putJson(String url, String body, TestHttpHeader... headers) {
-    return putWithBody(url, body, MimeType.JSON.toString(), headers);
+    return putWithBody(url, body, MimeTypes.JSON.toString(), headers);
   }
 
   public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
@@ -277,7 +277,7 @@ public class WireMockTestClient {
 
   public void addResponse(String responseSpecJson, String charset) {
     int status =
-        postWithBody("/__admin/mappings", responseSpecJson, MimeType.JSON.toString(), charset)
+        postWithBody("/__admin/mappings", responseSpecJson, MimeTypes.JSON.toString(), charset)
             .statusCode();
     if (status != HTTP_CREATED) {
       throw new RuntimeException("Returned status code was " + status);
