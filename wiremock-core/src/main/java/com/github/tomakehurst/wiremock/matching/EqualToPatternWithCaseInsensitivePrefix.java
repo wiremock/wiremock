@@ -35,17 +35,21 @@ public class EqualToPatternWithCaseInsensitivePrefix extends StringValuePattern 
 
   @Override
   public MatchResult match(final String value, ServeContext context) {
+    final String resolvedPrefix = resolvePrefix(context);
+    final String resolvedTestValue = resolveTestValue(context);
+    final String resolvedExpected = resolvedPrefix + resolvedTestValue;
     return new MatchResult() {
       @Override
       public boolean isExactMatch() {
         return value != null
-            && value.substring(0, prefix.length()).equalsIgnoreCase(prefix)
-            && Objects.equals(testValue, value.substring(prefix.length()));
+            && value.length() >= resolvedPrefix.length()
+            && value.substring(0, resolvedPrefix.length()).equalsIgnoreCase(resolvedPrefix)
+            && Objects.equals(resolvedTestValue, value.substring(resolvedPrefix.length()));
       }
 
       @Override
       public double getDistance() {
-        return normalisedLevenshteinDistance(expectedValue, value);
+        return normalisedLevenshteinDistance(resolvedExpected, value);
       }
     };
   }
@@ -53,5 +57,19 @@ public class EqualToPatternWithCaseInsensitivePrefix extends StringValuePattern 
   @Override
   public MatchResult match(final String value) {
     return match(value, null);
+  }
+
+  private String resolvePrefix(ServeContext context) {
+    if (isTemplated() && context != null) {
+      return context.renderTemplate(prefix);
+    }
+    return prefix;
+  }
+
+  private String resolveTestValue(ServeContext context) {
+    if (isTemplated() && context != null) {
+      return context.renderTemplate(testValue);
+    }
+    return testValue;
   }
 }
