@@ -33,11 +33,9 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextFormat;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RegexPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -515,11 +513,9 @@ public class MessageSerializationTest {
 
   @Test
   void textEntityDefinitionWithStringDataSerializesToJson() {
-//    TextEntityDefinition entityDef =
-//        new TextEntityDefinition(
-//            TextFormat.TEXT, UTF_8, CompressionType.NONE, null, null, "hello world", null);
-    final EntityDefinition<?> entityDef = EntityDefinition.builder()
-            .setFormat(TextFormat.TEXT)
+    final EntityDefinition entityDef =
+        EntityDefinition.builder()
+            .setFormat(Format.TEXT)
             .setCharset(UTF_8)
             .setCompression(CompressionType.NONE)
             .setData("hello world")
@@ -577,9 +573,9 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof TextEntityDefinition, is(true));
+    assertThat(action.getBody() instanceof EntityDefinition, is(true));
 
-    TextEntityDefinition entityDef = (TextEntityDefinition) action.getBody();
+    EntityDefinition entityDef = action.getBody();
     assertThat(entityDef.getDataStore(), is("testStore"));
     assertThat(entityDef.getDataRef(), is("testKey"));
   }
@@ -594,7 +590,7 @@ public class MessageSerializationTest {
     String matchBase64 = java.util.Base64.getEncoder().encodeToString(matchBytes);
     String responseBase64 = java.util.Base64.getEncoder().encodeToString(responseBytes);
 
-    EntityDefinition<?> body = binaryEntity().setData(responseBytes).build();
+    EntityDefinition body = binaryEntity().setData(responseBytes).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -627,7 +623,7 @@ public class MessageSerializationTest {
                   "type": "send",
                   "message": {
                     "body": {
-                      "encoding": "binary",
+                      "format": "binary",
                       "data": "%s"
                     }
                   },
@@ -686,9 +682,9 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof BinaryEntityDefinition, is(true));
+    assertThat(action.getBody() instanceof EntityDefinition, is(true));
 
-    BinaryEntityDefinition entityDef = (BinaryEntityDefinition) action.getBody();
+    EntityDefinition entityDef = action.getBody();
     assertThat(entityDef.getDataAsString(), is(responseBase64));
     assertThat(entityDef.getDataAsBytes(), is(responseBytes));
   }
@@ -698,7 +694,7 @@ public class MessageSerializationTest {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
     String base64Data = java.util.Base64.getEncoder().encodeToString(data);
 
-    EntityDefinition<?> entityDef = binaryEntity().setData(data).build();
+    EntityDefinition entityDef = binaryEntity().setData(data).build();
 
     String json = Json.write(entityDef);
 
@@ -708,7 +704,7 @@ public class MessageSerializationTest {
             // language=JSON
             """
             {
-              "encoding": "binary",
+              "format": "binary",
               "data": "%s"
             }
             """
@@ -719,7 +715,7 @@ public class MessageSerializationTest {
   void binaryEntityDefinitionRoundTripsViaMessageStubMapping() {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
 
-    EntityDefinition<?> original = binaryEntity().setData(data).build();
+    EntityDefinition original = binaryEntity().setData(data).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -732,7 +728,7 @@ public class MessageSerializationTest {
     MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
 
     SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
-    assertThat(action.getBody(), instanceOf(BinaryEntityDefinition.class));
+    assertThat(action.getBody(), instanceOf(EntityDefinition.class));
     assertThat(action.getBody(), is(original));
   }
 

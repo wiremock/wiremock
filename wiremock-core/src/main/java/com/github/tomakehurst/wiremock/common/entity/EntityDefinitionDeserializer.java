@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefinition> {
 
@@ -32,25 +33,29 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       throws IOException {
     JsonNode node = parser.readValueAsTree();
 
-    Class<? extends EntityDefinition> targetClass;
     if (node.isTextual()) {
       return new SimpleStringEntityDefinition(node.asText());
     }
 
     if (node.isObject()) {
-      JsonNode encodingNode = node.get("encoding");
-      if (encodingIs(encodingNode, EncodingType.BINARY)) {
-        targetClass = BinaryEntityDefinition.class;
-      } else if (isJsonObject(node)) {
+      if (isJsonObject(node)) {
         return new JsonEntityDefinition(node.get("data"));
-      } else {
-        targetClass = TextEntityDefinition.class;
       }
-    } else {
-      targetClass = TextEntityDefinition.class;
+
+      Format format = getFormat(node);
+      Charset charset = getCharset(node);
+      CompressionType compression = getCompression(node);
+      String dataStore = getString(node, "dataStore");
+      String dataRef = getString(node, "dataRef");
+      String data = getString(node, "data");
+      String base64Data = getString(node, "base64Data");
+      String filePath = getString(node, "filePath");
+
+      return new EntityDefinition(
+          format, charset, compression, dataStore, dataRef, data, base64Data, filePath);
     }
 
-    return ctxt.readTreeAsValue(node, targetClass);
+    return null;
   }
 
   private static boolean isJsonObject(JsonNode node) {
@@ -58,9 +63,38 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
     return dataNode != null && dataNode.isObject();
   }
 
-  private static boolean encodingIs(JsonNode encodingNode, EncodingType encodingType) {
-    return encodingNode != null
-        && encodingNode.isTextual()
-        && encodingType.value().equals(encodingNode.textValue());
+  private static Format getFormat(JsonNode node) {
+    JsonNode formatNode = node.get("format");
+    if (formatNode == null) {
+      formatNode = node.get("encoding");
+    }
+    if (formatNode != null && formatNode.isTextual()) {
+      return Format.fromString(formatNode.asText());
+    }
+    return null;
+  }
+
+  private static Charset getCharset(JsonNode node) {
+    JsonNode charsetNode = node.get("charset");
+    if (charsetNode != null && charsetNode.isTextual()) {
+      return Charset.forName(charsetNode.asText());
+    }
+    return null;
+  }
+
+  private static CompressionType getCompression(JsonNode node) {
+    JsonNode compressionNode = node.get("compression");
+    if (compressionNode != null && compressionNode.isTextual()) {
+      return CompressionType.fromString(compressionNode.asText());
+    }
+    return null;
+  }
+
+  private static String getString(JsonNode node, String fieldName) {
+    JsonNode fieldNode = node.get(fieldName);
+    if (fieldNode != null && fieldNode.isTextual()) {
+      return fieldNode.asText();
+    }
+    return null;
   }
 }

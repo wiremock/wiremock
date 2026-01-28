@@ -21,6 +21,7 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
@@ -119,16 +120,26 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     try {
       final Response httpResponse = client.execute(request);
-      return Response.Builder.like(httpResponse)
-          .fromProxy(true)
-          .headers(headersFrom(httpResponse, responseDefinition))
-          .configureDelay(
-              settings.getFixedDelay(),
-              settings.getDelayDistribution(),
-              responseDefinition.getFixedDelayMilliseconds(),
-              responseDefinition.getDelayDistribution())
-          .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
-          .build();
+      final Response.Builder responseBuilder =
+          Response.Builder.like(httpResponse)
+              .fromProxy(true)
+              .headers(headersFrom(httpResponse, responseDefinition))
+              .configureDelay(
+                  settings.getFixedDelay(),
+                  settings.getDelayDistribution(),
+                  responseDefinition.getFixedDelayMilliseconds(),
+                  responseDefinition.getDelayDistribution())
+              .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
+
+      if (httpResponse.getBody() != null) {
+        responseBuilder.body(
+            httpResponse
+                .getBody()
+                .transform(
+                    builder -> EntityMetadata.copyFromHeaders(httpResponse.getHeaders(), builder)));
+      }
+
+      return responseBuilder.build();
     } catch (ProhibitedNetworkAddressException e) {
       return response()
           .status(HTTP_INTERNAL_ERROR)

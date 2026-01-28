@@ -16,13 +16,9 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.StreamSources;
-import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
-
-import static java.util.Base64.getDecoder;
 
 public class EntityResolver {
 
@@ -32,26 +28,23 @@ public class EntityResolver {
     this.stores = stores;
   }
 
-  public Entity resolve(EntityDefinition<?> definition) {
+  public Entity resolve(EntityDefinition definition) {
     if (definition instanceof EmptyEntityDefinition) {
       return Entity.EMPTY;
     }
 
     InputStreamSource bodySource = resolveEntityData(definition);
-    final Entity.Builder builder = Entity.builder()
-            .setEncoding(definition.getEncoding())
+    final Entity.Builder builder =
+        Entity.builder()
             .setCompression(definition.getCompression())
             .setFormat(definition.getFormat())
+            .setCharset(definition.getCharset())
             .setDataStreamSource(bodySource);
-
-    if (definition instanceof TextEntityDefinition textEntityDefinition) {
-      builder.setCharset(textEntityDefinition.getCharset());
-    }
 
     return builder.build();
   }
 
-  private InputStreamSource resolveEntityData(EntityDefinition<?> definition) {
+  private InputStreamSource resolveEntityData(EntityDefinition definition) {
     if (definition.isInline()) {
       return StreamSources.forBytes(definition.getDataAsBytes());
     }
@@ -65,9 +58,7 @@ public class EntityResolver {
     String dataStore = definition.getDataStore();
     String dataRef = definition.getDataRef();
     if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-              .getBlobStore(dataStore)
-              .getStreamSource(dataRef);
+      return stores.getBlobStore(dataStore).getStreamSource(dataRef);
     }
 
     return null;

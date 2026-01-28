@@ -16,26 +16,27 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Encoding;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextFormat;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition copiedResponse = copyOf(response);
 
-    assertTrue(response.equals(copiedResponse));
+    assertEquals(response, copiedResponse);
   }
 
   @Test
@@ -103,10 +104,13 @@ public class ResponseDefinitionTest {
   }
 
   private static final String JSON_BODY =
-      "{	        								\n"
-          + "		\"status\": 200,    				\n"
-          + "		\"jsonBody\": {\"name\":\"wirmock\",\"isCool\":true} \n"
-          + "}											";
+      // language=JSON
+      """
+        {
+              "status": 200,
+              "jsonBody": {"name":"wirmock","isCool":true}
+        }
+        """;
 
   @Test
   public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
@@ -158,11 +162,49 @@ public class ResponseDefinitionTest {
             {
               "status": 200,
               "body": {
-                "encoding": "binary",
-                "data": "AQID"
+                "base64Data": "AQID"
               }
             }
             """));
+  }
+
+  @Test
+  void correctlySerialisesCompressedText() {
+    String plain = "{\"id\":1}";
+    byte[] gzipped = Gzip.gzip(plain);
+    String base64 = Encoding.encodeBase64(gzipped);
+
+    ResponseDefinition responseDef =
+        responseDefinition()
+            .withStatus(200)
+            .withHeader("Content-Encoding", "gzip")
+            .withHeader(CONTENT_LENGTH, String.valueOf(gzipped.length))
+            .withHeader("Content-Type", "application/json")
+            .withBody(gzipped)
+            .build();
+
+    String actualJson = Json.write(responseDef);
+
+    assertThat(
+        actualJson,
+        jsonEquals(
+            // language=JSON
+            """
+                    {
+                       "status": 200,
+                       "headers": {
+                         "Content-Encoding": "gzip",
+                         "Content-Length": "28",
+                         "Content-Type": "application/json"
+                       },
+                       "body": {
+                         "compression": "gzip",
+                         "format": "json",
+                         "base64Data": "%s"
+                       }
+                     }
+                    """
+                .formatted(base64)));
   }
 
   @Test
@@ -240,6 +282,7 @@ public class ResponseDefinitionTest {
     assertThat(responseDefinition2.getTransformers(), contains("transformer-1", "transformer-2"));
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   public void headersCannotBeNull() {
     var builder = new ResponseDefinition.Builder();
@@ -255,6 +298,7 @@ public class ResponseDefinitionTest {
     assertThat(responseDefinition.getHeaders().size(), is(0));
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   public void additionalProxyRequestHeadersCannotBeNull() {
     var builder = new ResponseDefinition.Builder();
@@ -270,6 +314,7 @@ public class ResponseDefinitionTest {
     assertThat(responseDefinition.getAdditionalProxyRequestHeaders().size(), is(0));
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   public void removeProxyRequestHeadersCannotBeNull() {
     var builder = new ResponseDefinition.Builder();
@@ -280,6 +325,7 @@ public class ResponseDefinitionTest {
     assertThat(ALL_NULLS_RESPONSE_DEFINITION.getRemoveProxyRequestHeaders(), empty());
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   public void transformersCannotBeNull() {
     var builder = new ResponseDefinition.Builder();
@@ -291,6 +337,7 @@ public class ResponseDefinitionTest {
     assertThat(ALL_NULLS_RESPONSE_DEFINITION.getTransformers(), empty());
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   public void transformerParametersCannotBeNull() {
     var builder = new ResponseDefinition.Builder();
@@ -367,7 +414,7 @@ public class ResponseDefinitionTest {
 
     EntityDefinition body = responseDefinition.getBody();
     assertThat(body, notNullValue());
-    assertThat(body, instanceOf(TextEntityDefinition.class));
+    assertThat(body, instanceOf(EntityDefinition.class));
     assertThat(body.getData(), is("{ \"message\": \"Hello\" }"));
     assertThat(body.isInline(), is(true));
   }
@@ -392,14 +439,13 @@ public class ResponseDefinitionTest {
 
     EntityDefinition body = responseDefinition.getBody();
     assertThat(body, notNullValue());
-    assertThat(body, instanceOf(TextEntityDefinition.class));
+    assertThat(body, instanceOf(EntityDefinition.class));
 
     assertThat(body.getDataAsString(), is("<my-data/>"));
     assertThat(body.isInline(), is(true));
     assertThat(body.getCompression(), is(CompressionType.NONE));
-    assertThat(body.getEncoding(), is(EncodingType.TEXT));
-    assertThat(body.getFormat(), is(TextFormat.XML));
-    assertThat(((TextEntityDefinition) body).getCharset(), is(StandardCharsets.UTF_16));
+    assertThat(body.getFormat(), is(Format.XML));
+    assertThat(body.getCharset(), is(StandardCharsets.UTF_16));
   }
 
   @Test
@@ -419,7 +465,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    EntityDefinition<?> body = responseDefinition.getBody();
+    EntityDefinition body = responseDefinition.getBody();
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(JsonEntityDefinition.class));
 
@@ -427,8 +473,7 @@ public class ResponseDefinitionTest {
     assertThat(jsonBody.getData(), instanceOf(JsonNode.class));
     assertThat(body.isInline(), is(true));
     assertThat(body.getCompression(), is(CompressionType.NONE));
-    assertThat(body.getEncoding(), is(EncodingType.TEXT));
-    assertThat(body.getFormat(), is(TextFormat.JSON));
+    assertThat(body.getFormat(), is(Format.JSON));
 
     assertThat(jsonBody.getDataAsJson().get("key").textValue(), is("value"));
   }
@@ -450,9 +495,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    assertThat(
-        ((TextEntityDefinition) responseDefinition.getBody()).getCharset(),
-        is(StandardCharsets.UTF_16));
+    assertThat(responseDefinition.getBody().getCharset(), is(StandardCharsets.UTF_16));
   }
 
   @Test

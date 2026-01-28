@@ -21,11 +21,11 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.BROT
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.DEFLATE;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.HTML;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.JSON;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.TEXT;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.XML;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.YAML;
+import static com.github.tomakehurst.wiremock.common.entity.Format.HTML;
+import static com.github.tomakehurst.wiremock.common.entity.Format.JSON;
+import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
+import static com.github.tomakehurst.wiremock.common.entity.Format.XML;
+import static com.github.tomakehurst.wiremock.common.entity.Format.YAML;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.util.Base64;
@@ -45,7 +46,7 @@ public class EntityDefinitionTest {
 
   @Test
   void v3StyleTextEntitySerializesAsString() {
-    EntityDefinition entity = TextEntityDefinition.simple("simple text");
+    EntityDefinition entity = EntityDefinition.simple("simple text");
 
     String json = Json.write(entity);
 
@@ -58,22 +59,22 @@ public class EntityDefinitionTest {
 
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    assertThat(entity, is(TextEntityDefinition.simple("simple text")));
+    assertThat(entity, is(EntityDefinition.simple("simple text")));
   }
 
   @Test
   void v3StyleTextEntityRoundTripSerialization() {
-    EntityDefinition<?> original = TextEntityDefinition.simple("round trip text");
+    EntityDefinition original = EntityDefinition.simple("round trip text");
 
     String json = Json.write(original);
-    EntityDefinition<?> deserialized = Json.read(json, EntityDefinition.class);
+    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
 
     assertEquals(original, deserialized);
   }
 
   @Test
   void normalTextEntitySerializesAsObject() {
-    EntityDefinition<?> entity = textEntity().setData("test data").build();
+    EntityDefinition entity = textEntity().setData("test data").build();
 
     String json = Json.write(entity);
 
@@ -96,27 +97,26 @@ public class EntityDefinitionTest {
                     }
                     """;
 
-    EntityDefinition<?> entity = Json.read(json, EntityDefinition.class);
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    TextEntityDefinition textEntity = (TextEntityDefinition) entity;
-    assertThat(textEntity.getData(), is("test data"));
+    assertThat(entity.getData(), is("test data"));
   }
 
   @Test
   void normalTextEntityRoundTripSerialization() {
-    EntityDefinition<?> original = textEntity().setData("round trip data").build();
+    EntityDefinition original = textEntity().setData("round trip data").build();
 
     String json = Json.write(original);
-    EntityDefinition<?> deserialized = Json.read(json, EntityDefinition.class);
+    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
 
     assertEquals(original, deserialized);
   }
 
   @Test
   void textEntityWithFormatAndCompressionSerializesCorrectly() {
-    EntityDefinition<?> entity =
+    EntityDefinition entity =
         textEntity()
-            .setFormat(TextFormat.XML)
+            .setFormat(Format.XML)
             .setCompression(CompressionType.GZIP)
             .setData("<root>data</root>")
             .build();
@@ -146,17 +146,16 @@ public class EntityDefinitionTest {
                     }
                     """;
 
-    EntityDefinition<?> entity = Json.read(json, EntityDefinition.class);
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    TextEntityDefinition textEntity = (TextEntityDefinition) entity;
-    assertThat(textEntity.getFormat(), is(TextFormat.YAML));
-    assertThat(textEntity.getCompression(), is(BROTLI));
-    assertThat(textEntity.getData(), is("key: value"));
+    assertThat(entity.getFormat(), is(Format.YAML));
+    assertThat(entity.getCompression(), is(BROTLI));
+    assertThat(entity.getData(), is("key: value"));
   }
 
   @Test
   void textEntityWithFormatAndCompressionRoundTripSerialization() {
-    EntityDefinition<?> original =
+    EntityDefinition original =
         textEntity()
             .setFormat(JSON)
             .setCompression(CompressionType.DEFLATE)
@@ -164,7 +163,7 @@ public class EntityDefinitionTest {
             .build();
 
     String json = Json.write(original);
-    EntityDefinition<?> deserialized = Json.read(json, EntityDefinition.class);
+    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
 
     assertEquals(original, deserialized);
   }
@@ -172,15 +171,14 @@ public class EntityDefinitionTest {
   @Test
   void binaryEntitySerializesAsObject() {
     byte[] data = {1, 2, 3, 4, 5};
-    EntityDefinition<?> entity = binaryEntity().setData(data).build();
+    EntityDefinition entity = binaryEntity().setData(data).build();
 
     String json = Json.write(entity);
 
     String expectedJson =
         """
                     {
-                      "encoding" : "binary",
-                      "data" : "%s"
+                      "base64Data" : "%s"
                     }
                     """
             .formatted(Base64.getEncoder().encodeToString(data));
@@ -194,26 +192,25 @@ public class EntityDefinitionTest {
     String json =
         """
                     {
-                      "encoding" : "binary",
-                      "data" : "%s"
+                      "format" : "binary",
+                      "base64Data" : "%s"
                     }
                     """
             .formatted(Base64.getEncoder().encodeToString(data));
 
-    EntityDefinition<?> entity = Json.read(json, EntityDefinition.class);
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    BinaryEntityDefinition binaryEntity = (BinaryEntityDefinition) entity;
-    assertThat(binaryEntity.getEncoding(), is(EncodingType.BINARY));
-    assertThat(binaryEntity.getDataAsBytes(), is(data));
+    assertThat(entity.getFormat(), is(Format.BINARY));
+    assertThat(entity.getDataAsBytes(), is(data));
   }
 
   @Test
   void binaryEntityRoundTripSerialization() {
     byte[] data = {1, 2, 3, 4, 5, 6, 7, 8};
-    EntityDefinition<?> original = binaryEntity().setData(data).build();
+    EntityDefinition original = binaryEntity().setData(data).build();
 
     String json = Json.write(original);
-    EntityDefinition<?> deserialized = Json.read(json, EntityDefinition.class);
+    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
 
     assertEquals(original, deserialized);
   }
@@ -221,7 +218,7 @@ public class EntityDefinitionTest {
   @Test
   void binaryEntityWithCompressionSerializesCorrectly() {
     byte[] data = {100, 101, 102, 103};
-    EntityDefinition<?> entity =
+    EntityDefinition entity =
         binaryEntity().setCompression(CompressionType.GZIP).setData(data).build();
 
     String json = Json.write(entity);
@@ -229,9 +226,8 @@ public class EntityDefinitionTest {
     String expectedJson =
         """
                     {
-                      "encoding" : "binary",
                       "compression" : "gzip",
-                      "data" : "%s"
+                      "base64Data" : "%s"
                     }
                     """
             .formatted(Base64.getEncoder().encodeToString(data));
@@ -240,33 +236,75 @@ public class EntityDefinitionTest {
   }
 
   @Test
+  void compressedEntitySerialisesAsBase64() {
+    String plain = "to be compressed";
+    byte[] gzipped = Gzip.gzip(plain);
+    String base64 = Encoding.encodeBase64(gzipped);
+
+    EntityDefinition entity = textEntity().setCompression(GZIP).setData(gzipped).build();
+
+    String expectedJson =
+        // language=json
+        """
+            {
+              "compression": "gzip",
+              "base64Data": "%s"
+            }
+            """
+            .formatted(base64);
+
+    assertThat(Json.write(entity), jsonEquals(expectedJson));
+  }
+
+  @Test
+  void base64EncodedCompressedDeserialisesCorrectly() {
+    String plain = "to be compressed";
+    byte[] gzipped = Gzip.gzip(plain);
+    String base64 = Encoding.encodeBase64(gzipped);
+
+    String json =
+        // language=json
+        """
+            {
+              "compression": "gzip",
+              "base64Data": "%s"
+            }
+            """
+            .formatted(base64);
+
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
+
+    assertThat(entity.getCompression(), is(GZIP));
+    assertThat(entity.getDataAsBytes(), is(gzipped));
+  }
+
+  @Test
   void binaryEntityWithCompressionDeserializesCorrectly() {
     byte[] data = {50, 60, 70};
     String json =
         """
                     {
-                      "encoding" : "binary",
+                      "format" : "binary",
                       "compression" : "deflate",
-                      "data" : "%s"
+                      "base64Data" : "%s"
                     }
                     """
             .formatted(Base64.getEncoder().encodeToString(data));
 
-    EntityDefinition<?> entity = Json.read(json, EntityDefinition.class);
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    BinaryEntityDefinition binaryEntity = (BinaryEntityDefinition) entity;
-    assertThat(binaryEntity.getEncoding(), is(EncodingType.BINARY));
-    assertThat(binaryEntity.getCompression(), is(CompressionType.DEFLATE));
-    assertThat(binaryEntity.getDataAsBytes(), is(data));
+    assertThat(entity.getFormat(), is(Format.BINARY));
+    assertThat(entity.getCompression(), is(CompressionType.DEFLATE));
+    assertThat(entity.getDataAsBytes(), is(data));
   }
 
   @Test
   void binaryEntityWithCompressionRoundTripSerialization() {
     byte[] data = {11, 22, 33, 44, 55};
-    EntityDefinition<?> original = binaryEntity().setCompression(BROTLI).setData(data).build();
+    EntityDefinition original = binaryEntity().setCompression(BROTLI).setData(data).build();
 
     String json = Json.write(original);
-    EntityDefinition<?> deserialized = Json.read(json, EntityDefinition.class);
+    EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
 
     assertEquals(original, deserialized);
   }
@@ -293,9 +331,9 @@ public class EntityDefinitionTest {
     byte[] plain = {11, 22, 33, 44, 55};
     byte[] compressed = Gzip.gzip(plain);
 
-    EntityDefinition<?> original = binaryEntity().setCompression(GZIP).setData(compressed).build();
+    EntityDefinition original = binaryEntity().setCompression(GZIP).setData(compressed).build();
 
-    EntityDefinition<?> decompressed = original.decompress();
+    EntityDefinition decompressed = original.decompress();
 
     assertThat(decompressed.getDataAsBytes(), is(plain));
     assertThat(decompressed.getCompression(), is(NONE));
@@ -306,12 +344,13 @@ public class EntityDefinitionTest {
     String plain = "compress me";
     byte[] compressed = Gzip.gzip(plain);
 
-    EntityDefinition<?> original = textEntity().setCompression(GZIP).setData(compressed).build();
+    EntityDefinition original =
+        textEntity().setCompression(GZIP).setFormat(TEXT).setData(compressed).build();
 
-    EntityDefinition<?> decompressed = original.decompress();
+    EntityDefinition decompressed = original.decompress();
 
-    assertThat(decompressed.getDataAsString(), is(plain));
     assertThat(decompressed.getCompression(), is(NONE));
+    assertThat(decompressed.getDataAsString(), is(plain));
   }
 
   @Test
@@ -395,28 +434,28 @@ public class EntityDefinitionTest {
             }
             """;
 
-    EntityDefinition<?> entity = Json.read(json, EntityDefinition.class);
+    EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
     assertThat(entity.getFormat(), is(JSON));
   }
 
   @Test
   void serialisesSimpleStringEntityDefinitionAsString() {
-    EntityDefinition<?> entityDefinition = TextEntityDefinition.simple("simple text");
+    EntityDefinition entityDefinition = EntityDefinition.simple("simple text");
     String json = Json.write(entityDefinition);
     assertThat(json, is("\"simple text\""));
   }
 
   @Test
   void deserialisesStringToSimpleStringEntityDefinition() {
-    EntityDefinition<?> entityDefinition = Json.read("\"simple text\"", EntityDefinition.class);
+    EntityDefinition entityDefinition = Json.read("\"simple text\"", EntityDefinition.class);
 
     assertThat(entityDefinition, instanceOf(SimpleStringEntityDefinition.class));
   }
 
   @Test
   void acceptsJsonObjectAsData() {
-    EntityDefinition<?> entityDefinition =
+    EntityDefinition entityDefinition =
         Json.read(
             // language=json
             """
@@ -446,7 +485,7 @@ public class EntityDefinitionTest {
 
   @Test
   void serialisesJsonDataObject() {
-    EntityDefinition<?> jsonEntityDef = JsonEntityDefinition.json(Map.of("key", "value"));
+    EntityDefinition jsonEntityDef = JsonEntityDefinition.json(Map.of("key", "value"));
     String json = Json.write(jsonEntityDef);
     assertThat(
         json,
@@ -466,26 +505,40 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothDataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, null, null, DataFormat.plain, "data", "path"));
+        () -> new EntityDefinition(null, null, null, null, null, "data", null, "path"));
+  }
+
+  @Test
+  void rejectsEntityWithBothBase64DataAndFilePath() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new EntityDefinition(null, null, null, null, null, null, "AQID", "path"));
   }
 
   @Test
   void rejectsEntityWithBothDataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, "store", "key", DataFormat.plain, "data", null));
+        () -> new EntityDefinition(null, null, null, "store", "key", "data", null, null));
+  }
+
+  @Test
+  void rejectsEntityWithBothBase64DataAndStoreRef() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new EntityDefinition(null, null, null, "store", "key", null, "AQID", null));
   }
 
   @Test
   void rejectsEntityWithBothFilePathAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new TextEntityDefinition(null, null, null, "store", "key", null, null, "path"));
+        () -> new EntityDefinition(null, null, null, "store", "key", null, "path"));
   }
 
   @Test
   void builderClearsFilePathAndStoreRefWhenSettingData() {
-    EntityDefinition<?> entity =
+    EntityDefinition entity =
         textEntity().setFilePath("path").setDataStoreRef("store", "key").setData("data").build();
 
     assertThat(entity.getData(), is("data"));
@@ -496,7 +549,7 @@ public class EntityDefinitionTest {
 
   @Test
   void builderClearsDataAndStoreRefWhenSettingFilePath() {
-    EntityDefinition<?> entity =
+    EntityDefinition entity =
         textEntity().setData("data").setDataStoreRef("store", "key").setFilePath("path").build();
 
     assertThat(entity.getFilePath(), is("path"));
@@ -507,7 +560,7 @@ public class EntityDefinitionTest {
 
   @Test
   void builderClearsDataAndFilePathWhenSettingStoreRef() {
-    EntityDefinition<?> entity =
+    EntityDefinition entity =
         textEntity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
 
     assertThat(entity.getDataStore(), is("store"));

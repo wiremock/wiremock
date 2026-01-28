@@ -22,18 +22,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 
-public class JsonEntityDefinition extends TextEntityDefinition {
+public class JsonEntityDefinition extends EntityDefinition {
 
   private final JsonNode data;
 
   public JsonEntityDefinition(Object data) {
-    super(TextFormat.JSON, UTF_8, NONE, null, null, null, null, null);
+    super(NONE, Format.JSON, UTF_8, null, null, null, null);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
-  }
-
-  @Override
-  public DataFormat getDataFormat() {
-    return DataFormat.json;
   }
 
   @Override

@@ -15,25 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import java.nio.charset.Charset;
 
-public class SimpleStringEntityDefinition extends EntityDefinition {
+public interface EntityMetadataBuilder<SELF> {
 
-  @JsonValue
-  public String getText() {
-    return getDataAsString();
-  }
+  SELF setCompression(CompressionType compression);
 
-  @JsonCreator
-  public SimpleStringEntityDefinition(String text) {
-    this(text, DEFAULT_CHARSET);
-  }
+  SELF setFormat(Format compression);
 
-  SimpleStringEntityDefinition(String text, Charset charset) {
-    super(Format.TEXT, charset, NONE, null, null, text, null, null);
-  }
+  SELF setCharset(Charset charset);
 }

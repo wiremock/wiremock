@@ -17,21 +17,26 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
@@ -39,22 +44,119 @@ import org.jspecify.annotations.NonNull;
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(TextEntityDefinition.class),
       @JsonSubTypes.Type(SimpleStringEntityDefinition.class),
-      @JsonSubTypes.Type(JsonEntityDefinition.class),
-      @JsonSubTypes.Type(BinaryEntityDefinition.class)
+      @JsonSubTypes.Type(JsonEntityDefinition.class)
     })
-public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
+public class EntityDefinition {
 
   public static final Charset DEFAULT_CHARSET = UTF_8;
   public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
+  public static final Format DEFAULT_FORMAT = Format.TEXT;
 
   @NonNull protected final CompressionType compression;
-  protected final TextFormat textFormat;
+  private final Format format;
+  protected final Charset charset;
+  private final String dataStore;
+  private final String dataRef;
+  private final byte[] data;
+  private final String filePath;
 
-  protected EntityDefinition(@NonNull CompressionType compression, TextFormat textFormat) {
+  public EntityDefinition(
+      @JsonProperty("format") Format format,
+      @JsonProperty("charset") Charset charset,
+      @JsonProperty("compression") CompressionType compression,
+      @JsonProperty("dataStore") String dataStore,
+      @JsonProperty("dataRef") String dataRef,
+      @JsonProperty("data") String data,
+      @JsonProperty("base64Data") String base64Data,
+      @JsonProperty("filePath") String filePath) {
+
+    this(
+        compression,
+        resolveFormat(format, data, base64Data),
+        getFirstNonNull(charset, DEFAULT_CHARSET),
+        dataStore,
+        dataRef,
+        resolveData(data, base64Data, charset),
+        filePath);
+  }
+
+  EntityDefinition(
+      CompressionType compression,
+      Format format,
+      Charset charset,
+      String dataStore,
+      String dataRef,
+      byte[] data,
+      String filePath) {
     this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
-      this.textFormat = textFormat;
+    this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
+    if (format == null && data != null) {
+      this.format = Format.detectFormat(stringFromBytes(data, this.charset));
+    } else {
+      this.format = getFirstNonNull(format, DEFAULT_FORMAT);
+    }
+    this.dataStore = dataStore;
+    this.dataRef = dataRef;
+    this.data = data;
+    this.filePath = filePath;
+
+    assertValidParameterCombination(this.data, this.filePath, this.dataStore, this.dataRef);
+  }
+
+  private static Format resolveFormat(Format format, String data, String base64Data) {
+    if (format != null) {
+      return format;
+    }
+
+    if (base64Data != null) {
+      return Format.BINARY;
+    }
+
+    if (data != null) {
+      return Format.detectFormat(data);
+    }
+
+    return DEFAULT_FORMAT;
+  }
+
+  private static byte[] resolveData(String data, String base64Data, Charset charset) {
+    if (data != null) {
+      return bytesFromString(data, getFirstNonNull(charset, DEFAULT_CHARSET));
+    }
+
+    if (base64Data != null) {
+      return Encoding.decodeBase64(base64Data);
+    }
+
+    return null;
+  }
+
+  public static EntityDefinition full(String text) {
+    return builder().setFormat(Format.TEXT).setData(text).build();
+  }
+
+  public static SimpleStringEntityDefinition simple(String text) {
+    return new SimpleStringEntityDefinition(text);
+  }
+
+  public static JsonEntityDefinition json(Object data) {
+    return new JsonEntityDefinition(data);
+  }
+
+  public static EntityDefinition fromBase64(String base64) {
+    return builder().setFormat(Format.BINARY).setBodyBase64(base64).build();
+  }
+
+  private static CompressionType tryToGuessCompressionType(Object data) {
+    if (data instanceof byte[] bytes) {
+      return Gzip.isGzipped(bytes) ? GZIP : NONE;
+    }
+    if (data instanceof String s) {
+      byte[] bytes = Encoding.decodeBase64(s);
+      return Gzip.isGzipped(bytes) ? GZIP : NONE;
+    }
+    return null;
   }
 
   protected static void assertValidParameterCombination(
@@ -77,23 +179,50 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
     return this instanceof EmptyEntityDefinition;
   }
 
-  @NonNull public CompressionType getCompression() {
+  @NonNull
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
+  public CompressionType getCompression() {
     return compression;
   }
 
-  public TextFormat getFormat() {
-    return textFormat;
+  @JsonProperty("format")
+  public Format getFormatForSerialization() {
+    if (format == BINARY || format == DEFAULT_FORMAT) {
+      return null;
+    }
+
+    return format;
   }
 
-  @NonNull public abstract EncodingType getEncoding();
+  @JsonIgnore
+  public Format getFormat() {
+    return format;
+  }
 
+  @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCharsetFilter.class)
+  public Charset getCharset() {
+    return charset;
+  }
 
-  public abstract DataFormat getDataFormat();
-  public abstract Object getData();
+  public Object getData() {
+    if (!isBinary() && !isCompressed()) {
+      return stringFromBytes(data, charset);
+    }
+
+    return null;
+  }
+
+  public String getBase64Data() {
+    if (isBinary() || isCompressed()) {
+      return Encoding.encodeBase64(data);
+    }
+
+    return null;
+  }
 
   @JsonIgnore
   public boolean isInline() {
-    return getData() != null;
+    return getDataAsBytes() != null;
   }
 
   @JsonIgnore
@@ -102,10 +231,28 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
   }
 
   @JsonIgnore
-  public abstract String getDataAsString();
+  public boolean isBinary() {
+    return format == Format.BINARY;
+  }
 
   @JsonIgnore
-  public abstract byte[] getDataAsBytes();
+  public boolean isCompressed() {
+    return compression != NONE;
+  }
+
+  @JsonIgnore
+  public String getDataAsString() {
+    if (format != Format.BINARY) {
+      return stringFromBytes(data, charset);
+    } else {
+      return getBase64Data();
+    }
+  }
+
+  @JsonIgnore
+  public byte[] getDataAsBytes() {
+    return data;
+  }
 
   @JsonIgnore
   public boolean isDecompressable() {
@@ -114,30 +261,62 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
   }
 
   public String getFilePath() {
+    if (filePath != null) {
+      return filePath;
+    }
     if (FILES_ROOT.equals(getDataStore()) && getDataRef() != null) {
       return getDataRef();
     }
-
     return null;
   }
 
-  public abstract String getDataStore();
+  public String getDataStore() {
+    return dataStore;
+  }
 
-  public abstract String getDataRef();
+  public String getDataRef() {
+    return dataRef;
+  }
 
-  public EntityDefinition<?> transform(Consumer<Builder> transformer) {
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    EntityDefinition that = (EntityDefinition) o;
+    return Objects.equals(compression, that.compression)
+        && Objects.equals(format, that.format)
+        && Objects.equals(charset, that.charset)
+        && Objects.equals(dataStore, that.dataStore)
+        && Objects.equals(dataRef, that.dataRef)
+        && Objects.deepEquals(data, that.data)
+        && Objects.equals(filePath, that.filePath);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        compression, format, charset, dataStore, dataRef, Arrays.hashCode(data), filePath);
+  }
+
+  @Override
+  public String toString() {
+    return Json.write(this);
+  }
+
+  public EntityDefinition transform(Consumer<Builder> transformer) {
     final Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
   }
 
-  @SuppressWarnings("unchecked")
-  public SELF decompress() {
+  public EntityDefinition decompress() {
     final CompressionType compression = getCompression();
     if (compression == GZIP) {
-      return (SELF)
-          transform(builder -> builder
+      final Format format = getFormat();
+      return transform(
+          builder ->
+              builder
                   .setData(Gzip.unGzip(getDataAsBytes()))
+                  .setFormat(format)
                   .setCompression(NONE));
     }
 
@@ -145,7 +324,7 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       throw new IllegalStateException("Cannot decompress body with compression " + compression);
     }
 
-    return (SELF) this;
+    return this;
   }
 
   public Builder toBuilder() {
@@ -156,12 +335,11 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
     return new Builder();
   }
 
-  public static class Builder {
+  public static class Builder implements EntityMetadataBuilder<Builder> {
 
-    private EncodingType encoding = EncodingType.TEXT;
     private CompressionType compression = NONE;
 
-    protected TextFormat format;
+    protected Format format;
     protected Charset charset = DEFAULT_CHARSET;
 
     private byte[] data;
@@ -175,14 +353,10 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
 
     public Builder() {}
 
-    public Builder(EntityDefinition<?> entity) {
-      this.encoding = entity.getEncoding();
+    public Builder(EntityDefinition entity) {
       this.compression = entity.getCompression();
-
-      if (entity instanceof TextEntityDefinition textEntity) {
-        this.format = textEntity.getFormat();
-        this.charset = textEntity.getCharset();
-      }
+      this.format = entity.getFormat();
+      this.charset = entity.getCharset();
 
       if (entity instanceof JsonEntityDefinition jsonEntity) {
         this.jsonData = jsonEntity.getDataAsJson();
@@ -198,15 +372,6 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       }
     }
 
-    public EncodingType getEncoding() {
-      return encoding;
-    }
-
-    public Builder setEncoding(EncodingType encoding) {
-      this.encoding = encoding;
-      return this;
-    }
-
     public CompressionType getCompression() {
       return compression;
     }
@@ -216,11 +381,11 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       return this;
     }
 
-    public TextFormat getFormat() {
+    public Format getFormat() {
       return format;
     }
 
-    public Builder setFormat(TextFormat format) {
+    public Builder setFormat(Format format) {
       this.format = format;
       return this;
     }
@@ -238,18 +403,16 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       return data;
     }
 
-    public Builder setData(Object data) {
+    public Builder setData(String data) {
       resetDataAndRefs();
-      this.data =
-          data instanceof String s
-              ? Strings.bytesFromString(s, charset)
-              : data instanceof byte[] b ? b : null;
+      this.data = bytesFromString(data, getFirstNonNull(charset, DEFAULT_CHARSET));
       return this;
     }
 
     public Builder setBodyBase64(String base64Data) {
       resetDataAndRefs();
       this.data = Encoding.decodeBase64(base64Data);
+      this.format = BINARY;
       return this;
     }
 
@@ -262,6 +425,9 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
     public Builder setData(byte[] data) {
       resetDataAndRefs();
       this.data = data;
+      if (this.format == null) {
+        this.format = BINARY;
+      }
       return this;
     }
 
@@ -298,21 +464,48 @@ public abstract class EntityDefinition<SELF extends EntityDefinition<SELF>> {
       this.filePath = null;
     }
 
-    public EntityDefinition<?> build() {
+    public EntityDefinition build() {
       if (jsonData != null) {
         return new JsonEntityDefinition(jsonData);
       }
 
-      if (encoding == EncodingType.TEXT) {
-        var dataFormat = compression == NONE ? DataFormat.plain : DataFormat.base64;
-        var formattedData = dataFormat == DataFormat.base64 ? Encoding.encodeBase64(data) : data;
-        return v3Style
-            ? new SimpleStringEntityDefinition(Strings.stringFromBytes(data, charset))
-            : new TextEntityDefinition(
-                format, charset, compression, dataStore, dataRef, dataFormat, formattedData, filePath);
-      } else {
-        return new BinaryEntityDefinition(null, format, compression, dataStore, dataRef, data, filePath);
+      if (v3Style) {
+        return new SimpleStringEntityDefinition(stringFromBytes(data, charset));
       }
+
+      return new EntityDefinition(compression, format, charset, dataStore, dataRef, data, filePath);
+    }
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class DefaultFormatFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_FORMAT.equals(obj);
+    }
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class FormatSerializationFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return obj == null || DEFAULT_FORMAT.equals(obj);
+    }
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class DefaultCharsetFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_CHARSET.equals(obj);
+    }
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class DefaultCompressionFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return DEFAULT_COMPRESSION.equals(obj);
     }
   }
 }

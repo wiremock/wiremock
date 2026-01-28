@@ -19,8 +19,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
-import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -39,21 +37,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextFormat;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
@@ -63,7 +57,7 @@ public class ResponseDefinition {
   private final int status;
   private final String statusMessage;
 
-  private final EntityDefinition<?> body;
+  private final EntityDefinition body;
   private final boolean v3Style;
 
   @NonNull private final HttpHeaders headers;
@@ -89,7 +83,7 @@ public class ResponseDefinition {
   public ResponseDefinition(
       @JsonProperty("status") int status,
       @JsonProperty("statusMessage") String statusMessage,
-      @JsonProperty("body") EntityDefinition<?> body,
+      @JsonProperty("body") EntityDefinition body,
       @JsonProperty("jsonBody") JsonNode jsonBody,
       @JsonProperty("base64Body") String base64Body,
       @JsonProperty("bodyFileName") String bodyFileName,
@@ -125,22 +119,22 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
-  private static EntityDefinition<?> resolveBody(
-      EntityDefinition<?> body, JsonNode jsonBody, String base64Body, String bodyFileName) {
-    EntityDefinition<?> entityDefinition = body;
+  private static EntityDefinition resolveBody(
+      EntityDefinition body, JsonNode jsonBody, String base64Body, String bodyFileName) {
+    EntityDefinition entityDefinition = body;
     if (jsonBody != null) {
-      entityDefinition = TextEntityDefinition.json(jsonBody);
+      entityDefinition = EntityDefinition.json(jsonBody);
     } else if (base64Body != null) {
-      entityDefinition = BinaryEntityDefinition.fromBase64(base64Body);
+      entityDefinition = EntityDefinition.fromBase64(base64Body);
     } else if (bodyFileName != null) {
-      entityDefinition = BinaryEntityDefinition.builder().setFilePath(bodyFileName).build();
+      entityDefinition = EntityDefinition.builder().setFilePath(bodyFileName).build();
     }
 
     return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
   }
 
   private static boolean isV3Style(
-      EntityDefinition<?> body, String base64Body, String bodyFileName, JsonNode jsonBody) {
+      EntityDefinition body, String base64Body, String bodyFileName, JsonNode jsonBody) {
     return body instanceof SimpleStringEntityDefinition
         || base64Body != null
         || bodyFileName != null
@@ -150,7 +144,7 @@ public class ResponseDefinition {
   ResponseDefinition(
       int status,
       String statusMessage,
-      EntityDefinition<?> body,
+      EntityDefinition body,
       boolean v3Style,
       HttpHeaders headers,
       HttpHeaders additionalProxyRequestHeaders,
@@ -190,31 +184,13 @@ public class ResponseDefinition {
     this.wasConfigured = wasConfigured == null || wasConfigured;
   }
 
-  private static EntityDefinition<?> resolveBodyAttributes(
-      HttpHeaders headers, EntityDefinition<?> entityDefinition) {
+  private static EntityDefinition resolveBodyAttributes(
+      HttpHeaders headers, EntityDefinition entityDefinition) {
     if (entityDefinition.isAbsent()) {
       return entityDefinition;
     }
 
-    final ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
-    final String mimeType = contentTypeHeader.mimeTypePart();
-    final Optional<Charset> charset = contentTypeHeader.charset();
-
-    final HttpHeader contentEncoding = headers.getHeader("Content-Encoding");
-
-    return entityDefinition.transform(
-        builder -> {
-          if (mimeType != null && determineIsTextFromMimeType(mimeType)) {
-            builder.setEncoding(TEXT);
-            builder.setFormat(TextFormat.fromMimeType(mimeType));
-          }
-
-          charset.ifPresent(builder::setCharset);
-
-          if (contentEncoding.isPresent()) {
-            builder.setCompression(CompressionType.fromString(contentEncoding.firstValue()));
-          }
-        });
+    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public static ResponseDefinition notFound() {
@@ -352,7 +328,7 @@ public class ResponseDefinition {
   }
 
   @JsonInclude(value = CUSTOM, valueFilter = DefaultEntityDefinitionFilter.class)
-  public EntityDefinition<?> getBody() {
+  public EntityDefinition getBody() {
     if (v3Style && !(body instanceof SimpleStringEntityDefinition)) {
       return null;
     }
@@ -362,7 +338,7 @@ public class ResponseDefinition {
 
   // Always returns the body entity, even if this is v3 stylex
   @JsonIgnore
-  public EntityDefinition<?> getBodyEntity() {
+  public EntityDefinition getBodyEntity() {
     return body;
   }
 
@@ -376,8 +352,8 @@ public class ResponseDefinition {
 
   @JsonIgnore
   public String getTextBody() {
-    if (body instanceof TextEntityDefinition textEntity) {
-      return textEntity.getDataAsString();
+    if (body.getFormat() != Format.BINARY) {
+      return body.getDataAsString();
     }
 
     return null;
@@ -389,8 +365,8 @@ public class ResponseDefinition {
   }
 
   public String getBase64Body() {
-    if (v3Style && body instanceof BinaryEntityDefinition binaryEntity) {
-      return binaryEntity.getDataAsString();
+    if (v3Style && body.getFormat() == Format.BINARY) {
+      return body.getDataAsString();
     }
 
     return null;
@@ -442,12 +418,12 @@ public class ResponseDefinition {
 
   @JsonIgnore
   public boolean specifiesTextBodyContent() {
-    return body instanceof TextEntityDefinition;
+    return body.getFormat() != Format.BINARY;
   }
 
   @JsonIgnore
   public boolean specifiesBinaryBodyContent() {
-    return body instanceof BinaryEntityDefinition;
+    return body.getFormat() == Format.BINARY;
   }
 
   @JsonIgnore
@@ -533,7 +509,7 @@ public class ResponseDefinition {
   public static class Builder {
     private int status = 200;
     private String statusMessage;
-    private EntityDefinition<?> body = EmptyEntityDefinition.INSTANCE;
+    private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
     private String bodyFileName;
     private boolean v3Style;
     @NonNull private HttpHeaders headers = new HttpHeaders();
@@ -581,7 +557,7 @@ public class ResponseDefinition {
       return statusMessage;
     }
 
-    public EntityDefinition<?> getBody() {
+    public EntityDefinition getBody() {
       return body;
     }
 
@@ -666,10 +642,10 @@ public class ResponseDefinition {
 
     public Builder setBody(String body) {
       if (isV3Style()) {
-        return setBody(TextEntityDefinition.simple(body));
+        return setBody(EntityDefinition.simple(body));
       }
 
-      this.body = this.body.transform(builder -> builder.setEncoding(TEXT).setData(body));
+      this.body = this.body.transform(builder -> builder.setData(body));
       return this;
     }
 
@@ -678,20 +654,16 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setBody(EntityDefinition<?> body) {
+    public Builder setBody(EntityDefinition body) {
       this.body = body;
       return this;
     }
 
     public Builder setBodyFileName(String bodyFileName) {
       if (body instanceof EmptyEntityDefinition) {
-        this.body = new BinaryEntityDefinition.Builder().setFilePath(bodyFileName).build();
-      } else if (body instanceof TextEntityDefinition textEntity) {
-        this.body = textEntity.transform(b -> b.setFilePath(bodyFileName));
-      } else if (body instanceof BinaryEntityDefinition binaryEntity) {
-        this.body =
-            binaryEntity.<BinaryEntityDefinition.Builder>transform(
-                b -> b.setFilePath(bodyFileName));
+        this.body = new EntityDefinition.Builder().setFilePath(bodyFileName).build();
+      } else {
+        this.body = body.transform(b -> b.setFilePath(bodyFileName));
       }
 
       return this;

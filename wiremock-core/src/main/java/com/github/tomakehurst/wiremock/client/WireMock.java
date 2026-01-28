@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.common.entity.EncodingType.BINARY;
-import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.isOneOf;
@@ -448,19 +447,19 @@ public class WireMock {
   }
 
   public static EntityDefinition.Builder textEntity(String text) {
-    return EntityDefinition.builder().setEncoding(TEXT).setData(text);
+    return EntityDefinition.builder().setData(text);
   }
 
   public static EntityDefinition.Builder textEntity() {
-    return EntityDefinition.builder().setEncoding(TEXT);
+    return EntityDefinition.builder();
   }
 
   public static EntityDefinition.Builder binaryEntity(byte[] data) {
-    return EntityDefinition.builder().setEncoding(BINARY).setData(data);
+    return EntityDefinition.builder().setFormat(BINARY).setData(data);
   }
 
   public static EntityDefinition.Builder binaryEntity() {
-    return EntityDefinition.builder().setEncoding(BINARY);
+    return EntityDefinition.builder().setFormat(BINARY);
   }
 
   public static JsonEntityDefinition jsonEntity(Object data) {

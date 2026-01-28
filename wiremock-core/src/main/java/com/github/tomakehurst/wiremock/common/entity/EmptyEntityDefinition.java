@@ -15,41 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.nio.charset.Charset;
 
 @JsonSerialize(as = EmptyEntityDefinition.class)
 @JsonDeserialize(as = EmptyEntityDefinition.class)
-public class EmptyEntityDefinition extends EntityDefinition<EmptyEntityDefinition> {
+public class EmptyEntityDefinition extends EntityDefinition {
 
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
   protected EmptyEntityDefinition() {
-    super(CompressionType.NONE, null);
+    super(NONE, null, null, null, null, null, null);
   }
 
   @Override
-  public EncodingType getEncoding() {
-    return EncodingType.BINARY;
-  }
-
-  @Override
-  public DataFormat getDataFormat() {
-    return DataFormat.plain;
-  }
-
-  @Override
-  public TextFormat getFormat() {
+  public Format getFormat() {
     return null;
   }
 
+  @Override
   public Charset getCharset() {
     return null;
   }
 
   @Override
-  public String getData() {
+  public Object getData() {
     return null;
   }
 

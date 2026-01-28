@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
-import static com.github.tomakehurst.wiremock.common.entity.EncodingType.TEXT;
-import static com.github.tomakehurst.wiremock.common.entity.TextFormat.JSON;
 
 import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -26,7 +24,7 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -79,7 +77,7 @@ public class ResponseTemplateTransformer
       final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
 
-      EntityDefinition<?> bodyDefinition = responseDefinition.getBodyEntity();
+      EntityDefinition bodyDefinition = responseDefinition.getBodyEntity();
       HttpTemplateCacheKey templateCacheKey;
       if (bodyDefinition.isFromFile()) {
         HandlebarsOptimizedTemplate filePathTemplate =
@@ -104,7 +102,7 @@ public class ResponseTemplateTransformer
 
         bodyDefinition = applyTemplateToBodyEntity(model, bodyTemplate);
       }
-      newResponseDefBuilder.withBody(bodyDefinition);
+      newResponseDefBuilder.withEntityBody(bodyDefinition);
 
       List<HttpHeader> newResponseHeaders =
           responseDefinition.getHeaders().all().stream()
@@ -194,11 +192,10 @@ public class ResponseTemplateTransformer
     return Collections.emptyMap();
   }
 
-  private TextEntityDefinition applyTemplateToBodyEntity(
+  private EntityDefinition applyTemplateToBodyEntity(
       Map<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
-    return (TextEntityDefinition)
-        EntityDefinition.builder().setEncoding(TEXT).setFormat(JSON).setData(bodyString).build();
+    return EntityDefinition.builder().setFormat(Format.JSON).setData(bodyString).build();
   }
 
   private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {

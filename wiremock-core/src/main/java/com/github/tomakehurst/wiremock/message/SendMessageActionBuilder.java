@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.textEntity;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -28,7 +27,7 @@ import java.util.List;
 
 public class SendMessageActionBuilder {
 
-  private final TextEntityDefinition.Builder textEntityBuilder = textEntity();
+  private final EntityDefinition.Builder textEntityBuilder = textEntity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
 
@@ -69,7 +68,7 @@ public class SendMessageActionBuilder {
     return this;
   }
 
-  private EntityDefinition<?> resolveBody() {
+  private EntityDefinition resolveBody() {
     return textEntityBuilder.build();
   }
 
@@ -125,7 +124,7 @@ public class SendMessageActionBuilder {
       this.transformerParameters = transformerParameters;
     }
 
-    public SendMessageAction withMessage(EntityDefinition<?> body) {
+    public SendMessageAction withMessage(EntityDefinition body) {
       return new SendMessageAction(
           new MessageDefinition(body), channelTarget, transformers, transformerParameters);
     }

@@ -21,9 +21,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.TextFormat;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -61,7 +60,7 @@ public class Message {
 
   @JsonIgnore
   public boolean isBinary() {
-    return body != null && EncodingType.BINARY.equals(body.getEncoding());
+    return body != null && Format.BINARY.equals(body.getFormat());
   }
 
   @Override
@@ -119,11 +118,7 @@ public class Message {
         return this;
       }
 
-      this.body =
-          Entity.builder()
-              .setEncoding(EncodingType.BINARY)
-              .setData(data)
-              .build();
+      this.body = Entity.builder().setFormat(Format.BINARY).setData(data).build();
 
       return this;
     }

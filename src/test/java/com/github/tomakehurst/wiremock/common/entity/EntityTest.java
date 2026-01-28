@@ -51,12 +51,7 @@ class EntityTest {
   @Test
   void throwsExceptionWhenAttemptingToDecompressBrotli() {
     Entity entity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(BROTLI)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(BROTLI).setData(TEST_DATA).build();
 
     IllegalStateException exception =
         assertThrows(
@@ -69,12 +64,7 @@ class EntityTest {
   @Test
   void throwsExceptionWhenAttemptingToDecompressDeflate() {
     Entity entity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(DEFLATE)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(DEFLATE).setData(TEST_DATA).build();
 
     IllegalStateException exception =
         assertThrows(
@@ -87,12 +77,7 @@ class EntityTest {
   @Test
   void isCompressedReturnsTrueForGzipCompression() {
     Entity gzippedEntity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(GZIP)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(GZIP).setData(TEST_DATA).build();
 
     assertThat(gzippedEntity.isCompressed(), is(true));
   }
@@ -100,12 +85,7 @@ class EntityTest {
   @Test
   void isCompressedReturnsTrueForBrotliCompression() {
     Entity brotliEntity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(BROTLI)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(BROTLI).setData(TEST_DATA).build();
 
     assertThat(brotliEntity.isCompressed(), is(true));
   }
@@ -113,12 +93,7 @@ class EntityTest {
   @Test
   void isCompressedReturnsTrueForDeflateCompression() {
     Entity deflateEntity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(DEFLATE)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(DEFLATE).setData(TEST_DATA).build();
 
     assertThat(deflateEntity.isCompressed(), is(true));
   }
@@ -126,12 +101,7 @@ class EntityTest {
   @Test
   void isCompressedReturnsFalseForNoCompression() {
     Entity uncompressedEntity =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(NONE)
-            .setData(TEST_DATA)
-            .build();
+        Entity.builder().setFormat(Format.TEXT).setCompression(NONE).setData(TEST_DATA).build();
 
     assertThat(uncompressedEntity.isCompressed(), is(false));
   }
@@ -139,11 +109,7 @@ class EntityTest {
   @Test
   void isDecompressibleReturnsTrueForGzipCompression() {
     Entity.Builder builder =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(GZIP)
-            .setData(TEST_DATA);
+        Entity.builder().setFormat(Format.TEXT).setCompression(GZIP).setData(TEST_DATA);
 
     assertThat(builder.isDecompressible(), is(true));
   }
@@ -151,11 +117,7 @@ class EntityTest {
   @Test
   void isDecompressibleReturnsTrueForNoCompression() {
     Entity.Builder builder =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(NONE)
-            .setData(TEST_DATA);
+        Entity.builder().setFormat(Format.TEXT).setCompression(NONE).setData(TEST_DATA);
 
     assertThat(builder.isDecompressible(), is(true));
   }
@@ -163,11 +125,7 @@ class EntityTest {
   @Test
   void isDecompressibleReturnsFalseForBrotliCompression() {
     Entity.Builder builder =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(BROTLI)
-            .setData(TEST_DATA);
+        Entity.builder().setFormat(Format.TEXT).setCompression(BROTLI).setData(TEST_DATA);
 
     assertThat(builder.isDecompressible(), is(false));
   }
@@ -175,11 +133,7 @@ class EntityTest {
   @Test
   void isDecompressibleReturnsFalseForDeflateCompression() {
     Entity.Builder builder =
-        Entity.builder()
-            .setEncoding(EncodingType.TEXT)
-            .setFormat(TextFormat.TEXT)
-            .setCompression(DEFLATE)
-            .setData(TEST_DATA);
+        Entity.builder().setFormat(Format.TEXT).setCompression(DEFLATE).setData(TEST_DATA);
 
     assertThat(builder.isDecompressible(), is(false));
   }

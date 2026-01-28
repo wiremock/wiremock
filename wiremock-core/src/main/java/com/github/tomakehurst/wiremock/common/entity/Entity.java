@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.DEFAULT_COMPRESSION;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_COMPRESSION;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.Exceptions;
@@ -40,37 +40,22 @@ import org.jspecify.annotations.NonNull;
 public class Entity {
 
   public static Entity EMPTY =
-      new Entity(
-          EncodingType.TEXT,
-          TextFormat.TEXT,
-          DEFAULT_CHARSET,
-          CompressionType.NONE,
-          StreamSources.empty());
+      new Entity(Format.TEXT, DEFAULT_CHARSET, CompressionType.NONE, StreamSources.empty());
 
-  private final EncodingType encoding;
-  private final TextFormat format;
+  private final Format format;
   private final Charset charset;
   @NonNull private final CompressionType compression;
   private final InputStreamSource streamSource;
 
   public Entity(
-      EncodingType encoding,
-      TextFormat format,
-      Charset charset,
-      CompressionType compression,
-      InputStreamSource streamSource) {
-    this.encoding = encoding;
+      Format format, Charset charset, CompressionType compression, InputStreamSource streamSource) {
     this.format = format;
     this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
     this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
     this.streamSource = streamSource;
   }
 
-  public EncodingType getEncoding() {
-    return encoding;
-  }
-
-  public TextFormat getFormat() {
+  public Format getFormat() {
     return format;
   }
 
@@ -108,8 +93,7 @@ public class Entity {
 
   @JsonIgnore
   public String getDataAsString() {
-    return Exceptions.uncheck(
-        () -> Strings.stringFromBytes(getData(), charset), String.class);
+    return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), charset), String.class);
   }
 
   public byte[] getData() {
@@ -160,9 +144,7 @@ public class Entity {
       return transform(
           builder -> {
             final String plainText =
-                compression == GZIP
-                    ? Gzip.unGzipToString(getData())
-                    : getDataAsString();
+                compression == GZIP ? Gzip.unGzipToString(getData()) : getDataAsString();
 
             final String transformed = transformer.apply(plainText);
 
@@ -187,30 +169,26 @@ public class Entity {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Entity entity = (Entity) o;
-    return Objects.equals(encoding, entity.encoding)
-        && Objects.equals(format, entity.format)
-        && Objects.equals(compression, entity.compression);
+    return Objects.equals(format, entity.format) && Objects.equals(compression, entity.compression);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(encoding, format, compression);
+    return Objects.hash(format, compression);
   }
 
   @Override
   public String toString() {
     return new StringJoiner(", ", Entity.class.getSimpleName() + "[", "]")
-        .add("encoding=" + encoding)
         .add("format=" + format)
         .add("compression=" + compression)
         .add("streamSource=" + streamSource)
         .toString();
   }
 
-  public static class Builder {
+  public static class Builder implements EntityMetadataBuilder<Builder> {
 
-    private EncodingType encoding;
-    private TextFormat format;
+    private Format format;
     private Charset charset;
     private CompressionType compression;
     private InputStreamSource streamSource;
@@ -218,26 +196,16 @@ public class Entity {
     public Builder() {}
 
     public Builder(Entity entity) {
-      this.encoding = entity.encoding;
       this.format = entity.format;
       this.compression = entity.compression;
       this.streamSource = entity.streamSource;
     }
 
-    public EncodingType getEncoding() {
-      return encoding;
-    }
-
-    public Builder setEncoding(EncodingType encoding) {
-      this.encoding = encoding;
-      return this;
-    }
-
-    public TextFormat getFormat() {
+    public Format getFormat() {
       return format;
     }
 
-    public Builder setFormat(TextFormat format) {
+    public Builder setFormat(Format format) {
       this.format = format;
       return this;
     }
@@ -295,7 +263,7 @@ public class Entity {
     }
 
     public Entity build() {
-      return new Entity(encoding, format, charset, compression, streamSource);
+      return new Entity(format, charset, compression, streamSource);
     }
   }
 }
