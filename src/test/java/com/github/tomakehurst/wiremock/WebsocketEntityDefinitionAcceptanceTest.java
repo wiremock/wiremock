@@ -30,6 +30,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import java.io.File;
@@ -60,8 +61,8 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     wireMockServer
         .getOptions()
         .getStores()
-        .getObjectStore("testStore")
-        .put("testKey", "stored value");
+        .getBlobStore("testStore")
+        .put("testKey", Strings.bytesFromString("stored value"));
 
     messageStubFor(
         message()
@@ -80,11 +81,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   @Test
   void textEntityDefinitionWithDataStoreResolvesObjectFromStoreAsJson() {
     Map<String, Object> storedObject = Map.of("key", "value", "number", 42);
-    wireMockServer
-        .getOptions()
-        .getStores()
-        .getObjectStore("objectStore")
-        .put("objectKey", storedObject);
+    wireMockServer.getStores().getObjectStore("objectStore").put("objectKey", storedObject);
 
     messageStubFor(
         message()
@@ -155,7 +152,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     wireMockServer
         .getOptions()
         .getStores()
-        .getObjectStore("binaryStore")
+        .getBlobStore("binaryStore")
         .put("binaryKey", storedBytes);
 
     messageStubFor(

@@ -623,8 +623,7 @@ public class MessageSerializationTest {
                   "type": "send",
                   "message": {
                     "body": {
-                      "format": "binary",
-                      "data": "%s"
+                      "base64Data": "%s"
                     }
                   },
                   "channelTarget": {
@@ -662,8 +661,7 @@ public class MessageSerializationTest {
               "type": "send",
               "message": {
                 "body": {
-                  "encoding": "binary",
-                  "data": "%s"
+                  "base64Data": "%s"
                 }
               },
               "channelTarget": {
@@ -704,8 +702,7 @@ public class MessageSerializationTest {
             // language=JSON
             """
             {
-              "format": "binary",
-              "data": "%s"
+              "base64Data": "%s"
             }
             """
                 .formatted(base64Data)));

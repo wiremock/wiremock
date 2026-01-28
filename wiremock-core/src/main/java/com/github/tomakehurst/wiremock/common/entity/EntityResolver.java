@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.ObjectStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 
 public class EntityResolver {
@@ -58,7 +60,18 @@ public class EntityResolver {
     String dataStore = definition.getDataStore();
     String dataRef = definition.getDataRef();
     if (dataStore != null && dataRef != null && stores != null) {
-      return stores.getBlobStore(dataStore).getStreamSource(dataRef);
+      BlobStore blobStore = stores.getBlobStore(dataStore);
+      if (blobStore != null && blobStore.contains(dataRef)) {
+        return blobStore.getStreamSource(dataRef);
+      }
+
+      ObjectStore objectStore = stores.getObjectStore(dataStore);
+      if (objectStore != null && objectStore.contains(dataRef)) {
+        return objectStore
+            .get(dataRef)
+            .map(data -> StreamSources.forBytes(Json.toByteArray(data)))
+            .orElse(null);
+      }
     }
 
     return null;

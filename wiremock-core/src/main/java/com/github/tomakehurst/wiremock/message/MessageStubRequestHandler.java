@@ -124,7 +124,7 @@ public class MessageStubRequestHandler {
     }
   }
 
-  public Message resolveToMessage(MessageDefinition messageDefinition) {
+  private Message resolveToMessage(MessageDefinition messageDefinition) {
     Entity entity = entityResolver.resolve(messageDefinition.getBody());
     return new Message(entity);
   }

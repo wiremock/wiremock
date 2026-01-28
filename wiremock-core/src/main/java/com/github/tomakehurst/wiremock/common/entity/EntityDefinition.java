@@ -89,7 +89,7 @@ public class EntityDefinition {
       String dataRef,
       byte[] data,
       String filePath) {
-    this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
+    this.compression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
     this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
     if (format == null && data != null) {
       this.format = Format.detectFormat(stringFromBytes(data, this.charset));
@@ -148,15 +148,13 @@ public class EntityDefinition {
     return builder().setFormat(Format.BINARY).setBodyBase64(base64).build();
   }
 
-  private static CompressionType tryToGuessCompressionType(Object data) {
-    if (data instanceof byte[] bytes) {
-      return Gzip.isGzipped(bytes) ? GZIP : NONE;
+  private static CompressionType tryToGuessCompressionTypeIfNotSpecified(
+      CompressionType compression, byte[] data) {
+    if (compression != null) {
+      return compression;
     }
-    if (data instanceof String s) {
-      byte[] bytes = Encoding.decodeBase64(s);
-      return Gzip.isGzipped(bytes) ? GZIP : NONE;
-    }
-    return null;
+
+    return data != null && Gzip.isGzipped(data) ? GZIP : DEFAULT_COMPRESSION;
   }
 
   protected static void assertValidParameterCombination(
@@ -187,7 +185,7 @@ public class EntityDefinition {
 
   @JsonProperty("format")
   public Format getFormatForSerialization() {
-    if (format == BINARY || format == DEFAULT_FORMAT) {
+    if (isInline() && (format == BINARY || format == DEFAULT_FORMAT)) {
       return null;
     }
 
@@ -242,7 +240,7 @@ public class EntityDefinition {
 
   @JsonIgnore
   public String getDataAsString() {
-    if (format != Format.BINARY) {
+    if (!isBinary() && !isCompressed()) {
       return stringFromBytes(data, charset);
     } else {
       return getBase64Data();
@@ -337,7 +335,7 @@ public class EntityDefinition {
 
   public static class Builder implements EntityMetadataBuilder<Builder> {
 
-    private CompressionType compression = NONE;
+    private CompressionType compression;
 
     protected Format format;
     protected Charset charset = DEFAULT_CHARSET;
@@ -470,26 +468,10 @@ public class EntityDefinition {
       }
 
       if (v3Style) {
-        return new SimpleStringEntityDefinition(stringFromBytes(data, charset));
+        return new SimpleStringEntityDefinition(data, charset);
       }
 
       return new EntityDefinition(compression, format, charset, dataStore, dataRef, data, filePath);
-    }
-  }
-
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
-  public static class DefaultFormatFilter {
-    @Override
-    public boolean equals(Object obj) {
-      return DEFAULT_FORMAT.equals(obj);
-    }
-  }
-
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
-  public static class FormatSerializationFilter {
-    @Override
-    public boolean equals(Object obj) {
-      return obj == null || DEFAULT_FORMAT.equals(obj);
     }
   }
 

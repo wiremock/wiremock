@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
-import static com.github.tomakehurst.wiremock.client.WireMock.textEntity;
+import static com.github.tomakehurst.wiremock.client.WireMock.entity;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.BROTLI;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.DEFLATE;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
@@ -74,7 +74,7 @@ public class EntityDefinitionTest {
 
   @Test
   void normalTextEntitySerializesAsObject() {
-    EntityDefinition entity = textEntity().setData("test data").build();
+    EntityDefinition entity = entity().setData("test data").build();
 
     String json = Json.write(entity);
 
@@ -104,7 +104,7 @@ public class EntityDefinitionTest {
 
   @Test
   void normalTextEntityRoundTripSerialization() {
-    EntityDefinition original = textEntity().setData("round trip data").build();
+    EntityDefinition original = entity().setData("round trip data").build();
 
     String json = Json.write(original);
     EntityDefinition deserialized = Json.read(json, EntityDefinition.class);
@@ -114,12 +114,11 @@ public class EntityDefinitionTest {
 
   @Test
   void textEntityWithFormatAndCompressionSerializesCorrectly() {
-    EntityDefinition entity =
-        textEntity()
-            .setFormat(Format.XML)
-            .setCompression(CompressionType.GZIP)
-            .setData("<root>data</root>")
-            .build();
+    String plain = "<root>data</root>";
+    byte[] gzipped = Gzip.gzip(plain);
+    String base64 = Encoding.encodeBase64(gzipped);
+
+    EntityDefinition entity = entity().setFormat(XML).setCompression(GZIP).setData(gzipped).build();
 
     String json = Json.write(entity);
 
@@ -128,35 +127,40 @@ public class EntityDefinitionTest {
                     {
                       "format" : "xml",
                       "compression" : "gzip",
-                      "data" : "<root>data</root>"
+                      "base64Data" : "%s"
                     }
-                    """;
+                    """
+            .formatted(base64);
 
     assertThat(json, jsonEquals(expectedJson));
   }
 
   @Test
   void textEntityWithFormatAndCompressionDeserializesCorrectly() {
+    String brotliBase64 =
+        "ocgLACDwPH/zPaFjj1rrghQGtvef661+803Q1CAFJf58ZpJNkWShWbeuiEmI7HJB0oSH+7HrNoH/RIOj/B3loo/bex/rcev1MkWvQFEVOtUF9fnxDNqtXFOWD5kGQZSKz4t75WMjKMfr/z8PNX0IkWUZkoGYWxoQPYRtUWd5jPq6dANdoECcxrBq0I/P8Kr02v0cICWpkGZ8O+K7bP8dOLKLQZIZAw==";
     String json =
         """
                     {
                       "format" : "yaml",
                       "compression" : "brotli",
-                      "data" : "key: value"
+                      "base64Data" : "%s"
                     }
-                    """;
+                    """
+            .formatted(brotliBase64);
 
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
     assertThat(entity.getFormat(), is(Format.YAML));
+    assertThat(entity.isCompressed(), is(true));
     assertThat(entity.getCompression(), is(BROTLI));
-    assertThat(entity.getData(), is("key: value"));
+    assertThat(entity.getDataAsBytes(), is(Encoding.decodeBase64(brotliBase64)));
   }
 
   @Test
   void textEntityWithFormatAndCompressionRoundTripSerialization() {
     EntityDefinition original =
-        textEntity()
+        entity()
             .setFormat(JSON)
             .setCompression(CompressionType.DEFLATE)
             .setData("{\"key\":\"value\"}")
@@ -218,8 +222,7 @@ public class EntityDefinitionTest {
   @Test
   void binaryEntityWithCompressionSerializesCorrectly() {
     byte[] data = {100, 101, 102, 103};
-    EntityDefinition entity =
-        binaryEntity().setCompression(CompressionType.GZIP).setData(data).build();
+    EntityDefinition entity = binaryEntity().setCompression(GZIP).setData(data).build();
 
     String json = Json.write(entity);
 
@@ -241,7 +244,7 @@ public class EntityDefinitionTest {
     byte[] gzipped = Gzip.gzip(plain);
     String base64 = Encoding.encodeBase64(gzipped);
 
-    EntityDefinition entity = textEntity().setCompression(GZIP).setData(gzipped).build();
+    EntityDefinition entity = entity().setCompression(GZIP).setData(gzipped).build();
 
     String expectedJson =
         // language=json
@@ -345,7 +348,7 @@ public class EntityDefinitionTest {
     byte[] compressed = Gzip.gzip(plain);
 
     EntityDefinition original =
-        textEntity().setCompression(GZIP).setFormat(TEXT).setData(compressed).build();
+        entity().setCompression(GZIP).setFormat(TEXT).setData(compressed).build();
 
     EntityDefinition decompressed = original.decompress();
 
@@ -366,14 +369,14 @@ public class EntityDefinitionTest {
   void throwsExceptionWhenAttemptingToDecompressesTextDeflate() {
     assertThrows(
         IllegalStateException.class,
-        () -> textEntity().setData("blah").setCompression(DEFLATE).build().decompress());
+        () -> entity().setData("blah").setCompression(DEFLATE).build().decompress());
   }
 
   @Test
   void decompressingUncompressedTextDoesNothing() {
     String plain = "don't compress me";
 
-    var original = textEntity().setCompression(NONE).setData(plain).build();
+    var original = entity().setCompression(NONE).setData(plain).build();
 
     var decompressed = original.decompress();
 
@@ -394,10 +397,17 @@ public class EntityDefinitionTest {
   }
 
   @Test
+  void guessesGzipCompressionWhenNotExplicit() {
+    byte[] gzipped = Gzip.gzip("compressed");
+    EntityDefinition entity = entity().setData(gzipped).build();
+    assertThat(entity.getCompression(), is(GZIP));
+  }
+
+  @Test
   void detectsTextFormatWhenNotSpecified() {
-    assertThat(textEntity().setData("\n{}  ").build().getFormat(), is(JSON));
-    assertThat(textEntity().setData("  []").build().getFormat(), is(JSON));
-    assertThat(textEntity().setData("  \n<things />").build().getFormat(), is(XML));
+    assertThat(entity().setData("\n{}  ").build().getFormat(), is(JSON));
+    assertThat(entity().setData("  []").build().getFormat(), is(JSON));
+    assertThat(entity().setData("  \n<things />").build().getFormat(), is(XML));
 
     String yaml =
         // language=yaml
@@ -408,7 +418,7 @@ public class EntityDefinitionTest {
                 - two
                 - three
             """;
-    assertThat(textEntity().setData(yaml).build().getFormat(), is(YAML));
+    assertThat(entity().setData(yaml).build().getFormat(), is(YAML));
 
     String html =
         // language=html
@@ -419,9 +429,9 @@ public class EntityDefinitionTest {
               </body>
             </html>
             """;
-    assertThat(textEntity().setData(html).build().getFormat(), is(HTML));
+    assertThat(entity().setData(html).build().getFormat(), is(HTML));
 
-    assertThat(textEntity().setData("just some prose").build().getFormat(), is(TEXT));
+    assertThat(entity().setData("just some prose").build().getFormat(), is(TEXT));
   }
 
   @Test
@@ -502,6 +512,43 @@ public class EntityDefinitionTest {
   }
 
   @Test
+  void serialisesDataStoreAndRefBinaryEntityCorrectly() {
+    EntityDefinition entityDefinition = binaryEntity().setDataStoreRef("store", "key").build();
+
+    String json = Json.write(entityDefinition);
+    assertThat(
+        json,
+        jsonEquals(
+            // language=json
+            """
+                    {
+                      "format": "binary",
+                      "dataStore": "store",
+                      "dataRef": "key"
+                    }
+                    """));
+  }
+
+  @Test
+  void serialisesDataStoreAndRefTextEntityCorrectly() {
+    EntityDefinition entityDefinition =
+        entity().setFormat(XML).setDataStoreRef("store", "key").build();
+
+    String json = Json.write(entityDefinition);
+    assertThat(
+        json,
+        jsonEquals(
+            // language=json
+            """
+                    {
+                      "format": "xml",
+                      "dataStore": "store",
+                      "dataRef": "key"
+                    }
+                    """));
+  }
+
+  @Test
   void rejectsEntityWithBothDataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
@@ -539,7 +586,7 @@ public class EntityDefinitionTest {
   @Test
   void builderClearsFilePathAndStoreRefWhenSettingData() {
     EntityDefinition entity =
-        textEntity().setFilePath("path").setDataStoreRef("store", "key").setData("data").build();
+        entity().setFilePath("path").setDataStoreRef("store", "key").setData("data").build();
 
     assertThat(entity.getData(), is("data"));
     assertThat(entity.getFilePath(), nullValue());
@@ -550,7 +597,7 @@ public class EntityDefinitionTest {
   @Test
   void builderClearsDataAndStoreRefWhenSettingFilePath() {
     EntityDefinition entity =
-        textEntity().setData("data").setDataStoreRef("store", "key").setFilePath("path").build();
+        entity().setData("data").setDataStoreRef("store", "key").setFilePath("path").build();
 
     assertThat(entity.getFilePath(), is("path"));
     assertThat(entity.getData(), nullValue());
@@ -561,7 +608,7 @@ public class EntityDefinitionTest {
   @Test
   void builderClearsDataAndFilePathWhenSettingStoreRef() {
     EntityDefinition entity =
-        textEntity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
+        entity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
 
     assertThat(entity.getDataStore(), is("store"));
     assertThat(entity.getDataRef(), is("key"));

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.Endpoint;
@@ -31,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.awaitility.core.ConditionTimeoutException;
 
 public class WebsocketTestClient {
 
@@ -136,8 +138,11 @@ public class WebsocketTestClient {
           .filter(responsePredicate)
           .findFirst()
           .orElse(null);
+    } catch (ConditionTimeoutException e) {
+      System.err.println("Actual messages received: " + endpoint.messages);
+      throw e;
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      return Exceptions.throwUnchecked(e, String.class);
     }
   }
 

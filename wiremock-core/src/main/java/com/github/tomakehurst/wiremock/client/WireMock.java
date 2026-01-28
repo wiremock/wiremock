@@ -450,7 +450,7 @@ public class WireMock {
     return EntityDefinition.builder().setData(text);
   }
 
-  public static EntityDefinition.Builder textEntity() {
+  public static EntityDefinition.Builder entity() {
     return EntityDefinition.builder();
   }
 

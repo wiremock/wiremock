@@ -36,4 +36,8 @@ public class SimpleStringEntityDefinition extends EntityDefinition {
   SimpleStringEntityDefinition(String text, Charset charset) {
     super(Format.TEXT, charset, NONE, null, null, text, null, null);
   }
+
+  SimpleStringEntityDefinition(byte[] data, Charset charset) {
+    super(NONE, Format.TEXT, charset, null, null, data, null);
+  }
 }

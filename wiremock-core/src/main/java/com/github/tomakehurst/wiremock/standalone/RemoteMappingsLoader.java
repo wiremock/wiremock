@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Strings.substringAfterLast;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
@@ -65,21 +65,30 @@ public class RemoteMappingsLoader {
   private StubMapping convertBodyFromFileIfNecessary(StubMapping mapping) {
     String bodyFileName = mapping.getResponse().getBodyFileName();
     if (bodyFileName != null) {
-      ResponseDefinitionBuilder responseDefinitionBuilder =
-          ResponseDefinitionBuilder.like(mapping.getResponse()).withBodyFile(null);
+      var newResponseDefinition =
+          mapping
+              .getResponse()
+              .transform(
+                  responseDefinitionBuilder -> {
+                    responseDefinitionBuilder.setBodyFileName(null);
 
-      String extension = substringAfterLast(bodyFileName, ".");
-      String mimeType = getMimeType(mapping);
+                    String extension = substringAfterLast(bodyFileName, ".");
+                    String mimeType = getMimeType(mapping);
 
-      if (ContentTypes.determineIsText(extension, mimeType)) {
-        TextFile bodyFile = filesFileSource.getTextFileNamed(bodyFileName);
-        responseDefinitionBuilder.withBody(bodyFile.readContentsAsString());
-      } else {
-        BinaryFile bodyFile = filesFileSource.getBinaryFileNamed(bodyFileName);
-        responseDefinitionBuilder.withBody(bodyFile.readContents());
-      }
+                    if (ContentTypes.determineIsText(extension, mimeType)) {
+                      TextFile bodyFile = filesFileSource.getTextFileNamed(bodyFileName);
+                      responseDefinitionBuilder.setBody(bodyFile.readContentsAsString());
+                    } else {
+                      BinaryFile bodyFile = filesFileSource.getBinaryFileNamed(bodyFileName);
+                      responseDefinitionBuilder.setBody(
+                          responseDefinitionBuilder
+                              .getBody()
+                              .transform(
+                                  b -> b.setFormat(BINARY).setData(bodyFile.readContents())));
+                    }
+                  });
 
-      return mapping.transform(sm -> sm.setResponse(responseDefinitionBuilder.build()));
+      return mapping.transform(sm -> sm.setResponse(newResponseDefinition));
     }
 
     return mapping;
