@@ -28,11 +28,6 @@ public class NegativeRegexPattern extends AbstractRegexPattern {
   }
 
   @Override
-  public MatchResult match(String value) {
-    return match(value, null);
-  }
-
-  @Override
   public MatchResult match(String value, ServeContext context) {
     return invert(super.match(value, context));
   }
