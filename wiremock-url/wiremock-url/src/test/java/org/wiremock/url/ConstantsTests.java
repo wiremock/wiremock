@@ -72,6 +72,8 @@ class ConstantsTests {
           Pair.of("%5A", "Z"),
           Pair.of("%61", "a"),
           Pair.of("%7A", "z"),
+          Pair.of("aßc", "a%C3%9Fc"),
+          Pair.of("loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin", "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin"),
           Pair.of("%~", "%25%7E"), // should be encoded
           Pair.of("%0~", "%250%7E"), // should be encoded
           Pair.of("%~0", "%25%7E0"), // should be encoded
@@ -109,5 +111,22 @@ class ConstantsTests {
   void normalise_returns_null_when_already_normal(Pair<String, String> normalisationCase) {
     var normalForm = normalisationCase.getRight();
     assertThat(Constants.normalise(normalForm, alphanumericDoNotNeedEncoding)).isNull();
+  }
+
+  private static final List<Pair<String, String>> encodingCases =
+      List.of(
+          Pair.of("aßc", "a%C3%9Fc"),
+          Pair.of("loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin", "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin")
+          );
+  @ParameterizedTest
+  @FieldSource("encodingCases")
+  void encode_encodes_as_expected(Pair<String, String> testCase) {
+    assertThat(Constants.encode(testCase.getLeft(), alphanumericDoNotNeedEncoding)).isEqualTo(testCase.getRight());
+  }
+
+  @ParameterizedTest
+  @FieldSource("encodingCases")
+  void decode_decodes_as_expected(Pair<String, String> testCase) {
+    assertThat(PercentEncoded.decodeCharacters(testCase.getRight())).isEqualTo(testCase.getLeft());
   }
 }

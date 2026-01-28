@@ -106,8 +106,9 @@ final class Constants {
     StringBuilder result = new StringBuilder();
     boolean changed = false;
 
-    for (int i = 0; i < original.length(); i++) {
-      char c = original.charAt(i);
+    for (int i = 0; i < original.length(); ) {
+      int codePoint = original.codePointAt(i);
+      char c = (char) codePoint;
 
       // Handle percent-encoded sequences
       if (c == '%' && i + 2 < original.length()) {
@@ -134,18 +135,20 @@ final class Constants {
               changed = true;
             }
           }
-          i += 2;
+          i += 3; // Skip past %XX
           continue;
         }
       }
 
       // Check if character needs encoding per WhatWG fragment percent-encode set
-      if (isIn(charactersThatDoNotNeedEncoding, c)) {
-        result.append(c);
+      if (codePoint <= 0xFFFF && isIn(charactersThatDoNotNeedEncoding, c)) {
+        result.appendCodePoint(codePoint);
+        i += Character.charCount(codePoint);
       } else {
         // Encode as UTF-8 bytes
-        appendPercentEncoded(c, result);
+        appendPercentEncoded(codePoint, result);
         changed = true;
+        i += Character.charCount(codePoint);
       }
     }
 
@@ -161,8 +164,9 @@ final class Constants {
     StringBuilder result = new StringBuilder();
     boolean changed = false;
 
-    for (int i = 0; i < original.length(); i++) {
-      char c = original.charAt(i);
+    for (int i = 0; i < original.length(); ) {
+      int codePoint = original.codePointAt(i);
+      char c = (char) codePoint;
 
       // Handle percent-encoded sequences
       if (c == '%' && i + 2 < original.length()) {
@@ -177,18 +181,20 @@ final class Constants {
               || maybeSecondHexDigit != secondHexDigitUpper) {
             changed = true;
           }
-          i += 2;
+          i += 3; // Skip past %XX
           continue;
         }
       }
 
       // Check if character needs encoding
-      if (isIn(charactersThatDoNotNeedEncoding, c)) {
-        result.append(c);
+      if (codePoint <= 0xFFFF && isIn(charactersThatDoNotNeedEncoding, c)) {
+        result.appendCodePoint(codePoint);
+        i += Character.charCount(codePoint);
       } else {
         // Encode as UTF-8 bytes
-        appendPercentEncoded(c, result);
+        appendPercentEncoded(codePoint, result);
         changed = true;
+        i += Character.charCount(codePoint);
       }
     }
 
@@ -200,8 +206,9 @@ final class Constants {
   }
 
   static boolean isSimpleNormalForm(String original, boolean[] charactersThatDoNotNeedEncoding) {
-    for (int i = 0; i < original.length(); i++) {
-      char c = original.charAt(i);
+    for (int i = 0; i < original.length(); ) {
+      int codePoint = original.codePointAt(i);
+      char c = (char) codePoint;
 
       // Check percent-encoded sequences
       if (c == '%' && i + 2 < original.length()) {
@@ -214,14 +221,17 @@ final class Constants {
             return false;
           }
 
-          i += 2;
+          i += 3; // Skip past %XX
           continue;
         }
       }
 
-      if (!isIn(charactersThatDoNotNeedEncoding, c)) {
+      // Non-BMP characters (code points > 0xFFFF) must be percent-encoded
+      if (codePoint > 0xFFFF || !isIn(charactersThatDoNotNeedEncoding, c)) {
         return false;
       }
+
+      i += Character.charCount(codePoint);
     }
 
     return true;
@@ -229,8 +239,9 @@ final class Constants {
 
   static boolean isNormalForm(
       String original, boolean[] charactersThatDoNotNeedEncoding, boolean[] charactersToLeaveAsIs) {
-    for (int i = 0; i < original.length(); i++) {
-      char c = original.charAt(i);
+    for (int i = 0; i < original.length(); ) {
+      int codePoint = original.codePointAt(i);
+      char c = (char) codePoint;
 
       // Check percent-encoded sequences
       if (c == '%' && i + 2 < original.length()) {
@@ -253,14 +264,18 @@ final class Constants {
             return false;
           }
 
-          i += 2;
+          i += 3; // Skip past %XX
           continue;
         }
       }
 
-      if (!isIn(charactersThatDoNotNeedEncoding, c) && !isIn(charactersToLeaveAsIs, c)) {
+      // Non-BMP characters (code points > 0xFFFF) must be percent-encoded
+      if (codePoint > 0xFFFF
+          || (!isIn(charactersThatDoNotNeedEncoding, c) && !isIn(charactersToLeaveAsIs, c))) {
         return false;
       }
+
+      i += Character.charCount(codePoint);
     }
 
     return true;
@@ -292,19 +307,22 @@ final class Constants {
 
   static String encode(String unencoded, boolean[] charactersThatDoNotNeedEncoding) {
     StringBuilder result = new StringBuilder();
-    var unencodedChats = unencoded.toCharArray();
-    for (char c : unencodedChats) {
-      if (isIn(charactersThatDoNotNeedEncoding, c)) {
-        result.append(c);
+    for (int i = 0; i < unencoded.length(); ) {
+      int codePoint = unencoded.codePointAt(i);
+      // For BMP characters (codePoint < 0x10000), check if they need encoding
+      if (codePoint <= 0xFFFF && isIn(charactersThatDoNotNeedEncoding, (char) codePoint)) {
+        result.appendCodePoint(codePoint);
       } else {
-        appendPercentEncoded(c, result);
+        appendPercentEncoded(codePoint, result);
       }
+      i += Character.charCount(codePoint);
     }
     return result.toString();
   }
 
-  private static void appendPercentEncoded(char c, StringBuilder result) {
-    byte[] bytes = String.valueOf(c).getBytes(UTF_8);
+  private static void appendPercentEncoded(int codePoint, StringBuilder result) {
+    String str = new String(Character.toChars(codePoint));
+    byte[] bytes = str.getBytes(UTF_8);
     for (byte b : bytes) {
       result.append('%');
       result.append(String.format("%02X", b & 0xFF));
