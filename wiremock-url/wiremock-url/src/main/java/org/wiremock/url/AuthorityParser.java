@@ -75,7 +75,8 @@ public final class AuthorityParser implements StringParser<Authority> {
     if (userInfo == null) {
       return HostAndPort.of(host, port);
     } else {
-      var portOptional = port != null ? Optional.of(port) : Optional.<Port>empty();
+      @SuppressWarnings("OptionalAssignedToNull")
+      var portOptional = port != null ? Optional.of(port) : null;
       return new AuthorityValue(userInfo, host, portOptional);
     }
   }
