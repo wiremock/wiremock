@@ -23,4 +23,26 @@ public abstract class AbstractNumberPattern extends StringValuePattern {
     super(expectedNumber.toString());
     this.expectedNumber = expectedNumber;
   }
+
+  protected AbstractNumberPattern(String expectedValue) {
+    super(expectedValue);
+    this.expectedNumber = null;
+  }
+
+  protected Number resolveExpectedNumber(ServeContext context) {
+    if (isTemplated() && context != null) {
+      String resolved = resolveExpectedValue(context);
+      return Double.parseDouble(resolved);
+    }
+    return expectedNumber;
+  }
+
+  // TODO: remove me
+  @Override
+  public MatchResult match(String value) {
+    return match(value, null);
+  }
+
+  @Override
+  public abstract MatchResult match(String value, ServeContext context);
 }

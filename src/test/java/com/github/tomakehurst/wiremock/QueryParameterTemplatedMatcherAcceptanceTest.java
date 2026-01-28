@@ -19,11 +19,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.time.temporal.ChronoUnit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToNumberPattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LessThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LessThanNumberPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.time.Instant;
@@ -1565,6 +1572,443 @@ public class QueryParameterTemplatedMatcherAcceptanceTest extends AcceptanceTest
       WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
 
       assertThat(testClient.get("/test?param1=foo&param2=bar").statusCode(), is(200));
+    }
+  }
+
+  @Nested
+  class NumberQueryParameterMatcherAcceptanceTest {
+    @Test
+    void matchesQueryParameterEqualToNumberFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new EqualToNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=42&param2=42").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=42&param2=43").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterGreaterThanNumberFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new GreaterThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(404));
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterLessThanNumberFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new LessThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(404));
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterGreaterThanOrEqualNumberFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  new GreaterThanEqualNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesQueryParameterLessThanOrEqualNumberFromAnotherQueryParameter() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new LessThanEqualNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesEqualToNumberQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalToNumber": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=42&param2=42").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=42&param2=43").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesGreaterThanNumberQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "greaterThanNumber": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesLessThanNumberQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "lessThanNumber": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesGreaterThanEqualNumberQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "greaterThanEqualNumber": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesLessThanEqualNumberQueryParameterFromJsonStubWithTemplating() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "lessThanEqualNumber": "{{request.query.param1}}",
+                    "templated": true
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=10").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10&param2=15").statusCode(), is(404));
+    }
+
+    @Test
+    void doesNotMatchEqualToNumberQueryParameterIfTemplatingNotEnabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalToNumber": 42
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=42&param2=42").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=42&param2=43").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesNumberQueryParameterWithDecimalValues() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new GreaterThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=10.5&param2=10.6").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=10.5&param2=10.5").statusCode(), is(404));
+      assertThat(testClient.get("/test?param1=10.5&param2=10.4").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesNumberQueryParameterWithNegativeValues() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new LessThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      assertThat(testClient.get("/test?param1=-5&param2=-10").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=-5&param2=-5").statusCode(), is(404));
+      assertThat(testClient.get("/test?param1=-5&param2=0").statusCode(), is(404));
+    }
+
+    @Test
+    void throwsExceptionWhenNumberPatternHasNonNumericValueWithTemplatingDisabled() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "equalToNumber": "{{request.query.param1}}",
+                    "templated": false
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      // Should throw because the value is not a valid number and templating is disabled
+      assertThrows(JsonException.class, () -> Json.read(json, StubMapping.class));
+    }
+
+    @Test
+    void templatedNumberPatternSerializesCorrectlyToJson() {
+      EqualToNumberPattern pattern = new EqualToNumberPattern("{{request.query.param1}}");
+      pattern.templated();
+
+      String json = Json.write(pattern);
+
+      // Verify the JSON contains both the template value and the templated flag
+      assertThat(json.contains("equalToNumber"), is(true));
+      assertThat(json.contains("{{request.query.param1}}"), is(true));
+      assertThat(
+          json.contains("\"templated\":true") || json.contains("\"templated\" : true"), is(true));
+    }
+
+    @Test
+    void matchesNumberQueryParameterWithOrCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  new EqualToNumberPattern("{{request.query.param1}}")
+                      .templated()
+                      .or(new EqualToNumberPattern(99)))
+              .willReturn(ok()));
+
+      // Matches the templated pattern (param1=42, param2=42)
+      assertThat(testClient.get("/test?param1=42&param2=42").statusCode(), is(200));
+      // Matches the literal 99
+      assertThat(testClient.get("/test?param1=42&param2=99").statusCode(), is(200));
+      // Matches neither
+      assertThat(testClient.get("/test?param1=42&param2=50").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesNumberQueryParameterWithAndCombinator() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  new GreaterThanNumberPattern("{{request.query.param1}}")
+                      .templated()
+                      .and(new LessThanNumberPattern(100)))
+              .willReturn(ok()));
+
+      // Matches both: greater than param1 (10) AND less than 100
+      assertThat(testClient.get("/test?param1=10&param2=50").statusCode(), is(200));
+      // Fails second condition: not less than 100
+      assertThat(testClient.get("/test?param1=10&param2=150").statusCode(), is(404));
+      // Fails first condition: not greater than param1 (10)
+      assertThat(testClient.get("/test?param1=10&param2=5").statusCode(), is(404));
+    }
+
+    @Test
+    void matchesNumberQueryParameterFromJsonStubWithOrCombinator() {
+      String json =
+          """
+            {
+              "request": {
+                "urlPath": "/test",
+                "method": "GET",
+                "queryParameters": {
+                  "param2": {
+                    "or": [
+                      {
+                        "equalToNumber": "{{request.query.param1}}",
+                        "templated": true
+                      },
+                      {
+                        "equalToNumber": 99
+                      }
+                    ]
+                  }
+                }
+              },
+              "response": {
+                "status": 200
+              }
+            }
+            """;
+
+      StubMapping stubMapping = Json.read(json, StubMapping.class);
+      WireMock.importStubs(StubImport.stubImport().stub(stubMapping).build());
+
+      assertThat(testClient.get("/test?param1=42&param2=42").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=42&param2=99").statusCode(), is(200));
+      assertThat(testClient.get("/test?param1=42&param2=50").statusCode(), is(404));
+    }
+
+    @Test
+    void returnsNoMatchWhenEqualToNumberTemplatedValueResolvesToNonNumeric() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new EqualToNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // When param1 is not a valid number, the pattern gracefully returns no-match
+      assertThat(testClient.get("/test?param1=notanumber&param2=42").statusCode(), is(404));
+    }
+
+    @Test
+    void returnsNoMatchWhenGreaterThanNumberTemplatedValueResolvesToNonNumeric() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new GreaterThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // When param1 is not a valid number, the pattern gracefully returns no-match
+      assertThat(testClient.get("/test?param1=notanumber&param2=42").statusCode(), is(404));
+    }
+
+    @Test
+    void returnsNoMatchWhenLessThanNumberTemplatedValueResolvesToNonNumeric() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new LessThanNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // When param1 is not a valid number, the pattern gracefully returns no-match
+      assertThat(testClient.get("/test?param1=notanumber&param2=42").statusCode(), is(404));
+    }
+
+    @Test
+    void returnsNoMatchWhenGreaterThanEqualNumberTemplatedValueResolvesToNonNumeric() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2",
+                  new GreaterThanEqualNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // When param1 is not a valid number, the pattern gracefully returns no-match
+      assertThat(testClient.get("/test?param1=notanumber&param2=42").statusCode(), is(404));
+    }
+
+    @Test
+    void returnsNoMatchWhenLessThanEqualNumberTemplatedValueResolvesToNonNumeric() {
+      stubFor(
+          get(urlPathEqualTo("/test"))
+              .withQueryParam(
+                  "param2", new LessThanEqualNumberPattern("{{request.query.param1}}").templated())
+              .willReturn(ok()));
+
+      // When param1 is not a valid number, the pattern gracefully returns no-match
+      assertThat(testClient.get("/test?param1=notanumber&param2=42").statusCode(), is(404));
     }
   }
 }

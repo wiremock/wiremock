@@ -436,20 +436,36 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static StringValuePattern deserializeNumberPattern(
       JsonNode rootNode, Class<? extends StringValuePattern> patternClass)
       throws JsonMappingException {
-    Constructor<? extends StringValuePattern> constructor =
+    Constructor<? extends StringValuePattern> numberConstructor =
         findConstructor(patternClass, Number.class);
-    String propertyName = getSingleArgumentConstructorJsonPropertyName(constructor);
+    String propertyName = getSingleArgumentConstructorJsonPropertyName(numberConstructor);
     if (!rootNode.hasNonNull(propertyName)) {
       throw new JsonMappingException(propertyName + " has to be a numeric value");
     }
-    try {
-      Number propertyValue = Double.parseDouble(rootNode.get(propertyName).asText());
-      return constructor.newInstance(propertyValue);
-    } catch (NumberFormatException
-        | InstantiationException
-        | IllegalAccessException
-        | InvocationTargetException e) {
-      throw new JsonMappingException(propertyName + " has to be a numeric value");
+
+    Boolean templated = rootNode.has("templated") ? rootNode.get("templated").asBoolean() : null;
+
+    if (Boolean.TRUE.equals(templated)) {
+      try {
+        Constructor<? extends StringValuePattern> stringConstructor =
+            findConstructor(patternClass, String.class);
+        StringValuePattern pattern =
+            stringConstructor.newInstance(rootNode.get(propertyName).asText());
+        pattern.templated();
+        return pattern;
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        throw new JsonMappingException("Failed to create templated number pattern");
+      }
+    } else {
+      try {
+        Number propertyValue = Double.parseDouble(rootNode.get(propertyName).asText());
+        return numberConstructor.newInstance(propertyValue);
+      } catch (NumberFormatException
+          | InstantiationException
+          | IllegalAccessException
+          | InvocationTargetException e) {
+        throw new JsonMappingException(propertyName + " has to be a numeric value");
+      }
     }
   }
 

@@ -23,13 +23,23 @@ public class LessThanEqualNumberPattern extends AbstractNumberPattern {
     super(testValue);
   }
 
-  public Number getLessThanEqualNumber() {
-    return expectedNumber;
+  public LessThanEqualNumberPattern(String expectedValue) {
+    super(expectedValue);
+  }
+
+  public Object getLessThanEqualNumber() {
+    return expectedNumber != null ? expectedNumber : expectedValue;
   }
 
   @Override
-  public MatchResult match(final String value) {
-    return new AbstractNumberMatchResult(expectedNumber, value) {
+  public MatchResult match(String value, ServeContext context) {
+    final Number expected;
+    try {
+      expected = resolveExpectedNumber(context);
+    } catch (NumberFormatException e) {
+      return MatchResult.noMatch();
+    }
+    return new AbstractNumberMatchResult(expected, value) {
       @Override
       protected boolean isExactMatch(double expected, double actual) {
         return actual <= expected;
