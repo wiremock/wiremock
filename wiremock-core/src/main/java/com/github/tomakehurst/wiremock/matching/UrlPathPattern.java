@@ -23,14 +23,20 @@ public class UrlPathPattern extends UrlPattern {
     super(testUrl, regex);
   }
 
+  // TODO: remove me
   @Override
   public MatchResult match(String url) {
+    return match(url, null);
+  }
+
+  @Override
+  public MatchResult match(String url, ServeContext context) {
     if (url == null) {
       return MatchResult.noMatch();
     }
 
     String path = PathAndQuery.parse(url).getPath().toString();
-    return super.match(path);
+    return super.match(path, context);
   }
 
   @Override

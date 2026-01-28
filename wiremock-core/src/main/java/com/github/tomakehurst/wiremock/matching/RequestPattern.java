@@ -167,7 +167,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             requestPartMatchResults.add(
                 weight(
                     RequestPattern.this.url.match(
-                        request.getPathAndQueryWithoutPrefix().toString()),
+                        request.getPathAndQueryWithoutPrefix().toString(), matcherContext),
                     10.0));
             requestPartMatchResults.add(
                 weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
