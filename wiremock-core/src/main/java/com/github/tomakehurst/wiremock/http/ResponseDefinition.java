@@ -50,6 +50,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.Path;
 
 @JsonInclude(Include.NON_NULL)
 public class ResponseDefinition {
@@ -60,23 +63,20 @@ public class ResponseDefinition {
   private final EntityDefinition body;
   private final boolean v3Style;
 
-  @NonNull private final HttpHeaders headers;
-  @NonNull private final HttpHeaders additionalProxyRequestHeaders;
-  @NonNull private final List<String> removeProxyRequestHeaders;
+  private final @NonNull HttpHeaders headers;
+  private final @NonNull HttpHeaders additionalProxyRequestHeaders;
+  private final @NonNull List<String> removeProxyRequestHeaders;
 
   private final Integer fixedDelayMilliseconds;
   private final DelayDistribution delayDistribution;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
-
-  private final String proxyBaseUrl;
-  private final String proxyUrlPrefixToRemove;
-
+  private final @Nullable String proxyBaseUrl;
+  private final @Nullable Path proxyUrlPrefixToRemove;
   private final Fault fault;
+  private final @NonNull List<String> transformers;
+  private final @NonNull Parameters transformerParameters;
 
-  @NonNull private final List<String> transformers;
-  @NonNull private final Parameters transformerParameters;
-
-  private final String browserProxyUrl;
+  private final @Nullable AbsoluteUrl browserProxyUrl;
   private final Boolean wasConfigured;
 
   @JsonCreator
@@ -111,7 +111,7 @@ public class ResponseDefinition {
         delayDistribution,
         chunkedDribbleDelay,
         proxyBaseUrl,
-        proxyUrlPrefixToRemove,
+        proxyUrlPrefixToRemove != null ? Path.parse(proxyUrlPrefixToRemove) : null,
         fault,
         transformers,
         transformerParameters,
@@ -152,12 +152,12 @@ public class ResponseDefinition {
       Integer fixedDelayMilliseconds,
       DelayDistribution delayDistribution,
       ChunkedDribbleDelay chunkedDribbleDelay,
-      String proxyBaseUrl,
-      String proxyUrlPrefixToRemove,
+      @Nullable String proxyBaseUrl,
+      @Nullable Path proxyUrlPrefixToRemove,
       Fault fault,
       List<String> transformers,
       Parameters transformerParameters,
-      String browserProxyUrl,
+      @Nullable AbsoluteUrl browserProxyUrl,
       Boolean wasConfigured) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
@@ -261,9 +261,7 @@ public class ResponseDefinition {
   }
 
   public static ResponseDefinition browserProxy(Request originalRequest) {
-    return new Builder()
-        .setBrowserProxyUrl(originalRequest.getTypedAbsoluteUrl().toString())
-        .build();
+    return new Builder().setBrowserProxyUrl(originalRequest.getTypedAbsoluteUrl()).build();
   }
 
   public static ResponseDefinition copyOf(ResponseDefinition original) {
@@ -287,7 +285,7 @@ public class ResponseDefinition {
         this.fault,
         this.transformers,
         this.transformerParameters,
-        null,
+        this.browserProxyUrl,
         this.wasConfigured);
   }
 
@@ -392,6 +390,7 @@ public class ResponseDefinition {
     return wasConfigured == null || wasConfigured;
   }
 
+  @SuppressWarnings("unused")
   public Boolean isFromConfiguredStub() {
     return wasConfigured == null || wasConfigured ? null : false;
   }
@@ -408,11 +407,11 @@ public class ResponseDefinition {
     return chunkedDribbleDelay;
   }
 
-  public String getProxyBaseUrl() {
+  public @Nullable String getProxyBaseUrl() {
     return proxyBaseUrl;
   }
 
-  public String getProxyUrlPrefixToRemove() {
+  public @Nullable Path getProxyUrlPrefixToRemove() {
     return proxyUrlPrefixToRemove;
   }
 
@@ -432,7 +431,7 @@ public class ResponseDefinition {
   }
 
   @JsonIgnore
-  public String getBrowserProxyUrl() {
+  public @Nullable AbsoluteUrl getBrowserProxyUrl() {
     return browserProxyUrl;
   }
 
@@ -505,25 +504,25 @@ public class ResponseDefinition {
     return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
   }
 
-  @SuppressWarnings("UnusedReturnValue")
+  @SuppressWarnings({"UnusedReturnValue", "unused"})
   public static class Builder {
     private int status = 200;
     private String statusMessage;
     private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
     private String bodyFileName;
     private boolean v3Style;
-    @NonNull private HttpHeaders headers = new HttpHeaders();
-    @NonNull private HttpHeaders additionalProxyRequestHeaders = new HttpHeaders();
-    @NonNull private List<String> removeProxyRequestHeaders = new ArrayList<>();
+    private @NonNull HttpHeaders headers = new HttpHeaders();
+    private @NonNull HttpHeaders additionalProxyRequestHeaders = new HttpHeaders();
+    private @NonNull List<String> removeProxyRequestHeaders = new ArrayList<>();
     private Integer fixedDelayMilliseconds;
     private DelayDistribution delayDistribution;
     private ChunkedDribbleDelay chunkedDribbleDelay;
-    private String proxyBaseUrl;
-    private String proxyUrlPrefixToRemove;
+    private @Nullable String proxyBaseUrl;
+    private @Nullable Path proxyUrlPrefixToRemove = null;
     private Fault fault;
-    @NonNull private List<String> transformers = new ArrayList<>();
-    @NonNull private Parameters transformerParameters = Parameters.empty();
-    private String browserProxyUrl;
+    private @NonNull List<String> transformers = new ArrayList<>();
+    private @NonNull Parameters transformerParameters = Parameters.empty();
+    private @Nullable AbsoluteUrl browserProxyUrl;
     private Boolean wasConfigured = true;
     private Request originalRequest;
 
@@ -596,11 +595,11 @@ public class ResponseDefinition {
       return chunkedDribbleDelay;
     }
 
-    public String getProxyBaseUrl() {
+    public @Nullable String getProxyBaseUrl() {
       return proxyBaseUrl;
     }
 
-    public String getProxyUrlPrefixToRemove() {
+    public @Nullable Path getProxyUrlPrefixToRemove() {
       return proxyUrlPrefixToRemove;
     }
 
@@ -618,7 +617,7 @@ public class ResponseDefinition {
       return transformerParameters;
     }
 
-    public String getBrowserProxyUrl() {
+    public @Nullable AbsoluteUrl getBrowserProxyUrl() {
       return browserProxyUrl;
     }
 
@@ -713,12 +712,22 @@ public class ResponseDefinition {
       return this;
     }
 
+    public Builder setProxyBaseUrl(AbsoluteUrl proxyBaseUrl) {
+      this.proxyBaseUrl = proxyBaseUrl.toString();
+      return this;
+    }
+
     public Builder setProxyBaseUrl(String proxyBaseUrl) {
       this.proxyBaseUrl = proxyBaseUrl;
       return this;
     }
 
-    public Builder setProxyUrlPrefixToRemove(String proxyUrlPrefixToRemove) {
+    public Builder setProxyUrlPrefixToRemove(@Nullable String proxyUrlPrefixToRemove) {
+      Path prefix = proxyUrlPrefixToRemove != null ? Path.parse(proxyUrlPrefixToRemove) : null;
+      return setProxyUrlPrefixToRemove(prefix);
+    }
+
+    public Builder setProxyUrlPrefixToRemove(@Nullable Path proxyUrlPrefixToRemove) {
       this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
       return this;
     }
@@ -740,9 +749,14 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setBrowserProxyUrl(String browserProxyUrl) {
+    public Builder setBrowserProxyUrl(@Nullable AbsoluteUrl browserProxyUrl) {
       this.browserProxyUrl = browserProxyUrl;
       return this;
+    }
+
+    public Builder setBrowserProxyUrl(@Nullable String browserProxyUrl) {
+      AbsoluteUrl url = browserProxyUrl != null ? AbsoluteUrl.parse(browserProxyUrl) : null;
+      return setBrowserProxyUrl(url);
     }
 
     public Builder setWasConfigured(Boolean wasConfigured) {

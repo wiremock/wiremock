@@ -200,6 +200,8 @@ public non-sealed interface AbsoluteUrl extends AbsoluteUri, UrlWithAuthority {
 
   interface Builder extends UriBaseBuilder<Builder> {
 
+    Scheme getScheme();
+
     AbsoluteUrl.Builder setScheme(Scheme scheme);
 
     @Override

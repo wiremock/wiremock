@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
+import org.wiremock.url.jackson2.WireMockUrlModule;
 
 public final class Json {
 
@@ -39,7 +40,7 @@ public final class Json {
   public static class PublicView {}
 
   private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
-      new InheritableThreadLocal<ObjectMapper>() {
+      new InheritableThreadLocal<>() {
         @Override
         protected ObjectMapper initialValue() {
           ObjectMapper objectMapper = new ObjectMapper();
@@ -51,6 +52,7 @@ public final class Json {
           objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
           objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
           objectMapper.registerModule(new JavaTimeModule());
+          objectMapper.registerModule(new WireMockUrlModule());
           objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
           objectMapper.enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
           return objectMapper;
@@ -169,7 +171,7 @@ public final class Json {
 
   public static <T> Map<String, Object> objectToMap(T theObject) {
     ObjectMapper mapper = getObjectMapper();
-    return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
+    return mapper.convertValue(theObject, new TypeReference<>() {});
   }
 
   public static int schemaPropertyCount(JsonNode schema) {

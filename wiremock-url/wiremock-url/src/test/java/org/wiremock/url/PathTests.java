@@ -17,6 +17,7 @@ package org.wiremock.url;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.wiremock.url.PercentEncodedStringParserInvariantTests.generateEncodeDecodeInvariantTests;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -414,6 +416,161 @@ public class PathTests {
     void normalise_with_encoded_slash() {
       Path path = Path.parse("/%2F/");
       assertThat(path.normalise()).isEqualTo(path);
+    }
+  }
+
+  @Nested
+  class Transformers {
+
+    private static final List<Arguments> to_absolute_cases =
+        List.of(
+            arguments("", "/"),
+            arguments("/", "/"),
+            arguments("foo", "/foo"),
+            arguments("foo/", "/foo/"),
+            arguments("/foo", "/foo"),
+            arguments("/foo/", "/foo/"));
+
+    @ParameterizedTest
+    @FieldSource("to_absolute_cases")
+    void to_absolute_creates_absolute_path(String original, String expected) {
+      assertThat(Path.parse(original).toAbsolutePath()).isEqualTo(Path.parse(expected));
+    }
+
+    private static final List<Arguments> to_relative_cases =
+        List.of(
+            arguments("", ""),
+            arguments("/", ""),
+            arguments("foo", "foo"),
+            arguments("foo/", "foo/"),
+            arguments("/foo", "foo"),
+            arguments("/foo/", "foo/"));
+
+    @ParameterizedTest
+    @FieldSource("to_relative_cases")
+    void to_relative_creates_relative_path(String original, String expected) {
+      assertThat(Path.parse(original).toRelativePath()).isEqualTo(Path.parse(expected));
+    }
+
+    private static final List<Arguments> to_base_cases =
+        List.of(
+            arguments("", ""),
+            arguments("/", "/"),
+            arguments("foo", "foo/"),
+            arguments("foo/", "foo/"),
+            arguments("/foo", "/foo/"),
+            arguments("/foo/", "/foo/"));
+
+    @ParameterizedTest
+    @FieldSource("to_base_cases")
+    void to_base_creates_base_path(String original, String expected) {
+      assertThat(Path.parse(original).toBasePath()).isEqualTo(Path.parse(expected));
+    }
+
+    private static final List<Arguments> to_leaf_cases =
+        List.of(
+            arguments("", ""),
+            arguments("/", ""),
+            arguments("foo", "foo"),
+            arguments("foo/", "foo"),
+            arguments("/foo", "/foo"),
+            arguments("/foo/", "/foo"));
+
+    @ParameterizedTest
+    @FieldSource("to_leaf_cases")
+    void to_leaf_creates_leaf_path(String original, String expected) {
+      assertThat(Path.parse(original).toLeafPath()).isEqualTo(Path.parse(expected));
+    }
+
+    private static final List<Arguments> remove_prefix_cases =
+        List.of(
+            arguments("", "", ""),
+            arguments("/", "", "/"),
+            arguments("foo", "", "foo"),
+            arguments("foo/", "", "foo/"),
+            arguments("/foo", "", "/foo"),
+            arguments("/foo/", "", "/foo/"),
+            arguments("", "/", ""),
+            arguments("/", "/", ""),
+            arguments("foo", "/", "foo"),
+            arguments("foo/", "/", "foo/"),
+            arguments("/foo", "/", "foo"),
+            arguments("/foo/", "/", "foo/"),
+            arguments("", "foo", ""),
+            arguments("/", "foo", "/"),
+            arguments("foo", "foo", ""),
+            arguments("foo/", "foo", "/"),
+            arguments("/foo", "foo", "/foo"),
+            arguments("/foo/", "foo", "/foo/"),
+            arguments("", "foo/", ""),
+            arguments("/", "foo/", "/"),
+            arguments("foo", "foo/", "foo"),
+            arguments("foo/", "foo/", ""),
+            arguments("/foo", "foo/", "/foo"),
+            arguments("/foo/", "foo/", "/foo/"),
+            arguments("", "/foo", ""),
+            arguments("/", "/foo", "/"),
+            arguments("foo", "/foo", "foo"),
+            arguments("foo/", "/foo", "foo/"),
+            arguments("/foo", "/foo", ""),
+            arguments("/foo/", "/foo", "/"),
+            arguments("", "/foo/", ""),
+            arguments("/", "/foo/", "/"),
+            arguments("foo", "/foo/", "foo"),
+            arguments("foo/", "/foo/", "foo/"),
+            arguments("/foo", "/foo/", "/foo"),
+            arguments("/foo/", "/foo/", ""));
+
+    @ParameterizedTest
+    @FieldSource("remove_prefix_cases")
+    void remove_prefix_removes_prefix(String original, String prefixToRemove, String expected) {
+      assertThat(Path.parse(original).removePrefix(Path.parse(prefixToRemove)))
+          .isEqualTo(Path.parse(expected));
+    }
+
+    private static final List<Arguments> append_cases =
+        List.of(
+            arguments("", "", ""),
+            arguments("/", "", "/"),
+            arguments("foo", "", "foo"),
+            arguments("foo/", "", "foo/"),
+            arguments("/foo", "", "/foo"),
+            arguments("/foo/", "", "/foo/"),
+            arguments("", "/", "/"),
+            arguments("/", "/", "/"),
+            arguments("foo", "/", "foo/"),
+            arguments("foo/", "/", "foo/"),
+            arguments("/foo", "/", "/foo/"),
+            arguments("/foo/", "/", "/foo/"),
+            arguments("", "foo", "foo"),
+            arguments("/", "foo", "/foo"),
+            arguments("foo", "foo", "foo/foo"),
+            arguments("foo/", "foo", "foo/foo"),
+            arguments("/foo", "foo", "/foo/foo"),
+            arguments("/foo/", "foo", "/foo/foo"),
+            arguments("", "foo/", "foo/"),
+            arguments("/", "foo/", "/foo/"),
+            arguments("foo", "foo/", "foo/foo/"),
+            arguments("foo/", "foo/", "foo/foo/"),
+            arguments("/foo", "foo/", "/foo/foo/"),
+            arguments("/foo/", "foo/", "/foo/foo/"),
+            arguments("", "/foo", "/foo"),
+            arguments("/", "/foo", "/foo"),
+            arguments("foo", "/foo", "foo/foo"),
+            arguments("foo/", "/foo", "foo/foo"),
+            arguments("/foo", "/foo", "/foo/foo"),
+            arguments("/foo/", "/foo", "/foo/foo"),
+            arguments("", "/foo/", "/foo/"),
+            arguments("/", "/foo/", "/foo/"),
+            arguments("foo", "/foo/", "foo/foo/"),
+            arguments("foo/", "/foo/", "foo/foo/"),
+            arguments("/foo", "/foo/", "/foo/foo/"),
+            arguments("/foo/", "/foo/", "/foo/foo/"));
+
+    @ParameterizedTest
+    @FieldSource("append_cases")
+    void append_cases(String original, String toAppend, String expected) {
+      assertThat(Path.parse(original).append(Path.parse(toAppend))).isEqualTo(Path.parse(expected));
     }
   }
 

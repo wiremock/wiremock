@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http.client.apache5;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -27,6 +28,7 @@ import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
@@ -37,6 +39,8 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.jspecify.annotations.NonNull;
+import org.wiremock.url.AbsoluteUrl;
 
 public class ApacheBackedHttpClient implements HttpClient {
 
@@ -62,9 +66,10 @@ public class ApacheBackedHttpClient implements HttpClient {
             ? ContentType.parse(request.contentTypeHeader().firstValue())
             : ContentType.APPLICATION_OCTET_STREAM.withCharset(UTF_8);
 
+    URI uri = safelyToUri(requireNonNull(request.getTypedAbsoluteUrl()));
     final ClassicRequestBuilder requestBuilder =
         ClassicRequestBuilder.create(request.getMethod().getName())
-            .setUri(request.getTypedAbsoluteUrl().toString())
+            .setUri(uri)
             .setHeaders(
                 request.getHeaders().all().stream()
                     .filter(
@@ -90,6 +95,14 @@ public class ApacheBackedHttpClient implements HttpClient {
     }
 
     return requestBuilder.build();
+  }
+
+  private static @NonNull URI safelyToUri(@NonNull AbsoluteUrl absoluteUrl) {
+    try {
+      return absoluteUrl.toUri();
+    } catch (IllegalArgumentException e) {
+      return absoluteUrl.normalise().toUri();
+    }
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(

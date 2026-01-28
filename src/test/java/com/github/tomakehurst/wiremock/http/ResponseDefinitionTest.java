@@ -42,6 +42,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.AbsoluteUrl;
+import org.wiremock.url.Path;
 
 public class ResponseDefinitionTest {
 
@@ -367,11 +369,11 @@ public class ResponseDefinitionTest {
             new FixedDelayDistribution(2000),
             new ChunkedDribbleDelay(3, 200),
             "http://example.com",
-            "my-prefix",
+            Path.parse("my-prefix"),
             Fault.EMPTY_RESPONSE,
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
-            "https://browser.example.com",
+            AbsoluteUrl.parse("https://browser.example.com"),
             true);
 
     var copy = responseDefinition.toBuilder().build();
@@ -390,11 +392,11 @@ public class ResponseDefinitionTest {
     assertThat(copy.getChunkedDribbleDelay().getNumberOfChunks(), is(3));
     assertThat(copy.getChunkedDribbleDelay().getTotalDuration(), is(200));
     assertThat(copy.getProxyBaseUrl(), is("http://example.com"));
-    assertThat(copy.getProxyUrlPrefixToRemove(), is("my-prefix"));
+    assertThat(copy.getProxyUrlPrefixToRemove(), is(Path.parse("my-prefix")));
     assertThat(copy.getFault(), is(Fault.EMPTY_RESPONSE));
     assertThat(copy.getTransformers(), is(List.of("my-transformer")));
     assertThat(copy.getTransformerParameters(), is(Parameters.one("p-1", "p1v1")));
-    assertThat(copy.getBrowserProxyUrl(), is("https://browser.example.com"));
+    assertThat(copy.getBrowserProxyUrl(), is(AbsoluteUrl.parse("https://browser.example.com")));
     assertThat(copy.wasConfigured(), is(true));
   }
 

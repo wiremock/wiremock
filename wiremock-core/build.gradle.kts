@@ -32,6 +32,7 @@ dependencies {
         exclude(group = "org.apache.commons", module = "commons-lang3")
     }
     implementation(libs.jackson.datatype.jsr310)
+    implementation(project(":wiremock-url:wiremock-url-jackson2"))
     implementation(libs.json.path) {
         exclude(group = "org.ow2.asm", module = "asm")
     }

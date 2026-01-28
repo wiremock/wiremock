@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.url.Path;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ResponseDefinitionBuilder {
@@ -250,7 +252,7 @@ public class ResponseDefinitionBuilder {
   protected ResponseDefinition build(
       HttpHeaders additionalProxyRequestHeaders,
       List<String> removeProxyRequestHeaders,
-      String proxyUrlPrefixToRemove) {
+      @Nullable Path proxyUrlPrefixToRemove) {
     return builder
         .setAdditionalProxyRequestHeaders(additionalProxyRequestHeaders)
         .setRemoveProxyRequestHeaders(removeProxyRequestHeaders)

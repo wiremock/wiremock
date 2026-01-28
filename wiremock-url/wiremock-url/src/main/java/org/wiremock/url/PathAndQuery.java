@@ -80,4 +80,8 @@ public interface PathAndQuery extends RelativeUrl {
   static PathAndQuery of(Path path, @Nullable Query query) {
     return new PathAndQueryValue(path, query);
   }
+
+  default PathAndQuery removePathPrefix(Path prefix) {
+    return of(getPath().removePrefix(prefix), getQuery());
+  }
 }

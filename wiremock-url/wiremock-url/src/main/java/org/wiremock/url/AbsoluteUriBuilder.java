@@ -45,14 +45,24 @@ final class AbsoluteUriTransformer extends AbstractUriBaseBuilder<AbsoluteUriTra
 final class AbsoluteUriBuilder extends AbstractUriBaseBuilder<AbsoluteUriBuilder>
     implements AbsoluteUri.Builder<AbsoluteUriBuilder> {
 
+  private final Scheme nonNullScheme;
+
   AbsoluteUriBuilder(Scheme scheme) {
     this.scheme = scheme;
+    this.nonNullScheme = scheme;
   }
 
   AbsoluteUriBuilder(AbsoluteUri uri) {
     super(uri);
+    this.nonNullScheme = uri.getScheme();
   }
 
+  @Override
+  public Scheme getScheme() {
+    return this.nonNullScheme;
+  }
+
+  @Override
   public AbsoluteUriBuilder setScheme(Scheme scheme) {
     return super.doSetScheme(requireNonNull(scheme));
   }
