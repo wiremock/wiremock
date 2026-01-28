@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -34,8 +35,10 @@ public class EqualToJsonPattern extends StringValuePattern {
   private final JsonNode expected;
   private final Boolean ignoreArrayOrder;
   private final Boolean ignoreExtraElements;
+  private final Boolean ignoreNullElements;
   private final Boolean serializeAsString;
 
+  @JsonCreator
   public EqualToJsonPattern(
       @JsonProperty("equalToJson") String json,
       @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
@@ -44,6 +47,20 @@ public class EqualToJsonPattern extends StringValuePattern {
     expected = Json.read(json, JsonNode.class);
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
+    this.ignoreNullElements = null;
+    this.serializeAsString = true;
+  }
+
+  public EqualToJsonPattern(
+      @JsonProperty("equalToJson") String json,
+      @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
+      @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements,
+      @JsonProperty("ignoreNullElements") Boolean ignoreNullElements) {
+    super(json);
+    expected = Json.read(json, JsonNode.class);
+    this.ignoreArrayOrder = ignoreArrayOrder;
+    this.ignoreExtraElements = ignoreExtraElements;
+    this.ignoreNullElements = ignoreNullElements;
     this.serializeAsString = true;
   }
 
@@ -53,6 +70,20 @@ public class EqualToJsonPattern extends StringValuePattern {
     expected = jsonNode;
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
+    this.ignoreNullElements = null;
+    this.serializeAsString = false;
+  }
+
+  public EqualToJsonPattern(
+      JsonNode jsonNode,
+      Boolean ignoreArrayOrder,
+      Boolean ignoreExtraElements,
+      Boolean ignoreNullElements) {
+    super(Json.write(jsonNode));
+    expected = jsonNode;
+    this.ignoreArrayOrder = ignoreArrayOrder;
+    this.ignoreExtraElements = ignoreExtraElements;
+    this.ignoreNullElements = ignoreNullElements;
     this.serializeAsString = false;
   }
 
@@ -71,6 +102,10 @@ public class EqualToJsonPattern extends StringValuePattern {
     if (shouldIgnoreExtraElements()) {
       diffConfig =
           diffConfig.withOptions(Option.IGNORING_EXTRA_ARRAY_ITEMS, Option.IGNORING_EXTRA_FIELDS);
+    }
+
+    if (shouldIgnoreNullElements()) {
+      diffConfig = diffConfig.withOptions(Option.TREATING_NULL_AS_ABSENT);
     }
 
     final JsonNode actual;
@@ -128,6 +163,14 @@ public class EqualToJsonPattern extends StringValuePattern {
 
   public Boolean isIgnoreExtraElements() {
     return ignoreExtraElements;
+  }
+
+  private boolean shouldIgnoreNullElements() {
+    return Boolean.TRUE.equals(ignoreNullElements);
+  }
+
+  public Boolean isIgnoreNullElements() {
+    return ignoreNullElements;
   }
 
   @Override
