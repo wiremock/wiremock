@@ -121,9 +121,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     return this.equals(Path.EMPTY);
   }
 
-  /**
-   * @return this path with a leading slash added if not present
-   */
+  /** Returns this path with a leading slash added if not present */
   default Path toAbsolutePath() {
     if (isAbsolute()) {
       return this;
@@ -132,9 +130,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     }
   }
 
-  /**
-   * @return this path with any leading slash removed
-   */
+  /** Returns this path with any leading slash removed */
   default Path toRelativePath() {
     if (isRelative()) {
       return this;
@@ -144,9 +140,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     }
   }
 
-  /**
-   * @return this path with a trailing slash added if not present and not empty
-   */
+  /** Returns this path with a trailing slash added if not present and not empty */
   default Path toBasePath() {
     if (isBase()) {
       return this;
@@ -155,9 +149,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     }
   }
 
-  /**
-   * @return this path with any trailing slash removed
-   */
+  /** Returns this path with any trailing slash removed */
   default Path toLeafPath() {
     if (isEmpty() || isLeaf()) {
       return this;

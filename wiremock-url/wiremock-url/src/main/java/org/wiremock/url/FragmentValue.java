@@ -44,7 +44,7 @@ final class FragmentValue implements Fragment {
   }
 
   private @Nullable Fragment normaliseWork() {
-    String result = Constants.simpleNormalise(fragment, FragmentParser.fragmentCharSet);
+    String result = PercentEncoding.simpleNormalise(fragment, FragmentParser.fragmentCharSet);
     return result != null ? new FragmentValue(result, true) : null;
   }
 
@@ -54,7 +54,7 @@ final class FragmentValue implements Fragment {
   }
 
   private boolean isNormalFormWork() {
-    return Constants.isSimpleNormalForm(fragment, FragmentParser.fragmentCharSet);
+    return PercentEncoding.isSimpleNormalForm(fragment, FragmentParser.fragmentCharSet);
   }
 
   @Override

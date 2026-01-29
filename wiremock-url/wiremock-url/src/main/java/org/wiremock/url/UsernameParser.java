@@ -45,7 +45,7 @@ public final class UsernameParser implements PercentEncodedStringParser<Username
 
   @Override
   public Username encode(String unencoded) {
-    String encoded = Constants.encode(unencoded, usernameCharSet);
+    String encoded = PercentEncoding.encode(unencoded, usernameCharSet);
     return new UsernameValue(encoded);
   }
 }

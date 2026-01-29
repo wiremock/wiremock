@@ -55,7 +55,7 @@ public final class SegmentParser implements PercentEncodedStringParser<Segment> 
   @Override
   public Segment encode(String unencoded) {
     return build(
-        unencoded, () -> new SegmentValue(Constants.encode(unencoded, segmentCharSet), true));
+        unencoded, () -> new SegmentValue(PercentEncoding.encode(unencoded, segmentCharSet), true));
   }
 
   Segment build(String stringForm, Supplier<Segment> builder) {

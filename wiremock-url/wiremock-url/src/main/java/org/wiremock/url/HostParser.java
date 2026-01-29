@@ -70,7 +70,7 @@ public final class HostParser implements PercentEncodedStringParser<Host> {
   public Host encode(String unencoded) {
     if (unencoded.isEmpty()) return Host.EMPTY;
     if (unencoded.equals("localhost")) return Host.LOCALHOST;
-    var result = Constants.encode(unencoded, hostCharSet);
+    var result = PercentEncoding.encode(unencoded, hostCharSet);
     return new HostValue(result, true);
   }
 }

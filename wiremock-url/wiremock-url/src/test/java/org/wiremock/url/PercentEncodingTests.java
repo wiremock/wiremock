@@ -24,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 
-class ConstantsTests {
+class PercentEncodingTests {
 
   private static final boolean[] alphanumericDoNotNeedEncoding =
       combine(includeRange('a', 'z'), includeRange('A', 'Z'), includeRange('0', '9'));
@@ -73,7 +73,9 @@ class ConstantsTests {
           Pair.of("%61", "a"),
           Pair.of("%7A", "z"),
           Pair.of("aßc", "a%C3%9Fc"),
-          Pair.of("loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin", "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin"),
+          Pair.of(
+              "loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin",
+              "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin"),
           Pair.of("%~", "%25%7E"), // should be encoded
           Pair.of("%0~", "%250%7E"), // should be encoded
           Pair.of("%~0", "%25%7E0"), // should be encoded
@@ -87,7 +89,8 @@ class ConstantsTests {
   @FieldSource("nonNormalNormalisationCases")
   void is_normal_form_returns_false(Pair<String, String> nonNormalNormalisationCases) {
     var nonNormalForm = nonNormalNormalisationCases.getLeft();
-    assertThat(Constants.isNormalForm(nonNormalForm, alphanumericDoNotNeedEncoding)).isFalse();
+    assertThat(PercentEncoding.isNormalForm(nonNormalForm, alphanumericDoNotNeedEncoding))
+        .isFalse();
   }
 
   @ParameterizedTest
@@ -95,7 +98,7 @@ class ConstantsTests {
   void normalise_returns_normalised(Pair<String, String> nonNormalNormalisationCases) {
     var nonNormalForm = nonNormalNormalisationCases.getLeft();
     var normalForm = nonNormalNormalisationCases.getRight();
-    assertThat(Constants.normalise(nonNormalForm, alphanumericDoNotNeedEncoding))
+    assertThat(PercentEncoding.normalise(nonNormalForm, alphanumericDoNotNeedEncoding))
         .isEqualTo(normalForm);
   }
 
@@ -103,30 +106,33 @@ class ConstantsTests {
   @FieldSource("normalisationCases")
   void is_normal_form_returns_true_for_normal_form(Pair<String, String> normalisationCase) {
     var normalForm = normalisationCase.getRight();
-    assertThat(Constants.isNormalForm(normalForm, alphanumericDoNotNeedEncoding)).isTrue();
+    assertThat(PercentEncoding.isNormalForm(normalForm, alphanumericDoNotNeedEncoding)).isTrue();
   }
 
   @ParameterizedTest
   @FieldSource("normalisationCases")
   void normalise_returns_null_when_already_normal(Pair<String, String> normalisationCase) {
     var normalForm = normalisationCase.getRight();
-    assertThat(Constants.normalise(normalForm, alphanumericDoNotNeedEncoding)).isNull();
+    assertThat(PercentEncoding.normalise(normalForm, alphanumericDoNotNeedEncoding)).isNull();
   }
 
   private static final List<Pair<String, String>> encodingCases =
       List.of(
           Pair.of("aßc", "a%C3%9Fc"),
-          Pair.of("loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin", "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin")
-          );
+          Pair.of(
+              "loC𝐀𝐋𝐇𝐨𝐬𝐭/usr/bin",
+              "loC%F0%9D%90%80%F0%9D%90%8B%F0%9D%90%87%F0%9D%90%A8%F0%9D%90%AC%F0%9D%90%AD%2Fusr%2Fbin"));
+
   @ParameterizedTest
   @FieldSource("encodingCases")
   void encode_encodes_as_expected(Pair<String, String> testCase) {
-    assertThat(Constants.encode(testCase.getLeft(), alphanumericDoNotNeedEncoding)).isEqualTo(testCase.getRight());
+    assertThat(PercentEncoding.encode(testCase.getLeft(), alphanumericDoNotNeedEncoding))
+        .isEqualTo(testCase.getRight());
   }
 
   @ParameterizedTest
   @FieldSource("encodingCases")
   void decode_decodes_as_expected(Pair<String, String> testCase) {
-    assertThat(PercentEncoded.decodeCharacters(testCase.getRight())).isEqualTo(testCase.getLeft());
+    assertThat(PercentEncoding.decode(testCase.getRight())).isEqualTo(testCase.getLeft());
   }
 }

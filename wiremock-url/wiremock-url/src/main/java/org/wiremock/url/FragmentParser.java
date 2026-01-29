@@ -42,7 +42,7 @@ public final class FragmentParser implements PercentEncodedStringParser<Fragment
     if (unencoded.isEmpty()) {
       return Fragment.EMPTY;
     } else {
-      var result = Constants.encode(unencoded, fragmentCharSet);
+      var result = PercentEncoding.encode(unencoded, fragmentCharSet);
       return new FragmentValue(result, true);
     }
   }
