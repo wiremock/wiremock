@@ -60,20 +60,9 @@ public class WhatWGUrlTestManagement {
           "https://raw.githubusercontent.com/web-platform-tests/wpt/refs/heads/master/url/resources/urltestdata.json");
 
   private static final String URLTESTDATA_JSON = "urltestdata.json";
-  private static final String ADDITIONAL_TESTS_JSON = "additional_tests.json";
 
-  static final List<? extends WhatWGUrlTestCase> remoteData = toWhatWGUrlTestCases(readLocalJson());
-
-  static final List<? extends WhatWGUrlTestCase> additionalTests;
-
-  static {
-    try (var additionalTestResource =
-        WhatWGUrlTestManagement.class.getResourceAsStream(ADDITIONAL_TESTS_JSON)) {
-      additionalTests = toWhatWGUrlTestCases(objectMapper.readTree(additionalTestResource));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+  public static final List<? extends WhatWGUrlTestCase> testData =
+      toWhatWGUrlTestCases(readLocalJson());
 
   private static List<WhatWGUrlTestCase> toWhatWGUrlTestCases(JsonNode jsonNode) {
     return jsonNode
@@ -82,9 +71,6 @@ public class WhatWGUrlTestManagement {
         .map(WhatWGUrlTestManagement::mapToWhatWgUrlTestCase)
         .toList();
   }
-
-  public static final List<? extends WhatWGUrlTestCase> testData =
-      concat(remoteData, additionalTests);
 
   private static WhatWGUrlTestCase mapToWhatWgUrlTestCase(JsonNode o) {
     try {
