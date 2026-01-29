@@ -47,7 +47,7 @@ public final class UserInfoParser implements PercentEncodedStringParser<UserInfo
 
   @Override
   public UserInfo encode(String unencoded) {
-    String encoded = Constants.encode(unencoded, userInfoCharSet);
+    String encoded = PercentEncoding.encode(unencoded, userInfoCharSet);
     return parse(encoded);
   }
 }

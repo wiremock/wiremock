@@ -3876,66 +3876,6 @@
     "matchesWhatWg" : true
   },
   {
-    "input" : "http://example.com/{}?{}#{}",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/{}?{}#{}", "type" : "AbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/{}", "query" : "{}", "fragment" : "{}" },
-    "inputNormalised" : { "stringValue" : "http://example.com/%7B%7D?%7B%7D#%7B%7D", "type" : "AbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%7B%7D", "query" : "%7B%7D", "fragment" : "%7B%7D" },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%7B%7D?%7B%7D#%7B%7D", "type" : "AbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%7B%7D", "query" : "%7B%7D", "fragment" : "%7B%7D" },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/{}?{}#{}", "href" : "http://example.com/%7B%7D", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%7B%7D", "search" : "?%7B%7D", "hash" : "#%7B%7D" },
-    "matchesWhatWg" : false
-  },
-  {
-    "input" : "http://example.com/Здравствуйте",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/Здравствуйте", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/Здравствуйте", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/Здравствуйте", "href" : "http://example.com/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "http://example.com/שָׁלוֹ,ם",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/שָׁלוֹ,ם", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/שָׁלוֹ,ם", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/שָׁלוֹ,ם", "href" : "http://example.com/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%D7%A9%D6%B8%D7%81%D7%9C%D7%95%D6%B9,%D7%9D", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "http://example.com/مرحب,ا",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/مرحب,ا", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/مرحب,ا", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/مرحب,ا", "href" : "http://example.com/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%D9%85%D8%B1%D8%AD%D8%A8,%D8%A7", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "http://example.com/नमस्ते",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/नमस्ते", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/नमस्ते", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/नमस्ते", "href" : "http://example.com/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
     "input" : "http://example.com/‥/foo",
     "base" : null,
     "inputExpected" : { "stringValue" : "http://example.com/‥/foo", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/‥/foo", "query" : null, "fragment" : null },
@@ -3960,18 +3900,6 @@
     "matchesWhatWg" : true
   },
   {
-    "input" : "http://example.com/こんにちは",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/こんにちは", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/こんにちは", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/こんにちは", "href" : "http://example.com/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
     "input" : "http://example.com/你好你好",
     "base" : null,
     "inputExpected" : { "stringValue" : "http://example.com/你好你好", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/你好你好", "query" : null, "fragment" : null },
@@ -3981,30 +3909,6 @@
     "resolved" : { "stringValue" : "http://example.com/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD", "query" : null, "fragment" : null },
     "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
     "source" : { "input" : "http://example.com/你好你好", "href" : "http://example.com/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "http://example.com/안녕",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/안녕", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/안녕", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%EC%95%88%EB%85%95", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%EC%95%88%EB%85%95", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%EC%95%88%EB%85%95", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%EC%95%88%EB%85%95", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/안녕", "href" : "http://example.com/%EC%95%88%EB%85%95", "origin" : "http://example.com", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%EC%95%88%EB%85%95", "search" : "", "hash" : "" },
-    "matchesWhatWg" : true
-  },
-  {
-    "input" : "http://example.com/\uD83D\uDE00",
-    "base" : null,
-    "inputExpected" : { "stringValue" : "http://example.com/\uD83D\uDE00", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/\uD83D\uDE00", "query" : null, "fragment" : null },
-    "inputNormalised" : { "stringValue" : "http://example.com/%3F%3F", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%3F%3F", "query" : null, "fragment" : null },
-    "baseExpected" : null,
-    "baseNormalised" : null,
-    "resolved" : { "stringValue" : "http://example.com/%3F%3F", "type" : "ServersideAbsoluteUrl", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "/%3F%3F", "query" : null, "fragment" : null },
-    "origin" : { "stringValue" : "http://example.com", "type" : "Origin", "scheme" : "http", "authority" : "example.com", "userInfo" : null, "username" : null, "password" : null, "host" : "example.com", "port" : null, "path" : "", "query" : null, "fragment" : null },
-    "source" : { "input" : "http://example.com/\uD83D\uDE00", "href" : "http://example.com/%3F%3F", "origin" : "null", "protocol" : "http:", "username" : "", "password" : "", "host" : "example.com", "hostname" : "example.com", "port" : "", "pathname" : "/%3F%3F", "search" : "", "hash" : "" },
     "matchesWhatWg" : true
   },
   {

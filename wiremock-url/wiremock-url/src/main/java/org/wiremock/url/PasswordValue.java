@@ -37,7 +37,7 @@ final class PasswordValue implements Password {
       return this;
     }
 
-    String result = Constants.normalise(password, UserInfoParser.userInfoCharSet);
+    String result = PercentEncoding.normalise(password, UserInfoParser.userInfoCharSet);
 
     if (result == null) {
       return this;
@@ -48,7 +48,7 @@ final class PasswordValue implements Password {
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || Constants.isNormalForm(password, UserInfoParser.userInfoCharSet);
+    return isNormalForm || PercentEncoding.isNormalForm(password, UserInfoParser.userInfoCharSet);
   }
 
   @Override

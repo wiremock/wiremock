@@ -58,12 +58,12 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
     } else if (unencoded.equals("/")) {
       return Path.ROOT;
     } else {
-      return new PathValue(Constants.encode(unencoded, pathCharSet), true);
+      return new PathValue(PercentEncoding.encode(unencoded, pathCharSet), true);
     }
   }
 
   String normalisePercentEncoded(String unencoded) {
-    String result = Constants.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
+    String result = PercentEncoding.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
     return result != null ? result : unencoded;
   }
 }

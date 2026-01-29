@@ -233,7 +233,25 @@ class AbsoluteUrlTests {
               expectation("https", "example.com", "/a\tb", "a\tb", "a\tb")),
           testCase(
               "https://example.com/a|b?a|b#a|b",
-              expectation("https", "example.com", "/a|b", "a|b", "a|b")));
+              expectation("https", "example.com", "/a|b", "a|b", "a|b")),
+          testCase("http://example.com/😀", expectation("http", "example.com", "/😀", null, null)),
+          testCase(
+              "http://example.com/{}?{}#{}", expectation("http", "example.com", "/{}", "{}", "{}")),
+          testCase("http://example.com/안녕", expectation("http", "example.com", "/안녕", null, null)),
+          testCase(
+              "http://example.com/नमस्ते",
+              expectation("http", "example.com", "/नमस्ते", null, null)),
+          testCase(
+              "http://example.com/こんにちは", expectation("http", "example.com", "/こんにちは", null, null)),
+          testCase(
+              "http://example.com/Здравствуйте",
+              expectation("http", "example.com", "/Здравствуйте", null, null)),
+          testCase(
+              "http://example.com/مرحب,ا",
+              expectation("http", "example.com", "/مرحب,ا", null, null)),
+          testCase(
+              "http://example.com/שָׁלוֹ,ם",
+              expectation("http", "example.com", "/שָׁלוֹ,ם", null, null)));
     }
   }
 

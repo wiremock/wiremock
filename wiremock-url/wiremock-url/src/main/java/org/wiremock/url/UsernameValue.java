@@ -37,7 +37,7 @@ final class UsernameValue implements Username {
       return this;
     }
 
-    String result = Constants.normalise(username, UserInfoParser.usernameCharSet);
+    String result = PercentEncoding.normalise(username, UserInfoParser.usernameCharSet);
 
     if (result == null) {
       return this;
@@ -48,7 +48,7 @@ final class UsernameValue implements Username {
 
   @Override
   public boolean isNormalForm() {
-    return isNormalForm || Constants.isNormalForm(username, UserInfoParser.usernameCharSet);
+    return isNormalForm || PercentEncoding.isNormalForm(username, UserInfoParser.usernameCharSet);
   }
 
   @Override
