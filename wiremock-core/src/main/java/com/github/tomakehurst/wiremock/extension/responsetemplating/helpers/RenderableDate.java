@@ -59,8 +59,8 @@ public class RenderableDate extends Date {
     }
 
     return timezone != null
-        ? ISO8601Utils.format(this, false, TimeZone.getTimeZone(timezone))
-        : ISO8601Utils.format(this, false);
+        ? ISO8601Utils.format(this, true, TimeZone.getTimeZone(timezone))
+        : ISO8601Utils.format(this, true);
   }
 
   private String formatCustom() {
