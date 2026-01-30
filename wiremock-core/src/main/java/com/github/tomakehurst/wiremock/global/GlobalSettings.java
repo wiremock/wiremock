@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,15 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import java.util.Objects;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class GlobalSettings {
 
-  private final Integer fixedDelay;
-  private final DelayDistribution delayDistribution;
-  private final Parameters extended;
+  @Nullable private final Integer fixedDelay;
+  @Nullable private final DelayDistribution delayDistribution;
+  @Nullable private final Parameters extended;
 
   private final boolean proxyPassThrough;
 
@@ -38,9 +41,9 @@ public class GlobalSettings {
   }
 
   public GlobalSettings(
-      @JsonProperty("fixedDelay") Integer fixedDelay,
-      @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
-      @JsonProperty("extended") Parameters extended,
+      @JsonProperty("fixedDelay") @Nullable Integer fixedDelay,
+      @JsonProperty("delayDistribution") @Nullable DelayDistribution delayDistribution,
+      @JsonProperty("extended") @Nullable Parameters extended,
       @JsonProperty("proxyPassThrough") boolean proxyPassThrough) {
     this.fixedDelay = fixedDelay;
     this.delayDistribution = delayDistribution;
@@ -48,15 +51,15 @@ public class GlobalSettings {
     this.proxyPassThrough = proxyPassThrough;
   }
 
-  public Integer getFixedDelay() {
+  public @Nullable Integer getFixedDelay() {
     return fixedDelay;
   }
 
-  public DelayDistribution getDelayDistribution() {
+  public @Nullable DelayDistribution getDelayDistribution() {
     return delayDistribution;
   }
 
-  public Parameters getExtended() {
+  public @Nullable Parameters getExtended() {
     return extended;
   }
 
@@ -97,9 +100,9 @@ public class GlobalSettings {
   }
 
   public static class Builder {
-    private Integer fixedDelay;
-    private DelayDistribution delayDistribution;
-    private Parameters extended;
+    @Nullable private Integer fixedDelay;
+    @Nullable private DelayDistribution delayDistribution;
+    @Nullable private Parameters extended;
 
     private boolean proxyPassThrough = true;
 
@@ -112,17 +115,17 @@ public class GlobalSettings {
       this.proxyPassThrough = existing.getProxyPassThrough();
     }
 
-    public Builder fixedDelay(Integer fixedDelay) {
+    public Builder fixedDelay(@Nullable Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
       return this;
     }
 
-    public Builder delayDistribution(DelayDistribution delayDistribution) {
+    public Builder delayDistribution(@Nullable DelayDistribution delayDistribution) {
       this.delayDistribution = delayDistribution;
       return this;
     }
 
-    public Builder extended(Parameters extended) {
+    public Builder extended(@Nullable Parameters extended) {
       this.extended = extended;
       return this;
     }
@@ -132,15 +135,15 @@ public class GlobalSettings {
       return this;
     }
 
-    public Integer getFixedDelay() {
+    public @Nullable Integer getFixedDelay() {
       return fixedDelay;
     }
 
-    public DelayDistribution getDelayDistribution() {
+    public @Nullable DelayDistribution getDelayDistribution() {
       return delayDistribution;
     }
 
-    public Parameters getExtended() {
+    public @Nullable Parameters getExtended() {
       return extended;
     }
 
@@ -148,17 +151,17 @@ public class GlobalSettings {
       return proxyPassThrough;
     }
 
-    public Builder setFixedDelay(Integer fixedDelay) {
+    public Builder setFixedDelay(@Nullable Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
       return this;
     }
 
-    public Builder setDelayDistribution(DelayDistribution delayDistribution) {
+    public Builder setDelayDistribution(@Nullable DelayDistribution delayDistribution) {
       this.delayDistribution = delayDistribution;
       return this;
     }
 
-    public Builder setExtended(Parameters extended) {
+    public Builder setExtended(@Nullable Parameters extended) {
       this.extended = extended;
       return this;
     }
