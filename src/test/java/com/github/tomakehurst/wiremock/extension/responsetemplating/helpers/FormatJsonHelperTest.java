@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(prettyJson));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(prettyJson));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(prettyJsonWindows));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(prettyJson));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(prettyJson));
   }
 
   @Test
@@ -71,7 +71,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(prettyJsonWindows));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(prettyJsonWindows));
   }
 
   @Test
@@ -80,7 +80,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(compactJson));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(compactJson));
   }
 
   @Test
@@ -92,7 +92,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(compactJson));
+    assertThat(responseDefinition.getBody().getDataAsString(), is(compactJson));
   }
 
   @Test
@@ -102,7 +102,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is("[ERROR: formatJson: format [foo] should be one of [pretty, compact]]"));
   }
 
@@ -113,7 +113,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is("[ERROR: There was an error parsing the json. Please make sure the json is valid]"));
   }
 
@@ -124,7 +124,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatJson should take a block of JSON to format or a single parameter of type String]"));
   }
@@ -136,7 +136,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatJson should take a block of JSON to format or a single parameter of type String]"));
   }
@@ -148,7 +148,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatJson should take a block of JSON to format or a single parameter of type String]"));
   }
@@ -160,7 +160,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatJson should take a block of JSON to format or a single parameter of type String]"));
   }
@@ -172,7 +172,7 @@ public class FormatJsonHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody(),
+        responseDefinition.getBody().getDataAsString(),
         is(
             "[ERROR: formatJson: format [1] of type [java.lang.Integer should be a Format or a String and one of [pretty, compact]]]"));
   }

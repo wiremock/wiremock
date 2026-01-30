@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -366,7 +366,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
     assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
     assertThat(
         contentsOfFirstFileNamedLike("please_record-this"),
-        containsString("bodyFileName\" : \"please_record-this"));
+        containsString("filePath\" : \"please_record-this"));
   }
 
   @Test

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -59,7 +58,7 @@ public class SendMessageAction implements MessageAction {
   }
 
   public static SendMessageAction toOriginatingChannel(String messageBody) {
-    return toOriginatingChannel(new StringEntityDefinition(messageBody));
+    return toOriginatingChannel(EntityDefinition.simple(messageBody));
   }
 
   public static SendMessageAction toMatchingChannels(
@@ -73,7 +72,7 @@ public class SendMessageAction implements MessageAction {
 
   public static SendMessageAction toMatchingChannels(
       String messageBody, RequestPattern targetChannelPattern) {
-    return toMatchingChannels(new StringEntityDefinition(messageBody), targetChannelPattern);
+    return toMatchingChannels(EntityDefinition.simple(messageBody), targetChannelPattern);
   }
 
   public MessageDefinition getMessage() {
@@ -82,7 +81,7 @@ public class SendMessageAction implements MessageAction {
 
   @JsonIgnore
   public EntityDefinition getBody() {
-    return message != null ? message.getBody() : null;
+    return message.getBody();
   }
 
   public ChannelTarget getChannelTarget() {

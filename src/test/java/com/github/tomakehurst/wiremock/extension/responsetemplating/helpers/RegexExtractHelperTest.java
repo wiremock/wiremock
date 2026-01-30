@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
             aResponse()
                 .withBody("{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)'}}\"}"));
 
-    assertThat(responseDefinition.getBody(), is("{\"test\": \"abc\"}"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"abc\"}"));
   }
 
   @Test
@@ -58,7 +58,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)' 'parts'}}{{#each parts}}{{this}} {{/each}}\"}"));
 
-    assertThat(responseDefinition.getBody(), is("{\"test\": \"abc def ghi \"}"));
+    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"abc def ghi \"}"));
   }
 
   @Test

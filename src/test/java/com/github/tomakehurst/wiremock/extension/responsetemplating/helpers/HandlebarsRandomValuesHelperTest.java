@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public class HandlebarsRandomValuesHelperTest {
 
     final ResponseDefinition responseDefinition = this.transformer.transform(serveEvent);
 
-    String[] bodyLines = responseDefinition.getBody().trim().split("\n");
+    String[] bodyLines = responseDefinition.getBody().getDataAsString().trim().split("\n");
     assertThat(bodyLines[0], is(bodyLines[1]));
     assertThat(bodyLines[0].length(), is(20));
   }

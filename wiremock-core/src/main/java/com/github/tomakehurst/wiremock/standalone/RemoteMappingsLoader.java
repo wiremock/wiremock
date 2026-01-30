@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Strings.substringAfterLast;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RemoteMappingsLoader {
 
@@ -49,9 +48,7 @@ public class RemoteMappingsLoader {
 
   public void load() {
     List<TextFile> mappingFiles =
-        mappingsFileSource.listFilesRecursively().stream()
-            .filter(byFileExtension("json"))
-            .collect(Collectors.toList());
+        mappingsFileSource.listFilesRecursively().stream().filter(byFileExtension("json")).toList();
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingOrMappings stubCollection =
@@ -68,21 +65,30 @@ public class RemoteMappingsLoader {
   private StubMapping convertBodyFromFileIfNecessary(StubMapping mapping) {
     String bodyFileName = mapping.getResponse().getBodyFileName();
     if (bodyFileName != null) {
-      ResponseDefinitionBuilder responseDefinitionBuilder =
-          ResponseDefinitionBuilder.like(mapping.getResponse()).withBodyFile(null);
+      var newResponseDefinition =
+          mapping
+              .getResponse()
+              .transform(
+                  responseDefinitionBuilder -> {
+                    responseDefinitionBuilder.setBodyFileName(null);
 
-      String extension = substringAfterLast(bodyFileName, ".");
-      String mimeType = getMimeType(mapping);
+                    String extension = substringAfterLast(bodyFileName, ".");
+                    String mimeType = getMimeType(mapping);
 
-      if (ContentTypes.determineIsText(extension, mimeType)) {
-        TextFile bodyFile = filesFileSource.getTextFileNamed(bodyFileName);
-        responseDefinitionBuilder.withBody(bodyFile.readContentsAsString());
-      } else {
-        BinaryFile bodyFile = filesFileSource.getBinaryFileNamed(bodyFileName);
-        responseDefinitionBuilder.withBody(bodyFile.readContents());
-      }
+                    if (ContentTypes.determineIsText(extension, mimeType)) {
+                      TextFile bodyFile = filesFileSource.getTextFileNamed(bodyFileName);
+                      responseDefinitionBuilder.setBody(bodyFile.readContentsAsString());
+                    } else {
+                      BinaryFile bodyFile = filesFileSource.getBinaryFileNamed(bodyFileName);
+                      responseDefinitionBuilder.setBody(
+                          responseDefinitionBuilder
+                              .getBody()
+                              .transform(
+                                  b -> b.setFormat(BINARY).setData(bodyFile.readContents())));
+                    }
+                  });
 
-      return mapping.transform(sm -> sm.setResponse(responseDefinitionBuilder.build()));
+      return mapping.transform(sm -> sm.setResponse(newResponseDefinition));
     }
 
     return mapping;

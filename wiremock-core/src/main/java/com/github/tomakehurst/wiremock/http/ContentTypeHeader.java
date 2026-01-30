@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.http;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
@@ -58,15 +56,15 @@ public class ContentTypeHeader extends HttpHeader {
     return Optional.empty();
   }
 
-  public Charset charset() {
+  public Optional<Charset> charset() {
     if (isPresent() && encodingPart().isPresent()) {
       try {
-        return Charset.forName(encodingPart().get());
+        return Optional.of(Charset.forName(encodingPart().get()));
       } catch (UnsupportedCharsetException ignored) {
-        return UTF_8;
+        return Optional.empty();
       }
     }
 
-    return UTF_8;
+    return Optional.empty();
   }
 }

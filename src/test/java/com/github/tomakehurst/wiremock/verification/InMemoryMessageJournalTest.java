@@ -23,10 +23,8 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +41,7 @@ public class InMemoryMessageJournalTest {
   private MessageServeEvent event1, event2, event3;
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
+    return Message.builder().withTextBody(text).build();
   }
 
   @BeforeEach

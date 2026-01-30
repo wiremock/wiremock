@@ -15,10 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +37,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
+import com.github.tomakehurst.wiremock.common.entity.Format;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.ArrayList;
@@ -45,11 +59,14 @@ public class ResponseDefinition {
 
   private final int status;
   private final String statusMessage;
-  private final Body body;
-  private final String bodyFileName;
+
+  private final EntityDefinition body;
+  private final boolean v3Style;
+
   private final @NonNull HttpHeaders headers;
   private final @NonNull HttpHeaders additionalProxyRequestHeaders;
   private final @NonNull List<String> removeProxyRequestHeaders;
+
   private final Integer fixedDelayMilliseconds;
   private final DelayDistribution delayDistribution;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
@@ -66,7 +83,7 @@ public class ResponseDefinition {
   public ResponseDefinition(
       @JsonProperty("status") int status,
       @JsonProperty("statusMessage") String statusMessage,
-      @JsonProperty("body") String body,
+      @JsonProperty("body") EntityDefinition body,
       @JsonProperty("jsonBody") JsonNode jsonBody,
       @JsonProperty("base64Body") String base64Body,
       @JsonProperty("bodyFileName") String bodyFileName,
@@ -85,8 +102,8 @@ public class ResponseDefinition {
     this(
         status,
         statusMessage,
-        Body.fromOneOf(null, body, jsonBody, base64Body),
-        bodyFileName,
+        resolveBody(body, jsonBody, base64Body, bodyFileName),
+        isV3Style(body, base64Body, bodyFileName, jsonBody),
         headers,
         additionalProxyRequestHeaders,
         removeProxyRequestHeaders,
@@ -102,11 +119,33 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
-  public ResponseDefinition(
+  private static EntityDefinition resolveBody(
+      EntityDefinition body, JsonNode jsonBody, String base64Body, String bodyFileName) {
+    EntityDefinition entityDefinition = body;
+    if (jsonBody != null) {
+      entityDefinition = EntityDefinition.json(jsonBody);
+    } else if (base64Body != null) {
+      entityDefinition = EntityDefinition.fromBase64(base64Body);
+    } else if (bodyFileName != null) {
+      entityDefinition = EntityDefinition.builder().setFilePath(bodyFileName).build();
+    }
+
+    return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
+  }
+
+  private static boolean isV3Style(
+      EntityDefinition body, String base64Body, String bodyFileName, JsonNode jsonBody) {
+    return body instanceof SimpleStringEntityDefinition
+        || base64Body != null
+        || bodyFileName != null
+        || jsonBody != null;
+  }
+
+  ResponseDefinition(
       int status,
       String statusMessage,
-      Body body,
-      String bodyFileName,
+      EntityDefinition body,
+      boolean v3Style,
       HttpHeaders headers,
       HttpHeaders additionalProxyRequestHeaders,
       List<String> removeProxyRequestHeaders,
@@ -123,14 +162,15 @@ public class ResponseDefinition {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
 
-    this.body = body;
-    this.bodyFileName = bodyFileName;
-
     this.headers = headers != null ? headers : new HttpHeaders();
     this.additionalProxyRequestHeaders =
         additionalProxyRequestHeaders != null ? additionalProxyRequestHeaders : new HttpHeaders();
     this.removeProxyRequestHeaders =
         removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : List.of();
+
+    this.body = resolveBodyAttributes(this.headers, body);
+    this.v3Style = v3Style;
+
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
@@ -142,6 +182,15 @@ public class ResponseDefinition {
         transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
+  }
+
+  private static EntityDefinition resolveBodyAttributes(
+      HttpHeaders headers, EntityDefinition entityDefinition) {
+    if (entityDefinition.isAbsent()) {
+      return entityDefinition;
+    }
+
+    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public static ResponseDefinition notFound() {
@@ -224,7 +273,7 @@ public class ResponseDefinition {
         this.status,
         this.statusMessage,
         this.body,
-        this.bodyFileName,
+        this.v3Style,
         this.headers,
         this.additionalProxyRequestHeaders,
         this.removeProxyRequestHeaders,
@@ -276,42 +325,65 @@ public class ResponseDefinition {
     return statusMessage;
   }
 
-  public String getBody() {
-    return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
+  @JsonInclude(value = CUSTOM, valueFilter = DefaultEntityDefinitionFilter.class)
+  public EntityDefinition getBody() {
+    if (v3Style && !(body instanceof SimpleStringEntityDefinition)) {
+      return null;
+    }
+
+    return body;
+  }
+
+  // Always returns the body entity, even if this is v3 stylex
+  @JsonIgnore
+  public EntityDefinition getBodyEntity() {
+    return body;
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class DefaultEntityDefinitionFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return EmptyEntityDefinition.INSTANCE.equals(obj);
+    }
   }
 
   @JsonIgnore
   public String getTextBody() {
-    return !body.isBinary() ? body.asString() : null;
+    if (body.getFormat() != Format.BINARY) {
+      return body.getDataAsString();
+    }
+
+    return null;
   }
 
   @JsonIgnore
   public byte[] getByteBody() {
-    return body.asBytes();
-  }
-
-  @JsonIgnore
-  @SuppressWarnings("unused")
-  public byte[] getByteBodyIfBinary() {
-    return body.isBinary() ? body.asBytes() : null;
+    return body.getDataAsBytes();
   }
 
   public String getBase64Body() {
-    return body.isBinary() ? body.asBase64() : null;
-  }
+    if (v3Style && body.getFormat() == Format.BINARY) {
+      return body.getDataAsString();
+    }
 
-  @JsonIgnore
-  public Body getReponseBody() {
-    return body;
+    return null;
   }
 
   public JsonNode getJsonBody() {
+    if (v3Style && body instanceof JsonEntityDefinition jsonEntity) {
+      return jsonEntity.getDataAsJson();
+    }
 
-    return body.isJson() ? body.asJson() : null;
+    return null;
   }
 
   public String getBodyFileName() {
-    return bodyFileName;
+    if (v3Style && body.getFilePath() != null) {
+      return body.getFilePath();
+    }
+
+    return null;
   }
 
   public boolean wasConfigured() {
@@ -344,23 +416,13 @@ public class ResponseDefinition {
   }
 
   @JsonIgnore
-  public boolean specifiesBodyFile() {
-    return bodyFileName != null && body.isAbsent();
-  }
-
-  @JsonIgnore
-  public boolean specifiesBodyContent() {
-    return body.isPresent();
-  }
-
-  @JsonIgnore
   public boolean specifiesTextBodyContent() {
-    return body.isPresent() && !body.isBinary();
+    return body.getFormat() != Format.BINARY;
   }
 
   @JsonIgnore
   public boolean specifiesBinaryBodyContent() {
-    return (body.isPresent() && body.isBinary());
+    return body.getFormat() == Format.BINARY;
   }
 
   @JsonIgnore
@@ -401,7 +463,6 @@ public class ResponseDefinition {
     return status == that.status
         && Objects.equals(statusMessage, that.statusMessage)
         && Objects.equals(body, that.body)
-        && Objects.equals(bodyFileName, that.bodyFileName)
         && Objects.equals(headers, that.headers)
         && Objects.equals(additionalProxyRequestHeaders, that.additionalProxyRequestHeaders)
         && Objects.equals(removeProxyRequestHeaders, that.removeProxyRequestHeaders)
@@ -423,7 +484,6 @@ public class ResponseDefinition {
         status,
         statusMessage,
         body,
-        bodyFileName,
         headers,
         additionalProxyRequestHeaders,
         removeProxyRequestHeaders,
@@ -448,8 +508,9 @@ public class ResponseDefinition {
   public static class Builder {
     private int status = 200;
     private String statusMessage;
-    private Body body = Body.none();
+    private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
     private String bodyFileName;
+    private boolean v3Style;
     private @NonNull HttpHeaders headers = new HttpHeaders();
     private @NonNull HttpHeaders additionalProxyRequestHeaders = new HttpHeaders();
     private @NonNull List<String> removeProxyRequestHeaders = new ArrayList<>();
@@ -471,7 +532,7 @@ public class ResponseDefinition {
       this.status = original.status;
       this.statusMessage = original.statusMessage;
       this.body = original.body;
-      this.bodyFileName = original.bodyFileName;
+      this.v3Style = original.v3Style;
       this.headers = original.headers;
       this.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
       this.removeProxyRequestHeaders.addAll(original.removeProxyRequestHeaders);
@@ -495,12 +556,16 @@ public class ResponseDefinition {
       return statusMessage;
     }
 
-    public Body getBody() {
+    public EntityDefinition getBody() {
       return body;
     }
 
     public String getBodyFileName() {
       return bodyFileName;
+    }
+
+    public boolean isV3Style() {
+      return v3Style;
     }
 
     @NonNull
@@ -574,13 +639,37 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setBody(Body body) {
+    public Builder setBody(String body) {
+      if (isV3Style()) {
+        return setBody(EntityDefinition.simple(body));
+      }
+
+      this.body = this.body.transform(builder -> builder.setData(body));
+      return this;
+    }
+
+    public Builder setBody(byte[] body) {
+      this.body = this.body.transform(builder -> builder.setData(body));
+      return this;
+    }
+
+    public Builder setBody(EntityDefinition body) {
       this.body = body;
       return this;
     }
 
     public Builder setBodyFileName(String bodyFileName) {
-      this.bodyFileName = bodyFileName;
+      if (body instanceof EmptyEntityDefinition) {
+        this.body = new EntityDefinition.Builder().setFilePath(bodyFileName).build();
+      } else {
+        this.body = body.transform(b -> b.setFilePath(bodyFileName));
+      }
+
+      return this;
+    }
+
+    public Builder setV3Style(boolean v3Style) {
+      this.v3Style = v3Style;
       return this;
     }
 
@@ -685,7 +774,7 @@ public class ResponseDefinition {
           status,
           statusMessage,
           body,
-          bodyFileName,
+          v3Style,
           headers,
           additionalProxyRequestHeaders,
           removeProxyRequestHeaders,
