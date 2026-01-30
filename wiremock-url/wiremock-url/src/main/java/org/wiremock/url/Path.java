@@ -62,7 +62,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
    * @return {@code true} if this is a base path
    */
   default boolean isBase() {
-    return isEmpty() || getLastSegment().isEmpty();
+    return isEmpty() || toString().endsWith("/");
   }
 
   /**
@@ -126,7 +126,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     if (isAbsolute()) {
       return this;
     } else {
-      return parse("/" + this);
+      return PathParser.INSTANCE.construct("/" + this);
     }
   }
 
@@ -136,7 +136,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
       return this;
     } else {
       String pathStr = toString();
-      return parse(pathStr.substring(1));
+      return PathParser.INSTANCE.construct(pathStr.substring(1));
     }
   }
 
@@ -145,7 +145,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     if (isBase()) {
       return this;
     } else {
-      return parse(this + "/");
+      return PathParser.INSTANCE.construct(this + "/");
     }
   }
 
@@ -155,7 +155,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
       return this;
     } else {
       String pathStr = toString();
-      return parse(pathStr.substring(0, pathStr.length() - 1));
+      return PathParser.INSTANCE.construct(pathStr.substring(0, pathStr.length() - 1));
     }
   }
 
@@ -195,7 +195,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     String pathStr = toString();
     String prefixStr = prefix.toString();
     if (pathStr.startsWith(prefixStr)) {
-      return parse(pathStr.substring(prefixStr.length()));
+      return PathParser.INSTANCE.construct(pathStr.substring(prefixStr.length()));
     } else {
       return this;
     }
@@ -208,6 +208,6 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     if (toAppend.isEmpty()) {
       return this;
     }
-    return parse(this.toLeafPath().toString() + toAppend.toAbsolutePath());
+    return PathParser.INSTANCE.construct(this.toLeafPath().toString() + toAppend.toAbsolutePath());
   }
 }

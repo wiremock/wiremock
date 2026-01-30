@@ -47,6 +47,16 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
     }
   }
 
+  Path construct(String stringForm) {
+    if (stringForm.isEmpty()) {
+      return Path.EMPTY;
+    } else if (stringForm.equals("/")) {
+      return Path.ROOT;
+    } else {
+      return new PathValue(stringForm);
+    }
+  }
+
   private static final boolean[] charactersToLeaveAsIs = include('/');
 
   static final boolean[] pathCharSet = combine(pcharCharSet, charactersToLeaveAsIs);
