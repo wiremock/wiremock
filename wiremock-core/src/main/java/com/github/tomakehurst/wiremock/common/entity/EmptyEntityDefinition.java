@@ -28,7 +28,7 @@ public class EmptyEntityDefinition extends EntityDefinition {
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
   protected EmptyEntityDefinition() {
-    super(NONE, null, null, null, null, null, null);
+    super(NONE, null, null, null, null, null);
   }
 
   @Override

@@ -57,18 +57,17 @@ public class EntityResolver {
       return filesBlobStore.getStreamSource(filePath);
     }
 
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      BlobStore blobStore = stores.getBlobStore(dataStore);
-      if (blobStore != null && blobStore.contains(dataRef)) {
-        return blobStore.getStreamSource(dataRef);
+    DataStoreRef dataStoreRef = definition.getDataStoreRef();
+    if (dataStoreRef != null && stores != null) {
+      BlobStore blobStore = stores.getBlobStore(dataStoreRef.store());
+      if (blobStore != null && blobStore.contains(dataStoreRef.key())) {
+        return blobStore.getStreamSource(dataStoreRef.key());
       }
 
-      ObjectStore objectStore = stores.getObjectStore(dataStore);
-      if (objectStore != null && objectStore.contains(dataRef)) {
+      ObjectStore objectStore = stores.getObjectStore(dataStoreRef.store());
+      if (objectStore != null && objectStore.contains(dataStoreRef.key())) {
         return objectStore
-            .get(dataRef)
+            .get(dataStoreRef.key())
             .map(data -> StreamSources.forBytes(Json.toByteArray(data)))
             .orElse(null);
       }

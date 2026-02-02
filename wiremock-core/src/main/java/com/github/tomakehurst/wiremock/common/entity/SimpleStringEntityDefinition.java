@@ -38,6 +38,6 @@ public class SimpleStringEntityDefinition extends EntityDefinition {
   }
 
   SimpleStringEntityDefinition(byte[] data, Charset charset) {
-    super(NONE, Format.TEXT, charset, null, null, data, null);
+    super(NONE, Format.TEXT, charset, null, data, null);
   }
 }

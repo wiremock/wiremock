@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.DataStoreRef;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
@@ -573,11 +574,10 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof EntityDefinition, is(true));
+    assertThat(action.getBody() != null, is(true));
 
     EntityDefinition entityDef = action.getBody();
-    assertThat(entityDef.getDataStore(), is("testStore"));
-    assertThat(entityDef.getDataRef(), is("testKey"));
+    assertThat(entityDef.getDataStoreRef(), is(new DataStoreRef("testStore", "testKey")));
   }
 
   // BinaryEntityDefinition serialisation tests
@@ -680,7 +680,7 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof EntityDefinition, is(true));
+    assertThat(action.getBody() != null, is(true));
 
     EntityDefinition entityDef = action.getBody();
     assertThat(entityDef.getDataAsString(), is(responseBase64));

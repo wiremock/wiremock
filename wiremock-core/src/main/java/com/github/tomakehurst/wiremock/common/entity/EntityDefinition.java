@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_NULL)
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
@@ -56,8 +57,7 @@ public class EntityDefinition {
   @NonNull protected final CompressionType compression;
   private final Format format;
   protected final Charset charset;
-  private final String dataStore;
-  private final String dataRef;
+  private final @Nullable DataStoreRef dataStoreRef;
   private final byte[] data;
   private final String filePath;
 
@@ -65,8 +65,8 @@ public class EntityDefinition {
       @JsonProperty("format") Format format,
       @JsonProperty("charset") Charset charset,
       @JsonProperty("compression") CompressionType compression,
-      @JsonProperty("dataStore") String dataStore,
-      @JsonProperty("dataRef") String dataRef,
+      @JsonProperty("dataStore") @Nullable String dataStore,
+      @JsonProperty("dataRef") @Nullable String dataRef,
       @JsonProperty("data") String data,
       @JsonProperty("base64Data") String base64Data,
       @JsonProperty("filePath") String filePath) {
@@ -75,18 +75,25 @@ public class EntityDefinition {
         compression,
         resolveFormat(format, data, base64Data),
         getFirstNonNull(charset, DEFAULT_CHARSET),
-        dataStore,
-        dataRef,
+        buildDataRef(dataStore, dataRef),
         resolveData(data, base64Data, charset),
         filePath);
+  }
+
+  private static @Nullable DataStoreRef buildDataRef(
+      @Nullable String dataStore, @Nullable String dataRef) {
+    if (dataStore == null || dataRef == null) {
+      return null;
+    } else {
+      return new DataStoreRef(dataStore, dataRef);
+    }
   }
 
   EntityDefinition(
       CompressionType compression,
       Format format,
       Charset charset,
-      String dataStore,
-      String dataRef,
+      @Nullable DataStoreRef dataStoreRef,
       byte[] data,
       String filePath) {
     this.compression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
@@ -96,12 +103,11 @@ public class EntityDefinition {
     } else {
       this.format = getFirstNonNull(format, DEFAULT_FORMAT);
     }
-    this.dataStore = dataStore;
-    this.dataRef = dataRef;
+    this.dataStoreRef = dataStoreRef;
     this.data = data;
     this.filePath = filePath;
 
-    assertValidParameterCombination(this.data, this.filePath, this.dataStore, this.dataRef);
+    assertValidParameterCombination(this.data, this.filePath, this.dataStoreRef);
   }
 
   private static Format resolveFormat(Format format, String data, String base64Data) {
@@ -158,15 +164,15 @@ public class EntityDefinition {
   }
 
   protected static void assertValidParameterCombination(
-      Object data, String filePath, String dataStore, String dataRef) {
+      @Nullable Object data, @Nullable String filePath, @Nullable DataStoreRef dataStoreRef) {
     if (data != null && filePath != null) {
       throw new IllegalArgumentException("Cannot specify an entity with both data and filePath");
     }
-    if (data != null && dataRef != null) {
+    if (data != null && dataStoreRef != null) {
       throw new IllegalArgumentException(
           "Cannot specify an entity with both data and data store reference");
     }
-    if (filePath != null && dataStore != null) {
+    if (filePath != null && dataStoreRef != null) {
       throw new IllegalArgumentException(
           "Cannot specify an entity with both filePath and data store reference");
     }
@@ -262,18 +268,23 @@ public class EntityDefinition {
     if (filePath != null) {
       return filePath;
     }
-    if (FILES_ROOT.equals(getDataStore()) && getDataRef() != null) {
-      return getDataRef();
+    if (dataStoreRef != null && FILES_ROOT.equals(dataStoreRef.store())) {
+      return dataStoreRef.key();
     }
     return null;
   }
 
-  public String getDataStore() {
-    return dataStore;
+  public @Nullable String getDataStore() {
+    return dataStoreRef != null ? dataStoreRef.store() : null;
   }
 
-  public String getDataRef() {
-    return dataRef;
+  public @Nullable String getDataRef() {
+    return dataStoreRef != null ? dataStoreRef.key() : null;
+  }
+
+  @JsonIgnore
+  public @Nullable DataStoreRef getDataStoreRef() {
+    return dataStoreRef;
   }
 
   @Override
@@ -283,8 +294,7 @@ public class EntityDefinition {
     return Objects.equals(compression, that.compression)
         && Objects.equals(format, that.format)
         && Objects.equals(charset, that.charset)
-        && Objects.equals(dataStore, that.dataStore)
-        && Objects.equals(dataRef, that.dataRef)
+        && Objects.equals(dataStoreRef, that.dataStoreRef)
         && Objects.deepEquals(data, that.data)
         && Objects.equals(filePath, that.filePath);
   }
@@ -292,7 +302,7 @@ public class EntityDefinition {
   @Override
   public int hashCode() {
     return Objects.hash(
-        compression, format, charset, dataStore, dataRef, Arrays.hashCode(data), filePath);
+        compression, format, charset, dataStoreRef, Arrays.hashCode(data), filePath);
   }
 
   @Override
@@ -343,8 +353,7 @@ public class EntityDefinition {
     private byte[] data;
     private Object jsonData;
 
-    private String dataStore;
-    private String dataRef;
+    private @Nullable DataStoreRef dataStoreRef;
     private String filePath;
 
     private boolean v3Style = false;
@@ -360,8 +369,7 @@ public class EntityDefinition {
         this.jsonData = jsonEntity.getDataAsJson();
       } else {
         this.data = entity.getDataAsBytes();
-        this.dataStore = entity.getDataStore();
-        this.dataRef = entity.getDataRef();
+        this.dataStoreRef = entity.getDataStoreRef();
         this.filePath = entity.getFilePath();
       }
 
@@ -429,18 +437,13 @@ public class EntityDefinition {
       return this;
     }
 
-    public String getDataStore() {
-      return dataStore;
+    public @Nullable DataStoreRef getDataStoreRef() {
+      return dataStoreRef;
     }
 
-    public String getDataRef() {
-      return dataRef;
-    }
-
-    public Builder setDataStoreRef(String storeName, String key) {
+    public Builder setDataStoreRef(@NonNull String storeName, @NonNull String key) {
       resetDataAndRefs();
-      this.dataStore = storeName;
-      this.dataRef = key;
+      this.dataStoreRef = new DataStoreRef(storeName, key);
       return this;
     }
 
@@ -457,8 +460,7 @@ public class EntityDefinition {
     protected void resetDataAndRefs() {
       this.data = null;
       this.jsonData = null;
-      this.dataStore = null;
-      this.dataRef = null;
+      this.dataStoreRef = null;
       this.filePath = null;
     }
 
@@ -471,7 +473,7 @@ public class EntityDefinition {
         return new SimpleStringEntityDefinition(data, charset);
       }
 
-      return new EntityDefinition(compression, format, charset, dataStore, dataRef, data, filePath);
+      return new EntityDefinition(compression, format, charset, dataStoreRef, data, filePath);
     }
   }
 

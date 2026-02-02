@@ -27,7 +27,7 @@ public class JsonEntityDefinition extends EntityDefinition {
   private final JsonNode data;
 
   public JsonEntityDefinition(Object data) {
-    super(NONE, Format.JSON, UTF_8, null, null, null, null);
+    super(NONE, Format.JSON, UTF_8, null, null, null);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
   }
 

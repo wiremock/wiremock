@@ -423,7 +423,7 @@ public class EntityDefinitionTest {
     String html =
         // language=html
         """
-            <html>
+            <html lang="">
               <body>
                 <h1>Hello World</h1>
               </body>
@@ -580,7 +580,8 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothFilePathAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new EntityDefinition(null, null, null, "store", "key", null, "path"));
+        () ->
+            new EntityDefinition(null, null, null, new DataStoreRef("store", "key"), null, "path"));
   }
 
   @Test
@@ -590,8 +591,7 @@ public class EntityDefinitionTest {
 
     assertThat(entity.getData(), is("data"));
     assertThat(entity.getFilePath(), nullValue());
-    assertThat(entity.getDataStore(), nullValue());
-    assertThat(entity.getDataRef(), nullValue());
+    assertThat(entity.getDataStoreRef(), nullValue());
   }
 
   @Test
@@ -601,8 +601,7 @@ public class EntityDefinitionTest {
 
     assertThat(entity.getFilePath(), is("path"));
     assertThat(entity.getData(), nullValue());
-    assertThat(entity.getDataStore(), nullValue());
-    assertThat(entity.getDataRef(), nullValue());
+    assertThat(entity.getDataStoreRef(), nullValue());
   }
 
   @Test
@@ -610,8 +609,7 @@ public class EntityDefinitionTest {
     EntityDefinition entity =
         entity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
 
-    assertThat(entity.getDataStore(), is("store"));
-    assertThat(entity.getDataRef(), is("key"));
+    assertThat(entity.getDataStoreRef(), is(new DataStoreRef("store", "key")));
     assertThat(entity.getData(), nullValue());
     assertThat(entity.getFilePath(), nullValue());
   }
