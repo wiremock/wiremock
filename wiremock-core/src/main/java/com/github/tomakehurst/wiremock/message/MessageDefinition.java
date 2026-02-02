@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_NULL)
 public class MessageDefinition {
@@ -34,7 +35,7 @@ public class MessageDefinition {
     this.body = body;
   }
 
-  public static MessageDefinition fromString(String message) {
+  public static MessageDefinition fromString(@Nullable String message) {
     return new MessageDefinition(EntityDefinition.simple(message));
   }
 

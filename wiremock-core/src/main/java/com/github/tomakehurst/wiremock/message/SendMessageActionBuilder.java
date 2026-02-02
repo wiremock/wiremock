@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public class SendMessageActionBuilder {
 
@@ -38,7 +39,8 @@ public class SendMessageActionBuilder {
     return this;
   }
 
-  public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
+  public SendMessageActionBuilder withBodyFromStore(
+      @NonNull String storeName, @NonNull String key) {
     entityBuilder.setDataStoreRef(storeName, key);
     return this;
   }

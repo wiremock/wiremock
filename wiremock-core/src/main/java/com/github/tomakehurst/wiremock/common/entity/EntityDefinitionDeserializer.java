@@ -15,12 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.Format.detectFormat;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.github.tomakehurst.wiremock.common.Encoding;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import org.jspecify.annotations.Nullable;
 
 public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefinition> {
 
@@ -52,7 +59,12 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       String filePath = getString(node, "filePath");
 
       return new EntityDefinition(
-          format, charset, compression, dataStore, dataRef, data, base64Data, filePath);
+          compression,
+          resolveFormat(format, data, base64Data),
+          charset,
+          buildDataRef(dataStore, dataRef),
+          resolveData(data, base64Data, charset),
+          filePath);
     }
 
     return null;
@@ -95,6 +107,43 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
     if (fieldNode != null && fieldNode.isTextual()) {
       return fieldNode.asText();
     }
+    return null;
+  }
+
+  private static Format resolveFormat(Format format, String data, String base64Data) {
+    if (format != null) {
+      return format;
+    }
+
+    if (base64Data != null) {
+      return Format.BINARY;
+    }
+
+    if (data != null) {
+      return detectFormat(data);
+    }
+
+    return EntityDefinition.DEFAULT_FORMAT;
+  }
+
+  private static @Nullable DataStoreRef buildDataRef(
+      @Nullable String dataStore, @Nullable String dataRef) {
+    if (dataStore == null || dataRef == null) {
+      return null;
+    } else {
+      return new DataStoreRef(dataStore, dataRef);
+    }
+  }
+
+  private static byte[] resolveData(String data, String base64Data, Charset charset) {
+    if (data != null) {
+      return bytesFromString(data, getFirstNonNull(charset, DEFAULT_CHARSET));
+    }
+
+    if (base64Data != null) {
+      return Encoding.decodeBase64(base64Data);
+    }
+
     return null;
   }
 }

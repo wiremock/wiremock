@@ -61,34 +61,6 @@ public class EntityDefinition {
   private final byte[] data;
   private final String filePath;
 
-  public EntityDefinition(
-      @JsonProperty("format") Format format,
-      @JsonProperty("charset") Charset charset,
-      @JsonProperty("compression") CompressionType compression,
-      @JsonProperty("dataStore") @Nullable String dataStore,
-      @JsonProperty("dataRef") @Nullable String dataRef,
-      @JsonProperty("data") String data,
-      @JsonProperty("base64Data") String base64Data,
-      @JsonProperty("filePath") String filePath) {
-
-    this(
-        compression,
-        resolveFormat(format, data, base64Data),
-        getFirstNonNull(charset, DEFAULT_CHARSET),
-        buildDataRef(dataStore, dataRef),
-        resolveData(data, base64Data, charset),
-        filePath);
-  }
-
-  private static @Nullable DataStoreRef buildDataRef(
-      @Nullable String dataStore, @Nullable String dataRef) {
-    if (dataStore == null || dataRef == null) {
-      return null;
-    } else {
-      return new DataStoreRef(dataStore, dataRef);
-    }
-  }
-
   EntityDefinition(
       CompressionType compression,
       Format format,
@@ -110,40 +82,12 @@ public class EntityDefinition {
     assertValidParameterCombination(this.data, this.filePath, this.dataStoreRef);
   }
 
-  private static Format resolveFormat(Format format, String data, String base64Data) {
-    if (format != null) {
-      return format;
-    }
-
-    if (base64Data != null) {
-      return Format.BINARY;
-    }
-
-    if (data != null) {
-      return Format.detectFormat(data);
-    }
-
-    return DEFAULT_FORMAT;
-  }
-
-  private static byte[] resolveData(String data, String base64Data, Charset charset) {
-    if (data != null) {
-      return bytesFromString(data, getFirstNonNull(charset, DEFAULT_CHARSET));
-    }
-
-    if (base64Data != null) {
-      return Encoding.decodeBase64(base64Data);
-    }
-
-    return null;
-  }
-
   public static EntityDefinition full(String text) {
     return builder().setFormat(Format.TEXT).setData(text).build();
   }
 
-  public static SimpleStringEntityDefinition simple(String text) {
-    return new SimpleStringEntityDefinition(text);
+  public static EntityDefinition simple(@Nullable String text) {
+    return text != null ? new SimpleStringEntityDefinition(text) : EmptyEntityDefinition.INSTANCE;
   }
 
   public static JsonEntityDefinition json(Object data) {
@@ -274,10 +218,12 @@ public class EntityDefinition {
     return null;
   }
 
+  @SuppressWarnings("unused")
   public @Nullable String getDataStore() {
     return dataStoreRef != null ? dataStoreRef.store() : null;
   }
 
+  @SuppressWarnings("unused")
   public @Nullable String getDataRef() {
     return dataStoreRef != null ? dataStoreRef.key() : null;
   }
@@ -378,6 +324,7 @@ public class EntityDefinition {
       }
     }
 
+    @SuppressWarnings("unused")
     public CompressionType getCompression() {
       return compression;
     }
@@ -422,6 +369,7 @@ public class EntityDefinition {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public Builder setJsonData(Object data) {
       resetDataAndRefs();
       this.jsonData = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
@@ -437,6 +385,7 @@ public class EntityDefinition {
       return this;
     }
 
+    @SuppressWarnings("unused")
     public @Nullable DataStoreRef getDataStoreRef() {
       return dataStoreRef;
     }

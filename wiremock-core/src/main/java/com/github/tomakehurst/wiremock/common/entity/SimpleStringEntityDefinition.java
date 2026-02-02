@@ -15,11 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.nio.charset.Charset;
+import org.jspecify.annotations.NonNull;
 
 public class SimpleStringEntityDefinition extends EntityDefinition {
 
@@ -29,12 +31,12 @@ public class SimpleStringEntityDefinition extends EntityDefinition {
   }
 
   @JsonCreator
-  public SimpleStringEntityDefinition(String text) {
+  public SimpleStringEntityDefinition(@NonNull String text) {
     this(text, DEFAULT_CHARSET);
   }
 
-  SimpleStringEntityDefinition(String text, Charset charset) {
-    super(Format.TEXT, charset, NONE, null, null, text, null, null);
+  SimpleStringEntityDefinition(@NonNull String text, @NonNull Charset charset) {
+    super(NONE, Format.TEXT, charset, null, bytesFromString(text, charset), null);
   }
 
   SimpleStringEntityDefinition(byte[] data, Charset charset) {

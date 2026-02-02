@@ -17,10 +17,13 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.entity;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.BROTLI;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.DEFLATE;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.common.entity.Format.HTML;
 import static com.github.tomakehurst.wiremock.common.entity.Format.JSON;
 import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
@@ -204,7 +207,7 @@ public class EntityDefinitionTest {
 
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    assertThat(entity.getFormat(), is(Format.BINARY));
+    assertThat(entity.getFormat(), is(BINARY));
     assertThat(entity.getDataAsBytes(), is(data));
   }
 
@@ -296,7 +299,7 @@ public class EntityDefinitionTest {
 
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
 
-    assertThat(entity.getFormat(), is(Format.BINARY));
+    assertThat(entity.getFormat(), is(BINARY));
     assertThat(entity.getCompression(), is(CompressionType.DEFLATE));
     assertThat(entity.getDataAsBytes(), is(data));
   }
@@ -552,28 +555,45 @@ public class EntityDefinitionTest {
   void rejectsEntityWithBothDataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new EntityDefinition(null, null, null, null, null, "data", null, "path"));
+        () ->
+            new EntityDefinition(
+                null, TEXT, null, null, bytesFromString("data", DEFAULT_CHARSET), "path"));
   }
 
   @Test
   void rejectsEntityWithBothBase64DataAndFilePath() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new EntityDefinition(null, null, null, null, null, null, "AQID", "path"));
+        () ->
+            new EntityDefinition(null, BINARY, null, null, Encoding.decodeBase64("AQID"), "path"));
   }
 
   @Test
   void rejectsEntityWithBothDataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new EntityDefinition(null, null, null, "store", "key", "data", null, null));
+        () ->
+            new EntityDefinition(
+                null,
+                TEXT,
+                null,
+                new DataStoreRef("store", "key"),
+                bytesFromString("data", DEFAULT_CHARSET),
+                null));
   }
 
   @Test
   void rejectsEntityWithBothBase64DataAndStoreRef() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new EntityDefinition(null, null, null, "store", "key", null, "AQID", null));
+        () ->
+            new EntityDefinition(
+                null,
+                BINARY,
+                null,
+                new DataStoreRef("store", "key"),
+                Encoding.decodeBase64("AQID"),
+                null));
   }
 
   @Test

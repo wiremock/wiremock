@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_EMPTY)
 public class SendMessageAction implements MessageAction {
@@ -57,7 +58,7 @@ public class SendMessageAction implements MessageAction {
         new MessageDefinition(body), OriginatingChannelTarget.INSTANCE, null, null);
   }
 
-  public static SendMessageAction toOriginatingChannel(String messageBody) {
+  public static SendMessageAction toOriginatingChannel(@Nullable String messageBody) {
     return toOriginatingChannel(EntityDefinition.simple(messageBody));
   }
 
