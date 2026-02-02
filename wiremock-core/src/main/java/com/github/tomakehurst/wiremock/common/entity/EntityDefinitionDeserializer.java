@@ -58,7 +58,7 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       String base64Data = getString(node, "base64Data");
       String filePath = getString(node, "filePath");
 
-      return new EntityDefinition(
+      return EntityDefinition.buildEntityDefinition(
           compression,
           resolveFormat(format, data, base64Data),
           charset,

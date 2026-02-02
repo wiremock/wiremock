@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,8 +34,6 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -48,38 +45,21 @@ import org.jspecify.annotations.Nullable;
       @JsonSubTypes.Type(SimpleStringEntityDefinition.class),
       @JsonSubTypes.Type(JsonEntityDefinition.class)
     })
-public class EntityDefinition {
+public abstract class EntityDefinition {
 
-  public static final Charset DEFAULT_CHARSET = UTF_8;
-  public static final CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
-  public static final Format DEFAULT_FORMAT = Format.TEXT;
+  public static final @NonNull Charset DEFAULT_CHARSET = UTF_8;
+  public static final @NonNull CompressionType DEFAULT_COMPRESSION = CompressionType.NONE;
+  public static final @NonNull Format DEFAULT_FORMAT = Format.TEXT;
 
-  @NonNull protected final CompressionType compression;
-  private final Format format;
-  protected final Charset charset;
-  private final @Nullable DataStoreRef dataStoreRef;
-  private final byte[] data;
-  private final String filePath;
+  protected final @NonNull CompressionType compression;
+  protected final @Nullable Format format;
+  protected final @Nullable Charset charset;
 
   EntityDefinition(
-      CompressionType compression,
-      Format format,
-      Charset charset,
-      @Nullable DataStoreRef dataStoreRef,
-      byte[] data,
-      String filePath) {
-    this.compression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
+      @NonNull CompressionType compression, @Nullable Format format, @Nullable Charset charset) {
+    this.compression = compression;
     this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
-    if (format == null && data != null) {
-      this.format = Format.detectFormat(stringFromBytes(data, this.charset));
-    } else {
-      this.format = getFirstNonNull(format, DEFAULT_FORMAT);
-    }
-    this.dataStoreRef = dataStoreRef;
-    this.data = data;
-    this.filePath = filePath;
-
-    assertValidParameterCombination(this.data, this.filePath, this.dataStoreRef);
+    this.format = format;
   }
 
   public static EntityDefinition full(String text) {
@@ -107,7 +87,7 @@ public class EntityDefinition {
     return data != null && Gzip.isGzipped(data) ? GZIP : DEFAULT_COMPRESSION;
   }
 
-  protected static void assertValidParameterCombination(
+  private static void assertValidParameterCombination(
       @Nullable Object data, @Nullable String filePath, @Nullable DataStoreRef dataStoreRef) {
     if (data != null && filePath != null) {
       throw new IllegalArgumentException("Cannot specify an entity with both data and filePath");
@@ -143,28 +123,16 @@ public class EntityDefinition {
   }
 
   @JsonIgnore
-  public Format getFormat() {
+  public @Nullable Format getFormat() {
     return format;
   }
 
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCharsetFilter.class)
-  public Charset getCharset() {
+  public @Nullable Charset getCharset() {
     return charset;
   }
 
-  public Object getData() {
-    if (!isBinary() && !isCompressed()) {
-      return stringFromBytes(data, charset);
-    }
-
-    return null;
-  }
-
-  public String getBase64Data() {
-    if (isBinary() || isCompressed()) {
-      return Encoding.encodeBase64(data);
-    }
-
+  public @Nullable Object getData() {
     return null;
   }
 
@@ -190,16 +158,12 @@ public class EntityDefinition {
 
   @JsonIgnore
   public String getDataAsString() {
-    if (!isBinary() && !isCompressed()) {
-      return stringFromBytes(data, charset);
-    } else {
-      return getBase64Data();
-    }
+    return null;
   }
 
   @JsonIgnore
   public byte[] getDataAsBytes() {
-    return data;
+    return null;
   }
 
   @JsonIgnore
@@ -208,47 +172,13 @@ public class EntityDefinition {
     return compression == NONE || compression == GZIP;
   }
 
-  public String getFilePath() {
-    if (filePath != null) {
-      return filePath;
-    }
-    if (dataStoreRef != null && FILES_ROOT.equals(dataStoreRef.store())) {
-      return dataStoreRef.key();
-    }
+  public @Nullable String getFilePath() {
     return null;
-  }
-
-  @SuppressWarnings("unused")
-  public @Nullable String getDataStore() {
-    return dataStoreRef != null ? dataStoreRef.store() : null;
-  }
-
-  @SuppressWarnings("unused")
-  public @Nullable String getDataRef() {
-    return dataStoreRef != null ? dataStoreRef.key() : null;
   }
 
   @JsonIgnore
   public @Nullable DataStoreRef getDataStoreRef() {
-    return dataStoreRef;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
-    EntityDefinition that = (EntityDefinition) o;
-    return Objects.equals(compression, that.compression)
-        && Objects.equals(format, that.format)
-        && Objects.equals(charset, that.charset)
-        && Objects.equals(dataStoreRef, that.dataStoreRef)
-        && Objects.deepEquals(data, that.data)
-        && Objects.equals(filePath, that.filePath);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        compression, format, charset, dataStoreRef, Arrays.hashCode(data), filePath);
+    return null;
   }
 
   @Override
@@ -422,7 +352,39 @@ public class EntityDefinition {
         return new SimpleStringEntityDefinition(data, charset);
       }
 
-      return new EntityDefinition(compression, format, charset, dataStoreRef, data, filePath);
+      return buildEntityDefinition(compression, format, charset, dataStoreRef, data, filePath);
+    }
+  }
+
+  public static @NonNull EntityDefinition buildEntityDefinition(
+      @Nullable CompressionType compression,
+      @Nullable Format format,
+      @Nullable Charset charset,
+      @Nullable DataStoreRef dataStoreRef,
+      byte[] data,
+      @Nullable String filePath) {
+
+    assertValidParameterCombination(data, filePath, dataStoreRef);
+
+    CompressionType correctCompression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
+    Charset correctCharset = getFirstNonNull(charset, DEFAULT_CHARSET);
+    Format correctFormat;
+    if (format == null && data != null) {
+      correctFormat = Format.detectFormat(stringFromBytes(data, correctCharset));
+    } else {
+      correctFormat = getFirstNonNull(format, DEFAULT_FORMAT);
+    }
+
+    if (data != null) {
+      return new SimpleEntityDefinition(correctCompression, correctFormat, correctCharset, data);
+    } else if (dataStoreRef != null) {
+      return new DataRefEntityDefinition(
+          correctCompression, correctFormat, correctCharset, dataStoreRef);
+    } else if (filePath != null) {
+      return new FilePathEntityDefinition(
+          correctCompression, correctFormat, correctCharset, filePath);
+    } else {
+      return EmptyEntityDefinition.INSTANCE;
     }
   }
 

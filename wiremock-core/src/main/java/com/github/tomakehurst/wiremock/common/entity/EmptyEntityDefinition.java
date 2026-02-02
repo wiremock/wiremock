@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.nio.charset.Charset;
 
 @JsonSerialize(as = EmptyEntityDefinition.class)
 @JsonDeserialize(as = EmptyEntityDefinition.class)
@@ -28,41 +27,16 @@ public class EmptyEntityDefinition extends EntityDefinition {
   public static final EmptyEntityDefinition INSTANCE = new EmptyEntityDefinition();
 
   protected EmptyEntityDefinition() {
-    super(NONE, null, null, null, null, null);
+    super(NONE, null, null);
   }
 
   @Override
-  public Format getFormat() {
-    return null;
+  public boolean equals(Object o) {
+    return o instanceof EmptyEntityDefinition;
   }
 
   @Override
-  public Charset getCharset() {
-    return null;
-  }
-
-  @Override
-  public Object getData() {
-    return null;
-  }
-
-  @Override
-  public String getDataAsString() {
-    return null;
-  }
-
-  @Override
-  public byte[] getDataAsBytes() {
-    return null;
-  }
-
-  @Override
-  public String getDataStore() {
-    return null;
-  }
-
-  @Override
-  public String getDataRef() {
-    return null;
+  public int hashCode() {
+    return 1;
   }
 }

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.nio.charset.Charset;
 import org.jspecify.annotations.NonNull;
 
-public class SimpleStringEntityDefinition extends EntityDefinition {
+public class SimpleStringEntityDefinition extends SimpleEntityDefinition {
 
   @JsonValue
   public String getText() {
@@ -36,10 +36,10 @@ public class SimpleStringEntityDefinition extends EntityDefinition {
   }
 
   SimpleStringEntityDefinition(@NonNull String text, @NonNull Charset charset) {
-    super(NONE, Format.TEXT, charset, null, bytesFromString(text, charset), null);
+    super(NONE, Format.TEXT, charset, bytesFromString(text, charset));
   }
 
   SimpleStringEntityDefinition(byte[] data, Charset charset) {
-    super(NONE, Format.TEXT, charset, null, data, null);
+    super(NONE, Format.TEXT, charset, data);
   }
 }

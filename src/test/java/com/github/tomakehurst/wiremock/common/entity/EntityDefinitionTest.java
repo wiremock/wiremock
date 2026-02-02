@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.DEFL
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.buildEntityDefinition;
 import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static com.github.tomakehurst.wiremock.common.entity.Format.HTML;
 import static com.github.tomakehurst.wiremock.common.entity.Format.JSON;
@@ -556,7 +557,7 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new EntityDefinition(
+            buildEntityDefinition(
                 null, TEXT, null, null, bytesFromString("data", DEFAULT_CHARSET), "path"));
   }
 
@@ -565,7 +566,7 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new EntityDefinition(null, BINARY, null, null, Encoding.decodeBase64("AQID"), "path"));
+            buildEntityDefinition(null, BINARY, null, null, Encoding.decodeBase64("AQID"), "path"));
   }
 
   @Test
@@ -573,7 +574,7 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new EntityDefinition(
+            buildEntityDefinition(
                 null,
                 TEXT,
                 null,
@@ -587,7 +588,7 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new EntityDefinition(
+            buildEntityDefinition(
                 null,
                 BINARY,
                 null,
@@ -601,7 +602,8 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new EntityDefinition(null, null, null, new DataStoreRef("store", "key"), null, "path"));
+            buildEntityDefinition(
+                null, null, null, new DataStoreRef("store", "key"), null, "path"));
   }
 
   @Test

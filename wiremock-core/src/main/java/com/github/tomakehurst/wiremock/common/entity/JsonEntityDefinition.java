@@ -21,13 +21,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import java.util.Objects;
 
 public class JsonEntityDefinition extends EntityDefinition {
 
   private final JsonNode data;
 
   public JsonEntityDefinition(Object data) {
-    super(NONE, Format.JSON, UTF_8, null, null, null);
+    super(NONE, Format.JSON, UTF_8);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
   }
 
@@ -49,5 +50,16 @@ public class JsonEntityDefinition extends EntityDefinition {
   @Override
   public byte[] getDataAsBytes() {
     return Json.toByteArray(data);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof JsonEntityDefinition that)) return false;
+    return Objects.equals(data, that.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return data.hashCode();
   }
 }
