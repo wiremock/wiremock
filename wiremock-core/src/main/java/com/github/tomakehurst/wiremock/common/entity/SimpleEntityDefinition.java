@@ -67,6 +67,12 @@ class SimpleEntityDefinition extends EntityDefinition {
   }
 
   @Override
+  public Builder toBuilder() {
+    return new Builder(
+        this.compression, this.format, this.charset, this.data, null, null, null, false);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof SimpleEntityDefinition that)) {
       return false;

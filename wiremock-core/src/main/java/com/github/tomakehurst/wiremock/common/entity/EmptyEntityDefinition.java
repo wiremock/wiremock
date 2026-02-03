@@ -39,4 +39,9 @@ public class EmptyEntityDefinition extends EntityDefinition {
   public int hashCode() {
     return 1;
   }
+
+  @Override
+  public EntityDefinition.Builder toBuilder() {
+    return new EntityDefinition.Builder();
+  }
 }

@@ -53,6 +53,12 @@ public class JsonEntityDefinition extends EntityDefinition {
   }
 
   @Override
+  public Builder toBuilder() {
+    return new Builder(
+        this.compression, this.format, this.charset, null, this.data, null, null, false);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof JsonEntityDefinition that)) return false;
     return Objects.equals(data, that.data);

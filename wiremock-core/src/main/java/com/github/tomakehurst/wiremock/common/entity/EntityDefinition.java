@@ -206,9 +206,7 @@ public abstract class EntityDefinition {
     return this;
   }
 
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
+  public abstract Builder toBuilder();
 
   public static Builder builder() {
     return new Builder();
@@ -231,24 +229,23 @@ public abstract class EntityDefinition {
 
     public Builder() {}
 
-    public Builder(EntityDefinition entity) {
-      this.compression = entity.getCompression();
-      this.format = entity.getFormat();
-      this.charset = entity.getCharset();
-
-      if (entity instanceof JsonEntityDefinition jsonEntity) {
-        this.jsonData = jsonEntity.getDataAsJson();
-      } else if (entity instanceof DataRefEntityDefinition dataRefEntity) {
-        this.dataStoreRef = dataRefEntity.getDataStoreRef();
-      } else if (entity instanceof SimpleEntityDefinition simpleEntity) {
-        this.data = simpleEntity.getDataAsBytes();
-      } else if (entity instanceof FilePathEntityDefinition filePathEntity) {
-        this.filePath = filePathEntity.getFilePath();
-      }
-
-      if (entity instanceof SimpleStringEntityDefinition) {
-        this.v3Style = true;
-      }
+    public Builder(
+        CompressionType compression,
+        Format format,
+        Charset charset,
+        byte[] data,
+        @Nullable Object jsonData,
+        @Nullable DataStoreRef dataStoreRef,
+        @Nullable String filePath,
+        boolean v3Style) {
+      this.compression = compression;
+      this.format = format;
+      this.charset = charset;
+      this.data = data;
+      this.jsonData = jsonData;
+      this.dataStoreRef = dataStoreRef;
+      this.filePath = filePath;
+      this.v3Style = v3Style;
     }
 
     @SuppressWarnings("unused")

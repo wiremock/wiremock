@@ -35,6 +35,12 @@ class FilePathEntityDefinition extends EntityDefinition {
   }
 
   @Override
+  public EntityDefinition.Builder toBuilder() {
+    return new EntityDefinition.Builder(
+        this.compression, this.format, this.charset, null, null, null, this.filePath, false);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof FilePathEntityDefinition that)) {
       return false;

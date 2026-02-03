@@ -43,6 +43,12 @@ public class DataRefEntityDefinition extends EntityDefinition {
     return null;
   }
 
+  @Override
+  public EntityDefinition.Builder toBuilder() {
+    return new EntityDefinition.Builder(
+        this.compression, this.format, this.charset, null, null, this.dataStoreRef, null, false);
+  }
+
   @SuppressWarnings("unused")
   public @NonNull String getDataStore() {
     return dataStoreRef.store();

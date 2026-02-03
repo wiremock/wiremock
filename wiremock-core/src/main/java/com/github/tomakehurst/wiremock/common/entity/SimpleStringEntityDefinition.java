@@ -42,4 +42,10 @@ public class SimpleStringEntityDefinition extends SimpleEntityDefinition {
   SimpleStringEntityDefinition(byte[] data, Charset charset) {
     super(NONE, Format.TEXT, charset, data);
   }
+
+  @Override
+  public Builder toBuilder() {
+    return new Builder(
+        this.compression, this.format, this.charset, this.getDataAsBytes(), null, null, null, true);
+  }
 }
