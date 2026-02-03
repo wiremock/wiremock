@@ -51,14 +51,13 @@ public class EntityResolver {
       return StreamSources.forBytes(definition.getDataAsBytes());
     }
 
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
+    if (definition instanceof FilePathEntityDefinition filePathEntityDefinition && stores != null) {
       BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.getStreamSource(filePath);
+      return filesBlobStore.getStreamSource(filePathEntityDefinition.getFilePath());
     }
 
-    DataStoreRef dataStoreRef = definition.getDataStoreRef();
-    if (dataStoreRef != null && stores != null) {
+    if (definition instanceof DataRefEntityDefinition dataRefEntityDefinition && stores != null) {
+      DataStoreRef dataStoreRef = dataRefEntityDefinition.getDataStoreRef();
       BlobStore blobStore = stores.getBlobStore(dataStoreRef.store());
       if (blobStore != null && blobStore.contains(dataStoreRef.key())) {
         return blobStore.getStreamSource(dataStoreRef.key());

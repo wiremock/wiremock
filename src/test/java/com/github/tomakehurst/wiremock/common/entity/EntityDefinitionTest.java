@@ -611,9 +611,9 @@ public class EntityDefinitionTest {
     EntityDefinition entity =
         entity().setFilePath("path").setDataStoreRef("store", "key").setData("data").build();
 
+    assertThat(entity, instanceOf(SimpleEntityDefinition.class));
     assertThat(entity.getData(), is("data"));
     assertThat(entity.getFilePath(), nullValue());
-    assertThat(entity.getDataStoreRef(), nullValue());
   }
 
   @Test
@@ -621,15 +621,16 @@ public class EntityDefinitionTest {
     EntityDefinition entity =
         entity().setData("data").setDataStoreRef("store", "key").setFilePath("path").build();
 
+    assertThat(entity, instanceOf(FilePathEntityDefinition.class));
     assertThat(entity.getFilePath(), is("path"));
     assertThat(entity.getData(), nullValue());
-    assertThat(entity.getDataStoreRef(), nullValue());
   }
 
   @Test
   void builderClearsDataAndFilePathWhenSettingStoreRef() {
-    EntityDefinition entity =
-        entity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
+    DataRefEntityDefinition entity =
+        (DataRefEntityDefinition)
+            entity().setData("data").setFilePath("path").setDataStoreRef("store", "key").build();
 
     assertThat(entity.getDataStoreRef(), is(new DataStoreRef("store", "key")));
     assertThat(entity.getData(), nullValue());

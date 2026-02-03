@@ -176,11 +176,6 @@ public abstract class EntityDefinition {
     return null;
   }
 
-  @JsonIgnore
-  public @Nullable DataStoreRef getDataStoreRef() {
-    return null;
-  }
-
   @Override
   public String toString() {
     return Json.write(this);
@@ -243,10 +238,12 @@ public abstract class EntityDefinition {
 
       if (entity instanceof JsonEntityDefinition jsonEntity) {
         this.jsonData = jsonEntity.getDataAsJson();
-      } else {
-        this.data = entity.getDataAsBytes();
-        this.dataStoreRef = entity.getDataStoreRef();
-        this.filePath = entity.getFilePath();
+      } else if (entity instanceof DataRefEntityDefinition dataRefEntity) {
+        this.dataStoreRef = dataRefEntity.getDataStoreRef();
+      } else if (entity instanceof SimpleEntityDefinition simpleEntity) {
+        this.data = simpleEntity.getDataAsBytes();
+      } else if (entity instanceof FilePathEntityDefinition filePathEntity) {
+        this.filePath = filePathEntity.getFilePath();
       }
 
       if (entity instanceof SimpleStringEntityDefinition) {

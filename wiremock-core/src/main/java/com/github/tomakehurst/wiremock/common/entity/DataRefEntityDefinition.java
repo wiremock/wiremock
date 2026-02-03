@@ -17,11 +17,12 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-class DataRefEntityDefinition extends EntityDefinition {
+public class DataRefEntityDefinition extends EntityDefinition {
 
   private final @NonNull DataStoreRef dataStoreRef;
 
@@ -52,7 +53,7 @@ class DataRefEntityDefinition extends EntityDefinition {
     return dataStoreRef.key();
   }
 
-  @Override
+  @JsonIgnore
   public @NonNull DataStoreRef getDataStoreRef() {
     return dataStoreRef;
   }

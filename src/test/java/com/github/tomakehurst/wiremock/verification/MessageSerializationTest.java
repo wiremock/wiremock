@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.DataRefEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.DataStoreRef;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.Format;
@@ -576,7 +577,7 @@ public class MessageSerializationTest {
     assertThat(action.getBody(), is(notNullValue()));
     assertThat(action.getBody() != null, is(true));
 
-    EntityDefinition entityDef = action.getBody();
+    DataRefEntityDefinition entityDef = (DataRefEntityDefinition) action.getBody();
     assertThat(entityDef.getDataStoreRef(), is(new DataStoreRef("testStore", "testKey")));
   }
 

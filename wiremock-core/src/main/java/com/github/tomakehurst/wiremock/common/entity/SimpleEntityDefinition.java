@@ -32,6 +32,10 @@ class SimpleEntityDefinition extends EntityDefinition {
     this.data = data;
   }
 
+  public boolean isInline() {
+    return true;
+  }
+
   @Override
   public @Nullable Object getData() {
     if (!isBinary() && !isCompressed()) {
