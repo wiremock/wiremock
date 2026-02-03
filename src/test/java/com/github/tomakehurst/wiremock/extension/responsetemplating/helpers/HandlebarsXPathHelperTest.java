@@ -45,7 +45,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
             aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("<test>success</test>"));
+    assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
             aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), startsWith("<test></test>"));
+    assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
   }
 
   @Test
@@ -164,7 +164,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("One Two Three "));
+    assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
 
   @Test
@@ -184,7 +184,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("1 2 3 "));
+    assertThat(responseDefinition.getBody(), is("1 2 3 "));
   }
 
   @Test
@@ -204,7 +204,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("One Two Three "));
+    assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
 
   @Test
@@ -223,7 +223,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{{{xPath request.body '/stuff'}}}"));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
+        responseDefinition.getBody(),
         equalToCompressingWhiteSpace(
             "<stuff xmlns:th=\"https://thing.com\">\n"
                 + "    <th:thing>One</th:thing>\n"
@@ -249,7 +249,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("one two three "));
+    assertThat(responseDefinition.getBody(), is("one two three "));
   }
 
   @Test
@@ -260,7 +260,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().body("<one>\n" + "    <two>value</two>\n" + "</one>"),
             aResponse().withBody("{{xPath request.body 'local-name(/*/*[1])'}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("two"));
+    assertThat(responseDefinition.getBody(), is("two"));
   }
 
   @Test
@@ -278,6 +278,6 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "</wrap>"),
             aResponse().withBody("{{xPath request.body 'count(/wrap/*)'}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("4"));
+    assertThat(responseDefinition.getBody(), is("4"));
   }
 }

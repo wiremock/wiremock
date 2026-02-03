@@ -45,7 +45,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
             aResponse()
                 .withBody("{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)'}}\"}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"abc\"}"));
+    assertThat(responseDefinition.getBody(), is("{\"test\": \"abc\"}"));
   }
 
   @Test
@@ -58,7 +58,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{\"test\": \"{{regexExtract request.path.[1] '([A-Za-z]+)' 'parts'}}{{#each parts}}{{this}} {{/each}}\"}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"abc def ghi \"}"));
+    assertThat(responseDefinition.getBody(), is("{\"test\": \"abc def ghi \"}"));
   }
 
   @Test

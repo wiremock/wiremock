@@ -29,6 +29,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -326,17 +327,12 @@ public class ResponseDefinition {
   }
 
   @JsonInclude(value = CUSTOM, valueFilter = DefaultEntityDefinitionFilter.class)
-  public EntityDefinition getBody() {
+  @JsonGetter("body")
+  public EntityDefinition getBodyForSerialization() {
     if (v3Style && !(body instanceof SimpleStringEntityDefinition)) {
       return null;
     }
 
-    return body;
-  }
-
-  // Always returns the body entity, even if this is v3 stylex
-  @JsonIgnore
-  public EntityDefinition getBodyEntity() {
     return body;
   }
 
@@ -346,6 +342,21 @@ public class ResponseDefinition {
     public boolean equals(Object obj) {
       return EmptyEntityDefinition.INSTANCE.equals(obj);
     }
+  }
+
+  // for backwards compatibility
+  @JsonIgnore
+  public String getBody() {
+    if (body.isInline()) {
+      return body.getDataAsString();
+    }
+
+    return null;
+  }
+
+  @JsonIgnore
+  public EntityDefinition getBodyEntity() {
+    return body;
   }
 
   @JsonIgnore

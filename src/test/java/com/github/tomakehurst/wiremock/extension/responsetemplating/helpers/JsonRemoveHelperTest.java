@@ -40,7 +40,7 @@ public class JsonRemoveHelperTest extends HandlebarsHelperTestBase {
     final ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"id\":456}"));
+    assertThat(responseDefinition.getBody(), is("{\"id\":456}"));
   }
 
   @ParameterizedTest

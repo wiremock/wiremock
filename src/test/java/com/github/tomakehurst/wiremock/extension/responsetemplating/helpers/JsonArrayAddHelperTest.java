@@ -42,7 +42,7 @@ public class JsonArrayAddHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
+        responseDefinition.getBody(),
         is(
             "[{\"id\":456,\"name\":\"bob\"},{\"id\":123,\"name\":\"alice\"},{\"id\":321,\"name\":\"sam\"}]"));
   }

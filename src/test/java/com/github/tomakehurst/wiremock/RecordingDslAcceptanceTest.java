@@ -106,7 +106,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
-    assertThat(mapping.getResponse().getBody().getDataAsString(), is("Got it"));
+    assertThat(mapping.getResponse().getBody(), is("Got it"));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
-    assertThat(mapping.getResponse().getBody().getDataAsString(), is("Got it"));
+    assertThat(mapping.getResponse().getBody(), is("Got it"));
   }
 
   @Test
@@ -195,7 +195,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/record-this"));
 
     StubMapping mapping = findMappingWithUrl(proxyingService.getStubMappings(), "/record-this");
-    assertThat(mapping.getResponse().getBody().getDataAsString(), is("Got it"));
+    assertThat(mapping.getResponse().getBody(), is("Got it"));
   }
 
   @Test
@@ -289,7 +289,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     client.get("/gzipped-response");
 
     StubMapping mapping = proxyingService.stopRecording().getStubMappings().get(0);
-    assertThat(mapping.getResponse().getBody().getDataAsString(), is("Zippy"));
+    assertThat(mapping.getResponse().getBody(), is("Zippy"));
   }
 
   @Test

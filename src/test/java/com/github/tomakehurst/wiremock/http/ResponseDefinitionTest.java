@@ -101,8 +101,8 @@ public class ResponseDefinitionTest {
     ResponseDefinition responseDef = Json.read(STRING_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
     assertThat(responseDef.getJsonBody(), is(nullValue()));
-    assertThat(responseDef.getBody(), instanceOf(SimpleStringEntityDefinition.class));
-    assertThat(responseDef.getBody().getData(), is("String content"));
+    assertThat(responseDef.getBodyEntity(), instanceOf(SimpleStringEntityDefinition.class));
+    assertThat(responseDef.getBodyEntity().getData(), is("String content"));
   }
 
   private static final String JSON_BODY =
@@ -118,7 +118,7 @@ public class ResponseDefinitionTest {
   public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
     ResponseDefinition responseDef = Json.read(JSON_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
-    assertThat(responseDef.getBody(), is(nullValue()));
+    assertThat(responseDef.getBodyForSerialization(), is(nullValue()));
 
     JsonNode jsonNode = Json.node("{\"name\":\"wirmock\",\"isCool\":true}");
     assertThat(responseDef.getJsonBody(), is(jsonNode));
@@ -145,7 +145,7 @@ public class ResponseDefinitionTest {
   @Test
   public void correctlyUnmarshalsFromJsonWhenBodyIsBinary() {
     ResponseDefinition responseDef = Json.read(BINARY_BODY, ResponseDefinition.class);
-    assertThat(responseDef.getBody(), is(nullValue()));
+    assertThat(responseDef.getBodyForSerialization(), is(nullValue()));
     assertThat(responseDef.getByteBody(), is(BODY));
   }
 
@@ -380,7 +380,7 @@ public class ResponseDefinitionTest {
     assertThat(copy, is(responseDefinition));
     assertThat(copy.getStatus(), is(200));
     assertThat(copy.getStatusMessage(), is("my status message"));
-    assertThat(copy.getBody().getData(), is("my body"));
+    assertThat(copy.getBodyEntity().getData(), is("my body"));
     assertThat(copy.getHeaders(), is(new HttpHeaders(httpHeader("header-1", "h1v1", "h1v2"))));
     assertThat(
         copy.getAdditionalProxyRequestHeaders(),
@@ -414,7 +414,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    EntityDefinition body = responseDefinition.getBody();
+    EntityDefinition body = responseDefinition.getBodyEntity();
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(EntityDefinition.class));
     assertThat(body.getData(), is("{ \"message\": \"Hello\" }"));
@@ -439,7 +439,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    EntityDefinition body = responseDefinition.getBody();
+    EntityDefinition body = responseDefinition.getBodyEntity();
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(EntityDefinition.class));
 
@@ -467,7 +467,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    EntityDefinition body = responseDefinition.getBody();
+    EntityDefinition body = responseDefinition.getBodyEntity();
     assertThat(body, notNullValue());
     assertThat(body, instanceOf(JsonEntityDefinition.class));
 
@@ -497,7 +497,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    assertThat(responseDefinition.getBody().getCharset(), is(StandardCharsets.UTF_16));
+    assertThat(responseDefinition.getBodyEntity().getCharset(), is(StandardCharsets.UTF_16));
   }
 
   @Test
@@ -532,6 +532,6 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
-    assertThat(responseDefinition.getBody(), instanceOf(EmptyEntityDefinition.class));
+    assertThat(responseDefinition.getBodyEntity(), instanceOf(EmptyEntityDefinition.class));
   }
 }

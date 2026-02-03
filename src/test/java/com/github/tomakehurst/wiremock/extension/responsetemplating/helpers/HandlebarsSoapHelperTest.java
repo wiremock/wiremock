@@ -58,7 +58,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
             aResponse().withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("<test>success</test>"));
+    assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
 
   @Test
@@ -72,6 +72,6 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
             aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("<test></test>"));
+    assertThat(responseDefinition.getBody(), is("<test></test>"));
   }
 }

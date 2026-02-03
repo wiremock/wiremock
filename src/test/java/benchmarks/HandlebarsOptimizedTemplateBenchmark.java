@@ -64,6 +64,6 @@ public class HandlebarsOptimizedTemplateBenchmark {
     final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     final MockRequest request = mockRequest();
     ServeEvent serveEvent = newPostMatchServeEvent(request, responseDefinitionBuilder, stub);
-    return transformer.transform(serveEvent).getBody().getDataAsString();
+    return transformer.transform(serveEvent).getBody();
   }
 }

@@ -120,7 +120,7 @@ public class HandlebarsRandomValuesHelperTest {
 
     final ResponseDefinition responseDefinition = this.transformer.transform(serveEvent);
 
-    String[] bodyLines = responseDefinition.getBody().getDataAsString().trim().split("\n");
+    String[] bodyLines = responseDefinition.getBody().trim().split("\n");
     assertThat(bodyLines[0], is(bodyLines[1]));
     assertThat(bodyLines[0].length(), is(20));
   }

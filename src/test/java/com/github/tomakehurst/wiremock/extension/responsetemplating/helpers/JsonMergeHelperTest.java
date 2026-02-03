@@ -75,7 +75,7 @@ public class JsonMergeHelperTest extends HandlebarsHelperTestBase {
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
+        responseDefinition.getBody(),
         is("{\"id\":456,\"name\":\"bob\",\"roles\":[\"admin\",\"user\"],\"dob\":\"2024-06-18\"}"));
   }
 

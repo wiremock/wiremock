@@ -57,7 +57,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("{\"test\": \"success\"}"));
+    assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
   }
 
   @Test
@@ -69,8 +69,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
-        startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
+        responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
   }
 
   @Test
@@ -98,7 +97,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("One Two Three "));
+    assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
 
   @Test
@@ -120,7 +119,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("one: 1 two: 2 three: 3 "));
+    assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
   }
 
   @Test
@@ -143,8 +142,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                     "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
                         + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), containsString("One"));
-    assertThat(responseDefinition.getBody().getDataAsString(), not(containsString("Two")));
+    assertThat(responseDefinition.getBody(), containsString("One"));
+    assertThat(responseDefinition.getBody(), not(containsString("Two")));
   }
 
   @Test
@@ -302,7 +301,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         transform(
             transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("abc"));
+    assertThat(responseDefinition.getBody(), is("abc"));
   }
 
   @Test

@@ -996,7 +996,7 @@ class AdminApiTest extends AcceptanceTestBase {
     testClient.postJson("/__admin/mappings/import", IMPORT_JSON);
 
     List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
-    assertThat(stubs.get(1).getResponse().getBody().getData(), is("Original"));
+    assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
     assertThat(stubs.size(), is(2));
   }
 

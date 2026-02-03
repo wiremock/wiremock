@@ -141,7 +141,7 @@ public class HandlebarsCurrentDateHelperTest {
             mockRequest().url("/random-value"),
             aResponse().withBody("{{now offset='6 days'}}"));
 
-    String body = responseDefinition.getBody().getDataAsString().trim();
+    String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
   }
 
@@ -153,7 +153,7 @@ public class HandlebarsCurrentDateHelperTest {
             mockRequest().url("/random-value"),
             aResponse().withBody("{{date offset='6 days'}}"));
 
-    String body = responseDefinition.getBody().getDataAsString().trim();
+    String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
   }
 
@@ -165,7 +165,7 @@ public class HandlebarsCurrentDateHelperTest {
             mockRequest().url("/parsed-date"),
             aResponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
 
-    String body = responseDefinition.getBody().getDataAsString().trim();
+    String body = responseDefinition.getBody().trim();
     assertThat(body, is("2018-05-04T10:11:12Z"));
   }
 

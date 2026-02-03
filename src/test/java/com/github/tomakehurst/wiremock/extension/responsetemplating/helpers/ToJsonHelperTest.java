@@ -34,7 +34,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("[ 1, 2, 3 ]"));
+    assertThat(responseDefinition.getBody(), is("[ 1, 2, 3 ]"));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is(""));
+    assertThat(responseDefinition.getBody(), is(""));
   }
 
   @Test
@@ -52,7 +52,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("\"null\""));
+    assertThat(responseDefinition.getBody(), is("\"null\""));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
+        responseDefinition.getBody(),
         is("{\n  \"Authorization\" : \"whatever\",\n  \"Content-Type\" : \"text/plain\"\n}"));
   }
 
@@ -81,7 +81,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody(responseTemplate));
 
     assertThat(
-        responseDefinition.getBody().getDataAsString(),
+        responseDefinition.getBody(),
         is("{\r\n  \"Authorization\" : \"whatever\",\r\n  \"Content-Type\" : \"text/plain\"\r\n}"));
   }
 
@@ -91,7 +91,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("true"));
+    assertThat(responseDefinition.getBody(), is("true"));
   }
 
   @Test
@@ -100,6 +100,6 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody().getDataAsString(), is("123"));
+    assertThat(responseDefinition.getBody(), is("123"));
   }
 }
