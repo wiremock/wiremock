@@ -24,6 +24,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class Response {
 
@@ -122,6 +123,20 @@ public class Response {
 
   public boolean isFromProxy() {
     return fromProxy;
+  }
+
+  public boolean isDecompressible() {
+    return body.isDecompressible();
+  }
+
+  public Response decompress() {
+    return transform(builder -> builder.body(body.decompress()));
+  }
+
+  public Response transform(Consumer<Builder> transformer) {
+    final Builder builder = Builder.like(this);
+    transformer.accept(builder);
+    return builder.build();
   }
 
   @Override
