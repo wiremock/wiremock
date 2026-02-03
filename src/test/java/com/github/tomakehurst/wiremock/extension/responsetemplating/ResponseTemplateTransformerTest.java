@@ -45,7 +45,6 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -1382,9 +1381,6 @@ public class ResponseTemplateTransformerTest {
     String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");
     assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
   }
-
-  @Nested
-  public class CustomBodyStore {}
 
   private Integer transformToInt(String responseBodyTemplate) {
     return Integer.parseInt(transform(responseBodyTemplate));
