@@ -40,7 +40,15 @@ public interface FileSource {
 
   boolean exists();
 
-  boolean fileExists(String name);
+  // Preserving backwards compatibility, but better not to rely on this implementation
+  default boolean fileExists(String name) {
+    try {
+      getBinaryFileNamed(name).getStream();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
 
   void deleteFile(String name);
 }
