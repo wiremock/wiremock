@@ -61,7 +61,7 @@ final class SegmentValue implements Segment {
   }
 
   private @Nullable Segment normaliseWork() {
-    String result = Constants.normalise(stringForm, SegmentParser.segmentCharSet);
+    String result = PercentEncoding.normalise(stringForm, SegmentParser.segmentCharSet);
     return result != null
         ? SegmentParser.INSTANCE.build(result, () -> new SegmentValue(result, true))
         : null;
@@ -73,6 +73,6 @@ final class SegmentValue implements Segment {
   }
 
   private boolean isNormalFormWork() {
-    return Constants.isNormalForm(stringForm, SegmentParser.segmentCharSet);
+    return PercentEncoding.isNormalForm(stringForm, SegmentParser.segmentCharSet);
   }
 }

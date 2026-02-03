@@ -51,6 +51,6 @@ public final class QueryParamKeyParser implements PercentEncodedStringParser<Que
   public QueryParamKey encode(String unencoded) {
     return unencoded.isEmpty()
         ? QueryParamKey.EMPTY
-        : new QueryParamKeyValue(Constants.encode(unencoded, queryParamKeyCharSet), true);
+        : new QueryParamKeyValue(PercentEncoding.encode(unencoded, queryParamKeyCharSet), true);
   }
 }

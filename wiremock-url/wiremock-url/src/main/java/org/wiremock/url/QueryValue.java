@@ -82,7 +82,7 @@ final class QueryValue implements Query {
   }
 
   private @Nullable Query normaliseWork() {
-    String result = Constants.simpleNormalise(query, QueryParser.queryCharSet);
+    String result = PercentEncoding.simpleNormalise(query, QueryParser.queryCharSet);
     return result != null ? new QueryValue(result, true) : null;
   }
 
@@ -92,7 +92,7 @@ final class QueryValue implements Query {
   }
 
   private boolean isNormalFormWork() {
-    return Constants.isSimpleNormalForm(query, QueryParser.queryCharSet);
+    return PercentEncoding.isSimpleNormalForm(query, QueryParser.queryCharSet);
   }
 
   private volatile @Nullable Map<QueryParamKey, List<@Nullable QueryParamValue>> asMap = null;

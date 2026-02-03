@@ -47,6 +47,16 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
     }
   }
 
+  Path construct(String stringForm) {
+    if (stringForm.isEmpty()) {
+      return Path.EMPTY;
+    } else if (stringForm.equals("/")) {
+      return Path.ROOT;
+    } else {
+      return new PathValue(stringForm);
+    }
+  }
+
   private static final boolean[] charactersToLeaveAsIs = include('/');
 
   static final boolean[] pathCharSet = combine(pcharCharSet, charactersToLeaveAsIs);
@@ -58,12 +68,12 @@ public final class PathParser implements PercentEncodedStringParser<Path> {
     } else if (unencoded.equals("/")) {
       return Path.ROOT;
     } else {
-      return new PathValue(Constants.encode(unencoded, pathCharSet), true);
+      return new PathValue(PercentEncoding.encode(unencoded, pathCharSet), true);
     }
   }
 
   String normalisePercentEncoded(String unencoded) {
-    String result = Constants.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
+    String result = PercentEncoding.normalise(unencoded, pathCharSet, charactersToLeaveAsIs);
     return result != null ? result : unencoded;
   }
 }

@@ -164,6 +164,24 @@ public class UriTests {
     }
 
     @Test
+    void rejects_illegal_scheme() {
+      IllegalUri exception =
+          assertThatExceptionOfType(IllegalUri.class)
+              .isThrownBy(() -> Uri.parse("not~scheme:foo"))
+              .actual();
+      assertThat(exception.getMessage()).isEqualTo("Illegal uri: `not~scheme:foo`");
+      assertThat(exception.getIllegalValue()).isEqualTo("not~scheme:foo");
+
+      IllegalScheme cause =
+          assertThat(exception.getCause()).asInstanceOf(type(IllegalScheme.class)).actual();
+      assertThat(cause.getMessage())
+          .isEqualTo(
+              "Illegal scheme `not~scheme`; Scheme must match [a-zA-Z][a-zA-Z0-9+\\-.]{0,255}");
+      assertThat(cause.getIllegalValue()).isEqualTo("not~scheme");
+      assertThat(cause.getCause()).isNull();
+    }
+
+    @Test
     void rejects_illegal_uri() {
       IllegalUri exception =
           assertThatExceptionOfType(IllegalUri.class)

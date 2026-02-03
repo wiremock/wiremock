@@ -182,7 +182,8 @@ final class PathValue implements Path {
       if (lastIndexOfSlash == -1) {
         result = other;
       } else {
-        result = PathParser.INSTANCE.parse(this.path.substring(0, lastIndexOfSlash + 1) + other);
+        result =
+            PathParser.INSTANCE.construct(this.path.substring(0, lastIndexOfSlash + 1) + other);
       }
     }
     return result.normalise();

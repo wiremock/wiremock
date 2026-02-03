@@ -4,7 +4,7 @@ import net.ltgt.gradle.errorprone.errorprone
 plugins {
   id("wiremock.common-conventions")
   alias(libs.plugins.jmh)
-  id("net.ltgt.errorprone") version "4.4.0"
+  id("net.ltgt.errorprone") version "5.0.0"
 }
 
 tasks.jar {

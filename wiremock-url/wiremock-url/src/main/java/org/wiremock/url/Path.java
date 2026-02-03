@@ -62,7 +62,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
    * @return {@code true} if this is a base path
    */
   default boolean isBase() {
-    return isEmpty() || getLastSegment().isEmpty();
+    return isEmpty() || toString().endsWith("/");
   }
 
   /**
@@ -121,49 +121,41 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     return this.equals(Path.EMPTY);
   }
 
-  /**
-   * @return this path with a leading slash added if not present
-   */
+  /** Returns this path with a leading slash added if not present */
   default Path toAbsolutePath() {
     if (isAbsolute()) {
       return this;
     } else {
-      return parse("/" + this);
+      return PathParser.INSTANCE.construct("/" + this);
     }
   }
 
-  /**
-   * @return this path with any leading slash removed
-   */
+  /** Returns this path with any leading slash removed */
   default Path toRelativePath() {
     if (isRelative()) {
       return this;
     } else {
       String pathStr = toString();
-      return parse(pathStr.substring(1));
+      return PathParser.INSTANCE.construct(pathStr.substring(1));
     }
   }
 
-  /**
-   * @return this path with a trailing slash added if not present and not empty
-   */
+  /** Returns this path with a trailing slash added if not present and not empty */
   default Path toBasePath() {
     if (isBase()) {
       return this;
     } else {
-      return parse(this + "/");
+      return PathParser.INSTANCE.construct(this + "/");
     }
   }
 
-  /**
-   * @return this path with any trailing slash removed
-   */
+  /** Returns this path with any trailing slash removed */
   default Path toLeafPath() {
     if (isEmpty() || isLeaf()) {
       return this;
     } else {
       String pathStr = toString();
-      return parse(pathStr.substring(0, pathStr.length() - 1));
+      return PathParser.INSTANCE.construct(pathStr.substring(0, pathStr.length() - 1));
     }
   }
 
@@ -203,7 +195,7 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     String pathStr = toString();
     String prefixStr = prefix.toString();
     if (pathStr.startsWith(prefixStr)) {
-      return parse(pathStr.substring(prefixStr.length()));
+      return PathParser.INSTANCE.construct(pathStr.substring(prefixStr.length()));
     } else {
       return this;
     }
@@ -216,6 +208,6 @@ public interface Path extends PercentEncoded<Path>, ParsedString {
     if (toAppend.isEmpty()) {
       return this;
     }
-    return parse(this.toLeafPath().toString() + toAppend.toAbsolutePath());
+    return PathParser.INSTANCE.construct(this.toLeafPath().toString() + toAppend.toAbsolutePath());
   }
 }
