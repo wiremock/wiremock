@@ -19,12 +19,12 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -33,13 +33,12 @@ import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-  private final BlobStore filesBlobStore;
   private final FileSource filesFileSource;
   private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
   private final List<ResponseTransformerV2> v2ResponseTransformers;
-  private final EntityResolver entityResolver;
+  private final Stores stores;
 
   public StubResponseRenderer(
       BlobStore filesBlobStore,
@@ -47,15 +46,13 @@ public class StubResponseRenderer implements ResponseRenderer {
       ProxyResponseRenderer proxyResponseRenderer,
       List<ResponseTransformer> responseTransformers,
       List<ResponseTransformerV2> v2ResponseTransformers,
-      EntityResolver entityResolver) {
-    this.filesBlobStore = filesBlobStore;
+      Stores stores) {
     this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
     this.v2ResponseTransformers = v2ResponseTransformers;
-    this.entityResolver = entityResolver;
-
-    filesFileSource = new BlobStoreFileSource(filesBlobStore);
+    this.stores = stores;
+    this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
 
   @Override
@@ -157,7 +154,7 @@ public class StubResponseRenderer implements ResponseRenderer {
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
-    responseBuilder.body(entityResolver.resolve(responseDefinition.getBodyEntity()));
+    responseBuilder.body(responseDefinition.getBodyEntity().resolve(stores));
 
     return responseBuilder;
   }

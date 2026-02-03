@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.Limit;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -38,8 +37,9 @@ import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
-import com.github.tomakehurst.wiremock.store.InMemoryMessageChannelStore;
 import com.github.tomakehurst.wiremock.store.InMemoryMessageStubMappingStore;
+import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices.TestStores;
 import com.github.tomakehurst.wiremock.verification.InMemoryMessageJournal;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
@@ -57,9 +57,8 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private EntityResolver entityResolver = new EntityResolver(null);
-  private MessageChannels messageChannels =
-      new MessageChannels(new InMemoryMessageChannelStore(), entityResolver);
+  private Stores stores = new TestStores();
+  private MessageChannels messageChannels = new MessageChannels(stores);
   private MessageStubMappings messageStubMappings =
       new MessageStubMappings(new InMemoryMessageStubMappingStore());
   private MessageStubRequestHandler messageStubRequestHandler;
@@ -97,7 +96,7 @@ public class JettyHttpServerTest {
             messageStubMappings,
             messageChannels,
             new InMemoryMessageJournal(null),
-            entityResolver,
+            stores,
             Collections.emptyList());
   }
 

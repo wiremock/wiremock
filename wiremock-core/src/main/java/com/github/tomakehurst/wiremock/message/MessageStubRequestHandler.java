@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
@@ -29,19 +29,19 @@ public class MessageStubRequestHandler {
   private final MessageStubMappings messageStubMappings;
   private final MessageChannels messageChannels;
   private final MessageJournal messageJournal;
-  private final EntityResolver entityResolver;
+  private final Stores stores;
   private final List<MessageActionTransformer> actionTransformers;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
       MessageJournal messageJournal,
-      EntityResolver entityResolver,
+      Stores stores,
       List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
-    this.entityResolver = entityResolver;
+    this.stores = stores;
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
   }
@@ -125,7 +125,7 @@ public class MessageStubRequestHandler {
   }
 
   private Message resolveToMessage(MessageDefinition messageDefinition) {
-    Entity entity = entityResolver.resolve(messageDefinition.getBody());
+    Entity entity = messageDefinition.getBody().resolve(stores);
     return new Message(entity);
   }
 

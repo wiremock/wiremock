@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
 import java.util.List;
@@ -29,19 +29,19 @@ public class HttpStubServeEventListener implements ServeEventListener {
 
   private final MessageStubMappings messageStubMappings;
   private final MessageChannels messageChannels;
-  private final EntityResolver entityResolver;
+  private final Stores stores;
   private final Map<String, RequestMatcherExtension> customMatchers;
   private final List<MessageActionTransformer> actionTransformers;
 
   public HttpStubServeEventListener(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
-      EntityResolver entityResolver,
+      Stores stores,
       Map<String, RequestMatcherExtension> customMatchers,
       List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
-    this.entityResolver = entityResolver;
+    this.stores = stores;
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
@@ -110,7 +110,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
   }
 
   private void executeSendMessageAction(SendMessageAction action) {
-    Message message = new Message(entityResolver.resolve(action.getMessage().getBody()));
+    Message message = new Message(action.getMessage().getBody().resolve(stores));
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof RequestInitiatedChannelTarget requestTarget) {

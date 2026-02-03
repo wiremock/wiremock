@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -60,8 +59,7 @@ class ExtensionsTest {
             new FakeAdmin(),
             options,
             options.getStores(),
-            options.filesRoot().child(FILES_ROOT),
-            new EntityResolver(options.getStores()));
+            options.filesRoot().child(FILES_ROOT));
 
     extensions.load();
 

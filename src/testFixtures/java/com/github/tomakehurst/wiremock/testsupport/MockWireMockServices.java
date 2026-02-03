@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
@@ -60,11 +59,6 @@ public class MockWireMockServices implements WireMockServices {
   @Override
   public FileSource getFiles() {
     return new BlobStoreFileSource(stores.getFilesBlobStore());
-  }
-
-  @Override
-  public EntityResolver getEntityResolver() {
-    return new EntityResolver(getStores());
   }
 
   @Override

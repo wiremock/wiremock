@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
@@ -31,8 +30,6 @@ public interface WireMockServices {
   Stores getStores();
 
   FileSource getFiles();
-
-  EntityResolver getEntityResolver();
 
   Options getOptions();
 

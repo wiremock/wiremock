@@ -104,7 +104,7 @@ public abstract class EntityDefinition {
     }
   }
 
-  @NonNull Entity resolve(@Nullable Stores stores) {
+  public @NonNull Entity resolve(@Nullable Stores stores) {
     InputStreamSource bodySource = resolveEntityData(stores);
     final Entity.Builder builder =
         Entity.builder()

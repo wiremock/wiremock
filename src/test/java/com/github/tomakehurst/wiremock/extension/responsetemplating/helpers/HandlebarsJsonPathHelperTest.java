@@ -287,7 +287,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                             services.getTemplateEngine(),
                             true,
                             services.getFiles(),
-                            services.getEntityResolver()) {
+                            services.getStores()) {
                           @Override
                           protected Map<String, Object> addExtraModelElements(
                               Request request,

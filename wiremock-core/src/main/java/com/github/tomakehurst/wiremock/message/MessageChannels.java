@@ -15,21 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.store.MessageChannelStore;
-import java.util.*;
+import com.github.tomakehurst.wiremock.store.Stores;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MessageChannels {
 
   private final MessageChannelStore store;
-  private final EntityResolver entityResolver;
+  private final Stores stores;
 
-  public MessageChannels(MessageChannelStore store, EntityResolver entityResolver) {
-    this.store = store;
-    this.entityResolver = entityResolver;
+  public MessageChannels(Stores stores) {
+    this.store = stores.getMessageChannelStore();
+    this.stores = stores;
   }
 
   public void add(MessageChannel channel) {
@@ -99,7 +102,7 @@ public class MessageChannels {
       Map<String, RequestMatcherExtension> customMatchers) {
     List<RequestInitiatedMessageChannel> matchingChannels =
         findByRequestPattern(requestPattern, customMatchers);
-    Message message = new Message(entityResolver.resolve(messageDefinition.getBody()));
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
@@ -113,7 +116,7 @@ public class MessageChannels {
       Map<String, RequestMatcherExtension> customMatchers) {
     List<RequestInitiatedMessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);
-    Message message = new Message(entityResolver.resolve(messageDefinition.getBody()));
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }

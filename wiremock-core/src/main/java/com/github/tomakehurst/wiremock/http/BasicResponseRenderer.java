@@ -18,21 +18,14 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class BasicResponseRenderer implements ResponseRenderer {
 
-  private final EntityResolver entityResolver;
-
-  public BasicResponseRenderer() {
-    entityResolver = new EntityResolver(null);
-  }
-
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    Entity body = entityResolver.resolve(responseDefinition.getBodyEntity());
+    Entity body = responseDefinition.getBodyEntity().resolve(null);
     return response()
         .status(responseDefinition.getStatus())
         .headers(responseDefinition.getHeaders())

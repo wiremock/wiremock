@@ -23,10 +23,10 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -40,18 +40,15 @@ public class ResponseTemplateTransformer
 
   private final boolean global;
   private final FileSource files;
-  private final EntityResolver entityResolver;
+  private final Stores stores;
   private final TemplateEngine templateEngine;
 
   public ResponseTemplateTransformer(
-      TemplateEngine templateEngine,
-      boolean global,
-      FileSource files,
-      EntityResolver entityResolver) {
+      TemplateEngine templateEngine, boolean global, FileSource files, Stores stores) {
     this.templateEngine = templateEngine;
     this.global = global;
     this.files = files;
-    this.entityResolver = entityResolver;
+    this.stores = stores;
   }
 
   @Override
@@ -91,7 +88,7 @@ public class ResponseTemplateTransformer
         templateCacheKey = HttpTemplateCacheKey.forInlineBody(responseDefinition);
       }
 
-      final Entity initialBody = entityResolver.resolve(bodyDefinition);
+      final Entity initialBody = bodyDefinition.resolve(stores);
 
       final boolean bodyIsInlineOrTemplatingPermitted =
           bodyDefinition.isInline() || !parameters.getBoolean("disableBodyFileTemplating", false);

@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.toMap;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.LazyTemplateEngine;
@@ -46,7 +45,7 @@ import org.wiremock.webhooks.Webhooks;
 public class Extensions implements WireMockServices {
 
   public static final Extensions NONE =
-      new Extensions(new ExtensionDeclarations(), null, null, null, null, null);
+      new Extensions(new ExtensionDeclarations(), null, null, null, null);
 
   private final ExtensionDeclarations extensionDeclarations;
   private final Admin admin;
@@ -54,7 +53,6 @@ public class Extensions implements WireMockServices {
   private final Options options;
   private final Stores stores;
   private final FileSource files;
-  private final EntityResolver entityResolver;
 
   private TemplateEngine templateEngine;
 
@@ -67,14 +65,12 @@ public class Extensions implements WireMockServices {
       Admin admin,
       Options options,
       Stores stores,
-      FileSource files,
-      EntityResolver entityResolver) {
+      FileSource files) {
     this.extensionDeclarations = extensionDeclarations;
     this.admin = admin;
     this.options = options;
     this.stores = stores;
     this.files = files;
-    this.entityResolver = entityResolver;
 
     loadedExtensions = new LinkedHashMap<>();
   }
@@ -177,10 +173,7 @@ public class Extensions implements WireMockServices {
     if (options.getResponseTemplatingEnabled()) {
       final ResponseTemplateTransformer responseTemplateTransformer =
           new ResponseTemplateTransformer(
-              getTemplateEngine(),
-              options.getResponseTemplatingGlobal(),
-              getFiles(),
-              getEntityResolver());
+              getTemplateEngine(), options.getResponseTemplatingGlobal(), getFiles(), stores);
       loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
 
       final MessageTemplateTransformer messageTemplateTransformer =
@@ -229,11 +222,6 @@ public class Extensions implements WireMockServices {
   @Override
   public FileSource getFiles() {
     return files;
-  }
-
-  @Override
-  public EntityResolver getEntityResolver() {
-    return entityResolver;
   }
 
   @Override

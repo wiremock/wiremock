@@ -50,7 +50,7 @@ public class EmptyEntityDefinition extends EntityDefinition {
   }
 
   @Override
-  @NonNull Entity resolve(Stores stores) {
+  public @NonNull Entity resolve(Stores stores) {
     return Entity.EMPTY;
   }
 

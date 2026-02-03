@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -85,7 +84,6 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, ServeEventListener> serveEventListeners;
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
-  private final EntityResolver entityResolver;
 
   private Options options;
 
@@ -116,7 +114,6 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsSaver = options.mappingsSaver();
 
     this.settingsStore = stores.getSettingsStore();
-    this.entityResolver = new EntityResolver(stores);
 
     extensions =
         new Extensions(
@@ -124,8 +121,7 @@ public class WireMockApp implements StubServer, Admin {
             this,
             options,
             stores,
-            options.filesRoot().child(FILES_ROOT),
-            entityResolver);
+            options.filesRoot().child(FILES_ROOT));
     extensions.load();
 
     Map<String, RequestMatcherExtension> customMatchers =
@@ -145,14 +141,14 @@ public class WireMockApp implements StubServer, Admin {
             : new StoreBackedMessageJournal(
                 options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
 
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore(), entityResolver);
+    this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
-            entityResolver,
+            stores,
             customMatchers,
             List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
     Map<String, ServeEventListener> extensionListeners =
@@ -204,7 +200,6 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = mappingsLoaderExtensions;
     this.mappingsSaver = mappingsSaver;
     this.settingsStore = stores.getSettingsStore();
-    this.entityResolver = new EntityResolver(stores);
     requestJournal =
         requestJournalDisabled
             ? new DisabledRequestJournal()
@@ -217,14 +212,14 @@ public class WireMockApp implements StubServer, Admin {
                 maxRequestJournalEntries, stores.getMessageJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
 
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore(), entityResolver);
+    this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
-            entityResolver,
+            stores,
             requestMatchers,
             List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
     serveEventListeners = Map.of(httpStubListener.getName(), httpStubListener);
@@ -298,7 +293,7 @@ public class WireMockApp implements StubServer, Admin {
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
             List.copyOf(extensions.ofType(ResponseTransformerV2.class).values()),
-            entityResolver),
+            stores),
         this,
         postServeActions,
         serveEventListeners,
@@ -315,7 +310,7 @@ public class WireMockApp implements StubServer, Admin {
         messageStubMappings,
         messageChannels,
         messageJournal,
-        entityResolver,
+        stores,
         List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
   }
 

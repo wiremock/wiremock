@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.EntityResolver;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -58,7 +57,7 @@ public class StubResponseRendererTest {
             null,
             responseTransformers,
             v2ResponseTransformers,
-            new EntityResolver(null));
+            null);
   }
 
   @Test

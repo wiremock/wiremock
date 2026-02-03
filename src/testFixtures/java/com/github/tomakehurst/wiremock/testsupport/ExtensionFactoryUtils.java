@@ -36,7 +36,7 @@ public class ExtensionFactoryUtils {
                         services.getTemplateEngine(),
                         global,
                         services.getFiles(),
-                        services.getEntityResolver())));
+                        services.getStores())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(
@@ -50,7 +50,7 @@ public class ExtensionFactoryUtils {
                         services.getTemplateEngine(),
                         global,
                         services.getFiles(),
-                        services.getEntityResolver())));
+                        services.getStores())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(Long maxCacheEntries) {
@@ -63,7 +63,7 @@ public class ExtensionFactoryUtils {
                         services.getTemplateEngine(),
                         false,
                         services.getFiles(),
-                        services.getEntityResolver())));
+                        services.getStores())));
   }
 
   public static Extension buildExtension(
