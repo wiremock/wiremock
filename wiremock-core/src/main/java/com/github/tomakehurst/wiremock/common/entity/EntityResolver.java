@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.StreamSources;
-import com.github.tomakehurst.wiremock.store.BlobStore;
-import com.github.tomakehurst.wiremock.store.ObjectStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 
 public class EntityResolver {
@@ -31,47 +26,6 @@ public class EntityResolver {
   }
 
   public Entity resolve(EntityDefinition definition) {
-    if (definition instanceof EmptyEntityDefinition) {
-      return Entity.EMPTY;
-    }
-
-    InputStreamSource bodySource = resolveEntityData(definition);
-    final Entity.Builder builder =
-        Entity.builder()
-            .setCompression(definition.getCompression())
-            .setFormat(definition.getFormat())
-            .setCharset(definition.getCharset())
-            .setDataStreamSource(bodySource);
-
-    return builder.build();
-  }
-
-  private InputStreamSource resolveEntityData(EntityDefinition definition) {
-    if (definition.isInline()) {
-      return StreamSources.forBytes(definition.getDataAsBytes());
-    }
-
-    if (definition instanceof FilePathEntityDefinition filePathEntityDefinition && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.getStreamSource(filePathEntityDefinition.getFilePath());
-    }
-
-    if (definition instanceof DataRefEntityDefinition dataRefEntityDefinition && stores != null) {
-      DataStoreRef dataStoreRef = dataRefEntityDefinition.getDataStoreRef();
-      BlobStore blobStore = stores.getBlobStore(dataStoreRef.store());
-      if (blobStore != null && blobStore.contains(dataStoreRef.key())) {
-        return blobStore.getStreamSource(dataStoreRef.key());
-      }
-
-      ObjectStore objectStore = stores.getObjectStore(dataStoreRef.store());
-      if (objectStore != null && objectStore.contains(dataStoreRef.key())) {
-        return objectStore
-            .get(dataStoreRef.key())
-            .map(data -> StreamSources.forBytes(Json.toByteArray(data)))
-            .orElse(null);
-      }
-    }
-
-    return null;
+    return definition.resolve(stores);
   }
 }

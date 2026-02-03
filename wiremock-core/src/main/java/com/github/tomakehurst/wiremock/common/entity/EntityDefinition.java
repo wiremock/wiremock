@@ -32,7 +32,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
@@ -101,6 +103,20 @@ public abstract class EntityDefinition {
           "Cannot specify an entity with both filePath and data store reference");
     }
   }
+
+  @NonNull Entity resolve(@Nullable Stores stores) {
+    InputStreamSource bodySource = resolveEntityData(stores);
+    final Entity.Builder builder =
+        Entity.builder()
+            .setCompression(getCompression())
+            .setFormat(getFormat())
+            .setCharset(getCharset())
+            .setDataStreamSource(bodySource);
+
+    return builder.build();
+  }
+
+  abstract @Nullable InputStreamSource resolveEntityData(@Nullable Stores stores);
 
   @JsonIgnore
   public boolean isAbsent() {

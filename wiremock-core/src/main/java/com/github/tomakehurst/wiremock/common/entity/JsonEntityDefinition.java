@@ -20,30 +20,40 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class JsonEntityDefinition extends EntityDefinition {
 
-  private final JsonNode data;
+  private final @NonNull JsonNode data;
 
-  public JsonEntityDefinition(Object data) {
+  public JsonEntityDefinition(@NonNull Object data) {
     super(NONE, Format.JSON, UTF_8);
     this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
   }
 
   @Override
-  public Object getData() {
+  @NonNull InputStreamSource resolveEntityData(@Nullable Stores stores) {
+    return StreamSources.forBytes(getDataAsBytes());
+  }
+
+  @Override
+  public @NonNull Object getData() {
     return data;
   }
 
   @JsonIgnore
-  public JsonNode getDataAsJson() {
+  public @NonNull JsonNode getDataAsJson() {
     return data;
   }
 
   @Override
-  public String getDataAsString() {
+  public @NonNull String getDataAsString() {
     return Json.write(data);
   }
 
@@ -53,7 +63,7 @@ public class JsonEntityDefinition extends EntityDefinition {
   }
 
   @Override
-  public Builder toBuilder() {
+  public @NonNull Builder toBuilder() {
     return new Builder(
         this.compression, this.format, this.charset, null, this.data, null, null, false);
   }

@@ -19,6 +19,10 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.store.Stores;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @JsonSerialize(as = EmptyEntityDefinition.class)
 @JsonDeserialize(as = EmptyEntityDefinition.class)
@@ -43,5 +47,15 @@ public class EmptyEntityDefinition extends EntityDefinition {
   @Override
   public EntityDefinition.Builder toBuilder() {
     return new EntityDefinition.Builder();
+  }
+
+  @Override
+  @NonNull Entity resolve(Stores stores) {
+    return Entity.EMPTY;
+  }
+
+  @Override
+  @Nullable InputStreamSource resolveEntityData(@Nullable Stores stores) {
+    return null;
   }
 }

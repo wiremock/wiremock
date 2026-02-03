@@ -18,9 +18,13 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 
 import com.github.tomakehurst.wiremock.common.Encoding;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 class SimpleEntityDefinition extends EntityDefinition {
@@ -34,6 +38,11 @@ class SimpleEntityDefinition extends EntityDefinition {
 
   public boolean isInline() {
     return true;
+  }
+
+  @Override
+  @NonNull InputStreamSource resolveEntityData(@Nullable Stores stores) {
+    return StreamSources.forBytes(getDataAsBytes());
   }
 
   @Override

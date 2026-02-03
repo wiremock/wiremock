@@ -15,9 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 class FilePathEntityDefinition extends EntityDefinition {
 
@@ -27,6 +31,17 @@ class FilePathEntityDefinition extends EntityDefinition {
       CompressionType compression, Format format, Charset charset, @NonNull String filePath) {
     super(compression, format, charset);
     this.filePath = filePath;
+  }
+
+  @Override
+  @Nullable InputStreamSource resolveEntityData(@Nullable Stores stores) {
+
+    if (stores != null) {
+      BlobStore filesBlobStore = stores.getFilesBlobStore();
+      return filesBlobStore.getStreamSource(filePath);
+    }
+
+    return null;
   }
 
   @Override

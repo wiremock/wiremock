@@ -18,9 +18,16 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.ObjectStore;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class DataRefEntityDefinition extends EntityDefinition {
 
@@ -33,6 +40,27 @@ public class DataRefEntityDefinition extends EntityDefinition {
       @NonNull DataStoreRef dataStoreRef) {
     super(compression, format, charset);
     this.dataStoreRef = dataStoreRef;
+  }
+
+  @Override
+  @Nullable InputStreamSource resolveEntityData(@Nullable Stores stores) {
+
+    if (stores != null) {
+      BlobStore blobStore = stores.getBlobStore(dataStoreRef.store());
+      if (blobStore != null && blobStore.contains(dataStoreRef.key())) {
+        return blobStore.getStreamSource(dataStoreRef.key());
+      }
+
+      ObjectStore objectStore = stores.getObjectStore(dataStoreRef.store());
+      if (objectStore != null && objectStore.contains(dataStoreRef.key())) {
+        return objectStore
+            .get(dataStoreRef.key())
+            .map(data -> StreamSources.forBytes(Json.toByteArray(data)))
+            .orElse(null);
+      }
+    }
+
+    return null;
   }
 
   @Override
