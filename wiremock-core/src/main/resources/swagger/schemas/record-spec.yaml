@@ -13,6 +13,10 @@ properties:
       Accept: {}
       Content-Type:
         caseInsensitive: true
+  captureAllHeaders:
+    type: boolean
+    default: false
+    description: When true, all headers from the request will be captured in the generated stub mappings. When false (default), only headers specified in captureHeaders will be captured
   extractBodyCriteria:
     type: object
     description: Criteria for extracting response bodies to a separate file instead of including it in the stub mapping

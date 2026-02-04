@@ -71,6 +71,84 @@ Key features include:
 
 Full documentation can be found at [wiremock.org/docs](https://wiremock.org/docs).
 
+## Recording with Capture All Headers
+
+When recording API traffic, WireMock can capture all request headers using the `captureAllHeaders` option.
+By default, only headers explicitly specified in `captureHeaders` are recorded.
+
+### JSON API
+
+```json
+{
+  "targetBaseUrl": "http://example.com",
+  "captureAllHeaders": true,
+  "persist": true
+}
+```
+
+**Example:**
+
+```bash
+# Start recording with all headers captured
+curl -X POST http://localhost:8080/__admin/recordings/start \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targetBaseUrl": "http://example.com",
+    "captureAllHeaders": true
+  }'
+
+# Make requests through WireMock proxy...
+
+# Stop recording
+curl -X POST http://localhost:8080/__admin/recordings/stop
+```
+
+### Java DSL
+
+```java
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
+// Capture all headers
+WireMock.startRecording(
+    recordSpec()
+        .forTarget("http://example.com")
+        .captureAllHeaders()
+        .build()
+);
+
+// Capture all headers with specific header settings (e.g., case-insensitive)
+WireMock.startRecording(
+    recordSpec()
+        .forTarget("http://example.com")
+        .captureAllHeaders()
+        .captureHeader("Authorization", true)  // case-insensitive matching
+        .build()
+);
+```
+
+### Result
+
+When `captureAllHeaders` is `true`, the generated stub mapping includes all request headers:
+
+```json
+{
+  "request": {
+    "url": "/api/users",
+    "method": "GET",
+    "headers": {
+      "Accept": { "equalTo": "application/json" },
+      "Authorization": { "equalTo": "Bearer token123" },
+      "X-Request-Id": { "equalTo": "abc-123" },
+      "User-Agent": { "equalTo": "curl/8.0" }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": "..."
+  }
+}
+```
+
 ## Questions and Issues
 
 If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the

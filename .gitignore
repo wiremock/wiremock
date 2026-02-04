@@ -64,3 +64,4 @@ scripts/client-cert.*
 notes.txt
 
 .kotlin/
+.java-version

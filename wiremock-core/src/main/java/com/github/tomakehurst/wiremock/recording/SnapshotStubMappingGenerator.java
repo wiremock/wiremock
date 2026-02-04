@@ -44,10 +44,11 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
 
   SnapshotStubMappingGenerator(
       Map<String, CaptureHeadersSpec> captureHeaders,
+      boolean captureAllHeaders,
       RequestBodyPatternFactory requestBodyPatternFactory,
       boolean markStubsPersistent) {
     this(
-        new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
+        new RequestPatternTransformer(captureHeaders, captureAllHeaders, requestBodyPatternFactory),
         new LoggedResponseDefinitionTransformer(),
         markStubsPersistent);
   }

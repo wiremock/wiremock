@@ -28,15 +28,24 @@ import org.wiremock.url.PathAndQuery;
 
 /**
  * Creates a RequestPatternBuilder from a Request's URL, method, body (if present), and optionally
- * headers from a whitelist.
+ * headers from a whitelist or all headers.
  */
 class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
   private final Map<String, CaptureHeadersSpec> headers;
+  private final boolean captureAllHeaders;
   private final RequestBodyPatternFactory bodyPatternFactory;
 
   RequestPatternTransformer(
       Map<String, CaptureHeadersSpec> headers, RequestBodyPatternFactory bodyPatternFactory) {
+    this(headers, false, bodyPatternFactory);
+  }
+
+  RequestPatternTransformer(
+      Map<String, CaptureHeadersSpec> headers,
+      boolean captureAllHeaders,
+      RequestBodyPatternFactory bodyPatternFactory) {
     this.headers = headers;
+    this.captureAllHeaders = captureAllHeaders;
     this.bodyPatternFactory = bodyPatternFactory;
   }
 
@@ -65,7 +74,15 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
                   : havingExactly(decodedValues));
         });
 
-    if (headers != null && !headers.isEmpty()) {
+    if (captureAllHeaders) {
+      for (String headerName : request.getAllHeaderKeys()) {
+        CaptureHeadersSpec spec = (headers != null) ? headers.get(headerName) : null;
+        Boolean caseInsensitive = (spec != null) ? spec.getCaseInsensitive() : null;
+        StringValuePattern headerMatcher =
+            new EqualToPattern(request.getHeader(headerName), caseInsensitive);
+        builder.withHeader(headerName, headerMatcher);
+      }
+    } else if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
         String headerName = header.getKey();
         if (request.containsHeader(headerName)) {

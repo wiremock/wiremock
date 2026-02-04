@@ -31,6 +31,7 @@ public class RecordSpecBuilder {
   private RequestPatternBuilder filterRequestPatternBuilder;
   private List<UUID> filterIds;
   private final Map<String, CaptureHeadersSpec> headers = new LinkedHashMap<>();
+  private boolean captureAllHeaders = false;
   private RequestBodyPatternFactory requestBodyPatternFactory;
   private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
   private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
@@ -98,6 +99,16 @@ public class RecordSpecBuilder {
     return this;
   }
 
+  public RecordSpecBuilder captureAllHeaders() {
+    this.captureAllHeaders = true;
+    return this;
+  }
+
+  public RecordSpecBuilder captureAllHeaders(boolean captureAllHeaders) {
+    this.captureAllHeaders = captureAllHeaders;
+    return this;
+  }
+
   public RecordSpecBuilder chooseBodyMatchTypeAutomatically() {
     return chooseBodyMatchTypeAutomatically(null, null, null);
   }
@@ -157,6 +168,7 @@ public class RecordSpecBuilder {
         targetBaseUrl,
         filters,
         headers.isEmpty() ? null : headers,
+        captureAllHeaders ? true : null,
         requestBodyPatternFactory,
         responseDefinitionBodyMatcher,
         SnapshotOutputFormatter.FULL,

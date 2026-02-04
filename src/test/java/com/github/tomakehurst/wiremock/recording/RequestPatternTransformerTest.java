@@ -78,4 +78,66 @@ public class RequestPatternTransformerTest {
     assertEquals(
         expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());
   }
+
+  @Test
+  public void applyWithCaptureAllHeaders() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("Content-Type", "application/json")
+            .header("Accept", "text/plain")
+            .header("X-Custom", "value");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withHeader("Accept", equalTo("text/plain"))
+            .withHeader("X-Custom", equalTo("value"));
+
+    assertEquals(
+        expected.build(),
+        new RequestPatternTransformer(null, true, null).apply(request).build());
+  }
+
+  @Test
+  public void applyWithCaptureAllHeadersAndSpecificHeaderSettings() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("Content-Type", "application/json")
+            .header("Accept", "TEXT/PLAIN")
+            .header("X-Custom", "Value");
+
+    Map<String, CaptureHeadersSpec> headers =
+        Map.of("Accept", new CaptureHeadersSpec(true));
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withHeader("Accept", equalToIgnoreCase("TEXT/PLAIN"))
+            .withHeader("X-Custom", equalTo("Value"));
+
+    assertEquals(
+        expected.build(),
+        new RequestPatternTransformer(headers, true, null).apply(request).build());
+  }
+
+  @Test
+  public void applyWithCaptureAllHeadersFalse() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.GET)
+            .header("Content-Type", "application/json")
+            .header("Accept", "text/plain");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/"));
+
+    assertEquals(
+        expected.build(),
+        new RequestPatternTransformer(null, false, null).apply(request).build());
+  }
 }

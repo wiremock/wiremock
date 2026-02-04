@@ -6,6 +6,7 @@ captureHeaders:
   Accept: {}
   Content-Type:
     caseInsensitive: true
+captureAllHeaders: false
 requestBodyPattern:
   matcher: equalToJson
   ignoreArrayOrder: false

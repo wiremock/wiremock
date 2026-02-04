@@ -114,6 +114,7 @@ public class Recorder {
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(),
+                recordSpec.shouldCaptureAllHeaders(),
                 recordSpec.getRequestBodyPatternFactory(),
                 recordSpec.shouldPersist()),
             getStubMappingPostProcessor(recordSpec));
