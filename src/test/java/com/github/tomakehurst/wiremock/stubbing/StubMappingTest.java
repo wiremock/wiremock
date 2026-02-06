@@ -155,6 +155,7 @@ public class StubMappingTest {
     assertThat(
         stub.toString(),
         jsonEquals(
+            // language=json
             """
             {
               "id": "${json-unit.any-string}",
@@ -168,9 +169,9 @@ public class StubMappingTest {
                 "url": "/foo"
               },
               "response": {
-                "body": {
-                  "data": "{}",
-                  "format": "json"
+                "body": "{}",
+                "bodyMetadata": {
+                  "format":"json"
                 },
                 "headers": {
                   "Content-Type": "application/json"
