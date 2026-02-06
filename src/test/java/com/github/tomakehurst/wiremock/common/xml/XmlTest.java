@@ -21,19 +21,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import java.util.stream.IntStream;
+
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 import org.junitpioneer.jupiter.SetSystemProperty;
+
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 
 public class XmlTest {
 
@@ -184,22 +188,23 @@ public class XmlTest {
   public static class TestTransformerFactory extends TransformerFactory {
 
     @Override
-    public Transformer newTransformer(Source source) {
+    public Transformer newTransformer(Source source) throws TransformerConfigurationException {
       return null;
     }
 
     @Override
-    public Transformer newTransformer() {
+    public Transformer newTransformer() throws TransformerConfigurationException {
       return null;
     }
 
     @Override
-    public Templates newTemplates(Source source) {
+    public Templates newTemplates(Source source) throws TransformerConfigurationException {
       return null;
     }
 
     @Override
-    public Source getAssociatedStylesheet(Source source, String s, String s1, String s2) {
+    public Source getAssociatedStylesheet(Source source, String s, String s1, String s2)
+        throws TransformerConfigurationException {
       return null;
     }
 
@@ -212,7 +217,7 @@ public class XmlTest {
     }
 
     @Override
-    public void setFeature(String s, boolean b) {}
+    public void setFeature(String s, boolean b) throws TransformerConfigurationException {}
 
     @Override
     public boolean getFeature(String s) {
