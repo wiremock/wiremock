@@ -27,7 +27,6 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 import org.junit.jupiter.api.Test;
@@ -185,23 +184,22 @@ public class XmlTest {
   public static class TestTransformerFactory extends TransformerFactory {
 
     @Override
-    public Transformer newTransformer(Source source) throws TransformerConfigurationException {
+    public Transformer newTransformer(Source source) {
       return null;
     }
 
     @Override
-    public Transformer newTransformer() throws TransformerConfigurationException {
+    public Transformer newTransformer() {
       return null;
     }
 
     @Override
-    public Templates newTemplates(Source source) throws TransformerConfigurationException {
+    public Templates newTemplates(Source source) {
       return null;
     }
 
     @Override
-    public Source getAssociatedStylesheet(Source source, String s, String s1, String s2)
-        throws TransformerConfigurationException {
+    public Source getAssociatedStylesheet(Source source, String s, String s1, String s2) {
       return null;
     }
 
@@ -214,7 +212,7 @@ public class XmlTest {
     }
 
     @Override
-    public void setFeature(String s, boolean b) throws TransformerConfigurationException {}
+    public void setFeature(String s, boolean b) {}
 
     @Override
     public boolean getFeature(String s) {
