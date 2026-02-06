@@ -57,6 +57,18 @@ public class ResponseDefinitionBuilder {
         .build();
   }
 
+  public static ResponseDefinition jsonResponse(Object body, Class<?> view) {
+    return jsonResponse(body, HTTP_OK, view);
+  }
+
+  public static ResponseDefinition jsonResponse(Object body, int status, Class<?> view) {
+    return new ResponseDefinitionBuilder()
+        .withBody(Json.write(body, view))
+        .withStatus(status)
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+        .build();
+  }
+
   public ResponseDefinitionBuilder but() {
     return this;
   }
@@ -173,6 +185,13 @@ public class ResponseDefinitionBuilder {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody(Json.write(body))
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
+  }
+
+  public static <T> ResponseDefinitionBuilder okForJson(T body, Class<?> view) {
+    return responseDefinition()
+        .withStatus(HTTP_OK)
+        .withBody(Json.write(body, view))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 

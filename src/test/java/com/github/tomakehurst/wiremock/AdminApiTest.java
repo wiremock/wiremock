@@ -1529,6 +1529,117 @@ class AdminApiTest extends AcceptanceTestBase {
                 .formatted(id)));
   }
 
+  @Test
+  void stubCreatedInV3FormatIsReturnedInV4FormatWhenRequested() {
+    UUID id = UUID.randomUUID();
+    testClient.postJson(
+        "/__admin/mappings",
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/v3-to-v4-test"
+          },
+          "response": {
+            "status": 200,
+            "body": "Hello v3"
+          }
+        }
+        """
+            .formatted(id));
+
+    String body = testClient.get("/__admin/mappings/" + id + "?format=v4").content();
+    assertThat(
+        body,
+        jsonEquals(
+            """
+            {
+              "id": "%s",
+              "request": {
+                "method": "GET",
+                "url": "/v3-to-v4-test"
+              },
+              "response": {
+                "status": 200,
+                "body": {
+                  "data": "Hello v3"
+                }
+              }
+            }
+            """
+                .formatted(id)));
+  }
+
+  @Test
+  void stubCreatedInV4FormatIsReturnedInV4FormatWhenRequested() {
+    UUID id = UUID.randomUUID();
+    testClient.postJson(
+        "/__admin/mappings",
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/v4-to-v4-test"
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "data": "Hello v4",
+              "format": "TEXT"
+            }
+          }
+        }
+        """
+            .formatted(id));
+
+    String body = testClient.get("/__admin/mappings/" + id + "?format=v4").content();
+    assertThat(
+        body,
+        jsonEquals(
+            """
+            {
+              "id": "%s",
+              "request": {
+                "method": "GET",
+                "url": "/v4-to-v4-test"
+              },
+              "response": {
+                "status": 200,
+                "body": {
+                  "data": "Hello v4"
+                }
+              }
+            }
+            """
+                .formatted(id)));
+  }
+
+  @Test
+  void stubMappingsListIsReturnedInV4FormatWhenRequested() {
+    UUID id = UUID.randomUUID();
+    testClient.postJson(
+        "/__admin/mappings",
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/list-v4-test"
+          },
+          "response": {
+            "status": 200,
+            "body": "Hello list"
+          }
+        }
+        """
+            .formatted(id));
+
+    String body = testClient.get("/__admin/mappings?format=v4").content();
+    assertThat(body, jsonPartEquals("mappings[0].response.body.data", "Hello list"));
+  }
+
   public static class TestExtendedSettingsData {
     public String name;
   }

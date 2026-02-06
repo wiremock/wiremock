@@ -15,16 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.Conversions;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.wiremock.url.Query;
 
 public class GetStubMappingTask extends AbstractSingleStubTask {
 
   @Override
   protected ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
-    return ResponseDefinition.okForJson(stubMapping);
+    Query query = serveEvent.getRequest().getPathAndQueryWithoutPrefix().getQueryOrEmpty();
+    return ResponseDefinitionBuilder.okForJson(stubMapping, Conversions.toJsonView(query)).build();
   }
 }

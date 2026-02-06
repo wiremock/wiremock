@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.Json;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -28,6 +29,14 @@ public class Conversions {
   public static Integer toInt(Query query, String key) {
     QueryParamValue parameter = query.getFirst(key);
     return parameter != null ? Integer.valueOf(parameter.decode()) : null;
+  }
+
+  public static Class<?> toJsonView(Query query) {
+    QueryParamValue parameter = query.getFirst("format");
+    if (parameter != null && "v4".equals(parameter.decode())) {
+      return Json.V4StyleView.class;
+    }
+    return Json.PublicView.class;
   }
 
   public static Date toDate(Query query, String key) {
