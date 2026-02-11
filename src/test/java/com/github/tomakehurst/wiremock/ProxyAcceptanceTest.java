@@ -889,6 +889,36 @@ public class ProxyAcceptanceTest {
     assertThat(response.firstHeader("Content-Type"), is("text/plain"));
   }
 
+  @Test
+  public void requestLogFlagsProxiedResponses() {
+    initWithDefaultConfig();
+
+    target.register(any(anyUrl()).willReturn(ok("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(urlEqualTo("/not-proxied")).willReturn(ok("Un-proxied content")));
+
+    WireMockResponse proxiedResponse = testClient.get("/proxied");
+    assertThat(proxiedResponse.statusCode(), is(200));
+    assertThat(proxiedResponse.content(), is("Proxied content"));
+
+    var serveEvents = proxy.getServeEvents();
+    assertThat(serveEvents.size(), is(1));
+    assertThat(serveEvents.get(0).getResponse().getBodyAsString(), is("Proxied content"));
+    assertThat(serveEvents.get(0).getResponse().isFromProxy(), is(true));
+
+    proxy.resetRequests();
+    WireMockResponse unProxiedResponse = testClient.get("/not-proxied");
+    assertThat(unProxiedResponse.statusCode(), is(200));
+    assertThat(unProxiedResponse.content(), is("Un-proxied content"));
+
+    serveEvents = proxy.getServeEvents();
+    assertThat(serveEvents.size(), is(1));
+    assertThat(serveEvents.get(0).getResponse().getBodyAsString(), is("Un-proxied content"));
+    assertThat(serveEvents.get(0).getResponse().isFromProxy(), is(false));
+  }
+
   private void register200StubOnProxyAndTarget(String url) {
     target.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
     proxy.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
