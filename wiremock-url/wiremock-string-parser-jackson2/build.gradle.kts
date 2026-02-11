@@ -18,7 +18,7 @@ dependencies {
   api("com.fasterxml.jackson.core:jackson-core:2.5.0")
   api("com.fasterxml.jackson.core:jackson-databind:2.5.0")
 
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
+  annotationProcessor("com.uber.nullaway:nullaway:0.13.1")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 
