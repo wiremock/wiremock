@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -34,6 +35,16 @@ public class Conversions {
   public static Class<?> toJsonView(Query query) {
     QueryParamValue parameter = query.getFirst("format");
     if (parameter != null && "v4".equals(parameter.decode())) {
+      return Json.V4StyleView.class;
+    }
+    return Json.PublicView.class;
+  }
+
+  public static Class<?> detectJsonViewFromRequestBody(String requestBody) {
+    JsonNode root = Json.node(requestBody);
+    JsonNode responseNode = root.path("response");
+    JsonNode bodyNode = responseNode.path("body");
+    if (bodyNode.isObject()) {
       return Json.V4StyleView.class;
     }
     return Json.PublicView.class;

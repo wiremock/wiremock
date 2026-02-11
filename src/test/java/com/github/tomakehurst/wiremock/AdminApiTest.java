@@ -1640,6 +1640,140 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(body, jsonPartEquals("mappings[0].response.body.data", "Hello list"));
   }
 
+  @Test
+  void createStubInV3FormatReturnsV3Response() {
+    UUID id = UUID.randomUUID();
+    String v3StubJson =
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/create-v3"
+          },
+          "response": {
+            "status": 200,
+            "body": "Hello create v3"
+          }
+        }
+        """
+            .formatted(id);
+
+    WireMockResponse response = testClient.postJson("/__admin/mappings", v3StubJson);
+    assertThat(response.statusCode(), is(201));
+    assertThat(response.content(), jsonEquals(v3StubJson));
+  }
+
+  @Test
+  void createStubInV4FormatReturnsV4Response() {
+    UUID id = UUID.randomUUID();
+    String v4StubJson =
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/create-v4"
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "data": "Hello create v4"
+            }
+          }
+        }
+        """
+            .formatted(id);
+
+    WireMockResponse response = testClient.postJson("/__admin/mappings", v4StubJson);
+    assertThat(response.statusCode(), is(201));
+    assertThat(response.content(), jsonEquals(v4StubJson));
+  }
+
+  @Test
+  void updateStubInV3FormatReturnsV3Response() {
+    UUID id = UUID.randomUUID();
+    testClient.postJson(
+        "/__admin/mappings",
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/update-v3"
+          },
+          "response": {
+            "status": 200,
+            "body": "original"
+          }
+        }
+        """
+            .formatted(id));
+
+    String updatedJson =
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/update-v3"
+          },
+          "response": {
+            "status": 200,
+            "body": "updated v3"
+          }
+        }
+        """
+            .formatted(id);
+
+    WireMockResponse response = testClient.putJson("/__admin/mappings/" + id, updatedJson);
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), jsonEquals(updatedJson));
+  }
+
+  @Test
+  void updateStubInV4FormatReturnsV4Response() {
+    UUID id = UUID.randomUUID();
+    testClient.postJson(
+        "/__admin/mappings",
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/update-v4"
+          },
+          "response": {
+            "status": 200,
+            "body": "original"
+          }
+        }
+        """
+            .formatted(id));
+
+    String updatedJson =
+        """
+        {
+          "id": "%s",
+          "request": {
+            "method": "GET",
+            "url": "/update-v4"
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "data": "updated v4"
+            }
+          }
+        }
+        """
+            .formatted(id);
+
+    WireMockResponse response = testClient.putJson("/__admin/mappings/" + id, updatedJson);
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), jsonEquals(updatedJson));
+  }
+
   public static class TestExtendedSettingsData {
     public String name;
   }
