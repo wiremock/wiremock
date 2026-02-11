@@ -49,7 +49,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null, null);
+          null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -61,7 +61,6 @@ public class ResponseDefinitionTest {
             null,
             null,
             "name.json",
-            null,
             new HttpHeaders(httpHeader("thing", "thingvalue")),
             null,
             null,
@@ -196,11 +195,7 @@ public class ResponseDefinitionTest {
                          "Content-Length": "28",
                          "Content-Type": "application/json"
                        },
-                       "base64Body": "%s",
-                       "bodyMetadata": {
-                         "format": "json",
-                         "compression": "gzip"
-                       }
+                       "base64Body": "%s"
                      }
                     """
                 .formatted(base64)));
@@ -332,7 +327,6 @@ public class ResponseDefinitionTest {
     assertThat(actualJson, not(containsString("base64Body")));
     assertThat(actualJson, not(containsString("jsonBody")));
     assertThat(actualJson, not(containsString("bodyFileName")));
-    assertThat(actualJson, not(containsString("bodyMetadata")));
   }
 
   @Test
@@ -354,9 +348,6 @@ public class ResponseDefinitionTest {
               "status": 200,
               "jsonBody": {
                 "name": "wiremock"
-              },
-              "bodyMetadata": {
-                "format": "json"
               }
             }
             """));
@@ -514,7 +505,6 @@ public class ResponseDefinitionTest {
             200,
             "my status message",
             WireMock.textEntity("my body").build(),
-            null,
             null,
             null,
             null,
@@ -687,55 +677,6 @@ public class ResponseDefinitionTest {
     ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
 
     assertThat(responseDefinition.getBodyEntity(), instanceOf(EmptyEntityDefinition.class));
-  }
-
-  @Test
-  void bodyMetadataIsOmittedWhenAllDefaults() {
-    ResponseDefinition responseDef =
-        responseDefinition().withStatus(200).withSimpleBody("hello").build();
-
-    String json = Json.write(responseDef);
-
-    assertThat(json, not(containsString("bodyMetadata")));
-  }
-
-  @Test
-  void bodyMetadataIsIncludedWhenNonDefaults() {
-    String plain = "{\"id\":1}";
-    byte[] gzipped = Gzip.gzip(plain);
-
-    ResponseDefinition responseDef =
-        responseDefinition()
-            .withStatus(200)
-            .withHeader("Content-Encoding", "gzip")
-            .withHeader("Content-Type", "application/json")
-            .withBody(gzipped)
-            .build();
-
-    assertThat(responseDef.getBodyMetadata(), notNullValue());
-    assertThat(responseDef.getBodyMetadata().getFormat(), is(Format.JSON));
-    assertThat(responseDef.getBodyMetadata().getCompression(), is(CompressionType.GZIP));
-  }
-
-  @Test
-  void deserialisesBodyMetadataFromJson() {
-    var json =
-        // language=JSON
-        """
-        {
-          "status": 200,
-          "base64Body": "AQID",
-          "bodyMetadata": {
-            "format": "json",
-            "compression": "gzip"
-          }
-        }
-        """;
-
-    ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
-
-    assertThat(responseDef.getBodyEntity().getFormat(), is(Format.JSON));
-    assertThat(responseDef.getBodyEntity().getCompression(), is(CompressionType.GZIP));
   }
 
   @Test

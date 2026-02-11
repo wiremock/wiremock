@@ -26,7 +26,6 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -43,7 +42,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
@@ -53,7 +51,6 @@ import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinitio
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -95,7 +92,6 @@ public class ResponseDefinition {
       @JsonProperty("jsonBody") JsonNode jsonBody,
       @JsonProperty("base64Body") String base64Body,
       @JsonProperty("bodyFileName") String bodyFileName,
-      @JsonProperty("bodyMetadata") BodyMetadata bodyMetadata,
       @JsonProperty("headers") HttpHeaders headers,
       @JsonProperty("additionalProxyRequestHeaders") HttpHeaders additionalProxyRequestHeaders,
       @JsonProperty("removeProxyRequestHeaders") List<String> removeProxyRequestHeaders,
@@ -111,7 +107,7 @@ public class ResponseDefinition {
     this(
         status,
         statusMessage,
-        resolveBody(body, jsonBody, base64Body, bodyFileName, bodyMetadata),
+        resolveBody(body, jsonBody, base64Body, bodyFileName),
         headers,
         additionalProxyRequestHeaders,
         removeProxyRequestHeaders,
@@ -128,11 +124,7 @@ public class ResponseDefinition {
   }
 
   private static EntityDefinition resolveBody(
-      EntityDefinition body,
-      JsonNode jsonBody,
-      String base64Body,
-      String bodyFileName,
-      BodyMetadata bodyMetadata) {
+      EntityDefinition body, JsonNode jsonBody, String base64Body, String bodyFileName) {
     EntityDefinition entityDefinition = body;
     if (jsonBody != null) {
       entityDefinition = EntityDefinition.json(jsonBody);
@@ -140,10 +132,6 @@ public class ResponseDefinition {
       entityDefinition = EntityDefinition.fromBase64(base64Body);
     } else if (bodyFileName != null) {
       entityDefinition = EntityDefinition.builder().setFilePath(bodyFileName).build();
-    }
-
-    if (entityDefinition != null && bodyMetadata != null) {
-      entityDefinition = entityDefinition.transform(bodyMetadata::applyTo);
     }
 
     return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
@@ -391,28 +379,6 @@ public class ResponseDefinition {
     }
 
     return null;
-  }
-
-  @JsonView({Json.PublicView.class, Json.PrivateView.class})
-  public BodyMetadata getBodyMetadata() {
-    if (body.isAbsent()) {
-      return null;
-    }
-
-    Format format = body.getFormatForSerialization();
-    CompressionType compression = body.getCompression();
-    Charset charset = body.getCharset();
-
-    boolean isDefault =
-        format == null
-            && (compression == null || compression == CompressionType.NONE)
-            && (charset == null || charset.equals(UTF_8));
-
-    if (isDefault) {
-      return null;
-    }
-
-    return new BodyMetadata(format, compression, charset);
   }
 
   public boolean wasConfigured() {
