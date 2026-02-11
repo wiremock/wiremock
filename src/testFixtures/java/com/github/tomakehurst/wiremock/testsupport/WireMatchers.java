@@ -490,4 +490,46 @@ public class WireMatchers {
       }
     };
   }
+
+  public static Matcher<Optional<?>> hasValue(final Object value) {
+    return new TypeSafeDiagnosingMatcher<>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("an optional with value ").appendValue(value);
+      }
+
+      @Override
+      protected boolean matchesSafely(Optional<?> item, Description mismatchDescription) {
+        if (!item.isPresent()) {
+          mismatchDescription.appendText("value was absent");
+          return false;
+        }
+
+        if (item.get().equals(value)) {
+          return true;
+        }
+
+        mismatchDescription.appendText("value was ").appendValue(item.orElse(null));
+        return false;
+      }
+    };
+  }
+
+  public static Matcher<Optional<?>> isAbsent() {
+    return new TypeSafeDiagnosingMatcher<>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("an absent optional");
+      }
+
+      @Override
+      protected boolean matchesSafely(Optional<?> item, Description mismatchDescription) {
+        if (item.isEmpty()) {
+          return true;
+        }
+        mismatchDescription.appendText("value was ").appendValue(item.get());
+        return false;
+      }
+    };
+  }
 }

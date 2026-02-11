@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -33,26 +33,26 @@ import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-  private final BlobStore filesBlobStore;
   private final FileSource filesFileSource;
   private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
   private final List<ResponseTransformerV2> v2ResponseTransformers;
+  private final Stores stores;
 
   public StubResponseRenderer(
       BlobStore filesBlobStore,
       SettingsStore settingsStore,
       ProxyResponseRenderer proxyResponseRenderer,
       List<ResponseTransformer> responseTransformers,
-      List<ResponseTransformerV2> v2ResponseTransformers) {
-    this.filesBlobStore = filesBlobStore;
+      List<ResponseTransformerV2> v2ResponseTransformers,
+      Stores stores) {
     this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
     this.v2ResponseTransformers = v2ResponseTransformers;
-
-    filesFileSource = new BlobStoreFileSource(filesBlobStore);
+    this.stores = stores;
+    this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
 
   @Override
@@ -154,13 +154,7 @@ public class StubResponseRenderer implements ResponseRenderer {
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
-    if (responseDefinition.specifiesBodyFile()) {
-      final InputStreamSource bodyStreamSource =
-          filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
-      responseBuilder.body(bodyStreamSource);
-    } else if (responseDefinition.specifiesBodyContent()) {
-      responseBuilder.body(responseDefinition.getByteBody());
-    }
+    responseBuilder.body(responseDefinition.getBodyEntity().resolve(stores));
 
     return responseBuilder;
   }

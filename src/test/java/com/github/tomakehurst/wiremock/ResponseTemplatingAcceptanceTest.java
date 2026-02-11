@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.assertMessageSubEventPresent;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -263,7 +264,7 @@ public class ResponseTemplatingAcceptanceTest {
 
       WireMockResponse response = client.get("/jsonBody/template?qp=2");
 
-      assertThat(response.content(), is("{\"Key\":\"Hello world 2!\"}"));
+      assertThat(response.content(), jsonEquals("{\"Key\":\"Hello world 2!\"}"));
     }
 
     @Test

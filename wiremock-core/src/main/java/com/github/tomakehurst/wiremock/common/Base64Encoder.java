@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,4 +21,6 @@ interface Base64Encoder {
   String encode(byte[] content, boolean padding);
 
   byte[] decode(String base64);
+
+  byte[] decode(byte[] base64);
 }

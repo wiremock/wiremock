@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
-import static com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition.aBinaryMessage;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static java.nio.file.Files.write;
 import static java.nio.file.Files.writeString;
@@ -30,6 +30,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import java.io.File;
@@ -56,28 +57,12 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   }
 
   @Test
-  void textEntityDefinitionWithObjectDataSerializesToJson() {
-    Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-    messageStubFor(
-        message()
-            .withName("Object data stub")
-            .withBody(equalTo("trigger"))
-            .willTriggerActions(sendMessage().withBody(objectData).onOriginatingChannel()));
-
-    WebsocketTestClient testClient = new WebsocketTestClient();
-    String url = websocketUrl("/object-data-test");
-
-    String response = testClient.sendMessageAndWaitForResponse(url, "trigger");
-    assertThat(response, jsonEquals("{\"name\":\"John\",\"age\":30}"));
-  }
-
-  @Test
   void textEntityDefinitionWithDataStoreResolvesFromStore() {
     wireMockServer
         .getOptions()
         .getStores()
-        .getObjectStore("testStore")
-        .put("testKey", "stored value");
+        .getBlobStore("testStore")
+        .put("testKey", Strings.bytesFromString("stored value"));
 
     messageStubFor(
         message()
@@ -96,11 +81,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   @Test
   void textEntityDefinitionWithDataStoreResolvesObjectFromStoreAsJson() {
     Map<String, Object> storedObject = Map.of("key", "value", "number", 42);
-    wireMockServer
-        .getOptions()
-        .getStores()
-        .getObjectStore("objectStore")
-        .put("objectKey", storedObject);
+    wireMockServer.getStores().getObjectStore("objectStore").put("objectKey", storedObject);
 
     messageStubFor(
         message()
@@ -151,7 +132,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(aBinaryMessage().withBody(responseBytes))));
+                    .withMessage(binaryEntity().setData(responseBytes))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-response-test");
@@ -171,7 +152,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     wireMockServer
         .getOptions()
         .getStores()
-        .getObjectStore("binaryStore")
+        .getBlobStore("binaryStore")
         .put("binaryKey", storedBytes);
 
     messageStubFor(
@@ -181,8 +162,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(
-                        aBinaryMessage().withDataStore("binaryStore").withDataRef("binaryKey"))));
+                    .withMessage(binaryEntity().setDataStoreRef("binaryStore", "binaryKey"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-store-test");
@@ -234,7 +214,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .willTriggerActions(
                 sendMessage()
                     .toOriginatingChannel()
-                    .withMessage(aBinaryMessage().withFilePath("binary-body.bin"))));
+                    .withMessage(binaryEntity().setFilePath("binary-body.bin"))));
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/binary-file-body-test");

@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -76,19 +73,11 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
   }
 
   private String extractBodyContent(EntityDefinition body) {
-    if (body instanceof StringEntityDefinition stringDef) {
-      return stringDef.getValue();
+    if (body.isBinary()) {
+      return null;
     }
-    if (body instanceof TextEntityDefinition textDef) {
-      Object data = textDef.getData();
-      if (data instanceof String) {
-        return (String) data;
-      }
-      if (data != null) {
-        return Json.write(data);
-      }
-    }
-    return null;
+
+    return body.getDataAsString();
   }
 
   private Map<String, Object> buildModel(MessageActionContext context, SendMessageAction action) {
@@ -121,7 +110,7 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
 
   private SendMessageAction rebuildAction(SendMessageAction original, String newBody) {
     return new SendMessageAction(
-        new MessageDefinition(new StringEntityDefinition(newBody)),
+        new MessageDefinition(EntityDefinition.full(newBody)),
         original.getChannelTarget(),
         original.getTransformers(),
         original.getTransformerParameters());

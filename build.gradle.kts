@@ -309,6 +309,7 @@ tasks.register("release") {
 
 tasks.register("localRelease") {
   dependsOn(tasks.clean, tasks.assemble, tasks.publishToMavenLocal)
+  dependsOn(subprojects.mapNotNull { it.tasks.findByName("publishToMavenLocal") })
 }
 
 fun updateFiles(currentVersion: String, nextVersion: String) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -218,6 +219,16 @@ public class SingleRootFileSourceTest {
           SingleRootFileSource fileSource = new SingleRootFileSource(EXIST_FILES_ROOT_PATH);
           String badPath = new File(EXIST_FILES_ROOT_PATH, "../illegal.file").getCanonicalPath();
           fileSource.getTextFileNamed(badPath);
+        });
+  }
+
+  @Test
+  void throwsExceptionWhenAttemptingToGetStreamForNonExistentFile() {
+    assertThrows(
+        FileNotFoundException.class,
+        () -> {
+          SingleRootFileSource fileSource = new SingleRootFileSource(EXIST_FILES_ROOT_PATH);
+          fileSource.getBinaryFileNamed("non-existent-file").getStream();
         });
   }
 }

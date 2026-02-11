@@ -17,7 +17,10 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.isOneOf;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
@@ -29,13 +32,48 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.AbsentPattern;
+import com.github.tomakehurst.wiremock.matching.AfterDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToNumberPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanNumberPattern;
+import com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.LessThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LessThanNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LogicalAnd;
+import com.github.tomakehurst.wiremock.matching.LogicalOr;
+import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
+import com.github.tomakehurst.wiremock.matching.MatchesJsonSchemaPattern;
+import com.github.tomakehurst.wiremock.matching.MatchesXPathPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.NegativeContainsPattern;
+import com.github.tomakehurst.wiremock.matching.NegativeRegexPattern;
+import com.github.tomakehurst.wiremock.matching.NotPattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
@@ -64,7 +102,11 @@ import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.wiremock.url.Path;
@@ -402,6 +444,26 @@ public class WireMock {
 
   public static StringValuePattern or(StringValuePattern... matchers) {
     return new LogicalOr(matchers);
+  }
+
+  public static EntityDefinition.Builder textEntity(String text) {
+    return EntityDefinition.builder().setData(text);
+  }
+
+  public static EntityDefinition.Builder entity() {
+    return EntityDefinition.builder();
+  }
+
+  public static EntityDefinition.Builder binaryEntity(byte[] data) {
+    return EntityDefinition.builder().setFormat(BINARY).setData(data);
+  }
+
+  public static EntityDefinition.Builder binaryEntity() {
+    return EntityDefinition.builder().setFormat(BINARY);
+  }
+
+  public static JsonEntityDefinition jsonEntity(Object data) {
+    return new JsonEntityDefinition(data);
   }
 
   public void saveMappings() {

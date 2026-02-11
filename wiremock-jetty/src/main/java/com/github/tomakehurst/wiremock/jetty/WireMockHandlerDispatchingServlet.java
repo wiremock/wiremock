@@ -258,14 +258,15 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     if ((chunkedEncodingPolicy == NEVER
             || (chunkedEncodingPolicy == BODY_FILE && response.hasInlineBody()))
         && httpServletResponse.getHeader(CONTENT_LENGTH) == null) {
-      httpServletResponse.setContentLength(response.getBody().length);
+      httpServletResponse.setContentLength(response.getBody().getData().length);
     }
 
+    final InputStream bodyStream = response.getBody().getStreamSource().getStream();
     if (response.shouldAddChunkedDribbleDelay()) {
       writeAndTranslateExceptionsWithChunkedDribbleDelay(
-          httpServletResponse, response.getBodyStream(), response.getChunkedDribbleDelay());
+          httpServletResponse, bodyStream, response.getChunkedDribbleDelay());
     } else {
-      writeAndTranslateExceptions(httpServletResponse, response.getBodyStream());
+      writeAndTranslateExceptions(httpServletResponse, bodyStream);
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.testsupport;
-
-import static java.util.Collections.emptyList;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
@@ -35,7 +33,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), global, services.getFiles(), emptyList())));
+                        services.getTemplateEngine(),
+                        global,
+                        services.getFiles(),
+                        services.getStores())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(
@@ -46,7 +47,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), global, services.getFiles(), emptyList())));
+                        services.getTemplateEngine(),
+                        global,
+                        services.getFiles(),
+                        services.getStores())));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(Long maxCacheEntries) {
@@ -56,7 +60,10 @@ public class ExtensionFactoryUtils {
             services ->
                 List.of(
                     new ResponseTemplateTransformer(
-                        services.getTemplateEngine(), false, services.getFiles(), emptyList())));
+                        services.getTemplateEngine(),
+                        false,
+                        services.getFiles(),
+                        services.getStores())));
   }
 
   public static Extension buildExtension(

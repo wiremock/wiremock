@@ -15,42 +15,38 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition.aTextMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.entity;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public class SendMessageActionBuilder {
 
-  private TextEntityDefinition.Builder textEntityBuilder = aTextMessage();
+  private final EntityDefinition.Builder entityBuilder = entity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
 
   public SendMessageActionBuilder() {}
 
   public SendMessageActionBuilder withBody(String message) {
-    this.textEntityBuilder.withBody(message);
+    this.entityBuilder.setData(message);
     return this;
   }
 
-  public SendMessageActionBuilder withBody(Object data) {
-    textEntityBuilder.withBody(data);
-    return this;
-  }
-
-  public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
-    textEntityBuilder.withDataStore(storeName);
-    textEntityBuilder.withDataRef(key);
+  public SendMessageActionBuilder withBodyFromStore(
+      @NonNull String storeName, @NonNull String key) {
+    entityBuilder.setDataStoreRef(storeName, key);
     return this;
   }
 
   public SendMessageActionBuilder withBodyFromFile(String filePath) {
-    textEntityBuilder.withFilePath(filePath);
+    entityBuilder.setFilePath(filePath);
     return this;
   }
 
@@ -60,9 +56,7 @@ public class SendMessageActionBuilder {
   }
 
   public SendMessageActionBuilder withTransformers(String... transformerNames) {
-    for (String name : transformerNames) {
-      this.transformers.add(name);
-    }
+    this.transformers.addAll(Arrays.asList(transformerNames));
     return this;
   }
 
@@ -77,7 +71,7 @@ public class SendMessageActionBuilder {
   }
 
   private EntityDefinition resolveBody() {
-    return textEntityBuilder.build();
+    return entityBuilder.build();
   }
 
   public SendMessageAction onOriginatingChannel() {
@@ -137,7 +131,7 @@ public class SendMessageActionBuilder {
           new MessageDefinition(body), channelTarget, transformers, transformerParameters);
     }
 
-    public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {
+    public SendMessageAction withMessage(EntityDefinition.Builder bodyBuilder) {
       return withMessage(bodyBuilder.build());
     }
   }
