@@ -55,8 +55,10 @@ public class ProxySettingsTest {
 
   @Test
   public void shouldThrowExceptionIfPortIsNotRecognized() {
-    assertThrows(
-        IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
+    var ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
+    assertThat(ex.getMessage(), is("Proxy via Url 'a.proxyvia.url:80a' was not recognized"));
   }
 
   @Test
