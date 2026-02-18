@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("HttpUrlsUsage")
 public class ProxySettingsTest {
 
   public static final String PROXYVIA_URL = "a.proxyvia.url";
@@ -55,10 +56,7 @@ public class ProxySettingsTest {
   @Test
   public void shouldThrowExceptionIfPortIsNotRecognized() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL + ":80a");
-        });
+        IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
   }
 
   @Test
@@ -108,18 +106,11 @@ public class ProxySettingsTest {
   public void shouldNotAllowHttpsProtocol() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings =
-              ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT);
-        });
+        () -> ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT));
   }
 
   @Test
   public void shouldThrowExceptionIfUrlIsInvalid() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
-        });
+    assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString("ul:invalid:80"));
   }
 }
