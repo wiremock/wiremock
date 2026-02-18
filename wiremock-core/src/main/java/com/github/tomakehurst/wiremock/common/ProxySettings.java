@@ -22,6 +22,7 @@ import static org.wiremock.url.SchemeRegistry.http;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.IllegalUri;
 import org.wiremock.url.Password;
+import org.wiremock.url.Uri;
 
 public class ProxySettings {
 
@@ -42,11 +43,15 @@ public class ProxySettings {
   public static ProxySettings fromString(String config) {
     try {
       AbsoluteUrl proxyUrl;
-      try {
-        proxyUrl = AbsoluteUrl.parse(config);
-      } catch (IllegalUri e) {
-        config = "http://" + config;
-        proxyUrl = AbsoluteUrl.parse(config);
+      {
+        var maybeAbsoluteProxyUrl = Uri.parse(config);
+        if (maybeAbsoluteProxyUrl instanceof AbsoluteUrl) {
+          proxyUrl = (AbsoluteUrl) maybeAbsoluteProxyUrl;
+        } else {
+          //noinspection HttpUrlsUsage
+          config = "http://" + config;
+          proxyUrl = AbsoluteUrl.parse(config);
+        }
       }
       if (!proxyUrl.getScheme().equals(http)) {
         throw new IllegalArgumentException(

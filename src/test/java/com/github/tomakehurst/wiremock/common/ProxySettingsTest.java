@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,6 +95,13 @@ public class ProxySettingsTest {
     ProxySettings proxySettings = ProxySettings.fromString("http://" + PROXYVIA_URL_WITH_PORT);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
+  }
+
+  @Test
+  public void shouldRejectInvalidUrisWithProtocol() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ProxySettings.fromString("http://" + PROXYVIA_URL + ":notanumber"));
   }
 
   @Test
