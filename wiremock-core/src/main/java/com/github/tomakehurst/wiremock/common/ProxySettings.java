@@ -49,8 +49,8 @@ public class ProxySettings {
           proxyUrl = (AbsoluteUrl) maybeAbsoluteProxyUrl;
         } else {
           //noinspection HttpUrlsUsage
-          config = "http://" + config;
-          proxyUrl = AbsoluteUrl.parse(config);
+          String withScheme = "http://" + config;
+          proxyUrl = AbsoluteUrl.parse(withScheme);
         }
       }
       if (!proxyUrl.getScheme().equals(http)) {
@@ -71,7 +71,7 @@ public class ProxySettings {
       return proxySettings;
     } catch (IllegalUri e) {
       throw new IllegalArgumentException(
-          String.format("Proxy via Url %s was not recognized", config), e);
+          String.format("Proxy via Url '%s' was not recognized", config), e);
     }
   }
 
