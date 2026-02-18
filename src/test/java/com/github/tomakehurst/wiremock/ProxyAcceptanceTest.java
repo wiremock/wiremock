@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -47,7 +48,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -476,14 +479,60 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void canProxyViaAForwardProxy() {
+    // Set a proxy host header on the forward proxy to a random value so we can verify the request
+    // that hit the target service came from the forward proxy.
+    String forwardProxyHost = UUID.randomUUID().toString();
     WireMockServer forwardProxy =
-        new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .proxyHostHeader(forwardProxyHost));
     forwardProxy.start();
     init(wireMockConfig().proxyVia(new ProxySettings("localhost", forwardProxy.port())));
 
     register200StubOnProxyAndTarget("/proxy-via");
 
     assertThat(testClient.get("/proxy-via").statusCode(), is(200));
+    List<ServeEvent> targetRequests = targetService.getAllServeEvents();
+    assertThat(targetRequests, hasSize(1));
+    assertThat(targetRequests.get(0).getRequest().getHeader("Host"), is(forwardProxyHost));
+  }
+
+  @Test
+  public void canProxyViaAForwardProxyWithCredentials() {
+    // Set a proxy host header on the forward proxy to a random value so we can verify the request
+    // that hit the target service came from the forward proxy.
+    String forwardProxyHost = UUID.randomUUID().toString();
+    WireMockServer forwardProxy =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .proxyHostHeader(forwardProxyHost));
+    forwardProxy.start();
+
+    String username = UUID.randomUUID().toString();
+    String password = UUID.randomUUID().toString();
+    ProxySettings proxySettings = new ProxySettings("localhost", forwardProxy.port());
+    proxySettings.setUsername(username);
+    proxySettings.setPassword(password);
+    init(wireMockConfig().proxyVia(proxySettings));
+
+    // Reject unauthenticated requests to the forward proxy to ensure the proxied request must be
+    // authenticated correctly.
+    String requiredAuthHeaderValue =
+        "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+    forwardProxy.stubFor(
+        any(anyUrl())
+            .withHeader("Proxy-Authorization", not(equalTo(requiredAuthHeaderValue)))
+            .willReturn(status(407).withHeader("Proxy-Authenticate", "Basic realm=\"whatever\"")));
+    register200StubOnProxyAndTarget("/proxy-via");
+
+    assertThat(testClient.get("/proxy-via").statusCode(), is(200));
+    List<ServeEvent> targetRequests = targetService.getAllServeEvents();
+    assertThat(targetRequests, hasSize(1));
+    assertThat(targetRequests.get(0).getRequest().getHeader("Host"), is(forwardProxyHost));
   }
 
   @Test
