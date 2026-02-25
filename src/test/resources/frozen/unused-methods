@@ -4,7 +4,6 @@ Method <com.github.tomakehurst.wiremock.admin.model.ServeEventQuery.forStubMappi
 Method <com.github.tomakehurst.wiremock.admin.model.ServeEventQuery.forStubMapping(java.util.UUID)> is unreferenced in (ServeEventQuery.java:41)
 Method <com.github.tomakehurst.wiremock.client.BasicCredentials.present()> is unreferenced in (BasicCredentials.java:38)
 Method <com.github.tomakehurst.wiremock.common.Base64Encoder.encode([B)> is unreferenced in (Base64Encoder.java:0)
-Method <com.github.tomakehurst.wiremock.common.Dates.parse(java.lang.String)> is unreferenced in (Dates.java:29)
 Method <com.github.tomakehurst.wiremock.common.Encoding.urlEncode(java.lang.String)> is unreferenced in (Encoding.java:53)
 Method <com.github.tomakehurst.wiremock.common.Errors.notPermitted(java.lang.String)> is unreferenced in (Errors.java:57)
 Method <com.github.tomakehurst.wiremock.common.Exceptions.renderStackTrace(java.lang.Throwable)> is unreferenced in (Exceptions.java:77)
