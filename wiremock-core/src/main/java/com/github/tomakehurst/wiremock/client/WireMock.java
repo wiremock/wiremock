@@ -1019,6 +1019,10 @@ public class WireMock {
     new RemoteMappingsLoader(mappingsSource, this).load();
   }
 
+  public static void loadMappings(String rootDir) {
+    defaultInstance.get().loadMappingsFrom(rootDir);
+  }
+
   public static List<StubMapping> snapshotRecord() {
     return defaultInstance.get().takeSnapshotRecording();
   }
