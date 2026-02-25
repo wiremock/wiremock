@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,10 @@ public class HandlebarsCurrentDateHelperTest {
     Object output = render(optionsHash);
 
     assertThat(output, instanceOf(RenderableDate.class));
-    assertThat(output.toString(), WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+    assertThat(
+        output.toString(),
+        WireMatchers.matches(
+            "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.\\d{1,9})?Z$"));
   }
 
   @Test
@@ -117,7 +120,7 @@ public class HandlebarsCurrentDateHelperTest {
         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").parse("2023-10-07T00:00:00.00Z");
     Object output = render(inputDate, optionsHash);
 
-    assertThat(output.toString(), is("2023-10-10T00:00:00+11:00"));
+    assertThat(output.toString(), is("2023-10-10T00:00:00.000+11:00"));
   }
 
   @Test
@@ -142,7 +145,10 @@ public class HandlebarsCurrentDateHelperTest {
             aResponse().withBody("{{now offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
-    assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+    assertThat(
+        body,
+        WireMatchers.matches(
+            "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.\\d{1,9})?Z$"));
   }
 
   @Test
@@ -154,7 +160,10 @@ public class HandlebarsCurrentDateHelperTest {
             aResponse().withBody("{{date offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
-    assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+    assertThat(
+        body,
+        WireMatchers.matches(
+            "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.\\d{1,9})?Z$"));
   }
 
   @Test
@@ -166,7 +175,7 @@ public class HandlebarsCurrentDateHelperTest {
             aResponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
 
     String body = responseDefinition.getBody().trim();
-    assertThat(body, is("2018-05-04T10:11:12Z"));
+    assertThat(body, is("2018-05-04T10:11:12.000Z"));
   }
 
   private Object render(Map<String, Object> optionsHash) throws IOException {
