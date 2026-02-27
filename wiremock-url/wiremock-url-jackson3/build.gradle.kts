@@ -19,7 +19,7 @@ dependencies {
   compileOnly("org.jspecify:jspecify:1.0.0")
 
   testImplementation("tools.jackson.core:jackson-databind:3.0.0")
-  testImplementation(platform("org.junit:junit-bom:6.0.1"))
+  testImplementation(platform("org.junit:junit-bom:5.14.3"))
   testImplementation(libs.junit.jupiter.api)
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.assertj.core)
