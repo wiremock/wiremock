@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,15 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.ValidationMessage;
-import java.util.Set;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
+import java.util.List;
 
 public class MatchesJsonSchemaPattern extends StringValuePattern {
 
-  private final JsonSchema schema;
+  private final Schema schema;
   private final WireMock.JsonSchemaVersion schemaVersion;
   private final int schemaPropertyCount;
   private final Errors invalidSchemaErrors;
@@ -46,18 +46,17 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
       @JsonProperty("schemaVersion") WireMock.JsonSchemaVersion schemaVersion) {
     super(schemaJson);
 
-    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-    config.setTypeLoose(false);
-    config.setHandleNullableField(true);
+    SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).build();
 
-    final JsonSchemaFactory schemaFactory =
-        JsonSchemaFactory.getInstance(schemaVersion.toVersionFlag());
-    JsonSchema schema;
+    final SchemaRegistry schemaRegistry =
+        SchemaRegistry.withDefaultDialect(
+            schemaVersion.toVersionFlag(), builder -> builder.schemaRegistryConfig(config));
+    Schema schema;
     JsonNode schemaAsJson = Json.read(schemaJson, JsonNode.class);
     int schemaPropertyCount;
     Errors invalidSchemaErrors;
     try {
-      schema = schemaFactory.getSchema(schemaAsJson, config);
+      schema = schemaRegistry.getSchema(schemaAsJson);
       schemaPropertyCount = Json.schemaPropertyCount(schemaAsJson);
       invalidSchemaErrors = null;
     } catch (Exception e) {
@@ -106,7 +105,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
       jsonNode = new TextNode(json);
     }
 
-    final Set<ValidationMessage> validationMessages;
+    final List<Error> validationMessages;
     try {
       validationMessages = validate(jsonNode, json);
     } catch (Exception e) {
@@ -158,10 +157,10 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     return e;
   }
 
-  private Set<ValidationMessage> validate(JsonNode jsonNode, String originalJson) {
-    final Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
-    if (validationMessages.isEmpty() || jsonNode.isTextual() || jsonNode.isContainerNode()) {
-      return validationMessages;
+  private List<Error> validate(JsonNode jsonNode, String originalJson) {
+    final List<Error> validationErrors = schema.validate(jsonNode);
+    if (validationErrors.isEmpty() || jsonNode.isTextual() || jsonNode.isContainerNode()) {
+      return validationErrors;
     } else {
       return schema.validate(new TextNode(originalJson));
     }

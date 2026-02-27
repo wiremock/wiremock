@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -416,7 +416,7 @@ public class MatchesJsonSchemaPatternTest {
     assertThat(matchResult2.isExactMatch(), is(false));
     Errors expectedErrors2 =
         Errors.singleWithDetail(
-            10, "Invalid JSON Schema", ": Reference /does/not/exist cannot be resolved");
+            10, "Invalid JSON Schema", "Reference /does/not/exist cannot be resolved");
     assertThat(matchResult2.getSubEvents(), contains(new SubEventMatcher(expectedErrors2)));
 
     // Check for false positives.
