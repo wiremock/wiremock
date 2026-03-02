@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -440,21 +441,23 @@ public class MatchesJsonSchemaPatternTest {
                 })));
   }
 
-  @Test
-  void nullValueMatchesWhenSchemaDeclaresNullable() {
+  @ParameterizedTest
+  @EnumSource(WireMock.JsonSchemaVersion.class)
+  void nullValueMatchesWhenSchemaDeclaresNullable(WireMock.JsonSchemaVersion  jsonSchemaVersion) {
     MatchesJsonSchemaPattern pattern =
         new MatchesJsonSchemaPattern(
-            "{\"type\": \"object\", \"nullable\": true}", WireMock.JsonSchemaVersion.V202012);
+            "{\"type\": \"object\", \"nullable\": true}", jsonSchemaVersion);
 
     assertThat(pattern.match("null").isExactMatch(), is(true));
     assertThat(pattern.match("{}").isExactMatch(), is(true));
     assertThat(pattern.match("123").isExactMatch(), is(false));
   }
 
-  @Test
-  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable() {
+  @ParameterizedTest
+  @EnumSource(WireMock.JsonSchemaVersion.class)
+  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable(WireMock.JsonSchemaVersion  jsonSchemaVersion) {
     MatchesJsonSchemaPattern pattern =
-        new MatchesJsonSchemaPattern("{\"type\": \"object\"}", WireMock.JsonSchemaVersion.V202012);
+        new MatchesJsonSchemaPattern("{\"type\": \"object\"}", jsonSchemaVersion);
 
     assertThat(pattern.match("null").isExactMatch(), is(false));
     assertThat(pattern.match("{}").isExactMatch(), is(true));
