@@ -440,6 +440,26 @@ public class MatchesJsonSchemaPatternTest {
                 })));
   }
 
+  @Test
+  void nullValueMatchesWhenSchemaDeclaresNullable() {
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(
+            "{\"type\": \"object\", \"nullable\": true}", WireMock.JsonSchemaVersion.V202012);
+
+    assertThat(pattern.match("null").isExactMatch(), is(true));
+    assertThat(pattern.match("{}").isExactMatch(), is(true));
+    assertThat(pattern.match("123").isExactMatch(), is(false));
+  }
+
+  @Test
+  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable() {
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern("{\"type\": \"object\"}", WireMock.JsonSchemaVersion.V202012);
+
+    assertThat(pattern.match("null").isExactMatch(), is(false));
+    assertThat(pattern.match("{}").isExactMatch(), is(true));
+  }
+
   private static String stringify(String json) {
     return "\"" + json.replace("\n", "").replace("\"", "\\\"") + "\"";
   }

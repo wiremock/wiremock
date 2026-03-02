@@ -28,6 +28,10 @@ import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.NonValidationKeyword;
 import java.util.List;
 
 public class MatchesJsonSchemaPattern extends StringValuePattern {
@@ -48,9 +52,13 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
     SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).build();
 
+    Dialect dialectWithNullable =
+        Dialect.builder(dialectFor(schemaVersion.toVersionFlag()))
+            .keyword(new NonValidationKeyword("nullable"))
+            .build();
     final SchemaRegistry schemaRegistry =
         SchemaRegistry.withDefaultDialect(
-            schemaVersion.toVersionFlag(), builder -> builder.schemaRegistryConfig(config));
+            dialectWithNullable, builder -> builder.schemaRegistryConfig(config));
     Schema schema;
     JsonNode schemaAsJson = Json.read(schemaJson, JsonNode.class);
     int schemaPropertyCount;
@@ -164,5 +172,15 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     } else {
       return schema.validate(new TextNode(originalJson));
     }
+  }
+
+  private static Dialect dialectFor(SpecificationVersion version) {
+    return switch (version) {
+      case DRAFT_4 -> Dialects.getDraft4();
+      case DRAFT_6 -> Dialects.getDraft6();
+      case DRAFT_7 -> Dialects.getDraft7();
+      case DRAFT_2019_09 -> Dialects.getDraft201909();
+      case DRAFT_2020_12 -> Dialects.getDraft202012();
+    };
   }
 }
