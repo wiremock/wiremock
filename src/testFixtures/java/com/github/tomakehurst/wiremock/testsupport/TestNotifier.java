@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TestNotifier implements Notifier {
 
@@ -48,8 +49,8 @@ public class TestNotifier implements Notifier {
   }
 
   @Override
-  public void info(String message) {
-    this.info.add(message);
+  public void info(Supplier<String> message) {
+    this.info.add(message.get());
     consoleNotifier.info(message);
   }
 

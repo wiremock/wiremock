@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
 import static org.xmlunit.diff.ComparisonType.NAMESPACE_PREFIX;
@@ -34,11 +33,13 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -302,7 +303,10 @@ public class EqualToXmlPatternTest {
     Notifier notifier = Mockito.mock(Notifier.class);
     LocalNotifier.set(notifier);
     equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
-    verify(notifier).info(contains("Failed to process XML. Content is not allowed in prolog."));
+    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+    verify(notifier).info(captor.capture());
+    String actualMessage = captor.getValue().get();
+    assertTrue(actualMessage.contains("Failed to process XML. Content is not allowed in prolog."));
   }
 
   @Test
