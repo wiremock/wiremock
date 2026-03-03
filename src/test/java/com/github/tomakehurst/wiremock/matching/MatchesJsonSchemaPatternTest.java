@@ -443,7 +443,7 @@ public class MatchesJsonSchemaPatternTest {
 
   @ParameterizedTest
   @EnumSource(WireMock.JsonSchemaVersion.class)
-  void nullValueMatchesWhenSchemaDeclaresNullable(WireMock.JsonSchemaVersion  jsonSchemaVersion) {
+  void nullValueMatchesWhenSchemaDeclaresNullable(WireMock.JsonSchemaVersion jsonSchemaVersion) {
     MatchesJsonSchemaPattern pattern =
         new MatchesJsonSchemaPattern(
             "{\"type\": \"object\", \"nullable\": true}", jsonSchemaVersion);
@@ -455,7 +455,8 @@ public class MatchesJsonSchemaPatternTest {
 
   @ParameterizedTest
   @EnumSource(WireMock.JsonSchemaVersion.class)
-  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable(WireMock.JsonSchemaVersion  jsonSchemaVersion) {
+  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable(
+      WireMock.JsonSchemaVersion jsonSchemaVersion) {
     MatchesJsonSchemaPattern pattern =
         new MatchesJsonSchemaPattern("{\"type\": \"object\"}", jsonSchemaVersion);
 

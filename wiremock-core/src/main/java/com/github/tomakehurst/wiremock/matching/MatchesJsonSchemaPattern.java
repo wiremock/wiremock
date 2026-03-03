@@ -175,12 +175,10 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
   }
 
   private static Dialect dialectFor(SpecificationVersion version) {
-    return switch (version) {
-      case DRAFT_4 -> Dialects.getDraft4();
-      case DRAFT_6 -> Dialects.getDraft6();
-      case DRAFT_7 -> Dialects.getDraft7();
-      case DRAFT_2019_09 -> Dialects.getDraft201909();
-      case DRAFT_2020_12 -> Dialects.getDraft202012();
-    };
+    if (version == SpecificationVersion.DRAFT_4) return Dialects.getDraft4();
+    if (version == SpecificationVersion.DRAFT_6) return Dialects.getDraft6();
+    if (version == SpecificationVersion.DRAFT_7) return Dialects.getDraft7();
+    if (version == SpecificationVersion.DRAFT_2019_09) return Dialects.getDraft201909();
+    return Dialects.getDraft202012();
   }
 }
