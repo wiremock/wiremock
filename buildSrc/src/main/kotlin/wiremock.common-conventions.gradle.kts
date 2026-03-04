@@ -9,7 +9,7 @@ plugins {
   signing
   `maven-publish`
   id("com.diffplug.spotless")
-  id("com.github.johnrengelman.shadow")
+  id("com.gradleup.shadow")
   id("org.sonarqube")
   id("com.vanniktech.maven.publish.base")
 }
@@ -30,7 +30,6 @@ java {
 
 tasks.jar {
   manifest {
-    attributes("Add-Exports" to "java.base/sun.security.x509")
     attributes("Implementation-Version" to project.version)
     attributes("Implementation-Title" to "WireMock")
   }
@@ -44,7 +43,6 @@ tasks {
     options.encoding = "UTF-8"
     options.compilerArgs.addAll(listOf(
       "-XDenableSunApiLintControl",
-      "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
     ))
   }
 
