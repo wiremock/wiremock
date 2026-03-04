@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ class StubImportPersistenceTest {
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, true)));
     verify(mappingsSource, times(1))
-        .setAll(List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)));
+        .setAll(List.of(newStubs.get(0), newStubs.get(2), newStubs.get(3)));
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -150,5 +150,23 @@ class StubImportPersistenceTest {
             get("/do/not/persist").willReturn(ok()).persistent(false).build());
     wm.importStubs(new StubImport(newStubs, StubImport.Options.DEFAULTS));
     verifyNoInteractions(mappingsSource);
+  }
+
+  @Test
+  void keepsIgnoredStubsWhenAllOtherNonImportedStubsAreDeleted() {
+    StubMapping existingStub1 = wm.stubFor(get("/1").persistent().willReturn(ok()));
+    wm.stubFor(get("/2").persistent().willReturn(ok()));
+
+    clearInvocations(mappingsSource);
+    var newStub2 = post("/three").persistent().willReturn(ok()).build();
+    wm.importStubs(
+        StubImport.stubImport()
+            .stub(get("/one").persistent().withId(existingStub1.getId()).willReturn(ok()))
+            .stub(newStub2)
+            .ignoreExisting()
+            .deleteAllExistingStubsNotInImport()
+            .build());
+    verify(mappingsSource, times(1)).setAll(List.of(newStub2, existingStub1));
+    verifyNoMoreInteractions(mappingsSource);
   }
 }

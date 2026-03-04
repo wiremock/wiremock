@@ -716,9 +716,11 @@ public class WireMockApp implements StubServer, Admin {
           mappingsToRemove.add(mapping);
         }
       }
-      List<StubMapping> insertedStubs =
-          stubMappings.updateMappings(mappingsToInsert, mappingsToRemove);
-      mappingsSaver.setAll(insertedStubs.stream().filter(StubMapping::shouldBePersisted).toList());
+      stubMappings.updateMappings(mappingsToInsert, mappingsToRemove);
+      mappingsSaver.setAll(
+          listAllStubMappings().getMappings().stream()
+              .filter(StubMapping::shouldBePersisted)
+              .toList());
     } else {
       List<StubMapping> insertedStubs = stubMappings.updateMappings(mappingsToInsert, List.of());
       List<StubMapping> mappingsToSave =
