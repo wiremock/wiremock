@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,22 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubImport.Options;
+import com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePolicy;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.File;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class StubLifecycleListenerModifyingAcceptanceTest {
 
@@ -56,6 +63,30 @@ public class StubLifecycleListenerModifyingAcceptanceTest {
     wm.editStub(get("/test").withId(initial.getId()).withName("Edited").willReturn(ok()));
 
     assertThat(wm.listAllStubMappings().getMappings().get(0).getName(), is("Modified on edit"));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"false,3,2", "true,2,1"})
+  void stubsCanBeModifiedByListenerInBatch(
+      boolean deleteExistingStubs, int expectedTotalCount, int expectedUpdatedStubIndex) {
+    var existingStub1 = wm.stubFor(get("/1").willReturn(ok()));
+    wm.stubFor(get("/2").willReturn(ok()));
+
+    var stub1 = get("/1-updated").withId(existingStub1.getId()).willReturn(ok()).build();
+    var stub2 = get("/2-new").willReturn(ok()).build();
+    wm.importStubs(
+        new StubImport(
+            List.of(stub1, stub2), new Options(DuplicatePolicy.OVERWRITE, deleteExistingStubs)));
+
+    List<StubMapping> mappings = wm.listAllStubMappings().getMappings();
+    assertThat(mappings, hasSize(expectedTotalCount));
+    assertThat(mappings.get(0).getId(), is(stub2.getId()));
+    assertThat(mappings.get(0).getName(), is("Modified on create"));
+    assertThat(mappings.get(expectedUpdatedStubIndex).getId(), is(stub1.getId()));
+    assertThat(mappings.get(expectedUpdatedStubIndex).getName(), is("Modified on edit"));
+    assertThat(
+        mappings.get(expectedUpdatedStubIndex).getInsertionIndex(),
+        is(existingStub1.getInsertionIndex()));
   }
 
   public static class ModifyingStubLifecycleListener implements StubLifecycleListener {

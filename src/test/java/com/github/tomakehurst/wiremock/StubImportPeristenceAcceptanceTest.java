@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,17 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubImport.Options;
+import com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePolicy;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class StubImportPeristenceAcceptanceTest {
 
@@ -66,18 +70,20 @@ public class StubImportPeristenceAcceptanceTest {
                   .extensions(PERSISTENT_SETTING_LISTENER))
           .build();
 
-  @Test
-  void persistsStubsWhenPersistenceFlagSetByListener() {
-    UUID stub1Id = UUID.randomUUID();
+  @ParameterizedTest
+  @CsvSource({"false", "true"})
+  void persistsStubsWhenPersistenceFlagSetByListener(boolean deleteExistingStubs) {
+    StubMapping existingStub1 = wm.stubFor(get("/1").willReturn(ok()));
     UUID stub2Id = UUID.randomUUID();
     UUID stub3Id = UUID.randomUUID();
 
     wm.importStubs(
-        stubImport()
-            .stub(get("/one").withId(stub1Id).willReturn(ok()))
-            .stub(post("/two").withId(stub2Id).willReturn(ok()))
-            .stub(put("/three").withId(stub3Id).willReturn(ok()))
-            .build());
+        new StubImport(
+            List.of(
+                get("/one").withId(existingStub1.getId()).willReturn(ok()).build(),
+                post("/two").withId(stub2Id).willReturn(ok()).build(),
+                put("/three").withId(stub3Id).willReturn(ok()).build()),
+            new Options(DuplicatePolicy.OVERWRITE, deleteExistingStubs)));
 
     wm.resetToDefaultMappings();
     List<StubMapping> stubs = wm.listAllStubMappings().getMappings();

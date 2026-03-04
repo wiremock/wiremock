@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,11 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.CreateStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.EditStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.RemoveStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.ToAlterStubMapping;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -38,6 +43,7 @@ import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
+import java.util.stream.Stream;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
@@ -224,6 +230,52 @@ public abstract class AbstractStubMappings implements StubMappings {
     }
 
     return stubMapping;
+  }
+
+  @Override
+  public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
+    List<ToAlterStubMapping> toAlterStubs =
+        Stream.concat(
+                toInsert.stream()
+                    .<ToAlterStubMapping>map(
+                        (stub) -> {
+                          Optional<StubMapping> existingStub = store.get(stub.getId());
+                          return existingStub.isPresent()
+                              ? new EditStubMapping(existingStub.get(), stub)
+                              : new CreateStubMapping(stub);
+                        }),
+                toRemove.stream().<ToAlterStubMapping>map(RemoveStubMapping::new))
+            .toList();
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.beforeStubsAltered(toAlterStubs);
+    }
+
+    for (int i = 0; i < toAlterStubs.size(); i++) {
+      ToAlterStubMapping alter = toAlterStubs.get(i);
+      if (alter instanceof StubLifecycleListener.ToCreateStubMapping create) {
+        create.setStub(store.add(create.getStub()));
+        scenarios.onStubMappingAdded(create.getStub());
+        toInsert.set(i, create.getStub());
+      } else if (alter instanceof StubLifecycleListener.ToEditStubMapping edit) {
+        edit.setNewStub(
+            edit.getNewStub()
+                .transform(b -> b.setInsertionIndex(edit.getOldStub().getInsertionIndex())));
+        store.replace(edit.getOldStub(), edit.getNewStub());
+        scenarios.onStubMappingUpdated(edit.getOldStub(), edit.getNewStub());
+        toInsert.set(i, edit.getNewStub());
+      } else if (alter instanceof StubLifecycleListener.ToRemoveStubMapping remove) {
+        store.remove(remove.getStub().getId());
+        scenarios.onStubMappingRemoved(remove.getStub());
+      }
+    }
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubsAltered(
+          toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList());
+    }
+
+    return toInsert;
   }
 
   @Override

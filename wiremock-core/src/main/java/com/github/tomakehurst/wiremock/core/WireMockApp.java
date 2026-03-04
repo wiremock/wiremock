@@ -371,46 +371,26 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void addStubMapping(StubMapping stubMapping) {
-    addStubMapping(stubMapping, true);
-  }
-
-  /**
-   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
-   *     to the caller.
-   */
-  private StubMapping addStubMapping(StubMapping stubMapping, boolean persistNow) {
     if (stubMapping.getId() == null) {
       stubMapping = stubMapping.transform(b -> b.setId(UUID.randomUUID()));
     }
 
     stubMapping = stubMappings.addMapping(stubMapping);
-    if (persistNow && stubMapping.shouldBePersisted()) {
+    if (stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
-
-    return stubMapping;
   }
 
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
-    removeStubMapping(stubMapping, true);
-  }
-
-  /**
-   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
-   *     to the caller.
-   * @return The removed stub, or null if no stub was removed.
-   */
-  private StubMapping removeStubMapping(StubMapping stubMapping, boolean persistNow) {
     StubMapping matchedStub = findStubMatching(stubMapping);
-    if (matchedStub == null) return null;
+    if (matchedStub == null) return;
 
     stubMappings.removeMapping(matchedStub);
 
-    if (persistNow && matchedStub.shouldBePersisted()) {
+    if (matchedStub.shouldBePersisted()) {
       mappingsSaver.remove(matchedStub.getId());
     }
-    return matchedStub;
   }
 
   /**
@@ -437,20 +417,10 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
-    editStubMapping(stubMapping, true);
-  }
-
-  /**
-   * @param persistNow If true, will save persisted stubs. Otherwise, saving of stubs will be left
-   *     to the caller.
-   */
-  private StubMapping editStubMapping(StubMapping stubMapping, boolean persistNow) {
     stubMapping = stubMappings.editMapping(stubMapping);
-    if (persistNow && stubMapping.shouldBePersisted()) {
+    if (stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
     }
-
-    return stubMapping;
   }
 
   @Override
@@ -726,41 +696,55 @@ public class WireMockApp implements StubServer, Admin {
     StubImport.Options importOptions =
         getFirstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
 
-    List<StubMapping> mappingsToSave = new ArrayList<>();
+    List<StubMapping> mappingsToInsert = new ArrayList<>();
     for (int i = mappings.size() - 1; i >= 0; i--) {
       StubMapping mapping = mappings.get(i);
-      if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
+      if (getStubMapping(mapping.getId()).isPresent()) {
         if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-          final StubMapping updatedStubMapping = editStubMapping(mapping, false);
-          if (updatedStubMapping.shouldBePersisted()) mappingsToSave.add(updatedStubMapping);
+          mappingsToInsert.add(mapping);
         }
       } else {
-        final StubMapping createdStubMapping = addStubMapping(mapping, false);
-        if (createdStubMapping.shouldBePersisted()) mappingsToSave.add(createdStubMapping);
+        mappingsToInsert.add(mapping);
       }
     }
 
     if (importOptions.getDeleteAllNotInImport()) {
-      List<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toList());
+      Set<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toSet());
+      List<StubMapping> mappingsToRemove = new ArrayList<>();
       for (StubMapping mapping : listAllStubMappings().getMappings()) {
         if (!ids.contains(mapping.getId())) {
-          removeStubMapping(mapping, false);
+          mappingsToRemove.add(mapping);
         }
       }
-      mappingsSaver.setAll(mappingsToSave);
+      List<StubMapping> insertedStubs =
+          stubMappings.updateMappings(mappingsToInsert, mappingsToRemove);
+      mappingsSaver.setAll(insertedStubs.stream().filter(StubMapping::shouldBePersisted).toList());
     } else {
+      List<StubMapping> insertedStubs = stubMappings.updateMappings(mappingsToInsert, List.of());
+      List<StubMapping> mappingsToSave =
+          insertedStubs.stream().filter(StubMapping::shouldBePersisted).toList();
       if (!mappingsToSave.isEmpty()) mappingsSaver.save(mappingsToSave);
     }
   }
 
   @Override
   public void removeStubMappings(List<StubMapping> stubMappings) {
-    List<UUID> mappingsToDelete = new ArrayList<>();
-    for (StubMapping mapping : stubMappings) {
-      var removed = removeStubMapping(mapping, false);
-      if (removed != null && removed.shouldBePersisted()) mappingsToDelete.add(removed.getId());
+    List<StubMapping> toRemove =
+        stubMappings.stream()
+            .<StubMapping>mapMulti(
+                (mapping, consumer) -> {
+                  StubMapping found = findStubMatching(mapping);
+                  if (found != null) consumer.accept(found);
+                })
+            .toList();
+    if (!toRemove.isEmpty()) {
+      this.stubMappings.updateMappings(List.of(), toRemove);
+      List<UUID> mappingsToDelete = new ArrayList<>();
+      for (StubMapping removed : toRemove) {
+        if (removed.shouldBePersisted()) mappingsToDelete.add(removed.getId());
+      }
+      if (!mappingsToDelete.isEmpty()) mappingsSaver.remove(mappingsToDelete);
     }
-    if (!mappingsToDelete.isEmpty()) mappingsSaver.remove(mappingsToDelete);
   }
 
   public Set<String> getLoadedExtensionNames() {
