@@ -26,6 +26,8 @@ dependencies {
 
     api(libs.jspecify)
 
+    api(libs.bouncycastle.bcpkix)
+
     implementation(libs.apache.http5.client)
     implementation(libs.handlebars.helpers) {
         exclude(group = "org.mozilla", module = "rhino")
@@ -41,6 +43,8 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
     implementation(libs.xmlunit.placeholders)
+
+    implementation(libs.bouncycastle.bcprov)
 
     modules {
         module("org.apache.logging.log4j:log4j-core") {
