@@ -106,6 +106,7 @@ dependencies {
   testImplementation(libs.mockito.core)
   testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)
+  testImplementation(libs.bouncycastle.bcpkix)
 
   testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
   testRuntimeOnly(files("test-extension/test-extension.jar"))
@@ -385,7 +386,6 @@ eclipse.classpath.file {
       .filter { it.path.contains("JRE_CONTAINER") }
       .forEach {
         it.entryAttributes["module"] = true
-        it.entryAttributes["add-exports"] = "java.base/sun.security.x509=ALL-UNNAMED"
       }
   }
 }
