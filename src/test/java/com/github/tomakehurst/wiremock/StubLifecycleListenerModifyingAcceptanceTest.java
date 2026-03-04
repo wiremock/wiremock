@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePoli
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.File;
 import java.util.List;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -89,6 +90,7 @@ public class StubLifecycleListenerModifyingAcceptanceTest {
         is(existingStub1.getInsertionIndex()));
   }
 
+  @NullMarked
   public static class ModifyingStubLifecycleListener implements StubLifecycleListener {
 
     @Override

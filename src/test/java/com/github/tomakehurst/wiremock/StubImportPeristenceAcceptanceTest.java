@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,11 +44,13 @@ public class StubImportPeristenceAcceptanceTest {
       new StubLifecycleListener() {
 
         @Override
+        @NullMarked
         public StubMapping beforeStubCreated(StubMapping stub) {
           return stub.transform(b -> b.setPersistent(true));
         }
 
         @Override
+        @NullMarked
         public StubMapping beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
           return newStub.transform(b -> b.setPersistent(true));
         }

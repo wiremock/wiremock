@@ -18,8 +18,9 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.Objects;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public interface StubLifecycleListener extends Extension {
 
   default StubMapping beforeStubCreated(StubMapping stub) {
@@ -42,7 +43,7 @@ public interface StubLifecycleListener extends Extension {
 
   default void afterStubsReset() {}
 
-  default void beforeStubsAltered(@NonNull List<@NonNull ToAlterStubMapping> stubs) {
+  default void beforeStubsAltered(List<ToAlterStubMapping> stubs) {
     for (ToAlterStubMapping alteredStub : stubs) {
       if (alteredStub instanceof ToCreateStubMapping toCreate) {
         toCreate.setStub(beforeStubCreated(toCreate.getStub()));
@@ -54,7 +55,7 @@ public interface StubLifecycleListener extends Extension {
     }
   }
 
-  default void afterStubsAltered(@NonNull List<@NonNull AlteredStubMapping> stubs) {
+  default void afterStubsAltered(List<AlteredStubMapping> stubs) {
     for (AlteredStubMapping alteredStub : stubs) {
       if (alteredStub instanceof CreatedStubMapping created) {
         afterStubCreated(created.getStub());
@@ -70,47 +71,46 @@ public interface StubLifecycleListener extends Extension {
       permits CreatedStubMapping, EditedStubMapping, RemovedStubMapping {}
 
   non-sealed interface CreatedStubMapping extends AlteredStubMapping {
-    @NonNull StubMapping getStub();
+    StubMapping getStub();
   }
 
   non-sealed interface EditedStubMapping extends AlteredStubMapping {
-    @NonNull StubMapping getOldStub();
+    StubMapping getOldStub();
 
-    @NonNull StubMapping getNewStub();
+    StubMapping getNewStub();
   }
 
   non-sealed interface RemovedStubMapping extends AlteredStubMapping {
-    @NonNull StubMapping getStub();
+    StubMapping getStub();
   }
 
   sealed interface ToAlterStubMapping
       permits ToCreateStubMapping, ToEditStubMapping, ToRemoveStubMapping {}
 
   non-sealed interface ToCreateStubMapping extends ToAlterStubMapping, CreatedStubMapping {
-    void setStub(@NonNull StubMapping stub);
+    void setStub(StubMapping stub);
   }
 
   non-sealed interface ToEditStubMapping extends ToAlterStubMapping, EditedStubMapping {
-    void setNewStub(@NonNull StubMapping stub);
+    void setNewStub(StubMapping stub);
   }
 
   non-sealed interface ToRemoveStubMapping extends ToAlterStubMapping, RemovedStubMapping {}
 
   final class CreateStubMapping implements StubLifecycleListener.ToCreateStubMapping {
-    private @NonNull StubMapping stub;
+    private StubMapping stub;
 
-    public CreateStubMapping(@NonNull StubMapping stub) {
+    public CreateStubMapping(StubMapping stub) {
       this.stub = stub;
     }
 
     @Override
-    @NonNull
     public StubMapping getStub() {
       return stub;
     }
 
     @Override
-    public void setStub(@NonNull StubMapping stub) {
+    public void setStub(StubMapping stub) {
       this.stub = stub;
     }
 
@@ -132,26 +132,26 @@ public interface StubLifecycleListener extends Extension {
   }
 
   final class EditStubMapping implements StubLifecycleListener.ToEditStubMapping {
-    private @NonNull final StubMapping oldStub;
-    private @NonNull StubMapping newStub;
+    private final StubMapping oldStub;
+    private StubMapping newStub;
 
-    public EditStubMapping(@NonNull StubMapping oldStub, @NonNull StubMapping newStub) {
+    public EditStubMapping(StubMapping oldStub, StubMapping newStub) {
       this.oldStub = oldStub;
       this.newStub = newStub;
     }
 
     @Override
-    public @NonNull StubMapping getOldStub() {
+    public StubMapping getOldStub() {
       return oldStub;
     }
 
     @Override
-    public @NonNull StubMapping getNewStub() {
+    public StubMapping getNewStub() {
       return newStub;
     }
 
     @Override
-    public void setNewStub(@NonNull StubMapping newStub) {
+    public void setNewStub(StubMapping newStub) {
       this.newStub = newStub;
     }
 
@@ -174,14 +174,13 @@ public interface StubLifecycleListener extends Extension {
 
   @SuppressWarnings("ClassCanBeRecord")
   final class RemoveStubMapping implements StubLifecycleListener.ToRemoveStubMapping {
-    private @NonNull final StubMapping stub;
+    private final StubMapping stub;
 
-    public RemoveStubMapping(@NonNull StubMapping stub) {
+    public RemoveStubMapping(StubMapping stub) {
       this.stub = stub;
     }
 
     @Override
-    @NonNull
     public StubMapping getStub() {
       return stub;
     }

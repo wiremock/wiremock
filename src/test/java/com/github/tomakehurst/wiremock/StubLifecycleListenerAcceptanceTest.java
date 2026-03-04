@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.hamcrest.Matchers;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -376,6 +377,7 @@ public class StubLifecycleListenerAcceptanceTest {
             List.of(new CreateStubMapping(stub2), new RemoveStubMapping(existingStub2)));
   }
 
+  @NullMarked
   public static class TestStubLifecycleListener implements StubLifecycleListener {
 
     public List<String> events = new ArrayList<>();
@@ -432,6 +434,7 @@ public class StubLifecycleListenerAcceptanceTest {
     }
   }
 
+  @NullMarked
   public static class ExceptionThrowingStubLifecycleListener implements StubLifecycleListener {
 
     public boolean throwException = false;
