@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @SuppressWarnings("HttpUrlsUsage")
 public class ProxySettingsTest {
@@ -58,7 +60,14 @@ public class ProxySettingsTest {
     var ex =
         assertThrows(
             IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
-    assertThat(ex.getMessage(), is("Proxy via Url 'a.proxyvia.url:80a' was not recognized"));
+    assertThat(
+        ex.getMessage(),
+        is(
+            "'a.proxyvia.url:80a' could not be parsed as a proxy URL with or without an 'http://' prefix"));
+    assertThat(ex.getCause().getMessage(), is("Illegal absolute url: `a.proxyvia.url:80a`"));
+    assertThat(
+        ex.getSuppressed()[0].getCause().getMessage(),
+        is("Illegal authority: `a.proxyvia.url:80a`"));
   }
 
   @Test
@@ -97,11 +106,19 @@ public class ProxySettingsTest {
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
   }
 
-  @Test
-  public void shouldRejectInvalidUrisWithProtocol() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> ProxySettings.fromString("http://" + PROXYVIA_URL + ":notanumber"));
+  @ParameterizedTest
+  @ValueSource(strings = {"http", "https"})
+  public void shouldRejectInvalidUrisWithHttpProtocol(String scheme) {
+    var ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ProxySettings.fromString(scheme + "://" + PROXYVIA_URL + ":notanumber"));
+    assertThat(
+        ex.getMessage(),
+        is("'" + scheme + "://a.proxyvia.url:notanumber' could not be parsed as a proxy URL"));
+    assertThat(
+        ex.getCause().getMessage(),
+        is("Illegal uri: `" + scheme + "://a.proxyvia.url:notanumber`"));
   }
 
   @Test
@@ -114,5 +131,13 @@ public class ProxySettingsTest {
   @Test
   public void shouldThrowExceptionIfUrlIsInvalid() {
     assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString("ul:invalid:80"));
+  }
+
+  @Test
+  public void shouldParseSchemelessUriWithUserInfoAndPort() {
+    ProxySettings proxySettings = ProxySettings.fromString("bob@doesnotexist.example.com:321");
+    assertThat(proxySettings.getUsername(), is("bob"));
+    assertThat(proxySettings.host(), is("doesnotexist.example.com"));
+    assertThat(proxySettings.port(), is(321));
   }
 }
