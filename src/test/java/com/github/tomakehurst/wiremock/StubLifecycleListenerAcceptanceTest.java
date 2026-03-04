@@ -38,7 +38,7 @@ import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredSt
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.CreateStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.EditStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.RemoveStubMapping;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.ToAlterStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToAlter;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubImport.Options;
@@ -335,7 +335,7 @@ public class StubLifecycleListenerAcceptanceTest {
         new StubImport(
             List.of(stub1, stub2), new Options(DuplicatePolicy.OVERWRITE, deleteExistingStubs)));
 
-    ArgumentCaptor<List<ToAlterStubMapping>> beforeListCaptor = ArgumentCaptor.captor();
+    ArgumentCaptor<List<StubMappingToAlter>> beforeListCaptor = ArgumentCaptor.captor();
     ArgumentCaptor<List<AlteredStubMapping>> afterListCaptor = ArgumentCaptor.captor();
     verify(mockListener).beforeStubsAltered(beforeListCaptor.capture());
     assertThrows(UnsupportedOperationException.class, () -> beforeListCaptor.getValue().remove(0));
@@ -350,7 +350,7 @@ public class StubLifecycleListenerAcceptanceTest {
 
     wm.removeStubMappings(List.of(existingStub1, existingStub2));
 
-    ArgumentCaptor<List<ToAlterStubMapping>> beforeListCaptor = ArgumentCaptor.captor();
+    ArgumentCaptor<List<StubMappingToAlter>> beforeListCaptor = ArgumentCaptor.captor();
     ArgumentCaptor<List<AlteredStubMapping>> afterListCaptor = ArgumentCaptor.captor();
     verify(mockListener).beforeStubsAltered(beforeListCaptor.capture());
     assertThrows(UnsupportedOperationException.class, () -> beforeListCaptor.getValue().remove(0));

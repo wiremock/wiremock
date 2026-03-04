@@ -43,13 +43,13 @@ public interface StubLifecycleListener extends Extension {
 
   default void afterStubsReset() {}
 
-  default void beforeStubsAltered(List<ToAlterStubMapping> stubs) {
-    for (ToAlterStubMapping alteredStub : stubs) {
-      if (alteredStub instanceof ToCreateStubMapping toCreate) {
+  default void beforeStubsAltered(List<StubMappingToAlter> stubs) {
+    for (StubMappingToAlter alteredStub : stubs) {
+      if (alteredStub instanceof StubMappingToCreate toCreate) {
         toCreate.setStub(beforeStubCreated(toCreate.getStub()));
-      } else if (alteredStub instanceof ToEditStubMapping toEdit) {
+      } else if (alteredStub instanceof StubMappingToEdit toEdit) {
         toEdit.setNewStub(beforeStubEdited(toEdit.getOldStub(), toEdit.getNewStub()));
-      } else if (alteredStub instanceof ToRemoveStubMapping toRemove) {
+      } else if (alteredStub instanceof StubMappingToRemove toRemove) {
         beforeStubRemoved(toRemove.getStub());
       }
     }
@@ -84,20 +84,20 @@ public interface StubLifecycleListener extends Extension {
     StubMapping getStub();
   }
 
-  sealed interface ToAlterStubMapping
-      permits ToCreateStubMapping, ToEditStubMapping, ToRemoveStubMapping {}
+  sealed interface StubMappingToAlter
+      permits StubMappingToCreate, StubMappingToEdit, StubMappingToRemove {}
 
-  non-sealed interface ToCreateStubMapping extends ToAlterStubMapping, CreatedStubMapping {
+  non-sealed interface StubMappingToCreate extends StubMappingToAlter, CreatedStubMapping {
     void setStub(StubMapping stub);
   }
 
-  non-sealed interface ToEditStubMapping extends ToAlterStubMapping, EditedStubMapping {
+  non-sealed interface StubMappingToEdit extends StubMappingToAlter, EditedStubMapping {
     void setNewStub(StubMapping stub);
   }
 
-  non-sealed interface ToRemoveStubMapping extends ToAlterStubMapping, RemovedStubMapping {}
+  non-sealed interface StubMappingToRemove extends StubMappingToAlter, RemovedStubMapping {}
 
-  final class CreateStubMapping implements StubLifecycleListener.ToCreateStubMapping {
+  final class CreateStubMapping implements StubMappingToCreate {
     private StubMapping stub;
 
     public CreateStubMapping(StubMapping stub) {
@@ -131,7 +131,7 @@ public interface StubLifecycleListener extends Extension {
     }
   }
 
-  final class EditStubMapping implements StubLifecycleListener.ToEditStubMapping {
+  final class EditStubMapping implements StubMappingToEdit {
     private final StubMapping oldStub;
     private StubMapping newStub;
 
@@ -173,7 +173,7 @@ public interface StubLifecycleListener extends Extension {
   }
 
   @SuppressWarnings("ClassCanBeRecord")
-  final class RemoveStubMapping implements StubLifecycleListener.ToRemoveStubMapping {
+  final class RemoveStubMapping implements StubMappingToRemove {
     private final StubMapping stub;
 
     public RemoveStubMapping(StubMapping stub) {

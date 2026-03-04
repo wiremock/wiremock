@@ -33,7 +33,7 @@ import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredSt
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.CreateStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.EditStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.RemoveStubMapping;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.ToAlterStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToAlter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -234,17 +234,17 @@ public abstract class AbstractStubMappings implements StubMappings {
 
   @Override
   public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
-    List<ToAlterStubMapping> toAlterStubs =
+    List<StubMappingToAlter> toAlterStubs =
         Stream.concat(
                 toInsert.stream()
-                    .<ToAlterStubMapping>map(
+                    .<StubMappingToAlter>map(
                         (stub) -> {
                           Optional<StubMapping> existingStub = store.get(stub.getId());
                           return existingStub.isPresent()
                               ? new EditStubMapping(existingStub.get(), stub)
                               : new CreateStubMapping(stub);
                         }),
-                toRemove.stream().<ToAlterStubMapping>map(RemoveStubMapping::new))
+                toRemove.stream().<StubMappingToAlter>map(RemoveStubMapping::new))
             .toList();
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
@@ -252,19 +252,19 @@ public abstract class AbstractStubMappings implements StubMappings {
     }
 
     for (int i = 0; i < toAlterStubs.size(); i++) {
-      ToAlterStubMapping alter = toAlterStubs.get(i);
-      if (alter instanceof StubLifecycleListener.ToCreateStubMapping create) {
+      StubMappingToAlter alter = toAlterStubs.get(i);
+      if (alter instanceof StubLifecycleListener.StubMappingToCreate create) {
         create.setStub(store.add(create.getStub()));
         scenarios.onStubMappingAdded(create.getStub());
         toInsert.set(i, create.getStub());
-      } else if (alter instanceof StubLifecycleListener.ToEditStubMapping edit) {
+      } else if (alter instanceof StubLifecycleListener.StubMappingToEdit edit) {
         edit.setNewStub(
             edit.getNewStub()
                 .transform(b -> b.setInsertionIndex(edit.getOldStub().getInsertionIndex())));
         store.replace(edit.getOldStub(), edit.getNewStub());
         scenarios.onStubMappingUpdated(edit.getOldStub(), edit.getNewStub());
         toInsert.set(i, edit.getNewStub());
-      } else if (alter instanceof StubLifecycleListener.ToRemoveStubMapping remove) {
+      } else if (alter instanceof StubLifecycleListener.StubMappingToRemove remove) {
         store.remove(remove.getStub().getId());
         scenarios.onStubMappingRemoved(remove.getStub());
       }
