@@ -191,6 +191,7 @@ tasks.jar {
 tasks.shadowJar {
   archiveBaseName = "wiremock-standalone"
   archiveClassifier = ""
+  minimize()
   configurations = listOf(
     project.configurations.runtimeClasspath.get(),
   )
