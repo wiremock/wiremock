@@ -30,10 +30,10 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredStubMapping;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.CreateStubMapping;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.EditStubMapping;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.RemoveStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToAlter;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToCreate;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToEdit;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToRemove;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -44,6 +44,7 @@ import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NullMarked;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
@@ -322,5 +323,113 @@ public abstract class AbstractStubMappings implements StubMappings {
               return pattern.match(metadataJson).isExactMatch();
             })
         .collect(toList());
+  }
+
+  @NullMarked
+  public static final class CreateStubMapping implements StubMappingToCreate {
+    private StubMapping stub;
+
+    public CreateStubMapping(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public StubMapping getStub() {
+      return stub;
+    }
+
+    @Override
+    public void setStub(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof CreateStubMapping that)) return false;
+      return Objects.equals(stub, that.stub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(stub);
+    }
+
+    @Override
+    public String toString() {
+      return "CreateStubMapping{" + "stub=" + stub + '}';
+    }
+  }
+
+  @NullMarked
+  public static final class EditStubMapping implements StubMappingToEdit {
+    private final StubMapping oldStub;
+    private StubMapping newStub;
+
+    public EditStubMapping(StubMapping oldStub, StubMapping newStub) {
+      this.oldStub = oldStub;
+      this.newStub = newStub;
+    }
+
+    @Override
+    public StubMapping getOldStub() {
+      return oldStub;
+    }
+
+    @Override
+    public StubMapping getNewStub() {
+      return newStub;
+    }
+
+    @Override
+    public void setNewStub(StubMapping newStub) {
+      this.newStub = newStub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof EditStubMapping that)) return false;
+      return Objects.equals(oldStub, that.oldStub) && Objects.equals(newStub, that.newStub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(oldStub, newStub);
+    }
+
+    @Override
+    public String toString() {
+      return "EditStubMapping{" + "oldStub=" + oldStub + ", newStub=" + newStub + '}';
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeRecord")
+  @NullMarked
+  public static final class RemoveStubMapping implements StubMappingToRemove {
+    private final StubMapping stub;
+
+    public RemoveStubMapping(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public StubMapping getStub() {
+      return stub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof RemoveStubMapping that)) return false;
+      return Objects.equals(stub, that.stub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(stub);
+    }
+
+    @Override
+    public String toString() {
+      return "RemoveStubMapping{" + "stub=" + stub + '}';
+    }
   }
 }

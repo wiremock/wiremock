@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
-import java.util.Objects;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -96,109 +95,4 @@ public interface StubLifecycleListener extends Extension {
   }
 
   non-sealed interface StubMappingToRemove extends StubMappingToAlter, RemovedStubMapping {}
-
-  final class CreateStubMapping implements StubMappingToCreate {
-    private StubMapping stub;
-
-    public CreateStubMapping(StubMapping stub) {
-      this.stub = stub;
-    }
-
-    @Override
-    public StubMapping getStub() {
-      return stub;
-    }
-
-    @Override
-    public void setStub(StubMapping stub) {
-      this.stub = stub;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof CreateStubMapping that)) return false;
-      return Objects.equals(stub, that.stub);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(stub);
-    }
-
-    @Override
-    public String toString() {
-      return "CreateStubMapping{" + "stub=" + stub + '}';
-    }
-  }
-
-  final class EditStubMapping implements StubMappingToEdit {
-    private final StubMapping oldStub;
-    private StubMapping newStub;
-
-    public EditStubMapping(StubMapping oldStub, StubMapping newStub) {
-      this.oldStub = oldStub;
-      this.newStub = newStub;
-    }
-
-    @Override
-    public StubMapping getOldStub() {
-      return oldStub;
-    }
-
-    @Override
-    public StubMapping getNewStub() {
-      return newStub;
-    }
-
-    @Override
-    public void setNewStub(StubMapping newStub) {
-      this.newStub = newStub;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof EditStubMapping that)) return false;
-      return Objects.equals(oldStub, that.oldStub) && Objects.equals(newStub, that.newStub);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(oldStub, newStub);
-    }
-
-    @Override
-    public String toString() {
-      return "EditStubMapping{" + "oldStub=" + oldStub + ", newStub=" + newStub + '}';
-    }
-  }
-
-  @SuppressWarnings("ClassCanBeRecord")
-  final class RemoveStubMapping implements StubMappingToRemove {
-    private final StubMapping stub;
-
-    public RemoveStubMapping(StubMapping stub) {
-      this.stub = stub;
-    }
-
-    @Override
-    public StubMapping getStub() {
-      return stub;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof RemoveStubMapping that)) return false;
-      return Objects.equals(stub, that.stub);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(stub);
-    }
-
-    @Override
-    public String toString() {
-      return "RemoveStubMapping{" + "stub=" + stub + '}';
-    }
-  }
 }
