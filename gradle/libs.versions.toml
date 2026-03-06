@@ -11,6 +11,7 @@ mockito = "5.22.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.1"
+bouncycastle = "1.83"
 
 [libraries]
 # Jetty dependencies
@@ -129,6 +130,9 @@ jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version 
 jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
 
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
+
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on",  version.ref = "bouncycastle" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref = "bouncycastle" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
