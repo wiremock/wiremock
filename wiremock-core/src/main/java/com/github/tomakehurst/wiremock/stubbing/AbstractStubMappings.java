@@ -252,20 +252,20 @@ public abstract class AbstractStubMappings implements StubMappings {
       listener.beforeStubsAltered(toAlterStubs);
     }
 
-    for (int i = 0; i < toAlterStubs.size(); i++) {
-      StubMappingToAlter alter = toAlterStubs.get(i);
-      if (alter instanceof StubLifecycleListener.StubMappingToCreate create) {
+    List<StubMapping> result = new ArrayList<>(toInsert.size());
+    for (StubMappingToAlter alter : toAlterStubs) {
+      if (alter instanceof StubMappingToCreate create) {
         create.setStub(store.add(create.getStub()));
         scenarios.onStubMappingAdded(create.getStub());
-        toInsert.set(i, create.getStub());
-      } else if (alter instanceof StubLifecycleListener.StubMappingToEdit edit) {
+        result.add(create.getStub());
+      } else if (alter instanceof StubMappingToEdit edit) {
         edit.setNewStub(
             edit.getNewStub()
                 .transform(b -> b.setInsertionIndex(edit.getOldStub().getInsertionIndex())));
         store.replace(edit.getOldStub(), edit.getNewStub());
         scenarios.onStubMappingUpdated(edit.getOldStub(), edit.getNewStub());
-        toInsert.set(i, edit.getNewStub());
-      } else if (alter instanceof StubLifecycleListener.StubMappingToRemove remove) {
+        result.add(edit.getNewStub());
+      } else if (alter instanceof StubMappingToRemove remove) {
         store.remove(remove.getStub().getId());
         scenarios.onStubMappingRemoved(remove.getStub());
       }
@@ -276,7 +276,7 @@ public abstract class AbstractStubMappings implements StubMappings {
           toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList());
     }
 
-    return toInsert;
+    return result;
   }
 
   @Override
