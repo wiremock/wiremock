@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2026 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.ssl;
+package com.github.tomakehurst.wiremock.http.ssl; /*
+                                                   * Copyright (C) 2020-2026 Thomas Akehurst
+                                                   *
+                                                   * Licensed under the Apache License, Version 2.0 (the "License");
+                                                   * you may not use this file except in compliance with the License.
+                                                   * You may obtain a copy of the License at
+                                                   *
+                                                   * http://www.apache.org/licenses/LICENSE-2.0
+                                                   *
+                                                   * Unless required by applicable law or agreed to in writing, software
+                                                   * distributed under the License is distributed on an "AS IS" BASIS,
+                                                   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                   * See the License for the specific language governing permissions and
+                                                   * limitations under the License.
+                                                   */
 
-import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -47,7 +61,6 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.jspecify.annotations.Nullable;
 
 public class CertificateAuthority {
 
@@ -152,7 +165,7 @@ public class CertificateAuthority {
       Period validity,
       X500Principal subject,
       X500Principal issuer,
-      @Nullable String sanDnsName,
+      String sanDnsName,
       boolean isCA)
       throws IOException, OperatorCreationException, CertificateException {
     ZonedDateTime start = ZonedDateTime.now().minus(Period.ofDays(1));
@@ -178,7 +191,7 @@ public class CertificateAuthority {
       Date notAfter,
       X500Principal subject,
       X500Principal issuer,
-      @Nullable String sanDnsName,
+      String sanDnsName,
       boolean isCA)
       throws IOException, CertificateException, OperatorCreationException {
     SubjectPublicKeyInfo subjectKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
@@ -217,5 +230,14 @@ public class CertificateAuthority {
     ContentSigner signer = new JcaContentSignerBuilder(sigAlg).build(signerPrivateKey);
     X509CertificateHolder holder = builder.build(signer);
     return new JcaX509CertificateConverter().getCertificate(holder);
+  }
+
+  public static <T> T[] prepend(T t, T[] original) {
+    @SuppressWarnings("unchecked")
+    T[] newArray =
+        (T[]) Array.newInstance(original.getClass().getComponentType(), original.length + 1);
+    newArray[0] = t;
+    System.arraycopy(original, 0, newArray, 1, original.length);
+    return newArray;
   }
 }
