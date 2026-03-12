@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullMarked;
 
 public class ResponseTemplateTransformer
     implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
@@ -212,6 +213,7 @@ public class ResponseTemplateTransformer
   }
 
   @Override
+  @NullMarked
   public void afterStubRemoved(StubMapping stub) {
     templateEngine.invalidateCache();
   }
