@@ -206,12 +206,6 @@ publishing {
     }
   }
 
-  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
-    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-      skip()
-    }
-  }
-
   publications {
     withType<MavenPublication> {
       pom {
@@ -221,6 +215,10 @@ publishing {
       suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
     }
   }
+}
+
+shadow {
+  addShadowVariantIntoJavaComponent = false
 }
 
 mavenPublishing {

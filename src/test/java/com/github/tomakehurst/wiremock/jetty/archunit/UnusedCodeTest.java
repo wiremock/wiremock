@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.jetty.archunit;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.ANONYMOUS_CLASSES;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
 import static com.tngtech.archunit.core.domain.JavaMember.Predicates.declaredIn;
 import static com.tngtech.archunit.core.domain.properties.HasName.Utils.namesOf;
@@ -81,6 +82,7 @@ class UnusedCodeTest {
                   not(
                       assignableTo(
                           com.github.tomakehurst.wiremock.standalone.WireMockServerRunner.class)))
+              .and(not(ANONYMOUS_CLASSES))
               .should(beReferencedClass)
               .as("should use all classes")
               .because("unused classes should be removed"));

@@ -1536,6 +1536,18 @@
     "matchesWhatWg" : true
   },
   {
+    "input" : "about:blank#<foo> <bar>",
+    "base" : null,
+    "inputExpected" : { "stringValue" : "about:blank#<foo> <bar>", "type" : "OpaqueUri", "scheme" : "about", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "blank", "query" : null, "fragment" : "<foo> <bar>" },
+    "inputNormalised" : { "stringValue" : "about:blank#%3Cfoo%3E%20%3Cbar%3E", "type" : "OpaqueUri", "scheme" : "about", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "blank", "query" : null, "fragment" : "%3Cfoo%3E%20%3Cbar%3E" },
+    "baseExpected" : null,
+    "baseNormalised" : null,
+    "resolved" : { "stringValue" : "about:blank#%3Cfoo%3E%20%3Cbar%3E", "type" : "OpaqueUri", "scheme" : "about", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "blank", "query" : null, "fragment" : "%3Cfoo%3E%20%3Cbar%3E" },
+    "origin" : null,
+    "source" : { "input" : "about:blank#<foo> <bar>", "href" : "about:blank#%3Cfoo%3E%20%3Cbar%3E", "protocol" : "about:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "blank", "search" : "", "hash" : "#%3Cfoo%3E%20%3Cbar%3E" },
+    "matchesWhatWg" : true
+  },
+  {
     "input" : "android-app://x:0",
     "base" : null,
     "inputExpected" : { "stringValue" : "android-app://x:0", "type" : "Origin", "scheme" : "android-app", "authority" : "x:0", "userInfo" : null, "username" : null, "password" : null, "host" : "x", "port" : "0", "path" : "", "query" : null, "fragment" : null },
@@ -1917,6 +1929,18 @@
     "resolved" : { "stringValue" : "data:text/html,test#test", "type" : "OpaqueUri", "scheme" : "data", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "text/html,test", "query" : null, "fragment" : "test" },
     "origin" : null,
     "source" : { "input" : "data:text/html,test#test", "base" : "http://example.org/foo/bar", "href" : "data:text/html,test#test", "origin" : "null", "protocol" : "data:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "text/html,test", "search" : "", "hash" : "#test" },
+    "matchesWhatWg" : true
+  },
+  {
+    "input" : "data:text/plain,test#<foo> <bar>",
+    "base" : null,
+    "inputExpected" : { "stringValue" : "data:text/plain,test#<foo> <bar>", "type" : "OpaqueUri", "scheme" : "data", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "text/plain,test", "query" : null, "fragment" : "<foo> <bar>" },
+    "inputNormalised" : { "stringValue" : "data:text/plain,test#%3Cfoo%3E%20%3Cbar%3E", "type" : "OpaqueUri", "scheme" : "data", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "text/plain,test", "query" : null, "fragment" : "%3Cfoo%3E%20%3Cbar%3E" },
+    "baseExpected" : null,
+    "baseNormalised" : null,
+    "resolved" : { "stringValue" : "data:text/plain,test#%3Cfoo%3E%20%3Cbar%3E", "type" : "OpaqueUri", "scheme" : "data", "authority" : null, "userInfo" : null, "username" : null, "password" : null, "host" : null, "port" : null, "path" : "text/plain,test", "query" : null, "fragment" : "%3Cfoo%3E%20%3Cbar%3E" },
+    "origin" : null,
+    "source" : { "input" : "data:text/plain,test#<foo> <bar>", "href" : "data:text/plain,test#%3Cfoo%3E%20%3Cbar%3E", "protocol" : "data:", "username" : "", "password" : "", "host" : "", "hostname" : "", "port" : "", "pathname" : "text/plain,test", "search" : "", "hash" : "#%3Cfoo%3E%20%3Cbar%3E" },
     "matchesWhatWg" : true
   },
   {
