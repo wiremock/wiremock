@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http.trafficlistener;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -42,7 +43,8 @@ final class NotifyingWiremockNetworkTrafficListener implements WiremockNetworkTr
   @Override
   public void incoming(Socket socket, ByteBuffer bytes) {
     try {
-      notifier.info("Incoming bytes: " + charsetDecoder.decode(bytes));
+      final CharBuffer decodedBuffer = charsetDecoder.decode(bytes);
+      notifier.info(() -> "Incoming bytes: " + decodedBuffer);
     } catch (CharacterCodingException e) {
       notifier.error("Incoming bytes omitted. Could not decode with charset: " + charset);
     }
@@ -51,7 +53,8 @@ final class NotifyingWiremockNetworkTrafficListener implements WiremockNetworkTr
   @Override
   public void outgoing(Socket socket, ByteBuffer bytes) {
     try {
-      notifier.info("Outgoing bytes: " + charsetDecoder.decode(bytes));
+      final CharBuffer decodedBuffer = charsetDecoder.decode(bytes);
+      notifier.info(() -> "Outgoing bytes: " + decodedBuffer);
     } catch (CharacterCodingException e) {
       notifier.error("Outgoing bytes omitted. Could not decode with charset: " + charset);
     }
