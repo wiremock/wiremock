@@ -5,6 +5,8 @@ plugins {
 rootProject.name = "wiremock"
 
 include("wiremock-core")
+include("wiremock-core:certificate-generator")
+include("wiremock-standalone")
 include("wiremock-junit4")
 include("wiremock-junit5")
 include("wiremock-jetty")
