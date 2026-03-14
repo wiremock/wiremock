@@ -41,6 +41,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -129,6 +132,16 @@ public class TemplateEngine {
 
   public HandlebarsOptimizedTemplate getUncachedTemplate(final String content) {
     return new HandlebarsOptimizedTemplate(handlebars, content);
+  }
+
+  public HandlebarsOptimizedTemplate getUncachedTemplateFromFile(final String fileName)
+      throws MalformedURLException, IOException {
+    try {
+      if (handlebars == null) throw new NullPointerException("no handle bars");
+      return new HandlebarsOptimizedTemplate(handlebars, new File(fileName));
+    } catch (Exception x) {
+      throw new IOException(fileName, x);
+    }
   }
 
   public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
@@ -246,5 +259,9 @@ public class TemplateEngine {
 
   public Long getMaxCacheEntries() {
     return maxCacheEntries;
+  }
+
+  public Handlebars getHandleBars() {
+    return handlebars;
   }
 }
