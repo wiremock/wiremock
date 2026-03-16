@@ -6,8 +6,20 @@ shadow{
   addShadowVariantIntoJavaComponent = true
 }
 
+configurations.configureEach {
+  resolutionStrategy.dependencySubstitution {
+    substitute(project(":wiremock-core:certificate-generator"))
+      .using(variant(project(":wiremock-core:certificate-generator")) {
+        attributes {
+          attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.SHADOWED))
+        }
+      })
+      .because("In standalone we use the shadowed and minimized version of certificate-generator")
+  }
+}
+
 dependencies {
-  implementation(project(":"))
+  runtimeOnly(project(":"))
 }
 
 tasks.shadowJar {
@@ -92,4 +104,19 @@ tasks.publish {
   dependsOn(
     "signStandaloneJarPublication",
   )
+}
+
+// Disable the plain jar from being published/consumed
+tasks.jar {
+  enabled = false
+}
+
+configurations.apiElements {
+  outgoing.artifacts.clear()
+  outgoing.artifact(tasks.shadowJar)
+}
+
+configurations.runtimeElements {
+  outgoing.artifacts.clear()
+  outgoing.artifact(tasks.shadowJar)
 }
