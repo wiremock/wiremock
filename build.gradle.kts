@@ -107,6 +107,7 @@ dependencies {
   testImplementation(libs.mockito.junit.jupiter)
   testImplementation(libs.scala.library)
   testImplementation(libs.bouncycastle.bcpkix)
+  testImplementation(project(":wiremock-core:certificate-generator"))
 
   testRuntimeOnly(files("src/test/resources/classpath file source/classpathfiles.zip", "src/test/resources/classpath-filesource.jar"))
   testRuntimeOnly(files("test-extension/test-extension.jar"))
