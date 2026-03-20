@@ -26,6 +26,8 @@ dependencies {
 
     api(libs.jspecify)
 
+    api(project(":wiremock-core:certificate-generator"))
+
     implementation(libs.apache.http5.client)
     implementation(libs.handlebars.helpers) {
         exclude(group = "org.mozilla", module = "rhino")
@@ -41,6 +43,7 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
     implementation(libs.xmlunit.placeholders)
+
 
     modules {
         module("org.apache.logging.log4j:log4j-core") {
