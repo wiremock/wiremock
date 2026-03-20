@@ -1153,7 +1153,7 @@ public class ResponseTemplateTransformerTest {
   public void dateTruncation() {
     assertThat(
         transform("{{date (truncateDate (parseDate '2021-06-29T11:22:33Z') 'first hour of day')}}"),
-        is("2021-06-29T00:00:00Z"));
+        is("2021-06-29T00:00:00.000Z"));
   }
 
   @Test
