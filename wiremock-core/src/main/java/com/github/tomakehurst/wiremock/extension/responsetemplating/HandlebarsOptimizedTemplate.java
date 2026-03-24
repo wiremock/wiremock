@@ -18,8 +18,10 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.URLTemplateSource;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.RequestCache;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -31,6 +33,14 @@ public class HandlebarsOptimizedTemplate {
   private String startContent;
   private String templateContent;
   private String endContent;
+
+  public HandlebarsOptimizedTemplate(final Handlebars handlebars, final File file)
+      throws IOException {
+    startContent = "";
+    templateContent = "";
+    endContent = "";
+    this.template = handlebars.compile(new URLTemplateSource(file.getName(), file.toURI().toURL()));
+  }
 
   public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
     startContent = content;
