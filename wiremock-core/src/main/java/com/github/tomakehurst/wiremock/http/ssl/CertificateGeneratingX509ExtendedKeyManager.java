@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.net.ssl.*;
 
@@ -208,7 +209,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     }
 
     @Override
-    public void info(String message) {
+    public void info(Supplier<String> message) {
       if (onceOnly.unused()) {
         notifier.info(message);
       }
