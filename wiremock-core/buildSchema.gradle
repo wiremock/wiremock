@@ -15,37 +15,46 @@ buildscript {
   }
 }
 
-def buildStubMappingSchema = tasks.register("buildStubMappingSchema") {
-  group = "build"
-  outputs.dir(temporaryDir)
-  inputs.dir('src/main/resources/swagger/schemas')
-
-  doLast {
-    def schemasDir = new File(temporaryDir, "schemas")
-    schemasDir.mkdir()
-    new File(schemasDir, "wiremock-stub-mapping.json").write(doBuildStubMappingSchema())
-  }
-}
-
-def buildMessageStubMappingSchema = tasks.register("buildMessageStubMappingSchema") {
-  group = "build"
-  outputs.dir(temporaryDir)
-  inputs.dir('src/main/resources/swagger/schemas')
-
-  doLast {
-    def schemasDir = new File(temporaryDir, "schemas")
-    schemasDir.mkdir()
-    new File(schemasDir, "wiremock-message-stub-mapping.json").write(doBuildMessageStubMappingSchema())
-  }
-}
-
-sourceSets {
-  main {
-    resources {
-      srcDir(buildStubMappingSchema.map { it.temporaryDir })
-      srcDir(buildMessageStubMappingSchema.map { it.temporaryDir })
+/**
+ * Replaces refs as follows:
+ * <ul>
+ *   <li>{@code "$ref": "content-pattern.yaml"} -> {@code "$ref": "#/definitions/content-pattern"}</li>
+ *   <li>{@code "$ref": "date-time-elements.yaml#/format"} -> {@code "$ref": "#/definitions/format"}</li>
+ * </ul>
+ */
+private def replaceFileRefs(JsonNode node) {
+  if (node instanceof ObjectNode) {
+    def nodeAsObject = (ObjectNode) node
+    final def ref = nodeAsObject["\$ref"]?.asText()
+    if (ref != null) {
+      if (ref.endsWith(".yaml")) {
+        nodeAsObject.put("\$ref", "#/definitions/${(ref - ".yaml")}")
+      }
+      //date-time-elements.yaml is handled explicitly because it contains multiple standalone schemas
+      else if (ref.startsWith("date-time-elements.yaml#/")) {
+        nodeAsObject.put("\$ref", "#/definitions/${removePrefix(ref, "date-time-elements.yaml#/")}")
+      }
+    } else {
+      for (child in nodeAsObject) {
+        replaceFileRefs(child)
+      }
+    }
+  } else if (node instanceof ArrayNode) {
+    def nodeAsArray = (ArrayNode) node
+    for (item in nodeAsArray) {
+      replaceFileRefs(item)
     }
   }
+}
+
+private static String removePrefix(String input, String prefix) {
+  return input.substring(prefix.length())
+}
+
+private JsonNode readSchema(ObjectMapper objectMapper, File file) {
+  def node = objectMapper.readTree(file)
+  replaceFileRefs(node)
+  return node
 }
 
 /**
@@ -117,48 +126,6 @@ private String doBuildStubMappingSchema() {
       .writeValueAsString(document)
 }
 
-private JsonNode readSchema(ObjectMapper objectMapper, File file) {
-  def node = objectMapper.readTree(file)
-  replaceFileRefs(node)
-  return node
-}
-
-/**
- * Replaces refs as follows:
- * <ul>
- *   <li>{@code "$ref": "content-pattern.yaml"} -> {@code "$ref": "#/definitions/content-pattern"}</li>
- *   <li>{@code "$ref": "date-time-elements.yaml#/format"} -> {@code "$ref": "#/definitions/format"}</li>
- * </ul>
- */
-private def replaceFileRefs(JsonNode node) {
-  if (node instanceof ObjectNode) {
-    def nodeAsObject = (ObjectNode) node
-    final def ref = nodeAsObject["\$ref"]?.asText()
-    if (ref != null) {
-      if (ref.endsWith(".yaml")) {
-        nodeAsObject.put("\$ref", "#/definitions/${(ref - ".yaml")}")
-      }
-      //date-time-elements.yaml is handled explicitly because it contains multiple standalone schemas
-      else if (ref.startsWith("date-time-elements.yaml#/")) {
-        nodeAsObject.put("\$ref", "#/definitions/${removePrefix(ref, "date-time-elements.yaml#/")}")
-      }
-    } else {
-      for (child in nodeAsObject) {
-        replaceFileRefs(child)
-      }
-    }
-  } else if (node instanceof ArrayNode) {
-    def nodeAsArray = (ArrayNode) node
-    for (item in nodeAsArray) {
-      replaceFileRefs(item)
-    }
-  }
-}
-
-private static String removePrefix(String input, String prefix) {
-  return input.substring(prefix.length())
-}
-
 private String doBuildMessageStubMappingSchema() {
   def jsonMapper = new ObjectMapper()
   def document = jsonMapper.createObjectNode()
@@ -193,4 +160,37 @@ private String doBuildMessageStubMappingSchema() {
   return jsonMapper
       .writerWithDefaultPrettyPrinter()
       .writeValueAsString(document)
+}
+
+def buildStubMappingSchema = tasks.register("buildStubMappingSchema") {
+  group = "build"
+  outputs.dir(temporaryDir)
+  inputs.dir('src/main/resources/swagger/schemas')
+
+  doLast {
+    def schemasDir = new File(temporaryDir, "schemas")
+    schemasDir.mkdir()
+    new File(schemasDir, "wiremock-stub-mapping.json").write(doBuildStubMappingSchema())
+  }
+}
+
+def buildMessageStubMappingSchema = tasks.register("buildMessageStubMappingSchema") {
+  group = "build"
+  outputs.dir(temporaryDir)
+  inputs.dir('src/main/resources/swagger/schemas')
+
+  doLast {
+    def schemasDir = new File(temporaryDir, "schemas")
+    schemasDir.mkdir()
+    new File(schemasDir, "wiremock-message-stub-mapping.json").write(doBuildMessageStubMappingSchema())
+  }
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDir(buildStubMappingSchema.map { it.temporaryDir })
+      srcDir(buildMessageStubMappingSchema.map { it.temporaryDir })
+    }
+  }
 }
