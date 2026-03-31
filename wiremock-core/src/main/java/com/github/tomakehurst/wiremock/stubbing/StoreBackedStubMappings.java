@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
@@ -24,8 +25,11 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class StoreBackedStubMappings extends AbstractStubMappings {
+
+  private final MappingsSaver mappingsSaver;
 
   public StoreBackedStubMappings(
       StubMappingStore store,
@@ -36,6 +40,28 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
       Map<String, ServeEventListener> serveEventListeners) {
+    this(
+        store,
+        scenarios,
+        customMatchers,
+        transformers,
+        v2transformers,
+        filesBlobStore,
+        stubLifecycleListeners,
+        serveEventListeners,
+        null);
+  }
+
+  public StoreBackedStubMappings(
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners,
+      MappingsSaver mappingsSaver) {
     super(
         store,
         scenarios,
@@ -45,5 +71,20 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
         filesBlobStore,
         stubLifecycleListeners,
         serveEventListeners);
+    this.mappingsSaver = mappingsSaver;
+  }
+
+  @Override
+  protected void save(StubMapping stubMapping) {
+    if (mappingsSaver != null) {
+      mappingsSaver.save(stubMapping);
+    }
+  }
+
+  @Override
+  protected void remove(UUID stubMappingId) {
+    if (mappingsSaver != null) {
+      mappingsSaver.remove(stubMappingId);
+    }
   }
 }

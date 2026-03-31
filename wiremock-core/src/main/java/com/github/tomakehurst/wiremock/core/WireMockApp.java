@@ -167,7 +167,8 @@ public class WireMockApp implements StubServer, Admin {
             extensions.ofType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
             List.copyOf(extensions.ofType(StubLifecycleListener.class).values()),
-            serveEventListeners);
+            serveEventListeners,
+            mappingsSaver);
     nearMissCalculator =
         new NearMissCalculator(stubMappings, requestJournal, scenarios, customMatchers);
     recorder =
@@ -233,7 +234,8 @@ public class WireMockApp implements StubServer, Admin {
             v2transformers,
             stores.getFilesBlobStore(),
             Collections.emptyList(),
-            serveEventListeners);
+            serveEventListeners,
+            mappingsSaver);
     this.container = container;
     nearMissCalculator =
         new NearMissCalculator(stubMappings, requestJournal, scenarios, requestMatchers);
@@ -375,10 +377,7 @@ public class WireMockApp implements StubServer, Admin {
       stubMapping = stubMapping.transform(b -> b.setId(UUID.randomUUID()));
     }
 
-    stubMapping = stubMappings.addMapping(stubMapping);
-    if (stubMapping.shouldBePersisted()) {
-      mappingsSaver.save(stubMapping);
-    }
+    stubMappings.addMapping(stubMapping);
   }
 
   @Override
@@ -387,10 +386,6 @@ public class WireMockApp implements StubServer, Admin {
     if (matchedStub == null) return;
 
     stubMappings.removeMapping(matchedStub);
-
-    if (matchedStub.shouldBePersisted()) {
-      mappingsSaver.remove(matchedStub.getId());
-    }
   }
 
   /**
@@ -417,10 +412,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
-    stubMapping = stubMappings.editMapping(stubMapping);
-    if (stubMapping.shouldBePersisted()) {
-      mappingsSaver.save(stubMapping);
-    }
+    stubMappings.editMapping(stubMapping);
   }
 
   @Override
@@ -717,15 +709,27 @@ public class WireMockApp implements StubServer, Admin {
         }
       }
       stubMappings.updateMappings(mappingsToInsert, mappingsToRemove);
-      mappingsSaver.setAll(
-          listAllStubMappings().getMappings().stream()
-              .filter(StubMapping::shouldBePersisted)
-              .toList());
+      try {
+        mappingsSaver.setAll(
+            listAllStubMappings().getMappings().stream()
+                .filter(StubMapping::shouldBePersisted)
+                .toList());
+      } catch (Exception e) {
+        stubMappings.updateMappings(mappingsToRemove, mappingsToInsert);
+        throw e;
+      }
     } else {
       List<StubMapping> insertedStubs = stubMappings.updateMappings(mappingsToInsert, List.of());
       List<StubMapping> mappingsToSave =
           insertedStubs.stream().filter(StubMapping::shouldBePersisted).toList();
-      if (!mappingsToSave.isEmpty()) mappingsSaver.save(mappingsToSave);
+      if (!mappingsToSave.isEmpty()) {
+        try {
+          mappingsSaver.save(mappingsToSave);
+        } catch (Exception e) {
+          stubMappings.updateMappings(List.of(), insertedStubs);
+          throw e;
+        }
+      }
     }
   }
 
@@ -745,7 +749,14 @@ public class WireMockApp implements StubServer, Admin {
       for (StubMapping removed : toRemove) {
         if (removed.shouldBePersisted()) mappingsToDelete.add(removed.getId());
       }
-      if (!mappingsToDelete.isEmpty()) mappingsSaver.remove(mappingsToDelete);
+      if (!mappingsToDelete.isEmpty()) {
+        try {
+          mappingsSaver.remove(mappingsToDelete);
+        } catch (Exception e) {
+          this.stubMappings.updateMappings(toRemove, List.of());
+          throw e;
+        }
+      }
     }
   }
 

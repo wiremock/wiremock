@@ -182,6 +182,16 @@ public abstract class AbstractStubMappings implements StubMappings {
     mapping = store.add(mapping);
     scenarios.onStubMappingAdded(mapping);
 
+    if (mapping.shouldBePersisted()) {
+      try {
+        save(mapping);
+      } catch (Exception e) {
+        store.remove(mapping.getId());
+        scenarios.onStubMappingRemoved(mapping);
+        throw e;
+      }
+    }
+
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubCreated(mapping);
     }
@@ -197,6 +207,16 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     store.remove(mapping.getId());
     scenarios.onStubMappingRemoved(mapping);
+
+    if (mapping.shouldBePersisted()) {
+      try {
+        remove(mapping.getId());
+      } catch (Exception e) {
+        store.add(mapping);
+        scenarios.onStubMappingAdded(mapping);
+        throw e;
+      }
+    }
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubRemoved(mapping);
@@ -226,12 +246,26 @@ public abstract class AbstractStubMappings implements StubMappings {
     store.replace(existingMapping, stubMapping);
     scenarios.onStubMappingUpdated(existingMapping, stubMapping);
 
+    if (stubMapping.shouldBePersisted()) {
+      try {
+        save(stubMapping);
+      } catch (Exception e) {
+        store.replace(stubMapping, existingMapping);
+        scenarios.onStubMappingUpdated(stubMapping, existingMapping);
+        throw e;
+      }
+    }
+
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubEdited(existingMapping, stubMapping);
     }
 
     return stubMapping;
   }
+
+  protected void save(StubMapping stubMapping) {}
+
+  protected void remove(UUID stubMappingId) {}
 
   @Override
   public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
