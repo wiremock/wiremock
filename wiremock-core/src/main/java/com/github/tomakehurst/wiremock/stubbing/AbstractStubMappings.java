@@ -77,7 +77,7 @@ public class AbstractStubMappings implements StubMappings {
         filesBlobStore,
         stubLifecycleListeners,
         serveEventListeners,
-        null);
+        MappingsSaver.NOOP);
   }
 
   public AbstractStubMappings(
@@ -289,33 +289,23 @@ public class AbstractStubMappings implements StubMappings {
   }
 
   private void save(StubMapping stubMapping) {
-    if (mappingsSaver != null) {
-      mappingsSaver.save(stubMapping);
-    }
+    mappingsSaver.save(stubMapping);
   }
 
   private void save(List<StubMapping> stubMappings) {
-    if (mappingsSaver != null) {
-      mappingsSaver.save(stubMappings);
-    }
+    mappingsSaver.save(stubMappings);
   }
 
   private void remove(UUID stubMappingId) {
-    if (mappingsSaver != null) {
-      mappingsSaver.remove(stubMappingId);
-    }
+    mappingsSaver.remove(stubMappingId);
   }
 
   private void remove(List<UUID> stubMappingIds) {
-    if (mappingsSaver != null) {
-      mappingsSaver.remove(stubMappingIds);
-    }
+    mappingsSaver.remove(stubMappingIds);
   }
 
   private void removeAllPersisted() {
-    if (mappingsSaver != null) {
-      mappingsSaver.removeAll();
-    }
+    mappingsSaver.removeAll();
   }
 
   @Override
