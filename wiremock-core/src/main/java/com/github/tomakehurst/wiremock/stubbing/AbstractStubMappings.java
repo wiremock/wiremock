@@ -366,6 +366,8 @@ public class AbstractStubMappings implements StubMappings {
             .map(StubMapping::getId)
             .toList();
 
+    // Note: persistence is best-effort, not transactional. If save() succeeds but remove() fails,
+    // the rollback reverts in-memory state but the already-persisted saves remain on disk.
     if (!persistedSaves.isEmpty() || !persistedRemoveIds.isEmpty()) {
       try {
         if (!persistedSaves.isEmpty()) {
