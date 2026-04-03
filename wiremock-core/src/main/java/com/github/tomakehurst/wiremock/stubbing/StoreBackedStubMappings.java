@@ -82,9 +82,30 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
   }
 
   @Override
+  protected void save(List<StubMapping> stubMappings) {
+    if (mappingsSaver != null) {
+      mappingsSaver.save(stubMappings);
+    }
+  }
+
+  @Override
   protected void remove(UUID stubMappingId) {
     if (mappingsSaver != null) {
       mappingsSaver.remove(stubMappingId);
+    }
+  }
+
+  @Override
+  protected void remove(List<UUID> stubMappingIds) {
+    if (mappingsSaver != null) {
+      mappingsSaver.remove(stubMappingIds);
+    }
+  }
+
+  @Override
+  protected void removeAllPersisted() {
+    if (mappingsSaver != null) {
+      mappingsSaver.removeAll();
     }
   }
 }

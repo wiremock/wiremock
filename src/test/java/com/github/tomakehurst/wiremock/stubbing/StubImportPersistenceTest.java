@@ -98,10 +98,12 @@ class StubImportPersistenceTest {
   }
 
   @Test
-  void setsAllStubsTogetherWhenImportingMultipleStubsAndRemovingNonImportedStubs() {
-    wm.addStubMapping(get("/existing/stub").persistent(true).willReturn(ok()).build());
-    wm.addStubMapping(
-        put("/another/existing/stub").persistent(true).willReturn(noContent()).build());
+  void savesAndRemovesStubsWhenImportingMultipleStubsAndRemovingNonImportedStubs() {
+    StubMapping existingStub1 = get("/existing/stub").persistent(true).willReturn(ok()).build();
+    StubMapping existingStub2 =
+        put("/another/existing/stub").persistent(true).willReturn(noContent()).build();
+    wm.addStubMapping(existingStub1);
+    wm.addStubMapping(existingStub2);
 
     clearInvocations(mappingsSource);
 
@@ -114,15 +116,18 @@ class StubImportPersistenceTest {
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, true)));
     verify(mappingsSource, times(1))
-        .setAll(List.of(newStubs.get(0), newStubs.get(2), newStubs.get(3)));
+        .save(List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)));
+    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId(), existingStub1.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 
   @Test
   void removesAllPersistedStubsWhenNoImportedStubsAreSetToPersistAndNonImportedStubsAreDeleted() {
-    wm.addStubMapping(get("/existing/stub").persistent(true).willReturn(ok()).build());
-    wm.addStubMapping(
-        put("/another/existing/stub").persistent(true).willReturn(noContent()).build());
+    StubMapping existingStub1 = get("/existing/stub").persistent(true).willReturn(ok()).build();
+    StubMapping existingStub2 =
+        put("/another/existing/stub").persistent(true).willReturn(noContent()).build();
+    wm.addStubMapping(existingStub1);
+    wm.addStubMapping(existingStub2);
 
     clearInvocations(mappingsSource);
 
@@ -132,7 +137,7 @@ class StubImportPersistenceTest {
             get("/do/not/persist").willReturn(ok()).persistent(false).build());
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, true)));
-    verify(mappingsSource, times(1)).setAll(List.of());
+    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId(), existingStub1.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -155,7 +160,7 @@ class StubImportPersistenceTest {
   @Test
   void keepsIgnoredStubsWhenAllOtherNonImportedStubsAreDeleted() {
     StubMapping existingStub1 = wm.stubFor(get("/1").persistent().willReturn(ok()));
-    wm.stubFor(get("/2").persistent().willReturn(ok()));
+    StubMapping existingStub2 = wm.stubFor(get("/2").persistent().willReturn(ok()));
 
     clearInvocations(mappingsSource);
     var newStub2 = post("/three").persistent().willReturn(ok()).build();
@@ -166,7 +171,8 @@ class StubImportPersistenceTest {
             .ignoreExisting()
             .deleteAllExistingStubsNotInImport()
             .build());
-    verify(mappingsSource, times(1)).setAll(List.of(newStub2, existingStub1));
+    verify(mappingsSource, times(1)).save(List.of(newStub2));
+    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 }

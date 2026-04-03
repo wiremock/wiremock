@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,20 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.InMemoryStubMappingStore;
+import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public class InMemoryStubMappings extends StoreBackedStubMappings {
+public class InMemoryStubMappings extends AbstractStubMappings {
 
   public InMemoryStubMappings() {
     super(
@@ -32,5 +41,25 @@ public class InMemoryStubMappings extends StoreBackedStubMappings {
         new FileSourceBlobStore(new SingleRootFileSource(".")),
         Collections.emptyList(),
         Collections.emptyMap());
+  }
+
+  public InMemoryStubMappings(
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners) {
+    super(
+        store,
+        scenarios,
+        customMatchers,
+        transformers,
+        v2transformers,
+        filesBlobStore,
+        stubLifecycleListeners,
+        serveEventListeners);
   }
 }

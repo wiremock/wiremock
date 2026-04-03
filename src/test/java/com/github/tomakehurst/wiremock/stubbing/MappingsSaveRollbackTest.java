@@ -112,11 +112,11 @@ class MappingsSaveRollbackTest {
   }
 
   @Test
-  void rollsBackImportWithDeleteAllWhenSetAllFails() {
+  void rollsBackImportWithDeleteAllWhenSaveFails() {
     StubMapping existing = get("/existing").persistent(true).willReturn(ok()).build();
     wm.addStubMapping(existing);
 
-    doThrow(new RuntimeException("setAll failed")).when(mappingsSource).setAll(any(List.class));
+    doThrow(new RuntimeException("save failed")).when(mappingsSource).save(any(List.class));
 
     StubMapping imported = post("/imported").persistent(true).willReturn(ok()).build();
 

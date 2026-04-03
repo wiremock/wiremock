@@ -265,7 +265,13 @@ public abstract class AbstractStubMappings implements StubMappings {
 
   protected void save(StubMapping stubMapping) {}
 
+  protected void save(List<StubMapping> stubMappings) {}
+
   protected void remove(UUID stubMappingId) {}
+
+  protected void remove(List<UUID> stubMappingIds) {}
+
+  protected void removeAllPersisted() {}
 
   @Override
   public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
@@ -305,6 +311,41 @@ public abstract class AbstractStubMappings implements StubMappings {
       }
     }
 
+    List<StubMapping> persistedSaves =
+        result.stream().filter(StubMapping::shouldBePersisted).toList();
+    List<UUID> persistedRemoveIds =
+        toAlterStubs.stream()
+            .filter(StubMappingToRemove.class::isInstance)
+            .map(a -> ((StubMappingToRemove) a).getStub())
+            .filter(StubMapping::shouldBePersisted)
+            .map(StubMapping::getId)
+            .toList();
+
+    if (!persistedSaves.isEmpty() || !persistedRemoveIds.isEmpty()) {
+      try {
+        if (!persistedSaves.isEmpty()) {
+          save(persistedSaves);
+        }
+        if (!persistedRemoveIds.isEmpty()) {
+          remove(persistedRemoveIds);
+        }
+      } catch (Exception e) {
+        for (StubMappingToAlter alter : toAlterStubs) {
+          if (alter instanceof StubMappingToCreate create) {
+            store.remove(create.getStub().getId());
+            scenarios.onStubMappingRemoved(create.getStub());
+          } else if (alter instanceof StubMappingToEdit edit) {
+            store.replace(edit.getNewStub(), edit.getOldStub());
+            scenarios.onStubMappingUpdated(edit.getNewStub(), edit.getOldStub());
+          } else if (alter instanceof StubMappingToRemove remove) {
+            store.add(remove.getStub());
+            scenarios.onStubMappingAdded(remove.getStub());
+          }
+        }
+        throw e;
+      }
+    }
+
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubsAltered(
           toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList());
@@ -325,6 +366,12 @@ public abstract class AbstractStubMappings implements StubMappings {
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubsReset();
     }
+  }
+
+  @Override
+  public void resetMappings() {
+    removeAllPersisted();
+    reset();
   }
 
   @Override
