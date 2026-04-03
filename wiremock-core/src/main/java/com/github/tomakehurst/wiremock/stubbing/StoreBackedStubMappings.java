@@ -47,7 +47,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NullMarked;
 
-public class AbstractStubMappings implements StubMappings {
+public class StoreBackedStubMappings implements StubMappings {
 
   protected final StubMappingStore store;
   protected final Scenarios scenarios;
@@ -59,28 +59,7 @@ public class AbstractStubMappings implements StubMappings {
   protected final Map<String, ServeEventListener> serveEventListeners;
   private final MappingsSaver mappingsSaver;
 
-  public AbstractStubMappings(
-      StubMappingStore store,
-      Scenarios scenarios,
-      Map<String, RequestMatcherExtension> customMatchers,
-      Map<String, ResponseDefinitionTransformer> transformers,
-      Map<String, ResponseDefinitionTransformerV2> v2transformers,
-      BlobStore filesBlobStore,
-      List<StubLifecycleListener> stubLifecycleListeners,
-      Map<String, ServeEventListener> serveEventListeners) {
-    this(
-        store,
-        scenarios,
-        customMatchers,
-        transformers,
-        v2transformers,
-        filesBlobStore,
-        stubLifecycleListeners,
-        serveEventListeners,
-        MappingsSaver.NOOP);
-  }
-
-  public AbstractStubMappings(
+  public StoreBackedStubMappings(
       StubMappingStore store,
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,

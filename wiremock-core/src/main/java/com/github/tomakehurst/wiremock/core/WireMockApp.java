@@ -169,7 +169,7 @@ public class WireMockApp implements StubServer, Admin {
 
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
     nonPersistingStubMappings =
-        new AbstractStubMappings(
+        new StoreBackedStubMappings(
             stubStore,
             scenarios,
             customMatchers,
@@ -177,9 +177,10 @@ public class WireMockApp implements StubServer, Admin {
             v2transformers,
             filesBlobStore,
             stubLifecycleListeners,
-            serveEventListeners);
+            serveEventListeners,
+            MappingsSaver.NOOP);
     stubMappings =
-        new AbstractStubMappings(
+        new StoreBackedStubMappings(
             stubStore,
             scenarios,
             customMatchers,
@@ -248,7 +249,7 @@ public class WireMockApp implements StubServer, Admin {
     StubMappingStore stubStore = stores.getStubStore();
 
     nonPersistingStubMappings =
-        new AbstractStubMappings(
+        new StoreBackedStubMappings(
             stubStore,
             scenarios,
             requestMatchers,
@@ -256,9 +257,10 @@ public class WireMockApp implements StubServer, Admin {
             v2transformers,
             filesBlobStore,
             Collections.emptyList(),
-            serveEventListeners);
+            serveEventListeners,
+            MappingsSaver.NOOP);
     stubMappings =
-        new AbstractStubMappings(
+        new StoreBackedStubMappings(
             stubStore,
             scenarios,
             requestMatchers,

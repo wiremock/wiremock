@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
-import com.github.tomakehurst.wiremock.stubbing.AbstractStubMappings.RemoveStubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings.RemoveStubMapping;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
