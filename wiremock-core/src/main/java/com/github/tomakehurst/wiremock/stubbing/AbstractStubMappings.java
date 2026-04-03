@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredStubMapping;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToAlter;
@@ -46,7 +47,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NullMarked;
 
-public abstract class AbstractStubMappings implements StubMappings {
+public class AbstractStubMappings implements StubMappings {
 
   protected final StubMappingStore store;
   protected final Scenarios scenarios;
@@ -56,6 +57,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final Map<String, ServeEventListener> serveEventListeners;
+  private final MappingsSaver mappingsSaver;
 
   public AbstractStubMappings(
       StubMappingStore store,
@@ -66,6 +68,28 @@ public abstract class AbstractStubMappings implements StubMappings {
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
       Map<String, ServeEventListener> serveEventListeners) {
+    this(
+        store,
+        scenarios,
+        customMatchers,
+        transformers,
+        v2transformers,
+        filesBlobStore,
+        stubLifecycleListeners,
+        serveEventListeners,
+        null);
+  }
+
+  public AbstractStubMappings(
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners,
+      MappingsSaver mappingsSaver) {
     this.store = store;
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
@@ -74,6 +98,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
     this.serveEventListeners = serveEventListeners;
+    this.mappingsSaver = mappingsSaver;
   }
 
   @Override
@@ -263,15 +288,35 @@ public abstract class AbstractStubMappings implements StubMappings {
     return stubMapping;
   }
 
-  protected void save(StubMapping stubMapping) {}
+  private void save(StubMapping stubMapping) {
+    if (mappingsSaver != null) {
+      mappingsSaver.save(stubMapping);
+    }
+  }
 
-  protected void save(List<StubMapping> stubMappings) {}
+  private void save(List<StubMapping> stubMappings) {
+    if (mappingsSaver != null) {
+      mappingsSaver.save(stubMappings);
+    }
+  }
 
-  protected void remove(UUID stubMappingId) {}
+  private void remove(UUID stubMappingId) {
+    if (mappingsSaver != null) {
+      mappingsSaver.remove(stubMappingId);
+    }
+  }
 
-  protected void remove(List<UUID> stubMappingIds) {}
+  private void remove(List<UUID> stubMappingIds) {
+    if (mappingsSaver != null) {
+      mappingsSaver.remove(stubMappingIds);
+    }
+  }
 
-  protected void removeAllPersisted() {}
+  private void removeAllPersisted() {
+    if (mappingsSaver != null) {
+      mappingsSaver.removeAll();
+    }
+  }
 
   @Override
   public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
