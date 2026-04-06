@@ -240,11 +240,11 @@ tasks.assemble {
 }
 
 tasks.register("release") {
-  dependsOn(tasks.clean, tasks.assemble, tasks.publish, addGitTag)
+  dependsOn(tasks.clean, tasks.assemble, tasks.publish, ":wiremock-standalone:publish", addGitTag)
 }
 
 tasks.register("localRelease") {
-  dependsOn(tasks.clean, tasks.assemble, tasks.publishToMavenLocal)
+  dependsOn(tasks.clean, tasks.assemble, ":wiremock-standalone:publishToMavenLocal", tasks.publishToMavenLocal)
 }
 
 fun updateFiles(currentVersion: String, nextVersion: String) {

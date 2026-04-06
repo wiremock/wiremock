@@ -76,10 +76,6 @@ tasks.shadowJar {
   exclude("handlebars-*.js")
 }
 
-tasks.jar {
-  enabled = false
-}
-
 publishing {
   publications {
     create<MavenPublication>("standaloneJar") {
