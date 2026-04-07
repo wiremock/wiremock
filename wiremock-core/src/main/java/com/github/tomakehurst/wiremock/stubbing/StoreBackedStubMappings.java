@@ -52,7 +52,10 @@ public class StoreBackedStubMappings implements StubMappings {
   protected final StubMappingStore store;
   protected final Scenarios scenarios;
   protected final Map<String, RequestMatcherExtension> customMatchers;
+
+  @SuppressWarnings("deprecation")
   protected final Map<String, ResponseDefinitionTransformer> transformers;
+
   protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
@@ -63,7 +66,7 @@ public class StoreBackedStubMappings implements StubMappings {
       StubMappingStore store,
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
-      Map<String, ResponseDefinitionTransformer> transformers,
+      @SuppressWarnings("deprecation") Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners,
@@ -127,12 +130,13 @@ public class StoreBackedStubMappings implements StubMappings {
   private ResponseDefinition applyV1Transformations(
       Request request,
       ResponseDefinition responseDefinition,
-      List<ResponseDefinitionTransformer> transformers) {
+      @SuppressWarnings("deprecation") List<ResponseDefinitionTransformer> transformers) {
 
     if (transformers.isEmpty()) {
       return responseDefinition;
     }
 
+    @SuppressWarnings("deprecation")
     ResponseDefinitionTransformer transformer = transformers.get(0);
     ResponseDefinition newResponseDef =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
