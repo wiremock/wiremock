@@ -184,17 +184,19 @@ public class StoreBackedStubMappings implements StubMappings {
     }
 
     mapping = store.add(mapping);
-    scenarios.onStubMappingAdded(mapping);
 
+    // The call to `store.add` returns a changed stub (adds an insertion index), so we have to add
+    // and then undo if the add fails
     if (mapping.shouldBePersisted()) {
       try {
         save(mapping);
       } catch (Exception e) {
         store.remove(mapping.getId());
-        scenarios.onStubMappingRemoved(mapping);
         throw e;
       }
     }
+
+    scenarios.onStubMappingAdded(mapping);
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubCreated(mapping);
@@ -209,18 +211,11 @@ public class StoreBackedStubMappings implements StubMappings {
       listener.beforeStubRemoved(mapping);
     }
 
+    if (mapping.shouldBePersisted()) {
+      remove(mapping.getId());
+    }
     store.remove(mapping.getId());
     scenarios.onStubMappingRemoved(mapping);
-
-    if (mapping.shouldBePersisted()) {
-      try {
-        remove(mapping.getId());
-      } catch (Exception e) {
-        store.add(mapping);
-        scenarios.onStubMappingAdded(mapping);
-        throw e;
-      }
-    }
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubRemoved(mapping);
@@ -247,18 +242,11 @@ public class StoreBackedStubMappings implements StubMappings {
     stubMapping =
         stubMapping.transform(b -> b.setInsertionIndex(existingMapping.getInsertionIndex()));
 
+    if (stubMapping.shouldBePersisted()) {
+      save(stubMapping);
+    }
     store.replace(existingMapping, stubMapping);
     scenarios.onStubMappingUpdated(existingMapping, stubMapping);
-
-    if (stubMapping.shouldBePersisted()) {
-      try {
-        save(stubMapping);
-      } catch (Exception e) {
-        store.replace(stubMapping, existingMapping);
-        scenarios.onStubMappingUpdated(stubMapping, existingMapping);
-        throw e;
-      }
-    }
 
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubEdited(existingMapping, stubMapping);
