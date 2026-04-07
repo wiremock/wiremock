@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.wiremock.url.Segment;
 
+@SuppressWarnings("deprecation")
 public class WireMockApp implements StubServer, Admin {
 
   public static final String FILES_ROOT = "__files";
@@ -92,8 +93,7 @@ public class WireMockApp implements StubServer, Admin {
   private Extensions extensions;
 
   public WireMockApp(Options options, Container container) {
-    if (!options.getDisableOptimizeXmlFactoriesLoading()
-        && Boolean.FALSE.equals(FACTORIES_LOADING_OPTIMIZED.get())) {
+    if (!options.getDisableOptimizeXmlFactoriesLoading() && !FACTORIES_LOADING_OPTIMIZED.get()) {
       Xml.optimizeFactoriesLoading();
       FACTORIES_LOADING_OPTIMIZED.set(true);
     }
@@ -377,8 +377,8 @@ public class WireMockApp implements StubServer, Admin {
     loadMappingsUsing(defaultMappingsLoader);
     loadMessageMappingsUsing(defaultMappingsLoader);
     if (mappingsLoaderExtensions != null) {
-      mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
-      mappingsLoaderExtensions.values().forEach(e -> loadMessageMappingsUsing(e));
+      mappingsLoaderExtensions.values().forEach(this::loadMappingsUsing);
+      mappingsLoaderExtensions.values().forEach(this::loadMessageMappingsUsing);
     }
   }
 
@@ -568,9 +568,7 @@ public class WireMockApp implements StubServer, Admin {
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
     List<NearMiss> nearMisses = new ArrayList<>();
     List<ServeEvent> unmatchedServeEvents =
-        requestJournal.getAllServeEvents().stream()
-            .filter(ServeEvent::isNoExactMatch)
-            .collect(Collectors.toList());
+        requestJournal.getAllServeEvents().stream().filter(ServeEvent::isNoExactMatch).toList();
 
     for (ServeEvent serveEvent : unmatchedServeEvents) {
       nearMisses.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
