@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -45,7 +44,6 @@ import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
-import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
@@ -88,9 +86,9 @@ public class WireMockApp implements StubServer, Admin {
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
 
-  private Options options;
+  private final Options options;
 
-  private Extensions extensions;
+  private final Extensions extensions;
 
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading() && !FACTORIES_LOADING_OPTIMIZED.get()) {
@@ -199,83 +197,6 @@ public class WireMockApp implements StubServer, Admin {
 
     this.container = container;
     extensions.startAll();
-    loadDefaultMappings();
-  }
-
-  public WireMockApp(
-      boolean browserProxyingEnabled,
-      MappingsLoader defaultMappingsLoader,
-      Map<String, MappingsLoaderExtension> mappingsLoaderExtensions,
-      MappingsSaver mappingsSaver,
-      boolean requestJournalDisabled,
-      Integer maxRequestJournalEntries,
-      Map<String, ResponseDefinitionTransformer> transformers,
-      Map<String, ResponseDefinitionTransformerV2> v2transformers,
-      Map<String, RequestMatcherExtension> requestMatchers,
-      FileSource rootFileSource,
-      Container container) {
-
-    this.stores = new DefaultStores(rootFileSource);
-
-    this.browserProxyingEnabled = browserProxyingEnabled;
-    this.defaultMappingsLoader = defaultMappingsLoader;
-    this.mappingsLoaderExtensions = mappingsLoaderExtensions;
-    this.settingsStore = stores.getSettingsStore();
-    requestJournal =
-        requestJournalDisabled
-            ? new DisabledRequestJournal()
-            : new StoreBackedRequestJournal(
-                maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
-    messageJournal =
-        requestJournalDisabled
-            ? new DisabledMessageJournal()
-            : new StoreBackedMessageJournal(
-                maxRequestJournalEntries, stores.getMessageJournalStore());
-    scenarios = new InMemoryScenarios(stores.getScenariosStore());
-
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
-
-    HttpStubServeEventListener httpStubListener =
-        new HttpStubServeEventListener(
-            messageStubMappings,
-            messageChannels,
-            stores,
-            requestMatchers,
-            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
-    serveEventListeners = Map.of(httpStubListener.getName(), httpStubListener);
-
-    BlobStore filesBlobStore = stores.getFilesBlobStore();
-    StubMappingStore stubStore = stores.getStubStore();
-
-    nonPersistingStubMappings =
-        new StoreBackedStubMappings(
-            stubStore,
-            scenarios,
-            requestMatchers,
-            transformers,
-            v2transformers,
-            filesBlobStore,
-            Collections.emptyList(),
-            serveEventListeners,
-            MappingsSaver.NOOP);
-    stubMappings =
-        new StoreBackedStubMappings(
-            stubStore,
-            scenarios,
-            requestMatchers,
-            transformers,
-            v2transformers,
-            filesBlobStore,
-            Collections.emptyList(),
-            serveEventListeners,
-            mappingsSaver);
-    this.container = container;
-    nearMissCalculator =
-        new NearMissCalculator(stubMappings, requestJournal, scenarios, requestMatchers);
-    recorder =
-        new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
-    globalSettingsListeners = Collections.emptyList();
     loadDefaultMappings();
   }
 
