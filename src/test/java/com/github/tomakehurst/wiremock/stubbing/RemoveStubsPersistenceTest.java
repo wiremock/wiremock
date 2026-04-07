@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ class RemoveStubsPersistenceTest {
             get("/stub-4").withId(UUID.randomUUID()).build(),
             get("/whatever").withId(stub2.getId()).build());
     wm.removeStubMappings(stubsToRemove);
-    verify(mappingsSource, times(1)).remove(List.of(stub1.getId(), stub4.getId()));
+    verify(mappingsSource, times(1)).mutate(List.of(), List.of(stub1.getId(), stub4.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -125,7 +125,7 @@ class RemoveStubsPersistenceTest {
     wm.removeStubMappings(List.of(stub1));
 
     assertThat(wm.listAllStubMappings().getMappings(), containsInAnyOrder(stub2, stub3, stub4));
-    verify(mappingsSource, times(1)).remove(List.of(stub1.getId()));
+    verify(mappingsSource, times(1)).mutate(List.of(), List.of(stub1.getId()));
 
     clearInvocations(mappingsSource);
 

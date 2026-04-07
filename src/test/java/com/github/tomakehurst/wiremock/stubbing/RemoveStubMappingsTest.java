@@ -143,7 +143,8 @@ class RemoveStubMappingsTest {
               get("/whatever").withId(existingStub1.getId()).build(),
               get("/whatever").withId(existingStub2.getId()).build()));
 
-      verify(mappingsSource).remove(List.of(existingStub1.getId(), existingStub2.getId()));
+      verify(mappingsSource)
+          .mutate(List.of(), List.of(existingStub1.getId(), existingStub2.getId()));
       verifyNoMoreInteractions(mappingsSource);
       clearInvocations(mappingsSource);
 
@@ -175,7 +176,8 @@ class RemoveStubMappingsTest {
 
       wireMockServer.removeStubMappings(List.of(get("/").build(), post("/create").build()));
 
-      verify(mappingsSource).remove(List.of(existingStub1.getId(), existingStub2.getId()));
+      verify(mappingsSource)
+          .mutate(List.of(), List.of(existingStub1.getId(), existingStub2.getId()));
       verifyNoMoreInteractions(mappingsSource);
       clearInvocations(mappingsSource);
 

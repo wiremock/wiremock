@@ -263,20 +263,20 @@ public class StoreBackedStubMappings implements StubMappings {
     mappingsSaver.save(stubMapping);
   }
 
-  private void save(List<StubMapping> stubMappings) {
-    mappingsSaver.save(stubMappings);
-  }
-
   private void remove(UUID stubMappingId) {
     mappingsSaver.remove(stubMappingId);
   }
 
-  private void remove(List<UUID> stubMappingIds) {
-    mappingsSaver.remove(stubMappingIds);
-  }
-
   private void removeAllPersisted() {
     mappingsSaver.removeAll();
+  }
+
+  private void mutate(List<StubMapping> toSave, List<StubMapping> toRemove) {
+    List<UUID> ids =
+        toRemove.stream().filter(StubMapping::shouldBePersisted).map(StubMapping::getId).toList();
+    if (!toSave.isEmpty() || !ids.isEmpty()) {
+      mappingsSaver.mutate(toSave, ids);
+    }
   }
 
   @Override
@@ -298,59 +298,51 @@ public class StoreBackedStubMappings implements StubMappings {
       listener.beforeStubsAltered(toAlterStubs);
     }
 
-    List<StubMapping> result = new ArrayList<>(toInsert.size());
+    List<StubMapping> toSave = new ArrayList<>();
+    List<StubMapping> newPersisted = new ArrayList<>();
     for (StubMappingToAlter alter : toAlterStubs) {
       if (alter instanceof StubMappingToCreate create) {
-        create.setStub(store.add(create.getStub()));
-        scenarios.onStubMappingAdded(create.getStub());
-        result.add(create.getStub());
+        // The call to `store.add` returns a changed stub (adds an insertion index), so we have to
+        // add and then undo if the add fails
+        StubMapping add = store.add(create.getStub());
+        create.setStub(add);
+        if (create.getStub().shouldBePersisted()) {
+          toSave.add(add);
+          newPersisted.add(add);
+        }
       } else if (alter instanceof StubMappingToEdit edit) {
         edit.setNewStub(
             edit.getNewStub()
                 .transform(b -> b.setInsertionIndex(edit.getOldStub().getInsertionIndex())));
+        if (edit.getNewStub().shouldBePersisted()) {
+          toSave.add(edit.getNewStub());
+        }
+      }
+    }
+
+    // The call to `store.add` returns a changed stub (adds an insertion index), so we have to
+    // undo if the add fails
+    try {
+      mutate(toSave, toRemove);
+    } catch (Exception e) {
+      for (StubMapping add : newPersisted) {
+        store.remove(add.getId());
+      }
+      throw e;
+    }
+
+    List<StubMapping> result = new ArrayList<>(toInsert.size());
+    for (StubMappingToAlter alter : toAlterStubs) {
+      if (alter instanceof StubMappingToCreate create) {
+        scenarios.onStubMappingAdded(create.getStub());
+        result.add(create.getStub());
+      } else if (alter instanceof StubMappingToEdit edit) {
         store.replace(edit.getOldStub(), edit.getNewStub());
         scenarios.onStubMappingUpdated(edit.getOldStub(), edit.getNewStub());
         result.add(edit.getNewStub());
       } else if (alter instanceof StubMappingToRemove remove) {
         store.remove(remove.getStub().getId());
         scenarios.onStubMappingRemoved(remove.getStub());
-      }
-    }
-
-    List<StubMapping> persistedSaves =
-        result.stream().filter(StubMapping::shouldBePersisted).toList();
-    List<UUID> persistedRemoveIds =
-        toAlterStubs.stream()
-            .filter(StubMappingToRemove.class::isInstance)
-            .map(a -> ((StubMappingToRemove) a).getStub())
-            .filter(StubMapping::shouldBePersisted)
-            .map(StubMapping::getId)
-            .toList();
-
-    // Note: persistence is best-effort, not transactional. If save() succeeds but remove() fails,
-    // the rollback reverts in-memory state but the already-persisted saves remain on disk.
-    if (!persistedSaves.isEmpty() || !persistedRemoveIds.isEmpty()) {
-      try {
-        if (!persistedSaves.isEmpty()) {
-          save(persistedSaves);
-        }
-        if (!persistedRemoveIds.isEmpty()) {
-          remove(persistedRemoveIds);
-        }
-      } catch (Exception e) {
-        for (StubMappingToAlter alter : toAlterStubs) {
-          if (alter instanceof StubMappingToCreate create) {
-            store.remove(create.getStub().getId());
-            scenarios.onStubMappingRemoved(create.getStub());
-          } else if (alter instanceof StubMappingToEdit edit) {
-            store.replace(edit.getNewStub(), edit.getOldStub());
-            scenarios.onStubMappingUpdated(edit.getNewStub(), edit.getOldStub());
-          } else if (alter instanceof StubMappingToRemove remove) {
-            store.add(remove.getStub());
-            scenarios.onStubMappingAdded(remove.getStub());
-          }
-        }
-        throw e;
       }
     }
 

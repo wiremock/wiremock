@@ -69,7 +69,7 @@ class StubImportPersistenceTest {
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, false)));
     verify(mappingsSource, times(1))
-        .save(List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)));
+        .mutate(List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)), List.of());
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -93,7 +93,7 @@ class StubImportPersistenceTest {
                 .persistent(true)
                 .build());
     wm.importStubs(new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.IGNORE, false)));
-    verify(mappingsSource, times(1)).save(List.of(newStubs.get(2), newStubs.get(0)));
+    verify(mappingsSource, times(1)).mutate(List.of(newStubs.get(2), newStubs.get(0)), List.of());
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -116,8 +116,9 @@ class StubImportPersistenceTest {
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, true)));
     verify(mappingsSource, times(1))
-        .save(List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)));
-    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId(), existingStub1.getId()));
+        .mutate(
+            List.of(newStubs.get(3), newStubs.get(2), newStubs.get(0)),
+            List.of(existingStub2.getId(), existingStub1.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -137,7 +138,8 @@ class StubImportPersistenceTest {
             get("/do/not/persist").willReturn(ok()).persistent(false).build());
     wm.importStubs(
         new StubImport(newStubs, new StubImport.Options(DuplicatePolicy.OVERWRITE, true)));
-    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId(), existingStub1.getId()));
+    verify(mappingsSource, times(1))
+        .mutate(List.of(), List.of(existingStub2.getId(), existingStub1.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 
@@ -145,7 +147,7 @@ class StubImportPersistenceTest {
   void savesNothingWhenNoStubsAreSetToPersist() {
     StubMapping existingStub = get("/existing/stub").persistent(true).willReturn(ok()).build();
     wm.importStubs(new StubImport(List.of(existingStub), StubImport.Options.DEFAULTS));
-    verify(mappingsSource, times(1)).save(List.of(existingStub));
+    verify(mappingsSource, times(1)).mutate(List.of(existingStub), List.of());
 
     clearInvocations(mappingsSource);
 
@@ -171,8 +173,7 @@ class StubImportPersistenceTest {
             .ignoreExisting()
             .deleteAllExistingStubsNotInImport()
             .build());
-    verify(mappingsSource, times(1)).save(List.of(newStub2));
-    verify(mappingsSource, times(1)).remove(List.of(existingStub2.getId()));
+    verify(mappingsSource, times(1)).mutate(List.of(newStub2), List.of(existingStub2.getId()));
     verifyNoMoreInteractions(mappingsSource);
   }
 }
