@@ -55,6 +55,7 @@ import com.jayway.jsonpath.spi.cache.NOOPCache;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.wiremock.url.Segment;
 
@@ -166,28 +167,21 @@ public class WireMockApp implements StubServer, Admin {
     StubMappingStore stubStore = stores.getStubStore();
 
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
-    nonPersistingStubMappings =
-        new StoreBackedStubMappings(
-            stubStore,
-            scenarios,
-            customMatchers,
-            transformers,
-            v2transformers,
-            filesBlobStore,
-            stubLifecycleListeners,
-            serveEventListeners,
-            MappingsSaver.NOOP);
-    stubMappings =
-        new StoreBackedStubMappings(
-            stubStore,
-            scenarios,
-            customMatchers,
-            transformers,
-            v2transformers,
-            filesBlobStore,
-            stubLifecycleListeners,
-            serveEventListeners,
-            options.mappingsSaver());
+    Function<MappingsSaver, StubMappings> buildStubMappings =
+        mappingsSaver ->
+            new StoreBackedStubMappings(
+                stubStore,
+                scenarios,
+                customMatchers,
+                transformers,
+                v2transformers,
+                filesBlobStore,
+                stubLifecycleListeners,
+                serveEventListeners,
+                mappingsSaver);
+
+    nonPersistingStubMappings = buildStubMappings.apply(MappingsSaver.NOOP);
+    stubMappings = buildStubMappings.apply(options.mappingsSaver());
     nearMissCalculator =
         new NearMissCalculator(stubMappings, requestJournal, scenarios, customMatchers);
     recorder =
