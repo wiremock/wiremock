@@ -34,6 +34,8 @@ public interface StubMappings {
 
   void reset();
 
+  void resetMappings();
+
   void resetScenarios();
 
   List<StubMapping> getAll();

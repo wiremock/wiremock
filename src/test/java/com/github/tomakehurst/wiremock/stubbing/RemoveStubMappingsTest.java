@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
-import com.github.tomakehurst.wiremock.stubbing.AbstractStubMappings.RemoveStubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings.RemoveStubMapping;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,7 +143,8 @@ class RemoveStubMappingsTest {
               get("/whatever").withId(existingStub1.getId()).build(),
               get("/whatever").withId(existingStub2.getId()).build()));
 
-      verify(mappingsSource).remove(List.of(existingStub1.getId(), existingStub2.getId()));
+      verify(mappingsSource)
+          .mutate(List.of(), List.of(existingStub1.getId(), existingStub2.getId()));
       verifyNoMoreInteractions(mappingsSource);
       clearInvocations(mappingsSource);
 
@@ -175,7 +176,8 @@ class RemoveStubMappingsTest {
 
       wireMockServer.removeStubMappings(List.of(get("/").build(), post("/create").build()));
 
-      verify(mappingsSource).remove(List.of(existingStub1.getId(), existingStub2.getId()));
+      verify(mappingsSource)
+          .mutate(List.of(), List.of(existingStub1.getId(), existingStub2.getId()));
       verifyNoMoreInteractions(mappingsSource);
       clearInvocations(mappingsSource);
 

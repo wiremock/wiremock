@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,22 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MappingsSaver {
+
+  MappingsSaver NOOP =
+      new MappingsSaver() {
+        @Override
+        public void save(List<StubMapping> stubMappings) {}
+
+        @Override
+        public void save(StubMapping stubMapping) {}
+
+        @Override
+        public void remove(UUID stubMappingId) {}
+
+        @Override
+        public void removeAll() {}
+      };
+
   void save(List<StubMapping> stubMappings);
 
   void save(StubMapping stubMapping);
@@ -36,5 +52,10 @@ public interface MappingsSaver {
   default void setAll(List<StubMapping> stubMappings) {
     removeAll();
     save(stubMappings);
+  }
+
+  default void mutate(List<StubMapping> toSave, List<UUID> toRemove) {
+    save(toSave);
+    remove(toRemove);
   }
 }
