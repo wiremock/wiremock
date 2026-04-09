@@ -23,7 +23,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -91,7 +90,7 @@ class RemoveStubMappingsByMetadataPersistenceTest {
     clearInvocations(mappingsSource);
 
     wm.removeStubMappingsByMetadata(equalToJson("{ \"key1\": \"value1\" }"));
-    verify(mappingsSource, times(1)).mutate(eq(List.of()), removedCaptor.capture());
+    verify(mappingsSource, times(1)).remove(removedCaptor.capture());
     verifyNoMoreInteractions(mappingsSource);
 
     List<UUID> removedStubIds = removedCaptor.getValue();
@@ -137,7 +136,7 @@ class RemoveStubMappingsByMetadataPersistenceTest {
     wm.removeStubMappingsByMetadata(equalToJson("{ \"key1\": \"value1\" }"));
 
     assertThat(wm.listAllStubMappings().getMappings(), containsInAnyOrder(stub2, stub3, stub4));
-    verify(mappingsSource, times(1)).mutate(List.of(), List.of(stub1.getId()));
+    verify(mappingsSource, times(1)).remove(List.of(stub1.getId()));
 
     clearInvocations(mappingsSource);
 

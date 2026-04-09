@@ -53,9 +53,4 @@ public interface MappingsSaver {
     removeAll();
     save(stubMappings);
   }
-
-  default void mutate(List<StubMapping> toSave, List<UUID> toRemove) {
-    save(toSave);
-    remove(toRemove);
-  }
 }
