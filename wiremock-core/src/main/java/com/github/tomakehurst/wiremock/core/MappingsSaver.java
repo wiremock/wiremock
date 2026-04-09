@@ -55,7 +55,11 @@ public interface MappingsSaver {
   }
 
   default void mutate(List<StubMapping> toSave, List<UUID> toRemove) {
-    save(toSave);
-    remove(toRemove);
+    if (!toSave.isEmpty()) {
+      save(toSave);
+    }
+    if (!toRemove.isEmpty()) {
+      remove(toRemove);
+    }
   }
 }
