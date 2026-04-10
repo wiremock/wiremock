@@ -248,7 +248,7 @@ public class StoreBackedStubMappings implements StubMappings {
 
     afterStubsAltered(toAlterStubs);
 
-    return List.of();
+    return toRemove;
   }
 
   @Override
