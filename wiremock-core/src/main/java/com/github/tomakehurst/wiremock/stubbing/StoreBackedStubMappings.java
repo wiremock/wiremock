@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_MATCH;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
@@ -44,7 +45,10 @@ import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 
 public class StoreBackedStubMappings implements StubMappings {
@@ -229,6 +233,25 @@ public class StoreBackedStubMappings implements StubMappings {
   }
 
   @Override
+  public List<StubMapping> removeMappings(List<StubMapping> toRemove) {
+    List<StubMappingToAlter> toAlterStubs =
+        toRemove.stream().<StubMappingToAlter>map(RemoveStubMapping::new).toList();
+
+    beforeStubsAltered(toAlterStubs);
+
+    remove(toRemove.stream().filter(StubMapping::shouldBePersisted).toList());
+
+    for (StubMapping remove : toRemove) {
+      store.remove(remove.getId());
+      scenarios.onStubMappingRemoved(remove);
+    }
+
+    afterStubsAltered(toAlterStubs);
+
+    return toRemove;
+  }
+
+  @Override
   public StubMapping editMapping(StubMapping stubMapping) {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
@@ -263,6 +286,16 @@ public class StoreBackedStubMappings implements StubMappings {
     mappingsSaver.save(stubMapping);
   }
 
+  private void save(List<StubMapping> toSave) {
+    if (!toSave.isEmpty()) {
+      mappingsSaver.save(toSave);
+    }
+  }
+
+  private void setAll(List<StubMapping> toSave) {
+    mappingsSaver.setAll(toSave);
+  }
+
   private void remove(UUID stubMappingId) {
     mappingsSaver.remove(stubMappingId);
   }
@@ -271,16 +304,28 @@ public class StoreBackedStubMappings implements StubMappings {
     mappingsSaver.removeAll();
   }
 
-  private void mutate(List<StubMapping> toSave, List<StubMapping> toRemove) {
-    List<UUID> ids =
-        toRemove.stream().filter(StubMapping::shouldBePersisted).map(StubMapping::getId).toList();
-    if (!toSave.isEmpty() || !ids.isEmpty()) {
-      mappingsSaver.mutate(toSave, ids);
+  private void remove(List<StubMapping> toRemove) {
+    if (!toRemove.isEmpty()) {
+      mappingsSaver.remove(toRemove.stream().map(StubMapping::getId).toList());
     }
   }
 
   @Override
-  public List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove) {
+  public List<StubMapping> updateMappings(List<StubMapping> toInsert) {
+    return updateMappings(toInsert, List.of(), this::save);
+  }
+
+  public List<StubMapping> setAllMappings(List<StubMapping> stubMappings) {
+    Set<UUID> ids = stubMappings.stream().map(StubMapping::getId).collect(Collectors.toSet());
+    List<StubMapping> toRemove =
+        getAll().stream().filter(mapping -> !ids.contains(mapping.getId())).toList();
+    return updateMappings(stubMappings, toRemove, this::setAll);
+  }
+
+  private @NonNull List<StubMapping> updateMappings(
+      List<StubMapping> toInsert,
+      List<StubMapping> toRemove,
+      Consumer<List<StubMapping>> persister) {
     List<StubMappingToAlter> toAlterStubs =
         Stream.concat(
                 toInsert.stream()
@@ -294,9 +339,10 @@ public class StoreBackedStubMappings implements StubMappings {
                 toRemove.stream().<StubMappingToAlter>map(RemoveStubMapping::new))
             .toList();
 
-    for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.beforeStubsAltered(toAlterStubs);
-    }
+    List<StubMappingToAlter> toNotify =
+        toAlterStubs.stream().filter(not(StoreBackedStubMappings::isUnchanged)).toList();
+
+    beforeStubsAltered(toNotify);
 
     List<StubMapping> toSave = new ArrayList<>();
     List<StubMapping> newPersisted = new ArrayList<>();
@@ -322,8 +368,9 @@ public class StoreBackedStubMappings implements StubMappings {
 
     // The call to `store.add` returns a changed stub (adds an insertion index), so we have to
     // undo if the add fails
+    toSave.sort(Comparator.comparingLong(StubMapping::getInsertionIndex).reversed());
     try {
-      mutate(toSave, toRemove);
+      persister.accept(toSave);
     } catch (Exception e) {
       for (StubMapping add : newPersisted) {
         store.remove(add.getId());
@@ -346,12 +393,30 @@ public class StoreBackedStubMappings implements StubMappings {
       }
     }
 
-    for (StubLifecycleListener listener : stubLifecycleListeners) {
-      listener.afterStubsAltered(
-          toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList());
-    }
+    afterStubsAltered(toNotify);
 
     return result;
+  }
+
+  private static boolean isUnchanged(StubMappingToAlter stubMappingToAlter) {
+    return stubMappingToAlter instanceof EditStubMapping editStubMapping
+        && Objects.equals(editStubMapping.newStub, editStubMapping.oldStub)
+        && Objects.equals(editStubMapping.newStub.getName(), editStubMapping.oldStub.getName());
+  }
+
+  private void beforeStubsAltered(List<StubMappingToAlter> toAlterStubs) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.beforeStubsAltered(toAlterStubs);
+    }
+  }
+
+  private void afterStubsAltered(List<StubMappingToAlter> toAlterStubs) {
+    List<AlteredStubMapping> toNotifyAsAltered =
+        toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList();
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubsAltered(toNotifyAsAltered);
+    }
   }
 
   @Override

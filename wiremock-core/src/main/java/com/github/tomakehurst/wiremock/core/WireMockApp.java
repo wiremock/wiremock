@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import static com.github.tomakehurst.wiremock.common.ListFunctions.indexBy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePolicy.OVERWRITE;
+import static java.util.stream.Collectors.toSet;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
@@ -376,9 +379,11 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void saveMappings() {
-    for (StubMapping stubMapping : stubMappings.getAll()) {
-      stubMappings.editMapping(stubMapping.transform(b -> b.setPersistent(true)));
-    }
+    List<StubMapping> allPersistent =
+        stubMappings.getAll().stream()
+            .map(stubMapping -> stubMapping.transform(b -> b.setPersistent(true)))
+            .toList();
+    stubMappings.setAllMappings(allPersistent);
   }
 
   @Override
@@ -599,7 +604,7 @@ public class WireMockApp implements StubServer, Admin {
     return requestJournal.getAllServeEvents().stream()
         .filter(event -> event.getStubMapping() != null)
         .map(event -> event.getStubMapping().getId())
-        .collect(Collectors.toSet());
+        .collect(toSet());
   }
 
   @Override
@@ -629,33 +634,34 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void importStubs(StubImport stubImport) {
-    List<StubMapping> mappings = stubImport.getMappings();
+    List<StubMapping> mappingsToImport = stubImport.getMappings();
     StubImport.Options importOptions =
         getFirstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
 
-    List<StubMapping> mappingsToInsert = new ArrayList<>();
-    for (int i = mappings.size() - 1; i >= 0; i--) {
-      StubMapping mapping = mappings.get(i);
-      if (getStubMapping(mapping.getId()).isPresent()) {
-        if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-          mappingsToInsert.add(mapping);
+    Map<UUID, StubMapping> existing = indexBy(stubMappings.getAll(), StubMapping::getId);
+
+    boolean settingAllMappings = importOptions.getDeleteAllNotInImport() == true;
+
+    List<StubMapping> inputToStubMappings = new ArrayList<>(mappingsToImport.size());
+    if (importOptions.getDuplicatePolicy() == OVERWRITE) {
+      inputToStubMappings.addAll(mappingsToImport);
+    } else {
+      for (StubMapping mapping : mappingsToImport) {
+        var existingMapping = existing.get(mapping.getId());
+        if (existingMapping == null) {
+          inputToStubMappings.add(mapping);
+        } else if (settingAllMappings) {
+          inputToStubMappings.add(existingMapping);
         }
-      } else {
-        mappingsToInsert.add(mapping);
       }
     }
 
-    if (importOptions.getDeleteAllNotInImport()) {
-      Set<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toSet());
-      List<StubMapping> mappingsToRemove = new ArrayList<>();
-      for (StubMapping mapping : listAllStubMappings().getMappings()) {
-        if (!ids.contains(mapping.getId())) {
-          mappingsToRemove.add(mapping);
-        }
-      }
-      stubMappings.updateMappings(mappingsToInsert, mappingsToRemove);
+    Collections.reverse(inputToStubMappings);
+
+    if (settingAllMappings) {
+      stubMappings.setAllMappings(inputToStubMappings);
     } else {
-      stubMappings.updateMappings(mappingsToInsert, List.of());
+      stubMappings.updateMappings(inputToStubMappings);
     }
   }
 
@@ -670,7 +676,7 @@ public class WireMockApp implements StubServer, Admin {
                 })
             .toList();
     if (!toRemove.isEmpty()) {
-      this.stubMappings.updateMappings(List.of(), toRemove);
+      this.stubMappings.removeMappings(toRemove);
     }
   }
 

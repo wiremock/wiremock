@@ -90,9 +90,7 @@ class MappingsSaveRollbackTest {
     wm.addStubMapping(stub1);
     wm.addStubMapping(stub2);
 
-    doThrow(new RuntimeException("delete failed"))
-        .when(mappingsSource)
-        .mutate(any(List.class), any(List.class));
+    doThrow(new RuntimeException("delete failed")).when(mappingsSource).remove(any(List.class));
 
     assertThrows(RuntimeException.class, () -> wm.removeStubMappings(List.of(stub1, stub2)));
 
@@ -102,9 +100,7 @@ class MappingsSaveRollbackTest {
 
   @Test
   void rollsBackImportWhenSaveFails() {
-    doThrow(new RuntimeException("save failed"))
-        .when(mappingsSource)
-        .mutate(any(List.class), any(List.class));
+    doThrow(new RuntimeException("save failed")).when(mappingsSource).save(any(List.class));
 
     StubMapping stub = get("/imported").persistent(true).willReturn(ok()).build();
 
@@ -120,9 +116,7 @@ class MappingsSaveRollbackTest {
     StubMapping existing = get("/existing").persistent(true).willReturn(ok()).build();
     wm.addStubMapping(existing);
 
-    doThrow(new RuntimeException("save failed"))
-        .when(mappingsSource)
-        .mutate(any(List.class), any(List.class));
+    doThrow(new RuntimeException("save failed")).when(mappingsSource).setAll(any(List.class));
 
     StubMapping imported = post("/imported").persistent(true).willReturn(ok()).build();
 

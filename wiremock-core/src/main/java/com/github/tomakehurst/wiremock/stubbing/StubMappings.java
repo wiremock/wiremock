@@ -28,9 +28,13 @@ public interface StubMappings {
 
   StubMapping removeMapping(StubMapping mapping);
 
+  List<StubMapping> removeMappings(List<StubMapping> toRemove);
+
   StubMapping editMapping(StubMapping stubMapping);
 
-  List<StubMapping> updateMappings(List<StubMapping> toInsert, List<StubMapping> toRemove);
+  List<StubMapping> updateMappings(List<StubMapping> stubMappings);
+
+  List<StubMapping> setAllMappings(List<StubMapping> stubMappings);
 
   void reset();
 
