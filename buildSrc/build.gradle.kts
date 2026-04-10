@@ -13,7 +13,7 @@ dependencies {
   implementation("com.diffplug.gradle.spotless:com.diffplug.gradle.spotless.gradle.plugin:6.25.0")
   implementation("com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:8.1.1")
   implementation("org.sonarqube:org.sonarqube.gradle.plugin:6.2.0.5505")
-  implementation("com.vanniktech.maven.publish.base:com.vanniktech.maven.publish.base.gradle.plugin:0.35.0")
+  implementation("com.vanniktech.maven.publish.base:com.vanniktech.maven.publish.base.gradle.plugin:0.36.0")
 }
 
 java {
