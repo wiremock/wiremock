@@ -10,7 +10,7 @@ hamcrest = "3.0"
 mockito = "5.23.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
-archunit = "1.4.1"
+archunit = "1.4.2"
 
 [libraries]
 # Jetty dependencies
