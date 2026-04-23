@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.Pair.pair;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 
-public class DateTimeParserTest {
+class DateTimeParserTest {
 
   @Test
-  public void parsesFromDateTimeFormatter() {
+  void parsesFromDateTimeFormatter() {
     DateTimeParser parser = DateTimeParser.forFormatter(DateTimeFormatter.ISO_DATE_TIME);
     assertThat(
         parser.parseZonedDateTime("2021-06-23T11:12:13Z"),
@@ -37,7 +44,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesZonedFromFormatString() {
+  void parsesZonedFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy HH:mm:ss Z");
     assertThat(
         parser.parseZonedDateTime("23/06/2021 11:22:33 +0000"),
@@ -45,7 +52,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesLocalDateTimeFromFormatString() {
+  void parsesLocalDateTimeFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy HH:mm:ss");
     assertThat(
         parser.parseLocalDateTime("23/06/2021 11:12:13"),
@@ -53,25 +60,25 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesLocalDateFromFormatString() {
+  void parsesLocalDateFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy");
     assertThat(parser.parseLocalDate("23/06/2021"), is(LocalDate.parse("2021-06-23")));
   }
 
   @Test
-  public void parsesYearMonthFromFormatString() {
+  void parsesYearMonthFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("MM/yyyy");
     assertThat(parser.parseYearMonth("06/2021"), is(YearMonth.parse("2021-06")));
   }
 
   @Test
-  public void parsesYearFromFormatString() {
+  void parsesYearFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("yy");
     assertThat(parser.parseYear("21"), is(Year.parse("2021")));
   }
 
   @Test
-  public void parsesUnix() {
+  void parsesUnix() {
     DateTimeParser parser = DateTimeParser.forFormat("unix");
     assertThat(
         parser.parseZonedDateTime("1624447353"), is(ZonedDateTime.parse("2021-06-23T11:22:33Z")));
@@ -81,7 +88,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesEpoch() {
+  void parsesEpoch() {
     DateTimeParser parser = DateTimeParser.forFormat("epoch");
     assertThat(
         parser.parseZonedDateTime("1624447353000"),
@@ -89,5 +96,32 @@ public class DateTimeParserTest {
 
     assertThat(
         parser.parseLocalDateTime("1624447353000"), is(LocalDateTime.parse("2021-06-23T11:22:33")));
+  }
+
+  private static final List<Pair<String, ZonedDateTime>> parseZonedDateTimeTestCases =
+      Stream.of(
+              pair("2021-06-23T11:12:13Z", "2021-06-23T11:12:13Z"),
+              pair("2021-06-23T11:12:13+01:00", "2021-06-23T11:12:13+01:00"),
+              pair("2021-06-23T11:12:13-01:00", "2021-06-23T11:12:13-01:00"),
+              pair("2021-06-23T11:12:13 01:00", "2021-06-23T11:12:13+01:00"),
+              pair("2021-06-23T11:12:13.000+01:00", "2021-06-23T11:12:13.000+01:00"),
+              pair("2021-06-23T11:12:13.000 01:00", "2021-06-23T11:12:13.000+01:00"),
+              pair("2021-06-23T11:12:13.000000000+01:00", "2021-06-23T11:12:13.000000000+01:00"),
+              pair("2021-06-23T11:12:13.000000000 01:00", "2021-06-23T11:12:13.000000000+01:00"))
+          .map(pair -> pair(pair.a, ZonedDateTime.parse(pair.b)))
+          .toList();
+
+  @ParameterizedTest
+  @FieldSource("parseZonedDateTimeTestCases")
+  void acceptsSpaceForPlusInIsoDateTime(Pair<String, ZonedDateTime> testCase) {
+    DateTimeParser parser = DateTimeParser.forFormatter(DateTimeFormatter.ISO_DATE_TIME);
+    assertThat(parser.parseZonedDateTime(testCase.a), is(testCase.b));
+  }
+
+  @Test
+  void throwsDateTimeParseExceptionForFormatter() {
+    DateTimeParser parser = DateTimeParser.forFormatter(DateTimeFormatter.ISO_DATE_TIME);
+    assertThatExceptionOfType(DateTimeParseException.class)
+        .isThrownBy(() -> parser.parseZonedDateTime("2021-06-23T11:12:13 30:00"));
   }
 }

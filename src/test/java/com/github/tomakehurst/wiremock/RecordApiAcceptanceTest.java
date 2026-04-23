@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,10 +31,13 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithFailure;
+import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import java.util.UUID;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -463,6 +466,55 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         equalToJson(NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER));
   }
 
+  private static final String TRANSFORMED_STUB_MAPPING_REQUEST_WITH_SERVE_EVENT =
+      "{                                    \n"
+          + "    \"outputFormat\": \"full\",      \n"
+          + "    \"persist\": \"false\",          \n"
+          + "    \"transformers\": [              \n"
+          + "       \"stub-transformer-with-serve-event\"     \n"
+          + "    ]                                \n"
+          + "}                                      ";
+
+  private static final String TRANSFORMED_STUB_MAPPING_RESPONSE_WITH_SERVE_EVENT =
+      "{                                                           \n"
+          + "    \"mappings\": [                                         \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/foo?transformed=first-value\", \n"
+          + "                \"method\" : \"GET\"                        \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        },                                                   \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/?transformed=value-2\",        \n"
+          + "                \"method\" : \"GET\"                        \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                  \n"
+          + "    ]                                                       \n"
+          + "}                                                             ";
+
+  @Test
+  public void returnsTransformedStubMappingWithTransformerWithServeEvent() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithServeEvent.class));
+
+    proxyingTestClient.get("/?some-query=value-2");
+    proxyingTestClient.get("/foo?some-query=first-value");
+
+    assertThat(
+        proxyingTestClient.snapshot(TRANSFORMED_STUB_MAPPING_REQUEST_WITH_SERVE_EVENT),
+        equalToJson(
+            TRANSFORMED_STUB_MAPPING_RESPONSE_WITH_SERVE_EVENT, JSONCompareMode.STRICT_ORDER));
+  }
+
   private static final String RECORD_WITH_CAPTURE_HEADERS_SNAPSHOT_REQUEST_TEMPLATE =
       "{                                      \n"
           + "    \"targetBaseUrl\": \"%s\",         \n"
@@ -534,8 +586,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     proxyingTestClient.put(
         "/foo/bar", withHeader("Accept", "text/plain"), withHeader("X-Another", "blah"));
 
-    WireMockResponse response =
-        proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
     assertThat(
         response.content(),
         equalToJson(RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE, JSONCompareMode.STRICT_ORDER));
@@ -562,5 +613,161 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         proxyingTestClient.postWithBody("/__admin/recordings/stop", "", "text/plain", "utf-8");
 
     assertThat(response.content(), equalToJson(NOT_RECORDING_ERROR));
+  }
+
+  @Test
+  public void returnsTransformedStubMappingWithTransformerWithFailures() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithFailure.class));
+
+    proxyingTestClient.postJson("/", "{}");
+    proxyingTestClient.get("/foo");
+    proxyingTestClient.postJson("/foo", "{}");
+
+    assertThat(
+        proxyingTestClient.snapshot(
+            """
+            {
+              "outputFormat": "full",
+              "persist": "false",
+              "transformers": [
+                "stub-transformer-with-failure"
+              ]
+            }
+        """),
+        equalToJson(
+            """
+                {
+                  "mappings": [
+                    {
+                      "request" : {
+                        "url" : "/foo?transformed=success",
+                        "method" : "GET"
+                      },
+                      "response" : {
+                        "status" : 200
+                      }
+                    }
+                  ],
+                  "errors": [
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST /foo not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/foo"
+                        }
+                      }
+                    },
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST / not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """,
+            JSONCompareMode.STRICT_ORDER));
+  }
+
+  @Test
+  public void returnsTransformedStubMappingIdsWithTransformerWithFailures() {
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(StubMappingTransformerWithFailure.class));
+
+    proxyingTestClient.postJson("/", "{}");
+    proxyingTestClient.get("/foo");
+    proxyingTestClient.postJson("/foo", "{}");
+
+    assertThat(
+        proxyingTestClient.snapshot(
+            """
+            {
+              "outputFormat": "ids",
+              "persist": "false",
+              "transformers": [
+                "stub-transformer-with-failure"
+              ]
+            }
+        """),
+        jsonEquals(
+                """
+                {
+                  "ids": [
+                    "${json-unit.any-string}"
+                  ],
+                  "errors": [
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST /foo not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/foo"
+                        }
+                      }
+                    },
+                    {
+                      "errorType": "stub-generation-failure",
+                      "reason": "POST / not allowed",
+                      "originalServeEvent": {
+                        "request": {
+                          "url": "/"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """)
+            .withOptions(List.of(Option.IGNORING_EXTRA_FIELDS)));
+  }
+
+  private static final String QUERY_METHOD_SNAPSHOT_REQUEST =
+      "{                                      \n"
+          + "    \"outputFormat\": \"full\",        \n"
+          + "    \"persist\": \"false\"             \n"
+          + "}                                        ";
+
+  private static final String QUERY_METHOD_SNAPSHOT_RESPONSE =
+      "{                                                           \n"
+          + "    \"mappings\": [                                         \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/search/users\",                \n"
+          + "                \"method\" : \"QUERY\",                     \n"
+          + "                \"bodyPatterns\" : [                        \n"
+          + "                    {                                       \n"
+          + "                        \"equalToJson\" : \"{\\\"name\\\":\\\"John\\\"}\",\n"
+          + "                        \"ignoreArrayOrder\" : true,        \n"
+          + "                        \"ignoreExtraElements\" : true      \n"
+          + "                    }                                       \n"
+          + "                ]                                           \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                   \n"
+          + "    ]                                                       \n"
+          + "}                                                             ";
+
+  @Test
+  public void recordsQueryMethodRequestsWithBody() {
+    proxyServerStartWithEmptyFileRoot();
+
+    // Make a QUERY request with a JSON body
+    proxyingTestClient.queryJson("/search/users", "{\"name\":\"John\"}");
+
+    String actual = proxyingTestClient.snapshot(QUERY_METHOD_SNAPSHOT_REQUEST);
+    assertThat(actual, equalToJson(QUERY_METHOD_SNAPSHOT_RESPONSE, JSONCompareMode.LENIENT));
+
+    // Should have persisted the stub mapping (2 = 1 proxy + 1 recorded)
+    assertEquals(2, proxyingService.getStubMappings().size());
   }
 }

@@ -1,0 +1,581 @@
+/*
+ * Copyright (C) 2022-2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.stubbing;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.Pair.pair;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_MATCH;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
+import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
+
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
+import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.AlteredStubMapping;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToAlter;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToCreate;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToEdit;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener.StubMappingToRemove;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.StubMappingStore;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+
+public class StoreBackedStubMappings implements StubMappings {
+
+  protected final StubMappingStore store;
+  protected final Scenarios scenarios;
+  protected final Map<String, RequestMatcherExtension> customMatchers;
+
+  @SuppressWarnings("deprecation")
+  protected final Map<String, ResponseDefinitionTransformer> transformers;
+
+  protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
+  protected final FileSource filesFileSource;
+  protected final List<StubLifecycleListener> stubLifecycleListeners;
+  protected final Map<String, ServeEventListener> serveEventListeners;
+  private final MappingsSaver mappingsSaver;
+
+  public StoreBackedStubMappings(
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      @SuppressWarnings("deprecation") Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners,
+      MappingsSaver mappingsSaver) {
+    this.store = store;
+    this.scenarios = scenarios;
+    this.customMatchers = customMatchers;
+    this.transformers = transformers;
+    this.v2transformers = v2transformers;
+    this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
+    this.stubLifecycleListeners = stubLifecycleListeners;
+    this.serveEventListeners = serveEventListeners;
+    this.mappingsSaver = mappingsSaver;
+  }
+
+  @Override
+  public ServeEvent serveFor(ServeEvent initialServeEvent) {
+    initialServeEvent = initialServeEvent.withIdDecoratedRequest();
+    final LoggedRequest request = initialServeEvent.getRequest();
+
+    final List<SubEvent> subEvents = new LinkedList<>();
+
+    StubMapping matchingStub =
+        store
+            .findAllMatchingRequest(request, customMatchers, subEvents::add)
+            .filter(
+                stubMapping ->
+                    stubMapping.isIndependentOfScenarioState()
+                        || scenarios.mappingMatchesScenarioState(stubMapping))
+            .findFirst()
+            .orElse(StubMapping.NOT_CONFIGURED);
+
+    subEvents.forEach(initialServeEvent::appendSubEvent);
+
+    scenarios.onStubServed(matchingStub);
+
+    final ResponseDefinition initialResponseDefinition = matchingStub.getResponse();
+    ServeEvent serveEvent =
+        initialServeEvent
+            .withStubMapping(matchingStub)
+            .withResponseDefinition(initialResponseDefinition)
+            .withPathParamDecoratedRequest();
+
+    triggerListeners(serveEventListeners, AFTER_MATCH, serveEvent);
+
+    ResponseDefinition responseDefinition =
+        applyV1Transformations(
+            request, matchingStub.getResponse(), List.copyOf(transformers.values()));
+
+    serveEvent = serveEvent.withResponseDefinition(responseDefinition);
+
+    final Pair<ServeEvent, ResponseDefinition> transformed =
+        applyV2Transformations(serveEvent, List.copyOf(v2transformers.values()));
+    serveEvent = transformed.a;
+    responseDefinition = transformed.b;
+
+    return serveEvent.withResponseDefinition(copyOf(responseDefinition));
+  }
+
+  private ResponseDefinition applyV1Transformations(
+      Request request,
+      ResponseDefinition responseDefinition,
+      @SuppressWarnings("deprecation") List<ResponseDefinitionTransformer> transformers) {
+
+    if (transformers.isEmpty()) {
+      return responseDefinition;
+    }
+
+    @SuppressWarnings("deprecation")
+    ResponseDefinitionTransformer transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(
+                request,
+                responseDefinition,
+                filesFileSource,
+                responseDefinition.getTransformerParameters())
+            : responseDefinition;
+
+    return applyV1Transformations(
+        request, newResponseDef, transformers.subList(1, transformers.size()));
+  }
+
+  private Pair<ServeEvent, ResponseDefinition> applyV2Transformations(
+      ServeEvent serveEvent, List<ResponseDefinitionTransformerV2> transformers) {
+
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+    if (transformers.isEmpty()) {
+      return pair(serveEvent, responseDefinition);
+    }
+
+    ResponseDefinitionTransformerV2 transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(serveEvent)
+            : responseDefinition;
+
+    return applyV2Transformations(
+        serveEvent.withResponseDefinition(newResponseDef),
+        transformers.subList(1, transformers.size()));
+  }
+
+  @Override
+  public StubMapping addMapping(StubMapping mapping) {
+    if (store.get(mapping.getId()).isPresent()) {
+      String msg =
+          "ID of the provided stub mapping '"
+              + mapping.getId()
+              + "' is already taken by another stub mapping";
+      notifier().error(msg);
+      throw new InvalidInputException(
+          Errors.singleWithDetail(109, "Duplicate stub mapping ID", msg));
+    }
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      mapping = listener.beforeStubCreated(mapping);
+    }
+
+    mapping = store.add(mapping);
+
+    // The call to `store.add` returns a changed stub (adds an insertion index), so we have to add
+    // and then undo if the add fails
+    if (mapping.shouldBePersisted()) {
+      try {
+        save(mapping);
+      } catch (Exception e) {
+        store.remove(mapping.getId());
+        throw e;
+      }
+    }
+
+    scenarios.onStubMappingAdded(mapping);
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubCreated(mapping);
+    }
+
+    return mapping;
+  }
+
+  @Override
+  public StubMapping removeMapping(StubMapping mapping) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.beforeStubRemoved(mapping);
+    }
+
+    if (mapping.shouldBePersisted()) {
+      remove(mapping.getId());
+    }
+    store.remove(mapping.getId());
+    scenarios.onStubMappingRemoved(mapping);
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubRemoved(mapping);
+    }
+
+    return mapping;
+  }
+
+  @Override
+  public List<StubMapping> removeMappings(List<StubMapping> toRemove) {
+    List<StubMappingToAlter> toAlterStubs =
+        toRemove.stream().<StubMappingToAlter>map(RemoveStubMapping::new).toList();
+
+    beforeStubsAltered(toAlterStubs);
+
+    remove(toRemove.stream().filter(StubMapping::shouldBePersisted).toList());
+
+    for (StubMapping remove : toRemove) {
+      store.remove(remove.getId());
+      scenarios.onStubMappingRemoved(remove);
+    }
+
+    afterStubsAltered(toAlterStubs);
+
+    return toRemove;
+  }
+
+  @Override
+  public StubMapping editMapping(StubMapping stubMapping) {
+    final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
+
+    if (optionalExistingMapping.isEmpty()) {
+      String msg = "StubMapping with UUID: " + stubMapping.getId() + " not found";
+      notifier().error(msg);
+      throw new NotFoundException(msg);
+    }
+
+    final StubMapping existingMapping = optionalExistingMapping.get();
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      stubMapping = listener.beforeStubEdited(existingMapping, stubMapping);
+    }
+
+    stubMapping =
+        stubMapping.transform(b -> b.setInsertionIndex(existingMapping.getInsertionIndex()));
+
+    if (stubMapping.shouldBePersisted()) {
+      save(stubMapping);
+    }
+    store.replace(existingMapping, stubMapping);
+    scenarios.onStubMappingUpdated(existingMapping, stubMapping);
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubEdited(existingMapping, stubMapping);
+    }
+
+    return stubMapping;
+  }
+
+  private void save(StubMapping stubMapping) {
+    mappingsSaver.save(stubMapping);
+  }
+
+  private void save(List<StubMapping> toSave) {
+    if (!toSave.isEmpty()) {
+      mappingsSaver.save(toSave);
+    }
+  }
+
+  private void setAll(List<StubMapping> toSave) {
+    mappingsSaver.setAll(toSave);
+  }
+
+  private void remove(UUID stubMappingId) {
+    mappingsSaver.remove(stubMappingId);
+  }
+
+  private void removeAllPersisted() {
+    mappingsSaver.removeAll();
+  }
+
+  private void remove(List<StubMapping> toRemove) {
+    if (!toRemove.isEmpty()) {
+      mappingsSaver.remove(toRemove.stream().map(StubMapping::getId).toList());
+    }
+  }
+
+  @Override
+  public List<StubMapping> updateMappings(List<StubMapping> toInsert) {
+    return updateMappings(toInsert, List.of(), this::save);
+  }
+
+  public List<StubMapping> setAllMappings(List<StubMapping> stubMappings) {
+    Set<UUID> ids = stubMappings.stream().map(StubMapping::getId).collect(Collectors.toSet());
+    List<StubMapping> toRemove =
+        getAll().stream().filter(mapping -> !ids.contains(mapping.getId())).toList();
+    return updateMappings(stubMappings, toRemove, this::setAll);
+  }
+
+  private @NonNull List<StubMapping> updateMappings(
+      List<StubMapping> toInsert,
+      List<StubMapping> toRemove,
+      Consumer<List<StubMapping>> persister) {
+    List<StubMappingToAlter> toAlterStubs =
+        Stream.concat(
+                toInsert.stream()
+                    .<StubMappingToAlter>map(
+                        (stub) -> {
+                          Optional<StubMapping> existingStub = store.get(stub.getId());
+                          return existingStub.isPresent()
+                              ? new EditStubMapping(existingStub.get(), stub)
+                              : new CreateStubMapping(stub);
+                        }),
+                toRemove.stream().<StubMappingToAlter>map(RemoveStubMapping::new))
+            .toList();
+
+    List<StubMappingToAlter> toNotify =
+        toAlterStubs.stream().filter(not(StoreBackedStubMappings::isUnchanged)).toList();
+
+    beforeStubsAltered(toNotify);
+
+    List<StubMapping> toSave = new ArrayList<>();
+    List<StubMapping> newPersisted = new ArrayList<>();
+    for (StubMappingToAlter alter : toAlterStubs) {
+      if (alter instanceof StubMappingToCreate create) {
+        // The call to `store.add` returns a changed stub (adds an insertion index), so we have to
+        // add and then undo if the add fails
+        StubMapping add = store.add(create.getStub());
+        create.setStub(add);
+        if (create.getStub().shouldBePersisted()) {
+          toSave.add(add);
+          newPersisted.add(add);
+        }
+      } else if (alter instanceof StubMappingToEdit edit) {
+        edit.setNewStub(
+            edit.getNewStub()
+                .transform(b -> b.setInsertionIndex(edit.getOldStub().getInsertionIndex())));
+        if (edit.getNewStub().shouldBePersisted()) {
+          toSave.add(edit.getNewStub());
+        }
+      }
+    }
+
+    // The call to `store.add` returns a changed stub (adds an insertion index), so we have to
+    // undo if the add fails
+    toSave.sort(Comparator.comparingLong(StubMapping::getInsertionIndex).reversed());
+    try {
+      persister.accept(toSave);
+    } catch (Exception e) {
+      for (StubMapping add : newPersisted) {
+        store.remove(add.getId());
+      }
+      throw e;
+    }
+
+    List<StubMapping> result = new ArrayList<>(toInsert.size());
+    for (StubMappingToAlter alter : toAlterStubs) {
+      if (alter instanceof StubMappingToCreate create) {
+        scenarios.onStubMappingAdded(create.getStub());
+        result.add(create.getStub());
+      } else if (alter instanceof StubMappingToEdit edit) {
+        store.replace(edit.getOldStub(), edit.getNewStub());
+        scenarios.onStubMappingUpdated(edit.getOldStub(), edit.getNewStub());
+        result.add(edit.getNewStub());
+      } else if (alter instanceof StubMappingToRemove remove) {
+        store.remove(remove.getStub().getId());
+        scenarios.onStubMappingRemoved(remove.getStub());
+      }
+    }
+
+    afterStubsAltered(toNotify);
+
+    return result;
+  }
+
+  private static boolean isUnchanged(StubMappingToAlter stubMappingToAlter) {
+    return stubMappingToAlter instanceof EditStubMapping editStubMapping
+        && Objects.equals(editStubMapping.newStub, editStubMapping.oldStub)
+        && Objects.equals(editStubMapping.newStub.getName(), editStubMapping.oldStub.getName());
+  }
+
+  private void beforeStubsAltered(List<StubMappingToAlter> toAlterStubs) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.beforeStubsAltered(toAlterStubs);
+    }
+  }
+
+  private void afterStubsAltered(List<StubMappingToAlter> toAlterStubs) {
+    List<AlteredStubMapping> toNotifyAsAltered =
+        toAlterStubs.stream().map(toAlter -> (AlteredStubMapping) toAlter).toList();
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubsAltered(toNotifyAsAltered);
+    }
+  }
+
+  @Override
+  public void reset() {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.beforeStubsReset();
+    }
+
+    store.clear();
+    scenarios.clear();
+
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
+      listener.afterStubsReset();
+    }
+  }
+
+  @Override
+  public void resetMappings() {
+    removeAllPersisted();
+    reset();
+  }
+
+  @Override
+  public void resetScenarios() {
+    scenarios.reset();
+  }
+
+  @Override
+  public List<StubMapping> getAll() {
+    return store.getAll().collect(toList());
+  }
+
+  @Override
+  public Optional<StubMapping> get(final UUID id) {
+    return store.get(id);
+  }
+
+  @Override
+  public List<Scenario> getAllScenarios() {
+    return scenarios.getAll();
+  }
+
+  @Override
+  public List<StubMapping> findByMetadata(final StringValuePattern pattern) {
+    return store
+        .getAll()
+        .filter(
+            stubMapping -> {
+              String metadataJson = Json.write(stubMapping.getMetadata());
+              return pattern.match(metadataJson).isExactMatch();
+            })
+        .collect(toList());
+  }
+
+  @NullMarked
+  public static final class CreateStubMapping implements StubMappingToCreate {
+    private StubMapping stub;
+
+    public CreateStubMapping(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public StubMapping getStub() {
+      return stub;
+    }
+
+    @Override
+    public void setStub(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof CreateStubMapping that)) return false;
+      return Objects.equals(stub, that.stub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(stub);
+    }
+
+    @Override
+    public String toString() {
+      return "CreateStubMapping{" + "stub=" + stub + '}';
+    }
+  }
+
+  @NullMarked
+  public static final class EditStubMapping implements StubMappingToEdit {
+    private final StubMapping oldStub;
+    private StubMapping newStub;
+
+    public EditStubMapping(StubMapping oldStub, StubMapping newStub) {
+      this.oldStub = oldStub;
+      this.newStub = newStub;
+    }
+
+    @Override
+    public StubMapping getOldStub() {
+      return oldStub;
+    }
+
+    @Override
+    public StubMapping getNewStub() {
+      return newStub;
+    }
+
+    @Override
+    public void setNewStub(StubMapping newStub) {
+      this.newStub = newStub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof EditStubMapping that)) return false;
+      return Objects.equals(oldStub, that.oldStub) && Objects.equals(newStub, that.newStub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(oldStub, newStub);
+    }
+
+    @Override
+    public String toString() {
+      return "EditStubMapping{" + "oldStub=" + oldStub + ", newStub=" + newStub + '}';
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeRecord")
+  @NullMarked
+  public static final class RemoveStubMapping implements StubMappingToRemove {
+    private final StubMapping stub;
+
+    public RemoveStubMapping(StubMapping stub) {
+      this.stub = stub;
+    }
+
+    @Override
+    public StubMapping getStub() {
+      return stub;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof RemoveStubMapping that)) return false;
+      return Objects.equals(stub, that.stub);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(stub);
+    }
+
+    @Override
+    public String toString() {
+      return "RemoveStubMapping{" + "stub=" + stub + '}';
+    }
+  }
+}

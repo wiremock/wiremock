@@ -1,0 +1,21 @@
+title: JSON equals
+type: object
+properties:
+  equalToJson:
+    oneOf:
+      - type: object
+        description: The JSON object to match.
+        example:
+          message: hello
+      - type: string
+        x-intellij-language-injection: JSON
+        description: A JSON-encoded JSON string to match.
+        example: |-
+          { "message": "hello" }
+  ignoreExtraElements:
+    type: boolean
+  ignoreArrayOrder:
+    type: boolean
+
+required:
+  - equalToJson

@@ -38,9 +38,9 @@ public class MockWireMockServices implements WireMockServices {
 
   private Map<String, Helper<?>> helpers = emptyMap();
   private Long maxCacheEntries = null;
-  private Supplier<TemplateEngine> templateEngine =
+  private final Supplier<TemplateEngine> templateEngine =
       Suppliers.memoize(
-          () -> new TemplateEngine(helpers, maxCacheEntries, null, false, emptyList()));
+          () -> new TemplateEngine(helpers, maxCacheEntries, null, true, emptyList()));
 
   @Override
   public Admin getAdmin() {

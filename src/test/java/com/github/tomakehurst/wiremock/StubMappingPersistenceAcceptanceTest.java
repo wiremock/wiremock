@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasFileContaining;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
@@ -207,6 +209,22 @@ public class StubMappingPersistenceAcceptanceTest {
 
     assertThat(retrivedStub.isPersistent(), notNullValue());
     assertThat(retrivedStub.isPersistent(), is(false));
+  }
+
+  @Test
+  public void deletesStubRemovedByRequestMatch() {
+    StubMapping stubToRemove = wm.stubFor(get("/to-delete").persistent(true));
+    StubMapping otherStub = wm.stubFor(get("/other-stub").persistent(true));
+
+    assertThat(wm.getStubMappings(), containsInAnyOrder(stubToRemove, otherStub));
+    assertThat(mappingsDir, hasFileContaining("/to-delete"));
+    assertThat(mappingsDir, hasFileContaining("/other-stub"));
+
+    wm.removeStub(get("/to-delete").withId(UUID.randomUUID()));
+
+    assertThat(wm.getStubMappings(), containsInAnyOrder(otherStub));
+    assertThat(mappingsDir, not(hasFileContaining("/to-delete")));
+    assertThat(mappingsDir, hasFileContaining("/other-stub"));
   }
 
   private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {

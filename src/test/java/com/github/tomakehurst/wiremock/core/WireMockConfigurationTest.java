@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,64 +16,14 @@
 package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.Optional;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.Test;
 
 public class WireMockConfigurationTest {
-
-  @Test
-  public void testJettyStopTimeout() {
-    Long expectedStopTimeout = 500L;
-    WireMockConfiguration wireMockConfiguration =
-        WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
-    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
-
-    assertThat(jettyStopTimeout.isPresent(), is(true));
-    assertThat(jettyStopTimeout.get(), is(expectedStopTimeout));
-  }
-
-  @Test
-  public void testJettyStopTimeoutNotSet() {
-    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
-    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
-    assertThat(jettyStopTimeout.isPresent(), is(false));
-  }
-
-  @Test
-  public void testJettyIdleTimeout() {
-    Long expectedIdleTimeout = 500L;
-    WireMockConfiguration wireMockConfiguration =
-        WireMockConfiguration.wireMockConfig().jettyIdleTimeout(expectedIdleTimeout);
-    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
-
-    assertThat(jettyIdleTimeout.isPresent(), is(true));
-    assertThat(jettyIdleTimeout.get(), is(expectedIdleTimeout));
-  }
-
-  @Test
-  public void testJettyIdleTimeoutNotSet() {
-    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
-    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
-    assertThat(jettyIdleTimeout.isPresent(), is(false));
-  }
-
-  @Test
-  public void shouldUseQueuedThreadPoolByDefault() {
-    int maxThreads = 20;
-    WireMockConfiguration wireMockConfiguration =
-        WireMockConfiguration.wireMockConfig().containerThreads(maxThreads);
-
-    QueuedThreadPool threadPool =
-        (QueuedThreadPool)
-            wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
-
-    assertThat(threadPool.getMaxThreads(), is(maxThreads));
-  }
 
   @Test
   public void testProxyPassThroughSetAsFalse() {
@@ -92,5 +42,17 @@ public class WireMockConfigurationTest {
   void maxTemplateCacheEntriesDefaultsWhenNotSpecified() {
     Options config = WireMockConfiguration.wireMockConfig();
     assertThat(config.getMaxTemplateCacheEntries(), is(DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES));
+  }
+
+  @Test
+  void setsWebhookThreadpoolSize() {
+    Options config = WireMockConfiguration.wireMockConfig().withWebhookThreadPoolSize(1000);
+    assertThat(config.getWebhookThreadPoolSize(), is(1000));
+  }
+
+  @Test
+  void webhookThreadpoolSizeWhenNotSpecified() {
+    Options config = WireMockConfiguration.wireMockConfig();
+    assertThat(config.getWebhookThreadPoolSize(), is(DEFAULT_WEBHOOK_THREADPOOL_SIZE));
   }
 }

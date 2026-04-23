@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.Path;
 
-public class FilenameMakerTest {
+class FilenameMakerTest {
 
   private FilenameMaker filenameMaker;
 
@@ -36,7 +37,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubNameWhenPresent() {
+  void generatesNameFromStubNameWhenPresent() {
     StubMapping mapping =
         WireMock.get("/named").withName("This is a NAMED stub").willReturn(ok()).build();
 
@@ -46,7 +47,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlWhenNameNotPresent() {
+  void generatesNameFromStubUrlWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping = WireMock.get(urlEqualTo("/named/123/things")).willReturn(ok()).build();
 
@@ -54,7 +55,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPathWhenNameNotPresent() {
+  void generatesNameFromStubUrlPathWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlPathEqualTo("/named/123/things")).willReturn(ok()).build();
@@ -63,7 +64,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPathTemplateWhenNameNotPresent() {
+  void generatesNameFromStubUrlPathTemplateWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlPathTemplate("/named/{id}/things")).willReturn(ok()).build();
@@ -72,7 +73,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPatternWhenNameNotPresent() {
+  void generatesNameFromStubUrlPatternWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlMatching("/named/([0-9]*)/things")).willReturn(ok()).build();
@@ -81,7 +82,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameWhenStubUrlIsAnyAndNameNotPresent() {
+  void generatesNameWhenStubUrlIsAnyAndNameNotPresent() {
     StubMapping mapping = WireMock.get(anyUrl()).willReturn(ok()).build();
 
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{id}}}.json");
@@ -90,8 +91,8 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void sanitizesUrlWithCharactersSafeForFilenames() {
-    String output = filenameMaker.sanitizeUrl("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?");
+  void sanitizesUrlWithCharactersSafeForFilenames() {
+    String output = filenameMaker.sanitizeUrl(Path.parse("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿"));
     assertThat(output, is("hello_1_2_3___ace--ace___and"));
   }
 
@@ -99,15 +100,16 @@ public class FilenameMakerTest {
   void generatesSanitizedFilename() {
     String filename =
         filenameMaker.filenameFor(
-            get("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?").willReturn(ok()).build());
+            get("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿").willReturn(ok()).build());
     assertThat(filename, startsWith("get-hello123__--aceand-"));
   }
 
   @Test
-  public void truncatesWhenResultingNameOver200Chars() {
+  void truncatesWhenResultingNameOver200Chars() {
     String output =
         filenameMaker.sanitizeUrl(
-            "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿?");
+            Path.parse(
+                "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿"));
     assertThat(output.length(), is(200));
   }
 

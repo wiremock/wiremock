@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,31 +25,36 @@ import static org.hamcrest.Matchers.empty;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
-import com.networknt.schema.*;
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.resource.ClasspathResourceLoader;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang3.RandomUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ContentPatternsJsonValidityTest {
 
-  static JsonSchemaFactory schemaFactory;
-  static SchemaValidatorsConfig config;
-  static JsonSchema schema;
+  static SchemaRegistry schemaRegistry;
+  static Schema schema;
 
   @BeforeAll
   static void init() {
-    config = SchemaValidatorsConfig.builder().build();
-
-    schemaFactory =
-        JsonSchemaFactory.getInstance(WireMock.JsonSchemaVersion.V202012.toVersionFlag());
+    schemaRegistry =
+        SchemaRegistry.withDefaultDialect(
+            WireMock.JsonSchemaVersion.V202012.toVersionFlag(),
+            builder ->
+                builder.resourceLoaders(
+                    loaders -> loaders.add(ClasspathResourceLoader.getInstance())));
 
     schema =
-        schemaFactory.getSchema(
-            SchemaLocation.of(TestFiles.fileUri("swagger/schemas/content-pattern.yaml").toString()),
-            config);
+        schemaRegistry.getSchema(
+            SchemaLocation.of("classpath:/swagger/schemas/content-pattern.yaml"));
   }
 
   @Test
@@ -347,11 +352,41 @@ public class ContentPatternsJsonValidityTest {
     assertThat(validate("{ \"includes\": \"blah\" }"), Matchers.not(empty()));
   }
 
-  private static Set<ValidationMessage> validate(Object obj) {
+  @Test
+  void equalToNumberValidates() {
+    assertThat(validate(equalToNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"equalToNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void greaterThanNumberValidates() {
+    assertThat(validate(greaterThanNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"greaterThanNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void greaterThanEqualNumberValidates() {
+    assertThat(validate(greaterThanEqualNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"greaterThanEqualNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void lessThanNumberValidates() {
+    assertThat(validate(lessThanNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"lessThanNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  @Test
+  void lessThanEqualNumberValidates() {
+    assertThat(validate(lessThanEqualNumber(RandomUtils.insecure().randomDouble())), empty());
+    assertThat(validate("{ \"lessThanEqualNumber\": \"not a number\" }"), Matchers.not(empty()));
+  }
+
+  private static List<Error> validate(Object obj) {
     return schema.validate(Json.write(obj), InputFormat.JSON);
   }
 
-  private static Set<ValidationMessage> validate(String json) {
+  private static List<Error> validate(String json) {
     return schema.validate(json, InputFormat.JSON);
   }
 }

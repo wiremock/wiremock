@@ -1,0 +1,7 @@
+type: object
+description: Result containing a single message serve event
+properties:
+  item:
+    $ref: 'message-serve-event.yaml'
+    description: The message serve event, or null if not found
+

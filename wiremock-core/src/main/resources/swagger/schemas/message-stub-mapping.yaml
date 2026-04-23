@@ -1,0 +1,30 @@
+type: object
+description: A message stub mapping defines how WireMock responds to messages on channels
+properties:
+  id:
+    type: string
+    format: uuid
+    description: This message stub mapping's unique identifier
+  uuid:
+    type: string
+    format: uuid
+    description: Alias for the id
+  name:
+    type: string
+    description: The message stub mapping's name
+  priority:
+    type: integer
+    description: This message stub mapping's priority relative to others. 1 is highest.
+    minimum: 1
+  trigger:
+    $ref: 'message-trigger.yaml'
+  actions:
+    type: array
+    description: Actions to perform when this stub is triggered
+    items:
+      $ref: 'message-action.yaml'
+  metadata:
+    type: object
+    description: Arbitrary metadata to be attached to the stub mapping
+    additionalProperties: true
+

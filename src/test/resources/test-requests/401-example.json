@@ -4,7 +4,9 @@
     "url": "/canned/resource/2"
   },
   "response": {
-    "headers": {"Content-Type": "text/plain"},
+    "headers": {
+      "Content-Type": "text/plain"
+    },
     "body": "Not allowed!",
     "status": 401
   }

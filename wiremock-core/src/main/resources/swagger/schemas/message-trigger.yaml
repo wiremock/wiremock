@@ -1,0 +1,41 @@
+oneOf:
+  - type: object
+    description: Trigger on incoming message
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        enum:
+          - message
+      channel:
+        $ref: 'channel-pattern.yaml'
+      message:
+        $ref: 'message-pattern.yaml'
+  - type: object
+    description: Trigger when a specific HTTP stub is matched
+    required:
+      - type
+      - stubId
+    properties:
+      type:
+        type: string
+        enum:
+          - http-stub
+      stubId:
+        type: string
+        format: uuid
+        description: The ID of the HTTP stub mapping that triggers this message stub
+  - type: object
+    description: Trigger when an HTTP request matches a pattern
+    required:
+      - type
+      - requestPattern
+    properties:
+      type:
+        type: string
+        enum:
+          - http-request
+      requestPattern:
+        $ref: 'request-pattern.yaml'
+

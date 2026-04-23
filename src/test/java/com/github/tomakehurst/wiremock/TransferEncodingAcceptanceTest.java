@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Thomas Akehurst
+ * Copyright (C) 2019-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -119,7 +119,7 @@ public class TransferEncodingAcceptanceTest {
         get(path)
             .willReturn(ok(String.valueOf('a').repeat(1234)).withHeader("Content-Length", "1234")));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpGet request = new HttpGet(wm.baseUrl() + path);
     try (final CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
@@ -135,7 +135,7 @@ public class TransferEncodingAcceptanceTest {
         get(path)
             .willReturn(ok(String.valueOf('a').repeat(1234)).withHeader("Content-Length", "1234")));
 
-    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    CloseableHttpClient httpClient = ApacheHttpClientFactory.createClient();
     HttpGet request = new HttpGet(wm.baseUrl() + path);
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));

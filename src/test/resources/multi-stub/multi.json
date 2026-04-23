@@ -1,23 +1,31 @@
-{"mappings": [
-  {
-    "request": {
-      "method": "GET",
-      "url": "/multi/1"
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/multi/1"
+      },
+      "response": {
+        "status": 200
+      }
     },
-    "response": {"status": 200}
-  },
-  {
-    "request": {
-      "method": "GET",
-      "url": "/multi/2"
+    {
+      "request": {
+        "method": "GET",
+        "url": "/multi/2"
+      },
+      "response": {
+        "status": 200
+      }
     },
-    "response": {"status": 200}
-  },
-  {
-    "request": {
-      "method": "GET",
-      "url": "/multi/3"
-    },
-    "response": {"status": 200}
-  }
-]}
+    {
+      "request": {
+        "method": "GET",
+        "url": "/multi/3"
+      },
+      "response": {
+        "status": 200
+      }
+    }
+  ]
+}

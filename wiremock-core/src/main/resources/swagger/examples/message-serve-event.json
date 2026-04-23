@@ -1,0 +1,51 @@
+{
+  "id": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+  "eventType": "RECEIVED",
+  "channelType": "websocket",
+  "channelId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "channelRequest": {
+    "url": "/ws/chat",
+    "absoluteUrl": "http://localhost:8080/ws/chat",
+    "method": "GET",
+    "clientIp": "127.0.0.1",
+    "headers": {
+      "Host": "localhost:8080",
+      "Upgrade": "websocket",
+      "Connection": "Upgrade"
+    },
+    "cookies": {},
+    "browserProxyRequest": false,
+    "loggedDate": 1609459200000,
+    "loggedDateString": "2021-01-01T00:00:00Z"
+  },
+  "message": "Hello, WebSocket!",
+  "stubMapping": {
+    "id": "730d3e32-d098-4169-a20c-554c3bedce58",
+    "name": "Echo WebSocket messages",
+    "trigger": {
+      "type": "message",
+      "channel": {
+        "type": "websocket",
+        "initiatingRequestPattern": {
+          "urlPath": "/ws/chat"
+        }
+      }
+    },
+    "actions": [
+      {
+        "type": "send",
+        "message": {
+          "body": {
+            "data": "Echo: Hello, WebSocket!"
+          }
+        },
+        "channelTarget": {
+          "type": "originating"
+        }
+      }
+    ]
+  },
+  "wasMatched": true,
+  "timestamp": "2021-01-01T00:00:00Z",
+  "subEvents": []
+}

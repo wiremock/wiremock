@@ -1,0 +1,261 @@
+/*
+ * Copyright (C) 2025-2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.wiremock.url;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.wiremock.url.SchemeRegistry.http;
+import static org.wiremock.url.SchemeRegistry.https;
+
+import java.util.List;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.wiremock.url.AuthorityTests.Parse.AuthorityParseTestCase;
+import org.wiremock.url.NormalisableInvariantTests.NormalisationCase;
+
+class HostAndPortTests {
+
+  @Test
+  void withoutPortRemovesPort() {
+    HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
+    assertThat(hostAndPort.withoutPort()).isEqualTo(HostAndPort.parse("example.com"));
+  }
+
+  @Test
+  void withoutPortDoesNothingIfNoPort() {
+    var hostAndPort = HostAndPort.parse("example.com");
+    assertThat(hostAndPort.withoutPort()).isSameAs(hostAndPort);
+  }
+
+  @Test
+  void withPortNullRemovesPort() {
+    HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
+    assertThat(hostAndPort.withPort(null)).isEqualTo(HostAndPort.parse("example.com"));
+  }
+
+  @Test
+  void withPortNullDoesNothingIfNoPort() {
+    var hostAndPort = HostAndPort.parse("example.com");
+    assertThat(hostAndPort.withPort(null)).isSameAs(hostAndPort);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"example.com", "example.com:80"})
+  void withPortChangesPort(String original) {
+    assertThat(HostAndPort.parse(original).withPort(Port.of(8080)))
+        .isEqualTo(HostAndPort.parse("example.com:8080"));
+  }
+
+  @Test
+  void withPortDoesNothingIfNoChangeInPort() {
+    var hostAndPort = HostAndPort.parse("example.com:8080");
+    assertThat(hostAndPort.withPort(Port.of(8080))).isSameAs(hostAndPort);
+  }
+
+  @TestFactory
+  Stream<DynamicTest> invariants() {
+    List<String> authorities =
+        validHostAndPorts.stream().map(AuthorityParseTestCase::stringForm).toList();
+    return StringParserInvariantTests.generateInvariantTests(
+        HostAndPortParser.INSTANCE, authorities);
+  }
+
+  private static final List<AuthorityParseTestCase> validHostAndPorts =
+      AuthorityTests.Parse.validHostAndPorts;
+
+  @ParameterizedTest
+  @FieldSource("validHostAndPorts")
+  void parses_valid_host_and_port(AuthorityParseTestCase urlTest) {
+    HostAndPort hostAndPort = HostAndPort.parse(urlTest.stringForm());
+    assertThat(hostAndPort.getUserInfo()).isNull();
+    assertThat(hostAndPort.getHost()).isEqualTo(urlTest.expectation().host());
+    assertThat(hostAndPort.getPort()).isEqualTo(urlTest.expectation().port());
+  }
+
+  private static final List<AuthorityParseTestCase> illegalHostAndPorts =
+      AuthorityTests.Parse.validAuthoritiesWithUserInfo;
+
+  @ParameterizedTest
+  @FieldSource("illegalHostAndPorts")
+  void rejects_illegal_host_and_port(AuthorityParseTestCase urlTest) {
+    assertThatThrownBy(() -> HostAndPort.parse(urlTest.stringForm()))
+        .isInstanceOf(IllegalHostAndPort.class)
+        .hasMessage("Illegal host and port: `" + urlTest.stringForm() + "`");
+  }
+
+  @Nested
+  class HostAndPortNormalise {
+
+    @Test
+    void normalise_returns_same_instance_when_already_normalised() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      HostAndPort normalised = hostAndPort.normalise();
+      assertThat(normalised).isSameAs(hostAndPort);
+    }
+
+    @Test
+    void normalise_normalises_host() {
+      HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:8080");
+      HostAndPort normalised = hostAndPort.normalise();
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
+      assertThat(normalised).isNotSameAs(hostAndPort);
+    }
+
+    @Test
+    void normalise_normalises_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:00080");
+      HostAndPort normalised = hostAndPort.normalise();
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:80"));
+      assertThat(normalised).isNotSameAs(hostAndPort);
+    }
+
+    @Test
+    void normalise_with_scheme_removes_default_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:80");
+      HostAndPort normalised = hostAndPort.normalise(http);
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(normalised.getPort()).isNull();
+    }
+
+    @Test
+    void normalise_with_scheme_keeps_non_default_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      HostAndPort normalised = hostAndPort.normalise(http);
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com:8080"));
+      assertThat(normalised.getPort()).isEqualTo(Port.of(8080));
+    }
+
+    @Test
+    void normalise_with_scheme_returns_same_instance_when_already_normalised() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com:8080");
+      HostAndPort normalised = hostAndPort.normalise(http);
+      assertThat(normalised).isSameAs(hostAndPort);
+    }
+
+    @Test
+    void normalise_with_scheme_normalises_host_and_removes_default_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:80");
+      HostAndPort normalised = hostAndPort.normalise(http);
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(normalised.getPort()).isNull();
+    }
+
+    @Test
+    void normalise_with_scheme_normalises_host_and_port() {
+      HostAndPort hostAndPort = HostAndPort.parse("EXAMPLE.COM:00443");
+      HostAndPort normalised = hostAndPort.normalise(https);
+      assertThat(normalised).isEqualTo(HostAndPort.parse("example.com"));
+      assertThat(normalised.getPort()).isNull();
+    }
+
+    @Test
+    void normalise_without_port_returns_same_instance() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com");
+      HostAndPort normalised = hostAndPort.normalise();
+      assertThat(normalised).isSameAs(hostAndPort);
+    }
+
+    @Test
+    void normalise_with_scheme_without_port_returns_same_instance() {
+      HostAndPort hostAndPort = HostAndPort.parse("example.com");
+      HostAndPort normalised = hostAndPort.normalise(http);
+      assertThat(normalised).isSameAs(hostAndPort);
+    }
+
+    static final List<NormalisationCase<Authority>> normalisationCases =
+        Stream.of(
+                Pair.of("EXAMPLE.COM:8080", "example.com:8080"),
+                Pair.of("EXAMPLE.COM:08080", "example.com:8080"),
+                Pair.of("example.com:08080", "example.com:8080"))
+            .map(
+                it ->
+                    new NormalisationCase<>(
+                        HostAndPort.parse(it.getLeft()), HostAndPort.parse(it.getRight())))
+            .toList();
+
+    @TestFactory
+    Stream<DynamicTest> normalises_hostAndPort_correctly() {
+      return NormalisableInvariantTests.generateNotNormalisedInvariantTests(normalisationCases);
+    }
+
+    static final List<HostAndPort> alreadyNormalisedAuthorities =
+        Stream.of("example.com", "example.com:8080").map(HostAndPort::parse).toList();
+
+    @TestFactory
+    Stream<DynamicTest> already_normalised_invariants() {
+      return NormalisableInvariantTests.generateNormalisedInvariantTests(
+          alreadyNormalisedAuthorities);
+    }
+  }
+
+  @Nested
+  class Initialisation extends AbstractInitialisationTests {
+    Initialisation() {
+      super("org.wiremock.url.HostAndPort", EMPTY, "org.wiremock.url.HostAndPortParser", "");
+    }
+
+    @Test
+    void of_initialises_as_expected() throws Exception {
+      try (IsolatedClassLoader classLoader = new IsolatedClassLoader()) {
+
+        var emptyHost = classLoader.load("org.wiremock.url.Host").field(EMPTY);
+        var empty =
+            classLoader
+                .load("org.wiremock.url.HostAndPort")
+                .invoke(
+                    "of",
+                    Pair.of("org.wiremock.url.Host", emptyHost),
+                    Pair.of("org.wiremock.url.Port", null));
+        assertThat(empty).hasToString("");
+
+        assertStaticFieldInitialised(classLoader);
+      }
+    }
+  }
+
+  @Nested
+  class AuthorityInitialisation extends AbstractInitialisationTests {
+    AuthorityInitialisation() {
+      super("org.wiremock.url.HostAndPort", EMPTY, "org.wiremock.url.AuthorityParser", "");
+    }
+
+    @Test
+    void of_initialises_as_expected() throws Exception {
+      try (IsolatedClassLoader classLoader = new IsolatedClassLoader()) {
+
+        var emptyHost = classLoader.load("org.wiremock.url.Host").field(EMPTY);
+        var empty =
+            classLoader
+                .load("org.wiremock.url.Authority")
+                .invoke(
+                    "of",
+                    Pair.of("org.wiremock.url.UserInfo", null),
+                    Pair.of("org.wiremock.url.Host", emptyHost),
+                    Pair.of("org.wiremock.url.Port", null));
+        assertThat(empty).hasToString("");
+
+        assertStaticFieldInitialised(classLoader);
+      }
+    }
+  }
+}

@@ -5,9 +5,10 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, v4.x ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, v4.x ]
+  workflow_dispatch:
 
 jobs:
   core:
@@ -15,29 +16,29 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [11, 17]
+        jdk: [17]
     runs-on: ${{ matrix.os }}
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up JDK
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.jdk }}
         distribution: 'temurin'
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
       with:
         validate-wrappers: true
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
     - name: Cache SonarCloud packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
@@ -53,7 +54,7 @@ jobs:
     - name: Test WireMock
       run: ./gradlew :check --stacktrace --no-daemon
 
-    - name: Archive WireMock test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
+    - name: Archive WireMock reports - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -61,49 +62,4 @@ jobs:
         path: |
           build/reports/tests/test
           build/test-results/test
-
-  jetty12:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [17]
-    runs-on: ${{ matrix.os }}
-    env:
-      JDK_VERSION:  ${{ matrix.jdk }}
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: ${{ matrix.jdk }}
-        distribution: 'temurin'
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        validate-wrappers: true
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v1
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-jetty12-sonar
-        restore-keys: ${{ runner.os }}-jetty12-sonar
-
-    - name: Test Jetty12 JAR
-      if: ${{ !(matrix.os == 'ubuntu-latest' && github.event_name == 'push') }}
-      run: ./gradlew :wiremock-jetty12:check --stacktrace --no-daemon
-
-    - name: Archive Jetty12 test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: wiremock-jetty12-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
-        path: |
-          wiremock-jetty12/build/reports/tests/test
-          wiremock-jetty12/build/test-results/test
+          build/reports/dependency-analysis/build-health-report.txt

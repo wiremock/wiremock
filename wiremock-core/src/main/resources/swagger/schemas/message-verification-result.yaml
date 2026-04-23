@@ -1,0 +1,10 @@
+type: object
+description: Result of a message verification operation
+properties:
+  count:
+    type: integer
+    description: Number of messages matching the criteria
+  messageJournalDisabled:
+    type: boolean
+    description: Whether the message journal is disabled
+

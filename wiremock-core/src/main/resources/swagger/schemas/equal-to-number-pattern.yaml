@@ -1,0 +1,7 @@
+title: Number equals
+type: object
+properties:
+  equalToNumber:
+    type: number
+required:
+  - equalToNumber

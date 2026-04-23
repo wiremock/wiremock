@@ -1,0 +1,26 @@
+{
+  "name": "Single message stub",
+  "id": "11111111-1111-1111-1111-111111111111",
+  "trigger": {
+    "channel": {
+      "initiatingRequestPattern": {
+        "urlPath": "/ws/single"
+      },
+      "type": "websocket"
+    },
+    "type": "message"
+  },
+  "actions": [
+    {
+      "channelTarget": {
+        "type": "originating"
+      },
+      "type": "send",
+      "message": {
+        "body": {
+          "data": "Hello from single stub"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+type: object
+example: |-
+  {
+    "urlPath" : "/charges",
+    "method" : "POST",
+    "headers" : {
+      "Content-Type" : {
+        "equalTo" : "application/json"
+      }
+    }
+  }
+properties:
+  scheme:
+    type: string
+    enum:
+      - http
+      - https
+    description: The scheme (protocol) part of the request URL
+  host:
+    type: string
+    description: The hostname part of the request URL
+  port:
+    type: integer
+    minimum: 1
+    maximum: 65535
+    description: The HTTP port number of the request URL
+  method:
+    oneOf:
+      - type: string
+        pattern: ^[A-Z]+$
+        description: The HTTP request method e.g. GET
+      - $ref: "one-of-request-method-pattern.yaml"
+      - $ref: "none-of-request-method-pattern.yaml"
+  url:
+    type: string
+    description: The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPath:
+    type: string
+    description: The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPathPattern:
+    type: string
+    description: The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPattern:
+    type: string
+    description: The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPathTemplate:
+    type: string
+    description: |
+      The path template to match against. Must conform to the OpenAPI compatible subset of the RFC 6570 URI Template specification.
+      Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+
+  pathParameters:
+    type: object
+    description: |-
+      Path parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form. Can only
+      be used when the urlPathPattern URL match type is in use and all keys must be present as variables
+      in the path template.
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  queryParameters:
+    type: object
+    description: 'Query parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  formParameters:
+    type: object
+    description: 'application/x-www-form-urlencoded form parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  headers:
+    type: object
+    description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  clientIp:
+    type: string
+    description: The client IP address to match against
+
+  basicAuthCredentials:
+    type: object
+    description: Pre-emptive basic auth credentials to match against
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+      - username
+      - password
+
+  cookies:
+    type: object
+    description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    additionalProperties:
+      $ref: "content-pattern.yaml"
+
+  bodyPatterns:
+    type: array
+    description: 'Request body patterns to match against in the { "<predicate>": "<value>" } form'
+    items:
+      $ref: "content-pattern.yaml"
+
+  customMatcher:
+    type: object
+    description: Custom request matcher to match against
+    properties:
+      name:
+        type: string
+        description: The matcher's name specified in the implementation of the matcher.
+      parameters:
+        type: object
+
+  multipartPatterns:
+    type: array
+    description: Multipart patterns to match against headers and body.
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        fileName:
+          type: string
+        matchingType:
+          type: string
+          description: Determines whether all or any of the parts must match the criteria for an overall match.
+          default: ANY
+          enum:
+            - ALL
+            - ANY
+        headers:
+          type: object
+          description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+          additionalProperties:
+            $ref: "content-pattern.yaml"
+
+        bodyPatterns:
+          type: array
+          description: 'Body patterns to match against in the { "<predicate>": "<value>" } form'
+          items:
+            $ref: "content-pattern.yaml"

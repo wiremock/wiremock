@@ -1,0 +1,8 @@
+title: Regular expression match
+type: object
+properties:
+  matches:
+    type: string
+    x-intellij-language-injection: RegExp
+required:
+  - matches

@@ -1,0 +1,15 @@
+type: object
+description: Request to wait for message events
+required:
+  - timeoutMillis
+properties:
+  pattern:
+    $ref: 'message-pattern.yaml'
+  timeoutMillis:
+    type: integer
+    format: int64
+    description: Maximum time to wait in milliseconds
+  count:
+    type: integer
+    description: Number of messages to wait for (for wait-for-count endpoint)
+

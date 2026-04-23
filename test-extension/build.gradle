@@ -1,24 +1,13 @@
-buildscript {
-  repositories {
-    maven {
-      url "https://oss.sonatype.org"
-    }
-    mavenCentral()
-  }
-}
-
 plugins {
-  id 'java'
-  id 'com.github.johnrengelman.shadow'
+  id 'java-library'
 }
 
 group 'org.wiremock.example'
 
-dependencies {
-  compileOnly project(":")
+repositories {
+  mavenCentral()
 }
 
-shadowJar {
-  archiveBaseName.set('wiremock-test-extension')
-  archiveClassifier.set('')
+dependencies {
+  api project(':wiremock-core')
 }

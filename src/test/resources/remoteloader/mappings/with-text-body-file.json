@@ -1,5 +1,7 @@
 {
-  "request": {"url": "/text-file"},
+  "request": {
+    "url": "/text-file"
+  },
   "response": {
     "bodyFileName": "body.txt",
     "status": 200

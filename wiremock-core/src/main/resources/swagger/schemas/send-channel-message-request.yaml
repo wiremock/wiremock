@@ -1,0 +1,14 @@
+type: object
+description: Request to send a message to channels
+required:
+  - type
+  - message
+properties:
+  type:
+    $ref: 'channel-type.yaml'
+  initiatingRequest:
+    $ref: 'request-pattern.yaml'
+    description: Pattern to match the initiating request of target channels
+  message:
+    $ref: 'message-definition.yaml'
+

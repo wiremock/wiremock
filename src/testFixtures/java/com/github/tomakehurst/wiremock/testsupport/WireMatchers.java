@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.File;
@@ -51,6 +52,24 @@ import org.xmlunit.diff.ComparisonControllers;
 import org.xmlunit.diff.Diff;
 
 public class WireMatchers {
+
+  public static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
+      new TypeSafeDiagnosingMatcher<>() {
+        @Override
+        public void describeTo(Description description) {
+          description.appendText("a stub mapping marked as persistent");
+        }
+
+        @Override
+        protected boolean matchesSafely(StubMapping stub, Description mismatchDescription) {
+          final boolean result = stub.shouldBePersisted();
+          if (!result) {
+            mismatchDescription.appendText(stub.getId() + " not marked as persistent");
+          }
+
+          return result;
+        }
+      };
 
   public static Matcher<String> equalToJson(final String expectedJson) {
     return new TypeSafeMatcher<>() {
@@ -432,6 +451,42 @@ public class WireMatchers {
       @Override
       protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
         return item.getScenarioName() != null;
+      }
+    };
+  }
+
+  public static Matcher<MessageStubMapping> messageStubMappingWithName(final String name) {
+    return new TypeSafeDiagnosingMatcher<>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("a message stub mapping with name ").appendValue(name);
+      }
+
+      @Override
+      protected boolean matchesSafely(MessageStubMapping item, Description mismatchDescription) {
+        if (name.equals(item.getName())) {
+          return true;
+        }
+        mismatchDescription.appendText("name was ").appendValue(item.getName());
+        return false;
+      }
+    };
+  }
+
+  public static Matcher<MessageStubMapping> messageStubMappingWithId(final UUID id) {
+    return new TypeSafeDiagnosingMatcher<>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("a message stub mapping with id ").appendValue(id);
+      }
+
+      @Override
+      protected boolean matchesSafely(MessageStubMapping item, Description mismatchDescription) {
+        if (id.equals(item.getId())) {
+          return true;
+        }
+        mismatchDescription.appendText("id was ").appendValue(item.getId());
+        return false;
       }
     };
   }

@@ -1,0 +1,11 @@
+type: object
+description: Pattern for matching message channels
+required:
+  - type
+properties:
+  type:
+    $ref: 'channel-type.yaml'
+  initiatingRequestPattern:
+    $ref: 'request-pattern.yaml'
+    description: Pattern to match the request that initiated the channel
+

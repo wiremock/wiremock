@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
@@ -59,6 +62,91 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
+  }
+
+  @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  public void mergesAnObjectValueFromRequestIntoResponseBody() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
+            aResponse().withBody("{\"check\": {{jsonPath request.body '$.a'}} }"));
+
+    assertThat(responseDefinition.getBody(), is("{\"check\": {\n  \"test\" : \"success\"\n} }"));
+  }
+
+  @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  public void mergesAnObjectValueFromRequestIntoResponseBodyWindows() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
+            aResponse().withBody("{\"check\": {{jsonPath request.body '$.a'}} }"));
+
+    assertThat(
+        responseDefinition.getBody(), is("{\"check\": {\r\n  \"test\" : \"success\"\r\n} }"));
+  }
+
+  @Test
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  public void mergesAnArrayValueFromRequestIntoResponseBody() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .url("/json")
+                .body(
+                    "{\n"
+                        + "    \"items\": [\n"
+                        + "        {\n"
+                        + "            \"name\": \"One\"\n"
+                        + "        },\n"
+                        + "        {\n"
+                        + "            \"name\": \"Two\"\n"
+                        + "        },\n"
+                        + "        {\n"
+                        + "            \"name\": \"Three\"\n"
+                        + "        }\n"
+                        + "    ]\n"
+                        + "}"),
+            aResponse().withBody("{\"test\": {{jsonPath request.body '$.items'}} }"));
+
+    assertThat(
+        responseDefinition.getBody(),
+        is(
+            "{\"test\": [ {\n  \"name\" : \"One\"\n}, {\n  \"name\" : \"Two\"\n}, {\n  \"name\" : \"Three\"\n} ] }"));
+  }
+
+  @Test
+  @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+  public void mergesAnArrayValueFromRequestIntoResponseBodyWindows() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .url("/json")
+                .body(
+                    "{\n"
+                        + "    \"items\": [\n"
+                        + "        {\n"
+                        + "            \"name\": \"One\"\n"
+                        + "        },\n"
+                        + "        {\n"
+                        + "            \"name\": \"Two\"\n"
+                        + "        },\n"
+                        + "        {\n"
+                        + "            \"name\": \"Three\"\n"
+                        + "        }\n"
+                        + "    ]\n"
+                        + "}"),
+            aResponse().withBody("{\"test\": {{jsonPath request.body '$.items'}} }"));
+
+    assertThat(
+        responseDefinition.getBody(),
+        is(
+            "{\"test\": [ {\r\n  \"name\" : \"One\"\r\n}, {\r\n  \"name\" : \"Two\"\r\n}, {\r\n  \"name\" : \"Three\"\r\n} ] }"));
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,17 @@ public class RequestWrapperTest {
   }
 
   @Test
+  public void containsHeaderChecksAreCaseInsensitive() {
+    MockRequest request = mockRequest().header("One", "1");
+
+    RequestWrapper wrappedRequest = new RequestWrapper(request);
+
+    assertThat(wrappedRequest.containsHeader("one"), is(true));
+    assertThat(wrappedRequest.containsHeader("onE"), is(true));
+    assertThat(wrappedRequest.containsHeader("ONE"), is(true));
+  }
+
+  @Test
   public void addsSpecifiedCookies() {
     MockRequest request = mockRequest().cookie("One", "1");
 
@@ -183,19 +194,26 @@ public class RequestWrapperTest {
   @Test
   public void transformsMultiparts() {
     MockRequest request =
-        mockRequest().part(mockPart().name("one").body("1")).part(mockPart().name("two").body("2"));
+        mockRequest()
+            .part(mockPart().name("one").filename("text1.txt").body("1"))
+            .part(mockPart().name("two").filename("text2.txt").body("2"));
 
     Request wrappedRequest =
         RequestWrapper.create()
             .transformParts(
                 existingPart ->
                     existingPart.getName().equals("one")
-                        ? mockPart().name("one").body("1111")
-                        : mockPart().name("two").body("2222"))
+                        ? mockPart().name("one").filename("text1.txt").body("1111")
+                        : mockPart().name("two").filename("sample2.txt").body("2222"))
             .wrap(request);
 
     assertThat(wrappedRequest.getPart("one").getBody().asString(), is("1111"));
     assertThat(wrappedRequest.getPart("two").getBody().asString(), is("2222"));
-    assertThat(wrappedRequest.getParts(), hasItem(mockPart().name("one").body("1111")));
+    assertThat(
+        wrappedRequest.getParts(),
+        hasItem(mockPart().name("one").filename("text1.txt").body("1111")));
+    assertThat(
+        wrappedRequest.getParts(),
+        hasItem(mockPart().name("two").filename("sample2.txt").body("2222")));
   }
 }

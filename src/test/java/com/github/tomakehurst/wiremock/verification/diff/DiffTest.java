@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class DiffTest {
   void correctlyRendersJUnitStyleDiffMessage() {
     String diff = junitStyleDiffMessage("expected", "actual");
 
-    assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
+    assertThat(diff, is(String.format(" expected:<%nexpected> but was:<%nactual>")));
   }
 
   @Test
@@ -498,6 +498,21 @@ class DiffTest {
   }
 
   @Test
+  void includeClientIpIfSpecified() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, anyUrl()).withClientIp(equalTo("192.168.1.1")).build(),
+            mockRequest().clientIp("192.168.2.2").url("/thing"));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "equalTo 192.168.1.1\n" + "ANY\n" + "/thing\n",
+                "192.168.2.2\n" + "ANY\n" + "/thing\n")));
+  }
+
+  @Test
   void includePortIfSpecified() {
     Diff diff =
         new Diff(
@@ -574,5 +589,22 @@ class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n/things/4321/bookings/whatever\n\nPath parameter: thingId = 1234\n",
                 "ANY\n/things/4321/bookings/whatever\n\n4321\n")));
+  }
+
+  @Test
+  void showsDiffForDodgyUrls() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(GET, urlPathEqualTo("/news"))
+                .withQueryParam("page", equalTo("page"))
+                .build(),
+            mockRequest().method(POST).url("/news?page={page}"));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "GET\n/news?page={page}\n\nQuery: page = page\n",
+                "POST\n/news?page={page}\n\npage: {page}\n")));
   }
 }

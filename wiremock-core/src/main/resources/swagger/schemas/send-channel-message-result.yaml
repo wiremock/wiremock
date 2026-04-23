@@ -1,0 +1,12 @@
+type: object
+description: Result of sending a message to channels
+properties:
+  channels:
+    type: array
+    description: Channels that received the message
+    items:
+      $ref: 'logged-message-channel.yaml'
+  channelsMessaged:
+    type: integer
+    description: Number of channels that received the message
+

@@ -1,0 +1,10 @@
+title: Logical OR matcher
+type: object
+properties:
+  or:
+    type: array
+    items:
+      $ref: "content-pattern.yaml"
+
+required:
+  - or

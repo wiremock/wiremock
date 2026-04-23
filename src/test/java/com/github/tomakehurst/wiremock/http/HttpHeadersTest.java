@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.HttpHeaders.Builder;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class HttpHeadersTest {
@@ -154,5 +156,188 @@ public class HttpHeadersTest {
 
     assertThat(httpHeaders.equals(copyOfHeaders), is(true));
     assertThat(httpHeaders.hashCode(), equalTo(copyOfHeaders.hashCode()));
+  }
+
+  @Test
+  public void builderSetAllReplacesAllExistingHeaders() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 =
+        initialHeaders.transform(builder -> builder.setAll(httpHeader("Header-2", "h2v3", "h2v4")));
+    assertThat(newHeaders1.all(), contains(httpHeader("Header-2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders2 =
+        initialHeaders.transform(
+            builder -> builder.setAll(List.of(httpHeader("Header-2", "h2v3", "h2v4"))));
+    assertThat(newHeaders2.all(), contains(httpHeader("Header-2", "h2v3", "h2v4")));
+  }
+
+  @Test
+  public void builderAddAllAddsToExistingHeaders() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 =
+        initialHeaders.transform(
+            builder ->
+                builder.addAll(
+                    httpHeader("Header-2", "h2v3", "h2v4"),
+                    httpHeader("Header-3", "h3v1", "h3v2")));
+    assertThat(
+        newHeaders1.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4"),
+            httpHeader("Header-3", "h3v1", "h3v2")));
+
+    HttpHeaders newHeaders2 =
+        initialHeaders.transform(
+            builder ->
+                builder.addAll(
+                    List.of(
+                        httpHeader("Header-2", "h2v3", "h2v4"),
+                        httpHeader("Header-3", "h3v1", "h3v2"))));
+    assertThat(
+        newHeaders2.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4"),
+            httpHeader("Header-3", "h3v1", "h3v2")));
+  }
+
+  @Test
+  public void builderSetReplacesExistingHeaderValues() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 =
+        initialHeaders.transform(builder -> builder.set("Header-2", "h2v3", "h2v4"));
+    assertThat(
+        newHeaders1.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders2 =
+        initialHeaders.transform(
+            builder -> builder.set(CaseInsensitiveKey.from("Header-2"), "h2v3", "h2v4"));
+    assertThat(
+        newHeaders2.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders3 =
+        initialHeaders.transform(builder -> builder.set("Header-2", List.of("h2v3", "h2v4")));
+    assertThat(
+        newHeaders3.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders4 =
+        initialHeaders.transform(
+            builder -> builder.set(CaseInsensitiveKey.from("Header-2"), List.of("h2v3", "h2v4")));
+    assertThat(
+        newHeaders4.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v3", "h2v4")));
+  }
+
+  @Test
+  public void builderAddAddsToExistingHeaderValues() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 =
+        initialHeaders.transform(builder -> builder.add("Header-2", "h2v3", "h2v4"));
+    assertThat(
+        newHeaders1.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders2 =
+        initialHeaders.transform(
+            builder -> builder.add(CaseInsensitiveKey.from("Header-2"), "h2v3", "h2v4"));
+    assertThat(
+        newHeaders2.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders3 =
+        initialHeaders.transform(builder -> builder.add("Header-2", List.of("h2v3", "h2v4")));
+    assertThat(
+        newHeaders3.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders4 =
+        initialHeaders.transform(
+            builder -> builder.add(CaseInsensitiveKey.from("Header-2"), List.of("h2v3", "h2v4")));
+    assertThat(
+        newHeaders4.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+  }
+
+  @Test
+  public void builderRemoveRemovesExistingHeaderValues() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 = initialHeaders.transform(builder -> builder.remove("Header-2"));
+    assertThat(newHeaders1.all(), contains(httpHeader("Header-1", "h1v1", "h1v2")));
+
+    HttpHeaders newHeaders2 =
+        initialHeaders.transform(builder -> builder.remove(CaseInsensitiveKey.from("Header-2")));
+    assertThat(newHeaders2.all(), contains(httpHeader("Header-1", "h1v1", "h1v2")));
+  }
+
+  @Test
+  public void builderRemoveAllRemovesAllExistingHeaders() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+
+    HttpHeaders newHeaders1 = initialHeaders.transform(Builder::removeAll);
+    assertThat(newHeaders1.all(), empty());
+
+    HttpHeaders newHeaders2 = initialHeaders.transform(Builder::removeAll);
+    assertThat(newHeaders2.all(), empty());
+  }
+
+  @Test
+  public void headersCannotBeMutatedByBuilder() {
+    HttpHeaders initialHeaders =
+        new HttpHeaders(
+            httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
+    assertThat(
+        initialHeaders.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2")));
+
+    var builder = new HttpHeaders.Builder(initialHeaders);
+    HttpHeaders newHeaders1 = builder.add("Header-2", "h2v3", "h2v4").build();
+    assertThat(
+        initialHeaders.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2")));
+    assertThat(
+        newHeaders1.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+
+    HttpHeaders newHeaders2 = builder.remove("Header-2").build();
+    assertThat(
+        initialHeaders.all(),
+        contains(httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2")));
+    assertThat(
+        newHeaders1.all(),
+        contains(
+            httpHeader("Header-1", "h1v1", "h1v2"),
+            httpHeader("Header-2", "h2v1", "h2v2", "h2v3", "h2v4")));
+    assertThat(newHeaders2.all(), contains(httpHeader("Header-1", "h1v1", "h1v2")));
   }
 }

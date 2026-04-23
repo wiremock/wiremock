@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.net.Inet4Address;
@@ -47,7 +47,7 @@ public class BindAddressTest {
   private String nonBindAddress;
   private WireMockServer wireMockServer;
 
-  final CloseableHttpClient client = HttpClientFactory.createClient();
+  final CloseableHttpClient client = ApacheHttpClientFactory.createClient();
 
   @BeforeEach
   public void prepare() throws Exception {

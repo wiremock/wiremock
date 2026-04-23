@@ -1,7 +1,0 @@
-title: Negative regular expression match
-type: object
-properties:
-  doesNotMatch:
-    type: string
-required:
-  - doesNotMatch

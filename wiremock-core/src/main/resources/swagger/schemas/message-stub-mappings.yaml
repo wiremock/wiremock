@@ -1,0 +1,15 @@
+type: object
+description: A collection of message stub mappings
+properties:
+  messageMappings:
+    type: array
+    items:
+      $ref: 'message-stub-mapping.yaml'
+  meta:
+    type: object
+    description: Pagination metadata
+    properties:
+      total:
+        type: integer
+        description: Total number of message stub mappings
+

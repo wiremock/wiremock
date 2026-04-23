@@ -1,4 +1,0 @@
-rootProject.name = 'wiremock'
-if (JavaVersion.current() >= JavaVersion.VERSION_17) {
-  include 'wiremock-jetty12'
-}

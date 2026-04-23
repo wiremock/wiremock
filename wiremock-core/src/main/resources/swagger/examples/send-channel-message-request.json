@@ -1,0 +1,11 @@
+{
+  "type": "websocket",
+  "initiatingRequest": {
+    "urlPathPattern": "/ws/.*"
+  },
+  "message": {
+    "body": {
+      "data": "Broadcast message to all WebSocket clients"
+    }
+  }
+}

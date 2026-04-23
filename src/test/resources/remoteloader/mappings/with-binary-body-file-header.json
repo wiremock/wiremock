@@ -1,7 +1,11 @@
 {
-  "request": {"url": "/binary-file-from-header"},
+  "request": {
+    "url": "/binary-file-from-header"
+  },
   "response": {
-    "headers": {"content-type": "image/jpg"},
+    "headers": {
+      "content-type": "image/jpg"
+    },
     "bodyFileName": "body.unknown",
     "status": 200
   },

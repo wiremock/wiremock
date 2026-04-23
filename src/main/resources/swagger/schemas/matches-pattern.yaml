@@ -1,7 +1,0 @@
-title: Regular expression match
-type: object
-properties:
-  matches:
-    type: string
-required:
-  - matches

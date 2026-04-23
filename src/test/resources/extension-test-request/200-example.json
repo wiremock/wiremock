@@ -3,5 +3,7 @@
     "method": "GET",
     "url": "/extension/resource/1"
   },
-  "response": {"status": 200}
+  "response": {
+    "status": 200
+  }
 }

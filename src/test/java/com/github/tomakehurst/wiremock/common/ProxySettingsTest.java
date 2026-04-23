@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+@SuppressWarnings("HttpUrlsUsage")
 public class ProxySettingsTest {
 
   public static final String PROXYVIA_URL = "a.proxyvia.url";
@@ -54,11 +57,17 @@ public class ProxySettingsTest {
 
   @Test
   public void shouldThrowExceptionIfPortIsNotRecognized() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL + ":80a");
-        });
+    var ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
+    assertThat(
+        ex.getMessage(),
+        is(
+            "'a.proxyvia.url:80a' could not be parsed as a proxy URL with or without an 'http://' prefix"));
+    assertThat(ex.getCause().getMessage(), is("Illegal absolute url: `a.proxyvia.url:80a`"));
+    assertThat(
+        ex.getSuppressed()[0].getCause().getMessage(),
+        is("Illegal authority: `a.proxyvia.url:80a`"));
   }
 
   @Test
@@ -97,22 +106,38 @@ public class ProxySettingsTest {
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"http", "https"})
+  public void shouldRejectInvalidUrisWithHttpProtocol(String scheme) {
+    var ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ProxySettings.fromString(scheme + "://" + PROXYVIA_URL + ":notanumber"));
+    assertThat(
+        ex.getMessage(),
+        is("'" + scheme + "://a.proxyvia.url:notanumber' could not be parsed as a proxy URL"));
+    assertThat(
+        ex.getCause().getMessage(),
+        is("Illegal uri: `" + scheme + "://a.proxyvia.url:notanumber`"));
+  }
+
   @Test
   public void shouldNotAllowHttpsProtocol() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings =
-              ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT);
-        });
+        () -> ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT));
   }
 
   @Test
   public void shouldThrowExceptionIfUrlIsInvalid() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
-        });
+    assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString("ul:invalid:80"));
+  }
+
+  @Test
+  public void shouldParseSchemelessUriWithUserInfoAndPort() {
+    ProxySettings proxySettings = ProxySettings.fromString("bob@doesnotexist.example.com:321");
+    assertThat(proxySettings.getUsername(), is("bob"));
+    assertThat(proxySettings.host(), is("doesnotexist.example.com"));
+    assertThat(proxySettings.port(), is(321));
   }
 }

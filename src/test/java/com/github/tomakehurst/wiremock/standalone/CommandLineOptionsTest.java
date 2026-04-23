@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.standalone;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
 import static java.util.Arrays.asList;
@@ -39,6 +40,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -327,70 +329,128 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void returnsCorrectlyParsedGlobalTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--timeout", "45000");
+    assertThat(options.timeout(), is(45_000L));
+  }
+
+  @Test
+  public void returnsDefaultGlobalTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+    assertThat(options.timeout(), is(300_000L));
+  }
+
+  @Test
   public void returnsCorrectlyParsedJettyAcceptorThreads() {
     CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
-    assertThat(options.jettySettings().getAcceptors().get(), is(400));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getAcceptors().get(),
+        is(400));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyAcceptQueueSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
-    assertThat(options.jettySettings().getAcceptQueueSize().get(), is(10));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptQueueSize()
+            .get(),
+        is(10));
   }
 
   @Test
   @Deprecated
   public void returnsCorrectlyParsedJettyHeaderBufferSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-buffer-size", "16384");
-    assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyHeaderRequestSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-request-size", "16384");
-    assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyHeaderResponseSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-response-size", "16384");
-    assertThat(options.jettySettings().getResponseHeaderSize().get(), is(16384));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getResponseHeaderSize()
+            .get(),
+        is(16384));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyStopTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
-    assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getStopTimeout().get(),
+        is(1000L));
   }
 
   @Test
   public void returnsCorrectlyParsedJettyIdleTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
-    assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory()).getSettings().getIdleTimeout().get(),
+        is(2000L));
   }
 
   @Test
   public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptQueueSize()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyAcceptorsNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getAcceptors()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getRequestHeaderSize().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getRequestHeaderSize()
+            .isPresent(),
+        is(false));
   }
 
   @Test
   public void returnsAbsentIfJettyStopTimeoutNotSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.jettySettings().getStopTimeout().isPresent(), is(false));
+    assertThat(
+        ((JettyHttpServerFactory) options.httpServerFactory())
+            .getSettings()
+            .getStopTimeout()
+            .isPresent(),
+        is(false));
   }
 
   @Test
@@ -810,6 +870,62 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  void webSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--websocket-idle-timeout", "60000");
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(60000L));
+  }
+
+  @Test
+  void defaultWebSocketIdleTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long webSocketIdleTimeout = options.getWebSocketIdleTimeout();
+
+    assertThat(webSocketIdleTimeout, is(Options.DEFAULT_WEBSOCKET_IDLE_TIMEOUT));
+  }
+
+  @Test
+  void webSocketMaxTextMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-text-message-size", "131072");
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(131072L));
+  }
+
+  @Test
+  void defaultWebSocketMaxTextMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxTextMessageSize = options.getWebSocketMaxTextMessageSize();
+
+    assertThat(maxTextMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_TEXT_MESSAGE_SIZE));
+  }
+
+  @Test
+  void webSocketMaxBinaryMessageSize() {
+    CommandLineOptions options =
+        new CommandLineOptions("--websocket-max-binary-message-size", "262144");
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(262144L));
+  }
+
+  @Test
+  void defaultWebSocketMaxBinaryMessageSize() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    long maxBinaryMessageSize = options.getWebSocketMaxBinaryMessageSize();
+
+    assertThat(maxBinaryMessageSize, is(Options.DEFAULT_WEBSOCKET_MAX_BINARY_MESSAGE_SIZE));
+  }
+
+  @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");
     assertFalse(options.getStores().getSettingsStore().get().getProxyPassThrough());
@@ -855,6 +971,20 @@ public class CommandLineOptionsTest {
   void testDisableConnectionReuseOptionPassedAsTrue() {
     CommandLineOptions options = new CommandLineOptions("--disable-connection-reuse", "true");
     assertTrue(options.getDisableConnectionReuse());
+  }
+
+  @Test
+  public void configuresWebhookThreadPoolSizeIfSpecified() {
+    CommandLineOptions options = new CommandLineOptions("--webhook-threadpool-size", "5");
+
+    assertThat(options.getWebhookThreadPoolSize(), is(5));
+  }
+
+  @Test
+  public void configuresWebhookThreadPoolSizeSetToDefaultIfNotSpecified() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    assertThat(options.getWebhookThreadPoolSize(), is(DEFAULT_WEBHOOK_THREADPOOL_SIZE));
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

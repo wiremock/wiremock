@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2024 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -33,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.Path;
 
 class ResponseDefinitionBuilderTest {
 
@@ -85,8 +87,8 @@ class ResponseDefinitionBuilderTest {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.domain").build();
 
-    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
-    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders().all(), empty());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), empty());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -98,8 +100,8 @@ class ResponseDefinitionBuilderTest {
             .withJsonBody(Json.read("{}", JsonNode.class))
             .build();
 
-    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
-    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders().all(), empty());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), empty());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -111,8 +113,8 @@ class ResponseDefinitionBuilderTest {
             .withBody(new byte[] {0x01})
             .build();
 
-    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
-    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getAdditionalProxyRequestHeaders().all(), empty());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), empty());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -130,7 +132,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test
@@ -148,7 +150,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test
@@ -166,7 +168,7 @@ class ResponseDefinitionBuilderTest {
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
-    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+    assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo(Path.parse("/remove")));
   }
 
   @Test

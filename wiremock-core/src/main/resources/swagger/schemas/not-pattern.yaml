@@ -1,0 +1,7 @@
+title: Logical NOT modifier
+type: object
+properties:
+  not:
+    $ref: "content-pattern.yaml"
+required:
+  - not

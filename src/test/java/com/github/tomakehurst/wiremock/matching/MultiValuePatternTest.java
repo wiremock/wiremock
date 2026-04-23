@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -179,5 +180,52 @@ public class MultiValuePatternTest {
     String actual = Json.write(MultiValuePattern.absent());
     JSONAssert.assertEquals(
         "{                   \n" + "  \"absent\": true   \n" + "}", actual, true);
+  }
+
+  @Test
+  public void equalsChecksSingleValuePattern() {
+    MultiValuePattern a = new SingleMatchMultiValuePattern(equalTo("something"));
+    MultiValuePattern b = new SingleMatchMultiValuePattern(equalTo("something else"));
+    MultiValuePattern c = new SingleMatchMultiValuePattern(equalTo("something"));
+    MultiValuePattern d = new ExactMatchMultiValuePattern(List.of(equalTo("something")));
+    assertNotEquals(a, b);
+    assertEquals(a, c);
+    assertNotEquals(a, d);
+  }
+
+  @Test
+  public void equalsChecksExactMatchPattern() {
+    MultiValuePattern a =
+        new ExactMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    MultiValuePattern b = new ExactMatchMultiValuePattern(List.of(equalTo("something")));
+    MultiValuePattern c =
+        new ExactMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    MultiValuePattern d =
+        new ExactMatchMultiValuePattern(
+            List.of(equalTo("something"), equalTo("a different thing")));
+    MultiValuePattern e =
+        new IncludesMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    assertNotEquals(a, b);
+    assertEquals(a, c);
+    assertNotEquals(a, d);
+    assertNotEquals(a, e);
+  }
+
+  @Test
+  public void equalsChecksIncludesMatchPattern() {
+    MultiValuePattern a =
+        new IncludesMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    MultiValuePattern b = new IncludesMatchMultiValuePattern(List.of(equalTo("something")));
+    MultiValuePattern c =
+        new IncludesMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    MultiValuePattern d =
+        new IncludesMatchMultiValuePattern(
+            List.of(equalTo("something"), equalTo("a different thing")));
+    MultiValuePattern e =
+        new ExactMatchMultiValuePattern(List.of(equalTo("something"), equalTo("another thing")));
+    assertNotEquals(a, b);
+    assertEquals(a, c);
+    assertNotEquals(a, d);
+    assertNotEquals(a, e);
   }
 }

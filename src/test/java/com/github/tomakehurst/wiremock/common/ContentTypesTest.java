@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import org.junit.jupiter.api.Test;
+import org.wiremock.url.PathAndQuery;
 
-public class ContentTypesTest {
+class ContentTypesTest {
 
   @Test
-  public void detectsTextTypesCorrectlyFromFileExtension() {
+  void detectsTextTypesCorrectlyFromFileExtension() {
     assertTrue(ContentTypes.determineIsTextFromExtension("txt"));
     assertTrue(ContentTypes.determineIsTextFromExtension("json"));
     assertTrue(ContentTypes.determineIsTextFromExtension("xml"));
@@ -42,7 +43,7 @@ public class ContentTypesTest {
   }
 
   @Test
-  public void detectsTextTypesCorrectlyFromMimeType() {
+  void detectsTextTypesCorrectlyFromMimeType() {
     assertTrue(ContentTypes.determineIsTextFromMimeType("text/plain"));
     assertTrue(ContentTypes.determineIsTextFromMimeType("text/html"));
     assertTrue(ContentTypes.determineIsTextFromMimeType("application/json"));
@@ -60,7 +61,7 @@ public class ContentTypesTest {
   }
 
   @Test
-  public void detectsTextTypesCorrectlyFromExtensionOrMimeType() {
+  void detectsTextTypesCorrectlyFromExtensionOrMimeType() {
     assertTrue(ContentTypes.determineIsText("txt", "text/plain"));
     assertTrue(ContentTypes.determineIsText("xml", ""));
     assertTrue(ContentTypes.determineIsText("json", null));
@@ -70,10 +71,10 @@ public class ContentTypesTest {
   }
 
   @Test
-  public void correctlyDeterminesFileExtensionWhenDotsInPath() {
+  void correctlyDeterminesFileExtensionWhenDotsInPath() {
     String fileExtension =
         ContentTypes.determineFileExtension(
-            "http://some.host/path.with.dots/and/several/segments",
+            PathAndQuery.parse("/path.with.dots/and/several/segments"),
             ContentTypeHeader.absent(),
             new byte[] {});
 
@@ -81,10 +82,12 @@ public class ContentTypesTest {
   }
 
   @Test
-  public void correctlyDeterminesFileExtensionFromUrl() {
+  void correctlyDeterminesFileExtensionFromUrl() {
     String fileExtension =
         ContentTypes.determineFileExtension(
-            "http://some.host/path.with.dots/image.png", ContentTypeHeader.absent(), new byte[] {});
+            PathAndQuery.parse("/path.with.dots/image.png"),
+            ContentTypeHeader.absent(),
+            new byte[] {});
 
     assertThat(fileExtension, is("png"));
   }

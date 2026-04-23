@@ -1,0 +1,8 @@
+title: Negative regular expression match
+type: object
+properties:
+  doesNotMatch:
+    type: string
+    x-intellij-language-injection: RegExp
+required:
+  - doesNotMatch

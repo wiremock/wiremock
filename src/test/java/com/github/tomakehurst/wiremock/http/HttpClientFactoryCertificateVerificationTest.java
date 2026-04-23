@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2024 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore.KeyStoreType.JKS;
-import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -28,6 +27,7 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
+import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -54,7 +54,6 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     CertificateSpecification certificateSpecification =
         new X509CertificateSpecification(
-            /* version= */ V3,
             /* subject= */ "CN=" + certificateCN,
             /* issuer= */ "CN=wiremock.org",
             /* notBefore= */ new Date(),
@@ -86,7 +85,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
     client =
-        HttpClientFactory.createClient(
+        ApacheHttpClientFactory.createClient(
             1000,
             5 * 1000 * 60,
             NO_PROXY,
@@ -95,7 +94,8 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
             trustedHosts,
             false,
             NetworkAddressRules.ALLOW_ALL,
-            true);
+            true,
+            null);
   }
 
   @AfterEach

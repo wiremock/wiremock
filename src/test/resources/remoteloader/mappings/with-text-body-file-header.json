@@ -1,7 +1,11 @@
 {
-  "request": {"url": "/text-file-from-header"},
+  "request": {
+    "url": "/text-file-from-header"
+  },
   "response": {
-    "headers": {"content-type": "application/json"},
+    "headers": {
+      "content-type": "application/json"
+    },
     "bodyFileName": "body.unknown",
     "status": 200
   },

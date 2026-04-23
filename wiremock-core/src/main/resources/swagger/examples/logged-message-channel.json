@@ -1,0 +1,20 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "type": "websocket",
+  "initiatingRequest": {
+    "url": "/ws/chat",
+    "absoluteUrl": "http://localhost:8080/ws/chat",
+    "method": "GET",
+    "clientIp": "127.0.0.1",
+    "headers": {
+      "Host": "localhost:8080",
+      "Upgrade": "websocket",
+      "Connection": "Upgrade"
+    },
+    "cookies": {},
+    "browserProxyRequest": false,
+    "loggedDate": 1609459200000,
+    "loggedDateString": "2021-01-01T00:00:00Z"
+  },
+  "open": true
+}

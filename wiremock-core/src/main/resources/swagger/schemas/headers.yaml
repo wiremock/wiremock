@@ -1,0 +1,21 @@
+type: object
+description: HTTP headers
+additionalProperties:
+  type: object
+  properties:
+    key:
+      type: string
+    values:
+      type: array
+      items:
+        type: string
+example:
+  Connection:
+    key: "Connection"
+    values: ["keep-alive"]
+  Host:
+    key: "Host"
+    values: ["localhost:56738"]
+  User-Agent:
+    key: "User-Agent"
+    values: ["Apache-HttpClient/4.5.1 (Java/1.7.0_51)"]
