@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import com.github.tomakehurst.wiremock.common.NotWritableException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,7 +49,7 @@ class JsonFileMappingsSourceTest {
 
   @TempDir public File tempDir;
 
-  StoreBackedStubMappings stubMappings;
+  StubMappings stubMappings;
   JsonFileMappingsSource source;
   File stubMappingFile;
 
@@ -85,7 +85,7 @@ class JsonFileMappingsSourceTest {
   void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
     JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource, new FilenameMaker());
-    StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
+    StubMappings stubMappings = new InMemoryStubMappings();
 
     source.loadMappingsInto(stubMappings);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,15 +45,14 @@ class WireMockMessageStubMappingJsonSchemaRegressionTest {
     JsonNode schemaJson = Json.node(loadResourceAsString(SCHEMA_PATH));
     assertNotNull(schemaJson, "Schema file not found: " + SCHEMA_PATH);
 
-    SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().build();
-    SpecVersion.VersionFlag version =
-        SpecVersion.VersionFlag.fromId(schemaJson.get("$schema").textValue()).orElseThrow();
+    SpecificationVersion version =
+        SpecificationVersion.fromDialectId(schemaJson.get("$schema").textValue()).orElseThrow();
 
-    final JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(version);
+    final SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(version);
 
     JsonNode metaSchemaJson =
-        Json.node(loadResourceAsString(URI.create(version.getId()).getPath().substring(1)));
-    final JsonSchema metaSchema = schemaFactory.getSchema(metaSchemaJson, schemaValidatorsConfig);
+        Json.node(loadResourceAsString(URI.create(version.getDialectId()).getPath().substring(1)));
+    final Schema metaSchema = schemaRegistry.getSchema(metaSchemaJson);
 
     assertThat(metaSchema.validate(schemaJson), is(empty()));
   }
@@ -99,4 +97,3 @@ class WireMockMessageStubMappingJsonSchemaRegressionTest {
     }
   }
 }
-

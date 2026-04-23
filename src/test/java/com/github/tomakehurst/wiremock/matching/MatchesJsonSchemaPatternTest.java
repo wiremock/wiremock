@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -416,7 +417,7 @@ public class MatchesJsonSchemaPatternTest {
     assertThat(matchResult2.isExactMatch(), is(false));
     Errors expectedErrors2 =
         Errors.singleWithDetail(
-            10, "Invalid JSON Schema", ": Reference /does/not/exist cannot be resolved");
+            10, "Invalid JSON Schema", "Reference /does/not/exist cannot be resolved");
     assertThat(matchResult2.getSubEvents(), contains(new SubEventMatcher(expectedErrors2)));
 
     // Check for false positives.
@@ -438,6 +439,29 @@ public class MatchesJsonSchemaPatternTest {
                     description.appendText("a sub event of type " + SubEvent.ERROR);
                   }
                 })));
+  }
+
+  @ParameterizedTest
+  @EnumSource(WireMock.JsonSchemaVersion.class)
+  void nullValueMatchesWhenSchemaDeclaresNullable(WireMock.JsonSchemaVersion jsonSchemaVersion) {
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(
+            "{\"type\": \"object\", \"nullable\": true}", jsonSchemaVersion);
+
+    assertThat(pattern.match("null").isExactMatch(), is(true));
+    assertThat(pattern.match("{}").isExactMatch(), is(true));
+    assertThat(pattern.match("123").isExactMatch(), is(false));
+  }
+
+  @ParameterizedTest
+  @EnumSource(WireMock.JsonSchemaVersion.class)
+  void nullValueDoesNotMatchWhenSchemaDoesNotDeclareNullable(
+      WireMock.JsonSchemaVersion jsonSchemaVersion) {
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern("{\"type\": \"object\"}", jsonSchemaVersion);
+
+    assertThat(pattern.match("null").isExactMatch(), is(false));
+    assertThat(pattern.match("{}").isExactMatch(), is(true));
   }
 
   private static String stringify(String json) {

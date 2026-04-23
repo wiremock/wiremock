@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,6 +171,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     assertThat(two.getResponse().getBodyAsString(), is("Exactly 2"));
     assertThat(
         two.getResponse().getBodyAsBase64(), is(Encoding.encodeBase64("Exactly 2".getBytes())));
+    assertThat(two.getResponse().isFromProxy(), is(false));
 
     assertThat(serveEvents.get(2).isNoExactMatch(), is(true));
   }

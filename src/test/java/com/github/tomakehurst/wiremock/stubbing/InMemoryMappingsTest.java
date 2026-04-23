@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 
 public class InMemoryMappingsTest {
 
-  private StoreBackedStubMappings mappings;
+  private StubMappings mappings;
 
   @BeforeEach
   public void init() {

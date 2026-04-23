@@ -3,7 +3,7 @@ import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
   id("wiremock.common-conventions")
-  id("net.ltgt.errorprone") version "5.0.0"
+  id("net.ltgt.errorprone") version "5.1.0"
 }
 
 tasks.jar {
@@ -29,7 +29,7 @@ dependencies {
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
 
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
+  annotationProcessor("com.uber.nullaway:nullaway:0.13.4")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 
