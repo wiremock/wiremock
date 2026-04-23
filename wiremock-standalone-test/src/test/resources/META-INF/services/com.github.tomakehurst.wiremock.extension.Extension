@@ -1,0 +1,2 @@
+com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory
+com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory
