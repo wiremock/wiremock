@@ -145,6 +145,10 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
             : Collections.<String, Object>emptyMap());
     model.put("originalRequest", model.get("request"));
     model.remove("request");
+    if (model.containsKey("response")) {
+      model.put("originalResponse", model.get("response"));
+      model.remove("response");
+    }
 
     WebhookDefinition renderedWebhookDefinition =
         webhookDefinition

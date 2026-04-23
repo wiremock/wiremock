@@ -209,6 +209,38 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
   }
 
   @Test
+  public void webhooksCanAccessOriginalResponseBodyAndHeaders() throws Exception {
+    rule.stubFor(
+        post("/original-response/body-value")
+            .willReturn(
+                ok("{{request.path.[1]}}")
+                    .withHeader("X-Templated", "{{request.path.[1]}}")
+                    .withTransformers("response-template"))
+            .withServeEventListener(
+                "webhook",
+                webhook()
+                    .withMethod(POST)
+                    .withUrl(targetServer.url("/callback"))
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("X-Original-Response", "{{originalResponse.headers.X-Templated}}")
+                    .withBody("{ \"responseBody\": \"{{originalResponse.body}}\" }")));
+
+    verify(0, postRequestedFor(anyUrl()));
+
+    WireMockResponse response = client.post("/original-response/body-value");
+    assertThat(response.content(), is("body-value"));
+
+    waitForRequestToTargetServer();
+
+    targetServer.verify(
+        1,
+        postRequestedFor(urlEqualTo("/callback"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withHeader("X-Original-Response", equalTo("body-value"))
+            .withRequestBody(equalToJson("{ \"responseBody\": \"body-value\" }")));
+  }
+
+  @Test
   public void webhooksHaveAccessToTemplateModelDataProviders() throws Exception {
     rule.stubFor(
         post("/helpers")
