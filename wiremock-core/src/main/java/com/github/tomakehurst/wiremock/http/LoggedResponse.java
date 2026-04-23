@@ -32,21 +32,25 @@ public class LoggedResponse {
   private final HttpHeaders headers;
   private final byte[] body;
   private final Fault fault;
+  private final boolean fromProxy;
 
   public LoggedResponse(
       @JsonProperty("status") int status,
       @JsonProperty("headers") HttpHeaders headers,
       @JsonProperty("bodyAsBase64") String bodyAsBase64,
       @JsonProperty("fault") Fault fault,
-      @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
-    this(status, headers, Encoding.decodeBase64(bodyAsBase64), fault);
+      @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+      @JsonProperty("fromProxy") boolean fromProxy) {
+    this(status, headers, Encoding.decodeBase64(bodyAsBase64), fault, fromProxy);
   }
 
-  private LoggedResponse(int status, HttpHeaders headers, byte[] body, Fault fault) {
+  private LoggedResponse(
+      int status, HttpHeaders headers, byte[] body, Fault fault, boolean fromProxy) {
     this.status = status;
     this.headers = headers;
     this.body = body;
     this.fault = fault;
+    this.fromProxy = fromProxy;
   }
 
   public static LoggedResponse from(Response response, Limit responseBodySizeLimit) {
@@ -56,7 +60,8 @@ public class LoggedResponse {
             ? null
             : response.getHeaders(),
         response.getBody().getData(responseBodySizeLimit),
-        response.getFault());
+        response.getFault(),
+        response.isFromProxy());
   }
 
   public int getStatus() {
@@ -108,5 +113,9 @@ public class LoggedResponse {
 
   public Fault getFault() {
     return fault;
+  }
+
+  public boolean isFromProxy() {
+    return fromProxy;
   }
 }

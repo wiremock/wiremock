@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,17 @@ public interface StubMappings {
 
   StubMapping removeMapping(StubMapping mapping);
 
+  List<StubMapping> removeMappings(List<StubMapping> toRemove);
+
   StubMapping editMapping(StubMapping stubMapping);
 
+  List<StubMapping> updateMappings(List<StubMapping> stubMappings);
+
+  List<StubMapping> setAllMappings(List<StubMapping> stubMappings);
+
   void reset();
+
+  void resetMappings();
 
   void resetScenarios();
 

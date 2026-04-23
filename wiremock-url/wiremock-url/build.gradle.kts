@@ -4,7 +4,7 @@ import net.ltgt.gradle.errorprone.errorprone
 plugins {
   id("wiremock.common-conventions")
   alias(libs.plugins.jmh)
-  id("net.ltgt.errorprone") version "5.0.0"
+  id("net.ltgt.errorprone") version "5.1.0"
 }
 
 tasks.jar {
@@ -14,7 +14,7 @@ tasks.jar {
 dependencies {
   api("org.jspecify:jspecify:1.0.0")
   api(project(":wiremock-url:wiremock-string-parser"))
-  compileOnly("org.jetbrains:annotations:26.0.2-1")
+  compileOnly("org.jetbrains:annotations:26.1.0")
 
   testImplementation(platform("org.junit:junit-bom:6.0.1"))
   testImplementation(libs.junit.jupiter.api)
@@ -41,7 +41,7 @@ dependencies {
   jmh(libs.jackson.databind)
   jmh(libs.commons.lang)
 
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.0")
+  annotationProcessor("com.uber.nullaway:nullaway:0.13.4")
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 

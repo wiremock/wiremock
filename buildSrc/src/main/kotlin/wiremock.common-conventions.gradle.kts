@@ -9,13 +9,13 @@ plugins {
   signing
   `maven-publish`
   id("com.diffplug.spotless")
-  id("com.github.johnrengelman.shadow")
+  id("com.gradleup.shadow")
   id("org.sonarqube")
   id("com.vanniktech.maven.publish.base")
 }
 
 group = "org.wiremock"
-version = "4.0.0-beta.29"
+version = "4.0.0-beta.32"
 
 repositories {
   mavenCentral()
@@ -30,7 +30,6 @@ java {
 
 tasks.jar {
   manifest {
-    attributes("Add-Exports" to "java.base/sun.security.x509")
     attributes("Implementation-Version" to project.version)
     attributes("Implementation-Title" to "WireMock")
   }
@@ -44,7 +43,6 @@ tasks {
     options.encoding = "UTF-8"
     options.compilerArgs.addAll(listOf(
       "-XDenableSunApiLintControl",
-      "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
     ))
   }
 
@@ -208,12 +206,6 @@ publishing {
     }
   }
 
-  getComponents().withType<AdhocComponentWithVariants>().forEach { c ->
-    c.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-      skip()
-    }
-  }
-
   publications {
     withType<MavenPublication> {
       pom {
@@ -223,6 +215,10 @@ publishing {
       suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
     }
   }
+}
+
+shadow {
+  addShadowVariantIntoJavaComponent = false
 }
 
 mavenPublishing {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.crypto;
 
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import org.bouncycastle.operator.OperatorCreationException;
 
 public interface CertificateSpecification {
   X509Certificate certificateFor(KeyPair keyPair)
-      throws CertificateException, InvalidKeyException, SignatureException;
+      throws CertificateException,
+          InvalidKeyException,
+          SignatureException,
+          IOException,
+          OperatorCreationException;
 }

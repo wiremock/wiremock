@@ -126,10 +126,12 @@ public class JsonFileMappingsSource implements MappingsSource {
         StubMappingOrMappings stubCollection =
             Json.read(mappingFile.readContents(), StubMappingOrMappings.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          stubMappings.addMapping(mapping);
+          // Register file metadata before addMapping, because addMapping may trigger
+          // persistence which needs the file metadata to determine the target file path.
           StubMappingFileMetadata fileMetadata =
               new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
           fileNameMap.put(mapping.getId(), fileMetadata);
+          stubMappings.addMapping(mapping);
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());

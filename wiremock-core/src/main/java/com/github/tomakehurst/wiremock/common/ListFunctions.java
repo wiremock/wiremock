@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.common;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NonNull;
 
 public final class ListFunctions {
 
@@ -38,6 +41,13 @@ public final class ListFunctions {
   @SafeVarargs
   public static <T> List<T> concatenate(List<T>... lists) {
     return Stream.of(lists).flatMap(List::stream).collect(Collectors.toList());
+  }
+
+  public static <K, V> @NonNull LinkedHashMap<K, V> indexBy(
+      @NonNull List<V> items, @NonNull Function<V, K> keyFunction) {
+    return items.stream()
+        .collect(
+            Collectors.toMap(keyFunction, Function.identity(), (a, b) -> a, LinkedHashMap::new));
   }
 
   private ListFunctions() {

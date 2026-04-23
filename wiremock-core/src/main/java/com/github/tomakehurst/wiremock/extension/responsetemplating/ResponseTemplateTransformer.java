@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullMarked;
 
 public class ResponseTemplateTransformer
     implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
@@ -200,6 +201,7 @@ public class ResponseTemplateTransformer
   }
 
   @Override
+  @NullMarked
   public void afterStubRemoved(StubMapping stub) {
     templateEngine.invalidateCache();
   }

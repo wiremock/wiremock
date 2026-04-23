@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.concat;
-import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.junit.jupiter.api.Test;
@@ -63,38 +62,5 @@ class ArrayFunctionsTest {
     first[0] = 10;
     second[0] = 30;
     assertArrayEquals(new Integer[] {1, 2, 3, 4}, result);
-  }
-
-  @Test
-  void prependNullAndEmpty() {
-    assertArrayEquals(new Integer[] {null}, prepend(null, empty));
-  }
-
-  @Test
-  void prependSomeAndEmpty() {
-    Integer[] result = prepend(1, empty);
-    assertArrayEquals(new Integer[] {1}, result);
-  }
-
-  @Test
-  void prependNullAndNonEmpty() {
-    Integer[] second = {1, 2};
-
-    Integer[] result = prepend(null, second);
-    assertArrayEquals(new Integer[] {null, 1, 2}, result);
-
-    second[0] = 10;
-    assertArrayEquals(new Integer[] {null, 1, 2}, result);
-  }
-
-  @Test
-  void prependSomeAndNonEmpty() {
-    Integer[] second = {2, 3};
-
-    Integer[] result = prepend(1, second);
-    assertArrayEquals(new Integer[] {1, 2, 3}, result);
-
-    second[0] = 30;
-    assertArrayEquals(new Integer[] {1, 2, 3}, result);
   }
 }

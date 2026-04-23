@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
-import org.junit.jupiter.params.shadow.de.siegmar.fastcsv.util.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(Include.NON_NULL)
 public sealed interface WhatWGUrlTestCase extends Comparable<WhatWGUrlTestCase>
@@ -29,8 +29,7 @@ public sealed interface WhatWGUrlTestCase extends Comparable<WhatWGUrlTestCase>
 
   String input();
 
-  @Nullable
-  String context();
+  @Nullable String context();
 
   @JsonProperty(value = "failure", access = JsonProperty.Access.READ_ONLY)
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)

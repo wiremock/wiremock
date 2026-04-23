@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import static java.util.Arrays.copyOf;
 
-import java.lang.reflect.Array;
-
 public final class ArrayFunctions {
 
   public static <T> T[] concat(T[] first, T[] second) {
@@ -28,15 +26,6 @@ public final class ArrayFunctions {
     T[] both = copyOf(first, first.length + second.length);
     System.arraycopy(second, 0, both, first.length, second.length);
     return both;
-  }
-
-  public static <T> T[] prepend(T t, T[] original) {
-    @SuppressWarnings("unchecked")
-    T[] newArray =
-        (T[]) Array.newInstance(original.getClass().getComponentType(), original.length + 1);
-    newArray[0] = t;
-    System.arraycopy(original, 0, newArray, 1, original.length);
-    return newArray;
   }
 
   private ArrayFunctions() {

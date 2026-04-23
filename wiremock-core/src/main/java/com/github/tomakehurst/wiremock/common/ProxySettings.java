@@ -39,35 +39,43 @@ public class ProxySettings {
     this.port = port;
   }
 
+  @SuppressWarnings("HttpUrlsUsage")
   public static ProxySettings fromString(String config) {
+    AbsoluteUrl proxyUrl;
     try {
-      AbsoluteUrl proxyUrl;
-      try {
-        proxyUrl = AbsoluteUrl.parse(config);
-      } catch (IllegalUri e) {
-        config = "http://" + config;
-        proxyUrl = AbsoluteUrl.parse(config);
-      }
-      if (!proxyUrl.getScheme().equals(http)) {
-        throw new IllegalArgumentException(
-            "Proxy via does not support any other protocol than http");
-      }
-      checkParameter(!proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
-      ProxySettings proxySettings =
-          new ProxySettings(
-              proxyUrl.getHost().toString(), proxyUrl.getResolvedPort().getIntValue());
-      if (proxyUrl.getUserInfo() != null) {
-        proxySettings.setUsername(proxyUrl.getUserInfo().getUsername().toString());
-        Password password = proxyUrl.getUserInfo().getPassword();
-        if (password != null) {
-          proxySettings.setPassword(password.toString());
-        }
-      }
-      return proxySettings;
+      proxyUrl = AbsoluteUrl.parse(config);
     } catch (IllegalUri e) {
-      throw new IllegalArgumentException(
-          String.format("Proxy via Url %s was not recognized", config), e);
+      if (config.startsWith("http://") || config.startsWith("https://")) {
+        throw new IllegalArgumentException(
+            String.format("'%s' could not be parsed as a proxy URL", config), e);
+      }
+      try {
+        proxyUrl = AbsoluteUrl.parse("http://" + config);
+      } catch (IllegalUri e2) {
+        IllegalArgumentException exception =
+            new IllegalArgumentException(
+                String.format(
+                    "'%s' could not be parsed as a proxy URL with or without an 'http://' prefix",
+                    config),
+                e);
+        exception.addSuppressed(e2);
+        throw exception;
+      }
     }
+    if (!proxyUrl.getScheme().equals(http)) {
+      throw new IllegalArgumentException("Proxy via does not support any other protocol than http");
+    }
+    checkParameter(!proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
+    ProxySettings proxySettings =
+        new ProxySettings(proxyUrl.getHost().toString(), proxyUrl.getResolvedPort().getIntValue());
+    if (proxyUrl.getUserInfo() != null) {
+      proxySettings.setUsername(proxyUrl.getUserInfo().getUsername().toString());
+      Password password = proxyUrl.getUserInfo().getPassword();
+      if (password != null) {
+        proxySettings.setPassword(password.toString());
+      }
+    }
+    return proxySettings;
   }
 
   public String host() {
