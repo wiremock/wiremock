@@ -11,6 +11,7 @@ mockito = "5.23.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.2"
+bouncycastle = "1.84"
 
 [libraries]
 # Jetty dependencies
@@ -130,10 +131,12 @@ jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api"
 
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on",  version.ref = "bouncycastle" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref = "bouncycastle" }
+
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 spotless = { id = "com.diffplug.spotless", version = "8.4.0" }
-shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 sonarqube = { id = "org.sonarqube", version = "7.2.3.7755" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore.KeyStoreType.JKS;
-import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -55,7 +54,6 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     CertificateSpecification certificateSpecification =
         new X509CertificateSpecification(
-            /* version= */ V3,
             /* subject= */ "CN=" + certificateCN,
             /* issuer= */ "CN=wiremock.org",
             /* notBefore= */ new Date(),
