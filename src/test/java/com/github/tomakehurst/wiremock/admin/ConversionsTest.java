@@ -19,21 +19,33 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.wiremock.url.Query;
 
 class ConversionsTest {
 
   @Test
-  void mapsValidFirstParameterValueAsDate() {
+  void mapsUTCDateTimeFirstParameterValueAsDate() {
     // given
-    var query = Query.parse("since=2023-10-07T00:00:00Z");
-    var expected =
-        Date.from(LocalDate.of(2023, Month.OCTOBER, 7).atStartOfDay(ZoneId.of("UTC")).toInstant());
+    String timestamp = "2023-10-07T00:00:00Z";
+    var query = Query.parse("since=" + timestamp);
+    var expected = Instant.parse(timestamp);
+
+    // when
+    var result = Conversions.toDate(query, "since");
+
+    // then
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  void mapsOffsetDateTimeFirstParameterValueAsDate() {
+    // given
+    String timestamp = "2023-10-07T00:00:00+02:00";
+    var query = Query.parse("since=" + timestamp);
+    var expected = OffsetDateTime.parse(timestamp).toInstant();
 
     // when
     var result = Conversions.toDate(query, "since");
