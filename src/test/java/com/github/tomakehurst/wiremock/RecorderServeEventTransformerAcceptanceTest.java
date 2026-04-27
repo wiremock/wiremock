@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -29,10 +27,6 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.HeaderModifyingRecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import java.util.List;
-import java.util.Optional;
-
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,10 +84,7 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
   @SuppressWarnings("unchecked")
   @Test
   public void appliesGlobalRecorderServeEventTransformerToRecordedStubs() {
-    wireMockServer.stubFor(
-        any(anyUrl())
-            .willReturn(
-                okJson("{\"original\": true}")));
+    wireMockServer.stubFor(any(anyUrl()).willReturn(okJson("{\"original\": true}")));
 
     proxyServerStart(
         wireMockConfig()
@@ -102,17 +93,26 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
 
     proxyingTestClient.postJson("/foo/bar", "{\"key\": \"value\"}");
 
-    SnapshotRecordResult recordResult = proxyingService.snapshotRecord(recordSpec().captureHeader("Content-Type"));
+    SnapshotRecordResult recordResult =
+        proxyingService.snapshotRecord(recordSpec().captureHeader("Content-Type"));
     assertThat(recordResult.getErrors(), empty());
 
-    StubMapping recordedStub = proxyingService.listAllStubMappings().getMappings().stream()
+    StubMapping recordedStub =
+        proxyingService.listAllStubMappings().getMappings().stream()
             .filter(stub -> "/foo/bar".equals(stub.getRequest().getUrl()))
             .findFirst()
-            .orElseThrow(() -> new AssertionError("Expected a recorded stub to be present with URL /foo/bar"));
+            .orElseThrow(
+                () ->
+                    new AssertionError("Expected a recorded stub to be present with URL /foo/bar"));
 
-    assertThat(recordedStub.getRequest().getHeaders().get("Content-Type").getExpected(), is("text/plain"));
-    assertThat(recordedStub.getRequest().getBodyPatterns().get(0).getExpected(), is("transformed request body"));
-    assertThat(recordedStub.getResponse().getHeaders().getHeader("Content-Type").firstValue(), is("text/plain"));
+    assertThat(
+        recordedStub.getRequest().getHeaders().get("Content-Type").getExpected(), is("text/plain"));
+    assertThat(
+        recordedStub.getRequest().getBodyPatterns().get(0).getExpected(),
+        is("transformed request body"));
+    assertThat(
+        recordedStub.getResponse().getHeaders().getHeader("Content-Type").firstValue(),
+        is("text/plain"));
     assertThat(recordedStub.getResponse().getBody(), is("transformed response body"));
   }
 }

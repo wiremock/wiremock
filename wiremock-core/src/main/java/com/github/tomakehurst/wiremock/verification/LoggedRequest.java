@@ -440,10 +440,23 @@ public class LoggedRequest implements Request {
 
     public LoggedRequest build() {
       return new LoggedRequest(
-          id, scheme, host, port, pathAndQuery, absoluteUrl,
-          method, clientIp, headers, pathParams, cookies,
-          isBrowserProxyRequest, loggedDate, body, multiparts,
-          protocol, formParameters);
+          id,
+          scheme,
+          host,
+          port,
+          pathAndQuery,
+          absoluteUrl,
+          method,
+          clientIp,
+          headers,
+          pathParams,
+          cookies,
+          isBrowserProxyRequest,
+          loggedDate,
+          body,
+          multiparts,
+          protocol,
+          formParameters);
     }
   }
 }

@@ -15,13 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+
 import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 public class HeaderModifyingRecorderServeEventTransformer implements RecorderServeEventTransformer {
 
@@ -51,10 +50,8 @@ public class HeaderModifyingRecorderServeEventTransformer implements RecorderSer
   }
 
   private static HttpHeaders replaceContentType(HttpHeaders headers, String contentType) {
-    return getFirstNonNull(headers, HttpHeaders.noHeaders()).transform(it -> it
-                    .remove(ContentTypeHeader.KEY)
-                    .add(ContentTypeHeader.KEY, contentType)
-    );
+    return getFirstNonNull(headers, HttpHeaders.noHeaders())
+        .transform(it -> it.remove(ContentTypeHeader.KEY).add(ContentTypeHeader.KEY, contentType));
   }
 
   @Override
