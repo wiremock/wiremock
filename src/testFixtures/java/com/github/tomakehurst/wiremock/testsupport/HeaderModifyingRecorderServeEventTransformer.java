@@ -16,27 +16,49 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 public class HeaderModifyingRecorderServeEventTransformer implements RecorderServeEventTransformer {
 
   @Override
   public ServeEvent transform(ServeEvent serveEvent) {
-    return serveEvent.withResponse(
-        serveEvent
-            .getResponse()
-            .transform(
-                builder ->
-                    builder.withHeaders(
-                        serveEvent
-                            .getResponse()
-                            .getHeaders()
-                            .plus(new HttpHeader("X-Custom-Header", "transformed")))));
+    return serveEvent
+        .withRequest(
+            serveEvent
+                .getRequest()
+                .transform(
+                    builder ->
+                        builder
+                            .withBody("transformed request body")
+                            .withHeaders(
+                                replaceContentType(
+                                    serveEvent.getRequest().getHeaders(), "text/plain"))))
+        .withResponse(
+            serveEvent
+                .getResponse()
+                .transform(
+                    builder ->
+                        builder
+                            .withBody("transformed response body".getBytes())
+                            .withHeaders(
+                                replaceContentType(
+                                    serveEvent.getResponse().getHeaders(), "text/plain"))));
+  }
+
+  private static HttpHeaders replaceContentType(HttpHeaders headers, String contentType) {
+    return getFirstNonNull(headers, HttpHeaders.noHeaders()).transform(it -> it
+                    .remove(ContentTypeHeader.KEY)
+                    .add(ContentTypeHeader.KEY, contentType)
+    );
   }
 
   @Override
   public String getName() {
-    return "global-recorder-serve-event-transformer";
+    return "header-modifying-recorder-serve-event-transformer";
   }
 }

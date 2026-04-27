@@ -368,4 +368,82 @@ public class LoggedRequest implements Request {
             .orElse(null)
         : null;
   }
+
+  public LoggedRequest transform(java.util.function.Consumer<Builder> transformer) {
+    Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  public static class Builder {
+    private UUID id;
+    private String scheme;
+    private String host;
+    private Integer port;
+    private PathAndQuery pathAndQuery;
+    private AbsoluteUrl absoluteUrl;
+    private RequestMethod method;
+    private String clientIp;
+    private HttpHeaders headers;
+    private PathParams pathParams;
+    private Map<String, Cookie> cookies;
+    private boolean isBrowserProxyRequest;
+    private Date loggedDate;
+    private byte[] body;
+    private Collection<Part> multiparts;
+    private String protocol;
+    private Map<String, FormParameter> formParameters;
+
+    public Builder(LoggedRequest original) {
+      this.id = original.id;
+      this.scheme = original.scheme;
+      this.host = original.host;
+      this.port = original.port;
+      this.pathAndQuery = original.pathAndQuery;
+      this.absoluteUrl = original.absoluteUrl;
+      this.method = original.method;
+      this.clientIp = original.clientIp;
+      this.headers = original.headers;
+      this.pathParams = original.pathParams;
+      this.cookies = original.cookies;
+      this.isBrowserProxyRequest = original.isBrowserProxyRequest;
+      this.loggedDate = original.loggedDate;
+      this.body = original.body;
+      this.multiparts = original.multiparts;
+      this.protocol = original.protocol;
+      this.formParameters = original.formParameters;
+    }
+
+    public Builder withHeaders(HttpHeaders headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    public Builder withBody(byte[] body) {
+      this.body = body;
+      return this;
+    }
+
+    public Builder withBody(String body) {
+      this.body = body != null ? body.getBytes(UTF_8) : null;
+      return this;
+    }
+
+    public Builder withMethod(RequestMethod method) {
+      this.method = method;
+      return this;
+    }
+
+    public LoggedRequest build() {
+      return new LoggedRequest(
+          id, scheme, host, port, pathAndQuery, absoluteUrl,
+          method, clientIp, headers, pathParams, cookies,
+          isBrowserProxyRequest, loggedDate, body, multiparts,
+          protocol, formParameters);
+    }
+  }
 }

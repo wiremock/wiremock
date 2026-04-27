@@ -118,6 +118,11 @@ public class ServeEvent {
         id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
+  public ServeEvent withRequest(LoggedRequest request) {
+    return new ServeEvent(
+        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
   public ServeEvent withResponse(LoggedResponse response) {
     return new ServeEvent(
         id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
