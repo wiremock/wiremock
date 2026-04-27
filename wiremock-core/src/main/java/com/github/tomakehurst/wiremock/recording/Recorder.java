@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
@@ -127,13 +128,25 @@ public class Recorder {
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
       SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
+    final List<RecorderServeEventTransformer> serveEventTransformers =
+        List.copyOf(extensions.ofType(RecorderServeEventTransformer.class).values());
+
     final List<Pair<ServeEvent, StubMapping>> stubMappings =
         serveEventsResult.stream()
             .filter(serveEventFilters)
+            .map(serveEvent -> applyServeEventTransformers(serveEvent, serveEventTransformers))
             .map((serveEvent) -> new Pair<>(serveEvent, stubMappingGenerator.apply(serveEvent)))
             .collect(Collectors.toList());
 
     return stubMappingPostProcessor.process(stubMappings);
+  }
+
+  private static ServeEvent applyServeEventTransformers(
+      ServeEvent serveEvent, List<RecorderServeEventTransformer> transformers) {
+    for (RecorderServeEventTransformer transformer : transformers) {
+      serveEvent = transformer.transform(serveEvent);
+    }
+    return serveEvent;
   }
 
   private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {

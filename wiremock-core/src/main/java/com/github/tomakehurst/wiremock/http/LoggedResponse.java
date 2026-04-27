@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
 public class LoggedResponse {
 
@@ -114,5 +115,60 @@ public class LoggedResponse {
 
   public boolean isFromProxy() {
     return fromProxy;
+  }
+
+  public LoggedResponse transform(Consumer<Builder> transformer) {
+    Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  public static class Builder {
+    private int status;
+    private HttpHeaders headers;
+    private byte[] body;
+    private Fault fault;
+    private boolean fromProxy;
+
+    public Builder(LoggedResponse original) {
+      this.status = original.status;
+      this.headers = original.headers;
+      this.body = original.body;
+      this.fault = original.fault;
+      this.fromProxy = original.fromProxy;
+    }
+
+    public Builder withStatus(int status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder withHeaders(HttpHeaders headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    public Builder withBody(byte[] body) {
+      this.body = body;
+      return this;
+    }
+
+    public Builder withFault(Fault fault) {
+      this.fault = fault;
+      return this;
+    }
+
+    public Builder withFromProxy(boolean fromProxy) {
+      this.fromProxy = fromProxy;
+      return this;
+    }
+
+    public LoggedResponse build() {
+      return new LoggedResponse(status, headers, body, fault, fromProxy);
+    }
   }
 }
