@@ -190,8 +190,8 @@ signing {
   val signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
   if (signingKey.isNotEmpty() && signingPassphrase.isNotEmpty()) {
     useInMemoryPgpKeys(signingKey, signingPassphrase)
+    sign(publishing.publications)
   }
-  sign(publishing.publications)
 }
 
 publishing {
