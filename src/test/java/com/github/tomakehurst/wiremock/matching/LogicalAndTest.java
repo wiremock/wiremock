@@ -104,6 +104,15 @@ public class LogicalAndTest {
   }
 
   @Test
+  public void objectsWithSameFirstOperandButDifferentLaterOperandsShouldNotBeEqual() {
+    LogicalAnd matcher1 = new LogicalAnd(WireMock.equalTo("A"), WireMock.equalTo("B"));
+    LogicalAnd matcher2 = new LogicalAnd(WireMock.equalTo("A"), WireMock.equalTo("C"));
+
+    assertNotEquals(matcher1, matcher2);
+    assertNotEquals(matcher1.hashCode(), matcher2.hashCode());
+  }
+
+  @Test
   void canSuccessfullyConstructWithAbsentAsFirstMatcher() {
     assertDoesNotThrow(
         () ->

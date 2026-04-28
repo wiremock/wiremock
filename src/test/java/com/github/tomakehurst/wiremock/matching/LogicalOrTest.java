@@ -119,6 +119,15 @@ public class LogicalOrTest {
   }
 
   @Test
+  public void objectsWithSameFirstOperandButDifferentLaterOperandsShouldNotBeEqual() {
+    LogicalOr matcher1 = new LogicalOr(WireMock.equalTo("A"), WireMock.equalTo("B"));
+    LogicalOr matcher2 = new LogicalOr(WireMock.equalTo("A"), WireMock.equalTo("C"));
+
+    assertNotEquals(matcher1, matcher2);
+    assertNotEquals(matcher1.hashCode(), matcher2.hashCode());
+  }
+
+  @Test
   void correctlyEvaluatesAbsentOrDoesNotMatch() {
     LogicalOr matcher =
         new LogicalOr(
