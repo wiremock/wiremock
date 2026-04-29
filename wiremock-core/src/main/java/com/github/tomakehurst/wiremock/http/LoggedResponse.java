@@ -167,6 +167,26 @@ public class LoggedResponse {
       return this;
     }
 
+    public int getStatus() {
+      return status;
+    }
+
+    public HttpHeaders getHeaders() {
+      return headers;
+    }
+
+    public byte[] getBody() {
+      return body;
+    }
+
+    public Fault getFault() {
+      return fault;
+    }
+
+    public boolean isFromProxy() {
+      return fromProxy;
+    }
+
     public LoggedResponse build() {
       return new LoggedResponse(status, headers, body, fault, fromProxy);
     }
