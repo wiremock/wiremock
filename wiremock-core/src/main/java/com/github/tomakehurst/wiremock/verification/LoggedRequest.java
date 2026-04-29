@@ -31,6 +31,8 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.Consumer;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
@@ -369,7 +371,7 @@ public class LoggedRequest implements Request {
         : null;
   }
 
-  public LoggedRequest transform(java.util.function.Consumer<Builder> transformer) {
+  public LoggedRequest transform(Consumer<Builder> transformer) {
     Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
