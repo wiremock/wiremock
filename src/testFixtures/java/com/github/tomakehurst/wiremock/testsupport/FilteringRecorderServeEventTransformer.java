@@ -13,11 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Optional;
 
-public interface RecorderServeEventTransformer extends Extension {
-  Optional<ServeEvent> transform(ServeEvent serveEvent);
+public class FilteringRecorderServeEventTransformer implements RecorderServeEventTransformer {
+
+  @Override
+  public Optional<ServeEvent> transform(ServeEvent serveEvent) {
+    if (serveEvent.getRequest().getUrl().startsWith("/exclude")) {
+      return Optional.empty();
+    }
+    return Optional.of(serveEvent);
+  }
+
+  @Override
+  public String getName() {
+    return "filtering-recorder-serve-event-transformer";
+  }
 }

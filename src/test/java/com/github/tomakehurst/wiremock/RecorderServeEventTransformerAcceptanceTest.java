@@ -20,13 +20,16 @@ import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.FilteringRecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.testsupport.HeaderModifyingRecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,7 +97,13 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
     proxyingTestClient.postJson("/foo/bar", "{\"key\": \"value\"}");
 
     SnapshotRecordResult recordResult =
-        proxyingService.snapshotRecord(recordSpec().captureHeader("Content-Type"));
+        proxyingService.snapshotRecord(
+            recordSpec()
+                    .makeStubsPersistent(false)
+                    .extractBinaryBodiesOver(Long.MAX_VALUE)
+                    .extractTextBodiesOver(Long.MAX_VALUE)
+                    .captureHeader("Content-Type")
+        );
     assertThat(recordResult.getErrors(), empty());
 
     StubMapping recordedStub =
@@ -114,5 +123,39 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
         recordedStub.getResponse().getHeaders().getHeader("Content-Type").firstValue(),
         is("text/plain"));
     assertThat(recordedStub.getResponse().getBody(), is("transformed response body"));
+  }
+
+  @Test
+  public void filtersOutServeEventsWhenTransformerReturnsEmpty() {
+    wireMockServer.stubFor(any(anyUrl()).willReturn(ok("response")));
+
+    proxyServerStart(
+        wireMockConfig()
+            .withRootDirectory("src/test/resources/empty")
+            .extensions(FilteringRecorderServeEventTransformer.class));
+
+    proxyingTestClient.get("/include/this");
+    proxyingTestClient.get("/exclude/this");
+    proxyingTestClient.get("/include/also");
+
+    SnapshotRecordResult recordResult =
+        proxyingService.snapshotRecord(recordSpec()
+                .makeStubsPersistent(false)
+                .extractBinaryBodiesOver(Long.MAX_VALUE)
+                .extractTextBodiesOver(Long.MAX_VALUE)
+        );
+
+    List<StubMapping> recordedStubs = recordResult.getStubMappings();
+    assertThat(recordedStubs, hasSize(2));
+
+    List<StubMapping> allStubs = proxyingService.listAllStubMappings().getMappings();
+    boolean hasExcludedStub =
+        allStubs.stream()
+            .anyMatch(
+                stub -> {
+                  String url = stub.getRequest().getUrl();
+                  return url != null && url.startsWith("/exclude");
+                });
+    assertThat(hasExcludedStub, is(false));
   }
 }

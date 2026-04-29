@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -135,18 +136,21 @@ public class Recorder {
         serveEventsResult.stream()
             .filter(serveEventFilters)
             .map(serveEvent -> applyServeEventTransformers(serveEvent, serveEventTransformers))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .map((serveEvent) -> new Pair<>(serveEvent, stubMappingGenerator.apply(serveEvent)))
             .collect(Collectors.toList());
 
     return stubMappingPostProcessor.process(stubMappings);
   }
 
-  private static ServeEvent applyServeEventTransformers(
+  private static Optional<ServeEvent> applyServeEventTransformers(
       ServeEvent serveEvent, List<RecorderServeEventTransformer> transformers) {
+    Optional<ServeEvent> result = Optional.of(serveEvent);
     for (RecorderServeEventTransformer transformer : transformers) {
-      serveEvent = transformer.transform(serveEvent);
+      result = result.flatMap(transformer::transform);
     }
-    return serveEvent;
+    return result;
   }
 
   private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {

@@ -21,32 +21,34 @@ import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.Optional;
 
 public class HeaderModifyingRecorderServeEventTransformer implements RecorderServeEventTransformer {
 
   @Override
-  public ServeEvent transform(ServeEvent serveEvent) {
-    return serveEvent
-        .withRequest(
-            serveEvent
-                .getRequest()
-                .transform(
-                    builder ->
-                        builder
-                            .withBody("transformed request body")
-                            .withHeaders(
-                                replaceContentType(
-                                    serveEvent.getRequest().getHeaders(), "text/plain"))))
-        .withResponse(
-            serveEvent
-                .getResponse()
-                .transform(
-                    builder ->
-                        builder
-                            .withBody("transformed response body".getBytes())
-                            .withHeaders(
-                                replaceContentType(
-                                    serveEvent.getResponse().getHeaders(), "text/plain"))));
+  public Optional<ServeEvent> transform(ServeEvent serveEvent) {
+    return Optional.of(
+        serveEvent
+            .withRequest(
+                serveEvent
+                    .getRequest()
+                    .transform(
+                        builder ->
+                            builder
+                                .withBody("transformed request body")
+                                .withHeaders(
+                                    replaceContentType(
+                                        serveEvent.getRequest().getHeaders(), "text/plain"))))
+            .withResponse(
+                serveEvent
+                    .getResponse()
+                    .transform(
+                        builder ->
+                            builder
+                                .withBody("transformed response body".getBytes())
+                                .withHeaders(
+                                    replaceContentType(
+                                        serveEvent.getResponse().getHeaders(), "text/plain")))));
   }
 
   private static HttpHeaders replaceContentType(HttpHeaders headers, String contentType) {
