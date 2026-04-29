@@ -82,6 +82,7 @@ publishing {
       artifactId = tasks.shadowJar.get().archiveBaseName.get()
       from(components.findByName("shadow"))
       artifact(tasks.sourcesJar)
+      artifact(tasks.javadocJar)
 
       pom.packaging = "jar"
       pom {
