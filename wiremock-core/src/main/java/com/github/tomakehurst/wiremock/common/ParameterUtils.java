@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,6 +106,19 @@ public class ParameterUtils {
         return current;
       }
     }
+  }
+
+  public static <T> Collection<T> ensureImmutable(Collection<T> collection) {
+    if (collection == null || ImmutableCollection.class.isAssignableFrom(collection.getClass())) {
+      return collection;
+    }
+
+    final Class<?> enclosingClass = collection.getClass().getEnclosingClass();
+    if (enclosingClass != null && enclosingClass.getSimpleName().equals("ImmutableCollections")) {
+      return collection;
+    }
+
+    return Collections.unmodifiableCollection(collection);
   }
 
   public static <K, V> Map<K, V> ensureImmutable(Map<K, V> map) {

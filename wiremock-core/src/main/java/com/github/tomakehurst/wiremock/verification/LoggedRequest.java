@@ -161,7 +161,7 @@ public class LoggedRequest implements Request {
     this.formParameters = ensureImmutable(formParameters);
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
-    this.multiparts = multiparts;
+    this.multiparts = ensureImmutable(multiparts);
     this.protocol = protocol;
 
     lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));

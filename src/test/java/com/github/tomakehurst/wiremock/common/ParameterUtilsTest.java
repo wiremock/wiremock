@@ -17,12 +17,87 @@ package com.github.tomakehurst.wiremock.common;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 
 public class ParameterUtilsTest {
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyGoogleImmutableList() {
+    final ImmutableList<String> input = ImmutableList.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyGoogleImmutableSet() {
+    final ImmutableSet<String> input = ImmutableSet.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyGoogleImmutableSortedSet() {
+    final ImmutableSortedSet<String> input = ImmutableSortedSet.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyGoogleImmutableMultiset() {
+    final ImmutableMultiset<String> input = ImmutableMultiset.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyJvmImmutableList() {
+    final List<String> input = List.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenAlreadyJvmImmutableSet() {
+    final Set<String> input = Set.of("a", "b");
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenMutableArrayList() {
+    final List<String> input = new ArrayList<>(List.of("a", "b"));
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
+
+  @Test
+  void ensuresCollectionImmutabilityWhenMutableHashSet() {
+    final Set<String> input = new HashSet<>(Set.of("a", "b"));
+
+    Collection<String> output = ParameterUtils.ensureImmutable(input);
+
+    assertThrows(UnsupportedOperationException.class, () -> output.add("not allowed"));
+  }
 
   @Test
   void ensuresMapImmutabilityWhenAlreadyGoogleImmutable() {
