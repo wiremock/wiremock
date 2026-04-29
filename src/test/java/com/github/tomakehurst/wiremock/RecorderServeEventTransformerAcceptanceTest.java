@@ -99,11 +99,10 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
     SnapshotRecordResult recordResult =
         proxyingService.snapshotRecord(
             recordSpec()
-                    .makeStubsPersistent(false)
-                    .extractBinaryBodiesOver(Long.MAX_VALUE)
-                    .extractTextBodiesOver(Long.MAX_VALUE)
-                    .captureHeader("Content-Type")
-        );
+                .makeStubsPersistent(false)
+                .extractBinaryBodiesOver(Long.MAX_VALUE)
+                .extractTextBodiesOver(Long.MAX_VALUE)
+                .captureHeader("Content-Type"));
     assertThat(recordResult.getErrors(), empty());
 
     StubMapping recordedStub =
@@ -139,11 +138,11 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
     proxyingTestClient.get("/include/also");
 
     SnapshotRecordResult recordResult =
-        proxyingService.snapshotRecord(recordSpec()
+        proxyingService.snapshotRecord(
+            recordSpec()
                 .makeStubsPersistent(false)
                 .extractBinaryBodiesOver(Long.MAX_VALUE)
-                .extractTextBodiesOver(Long.MAX_VALUE)
-        );
+                .extractTextBodiesOver(Long.MAX_VALUE));
 
     List<StubMapping> recordedStubs = recordResult.getStubMappings();
     assertThat(recordedStubs, hasSize(2));
