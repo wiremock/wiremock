@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
@@ -102,5 +105,18 @@ public class ParameterUtils {
         return current;
       }
     }
+  }
+
+  public static <K, V> Map<K, V> ensureImmutable(Map<K, V> map) {
+    if (map == null || ImmutableMap.class.isAssignableFrom(map.getClass())) {
+      return map;
+    }
+
+    final Class<?> enclosingClass = map.getClass().getEnclosingClass();
+    if (enclosingClass != null && enclosingClass.getSimpleName().equals("ImmutableCollections")) {
+      return map;
+    }
+
+    return Collections.unmodifiableMap(map);
   }
 }
