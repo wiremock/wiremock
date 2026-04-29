@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Consumer;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.url.AbsoluteUrl;
@@ -414,7 +413,7 @@ public class LoggedRequest implements Request {
       this.cookies = original.cookies;
       this.isBrowserProxyRequest = original.isBrowserProxyRequest;
       this.loggedDate = original.loggedDate;
-      this.body = original.body;
+      this.body = original.body != null ? Arrays.copyOf(original.body, original.body.length) : null;
       this.multiparts = original.multiparts;
       this.protocol = original.protocol;
       this.formParameters = original.formParameters;

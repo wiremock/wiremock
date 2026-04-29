@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class LoggedResponse {
@@ -137,7 +138,7 @@ public class LoggedResponse {
     public Builder(LoggedResponse original) {
       this.status = original.status;
       this.headers = original.headers;
-      this.body = original.body;
+      this.body = original.body != null ? Arrays.copyOf(original.body, original.body.length) : null;
       this.fault = original.fault;
       this.fromProxy = original.fromProxy;
     }
