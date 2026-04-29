@@ -418,9 +418,125 @@ public class LoggedRequest implements Request {
       this.formParameters = original.formParameters;
     }
 
+    public UUID getId() {
+      return id;
+    }
+
+    public Builder withId(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    public String getScheme() {
+      return scheme;
+    }
+
+    public Builder withScheme(String scheme) {
+      this.scheme = scheme;
+      return this;
+    }
+
+    public String getHost() {
+      return host;
+    }
+
+    public Builder withHost(String host) {
+      this.host = host;
+      return this;
+    }
+
+    public Integer getPort() {
+      return port;
+    }
+
+    public Builder withPort(Integer port) {
+      this.port = port;
+      return this;
+    }
+
+    public PathAndQuery getPathAndQuery() {
+      return pathAndQuery;
+    }
+
+    public Builder withPathAndQuery(PathAndQuery pathAndQuery) {
+      this.pathAndQuery = pathAndQuery;
+      return this;
+    }
+
+    public AbsoluteUrl getAbsoluteUrl() {
+      return absoluteUrl;
+    }
+
+    public Builder withAbsoluteUrl(AbsoluteUrl absoluteUrl) {
+      this.absoluteUrl = absoluteUrl;
+      return this;
+    }
+
+    public RequestMethod getMethod() {
+      return method;
+    }
+
+    public Builder withMethod(RequestMethod method) {
+      this.method = method;
+      return this;
+    }
+
+    public String getClientIp() {
+      return clientIp;
+    }
+
+    public Builder withClientIp(String clientIp) {
+      this.clientIp = clientIp;
+      return this;
+    }
+
+    public HttpHeaders getHeaders() {
+      return headers;
+    }
+
     public Builder withHeaders(HttpHeaders headers) {
       this.headers = headers;
       return this;
+    }
+
+    public PathParams getPathParams() {
+      return pathParams;
+    }
+
+    public Builder withPathParams(PathParams pathParams) {
+      this.pathParams = pathParams;
+      return this;
+    }
+
+    public Map<String, Cookie> getCookies() {
+      return cookies;
+    }
+
+    public Builder withCookies(Map<String, Cookie> cookies) {
+      this.cookies = cookies;
+      return this;
+    }
+
+    public boolean isBrowserProxyRequest() {
+      return isBrowserProxyRequest;
+    }
+
+    public Builder withBrowserProxyRequest(boolean isBrowserProxyRequest) {
+      this.isBrowserProxyRequest = isBrowserProxyRequest;
+      return this;
+    }
+
+    public Date getLoggedDate() {
+      return loggedDate;
+    }
+
+    public Builder withLoggedDate(Date loggedDate) {
+      this.loggedDate = loggedDate;
+      return this;
+    }
+
+    public byte[] getBody() {
+      return body;
     }
 
     public Builder withBody(byte[] body) {
@@ -433,8 +549,30 @@ public class LoggedRequest implements Request {
       return this;
     }
 
-    public Builder withMethod(RequestMethod method) {
-      this.method = method;
+    public Collection<Part> getMultiparts() {
+      return multiparts;
+    }
+
+    public Builder withMultiparts(Collection<Part> multiparts) {
+      this.multiparts = multiparts;
+      return this;
+    }
+
+    public String getProtocol() {
+      return protocol;
+    }
+
+    public Builder withProtocol(String protocol) {
+      this.protocol = protocol;
+      return this;
+    }
+
+    public Map<String, FormParameter> getFormParameters() {
+      return formParameters;
+    }
+
+    public Builder withFormParameters(Map<String, FormParameter> formParameters) {
+      this.formParameters = formParameters;
       return this;
     }
 
