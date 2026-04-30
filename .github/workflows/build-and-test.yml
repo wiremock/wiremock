@@ -54,6 +54,43 @@ jobs:
     - name: Test WireMock
       run: ./gradlew :check --stacktrace --no-daemon
 
+    - name: Build standalone JAR
+      run: ./gradlew :wiremock-standalone:shadowJar --no-daemon
+
+    - name: Verify standalone JAR starts
+      shell: bash
+      run: |
+        STANDALONE_JAR=$(ls wiremock-standalone/build/libs/wiremock-standalone-*.jar | grep -v '\-sources\.jar' | grep -v '\-javadoc\.jar' | grep -v '\-test-fixtures\.jar' | head -1)
+        java -jar "$STANDALONE_JAR" --port 0 --disable-banner > wiremock-output.txt 2>&1 &
+        WIREMOCK_PID=$!
+        for i in $(seq 1 30); do
+          if grep -q "^port:" wiremock-output.txt 2>/dev/null; then
+            break
+          fi
+          if ! kill -0 $WIREMOCK_PID 2>/dev/null; then
+            echo "WireMock process exited unexpectedly:"
+            cat wiremock-output.txt
+            exit 1
+          fi
+          sleep 1
+        done
+        WIREMOCK_PORT=$(grep "^port:" wiremock-output.txt | awk '{print $2}')
+        if [ -z "$WIREMOCK_PORT" ]; then
+          echo "Could not determine WireMock port. Output:"
+          cat wiremock-output.txt
+          kill $WIREMOCK_PID 2>/dev/null || true
+          exit 1
+        fi
+        echo "WireMock started on port $WIREMOCK_PORT"
+        HTTP_STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:$WIREMOCK_PORT/__admin/)
+        kill $WIREMOCK_PID 2>/dev/null || true
+        wait $WIREMOCK_PID 2>/dev/null || true
+        if [ "$HTTP_STATUS" != "200" ]; then
+          echo "Expected HTTP 200 from admin API but got $HTTP_STATUS"
+          exit 1
+        fi
+        echo "Standalone JAR verified successfully"
+
     - name: Archive WireMock reports - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
       uses: actions/upload-artifact@v4

@@ -54,8 +54,6 @@ tasks.shadowJar {
   relocate("org.checkerframework", "wiremock.org.checkerframework")
   relocate("org.hamcrest", "wiremock.org.hamcrest")
   relocate("org.slf4j", "wiremock.org.slf4j")
-  relocate("joptsimple", "wiremock.joptsimple")
-  exclude("joptsimple/HelpFormatterMessages.properties")
   relocate("org.yaml", "wiremock.org.yaml")
   relocate("com.ethlo", "wiremock.com.ethlo")
   relocate("com.networknt", "wiremock.com.networknt")
