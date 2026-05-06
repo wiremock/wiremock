@@ -78,7 +78,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
       return initialServeEvent.withResponseDefinition(ResponseDefinition.notAuthorised());
     }
 
-    notifier().info("Admin request received:\n" + formatRequest(request));
+    notifier().info(() -> "Admin request received:\n" + formatRequest(request));
     Path path = withoutAdminRoot(request.getPathAndQueryWithoutPrefix().getPath());
 
     try {
