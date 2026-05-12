@@ -37,8 +37,9 @@ import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
-import com.github.tomakehurst.wiremock.store.InMemoryMessageChannelStore;
 import com.github.tomakehurst.wiremock.store.InMemoryMessageStubMappingStore;
+import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices.TestStores;
 import com.github.tomakehurst.wiremock.verification.InMemoryMessageJournal;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
@@ -56,7 +57,8 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private MessageChannels messageChannels = new MessageChannels(new InMemoryMessageChannelStore());
+  private Stores stores = new TestStores();
+  private MessageChannels messageChannels = new MessageChannels(stores);
   private MessageStubMappings messageStubMappings =
       new MessageStubMappings(new InMemoryMessageStubMappingStore());
   private MessageStubRequestHandler messageStubRequestHandler;
@@ -94,7 +96,7 @@ public class JettyHttpServerTest {
             messageStubMappings,
             messageChannels,
             new InMemoryMessageJournal(null),
-            null,
+            stores,
             Collections.emptyList());
   }
 

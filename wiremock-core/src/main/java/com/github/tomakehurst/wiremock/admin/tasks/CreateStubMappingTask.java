@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.Conversions;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
@@ -30,9 +31,10 @@ public class CreateStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMapping newMapping =
-        Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
+    String requestBody = serveEvent.getRequest().getBodyAsString();
+    StubMapping newMapping = Json.read(requestBody, StubMapping.class);
     admin.addStubMapping(newMapping);
-    return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
+    Class<?> view = Conversions.detectJsonViewFromRequestBody(requestBody);
+    return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED, view);
   }
 }

@@ -16,3 +16,9 @@ The following packages contain messaging/websocket functionality:
 
 2. **No Comments** - Do not add inline comments except in rare cases to explain non-obvious decisions that cannot be made clear through better naming or code structure.
 
+3. **Always import** - Do not use fully-qualified class names. Always use `import` statements.
+
+## Testing
+
+1. **Use JsonUnit for JSON assertions** - Use `net.javacrumbs.jsonunit.JsonMatchers` (e.g. `jsonEquals`, `jsonPartEquals`) rather than `JSONAssert` for JSON assertions in tests.
+

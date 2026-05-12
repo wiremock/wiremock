@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,16 @@ public interface FileSource {
   void writeBinaryFile(String name, byte[] contents);
 
   boolean exists();
+
+  // Preserving backwards compatibility, but better not to rely on this implementation
+  default boolean fileExists(String name) {
+    try {
+      getBinaryFileNamed(name).getStream();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
 
   void deleteFile(String name);
 }

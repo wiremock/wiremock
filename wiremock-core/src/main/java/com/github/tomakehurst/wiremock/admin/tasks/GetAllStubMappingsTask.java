@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.Conversions;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -23,16 +24,18 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.url.Query;
 
 public class GetAllStubMappingsTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
+    Query query = serveEvent.getRequest().getPathAndQueryWithoutPrefix().getQueryOrEmpty();
     ListStubMappingsResult result =
         new ListStubMappingsResult(
             LimitAndOffsetPaginator.fromRequest(
                 admin.listAllStubMappings().getMappings(), serveEvent.getRequest()));
 
-    return ResponseDefinitionBuilder.jsonResponse(result);
+    return ResponseDefinitionBuilder.jsonResponse(result, Conversions.toJsonView(query));
   }
 }

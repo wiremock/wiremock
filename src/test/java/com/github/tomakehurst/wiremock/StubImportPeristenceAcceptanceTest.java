@@ -97,6 +97,8 @@ public class StubImportPeristenceAcceptanceTest {
         stubImport().stub(post("/two").withId(stub2Id).willReturn(ok("Updated"))).build());
 
     wm.resetToDefaultMappings();
-    assertThat(wm.getStubMapping(stub2Id).getItem().getResponse().getBody(), is("Updated"));
+    assertThat(
+        wm.getStubMapping(stub2Id).getItem().getResponse().getBodyEntity().getDataAsString(),
+        is("Updated"));
   }
 }

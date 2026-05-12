@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPost
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -51,7 +52,12 @@ public class StubResponseRendererTest {
     v2ResponseTransformers = new ArrayList<>();
     stubResponseRenderer =
         new StubResponseRenderer(
-            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
+            filesBlobStore,
+            settingsStore,
+            null,
+            responseTransformers,
+            v2ResponseTransformers,
+            null);
   }
 
   @Test
@@ -115,7 +121,7 @@ public class StubResponseRendererTest {
         new ResponseDefinition(
             0,
             "",
-            "",
+            EmptyEntityDefinition.INSTANCE,
             null,
             "",
             "",

@@ -22,7 +22,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.ensureImmuta
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameterMap;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
@@ -245,9 +245,9 @@ public class LoggedRequest implements Request {
   private Charset encodingFromContentTypeHeaderOrUtf8() {
     ContentTypeHeader contentTypeHeader = contentTypeHeader();
     if (contentTypeHeader != null) {
-      return contentTypeHeader.charset();
+      return contentTypeHeader.charset().orElse(DEFAULT_CHARSET);
     }
-    return UTF_8;
+    return DEFAULT_CHARSET;
   }
 
   @Override

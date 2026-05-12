@@ -39,6 +39,8 @@ public final class Json {
 
   public static class PublicView {}
 
+  public static class V4StyleView {}
+
   private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
       new InheritableThreadLocal<>() {
         @Override
@@ -124,6 +126,11 @@ public final class Json {
 
   public static JsonNode node(String json) {
     return read(json, JsonNode.class);
+  }
+
+  public static JsonNode node(Object data) {
+    ObjectMapper mapper = getObjectMapper();
+    return mapper.convertValue(data, JsonNode.class);
   }
 
   public static int maxDeepSize(JsonNode one, JsonNode two) {

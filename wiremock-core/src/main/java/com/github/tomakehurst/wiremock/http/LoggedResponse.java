@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.OCTET_STREAM;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -60,7 +61,7 @@ public class LoggedResponse {
         response.getHeaders() == null || response.getHeaders().all().isEmpty()
             ? null
             : response.getHeaders(),
-        response.getBody(responseBodySizeLimit),
+        response.getBody().getData(responseBodySizeLimit),
         response.getFault(),
         response.isFromProxy());
   }
@@ -97,7 +98,9 @@ public class LoggedResponse {
 
   @JsonIgnore
   public Charset getCharset() {
-    return headers == null ? UTF_8 : headers.getContentTypeHeader().charset();
+    return headers == null
+        ? UTF_8
+        : headers.getContentTypeHeader().charset().orElse(DEFAULT_CHARSET);
   }
 
   @JsonIgnore

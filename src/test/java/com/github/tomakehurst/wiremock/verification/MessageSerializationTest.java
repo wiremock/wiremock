@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
@@ -23,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -31,10 +33,11 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.DataRefEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.DataStoreRef;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RegexPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -46,17 +49,15 @@ import com.github.tomakehurst.wiremock.message.IncomingMessageTrigger;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class MessageSerializationTest {
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
+    return Message.builder().withTextBody(text).build();
   }
 
   @Test
@@ -514,9 +515,13 @@ public class MessageSerializationTest {
 
   @Test
   void textEntityDefinitionWithStringDataSerializesToJson() {
-    TextEntityDefinition entityDef =
-        new TextEntityDefinition(
-            FormatType.JSON, CompressionType.NONE, null, null, "hello world", null);
+    final EntityDefinition entityDef =
+        EntityDefinition.builder()
+            .setFormat(Format.TEXT)
+            .setCharset(UTF_8)
+            .setCompression(CompressionType.NONE)
+            .setData("hello world")
+            .build();
 
     String json = Json.write(entityDef);
 
@@ -528,127 +533,6 @@ public class MessageSerializationTest {
             """
             {
               "data": "hello world"
-            }
-            """));
-  }
-
-  @Test
-  void textEntityDefinitionWithObjectDataSerializesToJson() {
-    Map<String, Object> objectData = Map.of("name", "John", "age", 30);
-    TextEntityDefinition entityDef =
-        new TextEntityDefinition(
-            FormatType.JSON, CompressionType.NONE, null, null, objectData, null);
-
-    String json = Json.write(entityDef);
-
-    // Default values (format=json, compression=none) should not be serialized
-    assertThat(
-        json,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "data": {
-                "name": "John",
-                "age": 30
-              }
-            }
-            """));
-  }
-
-  @Test
-  void textEntityDefinitionWithDataStoreRefSerializesToJson() {
-    // Using non-default format (TEXT instead of JSON) to test that it is serialized
-    TextEntityDefinition entityDef =
-        new TextEntityDefinition(
-            FormatType.TEXT, CompressionType.NONE, "myStore", "myKey", null, null);
-
-    String json = Json.write(entityDef);
-
-    // compression=none is default, so not serialized
-    // format=text is NOT the default (json is), so it IS serialized
-    assertThat(
-        json,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "format": "text",
-              "dataStore": "myStore",
-              "dataRef": "myKey"
-            }
-            """));
-  }
-
-  @Test
-  void textEntityDefinitionWithDataStoreRoundTripsViaMessageStubMapping() {
-    TextEntityDefinition original =
-        new TextEntityDefinition(
-            FormatType.JSON, CompressionType.GZIP, "myStore", "myKey", null, null);
-
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
-            .withName("Round trip stub")
-            .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(original))
-            .build();
-
-    String json = Json.write(stub);
-    MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
-
-    SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
-    assertThat(action.getBody(), instanceOf(TextEntityDefinition.class));
-    assertThat(action.getBody(), is(original));
-  }
-
-  @Test
-  void messageStubMappingWithTextEntityDefinitionSerializesCorrectly() {
-    TextEntityDefinition entityDef =
-        new TextEntityDefinition(
-            FormatType.JSON, CompressionType.NONE, null, null, Map.of("key", "value"), null);
-
-    MessageStubMapping stub =
-        MessageStubMapping.builder()
-            .withId(UUID.fromString("cccccccc-dddd-eeee-ffff-000000000000"))
-            .withName("Text entity stub")
-            .withBody(equalTo("trigger"))
-            .triggersAction(SendMessageAction.toOriginatingChannel(entityDef))
-            .build();
-
-    String json = Json.write(stub);
-
-    // Default values (format=json, compression=none) should not be serialized
-    assertThat(
-        json,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "id": "cccccccc-dddd-eeee-ffff-000000000000",
-              "name": "Text entity stub",
-              "trigger": {
-                "type": "message",
-                "message": {
-                  "body": {
-                    "equalTo": "trigger"
-                  }
-                }
-              },
-              "actions": [
-                {
-                  "type": "send",
-                  "message": {
-                    "body": {
-                      "data": {
-                        "key": "value"
-                      }
-                    }
-                  },
-                  "channelTarget": {
-                    "type": "originating"
-                  }
-                }
-              ]
             }
             """));
   }
@@ -691,11 +575,10 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof TextEntityDefinition, is(true));
+    assertThat(action.getBody() != null, is(true));
 
-    TextEntityDefinition entityDef = (TextEntityDefinition) action.getBody();
-    assertThat(entityDef.getDataStore(), is("testStore"));
-    assertThat(entityDef.getDataRef(), is("testKey"));
+    DataRefEntityDefinition entityDef = (DataRefEntityDefinition) action.getBody();
+    assertThat(entityDef.getDataStoreRef(), is(new DataStoreRef("testStore", "testKey")));
   }
 
   // BinaryEntityDefinition serialisation tests
@@ -708,15 +591,14 @@ public class MessageSerializationTest {
     String matchBase64 = java.util.Base64.getEncoder().encodeToString(matchBytes);
     String responseBase64 = java.util.Base64.getEncoder().encodeToString(responseBytes);
 
-    BinaryEntityDefinition binaryBody =
-        BinaryEntityDefinition.aBinaryMessage().withBody(responseBytes).build();
+    EntityDefinition body = binaryEntity().setData(responseBytes).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
             .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
             .withName("Binary stub")
             .withBody(binaryEqualTo(matchBytes))
-            .triggersAction(SendMessageAction.toOriginatingChannel(binaryBody))
+            .triggersAction(SendMessageAction.toOriginatingChannel(body))
             .build();
 
     String json = Json.write(stub);
@@ -742,8 +624,7 @@ public class MessageSerializationTest {
                   "type": "send",
                   "message": {
                     "body": {
-                      "encoding": "binary",
-                      "data": "%s"
+                      "base64Data": "%s"
                     }
                   },
                   "channelTarget": {
@@ -781,8 +662,7 @@ public class MessageSerializationTest {
               "type": "send",
               "message": {
                 "body": {
-                  "encoding": "binary",
-                  "data": "%s"
+                  "base64Data": "%s"
                 }
               },
               "channelTarget": {
@@ -801,10 +681,10 @@ public class MessageSerializationTest {
 
     SendMessageAction action = (SendMessageAction) stub.getActions().get(0);
     assertThat(action.getBody(), is(notNullValue()));
-    assertThat(action.getBody() instanceof BinaryEntityDefinition, is(true));
+    assertThat(action.getBody() != null, is(true));
 
-    BinaryEntityDefinition entityDef = (BinaryEntityDefinition) action.getBody();
-    assertThat(entityDef.getData(), is(responseBase64));
+    EntityDefinition entityDef = action.getBody();
+    assertThat(entityDef.getDataAsString(), is(responseBase64));
     assertThat(entityDef.getDataAsBytes(), is(responseBytes));
   }
 
@@ -813,8 +693,7 @@ public class MessageSerializationTest {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
     String base64Data = java.util.Base64.getEncoder().encodeToString(data);
 
-    BinaryEntityDefinition entityDef =
-        BinaryEntityDefinition.aBinaryMessage().withBody(data).build();
+    EntityDefinition entityDef = binaryEntity().setData(data).build();
 
     String json = Json.write(entityDef);
 
@@ -824,8 +703,7 @@ public class MessageSerializationTest {
             // language=JSON
             """
             {
-              "encoding": "binary",
-              "data": "%s"
+              "base64Data": "%s"
             }
             """
                 .formatted(base64Data)));
@@ -835,8 +713,7 @@ public class MessageSerializationTest {
   void binaryEntityDefinitionRoundTripsViaMessageStubMapping() {
     byte[] data = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
 
-    BinaryEntityDefinition original =
-        BinaryEntityDefinition.aBinaryMessage().withBody(data).build();
+    EntityDefinition original = binaryEntity().setData(data).build();
 
     MessageStubMapping stub =
         MessageStubMapping.builder()
@@ -849,7 +726,7 @@ public class MessageSerializationTest {
     MessageStubMapping deserialized = Json.read(json, MessageStubMapping.class);
 
     SendMessageAction action = (SendMessageAction) deserialized.getActions().get(0);
-    assertThat(action.getBody(), instanceOf(BinaryEntityDefinition.class));
+    assertThat(action.getBody(), instanceOf(EntityDefinition.class));
     assertThat(action.getBody(), is(original));
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.j
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.ACCEPT;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
-import static com.github.tomakehurst.wiremock.http.MimeType.PLAIN;
+import static com.github.tomakehurst.wiremock.http.MimeTypes.PLAIN;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;

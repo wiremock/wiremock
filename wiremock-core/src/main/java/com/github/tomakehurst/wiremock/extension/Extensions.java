@@ -173,10 +173,7 @@ public class Extensions implements WireMockServices {
     if (options.getResponseTemplatingEnabled()) {
       final ResponseTemplateTransformer responseTemplateTransformer =
           new ResponseTemplateTransformer(
-              getTemplateEngine(),
-              options.getResponseTemplatingGlobal(),
-              getFiles(),
-              templateModelProviders);
+              getTemplateEngine(), options.getResponseTemplatingGlobal(), getFiles(), stores);
       loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
 
       final MessageTemplateTransformer messageTemplateTransformer =

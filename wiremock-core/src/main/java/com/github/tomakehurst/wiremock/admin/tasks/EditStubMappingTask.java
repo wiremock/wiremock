@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.Conversions;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -26,10 +28,11 @@ public class EditStubMappingTask extends AbstractSingleStubTask {
   @Override
   protected ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
+    String requestBody = serveEvent.getRequest().getBodyAsString();
     StubMapping newStubMapping =
-        Json.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class)
-            .transform(sm -> sm.setId(stubMapping.getId()));
+        Json.read(requestBody, StubMapping.class).transform(sm -> sm.setId(stubMapping.getId()));
     admin.editStubMapping(newStubMapping);
-    return ResponseDefinition.okForJson(newStubMapping);
+    Class<?> view = Conversions.detectJsonViewFromRequestBody(requestBody);
+    return ResponseDefinitionBuilder.okForJson(newStubMapping, view).build();
   }
 }
