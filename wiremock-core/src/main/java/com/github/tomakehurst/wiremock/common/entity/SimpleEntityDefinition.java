@@ -76,6 +76,11 @@ class SimpleEntityDefinition extends EntityDefinition {
   }
 
   @Override
+  public boolean isPlainInlineString() {
+    return isInline() && !isBinary() && !isCompressed();
+  }
+
+  @Override
   public Builder toBuilder() {
     return new Builder(
         this.compression, this.format, this.charset, this.data, null, null, null, false);

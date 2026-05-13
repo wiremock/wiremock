@@ -170,9 +170,6 @@ public class StubMappingTest {
               },
               "response": {
                 "body": "{}",
-                "bodyMetadata": {
-                  "format":"json"
-                },
                 "headers": {
                   "Content-Type": "application/json"
                 },

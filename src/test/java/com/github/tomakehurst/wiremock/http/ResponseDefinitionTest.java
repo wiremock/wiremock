@@ -49,7 +49,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null, null);
+          null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -61,7 +61,6 @@ public class ResponseDefinitionTest {
             null,
             null,
             "name.json",
-            null,
             new HttpHeaders(httpHeader("thing", "thingvalue")),
             null,
             null,
@@ -196,143 +195,10 @@ public class ResponseDefinitionTest {
                          "Content-Length": "28",
                          "Content-Type": "application/json"
                        },
-                       "base64Body": "%s",
-                       "bodyMetadata": {
-                         "format": "json",
-                         "compression": "gzip"
-                       }
+                       "base64Body": "%s"
                      }
                     """
                 .formatted(base64)));
-  }
-
-  @Test
-  void correctlySerialisesCompressedTextInV4Style() {
-    String plain = "{\"id\":1}";
-    byte[] gzipped = Gzip.gzip(plain);
-    String base64 = Encoding.encodeBase64(gzipped);
-
-    ResponseDefinition responseDef =
-        responseDefinition()
-            .withStatus(200)
-            .withHeader("Content-Encoding", "gzip")
-            .withHeader(CONTENT_LENGTH, String.valueOf(gzipped.length))
-            .withHeader("Content-Type", "application/json")
-            .withBody(gzipped)
-            .build();
-
-    String actualJson = Json.write(responseDef, Json.V4StyleView.class);
-
-    assertThat(
-        actualJson,
-        jsonEquals(
-            // language=JSON
-            """
-                    {
-                       "status": 200,
-                       "headers": {
-                         "Content-Encoding": "gzip",
-                         "Content-Length": "28",
-                         "Content-Type": "application/json"
-                       },
-                       "body": {
-                         "compression": "gzip",
-                         "format": "json",
-                         "base64Data": "%s"
-                       }
-                     }
-                    """
-                .formatted(base64)));
-  }
-
-  @Test
-  void correctlyMarshalsJsonBodyInV4Style() {
-    ResponseDefinition responseDef =
-        responseDefinition()
-            .withStatus(200)
-            .withJsonBody(Json.node("{\"name\":\"wiremock\"}"))
-            .build();
-
-    String actualJson = Json.write(responseDef, Json.V4StyleView.class);
-
-    assertThat(
-        actualJson,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "status": 200,
-              "body": {
-                "format": "json",
-                "data": {
-                  "name": "wiremock"
-                }
-              }
-            }
-            """));
-  }
-
-  @Test
-  void correctlyMarshalsStringBodyInV4Style() {
-    ResponseDefinition responseDef =
-        responseDefinition().withStatus(200).withSimpleBody("Hello world").build();
-
-    String actualJson = Json.write(responseDef, Json.V4StyleView.class);
-
-    assertThat(
-        actualJson,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "status": 200,
-              "body": {
-                "data": "Hello world"
-              }
-            }
-            """));
-  }
-
-  @Test
-  void correctlyMarshalsBinaryBodyInV4Style() {
-    ResponseDefinition responseDef =
-        responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
-
-    String actualJson = Json.write(responseDef, Json.V4StyleView.class);
-
-    assertThat(
-        actualJson,
-        jsonEquals(
-            // language=JSON
-            """
-            {
-              "status": 200,
-              "body": {
-                "base64Data": "AQID"
-              }
-            }
-            """));
-  }
-
-  @Test
-  void v4StyleExcludesBase64BodyJsonBodyBodyFileNameAndBodyMetadata() {
-    String plain = "{\"id\":1}";
-    byte[] gzipped = Gzip.gzip(plain);
-
-    ResponseDefinition responseDef =
-        responseDefinition()
-            .withStatus(200)
-            .withHeader("Content-Encoding", "gzip")
-            .withHeader("Content-Type", "application/json")
-            .withBody(gzipped)
-            .build();
-
-    String actualJson = Json.write(responseDef, Json.V4StyleView.class);
-
-    assertThat(actualJson, not(containsString("base64Body")));
-    assertThat(actualJson, not(containsString("jsonBody")));
-    assertThat(actualJson, not(containsString("bodyFileName")));
-    assertThat(actualJson, not(containsString("bodyMetadata")));
   }
 
   @Test
@@ -354,9 +220,6 @@ public class ResponseDefinitionTest {
               "status": 200,
               "jsonBody": {
                 "name": "wiremock"
-              },
-              "bodyMetadata": {
-                "format": "json"
               }
             }
             """));
@@ -514,7 +377,6 @@ public class ResponseDefinitionTest {
             200,
             "my status message",
             WireMock.textEntity("my body").build(),
-            null,
             null,
             null,
             null,
@@ -700,45 +562,6 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  void bodyMetadataIsIncludedWhenNonDefaults() {
-    String plain = "{\"id\":1}";
-    byte[] gzipped = Gzip.gzip(plain);
-
-    ResponseDefinition responseDef =
-        responseDefinition()
-            .withStatus(200)
-            .withHeader("Content-Encoding", "gzip")
-            .withHeader("Content-Type", "application/json")
-            .withBody(gzipped)
-            .build();
-
-    assertThat(responseDef.getBodyMetadata(), notNullValue());
-    assertThat(responseDef.getBodyMetadata().getFormat(), is(Format.JSON));
-    assertThat(responseDef.getBodyMetadata().getCompression(), is(CompressionType.GZIP));
-  }
-
-  @Test
-  void deserialisesBodyMetadataFromJson() {
-    var json =
-        // language=JSON
-        """
-        {
-          "status": 200,
-          "base64Body": "AQID",
-          "bodyMetadata": {
-            "format": "json",
-            "compression": "gzip"
-          }
-        }
-        """;
-
-    ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
-
-    assertThat(responseDef.getBodyEntity().getFormat(), is(Format.JSON));
-    assertThat(responseDef.getBodyEntity().getCompression(), is(CompressionType.GZIP));
-  }
-
-  @Test
   void bodyFileNameIsSerializedWhenSetAfterInlineBody() {
     // Mimic the recording flow: create with inline body, then set bodyFileName
     ResponseDefinition original =
@@ -751,5 +574,27 @@ public class ResponseDefinitionTest {
     String json = Json.write(transformed);
     assertThat(json, containsString("\"bodyFileName\" : \"test-file.txt\""));
     assertThat(json, not(containsString("\"body\"")));
+  }
+
+  @Test
+  void parsesCorrectlyWithBodyFileNameForJson() {
+    var json =
+        // language=JSON
+        """
+            {
+              "headers": {
+                "Content-Type": "application/json;charset=UTF-16"
+              },
+              "bodyFileName": "bodies/data.json"
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    EntityDefinition body = responseDefinition.getBodyEntity();
+    assertThat(body.getFilePath(), is("bodies/data.json"));
+    assertThat(body.getCharset(), is(StandardCharsets.UTF_16));
+    assertThat(body.getFormat(), is(Format.JSON));
+    assertThat(body.getCompression(), is(CompressionType.NONE));
   }
 }

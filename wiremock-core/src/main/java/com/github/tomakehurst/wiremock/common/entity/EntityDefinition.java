@@ -123,6 +123,11 @@ public abstract class EntityDefinition {
     return this instanceof EmptyEntityDefinition;
   }
 
+  @JsonIgnore
+  public boolean isPlainInlineString() {
+    return false;
+  }
+
   @NonNull
   @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = DefaultCompressionFilter.class)
   public CompressionType getCompression() {

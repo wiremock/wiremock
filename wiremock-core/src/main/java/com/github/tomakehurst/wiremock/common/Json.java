@@ -39,8 +39,6 @@ public final class Json {
 
   public static class PublicView {}
 
-  public static class V4StyleView {}
-
   private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder =
       new InheritableThreadLocal<>() {
         @Override
