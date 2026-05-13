@@ -588,6 +588,30 @@
     "matchesWhatWg" : false
   },
   {
+    "input" : "http://18446744073709551616",
+    "base" : "http://other.com/",
+    "inputExpected" : { "stringValue" : "http://18446744073709551616", "type" : "Origin", "scheme" : "http", "authority" : "18446744073709551616", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744073709551616", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "inputNormalised" : { "stringValue" : "http://18446744073709551616/", "type" : "BaseUrl", "scheme" : "http", "authority" : "18446744073709551616", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744073709551616", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseExpected" : { "stringValue" : "http://other.com/", "type" : "BaseUrl", "scheme" : "http", "authority" : "other.com", "userInfo" : null, "username" : null, "password" : null, "host" : "other.com", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "http://other.com/", "type" : "BaseUrl", "scheme" : "http", "authority" : "other.com", "userInfo" : null, "username" : null, "password" : null, "host" : "other.com", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "http://18446744073709551616/", "type" : "BaseUrl", "scheme" : "http", "authority" : "18446744073709551616", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744073709551616", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "origin" : { "stringValue" : "http://18446744073709551616", "type" : "Origin", "scheme" : "http", "authority" : "18446744073709551616", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744073709551616", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "http://18446744073709551616", "base" : "http://other.com/", "failure" : true },
+    "matchesWhatWg" : false
+  },
+  {
+    "input" : "http://18446744075840258049",
+    "base" : "http://other.com/",
+    "inputExpected" : { "stringValue" : "http://18446744075840258049", "type" : "Origin", "scheme" : "http", "authority" : "18446744075840258049", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744075840258049", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "inputNormalised" : { "stringValue" : "http://18446744075840258049/", "type" : "BaseUrl", "scheme" : "http", "authority" : "18446744075840258049", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744075840258049", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseExpected" : { "stringValue" : "http://other.com/", "type" : "BaseUrl", "scheme" : "http", "authority" : "other.com", "userInfo" : null, "username" : null, "password" : null, "host" : "other.com", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "baseNormalised" : { "stringValue" : "http://other.com/", "type" : "BaseUrl", "scheme" : "http", "authority" : "other.com", "userInfo" : null, "username" : null, "password" : null, "host" : "other.com", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "resolved" : { "stringValue" : "http://18446744075840258049/", "type" : "BaseUrl", "scheme" : "http", "authority" : "18446744075840258049", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744075840258049", "port" : null, "path" : "/", "query" : null, "fragment" : null },
+    "origin" : { "stringValue" : "http://18446744075840258049", "type" : "Origin", "scheme" : "http", "authority" : "18446744075840258049", "userInfo" : null, "username" : null, "password" : null, "host" : "18446744075840258049", "port" : null, "path" : "", "query" : null, "fragment" : null },
+    "source" : { "input" : "http://18446744075840258049", "base" : "http://other.com/", "failure" : true },
+    "matchesWhatWg" : false
+  },
+  {
     "input" : "http://192.168.0.257",
     "base" : "http://other.com/",
     "inputExpected" : { "stringValue" : "http://192.168.0.257", "type" : "Origin", "scheme" : "http", "authority" : "192.168.0.257", "userInfo" : null, "username" : null, "password" : null, "host" : "192.168.0.257", "port" : null, "path" : "", "query" : null, "fragment" : null },
