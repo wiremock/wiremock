@@ -30,7 +30,8 @@ public class Urls {
   public static Map<String, QueryParameter> toQueryParameterMap(Query query) {
     return query.asDecodedMap().entrySet().stream()
         .collect(
-            Collectors.toMap(Entry::getKey, e -> new QueryParameter(e.getKey(), e.getValue())));
+            Collectors.toUnmodifiableMap(
+                Entry::getKey, e -> new QueryParameter(e.getKey(), e.getValue())));
   }
 
   public static String urlToPathParts(PathAndQuery uri) {

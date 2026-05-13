@@ -244,7 +244,8 @@ tasks.register("release") {
 }
 
 tasks.register("localRelease") {
-  dependsOn(tasks.clean, tasks.assemble, ":wiremock-standalone:publishToMavenLocal", tasks.publishToMavenLocal)
+  dependsOn(tasks.clean, tasks.assemble, tasks.publishToMavenLocal)
+  dependsOn(subprojects.filter { it.plugins.hasPlugin("maven-publish") }.map { "${it.path}:publishToMavenLocal" })
 }
 
 fun updateFiles(currentVersion: String, nextVersion: String) {

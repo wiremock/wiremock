@@ -1,10 +1,10 @@
 [versions]
 jetty = "12.1.8"
-jackson = "2.21.2"
+jackson = "2.21.3"
 xmlUnit = "2.11.0"
 jsonUnit = "5.1.1"
-junitJupiter = "5.14.3"
-handlebars = "4.5.0"
+junitJupiter = "5.14.4"
+handlebars = "4.5.1"
 slf4j = "2.0.17"
 hamcrest = "3.0"
 mockito = "5.23.0"
@@ -113,7 +113,7 @@ mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.
 jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }
 jsonassert-toomuchcoding = { module = "com.toomuchcoding.jsonassert:jsonassert", version = "0.8.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.21.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.22.0" }
 commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.20.0" }
 scala-library = { module = "org.scala-lang:scala-library", version = "2.13.18" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
@@ -137,6 +137,6 @@ bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 spotless = { id = "com.diffplug.spotless", version = "8.4.0" }
-sonarqube = { id = "org.sonarqube", version = "7.2.3.7755" }
+sonarqube = { id = "org.sonarqube", version = "7.3.0.8198" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }

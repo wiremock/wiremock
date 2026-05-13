@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,16 @@ public class ServeEvent {
   }
 
   public ServeEvent withStubMapping(StubMapping stubMapping) {
+    return new ServeEvent(
+        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
+  public ServeEvent withRequest(LoggedRequest request) {
+    return new ServeEvent(
+        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+  }
+
+  public ServeEvent withResponse(LoggedResponse response) {
     return new ServeEvent(
         id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
   }

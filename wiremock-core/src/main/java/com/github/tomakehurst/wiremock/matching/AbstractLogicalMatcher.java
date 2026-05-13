@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractLogicalMatcher extends StringValuePattern {
@@ -53,4 +54,18 @@ public abstract class AbstractLogicalMatcher extends StringValuePattern {
   }
 
   protected abstract String getOperationName();
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    AbstractLogicalMatcher that = (AbstractLogicalMatcher) o;
+    return Objects.equals(operands, that.operands);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), operands);
+  }
 }
