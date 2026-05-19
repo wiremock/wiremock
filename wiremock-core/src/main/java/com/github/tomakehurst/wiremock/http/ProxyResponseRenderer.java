@@ -130,10 +130,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                   responseDefinition.getDelayDistribution())
               .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
-      if (httpResponse.getBody() != null) {
+      if (httpResponse.getBodyEntity() != null) {
         responseBuilder.body(
             httpResponse
-                .getBody()
+                .getBodyEntity()
                 .transform(
                     builder -> EntityMetadata.copyFromHeaders(httpResponse.getHeaders(), builder)));
       }

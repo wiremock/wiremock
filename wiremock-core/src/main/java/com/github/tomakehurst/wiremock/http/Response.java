@@ -81,17 +81,17 @@ public class Response {
     return statusMessage;
   }
 
-  public Entity getBody() {
+  public Entity getBodyEntity() {
     return body;
   }
 
-  public byte[] getBodyAsBytes() {
+  public byte[] getBody() {
     return body.getData(UNLIMITED);
   }
 
   public String getBodyAsString() {
     return Strings.stringFromBytes(
-        getBodyAsBytes(), headers.getContentTypeHeader().charset().orElse(DEFAULT_CHARSET));
+        getBody(), headers.getContentTypeHeader().charset().orElse(DEFAULT_CHARSET));
   }
 
   public boolean hasInlineBody() {

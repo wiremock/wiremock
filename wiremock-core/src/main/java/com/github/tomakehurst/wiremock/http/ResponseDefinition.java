@@ -625,6 +625,23 @@ public class ResponseDefinition {
       return this;
     }
 
+    @Deprecated
+    /**
+     * @deprecated use {@link #setBody(EntityDefinition)}
+     */
+    public Builder setBody(Body body) {
+      this.body =
+          this.body.transform(
+              builder ->
+                  builder
+                      .setData(body.asBytes())
+                      .setFormat(
+                          body.isBinary()
+                              ? Format.BINARY
+                              : (body.isJson() ? Format.JSON : Format.TEXT)));
+      return this;
+    }
+
     public Builder setBodyFileName(String bodyFileName) {
       if (bodyFileName != null) {
         this.body = new EntityDefinition.Builder().setFilePath(bodyFileName).build();

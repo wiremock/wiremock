@@ -63,7 +63,7 @@ public class LoggedResponse {
         response.getHeaders() == null || response.getHeaders().all().isEmpty()
             ? null
             : response.getHeaders(),
-        response.getBody().getData(responseBodySizeLimit),
+        response.getBodyEntity().getData(responseBodySizeLimit),
         response.getFault(),
         response.isFromProxy());
   }
