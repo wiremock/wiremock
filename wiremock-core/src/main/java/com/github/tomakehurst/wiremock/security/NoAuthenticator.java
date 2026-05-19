@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.security;
 
 import com.github.tomakehurst.wiremock.http.Request;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class NoAuthenticator implements Authenticator {
 
   @Override

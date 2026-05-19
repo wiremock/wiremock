@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.security;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 
+@PublishedAPI
 public class TokenAuthenticator extends SingleHeaderAuthenticator {
 
   public TokenAuthenticator(String token) {

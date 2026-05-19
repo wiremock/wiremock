@@ -17,8 +17,11 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
 @JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
 public class StubMappingCollection implements StubMappingOrMappings {

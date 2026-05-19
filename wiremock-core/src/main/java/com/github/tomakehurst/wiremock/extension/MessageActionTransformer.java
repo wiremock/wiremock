@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageActionContext;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface MessageActionTransformer extends Extension {
 
   MessageAction transform(MessageAction action, MessageActionContext context);

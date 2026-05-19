@@ -20,11 +20,14 @@ import static java.util.Arrays.asList;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@PublishedAPI
 public class RecordSpecBuilder {
 
   private String targetBaseUrl;

@@ -20,9 +20,12 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 public class VerificationException extends AssertionError {
 
   private static final long serialVersionUID = 5116216532516117538L;

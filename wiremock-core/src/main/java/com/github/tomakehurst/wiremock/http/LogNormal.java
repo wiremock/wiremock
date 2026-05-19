@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -30,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *     href="https://www.wolframalpha.com/input/?i=lognormaldistribution%28log%2890%29%2C+0.1%29">lognormal
  *     example</a>
  */
+@PublishedAPI
 public final class LogNormal implements DelayDistribution {
 
   @JsonProperty("median")

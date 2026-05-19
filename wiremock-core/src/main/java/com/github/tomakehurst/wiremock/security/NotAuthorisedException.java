@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.security;
 
+import org.wiremock.annotations.PublishedAPI;
+
+@PublishedAPI
 public class NotAuthorisedException extends RuntimeException {
 
   public NotAuthorisedException() {}

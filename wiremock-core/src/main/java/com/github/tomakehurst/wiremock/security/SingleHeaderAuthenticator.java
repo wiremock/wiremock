@@ -19,8 +19,11 @@ import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 public class SingleHeaderAuthenticator implements Authenticator {
 
   private final String key;

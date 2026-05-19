@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Map;
 
+@PublishedAPI
 public interface TemplateModelDataProviderExtension extends Extension {
   Map<String, Object> provideTemplateModelData(ServeEvent serveEvent);
 }

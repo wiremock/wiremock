@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.security;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 
+@PublishedAPI
 public class ClientTokenAuthenticator extends SingleHeaderClientAuthenticator {
 
   public ClientTokenAuthenticator(String token) {

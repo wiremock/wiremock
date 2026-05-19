@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class VerificationResult extends JournalBasedResult {
 
   private final Integer count;

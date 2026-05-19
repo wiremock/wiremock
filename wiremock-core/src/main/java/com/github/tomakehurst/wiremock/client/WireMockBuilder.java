@@ -29,8 +29,11 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Collections;
 
+@PublishedAPI
 public class WireMockBuilder {
 
   private static final String DEFAULT_HOST = "localhost";

@@ -30,11 +30,14 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@PublishedAPI
 public interface Admin {
 
   void addStubMapping(StubMapping stubMapping);

@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class CaptureHeadersSpec {
 
   private final Boolean caseInsensitive;

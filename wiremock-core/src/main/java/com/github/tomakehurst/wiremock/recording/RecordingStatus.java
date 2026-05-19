@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import org.wiremock.annotations.PublishedAPI;
+
+@PublishedAPI
 public enum RecordingStatus {
   NeverStarted,
   Recording,

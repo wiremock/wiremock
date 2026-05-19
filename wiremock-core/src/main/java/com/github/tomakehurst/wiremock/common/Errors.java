@@ -18,9 +18,12 @@ package com.github.tomakehurst.wiremock.common;
 import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 import java.util.Objects;
 
+@PublishedAPI
 public class Errors {
 
   private final List<Error> errors;

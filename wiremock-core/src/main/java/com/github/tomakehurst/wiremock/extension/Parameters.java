@@ -20,10 +20,13 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParamet
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@PublishedAPI
 public class Parameters extends Metadata {
 
   public Parameters() {

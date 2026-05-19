@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.security;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 public interface ClientAuthenticator {
 
   List<HttpHeader> generateAuthHeaders();

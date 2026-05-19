@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.jknack.handlebars.Helper;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Map;
 
+@PublishedAPI
 public interface TemplateHelperProviderExtension extends Extension {
   Map<String, Helper<?>> provideTemplateHelpers();
 }

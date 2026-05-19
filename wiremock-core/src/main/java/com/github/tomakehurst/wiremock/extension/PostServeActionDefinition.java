@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class PostServeActionDefinition {
 
   private final String name;

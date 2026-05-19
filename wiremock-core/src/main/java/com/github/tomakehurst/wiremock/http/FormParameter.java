@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Collections;
 import java.util.List;
 
+@PublishedAPI
 public class FormParameter extends MultiValue {
 
   public FormParameter(

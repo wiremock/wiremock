@@ -23,10 +23,13 @@ import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+@PublishedAPI
 public interface ScenarioMappingBuilder extends MappingBuilder {
 
   ScenarioMappingBuilder whenScenarioStateIs(String stateName);

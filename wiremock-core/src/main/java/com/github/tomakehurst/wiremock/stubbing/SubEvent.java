@@ -18,10 +18,13 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Message;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@PublishedAPI
 public class SubEvent {
 
   public static final String NON_MATCH_TYPE = "REQUEST_NOT_MATCHED";

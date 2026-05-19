@@ -19,9 +19,12 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 public class MultiValue {
 
   protected final String key;

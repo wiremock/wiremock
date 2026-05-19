@@ -29,9 +29,12 @@ import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@PublishedAPI
 public class ServeEvent {
 
   public static final String ORIGINAL_SERVE_EVENT_KEY = "wiremock.ORIGINAL_SERVE_EVENT";

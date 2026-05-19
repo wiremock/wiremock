@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.direct;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeoutException;
  * <p>This is to allow the use of Wiremock through direct method calls, which is then suitable for
  * i.e. running in Serverless applications.
  */
+@PublishedAPI
 public class DirectCallHttpServer implements HttpServer {
   private final AdminRequestHandler adminRequestHandler;
   private final StubRequestHandler stubRequestHandler;

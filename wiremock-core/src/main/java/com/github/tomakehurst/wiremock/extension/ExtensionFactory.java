@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 public interface ExtensionFactory {
 
   /**

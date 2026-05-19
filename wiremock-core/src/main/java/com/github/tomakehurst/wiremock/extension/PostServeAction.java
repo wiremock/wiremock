@@ -17,11 +17,13 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
 
 /**
  * @deprecated Use {@link ServeEventListener} instead.
  */
 @Deprecated
+@PublishedAPI
 public abstract class PostServeAction implements Extension {
 
   /**

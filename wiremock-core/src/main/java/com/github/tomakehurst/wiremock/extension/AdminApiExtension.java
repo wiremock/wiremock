@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.admin.Router;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface AdminApiExtension extends Extension {
 
   /**

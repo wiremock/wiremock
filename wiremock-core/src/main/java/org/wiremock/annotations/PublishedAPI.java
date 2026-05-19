@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.recording;
+package org.wiremock.annotations;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.wiremock.annotations.PublishedAPI;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@PublishedAPI
-public sealed interface StubGenerationResult {
-  record Success(StubMapping stubMapping) implements StubGenerationResult {}
-
-  record Failure(String reason) implements StubGenerationResult {}
-}
+/**
+ * Marks a type as part of WireMock's published API. Only types carrying this annotation are
+ * included in breaking-change compatibility reports. Types without it are considered internal and
+ * may change without notice between any releases.
+ *
+ * @since 4.0.0
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface PublishedAPI {}

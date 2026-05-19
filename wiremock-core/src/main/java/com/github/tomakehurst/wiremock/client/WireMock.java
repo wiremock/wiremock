@@ -67,10 +67,13 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.Path;
 import org.wiremock.url.PathAndQuery;
 
 @SuppressWarnings("unused")
+@PublishedAPI
 public class WireMock {
 
   private static final int DEFAULT_PORT = 8080;

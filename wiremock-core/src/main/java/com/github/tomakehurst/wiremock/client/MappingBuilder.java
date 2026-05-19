@@ -21,10 +21,13 @@ import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+@PublishedAPI
 public interface MappingBuilder {
 
   MappingBuilder withScheme(String scheme);

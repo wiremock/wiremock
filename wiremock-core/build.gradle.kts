@@ -1,5 +1,6 @@
 plugins {
     id("wiremock.common-conventions")
+    alias(libs.plugins.japicmp)
 }
 
 apply(from = "buildSchema.gradle")
@@ -93,4 +94,53 @@ publishing {
             }
         }
     }
+}
+
+// Full transitive classpath of the 3.x baseline, used for type resolution
+val japicmpBaseline by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+// Just the baseline JAR itself, used to tell japicmp what to compare (not its deps)
+val japicmpBaselineJar by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+dependencies {
+    japicmpBaseline("org.wiremock:wiremock:3.13.2")
+    japicmpBaselineJar("org.wiremock:wiremock:3.13.2") {
+        isTransitive = false
+    }
+}
+
+tasks.register<me.champeau.gradle.japicmp.JapicmpTask>("japicmp") {
+    dependsOn(tasks.jar)
+    // Full classpaths for resolving referenced types (Jackson, Guava, etc.)
+    oldClasspath.from(configurations["japicmpBaseline"])
+    newClasspath.from(tasks.jar.map { it.archiveFile }, configurations.runtimeClasspath)
+    // Specific JARs to compare — keeps the diff to WireMock classes only
+    oldArchives.from(configurations["japicmpBaselineJar"])
+    newArchives.from(tasks.jar.map { it.archiveFile })
+    onlyBinaryIncompatibleModified.set(true)
+    // annotationIncludes only works when the annotation exists in both the old and new JARs.
+    // For the 3.x→4.x comparison the annotation didn't exist in 3.x, so we scope by package
+    // instead. Switch back to annotationIncludes for future 4.x→4.x+1 comparisons.
+    packageIncludes.set(listOf(
+        "com.github.tomakehurst.wiremock",
+        "com.github.tomakehurst.wiremock.client",
+        "com.github.tomakehurst.wiremock.common",
+        "com.github.tomakehurst.wiremock.core",
+        "com.github.tomakehurst.wiremock.extension",
+        "com.github.tomakehurst.wiremock.http",
+        "com.github.tomakehurst.wiremock.recording",
+        "com.github.tomakehurst.wiremock.security",
+        "com.github.tomakehurst.wiremock.stubbing",
+        "com.github.tomakehurst.wiremock.verification",
+        "org.wiremock"
+    ))
+    htmlOutputFile.set(layout.buildDirectory.file("reports/japicmp/breaking-changes.html"))
+    xmlOutputFile.set(layout.buildDirectory.file("reports/japicmp/breaking-changes.xml"))
+    txtOutputFile.set(layout.buildDirectory.file("reports/japicmp/breaking-changes.txt"))
 }

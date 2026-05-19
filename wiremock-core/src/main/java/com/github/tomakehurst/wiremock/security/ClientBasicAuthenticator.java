@@ -21,8 +21,11 @@ import static java.util.Collections.singletonList;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 public class ClientBasicAuthenticator implements ClientAuthenticator {
 
   private final String username;
