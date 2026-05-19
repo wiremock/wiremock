@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.wiremock.annotations.PublishedAPI;
 
 /**
  * Distribution that models delays.
  *
  * <p>Implementations should be thread safe.
  */
+@PublishedAPI
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = LogNormal.class, name = "lognormal"),

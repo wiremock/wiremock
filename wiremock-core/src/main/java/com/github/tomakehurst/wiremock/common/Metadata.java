@@ -19,12 +19,15 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParamet
 import static java.util.Collections.emptyMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@PublishedAPI
 public class Metadata implements Map<String, Object> {
 
   private final Map<String, Object> data;

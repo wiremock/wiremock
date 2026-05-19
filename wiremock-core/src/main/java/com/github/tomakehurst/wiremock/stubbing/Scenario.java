@@ -22,10 +22,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 public class Scenario {
 
   public static final String STARTED = "Started";

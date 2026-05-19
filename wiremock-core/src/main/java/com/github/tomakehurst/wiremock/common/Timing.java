@@ -19,7 +19,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Stopwatch;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class Timing {
 
   public static final Timing UNTIMED = create();

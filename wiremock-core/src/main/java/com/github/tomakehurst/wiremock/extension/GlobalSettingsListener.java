@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface GlobalSettingsListener extends Extension {
 
   default void beforeGlobalSettingsUpdated(

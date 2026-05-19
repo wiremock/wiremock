@@ -35,9 +35,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 
+@PublishedAPI
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 

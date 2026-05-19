@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public enum Fault {
   CONNECTION_RESET_BY_PEER {
     @Override

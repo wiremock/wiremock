@@ -18,8 +18,11 @@ package com.github.tomakehurst.wiremock.security;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 public class NoClientAuthenticator implements ClientAuthenticator {
 
   public static NoClientAuthenticator noClientAuthenticator() {

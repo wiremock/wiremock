@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
 
+@PublishedAPI
 public class ContentTypeHeader extends HttpHeader {
 
   public static final String KEY = "Content-Type";

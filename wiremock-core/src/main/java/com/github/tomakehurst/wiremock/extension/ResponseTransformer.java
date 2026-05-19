@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @Deprecated
 /**
  * @deprecated Use {@link ResponseTransformerV2} instead

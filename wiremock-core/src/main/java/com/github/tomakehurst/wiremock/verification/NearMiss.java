@@ -22,7 +22,9 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class NearMiss implements Comparable<NearMiss> {
 
   private final LoggedRequest request;

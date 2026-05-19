@@ -21,7 +21,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class BasicCredentials {
 
   public final String username;

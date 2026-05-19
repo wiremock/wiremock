@@ -17,8 +17,11 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.UUID;
 
+@PublishedAPI
 public class RecorderState {
 
   private final RecordingStatus status;

@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Arrays.asList;
 
@@ -22,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@PublishedAPI
 public class HttpHeader extends MultiValue {
 
   public HttpHeader(String key, String... values) {

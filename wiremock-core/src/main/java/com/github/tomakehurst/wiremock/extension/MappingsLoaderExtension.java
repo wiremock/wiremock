@@ -16,5 +16,7 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface MappingsLoaderExtension extends MappingsLoader, Extension {}

@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface ServeEventListener extends Extension {
 
   enum RequestPhase {

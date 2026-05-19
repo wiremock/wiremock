@@ -17,7 +17,9 @@ package org.wiremock.webhooks;
 
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface WebhookTransformer extends Extension {
 
   WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition);

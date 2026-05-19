@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class FixedDelayDistribution implements DelayDistribution {
 
   private final long milliseconds;

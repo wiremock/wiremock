@@ -18,10 +18,13 @@ package com.github.tomakehurst.wiremock.http;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@PublishedAPI
 public class JvmProxyConfigurer {
 
   private static final String HTTP_PROXY_HOST = "http.proxyHost";

@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@PublishedAPI
 public class StubImportBuilder {
 
   private List<StubMapping> mappings = new ArrayList<>();

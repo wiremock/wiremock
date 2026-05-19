@@ -49,6 +49,8 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +58,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 public class WireMockConfiguration implements Options {
 
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;

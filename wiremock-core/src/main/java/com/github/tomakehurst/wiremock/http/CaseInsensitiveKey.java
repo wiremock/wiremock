@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.function.Function;
 
+@PublishedAPI
 public class CaseInsensitiveKey {
 
   private final String key;

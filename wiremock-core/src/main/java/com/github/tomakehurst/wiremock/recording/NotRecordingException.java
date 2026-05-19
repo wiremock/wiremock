@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.Errors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class NotRecordingException extends ClientError {
 
   public NotRecordingException() {

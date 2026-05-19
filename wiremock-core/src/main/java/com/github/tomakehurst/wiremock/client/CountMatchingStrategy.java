@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import org.wiremock.annotations.PublishedAPI;
+
 /** Matches the number of requests made using relational predicates. */
+@PublishedAPI
 public class CountMatchingStrategy {
 
   public static final CountMatchingMode LESS_THAN =

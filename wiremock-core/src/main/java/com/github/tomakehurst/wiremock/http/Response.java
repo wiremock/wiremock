@@ -21,10 +21,13 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.common.*;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+@PublishedAPI
 public class Response {
 
   private final int status;

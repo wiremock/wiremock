@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Optional;
 
+@PublishedAPI
 public interface RecorderServeEventTransformer extends Extension {
   Optional<ServeEvent> transform(ServeEvent serveEvent);
 }

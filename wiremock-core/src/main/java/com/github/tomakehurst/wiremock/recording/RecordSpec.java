@@ -19,9 +19,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 import java.util.Map;
 
+@PublishedAPI
 /** Encapsulates options for generating and outputting StubMappings */
 public class RecordSpec {
 

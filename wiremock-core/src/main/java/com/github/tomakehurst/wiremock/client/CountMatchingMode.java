@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.BiPredicate;
+import org.wiremock.annotations.PublishedAPI;
 
 /** */
+@PublishedAPI
 public interface CountMatchingMode extends BiPredicate<Integer, Integer> {
 
   String getFriendlyName();

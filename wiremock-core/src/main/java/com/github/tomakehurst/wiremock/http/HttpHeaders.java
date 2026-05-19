@@ -24,10 +24,13 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders {

@@ -18,9 +18,12 @@ package com.github.tomakehurst.wiremock.http;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.*;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Collections;
 import java.util.List;
 
+@PublishedAPI
 public class QueryParameter extends MultiValue {
 
   @JsonCreator

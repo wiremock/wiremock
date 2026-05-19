@@ -20,10 +20,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import org.wiremock.annotations.PublishedAPI;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 @JsonDeserialize(using = RequestMethodJsonDeserializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 

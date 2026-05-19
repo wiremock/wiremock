@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
 @JsonSubTypes(
     value = {

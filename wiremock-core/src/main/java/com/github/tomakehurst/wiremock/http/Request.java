@@ -24,10 +24,12 @@ import java.util.Set;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Query;
 
+@PublishedAPI
 public interface Request {
 
   // This is populated by the serve event.

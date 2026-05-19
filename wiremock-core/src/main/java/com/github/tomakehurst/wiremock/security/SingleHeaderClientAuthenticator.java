@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.security;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Collections;
 import java.util.List;
 
+@PublishedAPI
 public class SingleHeaderClientAuthenticator implements ClientAuthenticator {
 
   private final String key;

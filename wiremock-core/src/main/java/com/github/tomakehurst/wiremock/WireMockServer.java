@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.BaseUrl;
 import org.wiremock.url.HostAndPort;
@@ -65,6 +67,7 @@ import org.wiremock.url.RelativeUrl;
 import org.wiremock.url.Scheme;
 import org.wiremock.url.SchemeRegistry;
 
+@PublishedAPI
 public class WireMockServer implements Container, Stubbing, Admin {
 
   private final WireMockApp wireMockApp;

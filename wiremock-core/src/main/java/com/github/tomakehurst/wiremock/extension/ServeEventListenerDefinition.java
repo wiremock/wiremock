@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.Set;
 
+@PublishedAPI
 public class ServeEventListenerDefinition {
 
   private final String name;

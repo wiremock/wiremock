@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import org.wiremock.annotations.PublishedAPI;
+
+@PublishedAPI
 public interface Extension {
 
   String getName();

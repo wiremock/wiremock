@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -25,6 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * between 50 and 60. This would useful for representing an average delay of 55ms with a +/- 5ms
  * jitter.
  */
+@PublishedAPI
 public final class UniformDistribution implements DelayDistribution {
 
   @JsonProperty("lower")

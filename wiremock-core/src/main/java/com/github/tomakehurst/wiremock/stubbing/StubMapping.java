@@ -34,7 +34,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @JsonPropertyOrder({"id", "name", "request", "newRequest", "response"})
 @JsonIgnoreProperties({
   "$schema", "uuid"

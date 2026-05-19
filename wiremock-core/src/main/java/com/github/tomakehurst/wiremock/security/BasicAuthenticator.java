@@ -20,9 +20,12 @@ import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.Request;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PublishedAPI
 public class BasicAuthenticator implements Authenticator {
 
   private final List<BasicCredentials> credentials;

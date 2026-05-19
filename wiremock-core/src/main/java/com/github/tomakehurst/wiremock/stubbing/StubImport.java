@@ -17,8 +17,11 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.util.List;
 
+@PublishedAPI
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StubImport {
 

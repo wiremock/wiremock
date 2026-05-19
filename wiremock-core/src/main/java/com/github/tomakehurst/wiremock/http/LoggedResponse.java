@@ -23,10 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
+import org.wiremock.annotations.PublishedAPI;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+@PublishedAPI
 public class LoggedResponse {
 
   private final int status;

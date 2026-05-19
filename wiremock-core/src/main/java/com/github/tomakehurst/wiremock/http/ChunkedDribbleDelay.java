@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class ChunkedDribbleDelay {
 
   private final Integer numberOfChunks;
