@@ -27,7 +27,9 @@ import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class LoggedResponse {
 
   private final int status;

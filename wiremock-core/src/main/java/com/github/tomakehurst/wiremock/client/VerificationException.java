@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class VerificationException extends AssertionError {
 
   private static final long serialVersionUID = 5116216532516117538L;

@@ -39,7 +39,9 @@ import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @JsonInclude(NON_NULL)
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
 @JsonSubTypes(

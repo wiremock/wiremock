@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import java.util.Collections;
 import java.util.List;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class Cookie extends MultiValue {
 
   @JsonCreator

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import org.wiremock.annotations.PublishedAPI;
+
 /** Matches the number of requests made using relational predicates. */
+@PublishedAPI
 public class CountMatchingStrategy {
 
   public static final CountMatchingMode LESS_THAN =

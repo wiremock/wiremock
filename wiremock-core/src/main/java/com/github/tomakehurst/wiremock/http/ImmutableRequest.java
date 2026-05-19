@@ -27,10 +27,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Port;
 
+@PublishedAPI
 public class ImmutableRequest implements Request {
 
   private final @NonNull AbsoluteUrl absoluteUrl;

@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface Options {
 
   enum ChunkedEncodingPolicy {

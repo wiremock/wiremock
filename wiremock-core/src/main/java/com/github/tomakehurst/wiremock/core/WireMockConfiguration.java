@@ -55,7 +55,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class WireMockConfiguration implements Options {
 
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;

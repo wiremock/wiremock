@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.concurrent.ThreadLocalRandom;
+import org.wiremock.annotations.PublishedAPI;
 
 /**
  * Returns log normally distributed values. Takes two parameters, the median (50th percentile) of
@@ -30,6 +31,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *     href="https://www.wolframalpha.com/input/?i=lognormaldistribution%28log%2890%29%2C+0.1%29">lognormal
  *     example</a>
  */
+@PublishedAPI
 public final class LogNormal implements DelayDistribution {
 
   @JsonProperty("median")

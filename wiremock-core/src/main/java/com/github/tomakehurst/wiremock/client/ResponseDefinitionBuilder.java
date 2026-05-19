@@ -26,9 +26,11 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.Path;
 
 @SuppressWarnings("UnusedReturnValue")
+@PublishedAPI
 public class ResponseDefinitionBuilder {
 
   protected final ResponseDefinition.Builder builder;

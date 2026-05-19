@@ -25,7 +25,9 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class Response {
 
   private final int status;

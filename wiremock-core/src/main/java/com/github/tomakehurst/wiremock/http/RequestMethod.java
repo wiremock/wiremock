@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @JsonDeserialize(using = RequestMethodJsonDeserializer.class)
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
@@ -39,7 +40,8 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod GET_OR_HEAD = isOneOf(GET, HEAD);
   public static final RequestMethod QUERY = new RequestMethod("QUERY");
 
-  private static final List<RequestMethod> METHODS_WITH_ENTITY = Arrays.asList(PUT, PATCH, POST, QUERY);
+  private static final List<RequestMethod> METHODS_WITH_ENTITY =
+      Arrays.asList(PUT, PATCH, POST, QUERY);
 
   private final String name;
 

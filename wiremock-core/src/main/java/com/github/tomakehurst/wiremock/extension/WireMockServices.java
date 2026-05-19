@@ -22,7 +22,9 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngi
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface WireMockServices {
 
   Admin getAdmin();

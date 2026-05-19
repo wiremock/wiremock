@@ -31,7 +31,9 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class ServeEvent {
 
   public static final String ORIGINAL_SERVE_EVENT_KEY = "wiremock.ORIGINAL_SERVE_EVENT";

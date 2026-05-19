@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @Deprecated
 /**
  * @deprecated Use {@link ResponseDefinitionTransformerV2} instead

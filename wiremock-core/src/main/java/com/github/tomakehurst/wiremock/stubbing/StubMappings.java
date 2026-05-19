@@ -19,7 +19,9 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface StubMappings {
 
   ServeEvent serveFor(ServeEvent request);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.jknack.handlebars.Helper;
 import java.util.Map;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface TemplateHelperProviderExtension extends Extension {
   Map<String, Helper<?>> provideTemplateHelpers();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class PostServeActionDefinition {
 
   private final String name;

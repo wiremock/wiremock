@@ -35,7 +35,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface Admin {
 
   void addStubMapping(StubMapping stubMapping);
