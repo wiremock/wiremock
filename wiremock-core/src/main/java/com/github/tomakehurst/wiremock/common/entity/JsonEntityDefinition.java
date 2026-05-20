@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.common.entity;
+
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.store.Stores;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+public class JsonEntityDefinition extends EntityDefinition {
+
+  private final @NonNull JsonNode data;
+
+  public JsonEntityDefinition(@NonNull Object data) {
+    super(NONE, Format.JSON, UTF_8);
+    this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
+  }
+
+  @Override
+  @NonNull InputStreamSource resolveEntityData(@Nullable Stores stores) {
+    return StreamSources.forBytes(getDataAsBytes());
+  }
+
+  @Override
+  public @NonNull Object getData() {
+    return data;
+  }
+
+  @JsonIgnore
+  public @NonNull JsonNode getDataAsJson() {
+    return data;
+  }
+
+  @Override
+  public @NonNull String getDataAsString() {
+    return Json.write(data);
+  }
+
+  @Override
+  public byte[] getDataAsBytes() {
+    return Json.toByteArray(data);
+  }
+
+  @Override
+  public @NonNull Builder toBuilder() {
+    return new Builder(
+        this.compression, this.format, this.charset, null, this.data, null, null, false);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof JsonEntityDefinition that)) return false;
+    return Objects.equals(data, that.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return data.hashCode();
+  }
+}

@@ -16,43 +16,84 @@
 package com.github.tomakehurst.wiremock.common.entity;
 
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_COMPRESSION;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Limit;
-import java.io.IOException;
+import com.github.tomakehurst.wiremock.common.StreamSources;
+import com.github.tomakehurst.wiremock.common.Strings;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 public class Entity {
 
-  private final EncodingType encoding;
-  private final FormatType format;
-  private final CompressionType compression;
+  public static Entity EMPTY =
+      new Entity(Format.TEXT, DEFAULT_CHARSET, CompressionType.NONE, StreamSources.empty());
+
+  private final Format format;
+  private final Charset charset;
+  @NonNull private final CompressionType compression;
   private final InputStreamSource streamSource;
 
   public Entity(
-      EncodingType encoding,
-      FormatType format,
-      CompressionType compression,
-      InputStreamSource streamSource) {
-    this.encoding = encoding;
+      Format format, Charset charset, CompressionType compression, InputStreamSource streamSource) {
     this.format = format;
-    this.compression = compression;
+    this.charset = getFirstNonNull(charset, DEFAULT_CHARSET);
+    this.compression = getFirstNonNull(compression, DEFAULT_COMPRESSION);
     this.streamSource = streamSource;
   }
 
-  public EncodingType getEncoding() {
-    return encoding;
+  public Format getFormat() {
+    return format;
   }
 
-  public FormatType getFormat() {
-    return format;
+  public Charset getCharset() {
+    return charset;
   }
 
   public CompressionType getCompression() {
     return compression;
+  }
+
+  public boolean isCompressed() {
+    return compression != NONE;
+  }
+
+  public boolean isDecompressible() {
+    return compression == NONE || compression == GZIP;
+  }
+
+  public Entity decompress() {
+    if (compression == GZIP) {
+      return transform(
+          builder ->
+              builder
+                  .setDataStreamSource(StreamSources.decompressingGzip(streamSource))
+                  .setCompression(NONE));
+    }
+
+    if (compression != NONE) {
+      throw new IllegalStateException("Cannot decompress body with compression " + compression);
+    }
+
+    return this;
+  }
+
+  @JsonIgnore
+  public String getDataAsString() {
+    return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), charset), String.class);
   }
 
   public byte[] getData() {
@@ -63,44 +104,166 @@ public class Entity {
     return Exceptions.uncheck(() -> getBytesFromStream(streamSource, sizeLimit), byte[].class);
   }
 
-  private static byte[] getBytesFromStream(InputStreamSource streamSource, Limit limit)
-      throws IOException {
-    try (InputStream stream = streamSource == null ? null : streamSource.getStream()) {
-      if (stream == null) {
-        return null;
-      }
-
-      return limit != null && !limit.isUnlimited()
-          ? stream.readNBytes(limit.getValue())
-          : stream.readAllBytes();
+  private static byte[] getBytesFromStream(InputStreamSource streamSource, Limit limit) {
+    if (streamSource == null) {
+      return null;
     }
+
+    return Exceptions.uncheck(
+        () -> {
+          try (InputStream stream =
+              Exceptions.uncheck(streamSource::getStream, InputStream.class)) {
+            if (stream == null) {
+              return null;
+            }
+
+            return limit != null && !limit.isUnlimited()
+                ? stream.readNBytes(limit.getValue())
+                : stream.readAllBytes();
+          }
+        },
+        byte[].class);
   }
 
   public InputStreamSource getStreamSource() {
     return streamSource;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Entity transform(Consumer<Builder> transformer) {
+    final Builder builder = toBuilder();
+    transformer.accept(builder);
+    return builder.build();
+  }
+
+  public Entity transformUncompressedDataString(Function<String, String> transformer) {
+    if (isDecompressible()) {
+      return transform(
+          builder -> {
+            final String plainText =
+                compression == GZIP ? Gzip.unGzipToString(getData()) : getDataAsString();
+
+            final String transformed = transformer.apply(plainText);
+
+            final byte[] transformedCompressed =
+                compression == GZIP
+                    ? Gzip.gzip(transformed)
+                    : Strings.bytesFromString(transformed, charset);
+
+            builder.setData(transformedCompressed);
+          });
+    }
+
+    throw new IllegalStateException(
+        "Cannot decompress body with compression " + compression.value());
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Entity entity = (Entity) o;
-    return Objects.equals(encoding, entity.encoding)
-        && Objects.equals(format, entity.format)
-        && Objects.equals(compression, entity.compression);
+    return Objects.equals(format, entity.format) && Objects.equals(compression, entity.compression);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(encoding, format, compression);
+    return Objects.hash(format, compression);
   }
 
   @Override
   public String toString() {
     return new StringJoiner(", ", Entity.class.getSimpleName() + "[", "]")
-        .add("encoding=" + encoding)
         .add("format=" + format)
         .add("compression=" + compression)
         .add("streamSource=" + streamSource)
         .toString();
+  }
+
+  public static class Builder implements EntityMetadataBuilder<Builder> {
+
+    private Format format;
+    private Charset charset;
+    private CompressionType compression;
+    private InputStreamSource streamSource;
+
+    public Builder() {}
+
+    public Builder(Entity entity) {
+      this.format = entity.format;
+      this.compression = entity.compression;
+      this.streamSource = entity.streamSource;
+    }
+
+    public Format getFormat() {
+      return format;
+    }
+
+    public Builder setFormat(Format format) {
+      this.format = format;
+      return this;
+    }
+
+    public Charset getCharset() {
+      return charset;
+    }
+
+    public Builder setCharset(Charset charset) {
+      this.charset = charset;
+      return this;
+    }
+
+    public CompressionType getCompression() {
+      return compression;
+    }
+
+    public Builder setCompression(CompressionType compression) {
+      this.compression = compression;
+      return this;
+    }
+
+    public Builder setData(byte[] bytes) {
+      return setDataStreamSource(StreamSources.forBytes(bytes));
+    }
+
+    public Builder setData(String text) {
+      return setData(text, DEFAULT_CHARSET);
+    }
+
+    public Builder setData(String text, Charset charset) {
+      return setDataStreamSource(StreamSources.forString(text, charset));
+    }
+
+    public InputStreamSource getDataStreamSource() {
+      return streamSource;
+    }
+
+    public Builder setDataStreamSource(InputStreamSource streamSource) {
+      this.streamSource = streamSource;
+      return this;
+    }
+
+    public String getDataAsString() {
+      return Exceptions.uncheck(
+          () -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET), String.class);
+    }
+
+    public byte[] getData() {
+      return Exceptions.uncheck(() -> getBytesFromStream(streamSource, UNLIMITED), byte[].class);
+    }
+
+    public boolean isDecompressible() {
+      return compression == NONE || compression == GZIP;
+    }
+
+    public Entity build() {
+      return new Entity(format, charset, compression, streamSource);
+    }
   }
 }

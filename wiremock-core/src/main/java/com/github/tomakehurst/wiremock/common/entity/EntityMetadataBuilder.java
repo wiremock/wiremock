@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.common.entity;
 
-import org.wiremock.annotations.PublishedAPI;
+import java.nio.charset.Charset;
 
-@PublishedAPI
-public enum MimeType {
-  JSON("application/json"),
-  XML("text/xml"),
-  PLAIN("text/plain");
+public interface EntityMetadataBuilder<SELF> {
 
-  private String mimeString;
+  SELF setCompression(CompressionType compression);
 
-  private MimeType(String mimeString) {
-    this.mimeString = mimeString;
-  }
+  SELF setFormat(Format compression);
 
-  public String toString() {
-    return mimeString;
-  }
+  SELF setCharset(Charset charset);
 }

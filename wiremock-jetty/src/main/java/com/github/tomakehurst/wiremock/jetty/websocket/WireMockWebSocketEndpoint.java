@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock.jetty.websocket;
 
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.websocket.WebSocketMessageChannel;
@@ -46,9 +44,7 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
   @Override
   public void onWebSocketText(String text) {
     if (messageStubRequestHandler != null && messageChannel != null) {
-      Message message =
-          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
-      messageStubRequestHandler.processMessage(messageChannel, message);
+      messageStubRequestHandler.processTextMessage(messageChannel, text);
     }
   }
 
@@ -57,9 +53,7 @@ public class WireMockWebSocketEndpoint implements Session.Listener.AutoDemanding
     if (messageStubRequestHandler != null && messageChannel != null) {
       byte[] data = new byte[payload.remaining()];
       payload.get(data);
-      Message message =
-          MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromBytes(data), null);
-      messageStubRequestHandler.processMessage(messageChannel, message);
+      messageStubRequestHandler.processBinaryMessage(messageChannel, data);
     }
     callback.succeed();
   }

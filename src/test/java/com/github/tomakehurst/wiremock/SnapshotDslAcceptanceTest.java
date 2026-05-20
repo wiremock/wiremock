@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(),
         is("text/plain"));
-    assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
+    assertThat(
+        returnedMappings.get(2).getResponse().getBodyEntity().getDataAsString(), is("Number one"));
 
     assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
     assertThat(returnedMappings.get(1).getRequest().getMethod(), is(RequestMethod.QUERY));
@@ -228,16 +229,28 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(mappings.size(), is(4));
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/small/text").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/small/text")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         nullValue());
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/large/text")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         startsWith("large_text"));
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/small/binary")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         nullValue());
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/large/binary")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         startsWith("large_binary"));
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,7 +41,7 @@ public class LoggedResponseTest {
     LoggedResponse loggedResponse =
         LoggedResponse.from(
             Response.response()
-                .body(ISO_8859_1_RESPONSE_BODY)
+                .body(ISO_8859_1_RESPONSE_BODY.getBytes(ISO_8859_1))
                 .headers(
                     new HttpHeaders(httpHeader("Content-Type", "text/plain; charset=iso-8859-1")))
                 .build(),

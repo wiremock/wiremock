@@ -144,7 +144,7 @@ public class WireMockApp implements StubServer, Admin {
             : new StoreBackedMessageJournal(
                 options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
 
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
+    this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
 
     HttpStubServeEventListener httpStubListener =
@@ -246,7 +246,8 @@ public class WireMockApp implements StubServer, Admin {
                 reverseProxyClient,
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
-            List.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
+            List.copyOf(extensions.ofType(ResponseTransformerV2.class).values()),
+            stores),
         this,
         postServeActions,
         serveEventListeners,
@@ -553,6 +554,10 @@ public class WireMockApp implements StubServer, Admin {
 
   public Extensions getExtensions() {
     return extensions;
+  }
+
+  public Stores getStores() {
+    return stores;
   }
 
   @Override

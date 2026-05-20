@@ -16,11 +16,10 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import org.wiremock.annotations.PublishedAPI;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
 public interface StubMappings {

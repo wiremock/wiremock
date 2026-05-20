@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,7 +326,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
@@ -348,7 +348,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("large.txt-" + mapping.getId() + ".txt"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
@@ -467,7 +467,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);

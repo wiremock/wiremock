@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.ResourceUtil.getLoader;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static java.util.Arrays.asList;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -94,7 +95,10 @@ public class ClasspathFileSource implements FileSource {
       return new BinaryFile(new File(rootDirectory, name).toURI());
     }
 
-    return new BinaryFile(getZipEntryUri(name));
+    return getZipEntryUri(name)
+        .map(BinaryFile::new)
+        .orElseThrow(
+            () -> new NotFoundException("File " + name + " not found on classpath in " + path));
   }
 
   @Override
@@ -103,22 +107,23 @@ public class ClasspathFileSource implements FileSource {
       return new TextFile(new File(rootDirectory, name).toURI());
     }
 
-    return new TextFile(getZipEntryUri(name));
+    return getZipEntryUri(name)
+        .map(TextFile::new)
+        .orElseThrow(
+            () -> new NotFoundException("File " + name + " not found on classpath in " + path));
   }
 
-  private URI getZipEntryUri(final String name) {
+  private Optional<URI> getZipEntryUri(final String name) {
     final String lookFor = path + "/" + name;
     final Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
-    StringBuilder candidates = new StringBuilder();
     while (enumeration.hasMoreElements()) {
       final ZipEntry candidate = enumeration.nextElement();
       if (candidate.getName().equals(lookFor)) {
-        return getUriFor(candidate);
+        return Optional.ofNullable(getUriFor(candidate));
       }
-      candidates.append(candidate.getName()).append("\n");
     }
-    throw new RuntimeException(
-        "Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates);
+
+    return Optional.empty();
   }
 
   @Override
@@ -183,6 +188,11 @@ public class ClasspathFileSource implements FileSource {
   public boolean exists() {
     // It'll only be non-file system if finding the classpath resource succeeded in the constructor
     return (isFileSystem() && rootDirectory.exists()) || (!isFileSystem());
+  }
+
+  @Override
+  public boolean fileExists(String name) {
+    return false;
   }
 
   @Override

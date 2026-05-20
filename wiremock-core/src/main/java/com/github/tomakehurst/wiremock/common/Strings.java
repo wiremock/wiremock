@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 public class Strings {
 
@@ -284,7 +285,7 @@ public class Strings {
     return stringFromBytes(bytes, UTF_8);
   }
 
-  public static String stringFromBytes(byte[] bytes, Charset charset) {
+  public static @Nullable String stringFromBytes(byte[] bytes, Charset charset) {
     if (bytes == null) {
       return null;
     }

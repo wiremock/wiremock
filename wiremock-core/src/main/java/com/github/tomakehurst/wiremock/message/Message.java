@@ -21,12 +21,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import java.io.ByteArrayInputStream;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -64,7 +60,7 @@ public class Message {
 
   @JsonIgnore
   public boolean isBinary() {
-    return body != null && EncodingType.BINARY.equals(body.getEncoding());
+    return body != null && Format.BINARY.equals(body.getFormat());
   }
 
   @Override
@@ -84,6 +80,54 @@ public class Message {
     return getBodyAsString();
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Message transform(java.util.function.Function<Builder, Builder> builderTransform) {
+    return builderTransform.apply(new Builder(this)).build();
+  }
+
+  public static class Builder {
+    private Entity body;
+
+    public Builder() {}
+
+    private Builder(Message message) {
+      this.body = message.body;
+    }
+
+    public Builder withBody(Entity body) {
+      this.body = body;
+      return this;
+    }
+
+    public Builder withTextBody(String text) {
+      if (text == null) {
+        this.body = null;
+        return this;
+      }
+
+      this.body = Entity.builder().setData(text).build();
+      return this;
+    }
+
+    public Builder withBinaryBody(byte[] data) {
+      if (data == null) {
+        this.body = null;
+        return this;
+      }
+
+      this.body = Entity.builder().setFormat(Format.BINARY).setData(data).build();
+
+      return this;
+    }
+
+    public Message build() {
+      return new Message(body);
+    }
+  }
+
   static class MessageDeserializer extends JsonDeserializer<Message> {
     @Override
     public Message deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -91,10 +135,8 @@ public class Message {
       if (text == null) {
         return new Message(null);
       }
-      byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      Entity entity =
-          new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
+
+      Entity entity = Entity.builder().setData(text).build();
       return new Message(entity);
     }
   }

@@ -30,12 +30,12 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-import org.wiremock.annotations.PublishedAPI;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
 public interface Admin {
@@ -149,7 +149,7 @@ public interface Admin {
    * @return result containing the matched channels that were messaged
    */
   default SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, String message) {
+      ChannelType type, RequestPattern requestPattern, @Nullable String message) {
     return sendChannelMessage(type, requestPattern, MessageDefinition.fromString(message));
   }
 

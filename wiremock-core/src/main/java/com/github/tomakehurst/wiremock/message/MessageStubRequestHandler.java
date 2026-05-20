@@ -15,26 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static java.util.Base64.*;
-
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Strings;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
-import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +44,16 @@ public class MessageStubRequestHandler {
     this.stores = stores;
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
+  }
+
+  public void processTextMessage(MessageChannel channel, String text) {
+    Message message = Message.builder().withTextBody(text).build();
+    processMessage(channel, message);
+  }
+
+  public void processBinaryMessage(MessageChannel channel, byte[] data) {
+    Message message = Message.builder().withBinaryBody(data).build();
+    processMessage(channel, message);
   }
 
   public void processMessage(MessageChannel channel, Message message) {
@@ -129,111 +124,9 @@ public class MessageStubRequestHandler {
     }
   }
 
-  public Message resolveToMessage(MessageDefinition messageDefinition) {
-    return resolveToMessage(messageDefinition, stores);
-  }
-
-  public static Message resolveToMessage(MessageDefinition messageDefinition, Stores stores) {
-    Entity entity = resolveEntity(messageDefinition.getBody(), stores);
+  private Message resolveToMessage(MessageDefinition messageDefinition) {
+    Entity entity = messageDefinition.getBody().resolve(stores);
     return new Message(entity);
-  }
-
-  private static Entity resolveEntity(EntityDefinition definition, Stores stores) {
-    if (definition instanceof StringEntityDefinition) {
-      String value = ((StringEntityDefinition) definition).getValue();
-      byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
-    }
-
-    if (definition instanceof BinaryEntityDefinition binaryDef) {
-      byte[] bytes = resolveBinaryEntityData(binaryDef, stores);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.BINARY, FormatType.BASE64, binaryDef.getCompression(), streamSource);
-    }
-
-    if (definition instanceof TextEntityDefinition textDef) {
-      String resolvedData = resolveTextEntityData(textDef, stores);
-      byte[] bytes =
-          resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.TEXT, textDef.getFormat(), textDef.getCompression(), streamSource);
-    }
-
-    throw new UnsupportedOperationException(
-        "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
-  }
-
-  private static String resolveTextEntityData(TextEntityDefinition definition, Stores stores) {
-    Object data = definition.getData();
-
-    if (data instanceof String s) {
-      return s;
-    }
-
-    if (data != null) {
-      return Json.write(data);
-    }
-
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).map(Strings::stringFromBytes).orElse(null);
-    }
-
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof String s) {
-                  return s;
-                }
-                return Json.write(value);
-              })
-          .orElse(null);
-    }
-
-    return null;
-  }
-
-  private static byte[] resolveBinaryEntityData(BinaryEntityDefinition definition, Stores stores) {
-    byte[] data = definition.getDataAsBytes();
-    if (data != null) {
-      return data;
-    }
-
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).orElse(new byte[0]);
-    }
-
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof byte[] bytes) {
-                  return bytes;
-                }
-                if (value instanceof String s) {
-                  return getDecoder().decode(s);
-                }
-                return new byte[0];
-              })
-          .orElse(new byte[0]);
-    }
-
-    return new byte[0];
   }
 
   public MessageStubMappings getMessageStubMappings() {

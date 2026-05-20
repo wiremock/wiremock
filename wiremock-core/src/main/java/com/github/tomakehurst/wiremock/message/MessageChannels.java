@@ -18,15 +18,21 @@ package com.github.tomakehurst.wiremock.message;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.store.MessageChannelStore;
-import java.util.*;
+import com.github.tomakehurst.wiremock.store.Stores;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MessageChannels {
 
   private final MessageChannelStore store;
+  private final Stores stores;
 
-  public MessageChannels(MessageChannelStore store) {
-    this.store = store;
+  public MessageChannels(Stores stores) {
+    this.store = stores.getMessageChannelStore();
+    this.stores = stores;
   }
 
   public void add(MessageChannel channel) {
@@ -96,7 +102,7 @@ public class MessageChannels {
       Map<String, RequestMatcherExtension> customMatchers) {
     List<RequestInitiatedMessageChannel> matchingChannels =
         findByRequestPattern(requestPattern, customMatchers);
-    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition, null);
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
@@ -110,7 +116,7 @@ public class MessageChannels {
       Map<String, RequestMatcherExtension> customMatchers) {
     List<RequestInitiatedMessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);
-    Message message = MessageStubRequestHandler.resolveToMessage(messageDefinition, null);
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }

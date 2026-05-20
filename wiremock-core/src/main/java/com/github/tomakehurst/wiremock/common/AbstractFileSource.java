@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,10 +120,19 @@ public abstract class AbstractFileSource implements FileSource {
     return rootDirectory.exists();
   }
 
+  @Override
+  public boolean fileExists(String name) {
+    return getFile(name).exists();
+  }
+
   private File writableFileFor(String name) {
     assertExistsAndIsDirectory();
     assertFilePathIsUnderRoot(name);
     assertWritable();
+    return getFile(name);
+  }
+
+  private File getFile(String name) {
     final File filePath = new File(name);
 
     if (filePath.isAbsolute()) {

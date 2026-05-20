@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.github.tomakehurst.wiremock.security;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
-import org.wiremock.annotations.PublishedAPI;
-
 import java.util.List;
+import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
 public class NoClientAuthenticator implements ClientAuthenticator {
