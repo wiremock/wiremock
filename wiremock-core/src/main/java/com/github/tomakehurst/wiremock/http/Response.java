@@ -23,6 +23,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.wiremock.annotations.PublishedAPI;
@@ -63,14 +64,22 @@ public class Response {
       String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
-    this.body = body;
     this.headers = headers;
+    this.body = resolveBodyAttributes(headers, body);
     this.configured = configured;
     this.fault = fault;
     this.initialDelay = initialDelay;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
     this.protocol = protocol;
+  }
+
+  private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
+    if (entity == Entity.EMPTY) {
+      return entity;
+    }
+
+    return entity.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public int getStatus() {

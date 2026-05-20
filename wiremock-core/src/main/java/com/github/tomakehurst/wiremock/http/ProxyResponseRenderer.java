@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
-import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
@@ -129,14 +128,6 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                   responseDefinition.getFixedDelayMilliseconds(),
                   responseDefinition.getDelayDistribution())
               .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
-
-      if (httpResponse.getBodyEntity() != null) {
-        responseBuilder.body(
-            httpResponse
-                .getBodyEntity()
-                .transform(
-                    builder -> EntityMetadata.copyFromHeaders(httpResponse.getHeaders(), builder)));
-      }
 
       return responseBuilder.build();
     } catch (ProhibitedNetworkAddressException e) {

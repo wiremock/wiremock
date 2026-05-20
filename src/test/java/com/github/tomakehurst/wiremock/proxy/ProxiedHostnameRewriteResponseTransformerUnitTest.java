@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,6 +117,53 @@ public class ProxiedHostnameRewriteResponseTransformerUnitTest {
             "http://origin.example.com:8080",
             "origin.example.com origin.example.com:8080 http://origin.example.com:8080 http://origin.example.com:8080 origin.example.com:8080 origin.example.com",
             "proxy.example.com proxy.example.com:8080 http://proxy.example.com:8080 http://proxy.example.com:8080 proxy.example.com:8080 proxy.example.com"));
+  }
+
+  @Test
+  void doesNotChangeBodyIndicatedBinaryByContentTypeHeader() {
+    var transformer = new ProxiedHostnameRewriteResponseTransformer();
+
+    var serveEvent =
+        ServeEvent.of(
+                ImmutableRequest.create()
+                    .withMethod(GET)
+                    .withAbsoluteUrl("https://endpoint.example.com")
+                    .build())
+            .withResponseDefinition(
+                aResponse().proxiedFrom("https://proxy-target.example.com").build());
+
+    var expectedBody = "Some body content from https://proxy-target.example.com endpoint";
+    var response =
+        Response.response()
+            .body(expectedBody)
+            .headers(
+                new HttpHeaders(HttpHeader.httpHeader("Content-Type", "application/octet-stream")))
+            .build();
+
+    var transformed = transformer.transform(response, serveEvent);
+
+    assertThat(transformed.getBodyAsString()).isEqualTo(expectedBody);
+  }
+
+  @Test
+  void doesNotChangeBodyWhenContentTypeAmbiguous() {
+    var transformer = new ProxiedHostnameRewriteResponseTransformer();
+
+    var serveEvent =
+        ServeEvent.of(
+                ImmutableRequest.create()
+                    .withMethod(GET)
+                    .withAbsoluteUrl("https://endpoint.example.com")
+                    .build())
+            .withResponseDefinition(
+                aResponse().proxiedFrom("https://proxy-target.example.com").build());
+
+    var expectedBody = "Some body content from https://proxy-target.example.com endpoint";
+    var response = Response.response().body(expectedBody).build();
+
+    var transformed = transformer.transform(response, serveEvent);
+
+    assertThat(transformed.getBodyAsString()).isEqualTo(expectedBody);
   }
 
   @ParameterizedTest

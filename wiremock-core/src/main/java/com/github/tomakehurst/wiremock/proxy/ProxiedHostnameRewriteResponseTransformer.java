@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.proxy;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
 import static org.wiremock.url.SchemeRegistry.https;
 import static org.wiremock.url.SchemeRegistry.ws;
 import static org.wiremock.url.SchemeRegistry.wss;
@@ -72,7 +73,10 @@ public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransf
     Response.Builder responseBuilder = Response.Builder.like(response).headers(updatedHeaders);
 
     final Entity initialBody = response.getBodyEntity();
-    if (initialBody != Entity.EMPTY && initialBody.isDecompressible()) {
+    if (initialBody != Entity.EMPTY
+        && initialBody.isDecompressible()
+        && initialBody.getFormat() != null
+        && initialBody.getFormat() != BINARY) {
       var transformedBody =
           initialBody.transformUncompressedDataString(
               source -> applySubstitutions(source, substitutionData));
