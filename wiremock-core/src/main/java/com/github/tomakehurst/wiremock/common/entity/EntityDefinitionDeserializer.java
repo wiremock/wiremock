@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
 import static com.github.tomakehurst.wiremock.common.entity.Format.detectFormat;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -41,7 +42,15 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
     JsonNode node = parser.readValueAsTree();
 
     if (node.isTextual()) {
-      return new SimpleStringEntityDefinition(node.asText());
+      final Charset charset = DEFAULT_CHARSET;
+      return EntityDefinition.buildEntityDefinition(
+          true,
+          CompressionType.NONE,
+          TEXT,
+          charset,
+          null,
+          bytesFromString(node.asText(), charset),
+          null);
     }
 
     if (node.isObject()) {
@@ -59,6 +68,7 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       String filePath = getString(node, "filePath");
 
       return EntityDefinition.buildEntityDefinition(
+          false,
           compression,
           resolveFormat(format, data, base64Data),
           charset,

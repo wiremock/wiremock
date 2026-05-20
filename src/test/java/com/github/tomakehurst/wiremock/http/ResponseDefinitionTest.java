@@ -36,7 +36,7 @@ import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.SimpleStringEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.SimpleEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -100,7 +100,9 @@ public class ResponseDefinitionTest {
     ResponseDefinition responseDef = Json.read(STRING_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
     assertThat(responseDef.getJsonBody(), is(nullValue()));
-    assertThat(responseDef.getBodyEntity(), instanceOf(SimpleStringEntityDefinition.class));
+    assertThat(responseDef.getBodyEntity(), instanceOf(SimpleEntityDefinition.class));
+    assertThat(
+        ((SimpleEntityDefinition) responseDef.getBodyEntity()).isSimpleStringStyle(), is(true));
     assertThat(responseDef.getBodyEntity().getData(), is("String content"));
   }
 

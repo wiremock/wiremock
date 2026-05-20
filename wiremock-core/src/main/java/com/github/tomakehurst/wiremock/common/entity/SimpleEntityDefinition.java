@@ -15,8 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.StreamSources;
@@ -27,17 +31,38 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-class SimpleEntityDefinition extends EntityDefinition {
+@JsonSerialize(using = SimpleEntityDefinitionSerializer.class)
+public class SimpleEntityDefinition extends EntityDefinition {
 
+  private final boolean simpleStringStyle;
   private final byte[] data;
 
-  SimpleEntityDefinition(CompressionType compression, Format format, Charset charset, byte[] data) {
+  public SimpleEntityDefinition(@NonNull String text) {
+    this(text, DEFAULT_CHARSET);
+  }
+
+  SimpleEntityDefinition(@NonNull String text, @NonNull Charset charset) {
+    this(true, NONE, Format.TEXT, charset, bytesFromString(text, charset));
+  }
+
+  SimpleEntityDefinition(
+      boolean simpleStringStyle,
+      CompressionType compression,
+      Format format,
+      Charset charset,
+      byte[] data) {
     super(compression, format, charset);
+    this.simpleStringStyle = simpleStringStyle;
     this.data = data;
   }
 
   public boolean isInline() {
     return true;
+  }
+
+  @JsonIgnore
+  public boolean isSimpleStringStyle() {
+    return simpleStringStyle;
   }
 
   @Override
@@ -83,7 +108,14 @@ class SimpleEntityDefinition extends EntityDefinition {
   @Override
   public Builder toBuilder() {
     return new Builder(
-        this.compression, this.format, this.charset, this.data, null, null, null, false);
+        this.compression,
+        this.format,
+        this.charset,
+        this.data,
+        null,
+        null,
+        null,
+        this.simpleStringStyle);
   }
 
   @Override

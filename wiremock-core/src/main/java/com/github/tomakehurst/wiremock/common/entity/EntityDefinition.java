@@ -46,7 +46,7 @@ import org.wiremock.annotations.PublishedAPI;
 @JsonDeserialize(using = EntityDefinitionDeserializer.class)
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(SimpleStringEntityDefinition.class),
+      @JsonSubTypes.Type(SimpleEntityDefinition.class),
       @JsonSubTypes.Type(JsonEntityDefinition.class)
     })
 public abstract class EntityDefinition {
@@ -71,7 +71,7 @@ public abstract class EntityDefinition {
   }
 
   public static EntityDefinition simple(@Nullable String text) {
-    return text != null ? new SimpleStringEntityDefinition(text) : EmptyEntityDefinition.INSTANCE;
+    return text != null ? new SimpleEntityDefinition(text) : EmptyEntityDefinition.INSTANCE;
   }
 
   public static JsonEntityDefinition json(Object data) {
@@ -248,7 +248,7 @@ public abstract class EntityDefinition {
     private @Nullable DataStoreRef dataStoreRef;
     private String filePath;
 
-    private boolean v3Style = false;
+    private boolean simpleStringStyle = false;
 
     public Builder() {}
 
@@ -260,7 +260,7 @@ public abstract class EntityDefinition {
         @Nullable Object jsonData,
         @Nullable DataStoreRef dataStoreRef,
         @Nullable String filePath,
-        boolean v3Style) {
+        boolean simpleStringStyle) {
       this.compression = compression;
       this.format = format;
       this.charset = charset;
@@ -268,7 +268,7 @@ public abstract class EntityDefinition {
       this.jsonData = jsonData;
       this.dataStoreRef = dataStoreRef;
       this.filePath = filePath;
-      this.v3Style = v3Style;
+      this.simpleStringStyle = simpleStringStyle;
     }
 
     @SuppressWarnings("unused")
@@ -365,15 +365,13 @@ public abstract class EntityDefinition {
         return new JsonEntityDefinition(jsonData);
       }
 
-      if (v3Style) {
-        return new SimpleStringEntityDefinition(data, charset);
-      }
-
-      return buildEntityDefinition(compression, format, charset, dataStoreRef, data, filePath);
+      return buildEntityDefinition(
+          simpleStringStyle, compression, format, charset, dataStoreRef, data, filePath);
     }
   }
 
   public static @NonNull EntityDefinition buildEntityDefinition(
+      boolean simpleStringStyle,
       @Nullable CompressionType compression,
       @Nullable Format format,
       @Nullable Charset charset,
@@ -393,7 +391,8 @@ public abstract class EntityDefinition {
     }
 
     if (data != null) {
-      return new SimpleEntityDefinition(correctCompression, correctFormat, correctCharset, data);
+      return new SimpleEntityDefinition(
+          simpleStringStyle, correctCompression, correctFormat, correctCharset, data);
     } else if (dataStoreRef != null) {
       return new DataRefEntityDefinition(
           correctCompression, correctFormat, correctCharset, dataStoreRef);

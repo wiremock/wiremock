@@ -375,4 +375,42 @@ public class StubMappingTest {
             0);
     assertThat(stub.getMetadata(), anEmptyMap());
   }
+
+  @Test
+  public void builderAndDeserialisedAreEquivalent() {
+    var id = UUID.randomUUID();
+    var built =
+        get("/foo")
+            .withId(id)
+            .withName("Get /foo")
+            .willReturn(ok("updated response").withHeader("Content-Type", "application/json"))
+            .persistent()
+            .build();
+
+    var json =
+        // language=json
+        """
+      {
+         "id" : "%s",
+         "name" : "Get /foo",
+         "request" : {
+           "url" : "/foo",
+           "method" : "GET"
+         },
+         "response" : {
+           "status" : 200,
+           "body" : "updated response",
+           "headers" : {
+             "Content-Type" : "application/json"
+           }
+         },
+         "persistent" : true
+       }
+      """
+            .formatted(id);
+
+    var deserialised = Json.read(json, StubMapping.class);
+
+    assertThat(deserialised, is(built));
+  }
 }

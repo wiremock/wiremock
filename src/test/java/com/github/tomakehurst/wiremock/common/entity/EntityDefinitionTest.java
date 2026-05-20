@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 public class EntityDefinitionTest {
 
   @Test
-  void v3StyleTextEntitySerializesAsString() {
+  void simpleStringStyleTextEntitySerializesAsString() {
     EntityDefinition entity = EntityDefinition.simple("simple text");
 
     String json = Json.write(entity);
@@ -58,7 +58,7 @@ public class EntityDefinitionTest {
   }
 
   @Test
-  void v3StyleTextEntityDeserializesFromString() {
+  void simpleStringStyleTextEntityDeserializesFromString() {
     String json = "\"simple text\"";
 
     EntityDefinition entity = Json.read(json, EntityDefinition.class);
@@ -67,7 +67,7 @@ public class EntityDefinitionTest {
   }
 
   @Test
-  void v3StyleTextEntityRoundTripSerialization() {
+  void simpleStringStyleTextEntityRoundTripSerialization() {
     EntityDefinition original = EntityDefinition.simple("round trip text");
 
     String json = Json.write(original);
@@ -464,7 +464,7 @@ public class EntityDefinitionTest {
   void deserialisesStringToSimpleStringEntityDefinition() {
     EntityDefinition entityDefinition = Json.read("\"simple text\"", EntityDefinition.class);
 
-    assertThat(entityDefinition, instanceOf(SimpleStringEntityDefinition.class));
+    assertThat(entityDefinition, instanceOf(SimpleEntityDefinition.class));
   }
 
   @Test
@@ -558,7 +558,7 @@ public class EntityDefinitionTest {
         IllegalArgumentException.class,
         () ->
             buildEntityDefinition(
-                null, TEXT, null, null, bytesFromString("data", DEFAULT_CHARSET), "path"));
+                false, null, TEXT, null, null, bytesFromString("data", DEFAULT_CHARSET), "path"));
   }
 
   @Test
@@ -566,7 +566,8 @@ public class EntityDefinitionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            buildEntityDefinition(null, BINARY, null, null, Encoding.decodeBase64("AQID"), "path"));
+            buildEntityDefinition(
+                false, null, BINARY, null, null, Encoding.decodeBase64("AQID"), "path"));
   }
 
   @Test
@@ -575,6 +576,7 @@ public class EntityDefinitionTest {
         IllegalArgumentException.class,
         () ->
             buildEntityDefinition(
+                false,
                 null,
                 TEXT,
                 null,
@@ -589,6 +591,7 @@ public class EntityDefinitionTest {
         IllegalArgumentException.class,
         () ->
             buildEntityDefinition(
+                false,
                 null,
                 BINARY,
                 null,
@@ -603,7 +606,7 @@ public class EntityDefinitionTest {
         IllegalArgumentException.class,
         () ->
             buildEntityDefinition(
-                null, null, null, new DataStoreRef("store", "key"), null, "path"));
+                false, null, null, null, new DataStoreRef("store", "key"), null, "path"));
   }
 
   @Test
@@ -635,5 +638,24 @@ public class EntityDefinitionTest {
     assertThat(entity.getDataStoreRef(), is(new DataStoreRef("store", "key")));
     assertThat(entity.getData(), nullValue());
     assertThat(entity.getFilePath(), nullValue());
+  }
+
+  @Test
+  void deserialisedAndBuiltInstancesAreEquivalent() {
+    var json =
+        // language=json
+        """
+            {
+              "data": "{}",
+              "format": "json",
+              "compression": "none",
+              "charset": "utf-8"
+            }
+            """;
+
+    var deserialised = Json.read("\"blah\"", EntityDefinition.class);
+    var built = EntityDefinition.builder().setData("blah").setFormat(TEXT).build();
+
+    assertEquals(deserialised, built);
   }
 }
