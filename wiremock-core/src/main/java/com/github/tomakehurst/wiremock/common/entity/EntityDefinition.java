@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
@@ -104,6 +105,29 @@ public abstract class EntityDefinition {
       throw new IllegalArgumentException(
           "Cannot specify an entity with both filePath and data store reference");
     }
+  }
+
+  public static EntityDefinition resolveFrom(
+      EntityDefinition body, JsonNode jsonBody, String base64Body, String bodyFileName) {
+    EntityDefinition entityDefinition = body;
+    if (jsonBody != null) {
+      entityDefinition = EntityDefinition.json(jsonBody);
+    } else if (base64Body != null) {
+      entityDefinition = EntityDefinition.fromBase64(base64Body);
+    } else if (bodyFileName != null) {
+      entityDefinition = EntityDefinition.builder().setFilePath(bodyFileName).build();
+    }
+
+    return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
+  }
+
+  public static EntityDefinition resolveEntityAttributesFromHeaders(
+      HttpHeaders headers, EntityDefinition entityDefinition) {
+    if (entityDefinition.isAbsent()) {
+      return entityDefinition;
+    }
+
+    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public @NonNull Entity resolve(@Nullable Stores stores) {

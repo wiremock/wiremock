@@ -15,22 +15,30 @@
  */
 package org.wiremock.webhooks;
 
-import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.store.Stores;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
@@ -38,20 +46,15 @@ public class WebhookDefinition {
 
   private String method;
   private String url;
-  private List<HttpHeader> headers;
-  private Body body = Body.none();
+  private HttpHeaders headers = new HttpHeaders();
+
+  private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
+
   private DelayDistribution delay;
   private Parameters parameters;
 
   public static WebhookDefinition from(Parameters parameters) {
-    return new WebhookDefinition(
-        parameters.getString("method", "GET"),
-        parameters.getString("url"),
-        toHttpHeaders(parameters.getMetadata("headers", null)),
-        parameters.getString("body", null),
-        parameters.getString("base64Body", null),
-        getDelayDistribution(parameters.getMetadata("delay", null)),
-        parameters);
+    return Json.mapToObject(parameters, WebhookDefinition.class).withExtraParameters(parameters);
   }
 
   private static HttpHeaders toHttpHeaders(Metadata headerMap) {
@@ -88,23 +91,34 @@ public class WebhookDefinition {
 
   @JsonCreator
   public WebhookDefinition(
+      @JsonProperty("method") String method,
+      @JsonProperty("url") String url,
+      @JsonProperty("headers") HttpHeaders headers,
+      @JsonProperty("body") EntityDefinition body,
+      @JsonProperty("bodyFileName") String bodyFileName,
+      @JsonProperty("base64Body") String base64Body,
+      @JsonProperty("jsonBody") JsonNode jsonBody,
+      @JsonProperty("delay") DelayDistribution delay) {
+    this(
+        method,
+        url,
+        headers,
+        EntityDefinition.resolveFrom(body, jsonBody, base64Body, bodyFileName),
+        delay,
+        Parameters.empty());
+  }
+
+  WebhookDefinition(
       String method,
       String url,
       HttpHeaders headers,
-      String body,
-      String base64Body,
+      EntityDefinition body,
       DelayDistribution delay,
       Parameters parameters) {
     this.method = method;
     this.url = url;
-    this.headers = headers != null ? new ArrayList<>(headers.all()) : null;
-
-    if (body != null) {
-      this.body = new Body(body);
-    } else if (base64Body != null) {
-      this.body = new Body(decodeBase64(base64Body));
-    }
-
+    this.headers = getFirstNonNull(headers, new HttpHeaders());
+    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
     this.delay = delay;
     this.parameters = parameters;
   }
@@ -124,16 +138,35 @@ public class WebhookDefinition {
     return url;
   }
 
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @NonNull
   public HttpHeaders getHeaders() {
-    return new HttpHeaders(headers);
+    return headers;
   }
 
-  public String getBase64Body() {
-    return body.isBinary() ? body.asBase64() : null;
+  @JsonIgnore
+  public EntityDefinition getBodyEntityDefinition() {
+    return body;
   }
 
   public String getBody() {
-    return body.isBinary() ? null : body.asString();
+    if (!body.isBinary() && body.isInline()) {
+      return body.getDataAsString();
+    }
+
+    return null;
+  }
+
+  @JsonIgnore
+  public String getBase64Body() {
+    if (body.isBinary() && body.isInline()) {
+      return body.getDataAsString();
+    }
+    return null;
+  }
+
+  public String getBodyFileName() {
+    return body.getFilePath();
   }
 
   public DelayDistribution getDelay() {
@@ -152,7 +185,12 @@ public class WebhookDefinition {
 
   @JsonIgnore
   public byte[] getBinaryBody() {
-    return body.asBytes();
+    return body.getDataAsBytes();
+  }
+
+  @JsonIgnore
+  public byte[] getResolvedBody(Stores stores) {
+    return body.resolve(stores).getData();
   }
 
   public WebhookDefinition withMethod(String method) {
@@ -176,26 +214,36 @@ public class WebhookDefinition {
   }
 
   public WebhookDefinition withHeaders(List<HttpHeader> headers) {
-    this.headers = headers;
+    this.headers = new HttpHeaders(headers);
     return this;
   }
 
   public WebhookDefinition withHeader(String key, String... values) {
     if (headers == null) {
-      headers = new ArrayList<>();
+      headers = HttpHeaders.noHeaders();
     }
 
-    headers.add(new HttpHeader(key, values));
+    headers = headers.transform(builder -> builder.add(key, values));
     return this;
   }
 
   public WebhookDefinition withBody(String body) {
-    this.body = new Body(body);
+    this.body = EntityDefinition.simple(body);
     return this;
   }
 
   public WebhookDefinition withBinaryBody(byte[] body) {
-    this.body = new Body(body);
+    this.body = EntityDefinition.builder().setFormat(Format.BINARY).setData(body).build();
+    return this;
+  }
+
+  public WebhookDefinition withBodyFileName(String bodyFileName) {
+    this.body = EntityDefinition.builder().setFilePath(bodyFileName).build();
+    return this;
+  }
+
+  public WebhookDefinition withBodyEntity(EntityDefinition body) {
+    this.body = body;
     return this;
   }
 
@@ -224,8 +272,21 @@ public class WebhookDefinition {
     return this;
   }
 
+  public WebhookDefinition withExtraParameters(Parameters parameters) {
+    this.parameters = parameters;
+    return this;
+  }
+
   @JsonIgnore
   public boolean hasBody() {
-    return body != null && body.isPresent();
+    return body != null && !body.isAbsent();
+  }
+
+  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  public static class EmptyEntityDefinitionFilter {
+    @Override
+    public boolean equals(Object obj) {
+      return EmptyEntityDefinition.INSTANCE.equals(obj);
+    }
   }
 }

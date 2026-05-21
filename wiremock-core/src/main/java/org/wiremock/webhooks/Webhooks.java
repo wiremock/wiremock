@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -43,6 +44,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
   private final DataTruncationSettings dataTruncationSettings;
+  private final Stores stores;
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -54,6 +56,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.transformers = transformers;
     this.templateEngine = wireMockServices.getTemplateEngine();
     this.dataTruncationSettings = wireMockServices.getOptions().getDataTruncationSettings();
+    this.stores = wireMockServices.getStores();
   }
 
   @Override
@@ -83,7 +86,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
         definition = transformer.transform(serveEvent, definition);
       }
       definition = applyTemplating(definition, serveEvent);
-      request = buildRequest(definition);
+      request = buildRequest(definition, stores);
 
       serveEvent.appendSubEvent("WEBHOOK_REQUEST", LoggedRequest.createFrom(request));
     } catch (Exception e) {
@@ -173,7 +176,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     return templateEngine.getUncachedTemplate(value).apply(context);
   }
 
-  private static Request buildRequest(WebhookDefinition definition) {
+  private static Request buildRequest(WebhookDefinition definition, Stores stores) {
     final ImmutableRequest.Builder requestBuilder =
         ImmutableRequest.create()
             .withMethod(definition.getRequestMethod())
@@ -181,7 +184,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
             .withHeaders(definition.getHeaders());
 
     if (definition.getRequestMethod().hasEntity() && definition.hasBody()) {
-      requestBuilder.withBody(definition.getBinaryBody());
+      requestBuilder.withBody(definition.getResolvedBody(stores));
     }
 
     return requestBuilder.build();

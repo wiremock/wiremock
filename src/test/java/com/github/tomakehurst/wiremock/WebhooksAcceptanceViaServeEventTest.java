@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
@@ -240,39 +242,39 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
 
     client.postJson(
         "/__admin/mappings",
-        "{\n"
-            + "  \"request\": {\n"
-            + "    \"urlPath\": \"/hook\",\n"
-            + "    \"method\": \"POST\"\n"
-            + "  },\n"
-            + "  \"response\": {\n"
-            + "    \"status\": 204\n"
-            + "  },\n"
-            + "  \"serveEventListeners\": [\n"
-            + "    {\n"
-            + "      \"name\": \"webhook\",\n"
-            + "      \"parameters\": {\n"
-            + "        \"headers\": {\n"
-            + "          \"Content-Type\": \"application/json\"\n"
-            + "        },\n"
-            + "        \"method\": \"POST\",\n"
-            + "        \"body\": \"{ \\\"result\\\": \\\"SUCCESS\\\" }\",\n"
-            + "        \"url\" : \""
-            + targetServer.baseUrl()
-            + "/callback1\"\n"
-            + "      }\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"webhook\",\n"
-            + "      \"parameters\": {\n"
-            + "        \"method\": \"POST\",\n"
-            + "        \"url\" : \""
-            + targetServer.baseUrl()
-            + "/callback2\"\n"
-            + "      }\n"
-            + "    }\n"
-            + "  ]\n"
-            + "}");
+        // language=json
+        """
+        {
+          "request": {
+            "urlPath": "/hook",
+            "method": "POST"
+          },
+          "response": {
+            "status": 204
+          },
+          "serveEventListeners": [
+            {
+              "name": "webhook",
+              "parameters": {
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "method": "POST",
+                "body": "{ \\"result\\": \\"SUCCESS\\" }",
+                "url": "%s/callback1"
+              }
+            },
+            {
+              "name": "webhook",
+              "parameters": {
+                "method": "POST",
+                "url": "%s/callback2"
+              }
+            }
+          ]
+        }
+        """
+            .formatted(targetServer.baseUrl(), targetServer.baseUrl()));
 
     verify(0, postRequestedFor(anyUrl()));
 
@@ -329,32 +331,34 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
   public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON() throws Exception {
     client.postJson(
         "/__admin/mappings",
-        "{\n"
-            + "  \"id\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
-            + "  \"request\" : {\n"
-            + "    \"urlPath\" : \"/templating\",\n"
-            + "    \"method\" : \"POST\"\n"
-            + "  },\n"
-            + "  \"response\" : {\n"
-            + "    \"status\" : 200\n"
-            + "  },\n"
-            + "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
-            + "  \"serveEventListeners\" : [{\n"
-            + "    \"name\" : \"webhook\",\n"
-            + "    \"parameters\" : {\n"
-            + "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n"
-            + "      \"url\" : \""
-            + targetServer.baseUrl()
-            + "{{{jsonPath originalRequest.body '$.callbackPath'}}}\",\n"
-            + "      \"headers\" : {\n"
-            + "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n"
-            + "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n"
-            + "      },\n"
-            + "      \"body\" : \"{{jsonPath originalRequest.body '$.name'}}\",\n"
-            + "      \"one\" : \"param-one-value\"\n"
-            + "    }\n"
-            + "  }]\n"
-            + "}\n");
+        // language=json
+        """
+        {
+          "id": "8a58e190-4a83-4244-a064-265fcca46884",
+          "request": {
+            "urlPath": "/templating",
+            "method": "POST"
+          },
+          "response": {
+            "status": 200
+          },
+          "uuid": "8a58e190-4a83-4244-a064-265fcca46884",
+          "serveEventListeners": [{
+            "name": "webhook",
+            "parameters": {
+              "method": "{{jsonPath originalRequest.body '$.method'}}",
+              "url": "%s{{{jsonPath originalRequest.body '$.callbackPath'}}}",
+              "headers": {
+                "X-Single": "{{math 1 '+' 2}}",
+                "X-Multi": ["{{math 3 'x' 2}}", "{{parameters.one}}"]
+              },
+              "body": "{{jsonPath originalRequest.body '$.name'}}",
+              "one": "param-one-value"
+            }
+          }]
+        }
+        """
+            .formatted(targetServer.baseUrl()));
 
     verify(0, postRequestedFor(anyUrl()));
 
@@ -415,26 +419,28 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
   public void addsRandomDelayViaJSON() throws Exception {
     client.postJson(
         "/__admin/mappings",
-        "{\n"
-            + "  \"request\" : {\n"
-            + "    \"urlPath\" : \"/delayed\",\n"
-            + "    \"method\" : \"POST\"\n"
-            + "  },\n"
-            + "  \"serveEventListeners\" : [{\n"
-            + "    \"name\" : \"webhook\",\n"
-            + "    \"parameters\" : {\n"
-            + "      \"method\" : \"GET\",\n"
-            + "      \"url\" : \""
-            + targetServer.baseUrl()
-            + "/callback\",\n"
-            + "      \"delay\" : {\n"
-            + "        \"type\" : \"uniform\",\n"
-            + "        \"lower\": 500,\n"
-            + "        \"upper\": 1000\n"
-            + "      }\n"
-            + "    }\n"
-            + "  }]\n"
-            + "}");
+        // language=json
+        """
+        {
+          "request": {
+            "urlPath": "/delayed",
+            "method": "POST"
+          },
+          "serveEventListeners": [{
+            "name": "webhook",
+            "parameters": {
+              "method": "GET",
+              "url": "%s/callback",
+              "delay": {
+                "type": "uniform",
+                "lower": 500,
+                "upper": 1000
+              }
+            }
+          }]
+        }
+        """
+            .formatted(targetServer.baseUrl()));
 
     verify(0, postRequestedFor(anyUrl()));
 
@@ -516,6 +522,166 @@ public class WebhooksAcceptanceViaServeEventTest extends WebhooksAcceptanceTest 
     if (method.hasEntity()) {
       assertThat(requests.get(0).getBodyAsString(), is(body));
     }
+  }
+
+  @Test
+  public void webhookBodyCanBeLoadedFromFile() throws Exception {
+    // This test needs a separate rule with file root configured
+    WireMockServer fileServer =
+        new WireMockServer(
+            options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).notifier(notifier));
+
+    try {
+      fileServer.start();
+      latch = new CountDownLatch(1);
+
+      // Set up target server to receive the webhook
+      targetServer.stubFor(any(urlPathMatching("/callback.*")).willReturn(ok()));
+
+      // Stub with webhook that uses bodyFileName via JSON API
+      new WireMockTestClient(fileServer.port())
+          .postJson(
+              "/__admin/mappings",
+              // language=json
+              """
+              {
+                "request": {
+                  "urlPath": "/trigger-file-webhook",
+                  "method": "POST"
+                },
+                "response": {
+                  "status": 200
+                },
+                "serveEventListeners": [
+                  {
+                    "name": "webhook",
+                    "parameters": {
+                      "method": "POST",
+                      "url": "%s/callback-file",
+                      "headers": {
+                        "Content-Type": "application/json"
+                      },
+                      "body": {
+                        "filePath": "webhook-body.json"
+                      }
+                    }
+                  }
+                ]
+              }
+              """
+                  .formatted(targetServer.baseUrl()));
+
+      new WireMockTestClient(fileServer.port()).post("/trigger-file-webhook");
+
+      waitForRequestToTargetServer();
+
+      targetServer.verify(
+          1,
+          postRequestedFor(urlEqualTo("/callback-file"))
+              .withHeader("Content-Type", equalTo("application/json"))
+              .withRequestBody(
+                  equalToJson("{ \"source\": \"file\", \"message\": \"Hello from file\" }")));
+    } finally {
+      fileServer.stop();
+    }
+  }
+
+  @Test
+  public void webhookBodyCanBeLoadedFromFileViaDSL() throws Exception {
+    // This test needs a separate rule with file root configured
+    WireMockServer fileServer =
+        new WireMockServer(
+            options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).notifier(notifier));
+
+    try {
+      fileServer.start();
+      latch = new CountDownLatch(1);
+
+      // Set up target server to receive the webhook
+      targetServer.stubFor(any(urlPathMatching("/callback.*")).willReturn(ok()));
+
+      // Create stub using DSL
+      fileServer.stubFor(
+          post(urlPathEqualTo("/trigger-file-dsl-webhook"))
+              .willReturn(ok())
+              .withServeEventListener(
+                  "webhook",
+                  webhook()
+                      .withMethod(POST)
+                      .withUrl(targetServer.url("/callback-file-dsl"))
+                      .withHeader("Content-Type", "application/json")
+                      .withBodyFileName("webhook-body.json")));
+
+      new WireMockTestClient(fileServer.port()).post("/trigger-file-dsl-webhook");
+
+      waitForRequestToTargetServer();
+
+      targetServer.verify(
+          1,
+          postRequestedFor(urlEqualTo("/callback-file-dsl"))
+              .withHeader("Content-Type", equalTo("application/json"))
+              .withRequestBody(
+                  equalToJson("{ \"source\": \"file\", \"message\": \"Hello from file\" }")));
+    } finally {
+      fileServer.stop();
+    }
+  }
+
+  @Test
+  public void webhookBodyCanBeLoadedFromDataStore() throws Exception {
+    // This test uses the rule server and puts data in its store
+    String webhookBody = "{ \"source\": \"dataStore\", \"message\": \"Hello from store\" }";
+    rule.getOptions()
+        .getStores()
+        .getBlobStore("webhookStore")
+        .put("webhookData", bytesFromString(webhookBody));
+
+    latch = new CountDownLatch(1);
+
+    // Set up target server to receive the webhook
+    targetServer.stubFor(any(urlPathMatching("/callback.*")).willReturn(ok()));
+
+    // Stub with webhook that uses data store ref via JSON API
+    client.postJson(
+        "/__admin/mappings",
+        // language=json
+        """
+        {
+          "request": {
+            "urlPath": "/trigger-store-webhook",
+            "method": "POST"
+          },
+          "response": {
+            "status": 200
+          },
+          "serveEventListeners": [{
+            "name": "webhook",
+            "parameters": {
+              "method": "POST",
+              "url": "%s/callback-store",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "dataStore": "webhookStore",
+                "dataRef": "webhookData"
+              }
+            }
+          }]
+        }
+        """
+            .formatted(targetServer.baseUrl()));
+
+    client.post("/trigger-store-webhook");
+
+    waitForRequestToTargetServer();
+
+    targetServer.verify(
+        1,
+        postRequestedFor(urlEqualTo("/callback-store"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(
+                equalToJson("{ \"source\": \"dataStore\", \"message\": \"Hello from store\" }")));
   }
 
   private static Stream<RequestMethod> allHttpMethodsForWebhooks() {
