@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class RequestWrapper implements Request {
   private final Map<String, Cookie> additionalCookies;
   private final List<String> cookiesToRemove;
   private final Map<String, FieldTransformer<Cookie>> cookieTransformers;
-  private final FieldTransformer<Body> bodyTransformer;
+  private final FieldTransformer<Entity> bodyTransformer;
   private final FieldTransformer<Part> multipartTransformer;
 
   public RequestWrapper(Request delegate) {
@@ -68,7 +69,7 @@ public class RequestWrapper implements Request {
       Map<String, Cookie> additionalCookies,
       List<String> cookiesToRemove,
       Map<String, FieldTransformer<Cookie>> cookieTransformers,
-      FieldTransformer<Body> bodyTransformer,
+      FieldTransformer<Entity> bodyTransformer,
       FieldTransformer<Part> multipartTransformer) {
     this.delegate = delegate;
 
@@ -230,7 +231,11 @@ public class RequestWrapper implements Request {
   @Override
   public byte[] getBody() {
     if (bodyTransformer != null) {
-      return bodyTransformer.transform(new Body(delegate.getBody())).asBytes();
+      byte[] bodyBytes = delegate.getBody();
+      if (bodyBytes == null) return null;
+      return bodyTransformer
+          .transform(Entity.ofBinaryOrText(bodyBytes, delegate.contentTypeHeader()))
+          .asBytes();
     }
 
     return delegate.getBody();
@@ -239,7 +244,11 @@ public class RequestWrapper implements Request {
   @Override
   public String getBodyAsString() {
     if (bodyTransformer != null) {
-      return bodyTransformer.transform(new Body(delegate.getBodyAsString())).asString();
+      byte[] bodyBytes = delegate.getBody();
+      if (bodyBytes == null) return null;
+      return bodyTransformer
+          .transform(Entity.ofBinaryOrText(bodyBytes, delegate.contentTypeHeader()))
+          .asString();
     }
 
     return delegate.getBodyAsString();
@@ -304,7 +313,7 @@ public class RequestWrapper implements Request {
     private final List<String> cookiesToRemove = new ArrayList<>();
     private final Map<String, FieldTransformer<Cookie>> cookieTransformers = new HashMap<>();
 
-    private FieldTransformer<Body> bodyTransformer;
+    private FieldTransformer<Entity> bodyTransformer;
     private FieldTransformer<Part> mutlipartTransformer;
 
     public Builder addHeader(String key, String... values) {
@@ -347,7 +356,7 @@ public class RequestWrapper implements Request {
           mutlipartTransformer);
     }
 
-    public Builder transformBody(FieldTransformer<Body> transformer) {
+    public Builder transformBody(FieldTransformer<Entity> transformer) {
       bodyTransformer = transformer;
       return this;
     }

@@ -50,6 +50,10 @@ public interface Request {
 
     Entity getBodyEntity();
 
+    /**
+     * @deprecated use {@link #getBodyEntity()}
+     */
+    @Deprecated
     default Body getBody() {
       return new Body(getBodyEntity().asBytes());
     }

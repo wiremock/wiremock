@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import java.util.stream.Collectors;
@@ -167,10 +168,9 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformBody(
-                existingBody -> {
-                  String newValue = existingBody.asString().replace("One", "Two");
-                  return new Body(newValue);
-                })
+                (Entity existingBody) ->
+                    existingBody.transform(
+                        b -> b.setData(existingBody.asString().replace("One", "Two"))))
             .wrap(request);
 
     assertThat(wrappedRequest.getBodyAsString(), is("Two"));
@@ -185,7 +185,10 @@ public class RequestWrapperTest {
     MockRequest request = mockRequest().body(initialBytes);
 
     Request wrappedRequest =
-        RequestWrapper.create().transformBody(existingBody -> new Body(finalBytes)).wrap(request);
+        RequestWrapper.create()
+            .transformBody(
+                (Entity existingBody) -> existingBody.transform(b -> b.setData(finalBytes)))
+            .wrap(request);
 
     assertThat(wrappedRequest.getBody(), is(finalBytes));
     assertThat(wrappedRequest.getBodyAsBase64(), is(encodeBase64(finalBytes)));
@@ -207,8 +210,8 @@ public class RequestWrapperTest {
                         : mockPart().name("two").filename("sample2.txt").body("2222"))
             .wrap(request);
 
-    assertThat(wrappedRequest.getPart("one").getBody().asString(), is("1111"));
-    assertThat(wrappedRequest.getPart("two").getBody().asString(), is("2222"));
+    assertThat(wrappedRequest.getPart("one").getBodyEntity().asString(), is("1111"));
+    assertThat(wrappedRequest.getPart("two").getBodyEntity().asString(), is("2222"));
     assertThat(
         wrappedRequest.getParts(),
         hasItem(mockPart().name("one").filename("text1.txt").body("1111")));
