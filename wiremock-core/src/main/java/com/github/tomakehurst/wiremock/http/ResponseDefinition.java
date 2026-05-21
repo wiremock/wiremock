@@ -38,7 +38,6 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -157,7 +156,7 @@ public class ResponseDefinition {
     this.removeProxyRequestHeaders =
         removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : List.of();
 
-    this.body = resolveBodyAttributes(this.headers, body);
+    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
 
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
@@ -170,15 +169,6 @@ public class ResponseDefinition {
         transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
-  }
-
-  private static EntityDefinition resolveBodyAttributes(
-      HttpHeaders headers, EntityDefinition entityDefinition) {
-    if (entityDefinition.isAbsent()) {
-      return entityDefinition;
-    }
-
-    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public static ResponseDefinition notFound() {
