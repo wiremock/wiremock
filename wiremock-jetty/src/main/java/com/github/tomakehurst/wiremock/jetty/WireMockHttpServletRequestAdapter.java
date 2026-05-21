@@ -51,6 +51,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final Lazy<@NonNull String> absoluteUrl;
   private final Lazy<@NonNull AbsoluteUrl> typedAbsoluteUrl;
   private final Lazy<Entity> bodyEntity;
+  private final Lazy<Entity> bodyEntityDecompressed;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
   private final Lazy<Collection<Part>> multiParts;
@@ -72,6 +73,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.bodyEntity = Lazy.lazy(this::adaptBodyEntity);
+    this.bodyEntityDecompressed = Lazy.lazy(() -> bodyEntity.get().decompress());
     this.formParameters = Lazy.lazy(() -> adaptFormParameters(request));
     this.multiParts = Lazy.lazy(this::adaptParts);
   }
@@ -159,7 +161,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public byte[] getBody() {
-    return bodyEntity.get().decompress().asBytes();
+    return bodyEntityDecompressed.get().asBytes();
   }
 
   private Entity adaptBodyEntity() {
@@ -173,12 +175,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public String getBodyAsString() {
-    return bodyEntity.get().decompress().asString();
+    return bodyEntityDecompressed.get().asString();
   }
 
   @Override
   public String getBodyAsBase64() {
-    return bodyEntity.get().decompress().asBase64();
+    return bodyEntityDecompressed.get().asBase64();
   }
 
   @Override
