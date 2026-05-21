@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Objects.requireNonNull;
@@ -229,34 +228,24 @@ public class RequestWrapper implements Request {
   }
 
   @Override
-  public byte[] getBody() {
-    if (bodyTransformer != null) {
-      byte[] bodyBytes = delegate.getBody();
-      if (bodyBytes == null) return null;
-      return bodyTransformer
-          .transform(Entity.ofBinaryOrText(bodyBytes, delegate.contentTypeHeader()))
-          .asBytes();
-    }
+  public Entity getBodyEntity() {
+    Entity delegateEntity = delegate.getBodyEntity();
+    return bodyTransformer != null ? bodyTransformer.transform(delegateEntity) : delegateEntity;
+  }
 
-    return delegate.getBody();
+  @Override
+  public byte[] getBody() {
+    return getBodyEntity().decompress().asBytes();
   }
 
   @Override
   public String getBodyAsString() {
-    if (bodyTransformer != null) {
-      byte[] bodyBytes = delegate.getBody();
-      if (bodyBytes == null) return null;
-      return bodyTransformer
-          .transform(Entity.ofBinaryOrText(bodyBytes, delegate.contentTypeHeader()))
-          .asString();
-    }
-
-    return delegate.getBodyAsString();
+    return getBodyEntity().decompress().asString();
   }
 
   @Override
   public String getBodyAsBase64() {
-    return encodeBase64(getBody());
+    return getBodyEntity().decompress().asBase64();
   }
 
   @Override

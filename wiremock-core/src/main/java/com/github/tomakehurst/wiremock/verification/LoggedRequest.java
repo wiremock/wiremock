@@ -29,6 +29,8 @@ import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import java.nio.charset.Charset;
@@ -65,6 +67,7 @@ public class LoggedRequest implements Request {
 
   private final Lazy<String> lazyBodyAsString;
   private final Lazy<String> lazyBodyAsBase64;
+  private final Lazy<Entity> lazyBodyEntity;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
@@ -169,6 +172,7 @@ public class LoggedRequest implements Request {
 
     lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
     lazyBodyAsBase64 = lazy(() -> encodeBase64(body));
+    lazyBodyEntity = lazy(() -> Entity.forRequest(body, contentTypeHeader(), CompressionType.NONE));
   }
 
   @Override
@@ -284,6 +288,12 @@ public class LoggedRequest implements Request {
   @JsonProperty("bodyAsBase64")
   public String getBodyAsBase64() {
     return lazyBodyAsBase64.get();
+  }
+
+  @Override
+  @JsonIgnore
+  public Entity getBodyEntity() {
+    return lazyBodyEntity.get();
   }
 
   @Override

@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -185,6 +187,11 @@ public class ImmutableRequest implements Request {
   @Override
   public String getBodyAsBase64() {
     return encodeBase64(getBody());
+  }
+
+  @Override
+  public Entity getBodyEntity() {
+    return Entity.forRequest(body, contentTypeHeader(), NONE);
   }
 
   @Override

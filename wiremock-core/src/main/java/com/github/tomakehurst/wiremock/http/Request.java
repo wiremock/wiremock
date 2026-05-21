@@ -123,6 +123,8 @@ public interface Request {
 
   String getBodyAsBase64();
 
+  Entity getBodyEntity();
+
   boolean isMultipart();
 
   Collection<Part> getParts();

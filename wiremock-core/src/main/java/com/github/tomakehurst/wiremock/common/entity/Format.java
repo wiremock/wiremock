@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.common.ContentTypes;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 
 public class Format {
 
@@ -57,7 +59,35 @@ public class Format {
     }
 
     MimeType parsed = MimeType.parse(mimeType);
-    return fromString(parsed.getType());
+
+    // Primary type — covers "application/json" → "json", "text/xml" → "xml", etc.
+    if (isWellKnownType(parsed.getType())) {
+      return fromString(parsed.getType());
+    }
+
+    // Subtype after '+' — covers "application/vnd.api+json" → subType "json"
+    String subType = parsed.getSubType();
+    if (subType != null && isWellKnownType(subType)) {
+      return fromString(subType);
+    }
+
+    return ContentTypes.determineIsTextFromMimeType(mimeType) ? TEXT : BINARY;
+  }
+
+  public static Format fromContentTypeHeader(ContentTypeHeader contentTypeHeader) {
+    if (contentTypeHeader == null || !contentTypeHeader.isPresent()) {
+      return BINARY;
+    }
+    String mimeType = contentTypeHeader.mimeTypePart();
+    return mimeType != null ? fromMimeType(mimeType) : BINARY;
+  }
+
+  private static boolean isWellKnownType(String value) {
+    if (value == null) return false;
+    return switch (value.toLowerCase()) {
+      case "json", "html", "text", "xml", "yaml", "csv", "binary" -> true;
+      default -> false;
+    };
   }
 
   public static Format detectFormat(String data) {

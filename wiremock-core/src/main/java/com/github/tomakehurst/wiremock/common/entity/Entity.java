@@ -151,6 +151,19 @@ public class Entity {
     return Entity.builder().setFormat(format).setData(content).build();
   }
 
+  public static Entity forRequest(
+      byte[] rawBytes, ContentTypeHeader contentTypeHeader, CompressionType compression) {
+    Charset charset =
+        contentTypeHeader != null
+            ? contentTypeHeader.charset().orElse(DEFAULT_CHARSET)
+            : DEFAULT_CHARSET;
+    return new Entity(
+        Format.fromContentTypeHeader(contentTypeHeader),
+        charset,
+        getFirstNonNull(compression, DEFAULT_COMPRESSION),
+        StreamSources.forBytes(rawBytes));
+  }
+
   public static Builder builder() {
     return new Builder();
   }

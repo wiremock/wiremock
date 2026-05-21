@@ -22,6 +22,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.MultipartParserLoader;
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
@@ -264,6 +266,11 @@ public class MockRequest implements Request {
   @Override
   public String getBodyAsBase64() {
     return "";
+  }
+
+  @Override
+  public Entity getBodyEntity() {
+    return Entity.forRequest(body, contentTypeHeader(), CompressionType.NONE);
   }
 
   @Override

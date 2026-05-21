@@ -104,6 +104,10 @@ public class RequestTemplateModel {
     return cookies;
   }
 
+  public Entity getBodyEntity() {
+    return body;
+  }
+
   public String getBody() {
     return body.asString();
   }
