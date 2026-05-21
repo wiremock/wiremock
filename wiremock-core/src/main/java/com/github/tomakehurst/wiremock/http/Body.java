@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ import com.github.tomakehurst.wiremock.common.Strings;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * @deprecated use {@link com.github.tomakehurst.wiremock.common.entity.Entity}
+ */
+@Deprecated
 public class Body {
 
   private final byte[] content;

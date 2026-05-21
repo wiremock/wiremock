@@ -22,13 +22,15 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_COMPRESSION;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.ContentTypes;
+import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Objects;
@@ -91,9 +93,16 @@ public class Entity {
     return this;
   }
 
-  @JsonIgnore
-  public String getDataAsString() {
+  public String asString() {
     return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), charset), String.class);
+  }
+
+  public String asBase64() {
+    return Encoding.encodeBase64(getData());
+  }
+
+  public byte[] asBytes() {
+    return getData();
   }
 
   public byte[] getData() {
@@ -129,6 +138,19 @@ public class Entity {
     return streamSource;
   }
 
+  public boolean isBinary() {
+    return format == Format.BINARY;
+  }
+
+  public static Entity ofBinaryOrText(byte[] content, ContentTypeHeader contentTypeHeader) {
+    Format format =
+        contentTypeHeader != null
+                && ContentTypes.determineIsTextFromMimeType(contentTypeHeader.mimeTypePart())
+            ? Format.TEXT
+            : Format.BINARY;
+    return Entity.builder().setFormat(format).setData(content).build();
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -144,7 +166,7 @@ public class Entity {
       return transform(
           builder -> {
             final String plainText =
-                compression == GZIP ? Gzip.unGzipToString(getData()) : getDataAsString();
+                compression == GZIP ? Gzip.unGzipToString(getData()) : asString();
 
             final String transformed = transformer.apply(plainText);
 

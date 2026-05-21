@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Collection;
 import java.util.Map;
@@ -47,7 +48,15 @@ public interface Request {
 
     HttpHeaders getHeaders();
 
-    Body getBody();
+    Entity getBodyEntity();
+
+    /**
+     * @deprecated use {@link #getBodyEntity()}
+     */
+    @Deprecated
+    default Body getBody() {
+      return new Body(getBodyEntity().asBytes());
+    }
   }
 
   @Deprecated // use getPathAndQueryWithoutPrefix()

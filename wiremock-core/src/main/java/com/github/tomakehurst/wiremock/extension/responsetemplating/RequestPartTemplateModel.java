@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TreeMap;
@@ -25,10 +25,10 @@ public class RequestPartTemplateModel {
 
   private final String name;
   private final Map<String, ListOrSingle<String>> headers;
-  private final Body body;
+  private final Entity body;
 
   public RequestPartTemplateModel(
-      String name, Map<String, ListOrSingle<String>> headers, Body body) {
+      String name, Map<String, ListOrSingle<String>> headers, Entity body) {
     this.name = name;
     this.headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     this.headers.putAll(headers);
