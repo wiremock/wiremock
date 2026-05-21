@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import com.github.jknack.handlebars.helper.ext.AssignHelper;
 import com.github.jknack.handlebars.helper.ext.NumberHelper;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
-import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -176,7 +176,7 @@ public class TemplateEngine {
         adaptedHeaders,
         adaptedCookies,
         request.isMultipart(),
-        Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
+        Entity.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
         buildRequestPartModel(request));
   }
 
@@ -204,7 +204,7 @@ public class TemplateEngine {
                                 throw new IllegalStateException("Duplicate header name");
                               },
                               LinkedHashMap::new)),
-                  part.getBody()));
+                  part.getBodyEntity()));
         }
 
         return result;
@@ -225,7 +225,7 @@ public class TemplateEngine {
                                           throw new IllegalStateException("Duplicate header name");
                                         },
                                         LinkedHashMap::new)),
-                            part.getBody()),
+                            part.getBodyEntity()),
                     (e1, e2) -> {
                       throw new IllegalStateException("Duplicate request part name");
                     },

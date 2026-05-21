@@ -23,10 +23,10 @@ import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACE
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -190,7 +190,8 @@ public class Diff {
             if (!pattern.match(part).isExactMatch()) {
               addHeaderSectionWithSpacerIfPresent(
                   pattern.getHeaders(), part.getHeaders(), diffLineList);
-              addBodySectionIfPresent(pattern.getBodyPatterns(), part.getBody(), diffLineList);
+              addBodySectionIfPresent(
+                  pattern.getBodyPatterns(), part.getBodyEntity(), diffLineList);
               diffLineList.add(SPACER);
             }
 
@@ -400,7 +401,7 @@ public class Diff {
   }
 
   private void addBodySectionIfPresent(
-      List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> diffLineList) {
+      List<ContentPattern<?>> bodyPatterns, Entity body, List<DiffLine<?>> diffLineList) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
       for (ContentPattern<?> pattern : bodyPatterns) {
         String formattedBody = formatIfJsonOrXml(pattern, body);
@@ -452,11 +453,11 @@ public class Diff {
 
   private void addBodySectionIfPresent(List<DiffLine<?>> builder) {
     List<ContentPattern<?>> bodyPatterns = requestPattern.getBodyPatterns();
-    Body body = new Body(request.getBody());
+    Entity body = Entity.ofBinaryOrText(request.getBody(), request.contentTypeHeader());
     addBodySectionIfPresent(bodyPatterns, body, builder);
   }
 
-  private static String getExpressionResultString(Body body, PathPattern pathPattern) {
+  private static String getExpressionResultString(Entity body, PathPattern pathPattern) {
     String bodyStr = body.asString();
     if (isEmpty(bodyStr)) {
       return null;
@@ -511,14 +512,14 @@ public class Diff {
     return stubMappingName;
   }
 
-  private static String formatIfJsonOrXml(ContentPattern<?> pattern, Body body) {
-    if (body == null || body.isAbsent()) {
+  private static String formatIfJsonOrXml(ContentPattern<?> pattern, Entity body) {
+    if (body == null || body.getData() == null) {
       return "";
     }
 
     try {
       return pattern.getClass().equals(EqualToJsonPattern.class)
-          ? Json.prettyPrint(Json.write(body.asJson()))
+          ? Json.prettyPrint(Json.write(Json.node(body.asString())))
           : pattern.getClass().equals(EqualToXmlPattern.class)
               ? Xml.prettyPrint(body.asString())
               : pattern.getClass().equals(BinaryEqualToPattern.class)

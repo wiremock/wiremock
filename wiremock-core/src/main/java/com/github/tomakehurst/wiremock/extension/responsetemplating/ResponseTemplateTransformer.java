@@ -96,7 +96,7 @@ public class ResponseTemplateTransformer
 
       if (bodyIsInlineOrTemplatingPermitted) {
         final HandlebarsOptimizedTemplate bodyTemplate =
-            templateEngine.getTemplate(templateCacheKey, initialBody.getDataAsString());
+            templateEngine.getTemplate(templateCacheKey, initialBody.asString());
 
         bodyDefinition = applyTemplateToBodyEntity(model, bodyTemplate);
       }
