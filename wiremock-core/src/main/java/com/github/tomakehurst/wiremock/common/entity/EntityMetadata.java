@@ -26,6 +26,10 @@ import java.util.Optional;
 public class EntityMetadata {
 
   public static void copyFromHeaders(HttpHeaders headers, EntityMetadataBuilder<?> builder) {
+    if (headers == null) {
+      return;
+    }
+
     final ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
     final String mimeType = contentTypeHeader.mimeTypePart();
     final Optional<Charset> charset = contentTypeHeader.charset();

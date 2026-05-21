@@ -15,12 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static java.util.Objects.requireNonNull;
 
-import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +44,7 @@ public class ImmutableRequest implements Request {
   private final int port;
   private final String clientIp;
   private final HttpHeaders headers;
-  private final byte[] body;
+  private final Entity body;
   private final boolean multipart;
 
   private final Map<String, Part> parts;
@@ -62,7 +60,7 @@ public class ImmutableRequest implements Request {
       String protocol,
       String clientIp,
       HttpHeaders headers,
-      byte[] body,
+      Entity body,
       boolean multipart,
       boolean browserProxyRequest) {
     this.absoluteUrl = absoluteUrl;
@@ -176,22 +174,22 @@ public class ImmutableRequest implements Request {
 
   @Override
   public byte[] getBody() {
-    return body;
+    return body.asBytes();
   }
 
   @Override
   public String getBodyAsString() {
-    return Strings.stringFromBytes(body);
+    return body.asString();
   }
 
   @Override
   public String getBodyAsBase64() {
-    return encodeBase64(getBody());
+    return body.asBase64();
   }
 
   @Override
   public Entity getBodyEntity() {
-    return Entity.forRequest(body, contentTypeHeader(), NONE);
+    return body;
   }
 
   @Override
@@ -290,13 +288,16 @@ public class ImmutableRequest implements Request {
     }
 
     public ImmutableRequest build() {
+      HttpHeaders builtHeaders = new HttpHeaders(headers);
+      final Entity.Builder entityBuilder = Entity.builder().setData(body);
+      EntityMetadata.copyFromHeaders(builtHeaders, entityBuilder);
       return new ImmutableRequest(
           absoluteUrl,
           requestMethod,
           protocol,
           clientIp,
-          new HttpHeaders(headers),
-          body,
+          builtHeaders,
+          entityBuilder.build(),
           multipart,
           browserProxyRequest);
     }

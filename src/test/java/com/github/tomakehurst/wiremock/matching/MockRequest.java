@@ -24,6 +24,7 @@ import static java.util.Arrays.asList;
 import com.github.tomakehurst.wiremock.MultipartParserLoader;
 import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.*;
@@ -270,7 +271,11 @@ public class MockRequest implements Request {
 
   @Override
   public Entity getBodyEntity() {
-    return Entity.forRequest(body, contentTypeHeader(), CompressionType.NONE);
+    return Entity.builder()
+        .setFormat(Format.fromContentTypeHeader(contentTypeHeader()))
+        .setCompression(CompressionType.NONE)
+        .setData(body != null ? body : new byte[0])
+        .build();
   }
 
   @Override

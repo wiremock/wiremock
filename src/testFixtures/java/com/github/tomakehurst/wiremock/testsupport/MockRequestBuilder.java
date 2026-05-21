@@ -19,6 +19,9 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static org.mockito.Mockito.when;
 
+import com.github.tomakehurst.wiremock.common.entity.CompressionType;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import org.mockito.Mockito;
@@ -155,6 +158,13 @@ public class MockRequestBuilder {
     when(request.getBody()).thenReturn(body.getBytes());
     when(request.getBodyAsString()).thenReturn(body);
     when(request.getBodyAsBase64()).thenReturn(bodyAsBase64);
+    when(request.getBodyEntity())
+        .thenReturn(
+            Entity.builder()
+                .setFormat(Format.fromContentTypeHeader(headers.getContentTypeHeader()))
+                .setCompression(CompressionType.NONE)
+                .setData(body.getBytes())
+                .build());
     when(request.getAbsoluteUrl()).thenReturn("http://localhost:8080" + url);
     when(request.getTypedAbsoluteUrl())
         .thenReturn(AbsoluteUrl.parse("http://localhost:8080" + url));

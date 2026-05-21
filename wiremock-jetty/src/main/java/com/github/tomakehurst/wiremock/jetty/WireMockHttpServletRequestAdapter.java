@@ -17,16 +17,14 @@ package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.google.common.collect.ImmutableMultimap;
@@ -167,13 +165,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private Entity adaptBodyEntity() {
     byte[] rawBytes =
         Exceptions.uncheck(() -> request.getInputStream().readAllBytes(), byte[].class);
-    boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(rawBytes);
-    return Entity.forRequest(rawBytes, contentTypeHeader(), isGzipped ? GZIP : NONE);
-  }
 
-  private boolean hasGzipEncoding() {
-    String encodingHeader = request.getHeader("Content-Encoding");
-    return encodingHeader != null && encodingHeader.contains("gzip");
+    final Entity.Builder builder = Entity.builder().setData(rawBytes);
+    EntityMetadata.copyFromHeaders(getHeaders(), builder);
+    return builder.build();
   }
 
   @Override

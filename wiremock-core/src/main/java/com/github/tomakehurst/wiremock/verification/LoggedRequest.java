@@ -16,24 +16,18 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.ensureImmutable;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameterMap;
-import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Lazy;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
@@ -59,15 +53,11 @@ public class LoggedRequest implements Request {
   private final Map<String, Cookie> cookies;
   private final Map<String, QueryParameter> queryParams;
   private final Map<String, FormParameter> formParameters;
-  private final byte[] body;
+  private final Entity body;
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
   private final Collection<Part> multiparts;
   private final String protocol;
-
-  private final Lazy<String> lazyBodyAsString;
-  private final Lazy<String> lazyBodyAsBase64;
-  private final Lazy<Entity> lazyBodyEntity;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
@@ -84,7 +74,7 @@ public class LoggedRequest implements Request {
         request.getCookies(),
         request.isBrowserProxyRequest(),
         new Date(),
-        request.getBody(),
+        request.getBodyEntity().decompress(),
         request.getParts(),
         request.getProtocol(),
         request.formParameters());
@@ -118,7 +108,7 @@ public class LoggedRequest implements Request {
         cookies,
         isBrowserProxyRequest,
         loggedDate,
-        decodeBase64(bodyAsBase64),
+        buildEntity(decodeBase64(bodyAsBase64), headers),
         multiparts,
         protocol,
         new HashMap<>());
@@ -138,7 +128,7 @@ public class LoggedRequest implements Request {
       Map<String, Cookie> cookies,
       boolean isBrowserProxyRequest,
       Date loggedDate,
-      byte[] body,
+      Entity body,
       Collection<Part> multiparts,
       String protocol,
       Map<String, FormParameter> formParameters) {
@@ -169,10 +159,12 @@ public class LoggedRequest implements Request {
     this.loggedDate = loggedDate;
     this.multiparts = ensureImmutable(multiparts);
     this.protocol = protocol;
+  }
 
-    lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
-    lazyBodyAsBase64 = lazy(() -> encodeBase64(body));
-    lazyBodyEntity = lazy(() -> Entity.forRequest(body, contentTypeHeader(), CompressionType.NONE));
+  private static Entity buildEntity(byte[] bytes, HttpHeaders headers) {
+    final Entity.Builder entityBuilder = Entity.builder().setData(bytes);
+    EntityMetadata.copyFromHeaders(headers, entityBuilder);
+    return entityBuilder.build();
   }
 
   @Override
@@ -249,14 +241,6 @@ public class LoggedRequest implements Request {
     return null;
   }
 
-  private Charset encodingFromContentTypeHeaderOrUtf8() {
-    ContentTypeHeader contentTypeHeader = contentTypeHeader();
-    if (contentTypeHeader != null) {
-      return contentTypeHeader.charset().orElse(DEFAULT_CHARSET);
-    }
-    return DEFAULT_CHARSET;
-  }
-
   @Override
   public boolean containsHeader(String key) {
     return getHeader(key) != null;
@@ -275,25 +259,25 @@ public class LoggedRequest implements Request {
 
   @Override
   public byte[] getBody() {
-    return body;
+    return body.asBytes();
   }
 
   @Override
   @JsonProperty("body")
   public String getBodyAsString() {
-    return lazyBodyAsString.get();
+    return body.asString();
   }
 
   @Override
   @JsonProperty("bodyAsBase64")
   public String getBodyAsBase64() {
-    return lazyBodyAsBase64.get();
+    return body.asBase64();
   }
 
   @Override
   @JsonIgnore
   public Entity getBodyEntity() {
-    return lazyBodyEntity.get();
+    return body;
   }
 
   @Override
@@ -427,7 +411,7 @@ public class LoggedRequest implements Request {
       this.cookies = original.cookies;
       this.isBrowserProxyRequest = original.isBrowserProxyRequest;
       this.loggedDate = original.loggedDate;
-      this.body = original.body != null ? Arrays.copyOf(original.body, original.body.length) : null;
+      this.body = original.body.asBytes();
       this.multiparts = original.multiparts;
       this.protocol = original.protocol;
       this.formParameters = original.formParameters;
@@ -606,7 +590,7 @@ public class LoggedRequest implements Request {
           cookies,
           isBrowserProxyRequest,
           loggedDate,
-          body,
+          buildEntity(body, headers),
           multiparts,
           protocol,
           formParameters);
