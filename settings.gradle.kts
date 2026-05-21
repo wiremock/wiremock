@@ -1,5 +1,5 @@
 plugins {
-    id("com.autonomousapps.build-health") version "3.12.0"
+    id("com.autonomousapps.build-health") version "3.12.2"
 }
 
 rootProject.name = "wiremock"
