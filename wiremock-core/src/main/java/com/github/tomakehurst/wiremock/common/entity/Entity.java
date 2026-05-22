@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_COMPRESSION;
 
-import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Gzip;
@@ -30,7 +29,7 @@ import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Objects;
@@ -142,13 +141,14 @@ public class Entity {
     return format == Format.BINARY;
   }
 
-  public static Entity ofBinaryOrText(byte[] content, ContentTypeHeader contentTypeHeader) {
-    Format format =
-        contentTypeHeader != null
-                && ContentTypes.determineIsTextFromMimeType(contentTypeHeader.mimeTypePart())
-            ? Format.TEXT
-            : Format.BINARY;
-    return Entity.builder().setFormat(format).setData(content).build();
+  public static Entity of(byte[] data, HttpHeaders headers) {
+    if (data == null) {
+      return EMPTY;
+    }
+
+    final Builder builder = Entity.builder().setData(data);
+    EntityMetadata.copyFromHeaders(headers, builder);
+    return builder.build();
   }
 
   public static Builder builder() {

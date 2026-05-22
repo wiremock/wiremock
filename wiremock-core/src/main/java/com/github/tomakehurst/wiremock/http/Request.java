@@ -123,7 +123,9 @@ public interface Request {
 
   String getBodyAsBase64();
 
-  Entity getBodyEntity();
+  default Entity getBodyEntity() {
+    return Entity.of(getBody(), getHeaders());
+  }
 
   boolean isMultipart();
 
