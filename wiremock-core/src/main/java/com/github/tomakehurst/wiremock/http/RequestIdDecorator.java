@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Collection;
 import java.util.Map;
@@ -155,6 +156,11 @@ public class RequestIdDecorator implements Request {
   @Override
   public String getBodyAsBase64() {
     return request.getBodyAsBase64();
+  }
+
+  @Override
+  public Entity getBodyEntity() {
+    return request.getBodyEntity();
   }
 
   @Override

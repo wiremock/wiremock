@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http.multipart;
 
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +67,9 @@ public class FileItemPartAdapter implements Request.Part {
 
   @Override
   public Entity getBodyEntity() {
-    return Entity.ofBinaryOrText(fileItem.get(), new ContentTypeHeader(fileItem.getContentType()));
+    final ContentTypeHeader contentTypeHeader = new ContentTypeHeader(fileItem.getContentType());
+    final Format format = Format.fromContentTypeHeader(contentTypeHeader);
+    return Entity.builder().setFormat(format).setData(fileItem.get()).build();
   }
 
   public static final Function<FileItem, Request.Part> TO_PARTS = FileItemPartAdapter::new;

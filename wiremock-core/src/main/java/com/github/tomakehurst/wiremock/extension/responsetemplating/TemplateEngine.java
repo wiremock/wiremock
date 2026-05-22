@@ -27,7 +27,6 @@ import com.github.jknack.handlebars.helper.ext.AssignHelper;
 import com.github.jknack.handlebars.helper.ext.NumberHelper;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
@@ -176,7 +175,7 @@ public class TemplateEngine {
         adaptedHeaders,
         adaptedCookies,
         request.isMultipart(),
-        Entity.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
+        request.getBodyEntity(),
         buildRequestPartModel(request));
   }
 

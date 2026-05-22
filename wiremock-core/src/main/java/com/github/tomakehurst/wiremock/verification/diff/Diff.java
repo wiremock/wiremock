@@ -453,7 +453,7 @@ public class Diff {
 
   private void addBodySectionIfPresent(List<DiffLine<?>> builder) {
     List<ContentPattern<?>> bodyPatterns = requestPattern.getBodyPatterns();
-    Entity body = Entity.ofBinaryOrText(request.getBody(), request.contentTypeHeader());
+    Entity body = Entity.of(request.getBody(), request.getHeaders());
     addBodySectionIfPresent(bodyPatterns, body, builder);
   }
 
