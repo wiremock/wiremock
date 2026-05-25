@@ -265,7 +265,7 @@ paths:
           example: 10
           schema:
             type: string
-        - description: Only return logged requests after this date
+        - description: Only return logged requests after this timestamp
           in: query
           name: since
           example: 2016-10-05T12:33:01Z

@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.common.Urls.toQueryParameterMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.*;
-import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
@@ -337,7 +336,7 @@ public class LoggedRequest implements Request {
   }
 
   public String getLoggedDateString() {
-    return loggedDate != null ? Dates.format(loggedDate) : null;
+    return loggedDate != null ? loggedDate.toInstant().toString() : null;
   }
 
   @Override
