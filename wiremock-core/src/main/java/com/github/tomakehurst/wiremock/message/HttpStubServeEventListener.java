@@ -19,8 +19,11 @@ import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.MessageJournal;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
 
   private final MessageStubMappings messageStubMappings;
   private final MessageChannels messageChannels;
+  private final ChannelProviderRegistry channelProviderRegistry;
+  private final MessageJournal messageJournal;
   private final Stores stores;
   private final Map<String, RequestMatcherExtension> customMatchers;
   private final List<MessageActionTransformer> actionTransformers;
@@ -36,11 +41,15 @@ public class HttpStubServeEventListener implements ServeEventListener {
   public HttpStubServeEventListener(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
+      ChannelProviderRegistry channelProviderRegistry,
+      MessageJournal messageJournal,
       Stores stores,
       Map<String, RequestMatcherExtension> customMatchers,
       List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
+    this.channelProviderRegistry = channelProviderRegistry;
+    this.messageJournal = messageJournal;
     this.stores = stores;
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
     this.actionTransformers =
@@ -126,6 +135,9 @@ public class HttpStubServeEventListener implements ServeEventListener {
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
       }
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      channelProviderRegistry.send(fixedTarget.getProviderName(), fixedTarget.getChannelName(), message);
+      messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(message));
     }
   }
 }

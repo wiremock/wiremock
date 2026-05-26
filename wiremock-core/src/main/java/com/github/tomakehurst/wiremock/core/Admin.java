@@ -26,6 +26,8 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -159,6 +161,10 @@ public interface Admin {
    * @return result containing all message channels
    */
   ListMessageChannelsResult listAllMessageChannels();
+
+  void registerChannelProvider(ChannelProvider provider);
+
+  void createFixedChannel(FixedChannel channel);
 
   /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.

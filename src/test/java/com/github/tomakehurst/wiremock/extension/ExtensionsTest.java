@@ -346,6 +346,18 @@ class ExtensionsTest {
     }
 
     @Override
+    public void registerChannelProvider(
+        com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void createFixedChannel(
+        com.github.tomakehurst.wiremock.message.channel.FixedChannel channel) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public GetMessageServeEventsResult getMessageServeEvents() {
       throw new UnsupportedOperationException();
     }

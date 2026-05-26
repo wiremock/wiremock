@@ -38,6 +38,9 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
@@ -89,6 +92,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, ServeEventListener> serveEventListeners;
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
+  private final ChannelProviderRegistry channelProviderRegistry;
 
   private final Options options;
 
@@ -146,11 +150,14 @@ public class WireMockApp implements StubServer, Admin {
 
     this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+    this.channelProviderRegistry = new ChannelProviderRegistry();
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
+            channelProviderRegistry,
+            messageJournal,
             stores,
             customMatchers,
             List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
@@ -708,6 +715,16 @@ public class WireMockApp implements StubServer, Admin {
             .map(LoggedMessageChannel::createFrom)
             .collect(Collectors.toList());
     return new ListMessageChannelsResult(channels);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    channelProviderRegistry.registerProvider(provider);
+  }
+
+  @Override
+  public void createFixedChannel(FixedChannel channel) {
+    channelProviderRegistry.createChannel(channel);
   }
 
   @Override

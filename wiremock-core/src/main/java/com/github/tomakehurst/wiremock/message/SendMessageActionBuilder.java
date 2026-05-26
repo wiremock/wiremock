@@ -114,6 +114,14 @@ public class SendMessageActionBuilder {
         transformerParameters);
   }
 
+  public SendMessageAction onChannel(String providerName, String channelName) {
+    return new SendMessageAction(
+        new MessageDefinition(resolveBody()),
+        new FixedChannelTarget(providerName, channelName),
+        transformers,
+        transformerParameters);
+  }
+
   public static class TargetedSendMessageActionBuilder {
     private final ChannelTarget channelTarget;
     private final List<String> transformers;

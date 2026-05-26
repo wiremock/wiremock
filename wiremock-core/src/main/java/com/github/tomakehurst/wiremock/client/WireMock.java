@@ -77,6 +77,8 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -1203,6 +1205,30 @@ public class WireMock {
 
   public static MessageStubMapping.Builder message() {
     return MessageStubMapping.builder();
+  }
+
+  public static ChannelProvider.Builder channelProvider() {
+    return new ChannelProvider.Builder();
+  }
+
+  public static void registerChannelProvider(ChannelProvider.Builder builder) {
+    defaultInstance.get().doRegisterChannelProvider(builder.build());
+  }
+
+  public void doRegisterChannelProvider(ChannelProvider provider) {
+    admin.registerChannelProvider(provider);
+  }
+
+  public static FixedChannel.Builder fixedChannel() {
+    return new FixedChannel.Builder();
+  }
+
+  public static void createFixedChannel(FixedChannel.Builder builder) {
+    defaultInstance.get().doCreateFixedChannel(builder.build());
+  }
+
+  public void doCreateFixedChannel(FixedChannel channel) {
+    admin.createFixedChannel(channel);
   }
 
   public static SendMessageActionBuilder sendMessage() {

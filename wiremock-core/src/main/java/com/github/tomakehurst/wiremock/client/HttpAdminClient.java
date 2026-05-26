@@ -40,6 +40,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -565,6 +567,18 @@ public class HttpAdminClient implements Admin {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetAllMessageChannelsTask.class),
         ListMessageChannelsResult.class);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    postJsonAssertOkAndReturnBody(
+        urlFor(RegisterChannelProviderTask.class), Json.write(provider));
+  }
+
+  @Override
+  public void createFixedChannel(FixedChannel channel) {
+    postJsonAssertOkAndReturnBody(
+        urlFor(CreateFixedChannelTask.class), Json.write(channel));
   }
 
   @Override

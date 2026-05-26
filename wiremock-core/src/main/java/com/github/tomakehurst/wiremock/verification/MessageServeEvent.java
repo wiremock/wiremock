@@ -194,6 +194,11 @@ public class MessageServeEvent {
     return sent(channel.getType(), channel.getId(), channelRequest, message);
   }
 
+  public static MessageServeEvent sentToFixedChannel(Message message) {
+    return new MessageServeEvent(
+        UUID.randomUUID(), EventType.SENT, null, null, null, message, null, true, Instant.now(), null);
+  }
+
   public UUID getId() {
     return id;
   }
