@@ -15,27 +15,47 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 
 /** Request model for sending a message to channels of a specific type. */
+@JsonInclude(NON_NULL)
 public class SendChannelMessageRequest {
 
   private final ChannelType type;
   private final RequestPattern initiatingRequestPattern;
+  private final String providerName;
+  private final String channelName;
   private final MessageDefinition message;
 
   @JsonCreator
   public SendChannelMessageRequest(
       @JsonProperty("type") ChannelType type,
       @JsonProperty("initiatingRequest") RequestPattern initiatingRequestPattern,
+      @JsonProperty("providerName") String providerName,
+      @JsonProperty("channelName") String channelName,
       @JsonProperty("message") MessageDefinition message) {
     this.type = type;
     this.initiatingRequestPattern = initiatingRequestPattern;
+    this.providerName = providerName;
+    this.channelName = channelName;
     this.message = message;
+  }
+
+  public static SendChannelMessageRequest forWebSocket(
+      ChannelType type, RequestPattern initiatingRequestPattern, MessageDefinition message) {
+    return new SendChannelMessageRequest(type, initiatingRequestPattern, null, null, message);
+  }
+
+  public static SendChannelMessageRequest forFixedChannel(
+      String providerName, String channelName, MessageDefinition message) {
+    return new SendChannelMessageRequest(ChannelType.FIXED, null, providerName, channelName, message);
   }
 
   public ChannelType getType() {
@@ -44,6 +64,14 @@ public class SendChannelMessageRequest {
 
   public RequestPattern getInitiatingRequest() {
     return initiatingRequestPattern;
+  }
+
+  public String getProviderName() {
+    return providerName;
+  }
+
+  public String getChannelName() {
+    return channelName;
   }
 
   public MessageDefinition getMessage() {

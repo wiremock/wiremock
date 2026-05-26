@@ -36,15 +36,19 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
-import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
-import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.recording.*;
@@ -725,6 +729,27 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void createFixedChannel(FixedChannel channel) {
     channelProviderRegistry.createChannel(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition messageDefinition) {
+    Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
+    messageJournal.messageReceived(MessageServeEvent.receivedOnFixedChannel(incomingMessage));
+
+    for (MessageStubMapping stub :
+        messageStubMappings.findMatchingFixedChannelStubs(providerName, channelName, incomingMessage)) {
+      for (MessageAction action : stub.getActions()) {
+        if (action instanceof SendMessageAction sendAction) {
+          Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
+          if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
+            channelProviderRegistry.send(
+                fixedTarget.getProviderName(), fixedTarget.getChannelName(), outMessage);
+            messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
+          }
+        }
+      }
+    }
   }
 
   @Override

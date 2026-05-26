@@ -57,4 +57,27 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
     assertThat(event.isPresent(), is(true));
     assertThat(event.get().getMessage().getBodyAsString(), is("order-created"));
   }
+
+  @Test
+  void incomingMessageOnFixedChannelTriggersSendToFixedChannel() {
+    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
+    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+
+    messageStubFor(
+        message()
+            .withName("Echo on fixed channel")
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("ping"))
+            .willTriggerActions(
+                sendMessage().withBody("pong").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "ping");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("pong")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getMessage().getBodyAsString(), is("pong"));
+  }
 }

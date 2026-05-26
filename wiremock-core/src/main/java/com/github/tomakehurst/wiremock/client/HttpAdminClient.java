@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
@@ -557,9 +558,17 @@ public class HttpAdminClient implements Admin {
   public SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     String url = urlFor(SendChannelMessageTask.class);
-    String body = Json.write(new SendChannelMessageRequest(type, requestPattern, message));
+    String body = Json.write(SendChannelMessageRequest.forWebSocket(type, requestPattern, message));
     String response = postJsonAssertOkAndReturnBody(url, body);
     return Json.read(response, SendChannelMessageResult.class);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    postJsonAssertOkAndReturnBody(
+        urlFor(SendChannelMessageTask.class),
+        Json.write(SendChannelMessageRequest.forFixedChannel(providerName, channelName, message)));
   }
 
   @Override

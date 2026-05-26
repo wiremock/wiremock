@@ -60,6 +60,7 @@ public class ChannelType {
 
   @JsonCreator
   public static ChannelType fromJson(String value) {
+    if ("fixed".equalsIgnoreCase(value)) return FIXED;
     return WEBSOCKET;
   }
 
@@ -70,4 +71,6 @@ public class ChannelType {
 
   public static ChannelType WEBSOCKET =
       new ChannelType("websocket", REQUEST_INITIATED, BIDIRECTIONAL);
+
+  public static ChannelType FIXED = new ChannelType("fixed", null, null);
 }

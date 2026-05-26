@@ -636,6 +636,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    wireMockApp.sendChannelMessage(providerName, channelName, message);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     wireMockApp.addMessageStubMapping(messageStubMapping);
   }

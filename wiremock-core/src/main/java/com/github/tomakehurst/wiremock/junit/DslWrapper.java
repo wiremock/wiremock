@@ -393,6 +393,12 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    admin.sendChannelMessage(providerName, channelName, message);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     admin.addMessageStubMapping(messageStubMapping);
   }

@@ -358,6 +358,14 @@ class ExtensionsTest {
     }
 
     @Override
+    public void sendChannelMessage(
+        String providerName,
+        String channelName,
+        com.github.tomakehurst.wiremock.message.MessageDefinition message) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public GetMessageServeEventsResult getMessageServeEvents() {
       throw new UnsupportedOperationException();
     }

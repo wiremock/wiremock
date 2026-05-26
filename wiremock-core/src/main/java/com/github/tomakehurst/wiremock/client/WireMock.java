@@ -74,6 +74,8 @@ import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
@@ -1229,6 +1231,28 @@ public class WireMock {
 
   public void doCreateFixedChannel(FixedChannel channel) {
     admin.createFixedChannel(channel);
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, String body) {
+    defaultInstance
+        .get()
+        .admin
+        .sendChannelMessage(providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    Message message = messageBuilder.build();
+    EntityDefinition entityDef =
+        message.isBinary()
+            ? EntityDefinition.fromBase64(
+                java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes()))
+            : EntityDefinition.simple(message.getBodyAsString());
+    defaultInstance
+        .get()
+        .admin
+        .sendChannelMessage(providerName, channelName, new MessageDefinition(entityDef));
   }
 
   public static SendMessageActionBuilder sendMessage() {

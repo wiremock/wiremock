@@ -199,6 +199,11 @@ public class MessageServeEvent {
         UUID.randomUUID(), EventType.SENT, null, null, null, message, null, true, Instant.now(), null);
   }
 
+  public static MessageServeEvent receivedOnFixedChannel(Message message) {
+    return new MessageServeEvent(
+        UUID.randomUUID(), EventType.RECEIVED, null, null, null, message, null, true, Instant.now(), null);
+  }
+
   public UUID getId() {
     return id;
   }
