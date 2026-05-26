@@ -15,16 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.message.channel;
 
-import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.FixedMessageChannel;
+import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChannelProviderRegistry {
 
   private final Map<String, ChannelProviderDriver> drivers = new HashMap<>();
-  private final Map<String, ChannelProvider> providers = new HashMap<>();
+  private final ChannelProviderStore providerStore;
 
-  public ChannelProviderRegistry() {
+  public ChannelProviderRegistry(ChannelProviderStore providerStore) {
+    this.providerStore = providerStore;
     registerDriver(new InMemoryChannelProviderDriver());
   }
 
@@ -37,26 +39,22 @@ public class ChannelProviderRegistry {
       throw new IllegalArgumentException(
           "No driver registered for type: " + provider.getDriverType());
     }
-    providers.put(provider.getName(), provider);
+    providerStore.put(provider);
   }
 
-  public void createChannel(FixedChannel channel) {
+  public FixedMessageChannel createChannel(FixedChannel channel) {
     ChannelProvider provider = requireProvider(channel.getProviderName());
     ChannelProviderDriver driver = drivers.get(provider.getDriverType());
     driver.createChannel(provider, channel.getName());
-  }
-
-  public void send(String providerName, String channelName, Message message) {
-    ChannelProvider provider = requireProvider(providerName);
-    ChannelProviderDriver driver = drivers.get(provider.getDriverType());
-    driver.send(provider, channelName, message);
+    return new FixedMessageChannel(driver, provider, channel.getName());
   }
 
   private ChannelProvider requireProvider(String providerName) {
-    ChannelProvider provider = providers.get(providerName);
-    if (provider == null) {
-      throw new IllegalArgumentException("No channel provider registered with name: " + providerName);
-    }
-    return provider;
+    return providerStore
+        .get(providerName)
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "No channel provider registered with name: " + providerName));
   }
 }

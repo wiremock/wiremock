@@ -20,10 +20,10 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 import com.github.tomakehurst.wiremock.admin.tasks.*;
-import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.admin.tasks.CreateFixedChannelTask;
 import com.github.tomakehurst.wiremock.admin.tasks.RegisterChannelProviderTask;
+import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.ImmutableBiMap;
 import java.util.Collections;

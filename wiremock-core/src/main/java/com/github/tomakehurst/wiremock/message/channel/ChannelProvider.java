@@ -35,7 +35,8 @@ public class ChannelProvider {
       @JsonProperty("settings") Map<String, Object> settings) {
     this.name = name;
     this.driverType = driverType;
-    this.settings = settings != null ? Collections.unmodifiableMap(settings) : Collections.emptyMap();
+    this.settings =
+        settings != null ? Collections.unmodifiableMap(settings) : Collections.emptyMap();
   }
 
   public String getName() {

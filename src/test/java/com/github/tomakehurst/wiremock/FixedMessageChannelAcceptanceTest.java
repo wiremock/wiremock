@@ -43,8 +43,7 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
     messageStubFor(
         message()
             .withName("Send order event on HTTP trigger")
-            .triggeredByHttpRequest(
-                newRequestPattern().withUrl(urlPathEqualTo("/api/orders")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/api/orders")))
             .willTriggerActions(
                 sendMessage().withBody("order-created").onChannel("events", "orders")));
 
@@ -68,8 +67,7 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
             .withName("Echo on fixed channel")
             .triggeredByMessageOnChannel("events", "orders")
             .withBody(equalTo("ping"))
-            .willTriggerActions(
-                sendMessage().withBody("pong").onChannel("events", "orders")));
+            .willTriggerActions(sendMessage().withBody("pong").onChannel("events", "orders")));
 
     sendMessageToFixedChannel("events", "orders", "ping");
 

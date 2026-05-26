@@ -30,8 +30,7 @@ public class CreateFixedChannelTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    FixedChannel channel =
-        Json.read(serveEvent.getRequest().getBodyAsString(), FixedChannel.class);
+    FixedChannel channel = Json.read(serveEvent.getRequest().getBodyAsString(), FixedChannel.class);
     admin.createFixedChannel(channel);
     return ResponseDefinitionBuilder.jsonResponse(channel, HTTP_CREATED);
   }

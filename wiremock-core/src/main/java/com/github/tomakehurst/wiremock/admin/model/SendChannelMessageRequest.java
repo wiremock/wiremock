@@ -55,7 +55,8 @@ public class SendChannelMessageRequest {
 
   public static SendChannelMessageRequest forFixedChannel(
       String providerName, String channelName, MessageDefinition message) {
-    return new SendChannelMessageRequest(ChannelType.FIXED, null, providerName, channelName, message);
+    return new SendChannelMessageRequest(
+        ChannelType.FIXED, null, providerName, channelName, message);
   }
 
   public ChannelType getType() {

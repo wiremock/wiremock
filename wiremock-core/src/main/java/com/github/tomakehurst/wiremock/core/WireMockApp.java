@@ -45,12 +45,12 @@ import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
+import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
-import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
-import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -154,13 +154,12 @@ public class WireMockApp implements StubServer, Admin {
 
     this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
-    this.channelProviderRegistry = new ChannelProviderRegistry();
+    this.channelProviderRegistry = new ChannelProviderRegistry(stores.getChannelProviderStore());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
-            channelProviderRegistry,
             messageJournal,
             stores,
             customMatchers,
@@ -728,7 +727,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void createFixedChannel(FixedChannel channel) {
-    channelProviderRegistry.createChannel(channel);
+    messageChannels.add(channelProviderRegistry.createChannel(channel));
   }
 
   @Override
@@ -738,13 +737,15 @@ public class WireMockApp implements StubServer, Admin {
     messageJournal.messageReceived(MessageServeEvent.receivedOnFixedChannel(incomingMessage));
 
     for (MessageStubMapping stub :
-        messageStubMappings.findMatchingFixedChannelStubs(providerName, channelName, incomingMessage)) {
+        messageStubMappings.findMatchingFixedChannelStubs(
+            providerName, channelName, incomingMessage)) {
       for (MessageAction action : stub.getActions()) {
         if (action instanceof SendMessageAction sendAction) {
           Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
           if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
-            channelProviderRegistry.send(
-                fixedTarget.getProviderName(), fixedTarget.getChannelName(), outMessage);
+            messageChannels
+                .findFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
+                .ifPresent(channel -> channel.sendMessage(outMessage));
             messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
           }
         }

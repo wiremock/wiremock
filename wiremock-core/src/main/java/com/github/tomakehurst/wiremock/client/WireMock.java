@@ -1238,7 +1238,8 @@ public class WireMock {
     defaultInstance
         .get()
         .admin
-        .sendChannelMessage(providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
+        .sendChannelMessage(
+            providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
   }
 
   public static void sendMessageToFixedChannel(

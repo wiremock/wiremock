@@ -67,6 +67,16 @@ public class MessageChannels {
         .collect(Collectors.toList());
   }
 
+  public Optional<FixedMessageChannel> findFixed(String providerName, String channelName) {
+    return store
+        .getAll()
+        .filter(FixedMessageChannel.class::isInstance)
+        .map(FixedMessageChannel.class::cast)
+        .filter(
+            c -> c.getProviderName().equals(providerName) && c.getChannelName().equals(channelName))
+        .findFirst();
+  }
+
   public List<RequestInitiatedMessageChannel> findByRequestPattern(
       RequestPattern requestPattern, Map<String, RequestMatcherExtension> customMatchers) {
     return store
