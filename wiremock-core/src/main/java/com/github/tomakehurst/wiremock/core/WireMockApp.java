@@ -50,6 +50,7 @@ import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
+import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
 import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -155,6 +156,10 @@ public class WireMockApp implements StubServer, Admin {
     this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
     this.channelProviderRegistry = new ChannelProviderRegistry(stores.getChannelProviderStore());
+    extensions
+        .ofType(CustomChannelProviderDriver.class)
+        .values()
+        .forEach(channelProviderRegistry::registerDriver);
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
