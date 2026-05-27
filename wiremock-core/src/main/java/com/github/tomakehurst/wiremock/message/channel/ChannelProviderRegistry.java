@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.message.channel;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.FixedMessageChannel;
 import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
@@ -36,8 +39,8 @@ public class ChannelProviderRegistry {
 
   public void registerProvider(ChannelProvider provider) {
     if (!drivers.containsKey(provider.getDriverType())) {
-      throw new IllegalArgumentException(
-          "No driver registered for type: " + provider.getDriverType());
+      throw new InvalidInputException(
+          Errors.single(10, "No driver registered for type: " + provider.getDriverType()));
     }
     providerStore.put(provider);
   }
@@ -54,7 +57,7 @@ public class ChannelProviderRegistry {
         .get(providerName)
         .orElseThrow(
             () ->
-                new IllegalArgumentException(
-                    "No channel provider registered with name: " + providerName));
+                new InvalidInputException(
+                    Errors.single(10, "No channel provider registered with name: " + providerName)));
   }
 }

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.ConflictException;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
@@ -45,6 +46,25 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   void resetMessageState() {
     resetMessageStubs();
     resetMessageJournal();
+  }
+
+  @Test
+  void registeringProviderWithUnknownDriverTypeReturnsAnError() {
+    assertThrows(
+        InvalidInputException.class,
+        () -> registerChannelProvider(channelProvider().named("bad-provider").withDriver("kafka")));
+  }
+
+  @Test
+  void creatingChannelWithUnregisteredProviderReturnsAnError() {
+    assertThrows(
+        InvalidInputException.class,
+        () -> createFixedChannel(fixedChannel().onProvider("nonexistent-provider").named("orders")));
+  }
+
+  @Test
+  void reRegisteringProviderWithSameNameIsIdempotent() {
+    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
   }
 
   @Test
