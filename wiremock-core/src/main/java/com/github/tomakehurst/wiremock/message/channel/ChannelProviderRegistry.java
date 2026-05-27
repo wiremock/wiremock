@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.message.channel;
 
-import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.FixedMessageChannel;
@@ -58,6 +57,7 @@ public class ChannelProviderRegistry {
         .orElseThrow(
             () ->
                 new InvalidInputException(
-                    Errors.single(10, "No channel provider registered with name: " + providerName)));
+                    Errors.single(
+                        10, "No channel provider registered with name: " + providerName)));
   }
 }

@@ -74,14 +74,14 @@ public class MessageStubMappings {
         .findFirst();
   }
 
-  public List<MessageStubMapping> findMatchingFixedChannelStubs(
+  public Optional<MessageStubMapping> findMatchingFixedChannelStub(
       String providerName, String channelName, Message message) {
     return getAllSortedByPriority().stream()
         .filter(
             stub ->
                 stub.getTrigger() instanceof FixedChannelMessageTrigger fct
                     && fct.matches(providerName, channelName, message))
-        .collect(Collectors.toList());
+        .findFirst();
   }
 
   public List<MessageStubMapping> findByMetadata(final StringValuePattern pattern) {

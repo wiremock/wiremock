@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,7 +60,8 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   void creatingChannelWithUnregisteredProviderReturnsAnError() {
     assertThrows(
         InvalidInputException.class,
-        () -> createFixedChannel(fixedChannel().onProvider("nonexistent-provider").named("orders")));
+        () ->
+            createFixedChannel(fixedChannel().onProvider("nonexistent-provider").named("orders")));
   }
 
   @Test
@@ -139,6 +141,38 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
     assertThat(event.get().getWasMatched(), is(true));
     assertThat(event.get().getStubMapping(), notNullValue());
     assertThat(event.get().getStubMapping().getId(), is(stub.getId()));
+  }
+
+  @Test
+  void higherPriorityFixedChannelStubIsMatchedAndLowerPriorityIsSkipped() {
+    messageStubFor(
+        message()
+            .atPriority(2)
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("priority-test"))
+            .willTriggerActions(
+                sendMessage().withBody("low-priority-response").onChannel("events", "orders")));
+
+    messageStubFor(
+        message()
+            .atPriority(1)
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("priority-test"))
+            .willTriggerActions(
+                sendMessage().withBody("high-priority-response").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "priority-test");
+
+    Optional<MessageServeEvent> highPriorityEvent =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("high-priority-response")).build(),
+            Duration.ofSeconds(5));
+
+    assertThat(highPriorityEvent.isPresent(), is(true));
+
+    List<MessageServeEvent> lowPriorityEvents =
+        findAllMessageEvents(messagePattern().withBody(equalTo("low-priority-response")).build());
+    assertThat(lowPriorityEvents.isEmpty(), is(true));
   }
 
   @Test

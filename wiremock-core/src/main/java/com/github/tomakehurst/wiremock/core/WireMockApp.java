@@ -739,26 +739,25 @@ public class WireMockApp implements StubServer, Admin {
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
-    List<MessageStubMapping> matchingStubs =
-        messageStubMappings.findMatchingFixedChannelStubs(
+    Optional<MessageStubMapping> matchingStub =
+        messageStubMappings.findMatchingFixedChannelStub(
             providerName, channelName, incomingMessage);
 
-    if (matchingStubs.isEmpty()) {
+    if (matchingStub.isEmpty()) {
       messageJournal.messageReceived(
           MessageServeEvent.receivedOnFixedChannel(incomingMessage, false));
     } else {
+      MessageStubMapping stub = matchingStub.get();
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true, matchingStubs.get(0)));
-      for (MessageStubMapping stub : matchingStubs) {
-        for (MessageAction action : stub.getActions()) {
-          if (action instanceof SendMessageAction sendAction) {
-            Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
-            if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
-              messageChannels
-                  .requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
-                  .sendMessage(outMessage);
-              messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
-            }
+          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true, stub));
+      for (MessageAction action : stub.getActions()) {
+        if (action instanceof SendMessageAction sendAction) {
+          Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
+          if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
+            messageChannels
+                .requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
+                .sendMessage(outMessage);
+            messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
           }
         }
       }
