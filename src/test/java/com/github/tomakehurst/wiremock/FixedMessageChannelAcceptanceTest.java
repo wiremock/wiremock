@@ -21,15 +21,24 @@ import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePatt
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.common.ConflictException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
+
+  @BeforeAll
+  static void setupChannels() {
+    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
+    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+  }
 
   @AfterEach
   void resetMessageState() {
@@ -39,9 +48,6 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void httpRequestTriggerSendsMessageToInMemoryFixedChannel() {
-    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
-    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
-
     messageStubFor(
         message()
             .withName("Send order event on HTTP trigger")
@@ -60,10 +66,14 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void unmatchedInboundFixedChannelMessageIsRecordedAsUnmatched() {
-    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
-    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+  void creatingTheSameFixedChannelTwiceReturnsAnError() {
+    assertThrows(
+        ConflictException.class,
+        () -> createFixedChannel(fixedChannel().onProvider("events").named("orders")));
+  }
 
+  @Test
+  void unmatchedInboundFixedChannelMessageIsRecordedAsUnmatched() {
     sendMessageToFixedChannel("events", "orders", "no-match");
 
     Optional<MessageServeEvent> event =
@@ -76,17 +86,13 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void matchedInboundFixedChannelMessageHasStubMappingAttached() {
-    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
-    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
-
     MessageStubMapping stub =
         messageStubFor(
             message()
                 .withName("Attach stub mapping test")
                 .triggeredByMessageOnChannel("events", "orders")
                 .withBody(equalTo("attach-test"))
-                .willTriggerActions(
-                    sendMessage().withBody("reply").onChannel("events", "orders")));
+                .willTriggerActions(sendMessage().withBody("reply").onChannel("events", "orders")));
 
     sendMessageToFixedChannel("events", "orders", "attach-test");
 
@@ -102,9 +108,6 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void incomingMessageOnFixedChannelTriggersSendToFixedChannel() {
-    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
-    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
-
     messageStubFor(
         message()
             .withName("Echo on fixed channel")

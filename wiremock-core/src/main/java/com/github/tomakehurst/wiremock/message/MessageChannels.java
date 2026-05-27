@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.common.ConflictException;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.store.MessageChannelStore;
@@ -36,6 +38,14 @@ public class MessageChannels {
   }
 
   public void add(MessageChannel channel) {
+    if (channel instanceof FixedMessageChannel fixedChannel
+        && findFixed(fixedChannel.getProviderName(), fixedChannel.getChannelName()).isPresent()) {
+      throw new ConflictException(
+          Errors.single(
+              409,
+              "Channel %s already exists via provider %s"
+                  .formatted(fixedChannel.getChannelName(), fixedChannel.getProviderName())));
+    }
     store.add(channel);
   }
 

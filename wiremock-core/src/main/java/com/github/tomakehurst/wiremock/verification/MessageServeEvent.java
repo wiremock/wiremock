@@ -208,8 +208,7 @@ public class MessageServeEvent {
         null);
   }
 
-  public static MessageServeEvent receivedOnFixedChannel(
-      Message message, boolean wasMatched) {
+  public static MessageServeEvent receivedOnFixedChannel(Message message, boolean wasMatched) {
     return receivedOnFixedChannel(message, wasMatched, null);
   }
 
