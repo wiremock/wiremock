@@ -208,7 +208,13 @@ public class MessageServeEvent {
         null);
   }
 
-  public static MessageServeEvent receivedOnFixedChannel(Message message, boolean wasMatched) {
+  public static MessageServeEvent receivedOnFixedChannel(
+      Message message, boolean wasMatched) {
+    return receivedOnFixedChannel(message, wasMatched, null);
+  }
+
+  public static MessageServeEvent receivedOnFixedChannel(
+      Message message, boolean wasMatched, MessageStubMapping stubMapping) {
     return new MessageServeEvent(
         UUID.randomUUID(),
         EventType.RECEIVED,
@@ -216,7 +222,7 @@ public class MessageServeEvent {
         null,
         null,
         message,
-        null,
+        stubMapping,
         wasMatched,
         Instant.now(),
         null);

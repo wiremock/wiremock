@@ -746,7 +746,7 @@ public class WireMockApp implements StubServer, Admin {
       messageJournal.messageReceived(MessageServeEvent.receivedOnFixedChannel(incomingMessage, false));
     } else {
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true));
+          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true, matchingStubs.get(0)));
       for (MessageStubMapping stub : matchingStubs) {
         for (MessageAction action : stub.getActions()) {
           if (action instanceof SendMessageAction sendAction) {

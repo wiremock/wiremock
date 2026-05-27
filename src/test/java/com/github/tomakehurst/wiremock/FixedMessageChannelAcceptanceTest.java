@@ -20,7 +20,9 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
+import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.Optional;
@@ -70,6 +72,32 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(event.isPresent(), is(true));
     assertThat(event.get().getWasMatched(), is(false));
+  }
+
+  @Test
+  void matchedInboundFixedChannelMessageHasStubMappingAttached() {
+    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
+    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+
+    MessageStubMapping stub =
+        messageStubFor(
+            message()
+                .withName("Attach stub mapping test")
+                .triggeredByMessageOnChannel("events", "orders")
+                .withBody(equalTo("attach-test"))
+                .willTriggerActions(
+                    sendMessage().withBody("reply").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "attach-test");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("attach-test")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getWasMatched(), is(true));
+    assertThat(event.get().getStubMapping(), notNullValue());
+    assertThat(event.get().getStubMapping().getId(), is(stub.getId()));
   }
 
   @Test
