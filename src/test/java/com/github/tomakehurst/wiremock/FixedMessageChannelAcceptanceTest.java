@@ -58,6 +58,21 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void unmatchedInboundFixedChannelMessageIsRecordedAsUnmatched() {
+    registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
+    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+
+    sendMessageToFixedChannel("events", "orders", "no-match");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("no-match")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getWasMatched(), is(false));
+  }
+
+  @Test
   void incomingMessageOnFixedChannelTriggersSendToFixedChannel() {
     registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
     createFixedChannel(fixedChannel().onProvider("events").named("orders"));

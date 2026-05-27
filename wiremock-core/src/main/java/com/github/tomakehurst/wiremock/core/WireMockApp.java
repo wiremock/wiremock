@@ -739,19 +739,24 @@ public class WireMockApp implements StubServer, Admin {
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
-    messageJournal.messageReceived(MessageServeEvent.receivedOnFixedChannel(incomingMessage));
+    List<MessageStubMapping> matchingStubs =
+        messageStubMappings.findMatchingFixedChannelStubs(providerName, channelName, incomingMessage);
 
-    for (MessageStubMapping stub :
-        messageStubMappings.findMatchingFixedChannelStubs(
-            providerName, channelName, incomingMessage)) {
-      for (MessageAction action : stub.getActions()) {
-        if (action instanceof SendMessageAction sendAction) {
-          Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
-          if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
-            messageChannels
-                .findFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
-                .ifPresent(channel -> channel.sendMessage(outMessage));
-            messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
+    if (matchingStubs.isEmpty()) {
+      messageJournal.messageReceived(MessageServeEvent.receivedOnFixedChannel(incomingMessage, false));
+    } else {
+      messageJournal.messageReceived(
+          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true));
+      for (MessageStubMapping stub : matchingStubs) {
+        for (MessageAction action : stub.getActions()) {
+          if (action instanceof SendMessageAction sendAction) {
+            Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
+            if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
+              messageChannels
+                  .findFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
+                  .ifPresent(channel -> channel.sendMessage(outMessage));
+              messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
+            }
           }
         }
       }
