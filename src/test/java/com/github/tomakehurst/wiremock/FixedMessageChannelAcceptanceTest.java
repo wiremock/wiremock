@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.ConflictException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
@@ -70,6 +71,20 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
     assertThrows(
         ConflictException.class,
         () -> createFixedChannel(fixedChannel().onProvider("events").named("orders")));
+  }
+
+  @Test
+  void stubActionTargetingNonExistentFixedChannelReturnsAnError() {
+    // No channel named "notifications" has been created
+    messageStubFor(
+        message()
+            .withName("Send to non-existent channel")
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("trigger"))
+            .willTriggerActions(
+                sendMessage().withBody("response").onChannel("events", "notifications")));
+
+    assertThrows(ClientError.class, () -> sendMessageToFixedChannel("events", "orders", "trigger"));
   }
 
   @Test

@@ -755,8 +755,8 @@ public class WireMockApp implements StubServer, Admin {
             Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
             if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
               messageChannels
-                  .findFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
-                  .ifPresent(channel -> channel.sendMessage(outMessage));
+                  .requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
+                  .sendMessage(outMessage);
               messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
             }
           }

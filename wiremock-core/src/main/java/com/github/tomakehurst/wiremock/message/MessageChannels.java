@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.ConflictException;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -85,6 +86,18 @@ public class MessageChannels {
         .filter(
             c -> c.getProviderName().equals(providerName) && c.getChannelName().equals(channelName))
         .findFirst();
+  }
+
+  public FixedMessageChannel requireFixed(String providerName, String channelName) {
+    return findFixed(providerName, channelName)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    "No fixed channel named '"
+                        + channelName
+                        + "' exists on provider '"
+                        + providerName
+                        + "'"));
   }
 
   public List<RequestInitiatedMessageChannel> findByRequestPattern(
