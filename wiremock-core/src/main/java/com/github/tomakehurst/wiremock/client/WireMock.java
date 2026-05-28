@@ -1236,14 +1236,23 @@ public class WireMock {
 
   public static void sendMessageToFixedChannel(
       String providerName, String channelName, String body) {
-    defaultInstance
-        .get()
-        .admin
-        .sendChannelMessage(
-            providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
+    defaultInstance.get().sendMessageToSingleFixedChannel(providerName, channelName, body);
+  }
+
+  public void sendMessageToSingleFixedChannel(
+      String providerName, String channelName, String body) {
+    admin.sendChannelMessage(
+        providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
   }
 
   public static void sendMessageToFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    defaultInstance
+        .get()
+        .sendMessageToSingleFixedChannel(providerName, channelName, messageBuilder);
+  }
+
+  public void sendMessageToSingleFixedChannel(
       String providerName, String channelName, Message.Builder messageBuilder) {
     Message message = messageBuilder.build();
     EntityDefinition entityDef =
@@ -1251,10 +1260,8 @@ public class WireMock {
             ? EntityDefinition.fromBase64(
                 java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes()))
             : EntityDefinition.simple(message.getBodyAsString());
-    defaultInstance
-        .get()
-        .admin
-        .sendChannelMessage(providerName, channelName, new MessageDefinition(entityDef));
+
+    admin.sendChannelMessage(providerName, channelName, new MessageDefinition(entityDef));
   }
 
   public static SendMessageActionBuilder sendMessage() {
