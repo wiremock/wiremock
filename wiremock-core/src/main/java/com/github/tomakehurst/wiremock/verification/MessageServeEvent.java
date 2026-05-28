@@ -194,12 +194,12 @@ public class MessageServeEvent {
     return sent(channel.getType(), channel.getId(), channelRequest, message);
   }
 
-  public static MessageServeEvent sentToFixedChannel(Message message) {
+  public static MessageServeEvent sentToFixedChannel(MessageChannel channel, Message message) {
     return new MessageServeEvent(
         UUID.randomUUID(),
         EventType.SENT,
-        null,
-        null,
+        ChannelType.FIXED,
+        channel.getId(),
         null,
         message,
         null,
@@ -208,17 +208,18 @@ public class MessageServeEvent {
         null);
   }
 
-  public static MessageServeEvent receivedOnFixedChannel(Message message, boolean wasMatched) {
-    return receivedOnFixedChannel(message, wasMatched, null);
+  public static MessageServeEvent receivedOnFixedChannel(
+      MessageChannel channel, Message message, boolean wasMatched) {
+    return receivedOnFixedChannel(channel, message, wasMatched, null);
   }
 
   public static MessageServeEvent receivedOnFixedChannel(
-      Message message, boolean wasMatched, MessageStubMapping stubMapping) {
+      MessageChannel channel, Message message, boolean wasMatched, MessageStubMapping stubMapping) {
     return new MessageServeEvent(
         UUID.randomUUID(),
         EventType.RECEIVED,
         ChannelType.FIXED,
-        null,
+        channel.getId(),
         null,
         message,
         stubMapping,

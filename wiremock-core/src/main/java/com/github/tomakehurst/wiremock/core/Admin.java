@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -164,7 +165,7 @@ public interface Admin {
 
   void registerChannelProvider(ChannelProvider provider);
 
-  void createFixedChannel(FixedChannel channel);
+  LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);
 
   void sendChannelMessage(String providerName, String channelName, MessageDefinition message);
 

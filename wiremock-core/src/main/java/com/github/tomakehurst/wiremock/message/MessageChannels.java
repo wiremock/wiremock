@@ -39,7 +39,7 @@ public class MessageChannels {
   }
 
   public void add(MessageChannel channel) {
-    if (channel instanceof FixedMessageChannel fixedChannel
+    if (channel instanceof FixedChannel fixedChannel
         && findFixed(fixedChannel.getProviderName(), fixedChannel.getChannelName()).isPresent()) {
       throw new ConflictException(
           Errors.single(
@@ -78,17 +78,17 @@ public class MessageChannels {
         .collect(Collectors.toList());
   }
 
-  public Optional<FixedMessageChannel> findFixed(String providerName, String channelName) {
+  public Optional<FixedChannel> findFixed(String providerName, String channelName) {
     return store
         .getAll()
-        .filter(FixedMessageChannel.class::isInstance)
-        .map(FixedMessageChannel.class::cast)
+        .filter(FixedChannel.class::isInstance)
+        .map(FixedChannel.class::cast)
         .filter(
             c -> c.getProviderName().equals(providerName) && c.getChannelName().equals(channelName))
         .findFirst();
   }
 
-  public FixedMessageChannel requireFixed(String providerName, String channelName) {
+  public FixedChannel requireFixed(String providerName, String channelName) {
     return findFixed(providerName, channelName)
         .orElseThrow(
             () ->

@@ -80,7 +80,7 @@ import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -1221,16 +1221,16 @@ public class WireMock {
     admin.registerChannelProvider(provider);
   }
 
-  public static FixedChannel.Builder fixedChannel() {
-    return new FixedChannel.Builder();
+  public static FixedChannelDefinition.Builder fixedChannel() {
+    return new FixedChannelDefinition.Builder();
   }
 
-  public static void createFixedChannel(FixedChannel.Builder builder) {
-    defaultInstance.get().doCreateFixedChannel(builder.build());
+  public static UUID createFixedChannel(FixedChannelDefinition.Builder builder) {
+    return defaultInstance.get().doCreateFixedChannel(builder.build());
   }
 
-  public void doCreateFixedChannel(FixedChannel channel) {
-    admin.createFixedChannel(channel);
+  public UUID doCreateFixedChannel(FixedChannelDefinition channelDefinition) {
+    return admin.createFixedChannel(channelDefinition).getId();
   }
 
   public static void sendMessageToFixedChannel(

@@ -23,15 +23,17 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 
 public class CreateFixedChannelTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    FixedChannel channel = Json.read(serveEvent.getRequest().getBodyAsString(), FixedChannel.class);
-    admin.createFixedChannel(channel);
+    FixedChannelDefinition channelDefinition =
+        Json.read(serveEvent.getRequest().getBodyAsString(), FixedChannelDefinition.class);
+    LoggedMessageChannel channel = admin.createFixedChannel(channelDefinition);
     return ResponseDefinitionBuilder.jsonResponse(channel, HTTP_CREATED);
   }
 }

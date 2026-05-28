@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
-public class FixedChannel {
+public class FixedChannelDefinition {
 
   private final String providerName;
   private final String name;
 
   @JsonCreator
-  public FixedChannel(
+  public FixedChannelDefinition(
       @JsonProperty("providerName") String providerName, @JsonProperty("name") String name) {
     this.providerName = providerName;
     this.name = name;
@@ -42,17 +42,13 @@ public class FixedChannel {
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
-    FixedChannel that = (FixedChannel) o;
+    FixedChannelDefinition that = (FixedChannelDefinition) o;
     return Objects.equals(providerName, that.providerName) && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(providerName, name);
-  }
-
-  public static Builder onProvider(String providerName) {
-    return new Builder(providerName);
   }
 
   public static class Builder {
@@ -75,8 +71,8 @@ public class FixedChannel {
       return this;
     }
 
-    public FixedChannel build() {
-      return new FixedChannel(providerName, name);
+    public FixedChannelDefinition build() {
+      return new FixedChannelDefinition(providerName, name);
     }
   }
 }

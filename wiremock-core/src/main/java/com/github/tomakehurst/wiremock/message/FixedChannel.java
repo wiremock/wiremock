@@ -19,15 +19,14 @@ import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderDriver;
 import java.util.UUID;
 
-public class FixedMessageChannel implements MessageChannel {
+public class FixedChannel implements MessageChannel {
 
   private final UUID id;
   private final ChannelProviderDriver driver;
   private final ChannelProvider provider;
   private final String channelName;
 
-  public FixedMessageChannel(
-      ChannelProviderDriver driver, ChannelProvider provider, String channelName) {
+  public FixedChannel(ChannelProviderDriver driver, ChannelProvider provider, String channelName) {
     this.id = UUID.randomUUID();
     this.driver = driver;
     this.provider = provider;

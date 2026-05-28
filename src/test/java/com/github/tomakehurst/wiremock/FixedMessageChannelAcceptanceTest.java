@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.message.ChannelType.FIXED;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -31,16 +32,19 @@ import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
+  static UUID channelId;
+
   @BeforeAll
   static void setupChannels() {
     registerChannelProvider(channelProvider().named("events").withDriver("in-memory"));
-    createFixedChannel(fixedChannel().onProvider("events").named("orders"));
+    channelId = createFixedChannel(fixedChannel().onProvider("events").named("orders"));
   }
 
   @AfterEach
@@ -80,12 +84,16 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
     testClient.get("/api/orders");
 
-    Optional<MessageServeEvent> event =
+    Optional<MessageServeEvent> maybeEvent =
         waitForMessageEvent(
             messagePattern().withBody(equalTo("order-created")).build(), Duration.ofSeconds(5));
 
-    assertThat(event.isPresent(), is(true));
-    assertThat(event.get().getMessage().getBodyAsString(), is("order-created"));
+    assertThat(maybeEvent.isPresent(), is(true));
+
+    MessageServeEvent event = maybeEvent.get();
+    assertThat(event.getMessage().getBodyAsString(), is("order-created"));
+    assertThat(event.getChannelType(), is(FIXED));
+    assertThat(event.getChannelId(), is(channelId));
   }
 
   @Test

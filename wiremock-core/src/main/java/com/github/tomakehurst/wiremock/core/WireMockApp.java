@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
 import com.github.tomakehurst.wiremock.message.Message;
@@ -51,7 +52,7 @@ import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -60,6 +61,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
@@ -731,13 +733,16 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
-  public void createFixedChannel(FixedChannel channel) {
-    messageChannels.add(channelProviderRegistry.createChannel(channel));
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channelDefinition) {
+    final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition);
+    messageChannels.add(channel);
+    return LoggedMessageChannel.createFrom(channel);
   }
 
   @Override
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
+    FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
     Optional<MessageStubMapping> matchingStub =
         messageStubMappings.findMatchingFixedChannelStub(
@@ -745,19 +750,21 @@ public class WireMockApp implements StubServer, Admin {
 
     if (matchingStub.isEmpty()) {
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(incomingMessage, false));
+          MessageServeEvent.receivedOnFixedChannel(inboundChannel, incomingMessage, false));
     } else {
       MessageStubMapping stub = matchingStub.get();
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(incomingMessage, true, stub));
+          MessageServeEvent.receivedOnFixedChannel(inboundChannel, incomingMessage, true, stub));
       for (MessageAction action : stub.getActions()) {
         if (action instanceof SendMessageAction sendAction) {
           Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
           if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
-            messageChannels
-                .requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName())
-                .sendMessage(outMessage);
-            messageJournal.messageReceived(MessageServeEvent.sentToFixedChannel(outMessage));
+            FixedChannel outboundChannel =
+                messageChannels.requireFixed(
+                    fixedTarget.getProviderName(), fixedTarget.getChannelName());
+            outboundChannel.sendMessage(outMessage);
+            messageJournal.messageReceived(
+                MessageServeEvent.sentToFixedChannel(outboundChannel, outMessage));
           }
         }
       }

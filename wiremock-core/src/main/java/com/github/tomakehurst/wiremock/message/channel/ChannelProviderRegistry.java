@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.message.channel;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import com.github.tomakehurst.wiremock.message.FixedMessageChannel;
+import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +44,11 @@ public class ChannelProviderRegistry {
     providerStore.put(provider);
   }
 
-  public FixedMessageChannel createChannel(FixedChannel channel) {
-    ChannelProvider provider = requireProvider(channel.getProviderName());
+  public FixedChannel createChannel(FixedChannelDefinition channelDefinition) {
+    ChannelProvider provider = requireProvider(channelDefinition.getProviderName());
     ChannelProviderDriver driver = drivers.get(provider.getDriverType());
-    driver.createChannel(provider, channel.getName());
-    return new FixedMessageChannel(driver, provider, channel.getName());
+    driver.createChannel(provider, channelDefinition.getName());
+    return new FixedChannel(driver, provider, channelDefinition.getName());
   }
 
   private ChannelProvider requireProvider(String providerName) {

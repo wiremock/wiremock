@@ -41,7 +41,7 @@ import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
-import com.github.tomakehurst.wiremock.message.channel.FixedChannel;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -51,6 +51,7 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -583,8 +584,10 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  public void createFixedChannel(FixedChannel channel) {
-    postJsonAssertOkAndReturnBody(urlFor(CreateFixedChannelTask.class), Json.write(channel));
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(CreateFixedChannelTask.class), Json.write(channel));
+    return Json.read(body, LoggedMessageChannel.class);
   }
 
   @Override

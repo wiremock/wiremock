@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+import com.github.tomakehurst.wiremock.verification.LoggedRequestInitiatedChannel;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,7 +69,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
 
           List<LoggedMessageChannel> channels = result1.getChannels();
           assertThat(channels, hasSize(1));
-          LoggedMessageChannel channel = channels.get(0);
+          LoggedRequestInitiatedChannel channel = (LoggedRequestInitiatedChannel) channels.get(0);
           assertThat(channel.getType(), is(ChannelType.WEBSOCKET));
           assertThat(channel.isOpen(), is(true));
           assertThat(channel.getInitiatingRequest().getUrl(), is("/notifications"));
@@ -102,7 +103,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
 
                   List<LoggedMessageChannel> channels = result.getChannels();
                   assertThat(channels, hasSize(2));
-                  for (LoggedMessageChannel channel : channels) {
+                  for (LoggedMessageChannel ch : channels) {
+                    LoggedRequestInitiatedChannel channel = (LoggedRequestInitiatedChannel) ch;
                     assertThat(channel.getType(), is(ChannelType.WEBSOCKET));
                     assertThat(channel.isOpen(), is(true));
                     assertThat(channel.getInitiatingRequest().getUrl(), is("/broadcast"));
