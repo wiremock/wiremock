@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -49,7 +50,7 @@ class LoggedMessageChannelTest {
 
     assertThat(
         Json.write(channel),
-        is(
+        jsonEquals(
             // language=json
             """
             {
@@ -94,7 +95,7 @@ class LoggedMessageChannelTest {
 
     assertThat(
         Json.write(channel),
-        is(
+        jsonEquals(
             // language=json
             """
             {
@@ -144,7 +145,7 @@ class LoggedMessageChannelTest {
 
     assertThat(
         json,
-        is(
+        jsonEquals(
             // language=json
             """
             {
@@ -171,7 +172,7 @@ class LoggedMessageChannelTest {
 
     assertThat(
         json,
-        is(
+        jsonEquals(
             // language=json
             """
             {
