@@ -16,18 +16,18 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.github.tomakehurst.wiremock.verification.MessageServeEvent.EventType.RECEIVED;
+import static com.github.tomakehurst.wiremock.verification.MessageServeEvent.EventType.SENT;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.base.Stopwatch;
 import java.time.Instant;
@@ -58,9 +58,7 @@ public class MessageServeEvent {
 
   private final UUID id;
   private final EventType eventType;
-  private final ChannelType channelType;
-  private final UUID channelId;
-  private final LoggedRequest channelRequest;
+  private final LoggedMessageChannel channel;
   private final Message message;
   private final MessageStubMapping stubMapping;
   private final boolean wasMatched;
@@ -72,9 +70,7 @@ public class MessageServeEvent {
   public MessageServeEvent(
       @JsonProperty("id") UUID id,
       @JsonProperty("eventType") EventType eventType,
-      @JsonProperty("channelType") ChannelType channelType,
-      @JsonProperty("channelId") UUID channelId,
-      @JsonProperty("channelRequest") LoggedRequest channelRequest,
+      @JsonProperty("channel") LoggedMessageChannel channel,
       @JsonProperty("message") Message message,
       @JsonProperty("stubMapping") MessageStubMapping stubMapping,
       @JsonProperty("wasMatched") boolean wasMatched,
@@ -82,9 +78,7 @@ public class MessageServeEvent {
       @JsonProperty("subEvents") Queue<SubEvent> subEvents) {
     this.id = id != null ? id : UUID.randomUUID();
     this.eventType = eventType;
-    this.channelType = channelType;
-    this.channelId = channelId;
-    this.channelRequest = channelRequest;
+    this.channel = channel;
     this.message = message;
     this.stubMapping = stubMapping;
     this.wasMatched = wasMatched;
@@ -97,9 +91,7 @@ public class MessageServeEvent {
   private MessageServeEvent(
       UUID id,
       EventType eventType,
-      ChannelType channelType,
-      UUID channelId,
-      LoggedRequest channelRequest,
+      LoggedMessageChannel channel,
       Message message,
       MessageStubMapping stubMapping,
       boolean wasMatched,
@@ -108,9 +100,7 @@ public class MessageServeEvent {
       Stopwatch stopwatch) {
     this.id = id;
     this.eventType = eventType;
-    this.channelType = channelType;
-    this.channelId = channelId;
-    this.channelRequest = channelRequest;
+    this.channel = channel;
     this.message = message;
     this.stubMapping = stubMapping;
     this.wasMatched = wasMatched;
@@ -119,114 +109,40 @@ public class MessageServeEvent {
     this.stopwatch = stopwatch;
   }
 
-  public static MessageServeEvent receivedMatched(
-      ChannelType channelType,
-      UUID channelId,
-      Request channelRequest,
-      Message message,
-      MessageStubMapping stubMapping) {
-    return new MessageServeEvent(
-        UUID.randomUUID(),
-        EventType.RECEIVED,
-        channelType,
-        channelId,
-        LoggedRequest.createFrom(channelRequest),
-        message,
-        stubMapping,
-        true,
-        Instant.now(),
-        null);
-  }
+  // --- Factory methods taking a live MessageChannel ---
 
   public static MessageServeEvent receivedMatched(
       MessageChannel channel, Message message, MessageStubMapping stubMapping) {
-    Request channelRequest = null;
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
-    }
-    return receivedMatched(
-        channel.getType(), channel.getId(), channelRequest, message, stubMapping);
-  }
-
-  public static MessageServeEvent receivedUnmatched(
-      ChannelType channelType, UUID channelId, Request channelRequest, Message message) {
-    return new MessageServeEvent(
-        UUID.randomUUID(),
-        EventType.RECEIVED,
-        channelType,
-        channelId,
-        LoggedRequest.createFrom(channelRequest),
-        message,
-        null,
-        false,
-        Instant.now(),
-        null);
+    return receivedMatched(LoggedMessageChannel.createFrom(channel), message, stubMapping);
   }
 
   public static MessageServeEvent receivedUnmatched(MessageChannel channel, Message message) {
-    Request channelRequest = null;
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
-    }
-    return receivedUnmatched(channel.getType(), channel.getId(), channelRequest, message);
-  }
-
-  public static MessageServeEvent sent(
-      ChannelType channelType, UUID channelId, Request channelRequest, Message message) {
-    return new MessageServeEvent(
-        UUID.randomUUID(),
-        EventType.SENT,
-        channelType,
-        channelId,
-        LoggedRequest.createFrom(channelRequest),
-        message,
-        null,
-        true,
-        Instant.now(),
-        null);
+    return receivedUnmatched(LoggedMessageChannel.createFrom(channel), message);
   }
 
   public static MessageServeEvent sent(MessageChannel channel, Message message) {
-    Request channelRequest = null;
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      channelRequest = ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
-    }
-    return sent(channel.getType(), channel.getId(), channelRequest, message);
+    return sent(LoggedMessageChannel.createFrom(channel), message);
   }
 
-  public static MessageServeEvent sentToFixedChannel(MessageChannel channel, Message message) {
+  // --- Factory methods taking an already-logged LoggedMessageChannel ---
+
+  public static MessageServeEvent receivedMatched(
+      LoggedMessageChannel channel, Message message, MessageStubMapping stubMapping) {
     return new MessageServeEvent(
-        UUID.randomUUID(),
-        EventType.SENT,
-        ChannelType.FIXED,
-        channel.getId(),
-        null,
-        message,
-        null,
-        true,
-        Instant.now(),
-        null);
+        UUID.randomUUID(), RECEIVED, channel, message, stubMapping, true, Instant.now(), null);
   }
 
-  public static MessageServeEvent receivedOnFixedChannel(
-      MessageChannel channel, Message message, boolean wasMatched) {
-    return receivedOnFixedChannel(channel, message, wasMatched, null);
-  }
-
-  public static MessageServeEvent receivedOnFixedChannel(
-      MessageChannel channel, Message message, boolean wasMatched, MessageStubMapping stubMapping) {
+  public static MessageServeEvent receivedUnmatched(LoggedMessageChannel channel, Message message) {
     return new MessageServeEvent(
-        UUID.randomUUID(),
-        EventType.RECEIVED,
-        ChannelType.FIXED,
-        channel.getId(),
-        null,
-        message,
-        stubMapping,
-        wasMatched,
-        Instant.now(),
-        null);
+        UUID.randomUUID(), RECEIVED, channel, message, null, false, Instant.now(), null);
   }
+
+  public static MessageServeEvent sent(LoggedMessageChannel channel, Message message) {
+    return new MessageServeEvent(
+        UUID.randomUUID(), SENT, channel, message, null, true, Instant.now(), null);
+  }
+
+  // --- Accessors ---
 
   public UUID getId() {
     return id;
@@ -236,16 +152,26 @@ public class MessageServeEvent {
     return eventType;
   }
 
+  public LoggedMessageChannel getChannel() {
+    return channel;
+  }
+
+  /** Derived from {@link #getChannel()} — present for convenience. */
+  @JsonIgnore
   public ChannelType getChannelType() {
-    return channelType;
+    return channel != null ? channel.getType() : null;
   }
 
+  /** Derived from {@link #getChannel()} — present for convenience. */
+  @JsonIgnore
   public UUID getChannelId() {
-    return channelId;
+    return channel != null ? channel.getId() : null;
   }
 
+  /** Derived from {@link #getChannel()} — the initiating HTTP request, if applicable. */
+  @JsonIgnore
   public LoggedRequest getChannelRequest() {
-    return channelRequest;
+    return channel instanceof LoggedRequestInitiatedChannel ric ? ric.getInitiatingRequest() : null;
   }
 
   public Message getMessage() {
@@ -270,12 +196,12 @@ public class MessageServeEvent {
 
   @JsonIgnore
   public boolean isReceived() {
-    return eventType == EventType.RECEIVED;
+    return eventType == RECEIVED;
   }
 
   @JsonIgnore
   public boolean isSent() {
-    return eventType == EventType.SENT;
+    return eventType == SENT;
   }
 
   public void appendSubEvent(String type, Object data) {
@@ -291,9 +217,7 @@ public class MessageServeEvent {
     return new MessageServeEvent(
         id,
         eventType,
-        channelType,
-        channelId,
-        channelRequest,
+        channel,
         message,
         stubMapping,
         stubMapping != null,
@@ -338,9 +262,7 @@ public class MessageServeEvent {
   public static class Builder {
     private UUID id;
     private EventType eventType;
-    private ChannelType channelType;
-    private UUID channelId;
-    private LoggedRequest channelRequest;
+    private LoggedMessageChannel channel;
     private Message message;
     private MessageStubMapping stubMapping;
     private boolean wasMatched;
@@ -352,9 +274,7 @@ public class MessageServeEvent {
     public Builder(MessageServeEvent existing) {
       this.id = existing.id;
       this.eventType = existing.eventType;
-      this.channelType = existing.channelType;
-      this.channelId = existing.channelId;
-      this.channelRequest = existing.channelRequest;
+      this.channel = existing.channel;
       this.message = existing.message;
       this.stubMapping = existing.stubMapping;
       this.wasMatched = existing.wasMatched;
@@ -372,18 +292,8 @@ public class MessageServeEvent {
       return this;
     }
 
-    public Builder withChannelType(ChannelType channelType) {
-      this.channelType = channelType;
-      return this;
-    }
-
-    public Builder withChannelId(UUID channelId) {
-      this.channelId = channelId;
-      return this;
-    }
-
-    public Builder withChannelRequest(LoggedRequest channelRequest) {
-      this.channelRequest = channelRequest;
+    public Builder withChannel(LoggedMessageChannel channel) {
+      this.channel = channel;
       return this;
     }
 
@@ -414,16 +324,7 @@ public class MessageServeEvent {
 
     public MessageServeEvent build() {
       return new MessageServeEvent(
-          id,
-          eventType,
-          channelType,
-          channelId,
-          channelRequest,
-          message,
-          stubMapping,
-          wasMatched,
-          timestamp,
-          subEvents);
+          id, eventType, channel, message, stubMapping, wasMatched, timestamp, subEvents);
     }
   }
 }

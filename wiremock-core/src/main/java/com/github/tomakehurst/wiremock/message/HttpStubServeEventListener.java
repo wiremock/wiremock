@@ -135,8 +135,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
       FixedChannel outboundChannel =
           messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
       outboundChannel.sendMessage(message);
-      messageJournal.messageReceived(
-          MessageServeEvent.sentToFixedChannel(outboundChannel, message));
+      messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, message));
     }
   }
 }

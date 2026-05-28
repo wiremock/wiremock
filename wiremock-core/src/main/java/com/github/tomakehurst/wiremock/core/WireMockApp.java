@@ -750,11 +750,11 @@ public class WireMockApp implements StubServer, Admin {
 
     if (matchingStub.isEmpty()) {
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(inboundChannel, incomingMessage, false));
+          MessageServeEvent.receivedUnmatched(inboundChannel, incomingMessage));
     } else {
       MessageStubMapping stub = matchingStub.get();
       messageJournal.messageReceived(
-          MessageServeEvent.receivedOnFixedChannel(inboundChannel, incomingMessage, true, stub));
+          MessageServeEvent.receivedMatched(inboundChannel, incomingMessage, stub));
       for (MessageAction action : stub.getActions()) {
         if (action instanceof SendMessageAction sendAction) {
           Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
@@ -763,8 +763,7 @@ public class WireMockApp implements StubServer, Admin {
                 messageChannels.requireFixed(
                     fixedTarget.getProviderName(), fixedTarget.getChannelName());
             outboundChannel.sendMessage(outMessage);
-            messageJournal.messageReceived(
-                MessageServeEvent.sentToFixedChannel(outboundChannel, outMessage));
+            messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, outMessage));
           }
         }
       }
