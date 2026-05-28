@@ -26,8 +26,12 @@ import com.github.tomakehurst.wiremock.common.entity.Format;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 @JsonDeserialize(using = Message.MessageDeserializer.class)
+@NullMarked
 public class Message {
 
   private final Entity body;
@@ -42,16 +46,18 @@ public class Message {
   }
 
   @JsonIgnore
+  @Nullable
   public byte[] getBodyAsBytes() {
-    if (body == null) {
+    if (body == Entity.EMPTY) {
       return null;
     }
     return body.getData();
   }
 
   @JsonValue
+  @Nullable
   public String getBodyAsString() {
-    if (body == null) {
+    if (body == Entity.EMPTY) {
       return null;
     }
     byte[] data = body.getData();
@@ -60,12 +66,12 @@ public class Message {
 
   @JsonIgnore
   public boolean isBinary() {
-    return body != null && Format.BINARY.equals(body.getFormat());
+    return body != Entity.EMPTY && Format.BINARY.equals(body.getFormat());
   }
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     Message message = (Message) o;
     return Objects.equals(body, message.body);
   }
@@ -76,6 +82,7 @@ public class Message {
   }
 
   @Override
+  @Nullable
   public String toString() {
     return getBodyAsString();
   }
@@ -88,6 +95,7 @@ public class Message {
     return builderTransform.apply(new Builder(this)).build();
   }
 
+  @NullUnmarked
   public static class Builder {
     private Entity body;
 
@@ -102,9 +110,9 @@ public class Message {
       return this;
     }
 
-    public Builder withTextBody(String text) {
+    public Builder withTextBody(@Nullable String text) {
       if (text == null) {
-        this.body = null;
+        this.body = Entity.EMPTY;
         return this;
       }
 
@@ -113,13 +121,7 @@ public class Message {
     }
 
     public Builder withBinaryBody(byte[] data) {
-      if (data == null) {
-        this.body = null;
-        return this;
-      }
-
       this.body = Entity.builder().setFormat(Format.BINARY).setData(data).build();
-
       return this;
     }
 
@@ -133,7 +135,7 @@ public class Message {
     public Message deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
       String text = p.getValueAsString();
       if (text == null) {
-        return new Message(null);
+        return new Message(Entity.EMPTY);
       }
 
       Entity entity = Entity.builder().setData(text).build();

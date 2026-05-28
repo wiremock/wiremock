@@ -23,9 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_NULL)
+@NullMarked
 public class MessageDefinition {
 
   private final EntityDefinition body;
@@ -50,7 +52,7 @@ public class MessageDefinition {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     MessageDefinition that = (MessageDefinition) o;
     return Objects.equals(body, that.body);
   }

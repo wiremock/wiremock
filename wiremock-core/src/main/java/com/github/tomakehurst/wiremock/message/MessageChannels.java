@@ -62,22 +62,6 @@ public class MessageChannels {
     return store.getAll().collect(Collectors.toList());
   }
 
-  public List<MessageChannel> getAllByType(ChannelType type) {
-    return store.getAll().filter(channel -> channel.getType() == type).collect(Collectors.toList());
-  }
-
-  public List<MessageChannel> getAllOpen() {
-    return store.getAll().filter(MessageChannel::isOpen).collect(Collectors.toList());
-  }
-
-  public List<MessageChannel> getAllOpenByType(ChannelType type) {
-    return store
-        .getAll()
-        .filter(MessageChannel::isOpen)
-        .filter(channel -> channel.getType() == type)
-        .collect(Collectors.toList());
-  }
-
   public Optional<FixedChannel> findFixed(String providerName, String channelName) {
     return store
         .getAll()
@@ -129,19 +113,6 @@ public class MessageChannels {
         .collect(Collectors.toList());
   }
 
-  public int sendMessageToMatching(
-      RequestPattern requestPattern,
-      MessageDefinition messageDefinition,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    List<RequestInitiatedMessageChannel> matchingChannels =
-        findByRequestPattern(requestPattern, customMatchers);
-    Message message = new Message(messageDefinition.getBody().resolve(stores));
-    for (RequestInitiatedMessageChannel channel : matchingChannels) {
-      channel.sendMessage(message);
-    }
-    return matchingChannels.size();
-  }
-
   public List<RequestInitiatedMessageChannel> sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
@@ -158,22 +129,5 @@ public class MessageChannels {
 
   public int size() {
     return (int) store.getAll().count();
-  }
-
-  public int sizeByType(ChannelType type) {
-    return (int) store.getAll().filter(channel -> channel.getType() == type).count();
-  }
-
-  public int openCount() {
-    return (int) store.getAll().filter(MessageChannel::isOpen).count();
-  }
-
-  public int openCountByType(ChannelType type) {
-    return (int)
-        store
-            .getAll()
-            .filter(MessageChannel::isOpen)
-            .filter(channel -> channel.getType() == type)
-            .count();
   }
 }

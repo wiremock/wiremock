@@ -22,8 +22,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
 
 @JsonPropertyOrder({"type", "id", "open", "providerName", "channelName"})
+@NullMarked
 public final class LoggedFixedChannel implements LoggedMessageChannel {
 
   private final UUID id;
@@ -74,6 +77,7 @@ public final class LoggedFixedChannel implements LoggedMessageChannel {
     return builder.build();
   }
 
+  @NullUnmarked
   public static class Builder {
     private UUID id;
     private boolean open;

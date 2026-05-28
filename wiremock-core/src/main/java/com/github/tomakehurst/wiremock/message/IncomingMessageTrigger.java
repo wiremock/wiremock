@@ -25,8 +25,10 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
 
 @JsonInclude(NON_EMPTY)
+@NullMarked
 public class IncomingMessageTrigger implements MessageTrigger {
 
   public static final IncomingMessageTrigger ANYTHING = new IncomingMessageTrigger(null, null);

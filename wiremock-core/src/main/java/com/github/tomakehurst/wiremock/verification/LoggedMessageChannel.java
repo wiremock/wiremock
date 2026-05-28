@@ -22,12 +22,14 @@ import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = LoggedRequestInitiatedChannel.class, name = "websocket"),
   @JsonSubTypes.Type(value = LoggedFixedChannel.class, name = "fixed")
 })
+@NullMarked
 public sealed interface LoggedMessageChannel
     permits LoggedRequestInitiatedChannel, LoggedFixedChannel {
 

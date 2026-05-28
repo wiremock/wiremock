@@ -21,18 +21,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class ChannelProvider {
 
   private final String name;
   private final String driverType;
-  private final Map<String, Object> settings;
+  @Nullable private final Map<String, Object> settings;
 
   @JsonCreator
   public ChannelProvider(
       @JsonProperty("name") String name,
       @JsonProperty("driverType") String driverType,
-      @JsonProperty("settings") Map<String, Object> settings) {
+      @Nullable @JsonProperty("settings") Map<String, Object> settings) {
     this.name = name;
     this.driverType = driverType;
     this.settings =
@@ -53,7 +57,7 @@ public class ChannelProvider {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     ChannelProvider that = (ChannelProvider) o;
     return Objects.equals(name, that.name)
         && Objects.equals(driverType, that.driverType)
@@ -69,6 +73,7 @@ public class ChannelProvider {
     return new Builder(name);
   }
 
+  @NullUnmarked
   public static class Builder {
     private String name;
     private String driverType;

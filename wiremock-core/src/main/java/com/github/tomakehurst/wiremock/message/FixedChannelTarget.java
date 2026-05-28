@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class FixedChannelTarget implements ChannelTarget {
 
   private final String providerName;
@@ -42,7 +44,7 @@ public class FixedChannelTarget implements ChannelTarget {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     FixedChannelTarget that = (FixedChannelTarget) o;
     return Objects.equals(providerName, that.providerName)
         && Objects.equals(channelName, that.channelName);

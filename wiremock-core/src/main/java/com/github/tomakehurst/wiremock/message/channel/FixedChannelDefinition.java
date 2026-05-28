@@ -18,7 +18,10 @@ package com.github.tomakehurst.wiremock.message.channel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
 
+@NullMarked
 public class FixedChannelDefinition {
 
   private final String providerName;
@@ -41,7 +44,7 @@ public class FixedChannelDefinition {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     FixedChannelDefinition that = (FixedChannelDefinition) o;
     return Objects.equals(providerName, that.providerName) && Objects.equals(name, that.name);
   }
@@ -51,6 +54,7 @@ public class FixedChannelDefinition {
     return Objects.hash(providerName, name);
   }
 
+  @NullUnmarked
   public static class Builder {
     private String providerName;
     private String name;

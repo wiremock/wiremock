@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.common.ParameterUtils;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
@@ -31,11 +33,17 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.base.Stopwatch;
 import java.time.Instant;
-import java.util.*;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_EMPTY)
+@NullMarked
 public class MessageServeEvent {
 
   public enum EventType {
@@ -49,9 +57,6 @@ public class MessageServeEvent {
 
     @JsonCreator
     public static EventType fromJson(String value) {
-      if (value == null) {
-        return null;
-      }
       return valueOf(value.toUpperCase(java.util.Locale.ROOT));
     }
   }
@@ -60,7 +65,7 @@ public class MessageServeEvent {
   private final EventType eventType;
   private final LoggedMessageChannel channel;
   private final Message message;
-  private final MessageStubMapping stubMapping;
+  @Nullable private final MessageStubMapping stubMapping;
   private final boolean wasMatched;
   private final Instant timestamp;
   private final ConcurrentLinkedQueue<SubEvent> subEvents;
@@ -68,14 +73,14 @@ public class MessageServeEvent {
 
   @JsonCreator
   public MessageServeEvent(
-      @JsonProperty("id") UUID id,
+      @Nullable @JsonProperty("id") UUID id,
       @JsonProperty("eventType") EventType eventType,
       @JsonProperty("channel") LoggedMessageChannel channel,
       @JsonProperty("message") Message message,
-      @JsonProperty("stubMapping") MessageStubMapping stubMapping,
+      @Nullable @JsonProperty("stubMapping") MessageStubMapping stubMapping,
       @JsonProperty("wasMatched") boolean wasMatched,
-      @JsonProperty("timestamp") Instant timestamp,
-      @JsonProperty("subEvents") Queue<SubEvent> subEvents) {
+      @Nullable @JsonProperty("timestamp") Instant timestamp,
+      @Nullable @JsonProperty("subEvents") Queue<SubEvent> subEvents) {
     this.id = id != null ? id : UUID.randomUUID();
     this.eventType = eventType;
     this.channel = channel;
@@ -159,17 +164,18 @@ public class MessageServeEvent {
   /** Derived from {@link #getChannel()} — present for convenience. */
   @JsonIgnore
   public ChannelType getChannelType() {
-    return channel != null ? channel.getType() : null;
+    return channel.getType();
   }
 
   /** Derived from {@link #getChannel()} — present for convenience. */
   @JsonIgnore
   public UUID getChannelId() {
-    return channel != null ? channel.getId() : null;
+    return channel.getId();
   }
 
   /** Derived from {@link #getChannel()} — the initiating HTTP request, if applicable. */
   @JsonIgnore
+  @Nullable
   public LoggedRequest getChannelRequest() {
     return channel instanceof LoggedRequestInitiatedChannel ric ? ric.getInitiatingRequest() : null;
   }
@@ -178,6 +184,7 @@ public class MessageServeEvent {
     return message;
   }
 
+  @Nullable
   public MessageStubMapping getStubMapping() {
     return stubMapping;
   }
@@ -213,19 +220,6 @@ public class MessageServeEvent {
     subEvents.add(subEvent);
   }
 
-  public MessageServeEvent withStubMapping(MessageStubMapping stubMapping) {
-    return new MessageServeEvent(
-        id,
-        eventType,
-        channel,
-        message,
-        stubMapping,
-        stubMapping != null,
-        timestamp,
-        subEvents,
-        stopwatch);
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -249,7 +243,7 @@ public class MessageServeEvent {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     MessageServeEvent that = (MessageServeEvent) o;
     return Objects.equals(id, that.id);
   }
@@ -259,11 +253,12 @@ public class MessageServeEvent {
     return Objects.hash(id);
   }
 
+  @NullUnmarked
   public static class Builder {
-    private UUID id;
+    private UUID id = UUID.randomUUID();
     private EventType eventType;
     private LoggedMessageChannel channel;
-    private Message message;
+    private Message message = new Message(Entity.EMPTY);
     private MessageStubMapping stubMapping;
     private boolean wasMatched;
     private Instant timestamp;
@@ -323,6 +318,9 @@ public class MessageServeEvent {
     }
 
     public MessageServeEvent build() {
+      ParameterUtils.checkNotNull(eventType, "event type is required");
+      ParameterUtils.checkNotNull(channel, "channel is required");
+      ParameterUtils.checkNotNull(message, "message is required");
       return new MessageServeEvent(
           id, eventType, channel, message, stubMapping, wasMatched, timestamp, subEvents);
     }

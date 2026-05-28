@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.message;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderDriver;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class FixedChannel implements MessageChannel {
 
   private final UUID id;

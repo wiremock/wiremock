@@ -22,19 +22,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(NON_NULL)
+@NullMarked
 public class FixedChannelMessageTrigger implements MessageTrigger {
 
   private final String providerName;
   private final String channelName;
-  private final MessagePattern messagePattern;
+  @Nullable private final MessagePattern messagePattern;
 
   @JsonCreator
   public FixedChannelMessageTrigger(
       @JsonProperty("providerName") String providerName,
       @JsonProperty("channelName") String channelName,
-      @JsonProperty("messagePattern") MessagePattern messagePattern) {
+      @Nullable @JsonProperty("messagePattern") MessagePattern messagePattern) {
     this.providerName = providerName;
     this.channelName = channelName;
     this.messagePattern = messagePattern;
@@ -48,6 +51,7 @@ public class FixedChannelMessageTrigger implements MessageTrigger {
     return channelName;
   }
 
+  @Nullable
   public MessagePattern getMessagePattern() {
     return messagePattern;
   }
@@ -66,7 +70,7 @@ public class FixedChannelMessageTrigger implements MessageTrigger {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     FixedChannelMessageTrigger that = (FixedChannelMessageTrigger) o;
     return Objects.equals(providerName, that.providerName)
         && Objects.equals(channelName, that.channelName)

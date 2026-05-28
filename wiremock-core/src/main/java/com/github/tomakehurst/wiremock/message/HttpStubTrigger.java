@@ -23,8 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
 
 @JsonInclude(NON_EMPTY)
+@NullMarked
 public class HttpStubTrigger implements MessageTrigger {
 
   private final UUID stubId;
@@ -47,7 +49,7 @@ public class HttpStubTrigger implements MessageTrigger {
   }
 
   public boolean matches(ServeEvent serveEvent) {
-    if (serveEvent == null || serveEvent.getStubMapping() == null) {
+    if (serveEvent.getStubMapping() == null) {
       return false;
     }
     return stubId.equals(serveEvent.getStubMapping().getId());
@@ -56,7 +58,7 @@ public class HttpStubTrigger implements MessageTrigger {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     HttpStubTrigger that = (HttpStubTrigger) o;
     return Objects.equals(stubId, that.stubId);
   }
