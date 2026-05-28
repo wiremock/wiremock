@@ -1215,10 +1215,10 @@ public class WireMock {
   }
 
   public static void registerChannelProvider(ChannelProvider.Builder builder) {
-    defaultInstance.get().doRegisterChannelProvider(builder.build());
+    defaultInstance.get().registerAChannelProvider(builder.build());
   }
 
-  public void doRegisterChannelProvider(ChannelProvider provider) {
+  public void registerAChannelProvider(ChannelProvider provider) {
     admin.registerChannelProvider(provider);
   }
 
@@ -1227,10 +1227,10 @@ public class WireMock {
   }
 
   public static UUID createFixedChannel(FixedChannelDefinition.Builder builder) {
-    return defaultInstance.get().doCreateFixedChannel(builder.build());
+    return defaultInstance.get().createAFixedChannel(builder.build());
   }
 
-  public UUID doCreateFixedChannel(FixedChannelDefinition channelDefinition) {
+  public UUID createAFixedChannel(FixedChannelDefinition channelDefinition) {
     return admin.createFixedChannel(channelDefinition).getId();
   }
 
