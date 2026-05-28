@@ -735,6 +735,11 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public void removeMessageChannel(UUID id) {
+    messageChannels.remove(id);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     channelProviderRegistry.registerProvider(provider);
   }

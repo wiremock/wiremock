@@ -604,6 +604,14 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public void removeMessageChannel(UUID id) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageChannelTask.class),
+        PathParams.single("id", id),
+        Void.class);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     postJsonAssertOkAndReturnBody(
         urlFor(CreateMessageStubMappingTask.class), Json.write(messageStubMapping));

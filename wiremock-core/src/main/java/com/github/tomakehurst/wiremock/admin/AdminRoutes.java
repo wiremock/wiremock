@@ -124,6 +124,7 @@ public class AdminRoutes {
 
     router.add(GET, "/channels", new GetAllMessageChannelsTask());
     router.add(GET, "/channels/{id}", new GetMessageChannelTask());
+    router.add(DELETE, "/channels/{id}", new RemoveMessageChannelTask());
     router.add(POST, "/channels", new CreateFixedChannelTask());
     router.add(POST, "/channels/send", new SendChannelMessageTask());
 

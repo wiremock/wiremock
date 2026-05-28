@@ -1347,6 +1347,14 @@ public class WireMock {
     return admin.getMessageChannel(id);
   }
 
+  public static void removeMessageChannel(UUID id) {
+    defaultInstance.get().removeMessageChannelById(id);
+  }
+
+  public void removeMessageChannelById(UUID id) {
+    admin.removeMessageChannel(id);
+  }
+
   // Message journal verification methods
 
   public static List<MessageServeEvent> getAllMessageServeEvents() {

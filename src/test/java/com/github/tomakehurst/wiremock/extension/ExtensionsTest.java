@@ -354,6 +354,11 @@ class ExtensionsTest {
     }
 
     @Override
+    public void removeMessageChannel(java.util.UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void registerChannelProvider(
         com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
       throw new UnsupportedOperationException();

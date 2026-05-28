@@ -184,6 +184,24 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void deletedChannelIsNoLongerRetrievable() {
+    UUID deletedId = createFixedChannel(fixedChannel().onProvider("events").named("ephemeral"));
+
+    removeMessageChannel(deletedId);
+
+    assertThat(getMessageChannel(deletedId).isPresent(), is(false));
+  }
+
+  @Test
+  void deletedChannelCanBeRecreatedWithTheSameName() {
+    UUID firstId = createFixedChannel(fixedChannel().onProvider("events").named("recreatable"));
+    removeMessageChannel(firstId);
+
+    UUID secondId = createFixedChannel(fixedChannel().onProvider("events").named("recreatable"));
+    removeMessageChannel(secondId);
+  }
+
+  @Test
   void incomingMessageOnFixedChannelTriggersSendToFixedChannel() {
     messageStubFor(
         message()

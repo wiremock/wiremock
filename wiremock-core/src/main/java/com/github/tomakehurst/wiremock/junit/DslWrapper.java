@@ -388,6 +388,11 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void removeMessageChannel(UUID id) {
+    admin.removeMessageChannel(id);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     admin.registerChannelProvider(provider);
   }

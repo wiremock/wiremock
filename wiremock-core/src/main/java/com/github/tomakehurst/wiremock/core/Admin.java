@@ -169,6 +169,8 @@ public interface Admin {
 
   LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);
 
+  void removeMessageChannel(UUID id);
+
   void sendChannelMessage(String providerName, String channelName, MessageDefinition message);
 
   /**
