@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static java.util.Arrays.asList;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
 import static org.awaitility.Awaitility.await;
@@ -1455,6 +1456,32 @@ class AdminApiTest extends AcceptanceTestBase {
     assertThat(testClient.get("/one").statusCode(), is(404));
     assertThat(testClient.get("/two").statusCode(), is(200));
     assertThat(testClient.get("/three").statusCode(), is(404));
+  }
+
+  @Test
+  void getChannelByIdReturnsCorrectPayload() {
+    registerChannelProvider(
+        channelProvider().named("admin-api-test-provider").withDriver("in-memory"));
+    UUID channelId =
+        createFixedChannel(
+            fixedChannel().onProvider("admin-api-test-provider").named("admin-api-test-orders"));
+
+    WireMockResponse response = testClient.get("/__admin/channels/" + channelId);
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            """
+            {
+              "type": "fixed",
+              "id": "%s",
+              "open": true,
+              "providerName": "admin-api-test-provider",
+              "channelName": "admin-api-test-orders"
+            }
+            """
+                .formatted(channelId)));
   }
 
   public static class TestExtendedSettingsData {

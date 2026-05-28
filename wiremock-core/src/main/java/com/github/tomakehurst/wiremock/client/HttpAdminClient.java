@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -576,6 +577,18 @@ public class HttpAdminClient implements Admin {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetAllMessageChannelsTask.class),
         ListMessageChannelsResult.class);
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    try {
+      return executeRequest(
+          adminRoutes.requestSpecForTask(GetMessageChannelTask.class),
+          PathParams.single("id", id.toString()),
+          SingleMessageChannelResult.class);
+    } catch (ClientError e) {
+      return new SingleMessageChannelResult(null);
+    }
   }
 
   @Override

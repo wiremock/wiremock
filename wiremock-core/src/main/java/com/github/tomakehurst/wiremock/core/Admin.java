@@ -163,6 +163,8 @@ public interface Admin {
    */
   ListMessageChannelsResult listAllMessageChannels();
 
+  SingleMessageChannelResult getMessageChannel(UUID id);
+
   void registerChannelProvider(ChannelProvider provider);
 
   LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);

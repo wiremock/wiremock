@@ -123,6 +123,7 @@ public class AdminRoutes {
     router.add(GET, "/version", new GetVersionTask());
 
     router.add(GET, "/channels", new GetAllMessageChannelsTask());
+    router.add(GET, "/channels/{id}", new GetMessageChannelTask());
     router.add(POST, "/channels", new CreateFixedChannelTask());
     router.add(POST, "/channels/send", new SendChannelMessageTask());
 

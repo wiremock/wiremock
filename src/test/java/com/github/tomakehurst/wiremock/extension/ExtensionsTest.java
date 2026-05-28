@@ -348,6 +348,12 @@ class ExtensionsTest {
     }
 
     @Override
+    public com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult getMessageChannel(
+        java.util.UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void registerChannelProvider(
         com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
       throw new UnsupportedOperationException();

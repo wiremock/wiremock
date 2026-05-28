@@ -626,6 +626,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return wireMockApp.getMessageChannel(id);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     wireMockApp.registerChannelProvider(provider);
   }

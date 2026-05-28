@@ -728,6 +728,12 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return SingleMessageChannelResult.of(
+        messageChannels.get(id).map(LoggedMessageChannel::createFrom).orElse(null));
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     channelProviderRegistry.registerProvider(provider);
   }
