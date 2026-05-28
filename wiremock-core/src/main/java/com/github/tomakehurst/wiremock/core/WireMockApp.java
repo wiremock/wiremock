@@ -53,6 +53,7 @@ import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
 import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
+import com.github.tomakehurst.wiremock.message.channel.InboundMessageSink;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -740,7 +741,11 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channelDefinition) {
-    final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition);
+    String providerName = channelDefinition.getProviderName();
+    String channelName = channelDefinition.getName();
+    InboundMessageSink sink =
+        message -> receiveInboundFixedChannelMessage(providerName, channelName, message);
+    final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition, sink);
     messageChannels.add(channel);
     return LoggedMessageChannel.createFrom(channel);
   }
@@ -748,19 +753,22 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
-    FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
+    receiveInboundFixedChannelMessage(providerName, channelName, incomingMessage);
+  }
+
+  private void receiveInboundFixedChannelMessage(
+      String providerName, String channelName, Message message) {
+    FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
     Optional<MessageStubMapping> matchingStub =
-        messageStubMappings.findMatchingFixedChannelStub(
-            providerName, channelName, incomingMessage);
+        messageStubMappings.findMatchingFixedChannelStub(providerName, channelName, message);
 
     if (matchingStub.isEmpty()) {
-      messageJournal.messageReceived(
-          MessageServeEvent.receivedUnmatched(inboundChannel, incomingMessage));
+      messageJournal.messageReceived(MessageServeEvent.receivedUnmatched(inboundChannel, message));
     } else {
       MessageStubMapping stub = matchingStub.get();
       messageJournal.messageReceived(
-          MessageServeEvent.receivedMatched(inboundChannel, incomingMessage, stub));
+          MessageServeEvent.receivedMatched(inboundChannel, message, stub));
       for (MessageAction action : stub.getActions()) {
         if (action instanceof SendMessageAction sendAction) {
           Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));

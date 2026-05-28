@@ -17,11 +17,12 @@ package com.github.tomakehurst.wiremock.message.channel;
 
 import com.github.tomakehurst.wiremock.message.Message;
 
-public interface ChannelProviderDriver {
-
-  String getType();
-
-  void createChannel(ChannelProvider provider, String channelName, InboundMessageSink sink);
-
-  void send(ChannelProvider provider, String channelName, Message message);
+/**
+ * Callback provided to a {@link ChannelProviderDriver} when a channel is created. The driver calls
+ * {@link #receive(Message)} whenever a message arrives on that channel, feeding it into WireMock's
+ * stub-matching pipeline.
+ */
+@FunctionalInterface
+public interface InboundMessageSink {
+  void receive(Message message);
 }

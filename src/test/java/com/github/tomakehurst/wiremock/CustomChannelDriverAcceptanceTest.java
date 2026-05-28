@@ -26,7 +26,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.registerChannelPro
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
-import static com.github.tomakehurst.wiremock.client.WireMock.sendMessageToFixedChannel;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -36,6 +35,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
+import com.github.tomakehurst.wiremock.message.channel.InboundMessageSink;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Collections;
 import java.util.List;
@@ -108,7 +108,7 @@ public class CustomChannelDriverAcceptanceTest {
 
   public static class TestChannelProviderDriver implements CustomChannelProviderDriver {
 
-    private final Map<String, String> channelToProvider = new ConcurrentHashMap<>();
+    private final Map<String, InboundMessageSink> sinks = new ConcurrentHashMap<>();
     private final Map<String, List<String>> sentMessages = new ConcurrentHashMap<>();
 
     @Override
@@ -122,8 +122,9 @@ public class CustomChannelDriverAcceptanceTest {
     }
 
     @Override
-    public void createChannel(ChannelProvider provider, String channelName) {
-      channelToProvider.put(channelName, provider.getName());
+    public void createChannel(
+        ChannelProvider provider, String channelName, InboundMessageSink sink) {
+      sinks.put(channelName, sink);
     }
 
     @Override
@@ -134,8 +135,8 @@ public class CustomChannelDriverAcceptanceTest {
     }
 
     public void receive(String channelName, String body) {
-      String providerName = channelToProvider.get(channelName);
-      sendMessageToFixedChannel(providerName, channelName, body);
+      InboundMessageSink sink = sinks.get(channelName);
+      sink.receive(Message.builder().withTextBody(body).build());
     }
 
     public List<String> getMessages(String channelName) {

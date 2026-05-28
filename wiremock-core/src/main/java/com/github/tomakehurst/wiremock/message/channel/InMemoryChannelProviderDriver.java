@@ -16,10 +16,14 @@
 package com.github.tomakehurst.wiremock.message.channel;
 
 import com.github.tomakehurst.wiremock.message.Message;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
 
   public static final String TYPE = "in-memory";
+
+  private final Map<String, InboundMessageSink> sinks = new ConcurrentHashMap<>();
 
   @Override
   public String getType() {
@@ -27,13 +31,34 @@ public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
   }
 
   @Override
-  public void createChannel(ChannelProvider provider, String channelName) {
-    // No-op for in-memory: channels are created on demand when messages are sent
+  public void createChannel(ChannelProvider provider, String channelName, InboundMessageSink sink) {
+    sinks.put(key(provider.getName(), channelName), sink);
   }
 
   @Override
   public void send(ChannelProvider provider, String channelName, Message message) {
     // Delivery is handled by ChannelProviderRegistry which records to the journal.
     // The in-memory driver has no additional transport to perform.
+  }
+
+  /**
+   * Simulates an inbound message arriving on the named channel. Routes directly into WireMock's
+   * stub-matching pipeline via the sink registered at channel-creation time.
+   */
+  public void receive(String providerName, String channelName, Message message) {
+    InboundMessageSink sink = sinks.get(key(providerName, channelName));
+    if (sink == null) {
+      throw new IllegalStateException(
+          "No channel registered with name '"
+              + channelName
+              + "' on provider '"
+              + providerName
+              + "'");
+    }
+    sink.receive(message);
+  }
+
+  private static String key(String providerName, String channelName) {
+    return providerName + "/" + channelName;
   }
 }
