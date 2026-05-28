@@ -641,6 +641,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public void removeChannelProvider(String name) {
+    wireMockApp.removeChannelProvider(name);
+  }
+
+  @Override
   public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
     return wireMockApp.createFixedChannel(channel);
   }

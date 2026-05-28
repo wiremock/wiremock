@@ -398,6 +398,11 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void removeChannelProvider(String name) {
+    admin.removeChannelProvider(name);
+  }
+
+  @Override
   public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
     return admin.createFixedChannel(channel);
   }

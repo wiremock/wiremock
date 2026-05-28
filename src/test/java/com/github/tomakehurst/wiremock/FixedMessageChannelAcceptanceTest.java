@@ -184,6 +184,15 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void removedChannelProviderCanBeReRegistered() {
+    registerChannelProvider(channelProvider().named("temp-provider").withDriver("in-memory"));
+    removeChannelProvider("temp-provider");
+
+    registerChannelProvider(channelProvider().named("temp-provider").withDriver("in-memory"));
+    removeChannelProvider("temp-provider");
+  }
+
+  @Test
   void deletedChannelIsNoLongerRetrievable() {
     UUID deletedId = createFixedChannel(fixedChannel().onProvider("events").named("ephemeral"));
 

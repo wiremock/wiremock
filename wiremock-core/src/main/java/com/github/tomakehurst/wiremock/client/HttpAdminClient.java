@@ -597,6 +597,14 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public void removeChannelProvider(String name) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveChannelProviderTask.class),
+        PathParams.single("name", name),
+        Void.class);
+  }
+
+  @Override
   public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
     String body =
         postJsonAssertOkAndReturnBody(urlFor(CreateFixedChannelTask.class), Json.write(channel));

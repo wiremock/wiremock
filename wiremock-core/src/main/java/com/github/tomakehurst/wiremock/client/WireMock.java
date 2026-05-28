@@ -1222,6 +1222,14 @@ public class WireMock {
     admin.registerChannelProvider(provider);
   }
 
+  public static void removeChannelProvider(String name) {
+    defaultInstance.get().removeAChannelProvider(name);
+  }
+
+  public void removeAChannelProvider(String name) {
+    admin.removeChannelProvider(name);
+  }
+
   public static FixedChannelDefinition.Builder fixedChannel() {
     return new FixedChannelDefinition.Builder();
   }

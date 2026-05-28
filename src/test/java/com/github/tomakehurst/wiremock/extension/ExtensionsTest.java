@@ -365,6 +365,11 @@ class ExtensionsTest {
     }
 
     @Override
+    public void removeChannelProvider(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
       throw new UnsupportedOperationException();
     }

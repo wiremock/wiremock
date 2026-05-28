@@ -44,6 +44,10 @@ public class ChannelProviderRegistry {
     providerStore.put(provider);
   }
 
+  public void removeProvider(String name) {
+    providerStore.remove(name);
+  }
+
   public FixedChannel createChannel(
       FixedChannelDefinition channelDefinition, InboundMessageSink sink) {
     ChannelProvider provider = requireProvider(channelDefinition.getProviderName());

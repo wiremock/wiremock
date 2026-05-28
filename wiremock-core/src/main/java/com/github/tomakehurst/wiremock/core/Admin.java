@@ -167,6 +167,8 @@ public interface Admin {
 
   void registerChannelProvider(ChannelProvider provider);
 
+  void removeChannelProvider(String name);
+
   LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);
 
   void removeMessageChannel(UUID id);

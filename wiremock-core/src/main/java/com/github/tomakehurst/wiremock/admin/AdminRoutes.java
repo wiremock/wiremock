@@ -129,6 +129,7 @@ public class AdminRoutes {
     router.add(POST, "/channels/send", new SendChannelMessageTask());
 
     router.add(POST, "/channel-providers", new RegisterChannelProviderTask());
+    router.add(DELETE, "/channel-providers/{name}", new RemoveChannelProviderTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());
     router.add(DELETE, "/messages", new ResetMessageJournalTask());
