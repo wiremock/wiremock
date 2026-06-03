@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.entity.MimeType;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
@@ -46,6 +47,11 @@ public class ContentTypeHeader extends HttpHeader {
 
   public String mimeTypePart() {
     return parts != null && parts.length > 0 ? parts[0] : null;
+  }
+
+  public MimeType getMimeType() {
+    final String mimeTypePart = mimeTypePart();
+    return mimeTypePart != null ? MimeType.parse(mimeTypePart) : null;
   }
 
   public Optional<String> encodingPart() {

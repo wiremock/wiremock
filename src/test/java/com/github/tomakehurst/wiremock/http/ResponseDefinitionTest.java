@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
+import static com.github.tomakehurst.wiremock.common.entity.Format.JSON;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -493,7 +495,7 @@ public class ResponseDefinitionTest {
     assertThat(jsonBody.getData(), instanceOf(JsonNode.class));
     assertThat(body.isInline(), is(true));
     assertThat(body.getCompression(), is(CompressionType.NONE));
-    assertThat(body.getFormat(), is(Format.JSON));
+    assertThat(body.getFormat(), is(JSON));
 
     assertThat(jsonBody.getDataAsJson().get("key").textValue(), is("value"));
   }
@@ -596,7 +598,24 @@ public class ResponseDefinitionTest {
     EntityDefinition body = responseDefinition.getBodyEntity();
     assertThat(body.getFilePath(), is("bodies/data.json"));
     assertThat(body.getCharset(), is(StandardCharsets.UTF_16));
-    assertThat(body.getFormat(), is(Format.JSON));
+    assertThat(body.getFormat(), is(JSON));
     assertThat(body.getCompression(), is(CompressionType.NONE));
+  }
+
+  @Test
+  void entityFormatNotSetWhenContentTypeHeaderIsNotValidMimeType() {
+    ResponseDefinition responseDefinition =
+        new ResponseDefinition.Builder()
+            .headers(
+                builder ->
+                    builder.add(
+                        "Content-Type", "{{state 'contentType' context=request.path.uploadId}}"))
+            .setBody("{}")
+            .build();
+
+
+    EntityDefinition entity = responseDefinition.getBodyEntity();
+    assertThat(entity.getFormat(), is(JSON)); // JSON detectd from the actual body string
+    assertThat(entity.getCharset(), is(UTF_8)); // default
   }
 }
