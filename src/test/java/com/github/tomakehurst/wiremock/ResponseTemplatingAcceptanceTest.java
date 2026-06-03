@@ -26,6 +26,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -380,7 +382,8 @@ public class ResponseTemplatingAcceptanceTest {
       wm.stubFor(
           get("/templated-content-headers")
               .willReturn(
-                  ok("{{randomValue type='ALPHANUMERIC'}}'")
+                  aResponse()
+                      .withBodyFile("example.txt.brotli")
                       .withHeader("Content-Type", "{{request.headers.Accept}}")
                       .withHeader("Content-Encoding", "{{request.headers.Accept-Encoding}}")));
 
@@ -393,6 +396,14 @@ public class ResponseTemplatingAcceptanceTest {
       assertThat(response.statusCode(), is(200));
       assertThat(response.firstHeader("Content-Type"), is("application/json"));
       assertThat(response.firstHeader("Content-Encoding"), is("brotli"));
+
+      ServeEvent serveEvent =
+          wm.getAllServeEvents().stream()
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("No ServeEvents found"));
+
+      byte[] expectedBody = TestFiles.fileBytes("test-file-root/__files/example.txt.brotli");
+      assertThat(serveEvent.getResponse().getBody(), is(expectedBody));
     }
   }
 

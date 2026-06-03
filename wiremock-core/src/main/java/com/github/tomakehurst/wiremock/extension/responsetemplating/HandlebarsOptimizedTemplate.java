@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,19 @@ public class HandlebarsOptimizedTemplate {
   private final Template template;
 
   private String startContent;
-  private String templateContent;
   private String endContent;
+  private boolean containsTemplateExpressions = false;
 
   public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
     startContent = content;
-    templateContent = "";
     endContent = "";
+    String templateContent = "";
 
     int firstDelimStartPosition = content.indexOf(Handlebars.DELIM_START);
     if (firstDelimStartPosition != -1) {
       int lastDelimEndPosition = content.lastIndexOf(Handlebars.DELIM_END);
       if (lastDelimEndPosition != -1) {
+        containsTemplateExpressions = true;
         startContent = content.substring(0, firstDelimStartPosition);
         templateContent =
             content.substring(
@@ -50,6 +51,10 @@ public class HandlebarsOptimizedTemplate {
     }
 
     this.template = uncheckedCompileTemplate(handlebars, templateContent);
+  }
+
+  public boolean hasTemplateExpressions() {
+    return containsTemplateExpressions;
   }
 
   private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {

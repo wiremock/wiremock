@@ -120,7 +120,7 @@ public class TemplateEngine {
     }
 
     try {
-      return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
+      return cache.get(key, () -> getUncachedTemplate(content));
     } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
       return Exceptions.throwUnchecked(e.getCause(), null);
     }

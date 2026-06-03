@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourcePath;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -54,6 +55,11 @@ public class TestFiles {
     } catch (IOException e) {
       return throwUnchecked(e, String.class);
     }
+  }
+
+  public static byte[] fileBytes(String path) {
+    return Exceptions.uncheck(
+        () -> Files.readAllBytes(getResourcePath(TestFiles.class, path)), byte[].class);
   }
 
   public static String filePath(String path) {
