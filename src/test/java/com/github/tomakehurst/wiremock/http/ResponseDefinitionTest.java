@@ -613,7 +613,6 @@ public class ResponseDefinitionTest {
             .setBody("{}")
             .build();
 
-
     EntityDefinition entity = responseDefinition.getBodyEntity();
     assertThat(entity.getFormat(), is(JSON)); // JSON detectd from the actual body string
     assertThat(entity.getCharset(), is(UTF_8)); // default

@@ -76,6 +76,14 @@ public class Entity {
     return compression == NONE || compression == GZIP;
   }
 
+  public Entity decompressIfPossible() {
+    if (isDecompressible()) {
+      return decompress();
+    }
+
+    return this;
+  }
+
   public Entity decompress() {
     if (compression == GZIP) {
       return transform(

@@ -73,7 +73,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
     this.bodyEntity = Lazy.lazy(this::adaptBodyEntity);
-    this.bodyEntityDecompressed = Lazy.lazy(() -> bodyEntity.get().decompress());
+    this.bodyEntityDecompressed = Lazy.lazy(() -> bodyEntity.get().decompressIfPossible());
     this.formParameters = Lazy.lazy(() -> adaptFormParameters(request));
     this.multiParts = Lazy.lazy(this::adaptParts);
   }

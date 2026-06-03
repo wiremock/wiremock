@@ -74,7 +74,7 @@ public class LoggedRequest implements Request {
         request.getCookies(),
         request.isBrowserProxyRequest(),
         new Date(),
-        getFirstNonNull(request.getBodyEntity(), Entity.EMPTY).decompress(),
+        getFirstNonNull(request.getBodyEntity(), Entity.EMPTY).decompressIfPossible(),
         request.getParts(),
         request.getProtocol(),
         request.formParameters());

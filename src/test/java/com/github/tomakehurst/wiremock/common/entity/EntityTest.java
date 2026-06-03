@@ -43,7 +43,7 @@ class EntityTest {
     assertThat(transformed.isCompressed(), is(true));
     assertThat(transformed.getCompression(), is(GZIP));
 
-    Entity decompressed = transformed.decompress();
+    Entity decompressed = transformed.decompressIfPossible();
     assertThat(decompressed.getCompression(), is(NONE));
     assertThat(Strings.stringFromBytes(decompressed.getData()), is("Modified data"));
   }
