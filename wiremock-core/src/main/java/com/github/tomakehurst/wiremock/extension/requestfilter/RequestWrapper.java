@@ -235,17 +235,17 @@ public class RequestWrapper implements Request {
 
   @Override
   public byte[] getBody() {
-    return getBodyEntity().decompress().asBytes();
+    return getBodyEntity().decompressIfPossible().asBytes();
   }
 
   @Override
   public String getBodyAsString() {
-    return getBodyEntity().decompress().asString();
+    return getBodyEntity().decompressIfPossible().asString();
   }
 
   @Override
   public String getBodyAsBase64() {
-    return getBodyEntity().decompress().asBase64();
+    return getBodyEntity().decompressIfPossible().asBase64();
   }
 
   @Override

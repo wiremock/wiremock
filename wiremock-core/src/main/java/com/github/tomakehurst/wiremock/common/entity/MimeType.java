@@ -19,6 +19,8 @@ import org.jspecify.annotations.NonNull;
 
 public class MimeType {
 
+  //  public static final MimeType UNKNOWN = new MimeType("unknown", "unknown", null);
+
   @NonNull private final String group;
   @NonNull private final String type;
   private final String subType;
@@ -44,7 +46,7 @@ public class MimeType {
   public static MimeType parse(String mimeType) {
     String[] parts = mimeType.split("/");
     if (parts.length != 2) {
-      throw new IllegalArgumentException("Invalid MIME type: " + mimeType);
+      return null;
     }
 
     String group = parts[0];

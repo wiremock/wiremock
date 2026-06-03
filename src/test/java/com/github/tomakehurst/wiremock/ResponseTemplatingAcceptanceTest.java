@@ -19,12 +19,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.assertMessageSubEventPresent;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -372,6 +375,35 @@ public class ResponseTemplatingAcceptanceTest {
               {{add (jsonPath request.body '$.num1') (jsonPath request.body '$.num2')}}
                 ^
               """);
+    }
+
+    @Test
+    void templatedContentEncodingAndContentTypeHeadersResolveAsExpected() {
+      wm.stubFor(
+          get("/templated-content-headers")
+              .willReturn(
+                  aResponse()
+                      .withBodyFile("example.txt.brotli")
+                      .withHeader("Content-Type", "{{request.headers.Accept}}")
+                      .withHeader("Content-Encoding", "{{request.headers.Accept-Encoding}}")));
+
+      WireMockResponse response =
+          client.get(
+              "/templated-content-headers",
+              withHeader("Accept", "application/json"),
+              withHeader("Accept-Encoding", "brotli"));
+
+      assertThat(response.statusCode(), is(200));
+      assertThat(response.firstHeader("Content-Type"), is("application/json"));
+      assertThat(response.firstHeader("Content-Encoding"), is("brotli"));
+
+      ServeEvent serveEvent =
+          wm.getAllServeEvents().stream()
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("No ServeEvents found"));
+
+      byte[] expectedBody = TestFiles.fileBytes("test-file-root/__files/example.txt.brotli");
+      assertThat(serveEvent.getResponse().getBody(), is(expectedBody));
     }
   }
 

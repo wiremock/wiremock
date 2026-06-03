@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
-
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -31,13 +29,14 @@ public class EntityMetadata {
     }
 
     final ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
-    final String mimeType = contentTypeHeader.mimeTypePart();
+    final MimeType mimeType = contentTypeHeader.getMimeType();
     final Optional<Charset> charset = contentTypeHeader.charset();
 
     final HttpHeader contentEncoding = headers.getHeader("Content-Encoding");
 
-    if (mimeType != null && determineIsTextFromMimeType(mimeType)) {
-      builder.setFormat(Format.fromMimeType(mimeType));
+    final Format format = Format.fromMimeType(mimeType);
+    if (format != null) {
+      builder.setFormat(format);
     }
 
     charset.ifPresent(builder::setCharset);

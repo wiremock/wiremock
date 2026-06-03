@@ -98,7 +98,9 @@ public class ResponseTemplateTransformer
         final HandlebarsOptimizedTemplate bodyTemplate =
             templateEngine.getTemplate(templateCacheKey, initialBody.asString());
 
-        bodyDefinition = applyTemplateToBodyEntity(model, bodyTemplate);
+        if (bodyTemplate.hasTemplateExpressions()) {
+          bodyDefinition = applyTemplateToBodyEntity(model, bodyTemplate);
+        }
       }
       newResponseDefBuilder.withEntityBody(bodyDefinition);
 

@@ -53,33 +53,31 @@ public class Format {
     };
   }
 
-  public static Format fromMimeType(String mimeType) {
+  public static Format fromMimeType(MimeType mimeType) {
     if (mimeType == null) {
-      return TEXT;
+      return null;
     }
 
-    MimeType parsed = MimeType.parse(mimeType);
-
     // Primary type — covers "application/json" → "json", "text/xml" → "xml", etc.
-    if (isWellKnownType(parsed.getType())) {
-      return fromString(parsed.getType());
+    if (isWellKnownType(mimeType.getType())) {
+      return fromString(mimeType.getType());
     }
 
     // Subtype after '+' — covers "application/vnd.api+json" → subType "json"
-    String subType = parsed.getSubType();
+    String subType = mimeType.getSubType();
     if (subType != null && isWellKnownType(subType)) {
       return fromString(subType);
     }
 
-    return ContentTypes.determineIsTextFromMimeType(mimeType) ? TEXT : BINARY;
+    return ContentTypes.determineIsTextFromMimeType(mimeType.toString()) ? TEXT : BINARY;
   }
 
   public static Format fromContentTypeHeader(ContentTypeHeader contentTypeHeader) {
     if (contentTypeHeader == null || !contentTypeHeader.isPresent()) {
       return BINARY;
     }
-    String mimeType = contentTypeHeader.mimeTypePart();
-    return mimeType != null ? fromMimeType(mimeType) : BINARY;
+    MimeType mimeType = contentTypeHeader.getMimeType();
+    return mimeType != null ? fromMimeType(mimeType) : null;
   }
 
   private static boolean isWellKnownType(String value) {
