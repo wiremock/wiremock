@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -40,6 +41,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -49,6 +52,7 @@ import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -555,9 +559,17 @@ public class HttpAdminClient implements Admin {
   public SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
     String url = urlFor(SendChannelMessageTask.class);
-    String body = Json.write(new SendChannelMessageRequest(type, requestPattern, message));
+    String body = Json.write(SendChannelMessageRequest.forWebSocket(type, requestPattern, message));
     String response = postJsonAssertOkAndReturnBody(url, body);
     return Json.read(response, SendChannelMessageResult.class);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    postJsonAssertOkAndReturnBody(
+        urlFor(SendChannelMessageTask.class),
+        Json.write(SendChannelMessageRequest.forFixedChannel(providerName, channelName, message)));
   }
 
   @Override
@@ -565,6 +577,46 @@ public class HttpAdminClient implements Admin {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetAllMessageChannelsTask.class),
         ListMessageChannelsResult.class);
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    try {
+      return executeRequest(
+          adminRoutes.requestSpecForTask(GetMessageChannelTask.class),
+          PathParams.single("id", id.toString()),
+          SingleMessageChannelResult.class);
+    } catch (ClientError e) {
+      return new SingleMessageChannelResult(null);
+    }
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    postJsonAssertOkAndReturnBody(urlFor(RegisterChannelProviderTask.class), Json.write(provider));
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveChannelProviderTask.class),
+        PathParams.single("name", name),
+        Void.class);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+    String body =
+        postJsonAssertOkAndReturnBody(urlFor(CreateFixedChannelTask.class), Json.write(channel));
+    return Json.read(body, LoggedMessageChannel.class);
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(RemoveMessageChannelTask.class),
+        PathParams.single("id", id),
+        Void.class);
   }
 
   @Override

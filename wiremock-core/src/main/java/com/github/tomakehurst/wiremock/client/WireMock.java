@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -74,9 +75,13 @@ import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -1205,6 +1210,68 @@ public class WireMock {
     return MessageStubMapping.builder();
   }
 
+  public static ChannelProvider.Builder channelProvider() {
+    return new ChannelProvider.Builder();
+  }
+
+  public static void registerChannelProvider(ChannelProvider.Builder builder) {
+    defaultInstance.get().registerAChannelProvider(builder.build());
+  }
+
+  public void registerAChannelProvider(ChannelProvider provider) {
+    admin.registerChannelProvider(provider);
+  }
+
+  public static void removeChannelProvider(String name) {
+    defaultInstance.get().removeAChannelProvider(name);
+  }
+
+  public void removeAChannelProvider(String name) {
+    admin.removeChannelProvider(name);
+  }
+
+  public static FixedChannelDefinition.Builder fixedChannel() {
+    return new FixedChannelDefinition.Builder();
+  }
+
+  public static UUID createFixedChannel(FixedChannelDefinition.Builder builder) {
+    return defaultInstance.get().createAFixedChannel(builder.build());
+  }
+
+  public UUID createAFixedChannel(FixedChannelDefinition channelDefinition) {
+    return admin.createFixedChannel(channelDefinition).getId();
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, String body) {
+    defaultInstance.get().sendMessageToSingleFixedChannel(providerName, channelName, body);
+  }
+
+  public void sendMessageToSingleFixedChannel(
+      String providerName, String channelName, String body) {
+    admin.sendChannelMessage(
+        providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    defaultInstance
+        .get()
+        .sendMessageToSingleFixedChannel(providerName, channelName, messageBuilder);
+  }
+
+  public void sendMessageToSingleFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    Message message = messageBuilder.build();
+    EntityDefinition entityDef =
+        message.isBinary()
+            ? EntityDefinition.fromBase64(
+                java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes()))
+            : EntityDefinition.simple(message.getBodyAsString());
+
+    admin.sendChannelMessage(providerName, channelName, new MessageDefinition(entityDef));
+  }
+
   public static SendMessageActionBuilder sendMessage() {
     return new SendMessageActionBuilder();
   }
@@ -1278,6 +1345,22 @@ public class WireMock {
 
   public ListMessageChannelsResult allMessageChannels() {
     return admin.listAllMessageChannels();
+  }
+
+  public static SingleMessageChannelResult getMessageChannel(UUID id) {
+    return defaultInstance.get().getMessageChannelById(id);
+  }
+
+  public SingleMessageChannelResult getMessageChannelById(UUID id) {
+    return admin.getMessageChannel(id);
+  }
+
+  public static void removeMessageChannel(UUID id) {
+    defaultInstance.get().removeMessageChannelById(id);
+  }
+
+  public void removeMessageChannelById(UUID id) {
+    admin.removeMessageChannel(id);
   }
 
   // Message journal verification methods

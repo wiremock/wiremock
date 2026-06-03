@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.common.ConflictException;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.store.MessageChannelStore;
@@ -36,11 +39,23 @@ public class MessageChannels {
   }
 
   public void add(MessageChannel channel) {
+    if (channel instanceof FixedChannel fixedChannel
+        && findFixed(fixedChannel.getProviderName(), fixedChannel.getChannelName()).isPresent()) {
+      throw new ConflictException(
+          Errors.single(
+              409,
+              "Channel %s already exists via provider %s"
+                  .formatted(fixedChannel.getChannelName(), fixedChannel.getProviderName())));
+    }
     store.add(channel);
   }
 
   public void remove(UUID id) {
-    store.remove(id).ifPresent(MessageChannel::close);
+    store
+        .get(id)
+        .filter(RequestInitiatedMessageChannel.class::isInstance)
+        .ifPresent(MessageChannel::close);
+    store.remove(id);
   }
 
   public Optional<MessageChannel> get(UUID id) {
@@ -51,20 +66,26 @@ public class MessageChannels {
     return store.getAll().collect(Collectors.toList());
   }
 
-  public List<MessageChannel> getAllByType(ChannelType type) {
-    return store.getAll().filter(channel -> channel.getType() == type).collect(Collectors.toList());
-  }
-
-  public List<MessageChannel> getAllOpen() {
-    return store.getAll().filter(MessageChannel::isOpen).collect(Collectors.toList());
-  }
-
-  public List<MessageChannel> getAllOpenByType(ChannelType type) {
+  public Optional<FixedChannel> findFixed(String providerName, String channelName) {
     return store
         .getAll()
-        .filter(MessageChannel::isOpen)
-        .filter(channel -> channel.getType() == type)
-        .collect(Collectors.toList());
+        .filter(FixedChannel.class::isInstance)
+        .map(FixedChannel.class::cast)
+        .filter(
+            c -> c.getProviderName().equals(providerName) && c.getChannelName().equals(channelName))
+        .findFirst();
+  }
+
+  public FixedChannel requireFixed(String providerName, String channelName) {
+    return findFixed(providerName, channelName)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    "No fixed channel named '"
+                        + channelName
+                        + "' exists on provider '"
+                        + providerName
+                        + "'"));
   }
 
   public List<RequestInitiatedMessageChannel> findByRequestPattern(
@@ -96,19 +117,6 @@ public class MessageChannels {
         .collect(Collectors.toList());
   }
 
-  public int sendMessageToMatching(
-      RequestPattern requestPattern,
-      MessageDefinition messageDefinition,
-      Map<String, RequestMatcherExtension> customMatchers) {
-    List<RequestInitiatedMessageChannel> matchingChannels =
-        findByRequestPattern(requestPattern, customMatchers);
-    Message message = new Message(messageDefinition.getBody().resolve(stores));
-    for (RequestInitiatedMessageChannel channel : matchingChannels) {
-      channel.sendMessage(message);
-    }
-    return matchingChannels.size();
-  }
-
   public List<RequestInitiatedMessageChannel> sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
@@ -125,22 +133,5 @@ public class MessageChannels {
 
   public int size() {
     return (int) store.getAll().count();
-  }
-
-  public int sizeByType(ChannelType type) {
-    return (int) store.getAll().filter(channel -> channel.getType() == type).count();
-  }
-
-  public int openCount() {
-    return (int) store.getAll().filter(MessageChannel::isOpen).count();
-  }
-
-  public int openCountByType(ChannelType type) {
-    return (int)
-        store
-            .getAll()
-            .filter(MessageChannel::isOpen)
-            .filter(channel -> channel.getType() == type)
-            .count();
   }
 }

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -232,6 +233,10 @@ public class ResponseDefinition {
 
   public static ResponseDefinition notPermitted(Errors errors) {
     return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_FORBIDDEN);
+  }
+
+  public static ResponseDefinition conflict(Errors errors) {
+    return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_CONFLICT);
   }
 
   public static ResponseDefinition serverError() {

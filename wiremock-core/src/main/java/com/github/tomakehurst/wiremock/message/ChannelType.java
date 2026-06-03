@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.message;
 
 import static com.github.tomakehurst.wiremock.message.ChannelType.Directionality.BIDIRECTIONAL;
+import static com.github.tomakehurst.wiremock.message.ChannelType.Lifecycle.PERSISTENT;
 import static com.github.tomakehurst.wiremock.message.ChannelType.Lifecycle.REQUEST_INITIATED;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -25,7 +26,8 @@ import java.util.Locale;
 public class ChannelType {
 
   public enum Lifecycle {
-    REQUEST_INITIATED
+    REQUEST_INITIATED,
+    PERSISTENT
   }
 
   public enum Directionality {
@@ -60,6 +62,7 @@ public class ChannelType {
 
   @JsonCreator
   public static ChannelType fromJson(String value) {
+    if ("fixed".equalsIgnoreCase(value)) return FIXED;
     return WEBSOCKET;
   }
 
@@ -70,4 +73,6 @@ public class ChannelType {
 
   public static ChannelType WEBSOCKET =
       new ChannelType("websocket", REQUEST_INITIATED, BIDIRECTIONAL);
+
+  public static ChannelType FIXED = new ChannelType("fixed", PERSISTENT, BIDIRECTIONAL);
 }

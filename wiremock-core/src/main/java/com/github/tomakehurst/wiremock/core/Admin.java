@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -30,6 +32,7 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -159,6 +162,18 @@ public interface Admin {
    * @return result containing all message channels
    */
   ListMessageChannelsResult listAllMessageChannels();
+
+  SingleMessageChannelResult getMessageChannel(UUID id);
+
+  void registerChannelProvider(ChannelProvider provider);
+
+  void removeChannelProvider(String name);
+
+  LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);
+
+  void removeMessageChannel(UUID id);
+
+  void sendChannelMessage(String providerName, String channelName, MessageDefinition message);
 
   /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.

@@ -20,6 +20,8 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 import com.github.tomakehurst.wiremock.admin.tasks.*;
+import com.github.tomakehurst.wiremock.admin.tasks.CreateFixedChannelTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RegisterChannelProviderTask;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.store.Stores;
@@ -121,7 +123,13 @@ public class AdminRoutes {
     router.add(GET, "/version", new GetVersionTask());
 
     router.add(GET, "/channels", new GetAllMessageChannelsTask());
+    router.add(GET, "/channels/{id}", new GetMessageChannelTask());
+    router.add(DELETE, "/channels/{id}", new RemoveMessageChannelTask());
+    router.add(POST, "/channels", new CreateFixedChannelTask());
     router.add(POST, "/channels/send", new SendChannelMessageTask());
+
+    router.add(POST, "/channel-providers", new RegisterChannelProviderTask());
+    router.add(DELETE, "/channel-providers/{name}", new RemoveChannelProviderTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());
     router.add(DELETE, "/messages", new ResetMessageJournalTask());

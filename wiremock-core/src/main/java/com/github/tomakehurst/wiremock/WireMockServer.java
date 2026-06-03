@@ -41,6 +41,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -621,6 +623,37 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public ListMessageChannelsResult listAllMessageChannels() {
     return wireMockApp.listAllMessageChannels();
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return wireMockApp.getMessageChannel(id);
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    wireMockApp.removeMessageChannel(id);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    wireMockApp.registerChannelProvider(provider);
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    wireMockApp.removeChannelProvider(name);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+    return wireMockApp.createFixedChannel(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    wireMockApp.sendChannelMessage(providerName, channelName, message);
   }
 
   @Override

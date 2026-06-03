@@ -36,7 +36,11 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.FixedChannel;
+import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
@@ -44,6 +48,12 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
+import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
+import com.github.tomakehurst.wiremock.message.channel.InboundMessageSink;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -52,6 +62,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
@@ -89,6 +100,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, ServeEventListener> serveEventListeners;
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
+  private final ChannelProviderRegistry channelProviderRegistry;
 
   private final Options options;
 
@@ -146,11 +158,17 @@ public class WireMockApp implements StubServer, Admin {
 
     this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+    this.channelProviderRegistry = new ChannelProviderRegistry(stores.getChannelProviderStore());
+    extensions
+        .ofType(CustomChannelProviderDriver.class)
+        .values()
+        .forEach(channelProviderRegistry::registerDriver);
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
+            messageJournal,
             stores,
             customMatchers,
             List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
@@ -708,6 +726,72 @@ public class WireMockApp implements StubServer, Admin {
             .map(LoggedMessageChannel::createFrom)
             .collect(Collectors.toList());
     return new ListMessageChannelsResult(channels);
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return SingleMessageChannelResult.of(
+        messageChannels.get(id).map(LoggedMessageChannel::createFrom).orElse(null));
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    messageChannels.remove(id);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    channelProviderRegistry.registerProvider(provider);
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    channelProviderRegistry.removeProvider(name);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channelDefinition) {
+    String providerName = channelDefinition.getProviderName();
+    String channelName = channelDefinition.getName();
+    InboundMessageSink sink =
+        message -> receiveInboundFixedChannelMessage(providerName, channelName, message);
+    final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition, sink);
+    messageChannels.add(channel);
+    return LoggedMessageChannel.createFrom(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition messageDefinition) {
+    Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
+    receiveInboundFixedChannelMessage(providerName, channelName, incomingMessage);
+  }
+
+  private void receiveInboundFixedChannelMessage(
+      String providerName, String channelName, Message message) {
+    FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
+    Optional<MessageStubMapping> matchingStub =
+        messageStubMappings.findMatchingFixedChannelStub(providerName, channelName, message);
+
+    if (matchingStub.isEmpty()) {
+      messageJournal.messageReceived(MessageServeEvent.receivedUnmatched(inboundChannel, message));
+    } else {
+      MessageStubMapping stub = matchingStub.get();
+      messageJournal.messageReceived(
+          MessageServeEvent.receivedMatched(inboundChannel, message, stub));
+      for (MessageAction action : stub.getActions()) {
+        if (action instanceof SendMessageAction sendAction) {
+          Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
+          if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
+            FixedChannel outboundChannel =
+                messageChannels.requireFixed(
+                    fixedTarget.getProviderName(), fixedTarget.getChannelName());
+            outboundChannel.sendMessage(outMessage);
+            messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, outMessage));
+          }
+        }
+      }
+    }
   }
 
   @Override

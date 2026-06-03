@@ -29,6 +29,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -378,6 +380,37 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public ListMessageChannelsResult listAllMessageChannels() {
     return admin.listAllMessageChannels();
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return admin.getMessageChannel(id);
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    admin.removeMessageChannel(id);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    admin.registerChannelProvider(provider);
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    admin.removeChannelProvider(name);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+    return admin.createFixedChannel(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    admin.sendChannelMessage(providerName, channelName, message);
   }
 
   @Override

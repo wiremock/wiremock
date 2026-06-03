@@ -28,8 +28,10 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
 
 @JsonInclude(NON_EMPTY)
+@NullMarked
 public class HttpRequestTrigger implements MessageTrigger {
 
   private final RequestPattern requestPattern;
@@ -49,16 +51,13 @@ public class HttpRequestTrigger implements MessageTrigger {
 
   public boolean matches(
       ServeEvent serveEvent, Map<String, RequestMatcherExtension> customMatchers) {
-    if (serveEvent == null || serveEvent.getRequest() == null) {
+    if (serveEvent.getRequest() == null) {
       return false;
     }
     return matches(serveEvent.getRequest(), customMatchers);
   }
 
   public boolean matches(Request request, Map<String, RequestMatcherExtension> customMatchers) {
-    if (requestPattern == null) {
-      return true;
-    }
     MatchResult matchResult = requestPattern.match(request, customMatchers);
     return matchResult.isExactMatch();
   }
@@ -70,7 +69,7 @@ public class HttpRequestTrigger implements MessageTrigger {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     HttpRequestTrigger that = (HttpRequestTrigger) o;
     return Objects.equals(requestPattern, that.requestPattern);
   }

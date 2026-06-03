@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
@@ -208,8 +207,12 @@ public class MessageSerializationTest {
         new MessageServeEvent.Builder()
             .withId(UUID.fromString("eeeeeeee-ffff-0000-1111-222222222222"))
             .withEventType(MessageServeEvent.EventType.RECEIVED)
-            .withChannelType(ChannelType.WEBSOCKET)
-            .withChannelId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
+            .withChannel(
+                new LoggedRequestInitiatedChannel(
+                    UUID.fromString("11111111-2222-3333-4444-555555555555"),
+                    ChannelType.WEBSOCKET,
+                    null,
+                    true))
             .withMessage(message("test message"))
             .withStubMapping(stub)
             .withWasMatched(true)
@@ -226,8 +229,11 @@ public class MessageSerializationTest {
             {
               "id": "eeeeeeee-ffff-0000-1111-222222222222",
               "eventType": "received",
-              "channelType": "websocket",
-              "channelId": "11111111-2222-3333-4444-555555555555",
+              "channel": {
+                "type": "websocket",
+                "id": "11111111-2222-3333-4444-555555555555",
+                "open": true
+              },
               "message": "test message",
               "wasMatched": true,
               "timestamp": "2025-01-15T10:30:00Z",
@@ -266,8 +272,11 @@ public class MessageSerializationTest {
         {
           "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
           "eventType": "received",
-          "channelType": "websocket",
-          "channelId": "11111111-2222-3333-4444-555555555555",
+          "channel": {
+            "type": "websocket",
+            "id": "11111111-2222-3333-4444-555555555555",
+            "open": true
+          },
           "message": "hello world",
           "wasMatched": false,
           "timestamp": "2025-01-15T10:30:00Z"
@@ -289,9 +298,11 @@ public class MessageSerializationTest {
   void messageServeEventRoundTrips() {
     MessageServeEvent original =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET,
-            UUID.fromString("99999999-8888-7777-6666-555555555555"),
-            mockRequest().url("/unmatched-channel"),
+            new LoggedRequestInitiatedChannel(
+                UUID.fromString("99999999-8888-7777-6666-555555555555"),
+                ChannelType.WEBSOCKET,
+                null,
+                true),
             message("unmatched message"));
 
     String json = Json.write(original);
@@ -462,8 +473,12 @@ public class MessageSerializationTest {
         new MessageServeEvent.Builder()
             .withId(UUID.fromString("22222222-3333-4444-5555-666666666666"))
             .withEventType(MessageServeEvent.EventType.SENT)
-            .withChannelType(ChannelType.WEBSOCKET)
-            .withChannelId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .withChannel(
+                new LoggedRequestInitiatedChannel(
+                    UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+                    ChannelType.WEBSOCKET,
+                    null,
+                    true))
             .withMessage(message("sent message"))
             .withWasMatched(true)
             .withTimestamp(java.time.Instant.parse("2025-01-15T12:00:00Z"))
@@ -479,8 +494,11 @@ public class MessageSerializationTest {
             {
               "id": "22222222-3333-4444-5555-666666666666",
               "eventType": "sent",
-              "channelType": "websocket",
-              "channelId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+              "channel": {
+                "type": "websocket",
+                "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                "open": true
+              },
               "message": "sent message",
               "wasMatched": true,
               "timestamp": "2025-01-15T12:00:00Z"
@@ -495,8 +513,11 @@ public class MessageSerializationTest {
         {
           "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
           "eventType": "sent",
-          "channelType": "websocket",
-          "channelId": "22222222-3333-4444-5555-666666666666",
+          "channel": {
+            "type": "websocket",
+            "id": "22222222-3333-4444-5555-666666666666",
+            "open": true
+          },
           "message": "outgoing message",
           "wasMatched": true,
           "timestamp": "2025-01-15T12:00:00Z"

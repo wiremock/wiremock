@@ -15,57 +15,43 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
 
-public class LoggedMessageChannel {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = LoggedRequestInitiatedChannel.class, name = "websocket"),
+  @JsonSubTypes.Type(value = LoggedFixedChannel.class, name = "fixed")
+})
+@NullMarked
+public sealed interface LoggedMessageChannel
+    permits LoggedRequestInitiatedChannel, LoggedFixedChannel {
 
-  private final UUID id;
-  private final ChannelType type;
-  private final LoggedRequest initiatingRequest;
-  private final boolean open;
+  UUID getId();
 
-  @JsonCreator
-  public LoggedMessageChannel(
-      @JsonProperty("id") UUID id,
-      @JsonProperty("type") ChannelType type,
-      @JsonProperty("initiatingRequest") LoggedRequest initiatingRequest,
-      @JsonProperty("open") boolean open) {
-    this.id = id;
-    this.type = type;
-    this.initiatingRequest = initiatingRequest;
-    this.open = open;
-  }
+  ChannelType getType();
 
-  public static LoggedMessageChannel createFrom(MessageChannel channel) {
-    LoggedRequest loggedRequest = null;
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      loggedRequest =
-          LoggedRequest.createFrom(
-              ((RequestInitiatedMessageChannel) channel).getInitiatingRequest());
+  boolean isOpen();
+
+  static LoggedMessageChannel createFrom(MessageChannel channel) {
+    if (channel instanceof FixedChannel fixedChannel) {
+      return new LoggedFixedChannel(
+          channel.getId(),
+          channel.isOpen(),
+          fixedChannel.getProviderName(),
+          fixedChannel.getChannelName());
     }
-    return new LoggedMessageChannel(
+    LoggedRequest loggedRequest = null;
+    if (channel instanceof RequestInitiatedMessageChannel requestChannel) {
+      loggedRequest = LoggedRequest.createFrom(requestChannel.getInitiatingRequest());
+    }
+    return new LoggedRequestInitiatedChannel(
         channel.getId(), channel.getType(), loggedRequest, channel.isOpen());
-  }
-
-  public UUID getId() {
-    return id;
-  }
-
-  public ChannelType getType() {
-    return type;
-  }
-
-  public LoggedRequest getInitiatingRequest() {
-    return initiatingRequest;
-  }
-
-  @JsonProperty("open")
-  public boolean isOpen() {
-    return open;
   }
 }

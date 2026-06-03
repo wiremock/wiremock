@@ -44,6 +44,8 @@ public interface Stores extends StoresLifecycle {
 
   MessageJournalStore getMessageJournalStore();
 
+  ChannelProviderStore getChannelProviderStore();
+
   default BlobStore getMappingsBlobStore() {
     return getBlobStore(MAPPINGS_ROOT);
   }

@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -36,6 +37,7 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -342,6 +344,41 @@ class ExtensionsTest {
 
     @Override
     public ListMessageChannelsResult listAllMessageChannels() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult getMessageChannel(
+        java.util.UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeMessageChannel(java.util.UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerChannelProvider(
+        com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeChannelProvider(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sendChannelMessage(
+        String providerName,
+        String channelName,
+        com.github.tomakehurst.wiremock.message.MessageDefinition message) {
       throw new UnsupportedOperationException();
     }
 

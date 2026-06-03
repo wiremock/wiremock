@@ -267,6 +267,11 @@ public class MessageStubMapping implements Prioritisable {
       return this;
     }
 
+    public Builder triggeredByMessageOnChannel(String providerName, String channelName) {
+      this.explicitTrigger = new FixedChannelMessageTrigger(providerName, channelName, null);
+      return this;
+    }
+
     public Builder withActions(List<MessageAction> actions) {
       this.actions = new ArrayList<>(actions);
       return this;
@@ -314,7 +319,12 @@ public class MessageStubMapping implements Prioritisable {
     @Override
     public MessageStubMapping build() {
       MessageTrigger trigger;
-      if (explicitTrigger != null) {
+      if (explicitTrigger instanceof FixedChannelMessageTrigger fixedTrigger) {
+        trigger =
+            bodyPattern != null
+                ? fixedTrigger.withMessagePattern(new MessagePattern(null, bodyPattern))
+                : fixedTrigger;
+      } else if (explicitTrigger != null) {
         trigger = explicitTrigger;
       } else {
         MessagePattern messagePattern =
