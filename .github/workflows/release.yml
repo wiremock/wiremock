@@ -9,6 +9,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Java
@@ -21,6 +23,10 @@ jobs:
         with:
           validate-wrappers: true
 
+      - name: Get version
+        id: get_version
+        run: echo "version=$(grep '^version=' wiremock-core/src/main/resources/version.properties | cut -d= -f2)" >> $GITHUB_OUTPUT
+
       - name: Publish core package
         id: publish_package
         run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace
@@ -32,3 +38,28 @@ jobs:
           OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
           SONATYPE_CLOSE_TIMEOUT_SECONDS: 1800
+
+  trigger-wiremock-org-update:
+    needs: publish-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Bump WireMock versions
+        run: |
+          gh workflow run "Bump WireMock Versions" \
+            --repo wiremock/wiremock.org \
+            -f WIREMOCK_BETA=${{ needs.publish-core.outputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.WIREMOCK_GITHUB_TOKEN }}
+
+  trigger-docker-release:
+    needs: publish-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Docker beta release
+        run: |
+          gh workflow run release-4.x-beta \
+            --repo wiremock/wiremock-docker \
+            -f image_version=1 \
+            -f wiremock_version=${{ needs.publish-core.outputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.WIREMOCK_GITHUB_TOKEN }}
