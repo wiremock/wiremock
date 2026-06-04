@@ -130,6 +130,7 @@ public class AdminRoutes {
 
     router.add(GET, "/channel-providers", new GetAllChannelProvidersTask());
     router.add(POST, "/channel-providers", new RegisterChannelProviderTask());
+    router.add(GET, "/channel-providers/{name}", new GetChannelProviderTask());
     router.add(DELETE, "/channel-providers/{name}", new RemoveChannelProviderTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());

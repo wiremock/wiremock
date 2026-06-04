@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ChannelProviderRegistry {
@@ -40,6 +41,10 @@ public class ChannelProviderRegistry {
 
   public List<ChannelProvider> listAllProviders() {
     return providerStore.getAll().collect(Collectors.toList());
+  }
+
+  public Optional<ChannelProvider> getProvider(String name) {
+    return providerStore.get(name);
   }
 
   public void registerProvider(ChannelProvider provider) {

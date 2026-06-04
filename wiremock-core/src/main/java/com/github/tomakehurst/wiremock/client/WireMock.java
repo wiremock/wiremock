@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
 import com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
@@ -1221,6 +1222,14 @@ public class WireMock {
 
   public ListChannelProvidersResult allChannelProviders() {
     return admin.listAllChannelProviders();
+  }
+
+  public static SingleChannelProviderResult getChannelProvider(String name) {
+    return defaultInstance.get().channelProviderByName(name);
+  }
+
+  public SingleChannelProviderResult channelProviderByName(String name) {
+    return admin.getChannelProvider(name);
   }
 
   public static void registerChannelProvider(ChannelProvider.Builder builder) {

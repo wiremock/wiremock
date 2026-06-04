@@ -365,6 +365,11 @@ class ExtensionsTest {
     }
 
     @Override
+    public SingleChannelProviderResult getChannelProvider(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void registerChannelProvider(
         com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
       throw new UnsupportedOperationException();

@@ -167,6 +167,8 @@ public interface Admin {
 
   ListChannelProvidersResult listAllChannelProviders();
 
+  SingleChannelProviderResult getChannelProvider(String name);
+
   void registerChannelProvider(ChannelProvider provider);
 
   void removeChannelProvider(String name);

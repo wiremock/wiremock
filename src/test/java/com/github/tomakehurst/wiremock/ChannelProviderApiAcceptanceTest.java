@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.util.List;
@@ -180,5 +181,64 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     ChannelProvider provider = result.getChannelProviders().get(0);
     assertThat(provider.getName(), is(PROVIDER_ALPHA));
     assertThat(provider.getDriverType(), is("in-memory"));
+  }
+
+  // --- get single channel provider ---
+
+  @Test
+  void getChannelProviderByNameViaApiReturnsProviderJson() throws Exception {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    WireMockResponse response = testClient.get("/__admin/channel-providers/" + PROVIDER_ALPHA);
+
+    assertThat(response.statusCode(), is(200));
+    JSONAssert.assertEquals(
+        "{\"name\": \"test-provider-alpha\", \"driverType\": \"in-memory\", \"settings\": {}}",
+        response.content(),
+        true);
+  }
+
+  @Test
+  void getChannelProviderByNameViaApiReturns404WhenNotFound() {
+    WireMockResponse response = testClient.get("/__admin/channel-providers/nonexistent");
+
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void getChannelProviderByNameViaApiIncludesSettings() throws Exception {
+    registerChannelProvider(
+        channelProvider()
+            .named(PROVIDER_ALPHA)
+            .withDriver("in-memory")
+            .withSetting("timeout", 3000)
+            .withSetting("retries", 5));
+
+    WireMockResponse response = testClient.get("/__admin/channel-providers/" + PROVIDER_ALPHA);
+
+    assertThat(response.statusCode(), is(200));
+    JSONAssert.assertEquals(
+        "{\"name\": \"test-provider-alpha\", \"driverType\": \"in-memory\","
+            + " \"settings\": {\"timeout\": 3000, \"retries\": 5}}",
+        response.content(),
+        true);
+  }
+
+  @Test
+  void getChannelProviderViaDslReturnsPresentResultForExistingProvider() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    SingleChannelProviderResult result = getChannelProvider(PROVIDER_ALPHA);
+
+    assertThat(result.isPresent(), is(true));
+    assertThat(result.getItem().getName(), is(PROVIDER_ALPHA));
+    assertThat(result.getItem().getDriverType(), is("in-memory"));
+  }
+
+  @Test
+  void getChannelProviderViaDslReturnsNotPresentResultForUnknownName() {
+    SingleChannelProviderResult result = getChannelProvider("does-not-exist");
+
+    assertThat(result.isPresent(), is(false));
   }
 }
