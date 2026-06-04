@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -27,7 +29,6 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
 
@@ -54,56 +55,62 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void returnsEmptyListWhenNoProvidersRegistered() throws Exception {
+  void returnsEmptyListWhenNoProvidersRegistered() {
     WireMockResponse response = testClient.get("/__admin/channel-providers");
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{\"channelProviders\": [], \"meta\": {\"total\": 0}}", response.content(), true);
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "channelProviders": [],
+              "meta": { "total": 0 }
+            }
+            """));
   }
 
   @Test
-  void returnsSingleProviderAfterRegistration() throws Exception {
+  void returnsSingleProviderAfterRegistration() {
     registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
 
     WireMockResponse response = testClient.get("/__admin/channel-providers");
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{"
-            + "\"channelProviders\": [{"
-            + "  \"name\": \"test-provider-alpha\","
-            + "  \"driverType\": \"in-memory\","
-            + "  \"settings\": {}"
-            + "}],"
-            + "\"meta\": {\"total\": 1}"
-            + "}",
+    assertThat(
         response.content(),
-        true);
+        jsonEquals(
+            // language=json
+            """
+            {
+              "channelProviders": [
+                { "name": "test-provider-alpha", "driverType": "in-memory", "settings": {} }
+              ],
+              "meta": { "total": 1 }
+            }
+            """));
   }
 
   @Test
-  void returnsMultipleProvidersInRegistrationOrder() throws Exception {
+  void returnsMultipleProviders() {
     registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
     registerChannelProvider(channelProvider().named(PROVIDER_BETA).withDriver("in-memory"));
 
     WireMockResponse response = testClient.get("/__admin/channel-providers");
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{"
-            + "\"channelProviders\": ["
-            + "  {\"name\": \"test-provider-alpha\", \"driverType\": \"in-memory\"},"
-            + "  {\"name\": \"test-provider-beta\", \"driverType\": \"in-memory\"}"
-            + "],"
-            + "\"meta\": {\"total\": 2}"
-            + "}",
+    assertThat(response.content(), jsonPartEquals("meta.total", 2));
+    assertThat(
         response.content(),
-        false);
+        jsonPartEquals("channelProviders[0].name", "\"test-provider-alpha\""));
+    assertThat(
+        response.content(),
+        jsonPartEquals("channelProviders[1].name", "\"test-provider-beta\""));
   }
 
   @Test
-  void providerWithSettingsIsIncludedInResponse() throws Exception {
+  void providerWithSettingsIsIncludedInResponse() {
     registerChannelProvider(
         channelProvider()
             .named(PROVIDER_ALPHA)
@@ -113,21 +120,26 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     WireMockResponse response = testClient.get("/__admin/channel-providers");
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{"
-            + "\"channelProviders\": [{"
-            + "  \"name\": \"test-provider-alpha\","
-            + "  \"driverType\": \"in-memory\","
-            + "  \"settings\": {\"timeout\": 5000}"
-            + "}],"
-            + "\"meta\": {\"total\": 1}"
-            + "}",
+    assertThat(
         response.content(),
-        true);
+        jsonEquals(
+            // language=json
+            """
+            {
+              "channelProviders": [
+                {
+                  "name": "test-provider-alpha",
+                  "driverType": "in-memory",
+                  "settings": { "timeout": 5000 }
+                }
+              ],
+              "meta": { "total": 1 }
+            }
+            """));
   }
 
   @Test
-  void providerRemovedFromListAfterDeletion() throws Exception {
+  void providerRemovedFromListAfterDeletion() {
     registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
     registerChannelProvider(channelProvider().named(PROVIDER_BETA).withDriver("in-memory"));
 
@@ -136,17 +148,18 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     WireMockResponse response = testClient.get("/__admin/channel-providers");
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{"
-            + "\"channelProviders\": [{"
-            + "  \"name\": \"test-provider-beta\","
-            + "  \"driverType\": \"in-memory\","
-            + "  \"settings\": {}"
-            + "}],"
-            + "\"meta\": {\"total\": 1}"
-            + "}",
+    assertThat(
         response.content(),
-        true);
+        jsonEquals(
+            // language=json
+            """
+            {
+              "channelProviders": [
+                { "name": "test-provider-beta", "driverType": "in-memory", "settings": {} }
+              ],
+              "meta": { "total": 1 }
+            }
+            """));
   }
 
   @Test
@@ -186,16 +199,19 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
   // --- get single channel provider ---
 
   @Test
-  void getChannelProviderByNameViaApiReturnsProviderJson() throws Exception {
+  void getChannelProviderByNameViaApiReturnsProviderJson() {
     registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
 
     WireMockResponse response = testClient.get("/__admin/channel-providers/" + PROVIDER_ALPHA);
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{\"name\": \"test-provider-alpha\", \"driverType\": \"in-memory\", \"settings\": {}}",
+    assertThat(
         response.content(),
-        true);
+        jsonEquals(
+            // language=json
+            """
+            { "name": "test-provider-alpha", "driverType": "in-memory", "settings": {} }
+            """));
   }
 
   @Test
@@ -206,7 +222,7 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getChannelProviderByNameViaApiIncludesSettings() throws Exception {
+  void getChannelProviderByNameViaApiIncludesSettings() {
     registerChannelProvider(
         channelProvider()
             .named(PROVIDER_ALPHA)
@@ -217,11 +233,17 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     WireMockResponse response = testClient.get("/__admin/channel-providers/" + PROVIDER_ALPHA);
 
     assertThat(response.statusCode(), is(200));
-    JSONAssert.assertEquals(
-        "{\"name\": \"test-provider-alpha\", \"driverType\": \"in-memory\","
-            + " \"settings\": {\"timeout\": 3000, \"retries\": 5}}",
+    assertThat(
         response.content(),
-        true);
+        jsonEquals(
+            // language=json
+            """
+            {
+              "name": "test-provider-alpha",
+              "driverType": "in-memory",
+              "settings": { "timeout": 3000, "retries": 5 }
+            }
+            """));
   }
 
   @Test
