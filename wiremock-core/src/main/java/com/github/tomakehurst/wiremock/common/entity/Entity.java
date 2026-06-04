@@ -101,7 +101,7 @@ public class Entity {
   }
 
   public String asString() {
-    return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), charset), String.class);
+    return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), charset));
   }
 
   public String asBase64() {
@@ -117,7 +117,7 @@ public class Entity {
   }
 
   public byte[] getData(Limit sizeLimit) {
-    return Exceptions.uncheck(() -> getBytesFromStream(streamSource, sizeLimit), byte[].class);
+    return Exceptions.uncheck(() -> getBytesFromStream(streamSource, sizeLimit));
   }
 
   private static byte[] getBytesFromStream(InputStreamSource streamSource, Limit limit) {
@@ -127,8 +127,7 @@ public class Entity {
 
     return Exceptions.uncheck(
         () -> {
-          try (InputStream stream =
-              Exceptions.uncheck(streamSource::getStream, InputStream.class)) {
+          try (InputStream stream = Exceptions.uncheck(streamSource::getStream)) {
             if (stream == null) {
               return null;
             }
@@ -137,8 +136,7 @@ public class Entity {
                 ? stream.readNBytes(limit.getValue())
                 : stream.readAllBytes();
           }
-        },
-        byte[].class);
+        });
   }
 
   public InputStreamSource getStreamSource() {
@@ -280,12 +278,11 @@ public class Entity {
     }
 
     public String getDataAsString() {
-      return Exceptions.uncheck(
-          () -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET), String.class);
+      return Exceptions.uncheck(() -> Strings.stringFromBytes(getData(), DEFAULT_CHARSET));
     }
 
     public byte[] getData() {
-      return Exceptions.uncheck(() -> getBytesFromStream(streamSource, UNLIMITED), byte[].class);
+      return Exceptions.uncheck(() -> getBytesFromStream(streamSource, UNLIMITED));
     }
 
     public boolean isDecompressible() {
