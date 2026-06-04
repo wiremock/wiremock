@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.SECONDS;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -71,7 +71,7 @@ public class DateTimeOffset {
       return date;
     }
 
-    final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Z"));
+    final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
     ZonedDateTime output = shift(input);
     return Date.from(output.toInstant());
   }

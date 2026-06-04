@@ -30,7 +30,7 @@ public class ChannelProvider {
 
   private final String name;
   private final String driverType;
-  @Nullable private final Map<String, Object> settings;
+  private final Map<String, Object> settings;
 
   @JsonCreator
   public ChannelProvider(

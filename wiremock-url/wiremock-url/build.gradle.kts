@@ -1,10 +1,6 @@
-import net.ltgt.gradle.errorprone.CheckSeverity
-import net.ltgt.gradle.errorprone.errorprone
-
 plugins {
   id("wiremock.common-conventions")
   alias(libs.plugins.jmh)
-  id("net.ltgt.errorprone") version "5.1.0"
 }
 
 tasks.jar {
@@ -40,24 +36,6 @@ dependencies {
   jmh(libs.jackson.core)
   jmh(libs.jackson.databind)
   jmh(libs.commons.lang)
-
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.4")
-  errorprone("com.google.errorprone:error_prone_core:2.42.0")
-}
-
-tasks.compileJava {
-  options.errorprone {
-    check("NullAway", CheckSeverity.ERROR)
-    check("NullableOptional", CheckSeverity.OFF)
-    check("ClassInitializationDeadlock", CheckSeverity.OFF)
-    option("NullAway:AnnotatedPackages", "org.wiremock.url")
-  }
-}
-
-tasks.compileTestJava {
-  options.errorprone {
-    disableAllChecks = true
-  }
 }
 
 jmh {
