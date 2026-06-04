@@ -165,8 +165,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private Entity adaptBodyEntity() {
-    byte[] rawBytes =
-        Exceptions.uncheck(() -> request.getInputStream().readAllBytes(), byte[].class);
+    byte[] rawBytes = Exceptions.uncheck(() -> request.getInputStream().readAllBytes());
 
     final Entity.Builder builder = Entity.builder().setData(rawBytes);
     EntityMetadata.copyFromHeaders(getHeaders(), builder);
