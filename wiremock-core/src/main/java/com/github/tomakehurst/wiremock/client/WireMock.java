@@ -1232,6 +1232,14 @@ public class WireMock {
     return admin.getChannelProvider(name);
   }
 
+  public static ChannelProvider updateChannelProvider(String currentName, ChannelProvider.Builder update) {
+    return defaultInstance.get().updateAChannelProvider(currentName, update.build());
+  }
+
+  public ChannelProvider updateAChannelProvider(String currentName, ChannelProvider update) {
+    return admin.updateChannelProvider(currentName, update);
+  }
+
   public static void registerChannelProvider(ChannelProvider.Builder builder) {
     defaultInstance.get().registerAChannelProvider(builder.build());
   }

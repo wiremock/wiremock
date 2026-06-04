@@ -169,6 +169,8 @@ public interface Admin {
 
   SingleChannelProviderResult getChannelProvider(String name);
 
+  ChannelProvider updateChannelProvider(String currentName, ChannelProvider update);
+
   void registerChannelProvider(ChannelProvider provider);
 
   void removeChannelProvider(String name);

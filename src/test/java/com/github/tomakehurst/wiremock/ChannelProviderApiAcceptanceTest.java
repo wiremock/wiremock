@@ -20,9 +20,11 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.util.List;
@@ -262,5 +264,135 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     SingleChannelProviderResult result = getChannelProvider("does-not-exist");
 
     assertThat(result.isPresent(), is(false));
+  }
+
+  // --- update (rename) channel provider ---
+
+  @Test
+  void renameChannelProviderViaApi() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/channel-providers/" + PROVIDER_ALPHA,
+            // language=json
+            """
+            { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+            """,
+            "application/json");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+            """));
+    safeRemoveChannelProvider("renamed-provider");
+  }
+
+  @Test
+  void renamedProviderAppearsUnderNewNameInList() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    testClient.putWithBody(
+        "/__admin/channel-providers/" + PROVIDER_ALPHA,
+        // language=json
+        """
+        { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+        """,
+        "application/json");
+
+    WireMockResponse listResponse = testClient.get("/__admin/channel-providers");
+    assertThat(listResponse.content(), jsonPartEquals("channelProviders[0].name", "\"renamed-provider\""));
+    assertThat(getChannelProvider(PROVIDER_ALPHA).isPresent(), is(false));
+    safeRemoveChannelProvider("renamed-provider");
+  }
+
+  @Test
+  void renamingNonExistentProviderReturns404() {
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/channel-providers/nonexistent",
+            // language=json
+            """
+            { "name": "new-name", "driverType": "in-memory", "settings": {} }
+            """,
+            "application/json");
+
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void changingDriverTypeIsRejectedViaApi() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/channel-providers/" + PROVIDER_ALPHA,
+            // language=json
+            """
+            { "name": "test-provider-alpha", "driverType": "kafka", "settings": {} }
+            """,
+            "application/json");
+
+    assertThat(response.statusCode(), is(422));
+  }
+
+  @Test
+  void changingSettingsIsRejectedViaApi() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/channel-providers/" + PROVIDER_ALPHA,
+            // language=json
+            """
+            { "name": "test-provider-alpha", "driverType": "in-memory", "settings": { "timeout": 1000 } }
+            """,
+            "application/json");
+
+    assertThat(response.statusCode(), is(422));
+  }
+
+  @Test
+  void renameChannelProviderViaDsl() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    ChannelProvider updated =
+        updateChannelProvider(
+            PROVIDER_ALPHA,
+            channelProvider().named("renamed-provider").withDriver("in-memory"));
+
+    assertThat(updated.getName(), is("renamed-provider"));
+    assertThat(updated.getDriverType(), is("in-memory"));
+    assertThat(getChannelProvider(PROVIDER_ALPHA).isPresent(), is(false));
+    assertThat(getChannelProvider("renamed-provider").isPresent(), is(true));
+    safeRemoveChannelProvider("renamed-provider");
+  }
+
+  @Test
+  void changingDriverTypeIsRejectedViaDsl() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    assertThrows(
+        InvalidInputException.class,
+        () ->
+            updateChannelProvider(
+                PROVIDER_ALPHA,
+                channelProvider().named(PROVIDER_ALPHA).withDriver("kafka")));
+  }
+
+  @Test
+  void changingSettingsIsRejectedViaDsl() {
+    registerChannelProvider(channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory"));
+
+    assertThrows(
+        InvalidInputException.class,
+        () ->
+            updateChannelProvider(
+                PROVIDER_ALPHA,
+                channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory").withSetting("k", "v")));
   }
 }

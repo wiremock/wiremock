@@ -599,6 +599,15 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    String body =
+        putJsonAssertOkAndReturnBody(
+            urlFor(UpdateChannelProviderTask.class, PathParams.single("name", currentName)),
+            Json.write(update));
+    return Json.read(body, ChannelProvider.class);
+  }
+
+  @Override
   public SingleChannelProviderResult getChannelProvider(String name) {
     try {
       return executeRequest(
