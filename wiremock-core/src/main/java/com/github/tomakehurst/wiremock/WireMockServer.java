@@ -636,6 +636,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return wireMockApp.listAllChannelProviders();
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     wireMockApp.registerChannelProvider(provider);
   }

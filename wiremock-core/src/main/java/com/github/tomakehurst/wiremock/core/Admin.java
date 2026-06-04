@@ -165,6 +165,8 @@ public interface Admin {
 
   SingleMessageChannelResult getMessageChannel(UUID id);
 
+  ListChannelProvidersResult listAllChannelProviders();
+
   void registerChannelProvider(ChannelProvider provider);
 
   void removeChannelProvider(String name);

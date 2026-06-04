@@ -20,7 +20,9 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChannelProviderRegistry {
 
@@ -34,6 +36,10 @@ public class ChannelProviderRegistry {
 
   public void registerDriver(ChannelProviderDriver driver) {
     drivers.put(driver.getType(), driver);
+  }
+
+  public List<ChannelProvider> listAllProviders() {
+    return providerStore.getAll().collect(Collectors.toList());
   }
 
   public void registerProvider(ChannelProvider provider) {

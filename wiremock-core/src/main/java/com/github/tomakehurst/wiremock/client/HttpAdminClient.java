@@ -592,6 +592,13 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllChannelProvidersTask.class),
+        ListChannelProvidersResult.class);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     postJsonAssertOkAndReturnBody(urlFor(RegisterChannelProviderTask.class), Json.write(provider));
   }
