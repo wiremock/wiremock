@@ -14,6 +14,7 @@ dependencies {
   implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.2.2")
   implementation("org.sonarqube:org.sonarqube.gradle.plugin:6.2.0.5505")
   implementation("com.vanniktech.maven.publish.base:com.vanniktech.maven.publish.base.gradle.plugin:0.35.0")
+  implementation("net.ltgt.errorprone:net.ltgt.errorprone.gradle.plugin:5.1.0")
 }
 
 java {

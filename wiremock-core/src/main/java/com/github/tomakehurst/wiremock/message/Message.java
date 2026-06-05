@@ -46,8 +46,7 @@ public class Message {
   }
 
   @JsonIgnore
-  @Nullable
-  public byte[] getBodyAsBytes() {
+  public byte @Nullable [] getBodyAsBytes() {
     if (body == Entity.EMPTY) {
       return null;
     }

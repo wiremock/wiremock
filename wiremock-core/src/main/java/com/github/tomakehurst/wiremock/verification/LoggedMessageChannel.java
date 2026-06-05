@@ -47,11 +47,12 @@ public sealed interface LoggedMessageChannel
           fixedChannel.getProviderName(),
           fixedChannel.getChannelName());
     }
-    LoggedRequest loggedRequest = null;
     if (channel instanceof RequestInitiatedMessageChannel requestChannel) {
-      loggedRequest = LoggedRequest.createFrom(requestChannel.getInitiatingRequest());
+      LoggedRequest loggedRequest = LoggedRequest.createFrom(requestChannel.getInitiatingRequest());
+      return new LoggedRequestInitiatedChannel(
+          channel.getId(), channel.getType(), loggedRequest, channel.isOpen());
     }
-    return new LoggedRequestInitiatedChannel(
-        channel.getId(), channel.getType(), loggedRequest, channel.isOpen());
+    throw new IllegalArgumentException(
+        "Unsupported message channel type: " + channel.getClass().getName());
   }
 }
