@@ -1,7 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - '[0-9]*'
 
 jobs:
   publish-core:
@@ -10,27 +12,29 @@ jobs:
       contents: read
       packages: write
     outputs:
-      version: ${{ steps.get_version.outputs.version }}
+      version: ${{ steps.parse_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+
+      - id: parse_version
+        run: echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
 
-      - name: Get version
-        id: get_version
-        run: echo "version=$(grep '^version=' wiremock-core/src/main/resources/version.properties | cut -d= -f2)" >> $GITHUB_OUTPUT
+      - name: Apply release version
+        run: ./gradlew apply-release-version -PreleaseVersion=${{ steps.parse_version.outputs.version }} --no-configuration-cache --stacktrace
 
       - name: Publish core package
-        id: publish_package
-        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace
-
+        run: ./gradlew publishAndReleaseToMavenCentral -PreleaseVersion=${{ steps.parse_version.outputs.version }} --no-configuration-cache --stacktrace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ vars.MAVEN_CENTRAL_USERNAME }}
