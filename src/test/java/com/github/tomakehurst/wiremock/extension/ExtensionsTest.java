@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
@@ -38,7 +39,10 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -370,15 +374,13 @@ class ExtensionsTest {
     }
 
     @Override
-    public com.github.tomakehurst.wiremock.message.channel.ChannelProvider updateChannelProvider(
-        String currentName,
-        com.github.tomakehurst.wiremock.message.channel.ChannelProvider update) {
+    public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public void registerChannelProvider(
-        com.github.tomakehurst.wiremock.message.channel.ChannelProvider provider) {
+        ChannelProvider provider) {
       throw new UnsupportedOperationException();
     }
 
@@ -442,14 +444,13 @@ class ExtensionsTest {
     }
 
     @Override
-    public java.util.Optional<MessageServeEvent> waitForMessageEvent(
-        MessagePattern pattern, java.time.Duration maxWait) {
+    public Optional<MessageServeEvent> waitForMessageEvent(
+        MessagePattern pattern, Duration maxWait) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<MessageServeEvent> waitForMessageEvents(
-        MessagePattern pattern, int count, java.time.Duration maxWait) {
+    public List<MessageServeEvent> waitForMessageEvents(MessagePattern pattern, int count, Duration maxWait) {
       throw new UnsupportedOperationException();
     }
   }
