@@ -39,7 +39,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -363,8 +362,7 @@ class ExtensionsTest {
     }
 
     @Override
-    public ListChannelProvidersResult
-        listAllChannelProviders() {
+    public ListChannelProvidersResult listAllChannelProviders() {
       throw new UnsupportedOperationException();
     }
 
@@ -379,8 +377,7 @@ class ExtensionsTest {
     }
 
     @Override
-    public void registerChannelProvider(
-        ChannelProvider provider) {
+    public void registerChannelProvider(ChannelProvider provider) {
       throw new UnsupportedOperationException();
     }
 
@@ -450,7 +447,8 @@ class ExtensionsTest {
     }
 
     @Override
-    public List<MessageServeEvent> waitForMessageEvents(MessagePattern pattern, int count, Duration maxWait) {
+    public List<MessageServeEvent> waitForMessageEvents(
+        MessagePattern pattern, int count, Duration maxWait) {
       throw new UnsupportedOperationException();
     }
   }

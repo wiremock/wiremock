@@ -57,7 +57,8 @@ public class ChannelProviderRegistry {
 
     if (!existing.getDriverType().equals(update.getDriverType())) {
       throw new InvalidInputException(
-          Errors.single(10, "driverType", "driverType cannot be changed; use delete and re-register"));
+          Errors.single(
+              10, "driverType", "driverType cannot be changed; use delete and re-register"));
     }
     if (!existing.getSettings().equals(update.getSettings())) {
       throw new InvalidInputException(

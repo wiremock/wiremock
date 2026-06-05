@@ -28,7 +28,8 @@ public class UpdateChannelProviderTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     String currentName = pathParams.get("name");
-    ChannelProvider update = Json.read(serveEvent.getRequest().getBodyAsString(), ChannelProvider.class);
+    ChannelProvider update =
+        Json.read(serveEvent.getRequest().getBodyAsString(), ChannelProvider.class);
     ChannelProvider updated = admin.updateChannelProvider(currentName, update);
     return ResponseDefinition.okForJson(updated);
   }

@@ -108,11 +108,9 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), jsonPartEquals("meta.total", 2));
     assertThat(
-        response.content(),
-        jsonPartEquals("channelProviders[0].name", "\"test-provider-alpha\""));
+        response.content(), jsonPartEquals("channelProviders[0].name", "\"test-provider-alpha\""));
     assertThat(
-        response.content(),
-        jsonPartEquals("channelProviders[1].name", "\"test-provider-beta\""));
+        response.content(), jsonPartEquals("channelProviders[1].name", "\"test-provider-beta\""));
   }
 
   @Test
@@ -335,8 +333,7 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse listResponse = testClient.get("/__admin/channel-providers");
     assertThat(
-        listResponse.content(),
-        jsonPartEquals("channelProviders[0].name", "\"renamed-provider\""));
+        listResponse.content(), jsonPartEquals("channelProviders[0].name", "\"renamed-provider\""));
     assertThat(getChannelProvider(PROVIDER_ALPHA).isPresent(), is(false));
     safeRemoveChannelProvider("renamed-provider");
   }
@@ -407,8 +404,7 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
 
     ChannelProvider updated =
         updateChannelProvider(
-            PROVIDER_ALPHA,
-            channelProvider().named("renamed-provider").withDriver("in-memory"));
+            PROVIDER_ALPHA, channelProvider().named("renamed-provider").withDriver("in-memory"));
 
     assertThat(updated.getName(), is("renamed-provider"));
     assertThat(updated.getDriverType(), is("in-memory"));
@@ -425,8 +421,7 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
         InvalidInputException.class,
         () ->
             updateChannelProvider(
-                PROVIDER_ALPHA,
-                channelProvider().named(PROVIDER_ALPHA).withDriver("kafka")));
+                PROVIDER_ALPHA, channelProvider().named(PROVIDER_ALPHA).withDriver("kafka")));
   }
 
   @Test
