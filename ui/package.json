@@ -1,6 +1,6 @@
 {
   "name": "wiremock-ui-resources",
-  "version": "4.0.0-beta.36",
+  "version": "0.0.0-dev",
   "description": "WireMock UI resources processor",
   "engines": {
     "node": ">= 0.10.0"

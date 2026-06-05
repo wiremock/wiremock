@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "org.wiremock"
-version = "4.0.0-beta.36"
+version = providers.gradleProperty("releaseVersion").getOrElse("0.0.0-dev")
 
 repositories {
   mavenCentral()
