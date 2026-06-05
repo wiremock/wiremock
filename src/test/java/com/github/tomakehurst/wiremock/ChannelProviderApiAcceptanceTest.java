@@ -87,7 +87,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             """
             {
               "channelProviders": [
-                { "name": "test-provider-alpha", "driverType": "in-memory", "settings": {} }
+                {
+                  "name": "test-provider-alpha",
+                  "driverType": "in-memory",
+                  "settings": {}
+                }
               ],
               "meta": { "total": 1 }
             }
@@ -132,7 +136,9 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
                 {
                   "name": "test-provider-alpha",
                   "driverType": "in-memory",
-                  "settings": { "timeout": 5000 }
+                  "settings": {
+                    "timeout": 5000
+                  }
                 }
               ],
               "meta": { "total": 1 }
@@ -157,7 +163,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             """
             {
               "channelProviders": [
-                { "name": "test-provider-beta", "driverType": "in-memory", "settings": {} }
+                {
+                  "name": "test-provider-beta",
+                  "driverType": "in-memory",
+                  "settings": {}
+                }
               ],
               "meta": { "total": 1 }
             }
@@ -212,7 +222,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
         jsonEquals(
             // language=json
             """
-            { "name": "test-provider-alpha", "driverType": "in-memory", "settings": {} }
+            {
+              "name": "test-provider-alpha",
+              "driverType": "in-memory",
+              "settings": {}
+            }
             """));
   }
 
@@ -243,7 +257,10 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             {
               "name": "test-provider-alpha",
               "driverType": "in-memory",
-              "settings": { "timeout": 3000, "retries": 5 }
+              "settings": {
+                "timeout": 3000,
+                "retries": 5
+              }
             }
             """));
   }
@@ -277,7 +294,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             "/__admin/channel-providers/" + PROVIDER_ALPHA,
             // language=json
             """
-            { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+            {
+              "name": "renamed-provider",
+              "driverType": "in-memory",
+              "settings": {}
+            }
             """,
             "application/json");
 
@@ -287,7 +308,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
         jsonEquals(
             // language=json
             """
-            { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+            {
+              "name": "renamed-provider",
+              "driverType": "in-memory",
+              "settings": {}
+            }
             """));
     safeRemoveChannelProvider("renamed-provider");
   }
@@ -300,12 +325,18 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
         "/__admin/channel-providers/" + PROVIDER_ALPHA,
         // language=json
         """
-        { "name": "renamed-provider", "driverType": "in-memory", "settings": {} }
+        {
+          "name": "renamed-provider",
+          "driverType": "in-memory",
+          "settings": {}
+        }
         """,
         "application/json");
 
     WireMockResponse listResponse = testClient.get("/__admin/channel-providers");
-    assertThat(listResponse.content(), jsonPartEquals("channelProviders[0].name", "\"renamed-provider\""));
+    assertThat(
+        listResponse.content(),
+        jsonPartEquals("channelProviders[0].name", "\"renamed-provider\""));
     assertThat(getChannelProvider(PROVIDER_ALPHA).isPresent(), is(false));
     safeRemoveChannelProvider("renamed-provider");
   }
@@ -317,7 +348,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             "/__admin/channel-providers/nonexistent",
             // language=json
             """
-            { "name": "new-name", "driverType": "in-memory", "settings": {} }
+            {
+              "name": "new-name",
+              "driverType": "in-memory",
+              "settings": {}
+            }
             """,
             "application/json");
 
@@ -333,7 +368,11 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             "/__admin/channel-providers/" + PROVIDER_ALPHA,
             // language=json
             """
-            { "name": "test-provider-alpha", "driverType": "kafka", "settings": {} }
+            {
+              "name": "test-provider-alpha",
+              "driverType": "kafka",
+              "settings": {}
+            }
             """,
             "application/json");
 
@@ -349,7 +388,13 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
             "/__admin/channel-providers/" + PROVIDER_ALPHA,
             // language=json
             """
-            { "name": "test-provider-alpha", "driverType": "in-memory", "settings": { "timeout": 1000 } }
+            {
+              "name": "test-provider-alpha",
+              "driverType": "in-memory",
+              "settings": {
+                "timeout": 1000
+              }
+            }
             """,
             "application/json");
 
@@ -393,6 +438,9 @@ class ChannelProviderApiAcceptanceTest extends AcceptanceTestBase {
         () ->
             updateChannelProvider(
                 PROVIDER_ALPHA,
-                channelProvider().named(PROVIDER_ALPHA).withDriver("in-memory").withSetting("k", "v")));
+                channelProvider()
+                    .named(PROVIDER_ALPHA)
+                    .withDriver("in-memory")
+                    .withSetting("k", "v")));
   }
 }
