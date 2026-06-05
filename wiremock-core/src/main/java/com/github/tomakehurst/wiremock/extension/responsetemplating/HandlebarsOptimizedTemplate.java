@@ -78,7 +78,6 @@ public class HandlebarsOptimizedTemplate {
           Writer stringWriter = new StringWriter(template.text().length() * 2);
           template.apply(context, stringWriter);
           return stringWriter.toString();
-        },
-        String.class);
+        });
   }
 }

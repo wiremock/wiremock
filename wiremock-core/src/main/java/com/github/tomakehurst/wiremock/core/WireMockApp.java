@@ -740,6 +740,21 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return new ListChannelProvidersResult(channelProviderRegistry.listAllProviders());
+  }
+
+  @Override
+  public SingleChannelProviderResult getChannelProvider(String name) {
+    return new SingleChannelProviderResult(channelProviderRegistry.getProvider(name).orElse(null));
+  }
+
+  @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    return channelProviderRegistry.renameProvider(currentName, update);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     channelProviderRegistry.registerProvider(provider);
   }

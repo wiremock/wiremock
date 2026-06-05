@@ -393,6 +393,21 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return admin.listAllChannelProviders();
+  }
+
+  @Override
+  public SingleChannelProviderResult getChannelProvider(String name) {
+    return admin.getChannelProvider(name);
+  }
+
+  @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    return admin.updateChannelProvider(currentName, update);
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     admin.registerChannelProvider(provider);
   }

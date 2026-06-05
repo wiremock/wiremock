@@ -58,8 +58,7 @@ public class TestFiles {
   }
 
   public static byte[] fileBytes(String path) {
-    return Exceptions.uncheck(
-        () -> Files.readAllBytes(getResourcePath(TestFiles.class, path)), byte[].class);
+    return Exceptions.uncheck(() -> Files.readAllBytes(getResourcePath(TestFiles.class, path)));
   }
 
   public static String filePath(String path) {

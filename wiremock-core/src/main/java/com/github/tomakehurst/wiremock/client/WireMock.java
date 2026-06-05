@@ -24,10 +24,12 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.isOneOf;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
+import com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -1212,6 +1214,31 @@ public class WireMock {
 
   public static ChannelProvider.Builder channelProvider() {
     return new ChannelProvider.Builder();
+  }
+
+  public static ListChannelProvidersResult listAllChannelProviders() {
+    return defaultInstance.get().allChannelProviders();
+  }
+
+  public ListChannelProvidersResult allChannelProviders() {
+    return admin.listAllChannelProviders();
+  }
+
+  public static SingleChannelProviderResult getChannelProvider(String name) {
+    return defaultInstance.get().channelProviderByName(name);
+  }
+
+  public SingleChannelProviderResult channelProviderByName(String name) {
+    return admin.getChannelProvider(name);
+  }
+
+  public static ChannelProvider updateChannelProvider(
+      String currentName, ChannelProvider.Builder update) {
+    return defaultInstance.get().updateAChannelProvider(currentName, update.build());
+  }
+
+  public ChannelProvider updateAChannelProvider(String currentName, ChannelProvider update) {
+    return admin.updateChannelProvider(currentName, update);
   }
 
   public static void registerChannelProvider(ChannelProvider.Builder builder) {

@@ -592,6 +592,34 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetAllChannelProvidersTask.class),
+        ListChannelProvidersResult.class);
+  }
+
+  @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    String body =
+        putJsonAssertOkAndReturnBody(
+            urlFor(UpdateChannelProviderTask.class, PathParams.single("name", currentName)),
+            Json.write(update));
+    return Json.read(body, ChannelProvider.class);
+  }
+
+  @Override
+  public SingleChannelProviderResult getChannelProvider(String name) {
+    try {
+      return executeRequest(
+          adminRoutes.requestSpecForTask(GetChannelProviderTask.class),
+          PathParams.single("name", name),
+          SingleChannelProviderResult.class);
+    } catch (ClientError e) {
+      return new SingleChannelProviderResult(null);
+    }
+  }
+
+  @Override
   public void registerChannelProvider(ChannelProvider provider) {
     postJsonAssertOkAndReturnBody(urlFor(RegisterChannelProviderTask.class), Json.write(provider));
   }

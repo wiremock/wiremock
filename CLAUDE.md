@@ -17,4 +17,3 @@ The following packages contain messaging/websocket functionality:
 3. **Always import** - Do not use fully-qualified class names. Always use `import` statements.
 4. **Use JsonUnit for JSON assertions** - Use `net.javacrumbs.jsonunit.JsonMatchers` (e.g. `jsonEquals`, `jsonPartEquals`) rather than `JSONAssert` for JSON assertions in tests.
 5. **Use multi-line Strings for JSON assertions** - For expected JSON values in tests always use a pretty-printed multi-line string with a `// language=json`
-

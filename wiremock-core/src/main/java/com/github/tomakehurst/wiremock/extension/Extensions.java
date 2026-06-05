@@ -299,7 +299,6 @@ public class Extensions implements WireMockServices {
 
   private static ExtensionFactory instantiateExtensionFactory(
       Class<? extends ExtensionFactory> factoryClass) {
-    return Exceptions.uncheck(
-        () -> factoryClass.getDeclaredConstructor().newInstance(), ExtensionFactory.class);
+    return Exceptions.uncheck(() -> factoryClass.getDeclaredConstructor().newInstance());
   }
 }

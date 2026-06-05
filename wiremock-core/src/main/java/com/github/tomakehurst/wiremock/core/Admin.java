@@ -165,6 +165,12 @@ public interface Admin {
 
   SingleMessageChannelResult getMessageChannel(UUID id);
 
+  ListChannelProvidersResult listAllChannelProviders();
+
+  SingleChannelProviderResult getChannelProvider(String name);
+
+  ChannelProvider updateChannelProvider(String currentName, ChannelProvider update);
+
   void registerChannelProvider(ChannelProvider provider);
 
   void removeChannelProvider(String name);
