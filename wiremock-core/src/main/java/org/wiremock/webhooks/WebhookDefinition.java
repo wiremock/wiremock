@@ -16,7 +16,6 @@
 package org.wiremock.webhooks;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.Format;
@@ -34,10 +32,8 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.wiremock.annotations.PublishedAPI;
 
@@ -55,38 +51,6 @@ public class WebhookDefinition {
 
   public static WebhookDefinition from(Parameters parameters) {
     return Json.mapToObject(parameters, WebhookDefinition.class).withExtraParameters(parameters);
-  }
-
-  private static HttpHeaders toHttpHeaders(Metadata headerMap) {
-    if (headerMap == null || headerMap.isEmpty()) {
-      return null;
-    }
-
-    return new HttpHeaders(
-        headerMap.entrySet().stream()
-            .map(entry -> new HttpHeader(entry.getKey(), getHeaderValues(entry.getValue())))
-            .collect(Collectors.toList()));
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Collection<String> getHeaderValues(Object obj) {
-    if (obj == null) {
-      return null;
-    }
-
-    if (obj instanceof List) {
-      return ((List<String>) obj);
-    }
-
-    return singletonList(obj.toString());
-  }
-
-  private static DelayDistribution getDelayDistribution(Metadata delayParams) {
-    if (delayParams == null) {
-      return null;
-    }
-
-    return delayParams.as(DelayDistribution.class);
   }
 
   @JsonCreator
@@ -183,6 +147,7 @@ public class WebhookDefinition {
     return parameters;
   }
 
+  @SuppressWarnings("unused")
   @JsonIgnore
   public byte[] getBinaryBody() {
     return body.getDataAsBytes();
@@ -232,6 +197,7 @@ public class WebhookDefinition {
     return this;
   }
 
+  @SuppressWarnings("unused")
   public WebhookDefinition withBinaryBody(byte[] body) {
     this.body = EntityDefinition.builder().setFormat(Format.BINARY).setData(body).build();
     return this;
@@ -242,6 +208,7 @@ public class WebhookDefinition {
     return this;
   }
 
+  @SuppressWarnings("unused")
   public WebhookDefinition withBodyEntity(EntityDefinition body) {
     this.body = body;
     return this;
@@ -282,7 +249,7 @@ public class WebhookDefinition {
     return body != null && !body.isAbsent();
   }
 
-  @SuppressWarnings("EqualsDoesntCheckParameterClass")
+  @SuppressWarnings({"EqualsDoesntCheckParameterClass", "unused"})
   public static class EmptyEntityDefinitionFilter {
     @Override
     public boolean equals(Object obj) {

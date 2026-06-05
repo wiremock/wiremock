@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
@@ -28,7 +29,6 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -134,8 +134,7 @@ public class StubResponseRenderer implements ResponseRenderer {
       if (stubMapping.getName() != null) {
         // ensure stub name is compliant with http spec header values
         // https://www.rfc-editor.org/rfc/rfc9110.html#name-field-values.
-        String sanitisedStubName =
-            new String(stubMapping.getName().getBytes(StandardCharsets.US_ASCII));
+        String sanitisedStubName = new String(stubMapping.getName().getBytes(US_ASCII), US_ASCII);
         headers = headers.plus(new HttpHeader("Matched-Stub-Name", sanitisedStubName));
       }
     }

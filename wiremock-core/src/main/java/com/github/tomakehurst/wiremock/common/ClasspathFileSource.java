@@ -187,7 +187,7 @@ public class ClasspathFileSource implements FileSource {
   @Override
   public boolean exists() {
     // It'll only be non-file system if finding the classpath resource succeeded in the constructor
-    return (isFileSystem() && rootDirectory.exists()) || (!isFileSystem());
+    return !isFileSystem() || rootDirectory.exists();
   }
 
   @Override

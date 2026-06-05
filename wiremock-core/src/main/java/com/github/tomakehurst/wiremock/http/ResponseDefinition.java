@@ -322,7 +322,7 @@ public class ResponseDefinition {
 
   @JsonIgnore
   public String getTextBody() {
-    if (body.getFormat() != Format.BINARY) {
+    if (!Objects.equals(body.getFormat(), Format.BINARY)) {
       return body.getDataAsString();
     }
 
@@ -364,7 +364,7 @@ public class ResponseDefinition {
 
   @SuppressWarnings("unused")
   public Boolean isFromConfiguredStub() {
-    return wasConfigured == null || wasConfigured ? null : false;
+    return ((wasConfigured == null) || wasConfigured) ? null : false;
   }
 
   public Integer getFixedDelayMilliseconds() {
@@ -389,12 +389,12 @@ public class ResponseDefinition {
 
   @JsonIgnore
   public boolean specifiesTextBodyContent() {
-    return body.getFormat() != Format.BINARY;
+    return !Objects.equals(body.getFormat(), Format.BINARY);
   }
 
   @JsonIgnore
   public boolean specifiesBinaryBodyContent() {
-    return body.getFormat() == Format.BINARY;
+    return Objects.equals(body.getFormat(), Format.BINARY);
   }
 
   @JsonIgnore
@@ -620,10 +620,10 @@ public class ResponseDefinition {
       return this;
     }
 
-    @Deprecated
     /**
      * @deprecated use {@link #setBody(EntityDefinition)}
      */
+    @Deprecated
     public Builder setBody(Body body) {
       this.body =
           this.body.transform(

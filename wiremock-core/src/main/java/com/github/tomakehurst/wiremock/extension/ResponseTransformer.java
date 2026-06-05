@@ -20,11 +20,11 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import org.wiremock.annotations.PublishedAPI;
 
-@PublishedAPI
-@Deprecated
 /**
  * @deprecated Use {@link ResponseTransformerV2} instead
  */
+@PublishedAPI
+@Deprecated
 public abstract class ResponseTransformer extends AbstractTransformer<Response> {
 
   @Override

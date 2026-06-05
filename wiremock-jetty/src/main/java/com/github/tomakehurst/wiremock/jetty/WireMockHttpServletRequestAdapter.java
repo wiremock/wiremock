@@ -130,7 +130,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public RequestMethod getMethod() {
-    return RequestMethod.fromString(request.getMethod().toUpperCase());
+    return RequestMethod.fromString(request.getMethod().toUpperCase(Locale.ROOT));
   }
 
   @Override
@@ -223,8 +223,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private HttpHeaders adaptHeaders() {
-    if (request instanceof org.eclipse.jetty.server.Request) {
-      return getHeadersLinear((org.eclipse.jetty.server.Request) request);
+    if (request instanceof org.eclipse.jetty.server.Request jettyRequest) {
+      return getHeadersLinear(jettyRequest);
     } else {
       return getHeadersQuadratic();
     }
@@ -309,7 +309,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     Collection<Part> multiParts = PartParser.parseFrom(this);
 
-    return (multiParts.isEmpty()) ? null : multiParts;
+    return multiParts.isEmpty() ? null : multiParts;
   }
 
   @Override

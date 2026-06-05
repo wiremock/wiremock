@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
   @Override
   public Object apply(final Object input, final Options options) throws IOException {
-    if (input == null || (input instanceof String && ((String) input).isEmpty())) {
+    if (input == null || (input instanceof String string && string.isEmpty())) {
       return "";
     }
 
@@ -82,7 +82,7 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
     DocumentContext document = requestCache.get(cacheKey);
     if (document == null) {
       document =
-          json instanceof String ? parseContext.parse((String) json) : parseContext.parse(json);
+          json instanceof String string ? parseContext.parse(string) : parseContext.parse(json);
       requestCache.put(cacheKey, document);
     }
 

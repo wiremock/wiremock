@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+import java.util.Locale;
 import java.util.function.Function;
 
 public enum DateTimeTruncation {
@@ -58,8 +59,7 @@ public enum DateTimeTruncation {
   }
 
   private static ZoneId getTimezone(Date date) {
-    if (date instanceof RenderableDate) {
-      RenderableDate renderableDate = (RenderableDate) date;
+    if (date instanceof RenderableDate renderableDate) {
       if (renderableDate.getTimezone() != null) {
         return renderableDate.getTimezone();
       }
@@ -72,11 +72,11 @@ public enum DateTimeTruncation {
 
   @Override
   public String toString() {
-    return name().replace('_', ' ').toLowerCase();
+    return name().replace('_', ' ').toLowerCase(Locale.ROOT);
   }
 
   public static DateTimeTruncation fromString(String value) {
-    final String normalisedKey = value.toUpperCase().replace(' ', '_');
+    final String normalisedKey = value.toUpperCase(Locale.ROOT).replace(' ', '_');
     return valueOf(normalisedKey);
   }
 }

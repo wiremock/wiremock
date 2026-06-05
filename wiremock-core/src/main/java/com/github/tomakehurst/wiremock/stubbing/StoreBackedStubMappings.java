@@ -88,11 +88,12 @@ public class StoreBackedStubMappings implements StubMappings {
   }
 
   @Override
+  @SuppressWarnings("BadImport")
   public ServeEvent serveFor(ServeEvent initialServeEvent) {
     initialServeEvent = initialServeEvent.withIdDecoratedRequest();
     final LoggedRequest request = initialServeEvent.getRequest();
 
-    final List<SubEvent> subEvents = new LinkedList<>();
+    final List<SubEvent> subEvents = new ArrayList<>();
 
     StubMapping matchingStub =
         store
@@ -315,6 +316,7 @@ public class StoreBackedStubMappings implements StubMappings {
     return updateMappings(toInsert, List.of(), this::save);
   }
 
+  @Override
   public List<StubMapping> setAllMappings(List<StubMapping> stubMappings) {
     Set<UUID> ids = stubMappings.stream().map(StubMapping::getId).collect(Collectors.toSet());
     List<StubMapping> toRemove =

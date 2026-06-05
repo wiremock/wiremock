@@ -161,7 +161,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     private final HttpServletRequest httpServletRequest;
     private final HttpServletResponse httpServletResponse;
 
-    public ServletHttpResponder(
+    private ServletHttpResponder(
         HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
       this.httpServletRequest = httpServletRequest;
       this.httpServletResponse = httpServletResponse;
@@ -206,6 +206,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       return response.getInitialDelay() > 0 || response.shouldAddChunkedDribbleDelay();
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void respondAsync(final Request request, final Response response) {
       final AsyncContext asyncContext = httpServletRequest.startAsync();
       scheduledExecutorService.schedule(

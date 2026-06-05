@@ -25,6 +25,7 @@ public interface WebhookTransformer extends Extension {
   WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition);
 
   // Defaulting this for backwards compatibility
+  @Override
   default String getName() {
     return "webhook-transformer-" + this.getClass().getSimpleName();
   }

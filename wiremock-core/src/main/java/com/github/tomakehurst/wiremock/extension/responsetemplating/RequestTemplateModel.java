@@ -52,10 +52,10 @@ public class RequestTemplateModel {
     return id;
   }
 
-  @Deprecated
   /**
    * @deprecated Use the direct accessors
    */
+  @Deprecated
   public RequestLine getRequestLine() {
     return requestLine;
   }

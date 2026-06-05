@@ -170,7 +170,7 @@ public class JsonFileMappingsSource implements MappingsSource {
     final String path;
     final boolean multi;
 
-    public StubMappingFileMetadata(String path, boolean multi) {
+    private StubMappingFileMetadata(String path, boolean multi) {
       this.path = path;
       this.multi = multi;
     }

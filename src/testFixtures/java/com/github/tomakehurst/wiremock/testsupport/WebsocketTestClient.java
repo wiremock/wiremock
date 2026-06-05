@@ -28,7 +28,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -184,8 +184,8 @@ public class WebsocketTestClient {
 
   public static class NotificationCapturingEndpoint extends Endpoint {
 
-    public final List<String> messages = new LinkedList<>();
-    public final List<byte[]> binaryMessages = new LinkedList<>();
+    public final List<String> messages = new ArrayList<>();
+    public final List<byte[]> binaryMessages = new ArrayList<>();
 
     @Override
     public void onOpen(Session session, EndpointConfig config) {

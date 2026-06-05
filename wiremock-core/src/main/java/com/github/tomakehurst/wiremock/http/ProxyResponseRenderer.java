@@ -196,7 +196,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   }
 
   private HttpHeaders headersFrom(Response response, ResponseDefinition responseDefinition) {
-    List<HttpHeader> httpHeaders = new LinkedList<>();
+    List<HttpHeader> httpHeaders = new ArrayList<>();
     for (HttpHeader header : response.getHeaders().all()) {
       if (responseHeaderShouldBeTransferred(header.getKey())) {
         httpHeaders.add(header);
@@ -215,20 +215,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     List<String> removeProxyRequestHeaders =
         response.getRemoveProxyRequestHeaders().stream().map(String::toLowerCase).toList();
     for (String key : originalRequest.getAllHeaderKeys()) {
-      String lowerCaseKey = key.toLowerCase();
+      String lowerCaseKey = key.toLowerCase(Locale.ROOT);
       if (removeProxyRequestHeaders.contains(lowerCaseKey)) {
         continue;
       }
       switch (lowerCaseKey) {
-        case HttpClient.HOST_HEADER:
-          addHostHeader(requestBuilder, response, key, originalRequest);
-          break;
-        case HttpClient.ACCEPT_ENCODING_HEADER:
-          addAcceptEncodingHeader(requestBuilder, key, originalRequest);
-          break;
-        default:
-          copyHeader(requestBuilder, key, originalRequest);
-          break;
+        case HttpClient.HOST_HEADER -> addHostHeader(
+            requestBuilder, response, key, originalRequest);
+        case HttpClient.ACCEPT_ENCODING_HEADER -> addAcceptEncodingHeader(
+            requestBuilder, key, originalRequest);
+        default -> copyHeader(requestBuilder, key, originalRequest);
       }
     }
 
@@ -279,7 +275,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   }
 
   public boolean responseHeaderShouldBeTransferred(String key) {
-    final String lowerCaseKey = key.toLowerCase();
+    final String lowerCaseKey = key.toLowerCase(Locale.ROOT);
     return !HttpClient.FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey)
         && (!stubCorsEnabled || !lowerCaseKey.startsWith("access-control"));
   }

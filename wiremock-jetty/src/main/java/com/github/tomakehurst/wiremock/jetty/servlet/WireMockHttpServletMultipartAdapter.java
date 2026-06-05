@@ -73,10 +73,11 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
     try {
       byte[] bytes = mPart.getInputStream().readAllBytes();
       HttpHeader header = getHeader(ContentTypeHeader.KEY);
-      ContentTypeHeader contentTypeHeader =
-          header.isPresent()
-              ? new ContentTypeHeader(header.firstValue())
-              : ContentTypeHeader.absent();
+      if (header.isPresent()) {
+        new ContentTypeHeader(header.firstValue());
+      } else {
+        ContentTypeHeader.absent();
+      }
       return Entity.of(bytes, headers);
     } catch (IOException e) {
       return throwUnchecked(e, Entity.class);

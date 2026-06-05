@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import java.util.Locale;
 
 public class Format {
 
@@ -41,7 +42,7 @@ public class Format {
     if (value == null) {
       return null;
     }
-    return switch (value.toLowerCase()) {
+    return switch (value.toLowerCase(Locale.ROOT)) {
       case "json" -> JSON;
       case "html" -> HTML;
       case "text" -> TEXT;
@@ -82,7 +83,7 @@ public class Format {
 
   private static boolean isWellKnownType(String value) {
     if (value == null) return false;
-    return switch (value.toLowerCase()) {
+    return switch (value.toLowerCase(Locale.ROOT)) {
       case "json", "html", "text", "xml", "yaml", "csv", "binary" -> true;
       default -> false;
     };

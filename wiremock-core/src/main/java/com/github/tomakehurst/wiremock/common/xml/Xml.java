@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,10 +92,10 @@ public class Xml {
       // Optimization to get likely transformerFactory directly, rather than going through
       // FactoryFinder#find
       transformerFactory =
-          (TransformerFactory)
-              Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
-                  .getDeclaredConstructor()
-                  .newInstance();
+          Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+              .asSubclass(TransformerFactory.class)
+              .getDeclaredConstructor()
+              .newInstance();
     } catch (Exception e) {
       transformerFactory = TransformerFactory.newDefaultInstance();
     }

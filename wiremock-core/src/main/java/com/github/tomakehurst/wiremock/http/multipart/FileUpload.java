@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock.http.multipart;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -172,11 +172,7 @@ class FileUpload {
       return null;
     }
     byte[] boundary;
-    try {
-      boundary = boundaryStr.getBytes("ISO-8859-1");
-    } catch (UnsupportedEncodingException e) {
-      boundary = boundaryStr.getBytes(); // Intentionally falls back to default charset
-    }
+    boundary = boundaryStr.getBytes(ISO_8859_1);
     return boundary;
   }
 
@@ -493,7 +489,7 @@ class FileUpload {
         if (opened) {
           throw new IllegalStateException("The stream was already opened.");
         }
-        if (stream instanceof Closeable && ((Closeable) stream).isClosed()) {
+        if (stream instanceof Closeable closeable && closeable.isClosed()) {
           throw new FileItemStream.ItemSkippedException();
         }
         return stream;
@@ -567,7 +563,7 @@ class FileUpload {
 
       String contentType = ctx.getContentType();
       if ((null == contentType)
-          || (!contentType.toLowerCase(Locale.ENGLISH).startsWith(FileUploadBase.MULTIPART))) {
+          || !contentType.toLowerCase(Locale.ENGLISH).startsWith(FileUploadBase.MULTIPART)) {
         throw new InvalidContentTypeException(
             format(
                 "the request neither contain a %s nor a %s nor a %s stream, content type header is %s",

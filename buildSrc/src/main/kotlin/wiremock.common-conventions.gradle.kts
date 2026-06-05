@@ -1,4 +1,5 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
+import net.ltgt.gradle.errorprone.ErrorProneOptions
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
@@ -25,16 +26,16 @@ repositories {
 }
 
 dependencies {
-  annotationProcessor("com.uber.nullaway:nullaway:0.13.5")
+  val nullawayDep = "com.uber.nullaway:nullaway:0.13.5"
+  annotationProcessor(nullawayDep)
+  testFixturesAnnotationProcessor(nullawayDep)
+  testAnnotationProcessor(nullawayDep)
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 }
 
 tasks.compileJava {
   options.errorprone {
-    check("NullAway", CheckSeverity.ERROR)
-    check("NullableOptional", CheckSeverity.OFF)
-    check("ClassInitializationDeadlock", CheckSeverity.OFF)
-    option("NullAway:AnnotatedPackages", "org.wiremock.url")
+    defaultErrorProneConfig()
   }
 }
 
@@ -42,6 +43,29 @@ tasks.compileTestJava {
   options.errorprone {
     disableAllChecks = true
   }
+}
+
+tasks.compileTestFixturesJava {
+  options.errorprone {
+    defaultErrorProneConfig()
+    check("MutablePublicArray", CheckSeverity.OFF)
+    check("JavaUtilDate", CheckSeverity.OFF)
+  }
+}
+
+private fun ErrorProneOptions.defaultErrorProneConfig() {
+  check("NullAway", CheckSeverity.ERROR)
+  check("NullableOptional", CheckSeverity.OFF)
+  check("UndefinedEquals", CheckSeverity.OFF)
+  check("EqualsGetClass", CheckSeverity.OFF)
+  check("StringSplitter", CheckSeverity.OFF)
+  check("InlineFormatString", CheckSeverity.OFF)
+  check("ClassInitializationDeadlock", CheckSeverity.OFF)
+  check("InlineMeSuggester", CheckSeverity.OFF)
+  check("ImmutableEnumChecker", CheckSeverity.OFF)
+  check("MissingSummary", CheckSeverity.OFF)
+  check("MixedMutabilityReturnType", CheckSeverity.OFF)
+  option("NullAway:AnnotatedPackages", "org.wiremock.url")
 }
 
 java {

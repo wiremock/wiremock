@@ -925,7 +925,7 @@ public class CommandLineOptions implements Options {
   public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
     return optionSet.has(USE_CHUNKED_ENCODING)
         ? ChunkedEncodingPolicy.valueOf(
-            optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase())
+            optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase(Locale.ROOT))
         : ChunkedEncodingPolicy.ALWAYS;
   }
 
@@ -972,7 +972,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    DefaultNetworkAddressRules.Builder builder = NetworkAddressRules.builder();
+    NetworkAddressRules.Builder builder = NetworkAddressRules.builder();
     if (optionSet.has(ALLOW_PROXY_TARGETS)) {
       Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
           .forEach(builder::allow);

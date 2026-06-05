@@ -585,6 +585,7 @@ public class WireMockApp implements StubServer, Admin {
     container.shutdown();
   }
 
+  @Override
   public SnapshotRecordResult snapshotRecord() {
     return snapshotRecord(RecordSpec.DEFAULTS);
   }
@@ -594,6 +595,7 @@ public class WireMockApp implements StubServer, Admin {
     return snapshotRecord(spec.build());
   }
 
+  @Override
   public SnapshotRecordResult snapshotRecord(RecordSpec recordSpec) {
     return recorder.takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
   }

@@ -77,7 +77,7 @@ public class MessageStubRequestHandler {
         MessageActionContext.forIncomingMessage(stub, originatingChannel, incomingMessage);
     for (MessageAction action : stub.getActions()) {
       MessageAction transformedAction = applyTransformations(action, context);
-      executeAction(transformedAction, originatingChannel, incomingMessage);
+      executeAction(transformedAction, originatingChannel);
     }
   }
 
@@ -91,8 +91,7 @@ public class MessageStubRequestHandler {
     return result;
   }
 
-  private void executeAction(
-      MessageAction action, MessageChannel originatingChannel, Message incomingMessage) {
+  private void executeAction(MessageAction action, MessageChannel originatingChannel) {
     if (action instanceof SendMessageAction sendAction) {
       executeSendMessageAction(sendAction, originatingChannel);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 
+@SuppressWarnings("JavaUtilDate")
 public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
 
   @Override
@@ -32,9 +33,8 @@ public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
     ZoneId zoneId;
     Date date;
 
-    if (context instanceof RenderableDate) {
+    if (context instanceof RenderableDate renderableDate) {
       date = context;
-      RenderableDate renderableDate = (RenderableDate) context;
       zoneId = renderableDate.getTimezone();
     } else {
       date = context != null ? context : new Date();

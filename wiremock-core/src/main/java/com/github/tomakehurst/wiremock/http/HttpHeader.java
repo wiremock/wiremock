@@ -21,6 +21,7 @@ import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
@@ -77,7 +78,7 @@ public class HttpHeader extends MultiValue {
 
   @Override
   public int hashCode() {
-    int result = key != null ? key.toLowerCase().hashCode() : 0;
+    int result = key != null ? key.toLowerCase(Locale.ROOT).hashCode() : 0;
     result = 31 * result + (values != null ? values.hashCode() : 0);
     return result;
   }

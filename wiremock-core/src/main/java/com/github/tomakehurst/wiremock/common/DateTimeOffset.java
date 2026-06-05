@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.DateTimeUnit.SECONDS;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateTimeOffset {
 
@@ -44,10 +45,10 @@ public class DateTimeOffset {
 
     if (parts.length == 2) {
       amount = Integer.parseInt(parts[0]);
-      amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase());
+      amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase(Locale.ROOT));
     } else {
       amount = Integer.parseInt(parts[1]);
-      amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase());
+      amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase(Locale.ROOT));
     }
 
     return new DateTimeOffset(amount, amountUnit);
@@ -86,6 +87,6 @@ public class DateTimeOffset {
 
   @Override
   public String toString() {
-    return amount + " " + amountUnit.name().toLowerCase();
+    return amount + " " + amountUnit.name().toLowerCase(Locale.ROOT);
   }
 }

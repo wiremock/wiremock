@@ -77,7 +77,7 @@ public class StreamSources {
   private static class GzipCompressingInputStreamSource implements InputStreamSource {
     private final InputStreamSource source;
 
-    public GzipCompressingInputStreamSource(InputStreamSource source) {
+    private GzipCompressingInputStreamSource(InputStreamSource source) {
       this.source = source;
     }
 
@@ -98,7 +98,7 @@ public class StreamSources {
   private static class GzipDecompressingInputStreamSource implements InputStreamSource {
     private final InputStreamSource source;
 
-    public GzipDecompressingInputStreamSource(InputStreamSource source) {
+    private GzipDecompressingInputStreamSource(InputStreamSource source) {
       this.source = source;
     }
 

@@ -123,7 +123,7 @@ public class HttpHeaders {
 
     HttpHeaders that = (HttpHeaders) o;
 
-    return headers != null ? headers.equals(that.headers) : that.headers == null;
+    return Objects.equals(headers, that.headers);
   }
 
   @Override

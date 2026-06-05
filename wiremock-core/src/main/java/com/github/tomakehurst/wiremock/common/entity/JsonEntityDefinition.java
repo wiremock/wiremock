@@ -34,7 +34,7 @@ public class JsonEntityDefinition extends EntityDefinition {
 
   public JsonEntityDefinition(@NonNull Object data) {
     super(NONE, Format.JSON, UTF_8);
-    this.data = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
+    this.data = data instanceof JsonNode jsonNode ? jsonNode : Json.node(data);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,8 @@ public class FilterProcessor {
 
     RequestFilterAction action = requestFilters.get(0).filter(request);
 
-    if (action instanceof ContinueAction) {
-      Request newRequest = ((ContinueAction) action).getRequest();
+    if (action instanceof ContinueAction continueAction) {
+      Request newRequest = continueAction.getRequest();
       return processV1Filters(newRequest, requestFilters.subList(1, requestFilters.size()), action);
     }
 
@@ -72,8 +72,8 @@ public class FilterProcessor {
 
     RequestFilterAction action = v2RequestFilters.get(0).filter(request, serveEvent);
 
-    if (action instanceof ContinueAction) {
-      Request newRequest = ((ContinueAction) action).getRequest();
+    if (action instanceof ContinueAction continueAction) {
+      Request newRequest = continueAction.getRequest();
       return processV2Filters(
           newRequest, serveEvent, v2RequestFilters.subList(1, v2RequestFilters.size()), action);
     }

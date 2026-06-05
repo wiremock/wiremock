@@ -23,7 +23,7 @@ public class Encoding {
 
   private Encoding() {}
 
-  private static Base64Encoder encoder = null;
+  private static volatile Base64Encoder encoder = null;
 
   private static Base64Encoder getInstance() {
     if (encoder == null) {

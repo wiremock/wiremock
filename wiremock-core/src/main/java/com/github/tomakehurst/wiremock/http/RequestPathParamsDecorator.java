@@ -64,6 +64,7 @@ public class RequestPathParamsDecorator implements Request {
     return request.getAbsoluteUrl();
   }
 
+  @Override
   public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
     return request.getTypedAbsoluteUrl();
   }

@@ -42,7 +42,7 @@ import org.wiremock.annotations.PublishedAPI;
   "$schema", "uuid"
 }) // $schema allows this to be added as a hint to IDEs like VS Code
 @JsonInclude(Include.NON_NULL)
-@JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
+@JsonDeserialize // stops infinite recursion when deserializing as StubMappingOrMappings
 public final class StubMapping implements StubMappingOrMappings, Prioritisable {
 
   public static final StubMapping NOT_CONFIGURED =
@@ -114,6 +114,7 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
     return new Builder(this);
   }
 
+  @Override
   public UUID getId() {
     return id;
   }
@@ -134,6 +135,7 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
     return response;
   }
 
+  @Override
   public Integer getPriority() {
     return priority;
   }
@@ -168,11 +170,12 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
     return metadata;
   }
 
+  @Override
   public long getInsertionIndex() {
     return insertionIndex;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   @Override
   public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
     return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));

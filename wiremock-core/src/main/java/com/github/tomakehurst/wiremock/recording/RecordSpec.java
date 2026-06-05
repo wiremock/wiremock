@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import org.wiremock.annotations.PublishedAPI;
 
-@PublishedAPI
 /** Encapsulates options for generating and outputting StubMappings */
+@PublishedAPI
 public class RecordSpec {
 
   // Target URL when using the recording API. Not applicable to snapshotting

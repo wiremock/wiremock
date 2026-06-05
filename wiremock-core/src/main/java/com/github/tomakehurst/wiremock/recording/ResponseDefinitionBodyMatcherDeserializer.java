@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,11 +58,13 @@ public class ResponseDefinitionBodyMatcherDeserializer
 
     int scale = 1;
     if (m.group(2) != null) {
-      switch (m.group(2).toUpperCase()) {
+      switch (m.group(2).toUpperCase(Locale.ROOT)) {
         case "G":
           scale *= 1024;
+          // fall through
         case "M":
           scale *= 1024;
+          // fall through
         case "K":
           scale *= 1024;
           break;

@@ -169,7 +169,8 @@ public class Strings {
     final int zeroDigitAscii = 48;
     final int firstLetterAscii = 65;
 
-    if (chars == null && (numbers && end <= zeroDigitAscii || letters && end <= firstLetterAscii)) {
+    if (chars == null
+        && ((numbers && end <= zeroDigitAscii) || (letters && end <= firstLetterAscii))) {
       throw new IllegalArgumentException(
           "Parameter end ("
               + end
@@ -190,11 +191,10 @@ public class Strings {
         codePoint = random.nextInt(gap) + start;
 
         switch (Character.getType(codePoint)) {
-          case Character.UNASSIGNED:
-          case Character.PRIVATE_USE:
-          case Character.SURROGATE:
+          case Character.UNASSIGNED, Character.PRIVATE_USE, Character.SURROGATE -> {
             count++;
             continue;
+          }
         }
 
       } else {
@@ -207,9 +207,9 @@ public class Strings {
         continue;
       }
 
-      if (letters && Character.isLetter(codePoint)
-          || numbers && Character.isDigit(codePoint)
-          || !letters && !numbers) {
+      if ((letters && Character.isLetter(codePoint))
+          || (numbers && Character.isDigit(codePoint))
+          || (!letters && !numbers)) {
         builder.appendCodePoint(codePoint);
 
         if (numberOfChars == 2) {
@@ -567,14 +567,14 @@ public class Strings {
 
   private static int indexOf(
       final CharSequence cs, final CharSequence searchChar, final int start) {
-    if (cs instanceof String) {
-      return ((String) cs).indexOf(searchChar.toString(), start);
+    if (cs instanceof String string) {
+      return string.indexOf(searchChar.toString(), start);
     }
-    if (cs instanceof StringBuilder) {
-      return ((StringBuilder) cs).indexOf(searchChar.toString(), start);
+    if (cs instanceof StringBuilder builder) {
+      return builder.indexOf(searchChar.toString(), start);
     }
-    if (cs instanceof StringBuffer) {
-      return ((StringBuffer) cs).indexOf(searchChar.toString(), start);
+    if (cs instanceof StringBuffer buffer) {
+      return buffer.indexOf(searchChar.toString(), start);
     }
     return cs.toString().indexOf(searchChar.toString(), start);
   }
@@ -583,15 +583,15 @@ public class Strings {
     if (searchChar == null || cs == null) {
       return -1;
     }
-    if (searchChar instanceof String) {
-      if (cs instanceof String) {
-        return ((String) cs).lastIndexOf((String) searchChar, start);
+    if (searchChar instanceof String string) {
+      if (cs instanceof String s) {
+        return s.lastIndexOf(string, start);
       }
-      if (cs instanceof StringBuilder) {
-        return ((StringBuilder) cs).lastIndexOf((String) searchChar, start);
+      if (cs instanceof StringBuilder builder) {
+        return builder.lastIndexOf(string, start);
       }
-      if (cs instanceof StringBuffer) {
-        return ((StringBuffer) cs).lastIndexOf((String) searchChar, start);
+      if (cs instanceof StringBuffer buffer) {
+        return buffer.lastIndexOf(string, start);
       }
     }
 
@@ -611,14 +611,14 @@ public class Strings {
     }
 
     if (len2 <= 16) {
-      if (cs instanceof String) {
-        return ((String) cs).lastIndexOf(searchChar.toString(), start);
+      if (cs instanceof String string) {
+        return string.lastIndexOf(searchChar.toString(), start);
       }
-      if (cs instanceof StringBuilder) {
-        return ((StringBuilder) cs).lastIndexOf(searchChar.toString(), start);
+      if (cs instanceof StringBuilder builder) {
+        return builder.lastIndexOf(searchChar.toString(), start);
       }
-      if (cs instanceof StringBuffer) {
-        return ((StringBuffer) cs).lastIndexOf(searchChar.toString(), start);
+      if (cs instanceof StringBuffer buffer) {
+        return buffer.lastIndexOf(searchChar.toString(), start);
       }
     }
 

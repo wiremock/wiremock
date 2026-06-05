@@ -46,6 +46,7 @@ import org.wiremock.url.Url;
  * decide to extend this to a generic host/port replacement we should rename the class and update
  * the transformer name
  */
+@SuppressWarnings("ReferenceEquality")
 public class ProxiedHostnameRewriteResponseTransformer implements ResponseTransformerV2 {
 
   @Override

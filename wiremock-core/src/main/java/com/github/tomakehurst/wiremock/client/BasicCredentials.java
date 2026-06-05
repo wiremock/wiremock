@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,7 +51,7 @@ public class BasicCredentials {
   }
 
   private String encodedUsernameAndPassword() {
-    byte[] usernameAndPassword = (username + ":" + password).getBytes();
+    byte[] usernameAndPassword = (username + ":" + password).getBytes(UTF_8);
     return encodeBase64(usernameAndPassword);
   }
 }

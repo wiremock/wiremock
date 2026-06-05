@@ -38,7 +38,7 @@ class ScenarioProcessor {
                 Collectors.groupingBy(
                     StubMapping::getRequest,
                     LinkedHashMap::new,
-                    Collectors.toCollection(LinkedList::new)));
+                    Collectors.toCollection(ArrayList::new)));
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
         stubsGroupedByRequest.entrySet().stream()
@@ -50,12 +50,12 @@ class ScenarioProcessor {
                     (entry1, entry2) -> entry1,
                     LinkedHashMap::new));
 
-    final List<StubMapping> stubsInScenario = new LinkedList<>();
+    final List<StubMapping> stubsInScenario = new ArrayList<>();
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      final List<StubMapping> batch = new LinkedList<>(entry.getValue());
+      final List<StubMapping> batch = new ArrayList<>(entry.getValue());
       Collections.reverse(batch);
 
       stubsInScenario.addAll(putStubsInScenario(scenarioIndex, batch));

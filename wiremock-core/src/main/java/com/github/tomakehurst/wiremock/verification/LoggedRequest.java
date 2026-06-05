@@ -59,6 +59,7 @@ public class LoggedRequest implements Request {
   private final Collection<Part> multiparts;
   private final String protocol;
 
+  @SuppressWarnings("JavaUtilDate")
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
         request.getId(),
@@ -311,6 +312,7 @@ public class LoggedRequest implements Request {
     return queryParams;
   }
 
+  @Override
   public HttpHeaders getHeaders() {
     return headers;
   }
@@ -361,10 +363,7 @@ public class LoggedRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (multiparts != null && name != null)
-        ? multiparts.stream()
-            .filter(input -> (name.equals(input.getName())))
-            .findFirst()
-            .orElse(null)
+        ? multiparts.stream().filter(input -> name.equals(input.getName())).findFirst().orElse(null)
         : null;
   }
 
