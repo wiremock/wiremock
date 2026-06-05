@@ -15,12 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.message.channel;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.FixedChannel;
 import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ChannelProviderRegistry {
 
@@ -34,6 +38,38 @@ public class ChannelProviderRegistry {
 
   public void registerDriver(ChannelProviderDriver driver) {
     drivers.put(driver.getType(), driver);
+  }
+
+  public List<ChannelProvider> listAllProviders() {
+    return providerStore.getAll().collect(Collectors.toList());
+  }
+
+  public Optional<ChannelProvider> getProvider(String name) {
+    return providerStore.get(name);
+  }
+
+  public ChannelProvider renameProvider(String currentName, ChannelProvider update) {
+    ChannelProvider existing =
+        providerStore
+            .get(currentName)
+            .orElseThrow(
+                () -> new NotFoundException("No channel provider found with name: " + currentName));
+
+    if (!existing.getDriverType().equals(update.getDriverType())) {
+      throw new InvalidInputException(
+          Errors.single(
+              10, "driverType", "driverType cannot be changed; use delete and re-register"));
+    }
+    if (!existing.getSettings().equals(update.getSettings())) {
+      throw new InvalidInputException(
+          Errors.single(10, "settings", "settings cannot be changed; use delete and re-register"));
+    }
+
+    ChannelProvider renamed =
+        new ChannelProvider(update.getName(), existing.getDriverType(), existing.getSettings());
+    providerStore.remove(currentName);
+    providerStore.put(renamed);
+    return renamed;
   }
 
   public void registerProvider(ChannelProvider provider) {
