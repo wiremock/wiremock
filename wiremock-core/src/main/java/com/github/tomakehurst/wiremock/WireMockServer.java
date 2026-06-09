@@ -672,6 +672,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return wireMockApp.getMessageStubMapping(id);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     wireMockApp.addMessageStubMapping(messageStubMapping);
   }

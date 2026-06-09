@@ -182,6 +182,14 @@ public interface Admin {
   void sendChannelMessage(String providerName, String channelName, MessageDefinition message);
 
   /**
+   * Gets a message stub mapping by its ID.
+   *
+   * @param id the ID of the message stub mapping
+   * @return result containing the mapping if found
+   */
+  SingleMessageStubMappingResult getMessageStubMapping(UUID id);
+
+  /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.
    *
    * @param messageStubMapping the message stub mapping to add

@@ -810,6 +810,11 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return SingleMessageStubMappingResult.fromOptional(messageStubMappings.get(id));
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     messageStubMappings.add(messageStubMapping);
   }

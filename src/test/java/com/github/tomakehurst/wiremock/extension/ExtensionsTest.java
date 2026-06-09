@@ -316,6 +316,11 @@ class ExtensionsTest {
     }
 
     @Override
+    public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
       throw new UnsupportedOperationException();
     }
