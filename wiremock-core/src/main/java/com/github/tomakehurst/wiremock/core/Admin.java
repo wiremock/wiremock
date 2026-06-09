@@ -190,6 +190,14 @@ public interface Admin {
   SingleMessageStubMappingResult getMessageStubMapping(UUID id);
 
   /**
+   * Replaces a message stub mapping identified by its ID with the given mapping.
+   *
+   * @param messageStubMapping the updated message stub mapping
+   * @return result containing the updated mapping if found, empty if no mapping with that ID exists
+   */
+  SingleMessageStubMappingResult editMessageStubMapping(MessageStubMapping messageStubMapping);
+
+  /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.
    *
    * @param messageStubMapping the message stub mapping to add

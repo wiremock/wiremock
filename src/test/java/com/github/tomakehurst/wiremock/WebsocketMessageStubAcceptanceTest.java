@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.editMessageStub;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.findMessageStubsByMetadata;
@@ -66,6 +67,44 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
   @Test
   void getMessageStubReturnsFalseIsPresentWhenNotFound() {
     assertThat(wireMockServer.getMessageStubMapping(UUID.randomUUID()).isPresent(), is(false));
+  }
+
+  @Test
+  void canEditMessageStubMappingById() {
+    MessageStubMapping original =
+        messageStubFor(
+            message()
+                .withName("Original name")
+                .withBody(equalTo("original"))
+                .willTriggerActions(sendMessage("original-response").onOriginatingChannel()));
+
+    MessageStubMapping updated =
+        MessageStubMapping.builder()
+            .withId(original.getId())
+            .withName("Updated name")
+            .withBody(equalTo("updated"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("updated-response"))
+            .build();
+
+    MessageStubMapping result = editMessageStub(updated);
+
+    assertThat(result, is(notNullValue()));
+    assertThat(result.getId(), is(original.getId()));
+    assertThat(result.getName(), is("Updated name"));
+
+    assertThat(getMessageStub(original.getId()).getName(), is("Updated name"));
+  }
+
+  @Test
+  void editMessageStubReturnsFalseIsPresentWhenNotFound() {
+    MessageStubMapping nonExistent =
+        MessageStubMapping.builder()
+            .withName("Ghost")
+            .withBody(equalTo("ghost"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("nothing"))
+            .build();
+
+    assertThat(wireMockServer.editMessageStubMapping(nonExistent).isPresent(), is(false));
   }
 
   @Test

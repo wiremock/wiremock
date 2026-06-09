@@ -656,6 +656,16 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public SingleMessageStubMappingResult editMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return executeRequest(
+        adminRoutes.requestSpecForTask(EditMessageStubMappingTask.class),
+        PathParams.single("id", messageStubMapping.getId()),
+        messageStubMapping,
+        SingleMessageStubMappingResult.class);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     postJsonAssertOkAndReturnBody(
         urlFor(CreateMessageStubMappingTask.class), Json.write(messageStubMapping));

@@ -26,8 +26,7 @@ public class SingleMessageStubMappingResult extends SingleItemResult<MessageStub
     super(item);
   }
 
-  public static SingleMessageStubMappingResult fromOptional(
-      Optional<MessageStubMapping> optional) {
+  public static SingleMessageStubMappingResult fromOptional(Optional<MessageStubMapping> optional) {
     return new SingleMessageStubMappingResult(optional.orElse(null));
   }
 }

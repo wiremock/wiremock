@@ -1367,6 +1367,15 @@ public class WireMock {
     return admin.getMessageStubMapping(id);
   }
 
+  public static MessageStubMapping editMessageStub(MessageStubMapping messageStubMapping) {
+    return defaultInstance.get().updateMessageStubMapping(messageStubMapping).getItem();
+  }
+
+  public SingleMessageStubMappingResult updateMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return admin.editMessageStubMapping(messageStubMapping);
+  }
+
   public static ListMessageStubMappingsResult listAllMessageStubMappings() {
     return defaultInstance.get().allMessageStubMappings();
   }

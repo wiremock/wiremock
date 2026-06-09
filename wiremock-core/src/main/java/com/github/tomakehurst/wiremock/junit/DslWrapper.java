@@ -434,6 +434,12 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public SingleMessageStubMappingResult editMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return admin.editMessageStubMapping(messageStubMapping);
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     admin.addMessageStubMapping(messageStubMapping);
   }
