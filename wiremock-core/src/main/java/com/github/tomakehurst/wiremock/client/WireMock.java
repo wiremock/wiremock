@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleMessageStubMappingResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -1356,6 +1357,23 @@ public class WireMock {
 
   public void removeAllMessageStubsByMetadata(StringValuePattern pattern) {
     admin.removeMessageStubsByMetadata(pattern);
+  }
+
+  public static MessageStubMapping getMessageStub(UUID id) {
+    return defaultInstance.get().getMessageStubMapping(id).getItem();
+  }
+
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return admin.getMessageStubMapping(id);
+  }
+
+  public static MessageStubMapping editMessageStub(MessageStubMapping messageStubMapping) {
+    return defaultInstance.get().updateMessageStubMapping(messageStubMapping).getItem();
+  }
+
+  public SingleMessageStubMappingResult updateMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return admin.editMessageStubMapping(messageStubMapping);
   }
 
   public static ListMessageStubMappingsResult listAllMessageStubMappings() {

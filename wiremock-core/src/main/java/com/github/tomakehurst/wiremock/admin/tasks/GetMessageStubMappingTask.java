@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
-import org.wiremock.annotations.Beta;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageStubMappingStore {
+public class GetMessageStubMappingTask extends AbstractSingleMessageStubTask {
 
-  Stream<MessageStubMapping> getAll();
-
-  Optional<MessageStubMapping> get(UUID id);
-
-  MessageStubMapping add(MessageStubMapping mapping);
-
-  MessageStubMapping replace(MessageStubMapping existing, MessageStubMapping updated);
-
-  void remove(UUID id);
-
-  void clear();
+  @Override
+  protected ResponseDefinition processStubMapping(
+      Admin admin, ServeEvent serveEvent, MessageStubMapping stubMapping) {
+    return ResponseDefinition.okForJson(stubMapping);
+  }
 }

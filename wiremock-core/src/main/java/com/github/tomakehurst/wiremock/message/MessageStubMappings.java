@@ -36,6 +36,10 @@ public class MessageStubMappings {
     store.add(mapping);
   }
 
+  public Optional<MessageStubMapping> edit(MessageStubMapping updated) {
+    return store.get(updated.getId()).map(existing -> store.replace(existing, updated));
+  }
+
   public void remove(UUID id) {
     store.remove(id);
   }

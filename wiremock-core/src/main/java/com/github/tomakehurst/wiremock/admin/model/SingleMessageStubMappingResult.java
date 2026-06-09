@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package com.github.tomakehurst.wiremock.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
-import org.wiremock.annotations.Beta;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface MessageStubMappingStore {
+public class SingleMessageStubMappingResult extends SingleItemResult<MessageStubMapping> {
 
-  Stream<MessageStubMapping> getAll();
+  @JsonCreator
+  public SingleMessageStubMappingResult(MessageStubMapping item) {
+    super(item);
+  }
 
-  Optional<MessageStubMapping> get(UUID id);
-
-  MessageStubMapping add(MessageStubMapping mapping);
-
-  MessageStubMapping replace(MessageStubMapping existing, MessageStubMapping updated);
-
-  void remove(UUID id);
-
-  void clear();
+  public static SingleMessageStubMappingResult fromOptional(Optional<MessageStubMapping> optional) {
+    return new SingleMessageStubMappingResult(optional.orElse(null));
+  }
 }

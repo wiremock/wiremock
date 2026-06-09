@@ -148,6 +148,8 @@ public class AdminRoutes {
     router.add(GET, "/message-mappings", new GetAllMessageStubMappingsTask());
     router.add(POST, "/message-mappings", new CreateMessageStubMappingTask());
     router.add(DELETE, "/message-mappings", new ResetMessageStubMappingsTask());
+    router.add(GET, "/message-mappings/{id}", new GetMessageStubMappingTask());
+    router.add(PUT, "/message-mappings/{id}", new EditMessageStubMappingTask());
     router.add(DELETE, "/message-mappings/{id}", new RemoveMessageStubMappingTask());
     router.add(
         POST, "/message-mappings/find-by-metadata", new FindMessageStubMappingsByMetadataTask());
