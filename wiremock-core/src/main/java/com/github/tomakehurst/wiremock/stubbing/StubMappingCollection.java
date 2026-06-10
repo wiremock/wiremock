@@ -22,7 +22,7 @@ import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
-@JsonDeserialize() // stops infinite recursion when deserializing as StubMappingOrMappings
+@JsonDeserialize // stops infinite recursion when deserializing as StubMappingOrMappings
 public class StubMappingCollection implements StubMappingOrMappings {
 
   private List<StubMapping> mappings;

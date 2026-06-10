@@ -407,11 +407,11 @@ public class WireMockTestClient {
                           .getSubjectDN()
                           .getName()
                           .equals("CN=WireMock Local Self Signed Root Certificate")
-                      || chain.length == 2
+                      || (chain.length == 2
                           && chain[1]
                               .getSubjectDN()
                               .getName()
-                              .equals("CN=WireMock Local Self Signed Root Certificate"))
+                              .equals("CN=WireMock Local Self Signed Root Certificate")))
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);

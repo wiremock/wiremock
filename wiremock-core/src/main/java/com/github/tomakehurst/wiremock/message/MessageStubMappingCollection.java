@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
-@JsonDeserialize()
+@JsonDeserialize
 public class MessageStubMappingCollection implements MessageStubMappingOrMappings {
 
   private List<MessageStubMapping> messageMappings;

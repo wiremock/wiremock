@@ -29,6 +29,7 @@ public enum MimeTypes {
     this.mimeString = mimeString;
   }
 
+  @Override
   public String toString() {
     return mimeString;
   }

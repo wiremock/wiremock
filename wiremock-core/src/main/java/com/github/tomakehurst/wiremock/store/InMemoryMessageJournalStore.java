@@ -78,6 +78,7 @@ public class InMemoryMessageJournalStore implements MessageJournalStore {
   }
 
   @Override
+  @SuppressWarnings("ModifySourceCollectionInStream")
   public void remove(UUID id) {
     deque.stream().filter(eventId -> eventId.equals(id)).forEach(deque::remove);
     MessageServeEvent removed = events.remove(id);

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.*;
@@ -74,7 +75,8 @@ public class ApacheBackedHttpClient implements HttpClient {
                 request.getHeaders().all().stream()
                     .filter(
                         header ->
-                            !FORBIDDEN_REQUEST_HEADERS.contains(header.key().toLowerCase())
+                            !FORBIDDEN_REQUEST_HEADERS.contains(
+                                    header.key().toLowerCase(Locale.ROOT))
                                 || (preserveUserAgentProxyHeader
                                     && header.key().equalsIgnoreCase(USER_AGENT)))
                     .flatMap(

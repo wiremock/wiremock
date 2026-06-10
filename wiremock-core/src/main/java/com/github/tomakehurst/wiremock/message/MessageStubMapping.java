@@ -94,6 +94,7 @@ public class MessageStubMapping implements Prioritisable {
     return new Builder(this);
   }
 
+  @Override
   public UUID getId() {
     return id;
   }
@@ -102,6 +103,7 @@ public class MessageStubMapping implements Prioritisable {
     return name;
   }
 
+  @Override
   public Integer getPriority() {
     return priority;
   }
@@ -126,11 +128,12 @@ public class MessageStubMapping implements Prioritisable {
     return false;
   }
 
+  @Override
   public long getInsertionIndex() {
     return insertionIndex;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   @Override
   public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
     return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));

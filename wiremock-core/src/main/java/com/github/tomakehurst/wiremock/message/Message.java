@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 @JsonDeserialize(using = Message.MessageDeserializer.class)
 @NullMarked
+@SuppressWarnings("ReferenceEquality")
 public class Message {
 
   private final Entity body;

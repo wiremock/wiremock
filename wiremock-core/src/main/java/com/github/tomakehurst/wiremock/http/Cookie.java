@@ -63,6 +63,7 @@ public class Cookie extends MultiValue {
     return !isPresent();
   }
 
+  @Override
   @JsonValue
   public ListOrSingle<String> getValues() {
     return new ListOrSingle<>(isPresent() ? values() : Collections.emptyList());

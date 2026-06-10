@@ -54,8 +54,8 @@ public class BlobStoreFileSource implements FileSource {
 
   @Override
   public String getPath() {
-    if (blobStore instanceof PathBased) {
-      return ((PathBased) blobStore).getPath();
+    if (blobStore instanceof PathBased pathBased) {
+      return pathBased.getPath();
     }
 
     return "";

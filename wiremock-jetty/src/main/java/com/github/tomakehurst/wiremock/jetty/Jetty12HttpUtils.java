@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import org.eclipse.jetty.server.Response;
 public class Jetty12HttpUtils implements JettyHttpUtils {
   @Override
   public Response unwrapResponse(ServletResponse httpServletResponse) {
-    if (httpServletResponse instanceof HttpServletResponseWrapper) {
-      ServletResponse unwrapped = ((HttpServletResponseWrapper) httpServletResponse).getResponse();
+    if (httpServletResponse instanceof HttpServletResponseWrapper httpServletResponseWrapper) {
+      ServletResponse unwrapped = httpServletResponseWrapper.getResponse();
       return unwrapResponse(unwrapped);
     } else {
       return unwrap(httpServletResponse);
@@ -37,10 +37,10 @@ public class Jetty12HttpUtils implements JettyHttpUtils {
   }
 
   private static Response unwrap(ServletResponse wrapped) {
-    if (wrapped instanceof Response) {
-      return (Response) wrapped;
-    } else if (wrapped instanceof ServletApiResponse) {
-      return ((ServletApiResponse) wrapped).getResponse();
+    if (wrapped instanceof Response response) {
+      return response;
+    } else if (wrapped instanceof ServletApiResponse servletApiResponse) {
+      return servletApiResponse.getResponse();
     } else {
       throw new IllegalStateException(
           "Cannot unwrap a" + Response.class.getName() + " from a " + wrapped.getClass().getName());

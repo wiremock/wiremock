@@ -30,18 +30,10 @@ public interface ServeEventListener extends Extension {
 
   default void onEvent(RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
     switch (requestPhase) {
-      case BEFORE_MATCH:
-        beforeMatch(serveEvent, parameters);
-        break;
-      case AFTER_MATCH:
-        afterMatch(serveEvent, parameters);
-        break;
-      case BEFORE_RESPONSE_SENT:
-        beforeResponseSent(serveEvent, parameters);
-        break;
-      case AFTER_COMPLETE:
-        afterComplete(serveEvent, parameters);
-        break;
+      case BEFORE_MATCH -> beforeMatch(serveEvent, parameters);
+      case AFTER_MATCH -> afterMatch(serveEvent, parameters);
+      case BEFORE_RESPONSE_SENT -> beforeResponseSent(serveEvent, parameters);
+      case AFTER_COMPLETE -> afterComplete(serveEvent, parameters);
     }
   }
 

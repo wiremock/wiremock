@@ -61,8 +61,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     if (filterProcessor.hasAnyFilters()) {
       RequestFilterAction requestFilterAction = filterProcessor.processFilters(request, serveEvent);
 
-      if (requestFilterAction instanceof ContinueAction) {
-        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+      if (requestFilterAction instanceof ContinueAction continueAction) {
+        processedRequest = continueAction.getRequest();
         serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
       } else {
         serveEvent =

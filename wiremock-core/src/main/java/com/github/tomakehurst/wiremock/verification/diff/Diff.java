@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
@@ -52,9 +53,9 @@ import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -100,7 +101,7 @@ public class Diff {
   }
 
   public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
-    List<DiffLine<?>> diffLineList = new LinkedList<>();
+    List<DiffLine<?>> diffLineList = new ArrayList<>();
 
     addHostSectionIfPresent(diffLineList);
     addPortSectionIfPresent(diffLineList);
@@ -445,7 +446,10 @@ public class Diff {
           diffLineList.addAll(
               toDiffDescriptionLines(
                   new DiffLine<>(
-                      "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected())));
+                      "Body",
+                      nonStringPattern,
+                      formattedBody.getBytes(UTF_8),
+                      pattern.getExpected())));
         }
       }
     }
@@ -496,11 +500,8 @@ public class Diff {
 
   private String generateOperatorStringForMultiValuePattern(
       final MultiValuePattern valuePattern, final String defaultValue) {
-    if (valuePattern instanceof MultipleMatchMultiValuePattern) {
-      return ((MultipleMatchMultiValuePattern) valuePattern).getOperator()
-          + "["
-          + valuePattern.getName()
-          + "]";
+    if (valuePattern instanceof MultipleMatchMultiValuePattern multipleMatchMultiValuePattern) {
+      return multipleMatchMultiValuePattern.getOperator() + "[" + valuePattern.getName() + "]";
     } else {
       return isAnEqualToPattern(((SingleMatchMultiValuePattern) valuePattern).getValuePattern())
           ? defaultValue

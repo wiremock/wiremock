@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ public class HttpsProxyDetectingHandler extends Handler.Abstract {
 
     int localPort = -1;
     SocketAddress local = request.getConnectionMetaData().getLocalSocketAddress();
-    if (local instanceof InetSocketAddress) {
-      localPort = ((InetSocketAddress) local).getPort();
+    if (local instanceof InetSocketAddress socketAddress) {
+      localPort = socketAddress.getPort();
     }
 
     if (localPort == httpsProxyPort) {

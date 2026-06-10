@@ -126,7 +126,7 @@ public class Body {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Body body = (Body) o;
-    return Objects.equals(binary, body.binary) && Arrays.equals(content, body.content);
+    return binary == body.binary && Arrays.equals(content, body.content);
   }
 
   @Override

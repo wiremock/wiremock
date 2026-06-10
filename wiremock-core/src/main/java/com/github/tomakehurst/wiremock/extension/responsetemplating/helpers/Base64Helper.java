@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
@@ -31,11 +32,11 @@ public class Base64Helper implements Helper<Object> {
         options.tagType == TagType.SECTION ? options.fn(context).toString() : context.toString();
 
     if (Boolean.TRUE.equals(options.hash.get("decode"))) {
-      return new String(decodeBase64(value));
+      return new String(decodeBase64(value), UTF_8);
     }
 
     Object paddingOption = options.hash.get("padding");
     boolean padding = paddingOption == null || Boolean.TRUE.equals(paddingOption);
-    return encodeBase64(value.getBytes(), padding);
+    return encodeBase64(value.getBytes(UTF_8), padding);
   }
 }

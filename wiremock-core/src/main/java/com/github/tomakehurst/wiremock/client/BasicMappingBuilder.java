@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   private static <P> Parameters resolveParameters(P parameters) {
-    return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
+    return parameters instanceof Parameters params ? params : Parameters.of(parameters);
   }
 
   @Override

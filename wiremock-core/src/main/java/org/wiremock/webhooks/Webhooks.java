@@ -75,6 +75,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     triggerWebhook(serveEvent, parameters);
   }
 
+  @SuppressWarnings("FutureReturnValueIgnored")
   private void triggerWebhook(ServeEvent serveEvent, Parameters parameters) {
     final Notifier notifier = notifier();
 

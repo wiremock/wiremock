@@ -226,6 +226,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return options.httpsSettings().enabled();
   }
 
+  @Override
   public int port() {
     checkState(
         isRunning() && !options.getHttpDisabled(),

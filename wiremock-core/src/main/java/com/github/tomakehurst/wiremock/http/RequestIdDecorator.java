@@ -58,6 +58,7 @@ public class RequestIdDecorator implements Request {
     return request.getAbsoluteUrl();
   }
 
+  @Override
   public @Nullable AbsoluteUrl getTypedAbsoluteUrl() {
     return request.getTypedAbsoluteUrl();
   }

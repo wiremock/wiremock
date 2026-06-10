@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ class CertificateGeneratingSslContextFactory extends SslContextFactory.Server {
     return stream(managers)
         .map(
             manager -> {
-              if (manager instanceof X509ExtendedKeyManager) {
+              if (manager instanceof X509ExtendedKeyManager x509ExtendedKeyManager) {
                 return new CertificateGeneratingX509ExtendedKeyManager(
-                    (X509ExtendedKeyManager) manager,
+                    x509ExtendedKeyManager,
                     new DynamicKeyStore(x509KeyStore),
                     new ApacheHttpHostNameMatcher(),
                     notifier);

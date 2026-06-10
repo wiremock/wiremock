@@ -96,7 +96,7 @@ public final class LogNormal implements DelayDistribution {
 
     // Belt and braces, in the unlikely event the generated value is still over the max, truncate
     // it at the max
-    return Math.round(Math.min(maxValue, generatedValue));
+    return Math.round(Math.min(maxValue, (double) generatedValue));
   }
 
   private long generateDelayMillis() {

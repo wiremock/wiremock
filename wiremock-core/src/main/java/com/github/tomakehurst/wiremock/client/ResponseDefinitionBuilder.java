@@ -197,7 +197,7 @@ public class ResponseDefinitionBuilder {
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
-  public static <T> ResponseDefinitionBuilder okForEmptyJson() {
+  public static ResponseDefinitionBuilder okForEmptyJson() {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody("{}")
@@ -237,7 +237,7 @@ public class ResponseDefinitionBuilder {
     }
 
     public ProxyResponseDefinitionBuilder withRemoveRequestHeader(String key) {
-      builder.getRemoveProxyRequestHeaders().add(key.toLowerCase());
+      builder.getRemoveProxyRequestHeaders().add(key.toLowerCase(Locale.ROOT));
       return this;
     }
 

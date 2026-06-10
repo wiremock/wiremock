@@ -56,6 +56,7 @@ public class SimpleEntityDefinition extends EntityDefinition {
     this.data = data;
   }
 
+  @Override
   public boolean isInline() {
     return true;
   }

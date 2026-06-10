@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
   }
 
   private ExtendedSSLSession getHandshakeSession(Socket socket) {
-    if (socket instanceof SSLSocket) {
-      SSLSocket sslSocket = (SSLSocket) socket;
+    if (socket instanceof SSLSocket sslSocket) {
       SSLSession sslSession = getHandshakeSessionIfSupported(sslSocket);
       return getHandshakeSession(sslSession);
     } else {
@@ -107,8 +106,8 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
   }
 
   private static ExtendedSSLSession getHandshakeSession(SSLSession handshakeSession) {
-    if (handshakeSession instanceof ExtendedSSLSession) {
-      return (ExtendedSSLSession) handshakeSession;
+    if (handshakeSession instanceof ExtendedSSLSession extendedSSLSession) {
+      return extendedSSLSession;
     } else {
       return null;
     }

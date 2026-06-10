@@ -69,11 +69,11 @@ public class Entity {
   }
 
   public boolean isCompressed() {
-    return compression != NONE;
+    return !compression.equals(NONE);
   }
 
   public boolean isDecompressible() {
-    return compression == NONE || compression == GZIP;
+    return compression.equals(NONE) || compression.equals(GZIP);
   }
 
   public Entity decompressIfPossible() {
@@ -85,7 +85,7 @@ public class Entity {
   }
 
   public Entity decompress() {
-    if (compression == GZIP) {
+    if (compression.equals(GZIP)) {
       return transform(
           builder ->
               builder
@@ -93,7 +93,7 @@ public class Entity {
                   .setCompression(NONE));
     }
 
-    if (compression != NONE) {
+    if (!compression.equals(NONE)) {
       throw new IllegalStateException("Cannot decompress body with compression " + compression);
     }
 
@@ -144,7 +144,7 @@ public class Entity {
   }
 
   public boolean isBinary() {
-    return format == Format.BINARY;
+    return Objects.equals(format, Format.BINARY);
   }
 
   public static Entity of(byte[] data, HttpHeaders headers) {
@@ -172,12 +172,12 @@ public class Entity {
       return transform(
           builder -> {
             final String plainText =
-                compression == GZIP ? Gzip.unGzipToString(getData()) : asString();
+                compression.equals(GZIP) ? Gzip.unGzipToString(getData()) : asString();
 
             final String transformed = transformer.apply(plainText);
 
             final byte[] transformedCompressed =
-                compression == GZIP
+                compression.equals(GZIP)
                     ? Gzip.gzip(transformed)
                     : Strings.bytesFromString(transformed, charset);
 
@@ -233,6 +233,7 @@ public class Entity {
       return format;
     }
 
+    @Override
     public Builder setFormat(Format format) {
       this.format = format;
       return this;
@@ -242,6 +243,7 @@ public class Entity {
       return charset;
     }
 
+    @Override
     public Builder setCharset(Charset charset) {
       this.charset = charset;
       return this;
@@ -251,6 +253,7 @@ public class Entity {
       return compression;
     }
 
+    @Override
     public Builder setCompression(CompressionType compression) {
       this.compression = compression;
       return this;
@@ -286,7 +289,7 @@ public class Entity {
     }
 
     public boolean isDecompressible() {
-      return compression == NONE || compression == GZIP;
+      return Objects.equals(compression, NONE) || Objects.equals(compression, GZIP);
     }
 
     public Entity build() {

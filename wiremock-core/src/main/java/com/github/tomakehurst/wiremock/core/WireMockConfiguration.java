@@ -54,10 +54,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
+@SuppressWarnings("unused")
 public class WireMockConfiguration implements Options {
 
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;
@@ -96,7 +96,10 @@ public class WireMockConfiguration implements Options {
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
+
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<Integer> maxRequestJournalEntries = Optional.empty();
+
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
   private boolean preserveHostHeader;
@@ -105,7 +108,7 @@ public class WireMockConfiguration implements Options {
   private HttpServerFactory httpServerFactory = null;
   private HttpClientFactory httpClientFactory = null;
 
-  private ExtensionDeclarations extensions = new ExtensionDeclarations();
+  private final ExtensionDeclarations extensions = new ExtensionDeclarations();
   private boolean extensionScanningEnabled = false;
   private WiremockNetworkTrafficListener networkTrafficListener =
       new DoNothingWiremockNetworkTrafficListener();
@@ -123,8 +126,6 @@ public class WireMockConfiguration implements Options {
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
-
-  private boolean proxyPassThrough = true;
 
   private Limit responseBodySizeLimit = UNLIMITED;
 
@@ -170,7 +171,6 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration proxyPassThrough(boolean proxyPassThrough) {
-    this.proxyPassThrough = proxyPassThrough;
     GlobalSettings newSettings =
         getStores().getSettingsStore().get().copy().proxyPassThrough(proxyPassThrough).build();
     getStores().getSettingsStore().set(newSettings);
@@ -252,6 +252,7 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public WireMockConfiguration keyManagerPassword(String keyManagerPassword) {
     this.keyManagerPassword = keyManagerPassword;
     return this;
@@ -282,8 +283,8 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration trustStorePath(String truststorePath) {
-    this.trustStorePath = truststorePath;
+  public WireMockConfiguration trustStorePath(String trustStorePath) {
+    this.trustStorePath = trustStorePath;
     return this;
   }
 
@@ -361,12 +362,13 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  @Deprecated
   /**
    * @deprecated use {@link #maxRequestJournalEntries(int)} instead
    */
+  @Deprecated
   public WireMockConfiguration maxRequestJournalEntries(
-      Optional<Integer> maxRequestJournalEntries) {
+      @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+          Optional<Integer> maxRequestJournalEntries) {
     this.maxRequestJournalEntries = maxRequestJournalEntries;
     return this;
   }
@@ -377,8 +379,7 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    this.matchingHeaders =
-        headers.stream().map(TO_CASE_INSENSITIVE_KEYS).collect(Collectors.toUnmodifiableList());
+    this.matchingHeaders = headers.stream().map(TO_CASE_INSENSITIVE_KEYS).toList();
     return this;
   }
 
@@ -416,12 +417,14 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
+  @SafeVarargs
+  public final WireMockConfiguration extensions(Class<? extends Extension>... classes) {
     extensions.add(classes);
     return this;
   }
 
-  public WireMockConfiguration extensionFactories(
+  @SafeVarargs
+  public final WireMockConfiguration extensionFactories(
       Class<? extends ExtensionFactory>... factoryClasses) {
     extensions.addFactories(factoryClasses);
     return this;

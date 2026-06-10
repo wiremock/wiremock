@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -280,7 +280,7 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     private final Set<ComparisonType> finalCountedComparisons;
 
-    public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
+    private IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
       finalCountedComparisons =
           exemptedComparisons != null
               ? COUNTED_COMPARISONS.stream()
@@ -323,10 +323,10 @@ public class EqualToXmlPattern extends StringValuePattern {
   }
 
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
-    private static Boolean secondaryOrderByTextContent;
+    private final Boolean secondaryOrderByTextContent;
 
-    public OrderInvariantNodeMatcher(Boolean secondaryOrderByTextContent) {
-      OrderInvariantNodeMatcher.secondaryOrderByTextContent = secondaryOrderByTextContent;
+    private OrderInvariantNodeMatcher(Boolean secondaryOrderByTextContent) {
+      this.secondaryOrderByTextContent = secondaryOrderByTextContent;
     }
 
     @Override
@@ -336,13 +336,13 @@ public class EqualToXmlPattern extends StringValuePattern {
       return super.match(sort(controlNodes), sort(testNodes));
     }
 
-    private static Iterable<Node> sort(Iterable<Node> nodes) {
+    private Iterable<Node> sort(Iterable<Node> nodes) {
       return StreamSupport.stream(nodes.spliterator(), false)
           .sorted(getComparator())
           .collect(Collectors.toList());
     }
 
-    private static Comparator<Node> getComparator() {
+    private Comparator<Node> getComparator() {
       if (Objects.nonNull(secondaryOrderByTextContent) && secondaryOrderByTextContent) {
         return Comparator.comparing(Node::getLocalName).thenComparing(Node::getTextContent);
       } else {

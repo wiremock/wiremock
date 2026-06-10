@@ -75,7 +75,7 @@ public class Response {
   }
 
   private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
-    if (entity == Entity.EMPTY) {
+    if (Entity.EMPTY.equals(entity)) {
       return entity;
     }
 

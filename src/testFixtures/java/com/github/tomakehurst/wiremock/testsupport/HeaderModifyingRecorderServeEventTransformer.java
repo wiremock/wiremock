@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.extension.RecorderServeEventTransformer;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
@@ -45,7 +46,7 @@ public class HeaderModifyingRecorderServeEventTransformer implements RecorderSer
                     .transform(
                         builder ->
                             builder
-                                .withBody("transformed response body".getBytes())
+                                .withBody("transformed response body".getBytes(UTF_8))
                                 .withHeaders(
                                     replaceContentType(
                                         serveEvent.getResponse().getHeaders(), "text/plain")))));

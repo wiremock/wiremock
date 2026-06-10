@@ -75,6 +75,7 @@ public class Parameters extends Metadata {
     return new Parameters((Map<String, ?>) get(key));
   }
 
+  @Override
   public Parameters transform(Consumer<Builder> transformer) {
     final Builder builder = new Builder(this);
     transformer.accept(builder);

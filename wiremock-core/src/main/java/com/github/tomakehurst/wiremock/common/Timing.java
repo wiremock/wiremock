@@ -34,6 +34,7 @@ public class Timing {
     return new Timing(null, null, null, null, null);
   }
 
+  @SuppressWarnings("UnusedVariable")
   private Timing(
       @JsonProperty("addedDelay") Integer addedDelay,
       @JsonProperty("processTime") Integer processTime,

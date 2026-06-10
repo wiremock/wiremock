@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
+import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -162,7 +163,7 @@ public abstract class EntityDefinition {
 
   @JsonProperty("format")
   public Format getFormatForSerialization() {
-    if (isInline() && (format == BINARY || format == DEFAULT_FORMAT)) {
+    if (isInline() && (Objects.equals(format, BINARY) || Objects.equals(format, DEFAULT_FORMAT))) {
       return null;
     }
 
@@ -195,12 +196,12 @@ public abstract class EntityDefinition {
 
   @JsonIgnore
   public boolean isBinary() {
-    return format == Format.BINARY;
+    return Objects.equals(format, BINARY);
   }
 
   @JsonIgnore
   public boolean isCompressed() {
-    return compression != NONE;
+    return !NONE.equals(compression);
   }
 
   @JsonIgnore
@@ -216,7 +217,7 @@ public abstract class EntityDefinition {
   @JsonIgnore
   public boolean isDecompressable() {
     final CompressionType compression = getCompression();
-    return compression == NONE || compression == GZIP;
+    return NONE.equals(compression) || GZIP.equals(compression);
   }
 
   public @Nullable String getFilePath() {
@@ -236,7 +237,7 @@ public abstract class EntityDefinition {
 
   public EntityDefinition decompress() {
     final CompressionType compression = getCompression();
-    if (compression == GZIP) {
+    if (GZIP.equals(compression)) {
       final Format format = getFormat();
       return transform(
           builder ->
@@ -246,7 +247,7 @@ public abstract class EntityDefinition {
                   .setCompression(NONE));
     }
 
-    if (compression != NONE) {
+    if (!NONE.equals(compression)) {
       throw new IllegalStateException("Cannot decompress body with compression " + compression);
     }
 
@@ -300,6 +301,7 @@ public abstract class EntityDefinition {
       return compression;
     }
 
+    @Override
     public Builder setCompression(CompressionType compression) {
       this.compression = compression;
       return this;
@@ -309,6 +311,7 @@ public abstract class EntityDefinition {
       return format;
     }
 
+    @Override
     public Builder setFormat(Format format) {
       this.format = format;
       return this;
@@ -318,6 +321,7 @@ public abstract class EntityDefinition {
       return charset;
     }
 
+    @Override
     public Builder setCharset(Charset charset) {
       this.charset = charset;
       return this;
@@ -343,7 +347,7 @@ public abstract class EntityDefinition {
     @SuppressWarnings("unused")
     public Builder setJsonData(Object data) {
       resetDataAndRefs();
-      this.jsonData = data instanceof JsonNode ? (JsonNode) data : Json.node(data);
+      this.jsonData = data instanceof JsonNode jsonNode ? jsonNode : Json.node(data);
       return this;
     }
 

@@ -74,8 +74,8 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
 
     ResponseDefinitionBodyMatcher that = (ResponseDefinitionBodyMatcher) o;
 
-    return Objects.equals(textSizeThreshold, that.textSizeThreshold)
-        && Objects.equals(binarySizeThreshold, that.binarySizeThreshold);
+    return textSizeThreshold == that.textSizeThreshold
+        && binarySizeThreshold == that.binarySizeThreshold;
   }
 
   @Override

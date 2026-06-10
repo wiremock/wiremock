@@ -89,9 +89,8 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
         model.put("message", new MessageTemplateModel(incomingMessage));
       }
       MessageChannel channel = context.getOriginatingChannel();
-      if (channel instanceof RequestInitiatedMessageChannel) {
-        Request initiatingRequest =
-            ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+      if (channel instanceof RequestInitiatedMessageChannel requestInitiatedMessageChannel) {
+        Request initiatingRequest = requestInitiatedMessageChannel.getInitiatingRequest();
         if (initiatingRequest != null) {
           model.putAll(templateEngine.buildModelForRequest(initiatingRequest));
         }

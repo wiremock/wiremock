@@ -93,27 +93,6 @@ public class MessageServeEvent {
     this.stopwatch = Stopwatch.createStarted();
   }
 
-  private MessageServeEvent(
-      UUID id,
-      EventType eventType,
-      LoggedMessageChannel channel,
-      Message message,
-      MessageStubMapping stubMapping,
-      boolean wasMatched,
-      Instant timestamp,
-      ConcurrentLinkedQueue<SubEvent> subEvents,
-      Stopwatch stopwatch) {
-    this.id = id;
-    this.eventType = eventType;
-    this.channel = channel;
-    this.message = message;
-    this.stubMapping = stubMapping;
-    this.wasMatched = wasMatched;
-    this.timestamp = timestamp;
-    this.subEvents = subEvents;
-    this.stopwatch = stopwatch;
-  }
-
   // --- Factory methods taking a live MessageChannel ---
 
   public static MessageServeEvent receivedMatched(

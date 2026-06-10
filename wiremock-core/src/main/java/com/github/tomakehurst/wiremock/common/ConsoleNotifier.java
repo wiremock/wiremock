@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.github.tomakehurst.wiremock.common;
 import static java.lang.System.err;
 import static java.lang.System.out;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ConsoleNotifier implements Notifier {
 
@@ -58,9 +57,12 @@ public class ConsoleNotifier implements Notifier {
     t.printStackTrace(err);
   }
 
+  private static final DateTimeFormatter df =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
+  @SuppressWarnings("JavaTimeDefaultTimeZone")
   private String formatMessage(String message) {
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    String date = df.format(new Date());
+    String date = df.format(ZonedDateTime.now());
     return String.format("%s%s %s", prefix, date, message);
   }
 }

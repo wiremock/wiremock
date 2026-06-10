@@ -84,6 +84,7 @@ public class Errors {
     return Objects.hashCode(errors);
   }
 
+  @SuppressWarnings("JavaLangClash")
   public static class Error {
 
     private final Integer code;

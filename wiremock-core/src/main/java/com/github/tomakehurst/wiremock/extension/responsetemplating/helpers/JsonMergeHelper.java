@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,16 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
 
   @Override
   public String apply(Object baseJsonString, Options options) throws IOException {
-    if (!(baseJsonString instanceof String))
+    if (!(baseJsonString instanceof String string))
       return handleError("Base JSON parameter must be a string");
 
     JsonNode baseJson;
     try {
-      baseJson = Json.read((String) baseJsonString, JsonNode.class);
+      baseJson = Json.read(string, JsonNode.class);
     } catch (Exception e) {
       return handleError("Base JSON is not valid JSON ('" + baseJsonString + "')", e);
     }
-    if (!(baseJson instanceof ObjectNode)) {
+    if (!(baseJson instanceof ObjectNode baseObjectNode)) {
       return handleError("Base JSON is not a JSON object ('" + baseJsonString + "')");
     }
 
@@ -47,23 +47,23 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
     } else {
       jsonToMergeString = options.params.length > 0 ? options.params[0] : null;
     }
-    if (!(jsonToMergeString instanceof String))
+    if (!(jsonToMergeString instanceof String mergeString))
       return handleError("JSON to merge must be a string");
 
     JsonNode jsonToMerge;
     try {
-      jsonToMerge = Json.read((String) jsonToMergeString, JsonNode.class);
+      jsonToMerge = Json.read(mergeString, JsonNode.class);
     } catch (Exception e) {
       return handleError("JSON to merge is not valid JSON ('" + jsonToMergeString + "')", e);
     }
-    if (!(jsonToMerge instanceof ObjectNode)) {
+    if (!(jsonToMerge instanceof ObjectNode mergeObjectNode)) {
       return handleError("JSON to merge is not a JSON object ('" + jsonToMergeString + "')");
     }
 
     boolean removeNulls =
         options.hash.containsKey("removeNulls") && (boolean) options.hash.get("removeNulls");
 
-    merge((ObjectNode) baseJson, (ObjectNode) jsonToMerge, removeNulls);
+    merge(baseObjectNode, mergeObjectNode, removeNulls);
     return Json.getObjectMapper().writeValueAsString(baseJson);
   }
 
@@ -72,10 +72,10 @@ class JsonMergeHelper extends HandlebarsHelper<Object> {
       Map.Entry<String, JsonNode> child = it.next();
       String fieldName = child.getKey();
       JsonNode childNodeToMerge = child.getValue();
-      if (childNodeToMerge instanceof ObjectNode) {
+      if (childNodeToMerge instanceof ObjectNode objectNode) {
         JsonNode baseChildNode = base.get(fieldName);
-        if (baseChildNode instanceof ObjectNode) {
-          merge((ObjectNode) baseChildNode, (ObjectNode) childNodeToMerge, removeNulls);
+        if (baseChildNode instanceof ObjectNode baseChildObjectNode) {
+          merge(baseChildObjectNode, objectNode, removeNulls);
         } else {
           base.replace(fieldName, childNodeToMerge);
         }

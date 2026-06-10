@@ -84,6 +84,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return name;
   }
 
+  @Override
   public MatchResult match(RequestMethod method) {
     return MatchResult.of(this.equals(ANY) || this.equals(method));
   }
@@ -108,7 +109,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public boolean hasEntity() {
-    return (METHODS_WITH_ENTITY.contains(this));
+    return METHODS_WITH_ENTITY.contains(this);
   }
 
   @Override
