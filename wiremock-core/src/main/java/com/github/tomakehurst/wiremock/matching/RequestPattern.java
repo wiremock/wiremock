@@ -56,7 +56,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final StringValuePattern host;
   private final Integer port;
   private final StringValuePattern clientIp;
-  private final UrlPattern url;
+  @NonNull private final UrlPattern url;
   private final RequestMethod method;
   @NonNull private final Map<String, MultiValuePattern> headers;
 
@@ -428,15 +428,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   @JsonIgnore
-  public UrlPattern getUrlMatcher() {
+  public @NonNull UrlPattern getUrlMatcher() {
     return url;
   }
 
   private String urlPatternOrNull(Class<? extends UrlPattern> clazz, boolean regex) {
-    return (url != null
-            && url.getClass().equals(clazz)
-            && url.isRegex() == regex
-            && url.isSpecified())
+    return url.getClass().equals(clazz) && url.isRegex() == regex && url.isSpecified()
         ? url.getPattern().getValue()
         : null;
   }
