@@ -17,16 +17,18 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 
 public class AdminRequestHandlerTest {
 
@@ -59,9 +61,12 @@ public class AdminRequestHandlerTest {
 
     client.postWithBody(
         "/__admin/mappings", postBody, withHeader(postHeaderABCName, postHeaderABCValue));
-
-    verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
-    verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
-    verify(notifier).info(contains(postBody));
+    ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass((Class) Supplier.class);
+    verify(notifier, times(1)).info(captor.capture());
+    List<Supplier<String>> capturedSuppliers = captor.getAllValues();
+    String msg2 = capturedSuppliers.get(0).get();
+    assertTrue(msg2.contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+    assertTrue(msg2.contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+    assertTrue(msg2.contains(postBody));
   }
 }

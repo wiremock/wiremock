@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.function.Supplier;
+
 public interface Notifier {
 
   public static final String KEY = "Notifier";
 
-  void info(String message);
+  void info(Supplier<String> message);
+
+  default void info(String message) {
+    info(() -> message);
+  }
 
   void error(String message);
 
