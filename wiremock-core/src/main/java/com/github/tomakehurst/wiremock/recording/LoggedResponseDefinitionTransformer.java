@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.common.ContentTypes.*;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.common.Strings;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.http.*;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -50,7 +50,8 @@ public class LoggedResponseDefinitionTransformer
       String mimeType = response.getMimeType();
       Charset charset = response.getCharset();
       if (determineIsTextFromMimeType(mimeType)) {
-        responseDefinitionBuilder.withBody(Strings.stringFromBytes(body, charset));
+        responseDefinitionBuilder.withEntityBody(
+            EntityDefinition.builder().setCharset(charset).setData(body).build());
       } else {
         responseDefinitionBuilder.withBody(body);
       }
