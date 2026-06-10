@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.entity.MimeType;
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
 import org.wiremock.annotations.PublishedAPI;
 
@@ -65,14 +64,14 @@ public class ContentTypeHeader extends HttpHeader {
   }
 
   public Optional<Charset> charset() {
-    if (isPresent() && encodingPart().isPresent()) {
-      try {
-        return Optional.of(Charset.forName(encodingPart().get()));
-      } catch (UnsupportedCharsetException ignored) {
-        return Optional.empty();
+    try {
+      if (isPresent()) {
+        return encodingPart().map(Charset::forName);
       }
-    }
 
-    return Optional.empty();
+      return Optional.empty();
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 }
