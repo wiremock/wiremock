@@ -101,4 +101,16 @@ public class WireMockConfigurationTest {
     Options config = wireMockConfig().dynamicHttpsPort().bindAddress("1.2.3.4");
     assertThat(config.bindAddress(), is("1.2.3.4"));
   }
+
+  @Test
+  void bindAddressCanBeSetBackToAll() {
+    Options config = wireMockConfig().dynamicHttpsPort().bindToAllAddresses();
+    assertThat(config.bindAddress(), is("0.0.0.0"));
+  }
+
+  @Test
+  void bindAddressCanBeSetToLocalhost() {
+    Options config = wireMockConfig().bindToLocalhost();
+    assertThat(config.bindAddress(), is(InetAddress.getLoopbackAddress().getHostAddress()));
+  }
 }

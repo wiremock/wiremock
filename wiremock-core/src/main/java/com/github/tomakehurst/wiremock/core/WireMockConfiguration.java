@@ -372,6 +372,14 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration bindToAllAddresses() {
+    return bindAddress(DEFAULT_BIND_ADDRESS);
+  }
+
+  public WireMockConfiguration bindToLocalhost() {
+    return bindAddress(InetAddress.getLoopbackAddress().getHostAddress());
+  }
+
   public WireMockConfiguration disableRequestJournal() {
     requestJournalDisabled = true;
     return this;
