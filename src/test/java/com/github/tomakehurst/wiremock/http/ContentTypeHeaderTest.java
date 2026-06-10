@@ -109,4 +109,10 @@ public class ContentTypeHeaderTest {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=invalid");
     assertThat(header.charset(), isAbsent());
   }
+
+  @Test
+  void returnsNoCharsetWhenNameContainsInvalidCharacter() {
+    ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=UTF-*");
+    assertThat(header.charset(), isAbsent());
+  }
 }
