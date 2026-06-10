@@ -66,7 +66,7 @@ public class ContentTypeHeader extends HttpHeader {
   public Optional<Charset> charset() {
     try {
       if (isPresent()) {
-        return encodingPart().map(Charset::forName);
+        return encodingPart().map(String::trim).map(Charset::forName);
       }
 
       return Optional.empty();
