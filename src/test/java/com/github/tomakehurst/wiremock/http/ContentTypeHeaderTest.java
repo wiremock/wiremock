@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasValue;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isAbsent;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -108,6 +109,12 @@ public class ContentTypeHeaderTest {
   public void returnsDefaultCharsetWhenIllegalEncoding() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=invalid");
     assertThat(header.charset(), isAbsent());
+  }
+
+  @Test
+  void trimsCharset() {
+    ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=UTF-8 ");
+    assertThat(header.charset().get(), is(UTF_8));
   }
 
   @Test
