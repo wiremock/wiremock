@@ -104,6 +104,7 @@ public class MessageStubRequestHandler {
 
     if (target instanceof OriginatingChannelTarget) {
       originatingChannel.sendMessage(message);
+      messageJournal.messageReceived(MessageServeEvent.sent(originatingChannel, message));
     } else if (target instanceof RequestInitiatedChannelTarget requestTarget) {
       List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
@@ -119,6 +120,7 @@ public class MessageStubRequestHandler {
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
+        messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
       }
     }
   }

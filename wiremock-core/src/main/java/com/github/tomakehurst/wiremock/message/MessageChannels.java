@@ -31,11 +31,9 @@ import java.util.stream.Collectors;
 public class MessageChannels {
 
   private final MessageChannelStore store;
-  private final Stores stores;
 
   public MessageChannels(Stores stores) {
     this.store = stores.getMessageChannelStore();
-    this.stores = stores;
   }
 
   public void add(MessageChannel channel) {
@@ -120,11 +118,10 @@ public class MessageChannels {
   public List<RequestInitiatedMessageChannel> sendMessageToMatchingByType(
       ChannelType type,
       RequestPattern requestPattern,
-      MessageDefinition messageDefinition,
+      Message message,
       Map<String, RequestMatcherExtension> customMatchers) {
     List<RequestInitiatedMessageChannel> matchingChannels =
         findByTypeAndRequestPattern(type, requestPattern, customMatchers);
-    Message message = new Message(messageDefinition.getBody().resolve(stores));
     for (RequestInitiatedMessageChannel channel : matchingChannels) {
       channel.sendMessage(message);
     }
