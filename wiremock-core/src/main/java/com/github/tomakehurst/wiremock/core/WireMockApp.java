@@ -711,11 +711,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+      ChannelType type, RequestPattern requestPattern, MessageDefinition messageDefinition) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     List<RequestInitiatedMessageChannel> matchedChannels =
         messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
+    for (RequestInitiatedMessageChannel channel : matchedChannels) {
+      messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
+    }
     List<LoggedMessageChannel> loggedChannels =
         matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());
     return new SendChannelMessageResult(loggedChannels);

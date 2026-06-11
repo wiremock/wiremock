@@ -17,9 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServeEvents;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -27,12 +29,44 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestBase {
+
+  @Test
+  void messageJournalRecordsSentEventWhenHttpRequestTriggersMessageStub() {
+    messageStubFor(
+        message()
+            .withName("HTTP triggered message to journal")
+            .triggeredByHttpRequest(
+                newRequestPattern().withUrl(urlPathEqualTo("/api/journal-trigger")))
+            .willTriggerActions(
+                sendMessage("http-triggered-message")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/ws-journal")))));
+
+    resetMessageJournal();
+
+    WebsocketTestClient wsClient = new WebsocketTestClient();
+    wsClient.connect(websocketUrl("/ws-journal"));
+    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+
+    testClient.get("/api/journal-trigger");
+
+    waitAtMost(5, SECONDS).until(() -> wsClient.getMessages().contains("http-triggered-message"));
+
+    var sentEvents = getAllMessageServeEvents().stream().filter(MessageServeEvent::isSent).toList();
+
+    assertThat(sentEvents, hasSize(1));
+    assertThat(sentEvents.get(0).getMessage().getBodyAsString(), is("http-triggered-message"));
+  }
 
   @Test
   void messageStubTriggeredByHttpStubSendsMessageToWebsocketChannel() {

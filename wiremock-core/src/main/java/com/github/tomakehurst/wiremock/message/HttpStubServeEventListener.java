@@ -130,6 +130,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
+        messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
       }
     } else if (target instanceof FixedChannelTarget fixedTarget) {
       FixedChannel outboundChannel =

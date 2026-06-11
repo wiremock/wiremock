@@ -37,6 +37,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent
 import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.waitForMessageEvents;
 import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.message.ChannelType.WEBSOCKET;
 import static com.github.tomakehurst.wiremock.message.MessagePattern.messagePattern;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -44,6 +46,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -79,7 +82,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     testClient.sendMessageAndWaitForResponse(url, "journal-test");
 
-    var events = getAllMessageServeEvents();
+    var events = getAllMessageServeEvents().stream().filter(MessageServeEvent::isReceived).toList();
     assertThat(events.size(), is(1));
 
     var event = events.get(0);
@@ -389,18 +392,19 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     testClient.sendMessage("remove-pattern-2");
     testClient.sendMessage("other-message");
 
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 3);
+    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 5);
 
-    assertThat(getAllMessageServeEvents().size(), is(3));
+    assertThat(getAllMessageServeEvents().size(), is(5));
 
     var result =
         removeMessageServeEventsMatching(
             messagePattern().withBody(matching("remove-pattern-.*")).build());
 
     assertThat(result.getMessageServeEvents().size(), is(2));
-    assertThat(getAllMessageServeEvents().size(), is(1));
-    assertThat(
-        getAllMessageServeEvents().get(0).getMessage().getBodyAsString(), is("other-message"));
+    var remainingReceived =
+        getAllMessageServeEvents().stream().filter(MessageServeEvent::isReceived).toList();
+    assertThat(remainingReceived, hasSize(1));
+    assertThat(remainingReceived.get(0).getMessage().getBodyAsString(), is("other-message"));
   }
 
   @Test
@@ -433,17 +437,19 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     testClient.sendMessage("metadata-a");
     testClient.sendMessage("other-b");
 
-    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 2);
+    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 4);
 
-    assertThat(getAllMessageServeEvents().size(), is(2));
+    assertThat(getAllMessageServeEvents().size(), is(4));
 
     var result =
         removeMessageServeEventsForStubsMatchingMetadata(
             matchingJsonPath("$.category", equalTo("test")));
 
     assertThat(result.getMessageServeEvents().size(), is(1));
-    assertThat(getAllMessageServeEvents().size(), is(1));
-    assertThat(getAllMessageServeEvents().get(0).getMessage().getBodyAsString(), is("other-b"));
+    var remainingReceived =
+        getAllMessageServeEvents().stream().filter(MessageServeEvent::isReceived).toList();
+    assertThat(remainingReceived, hasSize(1));
+    assertThat(remainingReceived.get(0).getMessage().getBodyAsString(), is("other-b"));
   }
 
   @Test
@@ -467,16 +473,16 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     testClient.sendMessage("metadata-a");
 
-    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
+    waitAtMost(5, SECONDS).until(() -> getAllMessageServeEvents().size() >= 2);
 
-    assertThat(getAllMessageServeEvents().size(), is(1));
+    assertThat(getAllMessageServeEvents().size(), is(2));
 
     var result =
         removeMessageServeEventsForStubsMatchingMetadata(
             matchingJsonPath("$.nonexistent", equalTo("value")));
 
     assertThat(result.getMessageServeEvents().size(), is(0));
-    assertThat(getAllMessageServeEvents().size(), is(1));
+    assertThat(getAllMessageServeEvents().size(), is(2));
   }
 
   @Test
@@ -596,6 +602,84 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
             messagePattern().withBody(matching("wait-multi-.*")).build(), 3, Duration.ofSeconds(5));
 
     assertThat(result, hasSize(3));
+  }
+
+  @Test
+  void messageJournalRecordsSentEventWhenMessageSentViaApiWithNoStubsPresent() {
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    testClient.connect(websocketUrl("/no-stub-send-test"));
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    var pattern = newRequestPattern().withUrl("/no-stub-send-test").build();
+    wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "no-stub-message");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("no-stub-message"));
+
+    var events = getAllMessageServeEvents();
+    assertThat(events, hasSize(1));
+    assertThat(events.get(0).getEventType(), is(MessageServeEvent.EventType.SENT));
+    assertThat(events.get(0).getMessage().getBodyAsString(), is("no-stub-message"));
+  }
+
+  @Test
+  void messageJournalRecordsSentEventWhenMessageSentViaApi() {
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    String url = websocketUrl("/api-send-journal-test");
+
+    testClient.connect(url);
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    var pattern = newRequestPattern().withUrl("/api-send-journal-test").build();
+    wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "api-journal-message");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("api-journal-message"));
+
+    var sentEvents = getAllMessageServeEvents().stream().filter(MessageServeEvent::isSent).toList();
+
+    assertThat(sentEvents, hasSize(1));
+    assertThat(sentEvents.get(0).getMessage().getBodyAsString(), is("api-journal-message"));
+  }
+
+  @Test
+  void messageJournalRecordsSentEventsWhenMessageSentByStub() {
+    MessageStubMapping stub =
+        MessageStubMapping.builder()
+            .withName("Sent event journal test stub")
+            .withBody(equalTo("trigger-stub-send"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("originating-response"))
+            .triggersAction(
+                SendMessageAction.toMatchingChannels(
+                    "matching-response",
+                    newRequestPattern().withUrl("/stub-sent-event-target").build()))
+            .build();
+    messageStubFor(stub);
+
+    resetMessageJournal();
+
+    WebsocketTestClient triggerClient = new WebsocketTestClient();
+    WebsocketTestClient targetClient = new WebsocketTestClient();
+
+    triggerClient.connect(websocketUrl("/stub-sent-event-trigger"));
+    targetClient.connect(websocketUrl("/stub-sent-event-target"));
+    waitAtMost(5, SECONDS).until(triggerClient::isConnected);
+    waitAtMost(5, SECONDS).until(targetClient::isConnected);
+
+    triggerClient.sendMessage("trigger-stub-send");
+
+    waitAtMost(5, SECONDS)
+        .until(() -> triggerClient.getMessages().contains("originating-response"));
+    waitAtMost(5, SECONDS).until(() -> targetClient.getMessages().contains("matching-response"));
+
+    var sentEvents = getAllMessageServeEvents().stream().filter(MessageServeEvent::isSent).toList();
+
+    assertThat(sentEvents, hasSize(2));
+    assertThat(
+        sentEvents.stream().map(e -> e.getMessage().getBodyAsString()).toList(),
+        hasItems("originating-response", "matching-response"));
   }
 
   @Test
