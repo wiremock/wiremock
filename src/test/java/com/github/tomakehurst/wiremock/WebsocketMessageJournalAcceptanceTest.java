@@ -605,6 +605,25 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
   }
 
   @Test
+  void messageJournalRecordsSentEventWhenMessageSentViaApiWithNoStubsPresent() {
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    testClient.connect(websocketUrl("/no-stub-send-test"));
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+
+    var pattern = newRequestPattern().withUrl("/no-stub-send-test").build();
+    wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "no-stub-message");
+
+    waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("no-stub-message"));
+
+    var events = getAllMessageServeEvents();
+    assertThat(events, hasSize(1));
+    assertThat(events.get(0).getEventType(), is(MessageServeEvent.EventType.SENT));
+    assertThat(events.get(0).getMessage().getBodyAsString(), is("no-stub-message"));
+  }
+
+  @Test
   void messageJournalRecordsSentEventWhenMessageSentViaApi() {
     resetMessageJournal();
 
