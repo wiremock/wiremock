@@ -67,6 +67,14 @@ public class Exceptions {
     }
   }
 
+  public static <T> T uncheck(Callable<T> work, Class<T> returnType) {
+    try {
+      return work.call();
+    } catch (Exception e) {
+      return throwUnchecked(e, returnType);
+    }
+  }
+
   public static void uncheck(RunnableWithException work) {
     try {
       work.run();
