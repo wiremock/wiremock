@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.errorprone.annotations.InlineMe;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.Callable;
@@ -65,6 +66,17 @@ public class Exceptions {
     } catch (Exception e) {
       return throwUnchecked(e, null);
     }
+  }
+
+  /**
+   * @deprecated Use {@link #uncheck(Callable)} instead.
+   */
+  @Deprecated(since = "4.0", forRemoval = true)
+  @InlineMe(
+      replacement = "Exceptions.uncheck(work)",
+      imports = "com.github.tomakehurst.wiremock.common.Exceptions")
+  public static <T> T uncheck(Callable<T> work, @SuppressWarnings("unused") Class<T> returnType) {
+    return uncheck(work);
   }
 
   public static void uncheck(RunnableWithException work) {

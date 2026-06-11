@@ -44,6 +44,7 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
     implementation(libs.xmlunit.placeholders)
+    compileOnly(libs.errorprone.annotations)
 
     modules {
         module("org.apache.logging.log4j:log4j-core") {
