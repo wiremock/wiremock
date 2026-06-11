@@ -12,6 +12,7 @@ jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.2"
 bouncycastle = "1.84"
+errorprone = "2.42.0"
 
 [libraries]
 # Jetty dependencies
@@ -133,6 +134,9 @@ jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on",  version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref = "bouncycastle" }
+
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+errorprone-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }

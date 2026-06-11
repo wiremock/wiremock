@@ -1,9 +1,12 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.ErrorProneOptions
 import net.ltgt.gradle.errorprone.errorprone
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.net.URI
+
+val libs = the<LibrariesForLibs>()
 
 plugins {
   `java-library`
@@ -30,7 +33,7 @@ dependencies {
   annotationProcessor(nullawayDep)
   testFixturesAnnotationProcessor(nullawayDep)
   testAnnotationProcessor(nullawayDep)
-  errorprone("com.google.errorprone:error_prone_core:2.42.0")
+  errorprone(libs.errorprone.core)
 }
 
 tasks.compileJava {

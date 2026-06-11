@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+  // Exposes the type-safe `libs` version catalog accessors to precompiled script plugins
+  implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
   implementation("com.diffplug.gradle.spotless:com.diffplug.gradle.spotless.gradle.plugin:6.25.0")
   implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.2.2")
   implementation("org.sonarqube:org.sonarqube.gradle.plugin:6.2.0.5505")
