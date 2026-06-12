@@ -28,8 +28,10 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -72,6 +74,16 @@ public class InMemoryChannelDriverReceiveAcceptanceTest {
   void resetPerTest() {
     resetMessageStubs();
     resetMessageJournal();
+  }
+
+  @Test
+  void deletedChannelSinkIsRemovedFromDriver() {
+    UUID tempId = createFixedChannel(fixedChannel().onProvider(PROVIDER).named("temp"));
+    removeMessageChannel(tempId);
+
+    Assertions.assertThrows(
+        IllegalStateException.class,
+        () -> driver.receive(PROVIDER, "temp", Message.builder().withTextBody("test").build()));
   }
 
   @Test

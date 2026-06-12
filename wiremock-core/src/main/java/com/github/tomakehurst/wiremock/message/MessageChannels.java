@@ -49,10 +49,7 @@ public class MessageChannels {
   }
 
   public void remove(UUID id) {
-    store
-        .get(id)
-        .filter(RequestInitiatedMessageChannel.class::isInstance)
-        .ifPresent(MessageChannel::close);
+    store.get(id).ifPresent(MessageChannel::close);
     store.remove(id);
   }
 

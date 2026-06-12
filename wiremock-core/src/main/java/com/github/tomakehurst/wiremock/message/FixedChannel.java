@@ -56,7 +56,9 @@ public class FixedChannel implements MessageChannel {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+    driver.deleteChannel(provider, channelName);
+  }
 
   public String getProviderName() {
     return provider.getName();

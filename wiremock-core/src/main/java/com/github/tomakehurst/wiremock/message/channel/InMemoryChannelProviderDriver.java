@@ -41,6 +41,11 @@ public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
     // The in-memory driver has no additional transport to perform.
   }
 
+  @Override
+  public void deleteChannel(ChannelProvider provider, String channelName) {
+    sinks.remove(key(provider.getName(), channelName));
+  }
+
   /**
    * Simulates an inbound message arriving on the named channel. Routes directly into WireMock's
    * stub-matching pipeline via the sink registered at channel-creation time.
