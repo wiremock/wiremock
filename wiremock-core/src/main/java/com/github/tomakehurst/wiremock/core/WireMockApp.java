@@ -792,7 +792,7 @@ public class WireMockApp implements StubServer, Admin {
       String providerName, String channelName, Message message) {
     FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
     Optional<MessageStubMapping> matchingStub =
-        messageStubMappings.findMatchingFixedChannelStub(providerName, channelName, message);
+        messageStubMappings.findMatchingStub(inboundChannel, message);
 
     if (matchingStub.isEmpty()) {
       messageJournal.messageReceived(MessageServeEvent.receivedUnmatched(inboundChannel, message));

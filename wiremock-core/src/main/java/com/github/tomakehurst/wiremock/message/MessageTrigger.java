@@ -25,8 +25,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
   @JsonSubTypes.Type(value = IncomingMessageTrigger.class, name = "message"),
   @JsonSubTypes.Type(value = HttpStubTrigger.class, name = "http-stub"),
-  @JsonSubTypes.Type(value = HttpRequestTrigger.class, name = "http-request"),
-  @JsonSubTypes.Type(value = FixedChannelMessageTrigger.class, name = "fixed-channel-message")
+  @JsonSubTypes.Type(value = HttpRequestTrigger.class, name = "http-request")
 })
 public interface MessageTrigger {
 
