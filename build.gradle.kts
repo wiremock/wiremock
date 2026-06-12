@@ -207,6 +207,7 @@ publishing {
 
 val checkReleasePreconditions by tasks.registering  {
   doLast {
+    if (System.getenv("CI") == "true") return@doLast
     val releaseBranches = listOf("master", "v4.x")
     val currentGitBranch = providers.exec {
       commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
@@ -251,7 +252,6 @@ tasks.register("localRelease") {
 fun updateFiles(currentVersion: String, nextVersion: String) {
 
   val filesWithVersion: Map<String, (String) -> String> = mapOf(
-    "buildSrc/src/main/kotlin/wiremock.common-conventions.gradle.kts"    to { "version = \"${it}\"" },
     "ui/package.json"                                                    to { "\"version\": \"${it}\"" },
     "wiremock-core/src/main/resources/version.properties"              to { "version=${it}" },
     "wiremock-core/src/main/resources/swagger/wiremock-admin-api.json" to { "\"version\": \"${it}\"" },
@@ -304,14 +304,31 @@ tasks.register("bump-pre-release-version") {
   }
 }
 
+tasks.register("apply-release-version") {
+  doLast {
+    val releaseVersion = requireNotNull(project.findProperty("releaseVersion")?.toString()) {
+      "releaseVersion property must be specified (e.g. -PreleaseVersion=4.0.1)"
+    }
+    updateFiles("0.0.0-dev", releaseVersion)
+  }
+}
+
 tasks.register("set-snapshot-version") {
   doLast {
-
-    val currentVersion = Version.fromString(project.version.toString())
+    val currentVersionStr = project.version.toString()
     val nextVersion = project.findProperty("snapshotVersion")?.toString()
-      ?: "${currentVersion.incrementMinor()}-SNAPSHOT"
+      ?: run {
+          val baseVersionStr = if (currentVersionStr == "0.0.0-dev") {
+            providers.exec {
+              commandLine("git", "describe", "--tags", "--abbrev=0", "--match=[0-9]*")
+            }.standardOutput.asText.get().trim().removePrefix("v")
+          } else {
+            currentVersionStr
+          }
+          "${Version.fromString(baseVersionStr).incrementMinor()}-SNAPSHOT"
+        }
 
-    updateFiles(currentVersion.toString(), nextVersion)
+    updateFiles(currentVersionStr, nextVersion)
   }
 }
 
