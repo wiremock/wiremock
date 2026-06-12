@@ -12,7 +12,7 @@ jmh = "1.37"
 apache-http5 = "5.4.3"
 archunit = "1.4.2"
 bouncycastle = "1.84"
-errorprone = "2.42.0"
+errorprone = "2.50.0"
 
 [libraries]
 # Jetty dependencies
