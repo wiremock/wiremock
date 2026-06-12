@@ -24,4 +24,6 @@ public interface ChannelProviderDriver {
   void createChannel(ChannelProvider provider, String channelName, InboundMessageSink sink);
 
   void send(ChannelProvider provider, String channelName, Message message);
+
+  void deleteChannel(ChannelProvider provider, String channelName);
 }

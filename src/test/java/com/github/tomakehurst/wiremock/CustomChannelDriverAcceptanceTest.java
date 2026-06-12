@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.fixedChannel;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.registerChannelProvider;
+import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageChannel;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
@@ -31,6 +32,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
@@ -40,6 +43,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.AfterAll;
@@ -92,6 +96,16 @@ public class CustomChannelDriverAcceptanceTest {
   }
 
   @Test
+  void deletingFixedChannelInvokesDriverDeleteChannel() {
+    UUID tempId =
+        createFixedChannel(fixedChannel().onProvider("custom-events").named("temp-delete"));
+
+    removeMessageChannel(tempId);
+
+    assertThat(driver.getDeletedChannels(), hasItem("temp-delete"));
+  }
+
+  @Test
   void inboundMessageViaCustomDriverTriggersSend() {
     messageStubFor(
         message()
@@ -110,6 +124,7 @@ public class CustomChannelDriverAcceptanceTest {
 
     private final Map<String, InboundMessageSink> sinks = new ConcurrentHashMap<>();
     private final Map<String, List<String>> sentMessages = new ConcurrentHashMap<>();
+    private final List<String> deletedChannels = new CopyOnWriteArrayList<>();
 
     @Override
     public String getName() {
@@ -134,6 +149,15 @@ public class CustomChannelDriverAcceptanceTest {
           .add(message.getBodyAsString());
     }
 
+    @Override
+    public void deleteChannel(ChannelProvider provider, String channelName) {
+      deletedChannels.add(channelName);
+    }
+
+    public List<String> getDeletedChannels() {
+      return deletedChannels;
+    }
+
     public void receive(String channelName, String body) {
       InboundMessageSink sink = sinks.get(channelName);
       sink.receive(Message.builder().withTextBody(body).build());
@@ -145,6 +169,7 @@ public class CustomChannelDriverAcceptanceTest {
 
     public void reset() {
       sentMessages.clear();
+      deletedChannels.clear();
     }
   }
 }
