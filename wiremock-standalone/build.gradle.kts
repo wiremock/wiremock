@@ -64,6 +64,10 @@ tasks.shadowJar {
     exclude(dependency("junit:junit"))
   }
 
+  filesMatching("META-INF/services/**") {
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+  }
+
   mergeServiceFiles()
 
   exclude("META-INF/maven/**")
