@@ -773,7 +773,7 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channelDefinition) {
     String providerName = channelDefinition.getProviderName();
-    String channelName = channelDefinition.getName();
+    String channelName = channelDefinition.getChannelName();
     InboundMessageSink sink =
         message -> receiveInboundFixedChannelMessage(providerName, channelName, message);
     final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition, sink);
