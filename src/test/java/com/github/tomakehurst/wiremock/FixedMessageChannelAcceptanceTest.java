@@ -228,4 +228,23 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
     assertThat(event.isPresent(), is(true));
     assertThat(event.get().getMessage().getBodyAsString(), is("pong"));
   }
+
+  @Test
+  void channelNameStringValuePatternMatchesIncomingFixedChannelMessage() {
+    messageStubFor(
+        message()
+            .withName("Echo with channel name pattern")
+            .triggeredByMessageOnChannel("events", matching("order.*"))
+            .withBody(equalTo("ping"))
+            .willTriggerActions(sendMessage().withBody("pong").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "ping");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("pong")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getMessage().getBodyAsString(), is("pong"));
+  }
 }

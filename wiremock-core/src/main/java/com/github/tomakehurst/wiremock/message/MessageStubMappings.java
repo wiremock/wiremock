@@ -78,16 +78,6 @@ public class MessageStubMappings {
         .findFirst();
   }
 
-  public Optional<MessageStubMapping> findMatchingFixedChannelStub(
-      String providerName, String channelName, Message message) {
-    return getAllSortedByPriority().stream()
-        .filter(
-            stub ->
-                stub.getTrigger() instanceof FixedChannelMessageTrigger fct
-                    && fct.matches(providerName, channelName, message))
-        .findFirst();
-  }
-
   public List<MessageStubMapping> findByMetadata(final StringValuePattern pattern) {
     return store
         .getAll()

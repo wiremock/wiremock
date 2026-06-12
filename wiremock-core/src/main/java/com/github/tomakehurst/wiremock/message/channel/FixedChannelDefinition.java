@@ -25,33 +25,35 @@ import org.jspecify.annotations.NullUnmarked;
 public class FixedChannelDefinition {
 
   private final String providerName;
-  private final String name;
+  private final String channelName;
 
   @JsonCreator
   public FixedChannelDefinition(
-      @JsonProperty("providerName") String providerName, @JsonProperty("name") String name) {
+      @JsonProperty("providerName") String providerName,
+      @JsonProperty("channelName") String channelName) {
     this.providerName = providerName;
-    this.name = name;
+    this.channelName = channelName;
   }
 
   public String getProviderName() {
     return providerName;
   }
 
-  public String getName() {
-    return name;
+  public String getChannelName() {
+    return channelName;
   }
 
   @Override
   public boolean equals(Object o) {
     if (getClass() != o.getClass()) return false;
     FixedChannelDefinition that = (FixedChannelDefinition) o;
-    return Objects.equals(providerName, that.providerName) && Objects.equals(name, that.name);
+    return Objects.equals(providerName, that.providerName)
+        && Objects.equals(channelName, that.channelName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(providerName, name);
+    return Objects.hash(providerName, channelName);
   }
 
   @NullUnmarked

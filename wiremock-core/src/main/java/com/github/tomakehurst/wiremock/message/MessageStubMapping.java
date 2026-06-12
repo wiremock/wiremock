@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.message;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
@@ -270,8 +271,14 @@ public class MessageStubMapping implements Prioritisable {
       return this;
     }
 
-    public Builder triggeredByMessageOnChannel(String providerName, String channelName) {
-      this.explicitTrigger = new FixedChannelMessageTrigger(providerName, channelName, null);
+    public Builder triggeredByMessageOnChannel(String channelProvider, String channelName) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, equalTo(channelName));
+      return this;
+    }
+
+    public Builder triggeredByMessageOnChannel(
+        String channelProvider, StringValuePattern channelNamePattern) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, channelNamePattern);
       return this;
     }
 
@@ -322,12 +329,7 @@ public class MessageStubMapping implements Prioritisable {
     @Override
     public MessageStubMapping build() {
       MessageTrigger trigger;
-      if (explicitTrigger instanceof FixedChannelMessageTrigger fixedTrigger) {
-        trigger =
-            bodyPattern != null
-                ? fixedTrigger.withMessagePattern(new MessagePattern(null, bodyPattern))
-                : fixedTrigger;
-      } else if (explicitTrigger != null) {
+      if (explicitTrigger != null) {
         trigger = explicitTrigger;
       } else {
         MessagePattern messagePattern =

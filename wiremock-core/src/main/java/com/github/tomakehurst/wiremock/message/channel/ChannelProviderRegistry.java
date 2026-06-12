@@ -88,8 +88,8 @@ public class ChannelProviderRegistry {
       FixedChannelDefinition channelDefinition, InboundMessageSink sink) {
     ChannelProvider provider = requireProvider(channelDefinition.getProviderName());
     ChannelProviderDriver driver = drivers.get(provider.getDriverType());
-    driver.createChannel(provider, channelDefinition.getName(), sink);
-    return new FixedChannel(driver, provider, channelDefinition.getName());
+    driver.createChannel(provider, channelDefinition.getChannelName(), sink);
+    return new FixedChannel(driver, provider, channelDefinition.getChannelName());
   }
 
   private ChannelProvider requireProvider(String providerName) {
