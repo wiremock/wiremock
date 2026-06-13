@@ -44,7 +44,7 @@ public class SendMessageAction implements MessageAction {
 
   @JsonCreator
   public SendMessageAction(
-      @JsonProperty("message") MessageDefinition message,
+      @JsonProperty(value = "message", required = true) MessageDefinition message,
       @Nullable @JsonProperty("channelTarget") ChannelTarget channelTarget,
       @Nullable @JsonProperty("transformers") List<String> transformers,
       @Nullable @JsonProperty("transformerParameters") Parameters transformerParameters) {

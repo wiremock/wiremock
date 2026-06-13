@@ -24,8 +24,6 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
-import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -715,9 +713,6 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public SendChannelMessageResult sendChannelMessage(
       ChannelType type, RequestPattern requestPattern, MessageDefinition messageDefinition) {
-    if (messageDefinition == null) {
-      throw new InvalidInputException(Errors.validation("message", "message is required"));
-    }
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
     Message message = new Message(messageDefinition.getBody().resolve(stores));
@@ -790,9 +785,6 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
-    if (messageDefinition == null) {
-      throw new InvalidInputException(Errors.validation("message", "message is required"));
-    }
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
     receiveInboundFixedChannelMessage(providerName, channelName, incomingMessage);
   }
