@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
@@ -105,6 +106,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Options options;
 
   private final Extensions extensions;
+  private Map<String, RequestMatcherExtension> customMatchers;
 
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading() && !FACTORIES_LOADING_OPTIMIZED.get()) {
@@ -139,8 +141,7 @@ public class WireMockApp implements StubServer, Admin {
             options.filesRoot().child(FILES_ROOT));
     extensions.load();
 
-    Map<String, RequestMatcherExtension> customMatchers =
-        extensions.ofType(RequestMatcherExtension.class);
+    customMatchers = extensions.ofType(RequestMatcherExtension.class);
 
     requestJournal =
         options.requestJournalDisabled()
@@ -809,6 +810,20 @@ public class WireMockApp implements StubServer, Admin {
                     fixedTarget.getProviderName(), fixedTarget.getChannelName());
             outboundChannel.sendMessage(outMessage);
             messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, outMessage));
+          } else if (sendAction.getChannelTarget()
+              instanceof RequestInitiatedChannelTarget requestTarget) {
+            List<RequestInitiatedMessageChannel> matchingChannels =
+                requestTarget.getChannelType() != null
+                    ? messageChannels.findByTypeAndRequestPattern(
+                        requestTarget.getChannelType(),
+                        requestTarget.getRequestPattern(),
+                        customMatchers)
+                    : messageChannels.findByRequestPattern(
+                        requestTarget.getRequestPattern(), customMatchers);
+            for (RequestInitiatedMessageChannel channel : matchingChannels) {
+              channel.sendMessage(outMessage);
+              messageJournal.messageReceived(MessageServeEvent.sent(channel, outMessage));
+            }
           }
         }
       }
