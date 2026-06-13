@@ -97,7 +97,8 @@ public class JettyHttpServerTest {
             messageChannels,
             new InMemoryMessageJournal(null),
             stores,
-            Collections.emptyList());
+            Collections.emptyList(),
+            Collections.emptyMap());
   }
 
   @Test

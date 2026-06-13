@@ -37,19 +37,15 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.FixedChannel;
-import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
-import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
-import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
@@ -102,6 +98,7 @@ public class WireMockApp implements StubServer, Admin {
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
   private final ChannelProviderRegistry channelProviderRegistry;
+  private MessageStubRequestHandler messageStubRequestHandler;
 
   private final Options options;
 
@@ -165,6 +162,9 @@ public class WireMockApp implements StubServer, Admin {
         .values()
         .forEach(channelProviderRegistry::registerDriver);
 
+    List<MessageActionTransformer> messageActionTransformers =
+        List.copyOf(extensions.ofType(MessageActionTransformer.class).values());
+
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
@@ -172,7 +172,16 @@ public class WireMockApp implements StubServer, Admin {
             messageJournal,
             stores,
             customMatchers,
-            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+            messageActionTransformers);
+
+    messageStubRequestHandler =
+        new MessageStubRequestHandler(
+            messageStubMappings,
+            messageChannels,
+            messageJournal,
+            stores,
+            messageActionTransformers,
+            customMatchers);
     Map<String, ServeEventListener> extensionListeners =
         extensions.ofType(ServeEventListener.class);
     Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
@@ -279,12 +288,7 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   public MessageStubRequestHandler buildMessageStubRequestHandler() {
-    return new MessageStubRequestHandler(
-        messageStubMappings,
-        messageChannels,
-        messageJournal,
-        stores,
-        List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+    return messageStubRequestHandler;
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
@@ -792,42 +796,7 @@ public class WireMockApp implements StubServer, Admin {
   private void receiveInboundFixedChannelMessage(
       String providerName, String channelName, Message message) {
     FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
-    Optional<MessageStubMapping> matchingStub =
-        messageStubMappings.findMatchingStub(inboundChannel, message);
-
-    if (matchingStub.isEmpty()) {
-      messageJournal.messageReceived(MessageServeEvent.receivedUnmatched(inboundChannel, message));
-    } else {
-      MessageStubMapping stub = matchingStub.get();
-      messageJournal.messageReceived(
-          MessageServeEvent.receivedMatched(inboundChannel, message, stub));
-      for (MessageAction action : stub.getActions()) {
-        if (action instanceof SendMessageAction sendAction) {
-          Message outMessage = new Message(sendAction.getMessage().getBody().resolve(stores));
-          if (sendAction.getChannelTarget() instanceof FixedChannelTarget fixedTarget) {
-            FixedChannel outboundChannel =
-                messageChannels.requireFixed(
-                    fixedTarget.getProviderName(), fixedTarget.getChannelName());
-            outboundChannel.sendMessage(outMessage);
-            messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, outMessage));
-          } else if (sendAction.getChannelTarget()
-              instanceof RequestInitiatedChannelTarget requestTarget) {
-            List<RequestInitiatedMessageChannel> matchingChannels =
-                requestTarget.getChannelType() != null
-                    ? messageChannels.findByTypeAndRequestPattern(
-                        requestTarget.getChannelType(),
-                        requestTarget.getRequestPattern(),
-                        customMatchers)
-                    : messageChannels.findByRequestPattern(
-                        requestTarget.getRequestPattern(), customMatchers);
-            for (RequestInitiatedMessageChannel channel : matchingChannels) {
-              channel.sendMessage(outMessage);
-              messageJournal.messageReceived(MessageServeEvent.sent(channel, outMessage));
-            }
-          }
-        }
-      }
-    }
+    messageStubRequestHandler.processMessage(inboundChannel, message);
   }
 
   @Override

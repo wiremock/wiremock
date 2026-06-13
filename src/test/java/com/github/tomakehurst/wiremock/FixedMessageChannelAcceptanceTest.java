@@ -28,9 +28,8 @@ import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.ConflictException;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
-import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -212,6 +211,26 @@ public class FixedMessageChannelAcceptanceTest extends WebsocketAcceptanceTestBa
 
     UUID secondId = createFixedChannel(fixedChannel().onProvider("events").named("recreatable"));
     removeMessageChannel(secondId);
+  }
+
+  @Test
+  void templatesMessageBodyWhenInboundFixedChannelMessageTriggersFixedChannelSend() {
+    messageStubFor(
+        message()
+            .withName("Template fixed channel echo")
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(matching(".*"))
+            .willTriggerActions(
+                sendMessage("Received: {{message.body}}").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "hello");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("Received: hello")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getMessage().getBodyAsString(), is("Received: hello"));
   }
 
   @Test
