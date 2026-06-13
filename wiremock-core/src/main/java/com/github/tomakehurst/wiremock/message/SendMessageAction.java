@@ -30,22 +30,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+@NullMarked
 @JsonInclude(NON_EMPTY)
 public class SendMessageAction implements MessageAction {
 
-  @NonNull private final MessageDefinition message;
-  @NonNull private final ChannelTarget channelTarget;
-  @NonNull private final List<String> transformers;
-  @NonNull private final Parameters transformerParameters;
+  private final MessageDefinition message;
+  private final ChannelTarget channelTarget;
+  private final List<String> transformers;
+  private final Parameters transformerParameters;
 
   @JsonCreator
   public SendMessageAction(
       @JsonProperty("message") MessageDefinition message,
-      @JsonProperty("channelTarget") ChannelTarget channelTarget,
-      @JsonProperty("transformers") List<String> transformers,
-      @JsonProperty("transformerParameters") Parameters transformerParameters) {
+      @Nullable @JsonProperty("channelTarget") ChannelTarget channelTarget,
+      @Nullable @JsonProperty("transformers") List<String> transformers,
+      @Nullable @JsonProperty("transformerParameters") Parameters transformerParameters) {
     this.message = message;
     this.channelTarget = channelTarget != null ? channelTarget : OriginatingChannelTarget.INSTANCE;
     this.transformers = transformers != null ? new ArrayList<>(transformers) : new ArrayList<>();
@@ -106,7 +108,7 @@ public class SendMessageAction implements MessageAction {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (getClass() != o.getClass()) return false;
     SendMessageAction that = (SendMessageAction) o;
     return Objects.equals(message, that.message)
         && Objects.equals(channelTarget, that.channelTarget)

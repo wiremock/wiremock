@@ -49,6 +49,9 @@ public class ChannelProviderRegistry {
   }
 
   public ChannelProvider renameProvider(String currentName, ChannelProvider update) {
+    if (update.getName() == null) {
+      throw new InvalidInputException(Errors.validation("name", "name is required"));
+    }
     ChannelProvider existing =
         providerStore
             .get(currentName)
@@ -73,6 +76,9 @@ public class ChannelProviderRegistry {
   }
 
   public void registerProvider(ChannelProvider provider) {
+    if (provider.getName() == null) {
+      throw new InvalidInputException(Errors.validation("name", "name is required"));
+    }
     if (!drivers.containsKey(provider.getDriverType())) {
       throw new InvalidInputException(
           Errors.single(10, "No driver registered for type: " + provider.getDriverType()));
@@ -86,6 +92,9 @@ public class ChannelProviderRegistry {
 
   public FixedChannel createChannel(
       FixedChannelDefinition channelDefinition, InboundMessageSink sink) {
+    if (channelDefinition.getProviderName() == null) {
+      throw new InvalidInputException(Errors.validation("providerName", "providerName is required"));
+    }
     ChannelProvider provider = requireProvider(channelDefinition.getProviderName());
     ChannelProviderDriver driver = drivers.get(provider.getDriverType());
     driver.createChannel(provider, channelDefinition.getChannelName(), sink);
