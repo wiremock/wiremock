@@ -219,7 +219,7 @@ public class FixedMessageChannelAcceptanceTest extends WebsocketAcceptanceTestBa
         message()
             .withName("Template fixed channel echo")
             .triggeredByMessageOnChannel("events", "orders")
-            .withBody(matching(".*"))
+            .withBody(equalTo("hello"))
             .willTriggerActions(
                 sendMessage("Received: {{message.body}}").onChannel("events", "orders")));
 

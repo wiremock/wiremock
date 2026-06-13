@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageChann
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessageToFixedChannel;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -103,6 +104,13 @@ public class CustomChannelDriverAcceptanceTest {
     removeMessageChannel(tempId);
 
     assertThat(driver.getDeletedChannels(), hasItem("temp-delete"));
+  }
+
+  @Test
+  void adminApiSendChannelMessageRoutesToDriverSend() {
+    sendMessageToFixedChannel("custom-events", "orders", "published-message");
+
+    waitAtMost(5, SECONDS).until(() -> driver.getMessages("orders").contains("published-message"));
   }
 
   @Test

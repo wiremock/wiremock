@@ -790,7 +790,7 @@ public class WireMockApp implements StubServer, Admin {
   public void sendChannelMessage(
       String providerName, String channelName, MessageDefinition messageDefinition) {
     Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
-    receiveInboundFixedChannelMessage(providerName, channelName, incomingMessage);
+    messageChannels.requireFixed(providerName, channelName).sendMessage(incomingMessage);
   }
 
   private void receiveInboundFixedChannelMessage(
