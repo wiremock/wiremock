@@ -1,0 +1,42 @@
+name: Publish Branch Snapshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - message-mapping-fixes
+
+jobs:
+  publish-branch-snapshot:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          validate-wrappers: true
+
+      - name: Compute branch snapshot version
+        id: version
+        run: |
+          BASE_VERSION=$(grep '^version=' wiremock-core/src/main/resources/version.properties | cut -d= -f2)
+          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          echo "snapshot_version=${BASE_VERSION}-${BRANCH_SLUG}-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+      - name: Set snapshot version
+        run: ./gradlew set-snapshot-version --stacktrace -PsnapshotVersion=${{ steps.version.outputs.snapshot_version }}
+
+      - name: Publish to GitHub Packages
+        run: ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
