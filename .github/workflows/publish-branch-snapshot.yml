@@ -2,9 +2,6 @@ name: Publish Branch Snapshots
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - message-mapping-fixes
 
 jobs:
   publish-branch-snapshot:
