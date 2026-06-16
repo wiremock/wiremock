@@ -29,8 +29,8 @@ public class FixedChannelDefinition {
 
   @JsonCreator
   public FixedChannelDefinition(
-      @JsonProperty("providerName") String providerName,
-      @JsonProperty("channelName") String channelName) {
+      @JsonProperty(value = "providerName", required = true) String providerName,
+      @JsonProperty(value = "channelName", required = true) String channelName) {
     this.providerName = providerName;
     this.channelName = channelName;
   }

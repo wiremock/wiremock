@@ -28,8 +28,8 @@ public class FixedChannelTarget implements ChannelTarget {
 
   @JsonCreator
   public FixedChannelTarget(
-      @JsonProperty("providerName") String providerName,
-      @JsonProperty("channelName") String channelName) {
+      @JsonProperty(value = "providerName", required = true) String providerName,
+      @JsonProperty(value = "channelName", required = true) String channelName) {
     this.providerName = providerName;
     this.channelName = channelName;
   }

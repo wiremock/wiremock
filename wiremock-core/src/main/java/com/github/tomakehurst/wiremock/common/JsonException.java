@@ -17,17 +17,31 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class JsonException extends InvalidInputException {
+
+  private static final Pattern MISSING_REQUIRED_PROPERTY =
+      Pattern.compile("Missing required creator property '([^']+)'");
 
   protected JsonException(Errors errors) {
     super(errors);
   }
 
   public static JsonException fromJackson(JsonProcessingException processingException) {
+    if (processingException instanceof MismatchedInputException mie) {
+      Matcher matcher = MISSING_REQUIRED_PROPERTY.matcher(mie.getOriginalMessage());
+      if (matcher.find()) {
+        String fieldName = matcher.group(1);
+        return new JsonException(Errors.validation(fieldName, fieldName + " is required"));
+      }
+    }
+
     Throwable rootCause = getRootCause(processingException);
 
     String message = rootCause.getMessage();

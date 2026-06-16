@@ -32,7 +32,7 @@ public class HttpStubTrigger implements MessageTrigger {
   private final UUID stubId;
 
   @JsonCreator
-  public HttpStubTrigger(@JsonProperty("stubId") UUID stubId) {
+  public HttpStubTrigger(@JsonProperty(value = "stubId", required = true) UUID stubId) {
     this.stubId = stubId;
   }
 

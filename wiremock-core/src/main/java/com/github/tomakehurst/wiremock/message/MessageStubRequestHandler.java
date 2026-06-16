@@ -17,11 +17,13 @@ package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class MessageStubRequestHandler {
@@ -31,19 +33,22 @@ public class MessageStubRequestHandler {
   private final MessageJournal messageJournal;
   private final Stores stores;
   private final List<MessageActionTransformer> actionTransformers;
+  private final Map<String, RequestMatcherExtension> customMatchers;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
       MessageJournal messageJournal,
       Stores stores,
-      List<MessageActionTransformer> actionTransformers) {
+      List<MessageActionTransformer> actionTransformers,
+      Map<String, RequestMatcherExtension> customMatchers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
     this.stores = stores;
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
+    this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
   }
 
   public void processTextMessage(MessageChannel channel, String text) {
@@ -105,18 +110,20 @@ public class MessageStubRequestHandler {
     if (target instanceof OriginatingChannelTarget) {
       originatingChannel.sendMessage(message);
       messageJournal.messageReceived(MessageServeEvent.sent(originatingChannel, message));
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      FixedChannel outboundChannel =
+          messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
+      outboundChannel.sendMessage(message);
+      messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, message));
     } else if (target instanceof RequestInitiatedChannelTarget requestTarget) {
       List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
         matchingChannels =
             messageChannels.findByTypeAndRequestPattern(
-                requestTarget.getChannelType(),
-                requestTarget.getRequestPattern(),
-                Collections.emptyMap());
+                requestTarget.getChannelType(), requestTarget.getRequestPattern(), customMatchers);
       } else {
         matchingChannels =
-            messageChannels.findByRequestPattern(
-                requestTarget.getRequestPattern(), Collections.emptyMap());
+            messageChannels.findByRequestPattern(requestTarget.getRequestPattern(), customMatchers);
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);

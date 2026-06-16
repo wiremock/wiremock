@@ -40,7 +40,7 @@ public class SendChannelMessageRequest {
       @JsonProperty("initiatingRequest") RequestPattern initiatingRequestPattern,
       @JsonProperty("providerName") String providerName,
       @JsonProperty("channelName") String channelName,
-      @JsonProperty("message") MessageDefinition message) {
+      @JsonProperty(value = "message", required = true) MessageDefinition message) {
     this.type = type;
     this.initiatingRequestPattern = initiatingRequestPattern;
     this.providerName = providerName;

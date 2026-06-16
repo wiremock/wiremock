@@ -37,8 +37,7 @@ public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
 
   @Override
   public void send(ChannelProvider provider, String channelName, Message message) {
-    // Delivery is handled by ChannelProviderRegistry which records to the journal.
-    // The in-memory driver has no additional transport to perform.
+    receive(provider.getName(), channelName, message);
   }
 
   @Override

@@ -28,16 +28,19 @@ import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.common.ConflictException;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
+public class FixedMessageChannelAcceptanceTest extends WebsocketAcceptanceTestBase {
 
   static UUID channelId;
 
@@ -211,6 +214,26 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void templatesMessageBodyWhenInboundFixedChannelMessageTriggersFixedChannelSend() {
+    messageStubFor(
+        message()
+            .withName("Template fixed channel echo")
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("hello"))
+            .willTriggerActions(
+                sendMessage("Received: {{message.body}}").onChannel("events", "orders")));
+
+    sendMessageToFixedChannel("events", "orders", "hello");
+
+    Optional<MessageServeEvent> event =
+        waitForMessageEvent(
+            messagePattern().withBody(equalTo("Received: hello")).build(), Duration.ofSeconds(5));
+
+    assertThat(event.isPresent(), is(true));
+    assertThat(event.get().getMessage().getBodyAsString(), is("Received: hello"));
+  }
+
+  @Test
   void incomingMessageOnFixedChannelTriggersSendToFixedChannel() {
     messageStubFor(
         message()
@@ -227,6 +250,28 @@ public class FixedMessageChannelAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(event.isPresent(), is(true));
     assertThat(event.get().getMessage().getBodyAsString(), is("pong"));
+  }
+
+  @Test
+  void inboundFixedChannelMessageIsForwardedToMatchingRequestInitiatedChannels() {
+    messageStubFor(
+        message()
+            .withName("Forward fixed channel message to WebSocket subscribers")
+            .triggeredByMessageOnChannel("events", "orders")
+            .withBody(equalTo("forward-me"))
+            .triggersAction(
+                sendMessage("forwarded")
+                    .onChannelsMatching(newRequestPattern().withUrl("/ws-subscribers")))
+            .build());
+
+    WebsocketTestClient wsClient = new WebsocketTestClient();
+    wsClient.connect(websocketUrl("/ws-subscribers"));
+    Awaitility.waitAtMost(5, TimeUnit.SECONDS).until(wsClient::isConnected);
+
+    sendMessageToFixedChannel("events", "orders", "forward-me");
+
+    Awaitility.waitAtMost(5, TimeUnit.SECONDS)
+        .until(() -> wsClient.getMessages().contains("forwarded"));
   }
 
   @Test

@@ -37,7 +37,8 @@ public class HttpRequestTrigger implements MessageTrigger {
   private final RequestPattern requestPattern;
 
   @JsonCreator
-  public HttpRequestTrigger(@JsonProperty("requestPattern") RequestPattern requestPattern) {
+  public HttpRequestTrigger(
+      @JsonProperty(value = "requestPattern", required = true) RequestPattern requestPattern) {
     this.requestPattern = requestPattern;
   }
 

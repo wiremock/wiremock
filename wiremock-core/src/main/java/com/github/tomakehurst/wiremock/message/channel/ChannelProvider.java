@@ -34,8 +34,8 @@ public class ChannelProvider {
 
   @JsonCreator
   public ChannelProvider(
-      @JsonProperty("name") String name,
-      @JsonProperty("driverType") String driverType,
+      @JsonProperty(value = "name", required = true) String name,
+      @JsonProperty(value = "driverType", required = true) String driverType,
       @Nullable @JsonProperty("settings") Map<String, Object> settings) {
     this.name = name;
     this.driverType = driverType;
