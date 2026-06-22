@@ -207,7 +207,6 @@ publishing {
 
 val checkReleasePreconditions by tasks.registering  {
   doLast {
-    if (System.getenv("CI") == "true") return@doLast
     val releaseBranches = listOf("master", "v4.x")
     val currentGitBranch = providers.exec {
       commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
