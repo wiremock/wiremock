@@ -47,18 +47,34 @@ jobs:
     needs: publish-core
     runs-on: ubuntu-latest
     steps:
+      - name: Get app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WIREMOCK_APP_ID }}
+          private-key: ${{ secrets.WIREMOCK_APP_PRIVATE_KEY }}
+          owner: wiremock
+
       - name: Trigger Bump WireMock versions
         run: |
           gh workflow run "Bump WireMock Versions" \
             --repo wiremock/wiremock.org \
             -f WIREMOCK_BETA=${{ needs.publish-core.outputs.version }}
         env:
-          GH_TOKEN: ${{ secrets.WIREMOCK_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
   trigger-docker-release:
     needs: publish-core
     runs-on: ubuntu-latest
     steps:
+      - name: Get app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WIREMOCK_APP_ID }}
+          private-key: ${{ secrets.WIREMOCK_APP_PRIVATE_KEY }}
+          owner: wiremock
+
       - name: Trigger Docker beta release
         run: |
           gh workflow run release-4.x-beta \
@@ -66,4 +82,4 @@ jobs:
             -f image_version=1 \
             -f wiremock_version=${{ needs.publish-core.outputs.version }}
         env:
-          GH_TOKEN: ${{ secrets.WIREMOCK_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
