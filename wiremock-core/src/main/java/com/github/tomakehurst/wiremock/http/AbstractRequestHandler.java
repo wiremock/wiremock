@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -31,6 +32,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected List<RequestListener> listeners = new ArrayList<>();
   protected final ResponseRenderer responseRenderer;
   protected final FilterProcessor filterProcessor;
+  protected final Notifier notifier;
 
   private final DataTruncationSettings dataTruncationSettings;
 
@@ -39,9 +41,19 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
       List<RequestFilter> requestFilters,
       List<RequestFilterV2> v2RequestFilters,
       DataTruncationSettings dataTruncationSettings) {
+    this(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings, notifier());
+  }
+
+  public AbstractRequestHandler(
+      ResponseRenderer responseRenderer,
+      List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
+      DataTruncationSettings dataTruncationSettings,
+      Notifier notifier) {
     this.responseRenderer = responseRenderer;
     this.filterProcessor = new FilterProcessor(requestFilters, v2RequestFilters);
     this.dataTruncationSettings = dataTruncationSettings;
+    this.notifier = notifier;
   }
 
   @Override
@@ -79,14 +91,13 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     serveEvent = serveEvent.complete(response, dataTruncationSettings);
 
     if (logRequests()) {
-      notifier()
-          .info(
-              "Request received:\n"
-                  + formatRequest(request)
-                  + "\n\nMatched response definition:\n"
-                  + responseDefinition
-                  + "\n\nResponse:\n"
-                  + response);
+      notifier.info(
+          "Request received:\n"
+              + formatRequest(request)
+              + "\n\nMatched response definition:\n"
+              + responseDefinition
+              + "\n\nResponse:\n"
+              + response);
     }
 
     for (RequestListener listener : listeners) {

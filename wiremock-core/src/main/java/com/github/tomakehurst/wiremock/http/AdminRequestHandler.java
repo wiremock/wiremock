@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT_SEGMENT;
 import static org.wiremock.url.SchemeRegistry.https;
 
@@ -56,6 +55,23 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     this.requireHttps = requireHttps;
   }
 
+  public AdminRequestHandler(
+      AdminRoutes adminRoutes,
+      Admin admin,
+      ResponseRenderer responseRenderer,
+      Authenticator authenticator,
+      boolean requireHttps,
+      List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
+      DataTruncationSettings dataTruncationSettings,
+      Notifier notifier) {
+    super(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings, notifier);
+    this.adminRoutes = adminRoutes;
+    this.admin = admin;
+    this.authenticator = authenticator;
+    this.requireHttps = requireHttps;
+  }
+
   @Override
   public ServeEvent handleRequest(ServeEvent initialServeEvent) {
     final Request request = initialServeEvent.getRequest();
@@ -63,22 +79,21 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     final boolean isRequestHttps = request.getTypedAbsoluteUrl().getScheme().equals(https);
 
     if (requireHttps && !isRequestHttps) {
-      notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
+      notifier.info("HTTPS is required for admin requests, sending upgrade redirect");
       return initialServeEvent.withResponseDefinition(
           ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API"));
     }
 
     if (!authenticator.authenticate(request)) {
-      notifier()
-          .info(
-              "Authentication failed for "
-                  + request.getMethod()
-                  + " "
-                  + request.getPathAndQueryWithoutPrefix());
+      notifier.info(
+          "Authentication failed for "
+              + request.getMethod()
+              + " "
+              + request.getPathAndQueryWithoutPrefix());
       return initialServeEvent.withResponseDefinition(ResponseDefinition.notAuthorised());
     }
 
-    notifier().info("Admin request received:\n" + formatRequest(request));
+    notifier.info("Admin request received:\n" + formatRequest(request));
     Path path = withoutAdminRoot(request.getPathAndQueryWithoutPrefix().getPath());
 
     try {
@@ -104,7 +119,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     } catch (ConflictException ce) {
       return initialServeEvent.withResponseDefinition(ResponseDefinition.conflict(ce.getErrors()));
     } catch (Throwable t) {
-      notifier().error("Unrecoverable error handling admin request", t);
+      notifier.error("Unrecoverable error handling admin request", t);
       throw t;
     }
   }
