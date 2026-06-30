@@ -140,7 +140,7 @@ errorprone-annotations = { module = "com.google.errorprone:error_prone_annotatio
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.7.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.8.0" }
 sonarqube = { id = "org.sonarqube", version = "7.3.0.8198" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 japicmp = { id = "me.champeau.gradle.japicmp", version = "0.4.6" }
