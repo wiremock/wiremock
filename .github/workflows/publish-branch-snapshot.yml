@@ -26,14 +26,11 @@ jobs:
       - name: Compute branch snapshot version
         id: version
         run: |
-          BASE_VERSION=$(grep '^version=' wiremock-core/src/main/resources/version.properties | cut -d= -f2)
+          BASE_VERSION=$(git describe --tags --abbrev=0 --match='[0-9]*' 2>/dev/null | sed 's/^v//' || echo "0.0.0")
           BRANCH_SLUG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
           echo "snapshot_version=${BASE_VERSION}-${BRANCH_SLUG}-SNAPSHOT" >> "$GITHUB_OUTPUT"
 
-      - name: Set snapshot version
-        run: ./gradlew set-snapshot-version --stacktrace -PsnapshotVersion=${{ steps.version.outputs.snapshot_version }}
-
       - name: Publish to GitHub Packages
-        run: ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
+        run: ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace -PreleaseVersion=${{ steps.version.outputs.snapshot_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
