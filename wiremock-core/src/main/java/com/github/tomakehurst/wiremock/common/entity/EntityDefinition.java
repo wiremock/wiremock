@@ -15,15 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,14 +25,23 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.Stores;
-import java.nio.charset.Charset;
-import java.util.Objects;
-import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.PublishedAPI;
+
+import java.nio.charset.Charset;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @PublishedAPI
 @JsonInclude(NON_NULL)
@@ -120,15 +120,6 @@ public abstract class EntityDefinition {
     }
 
     return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
-  }
-
-  public static EntityDefinition resolveEntityAttributesFromHeaders(
-      HttpHeaders headers, EntityDefinition entityDefinition) {
-    if (entityDefinition.isAbsent()) {
-      return entityDefinition;
-    }
-
-    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public @NonNull Entity resolve(@Nullable Stores stores) {
