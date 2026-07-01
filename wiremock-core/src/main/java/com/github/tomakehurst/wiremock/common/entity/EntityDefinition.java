@@ -15,6 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common.entity;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
+import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,22 +34,12 @@ import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.store.Stores;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.wiremock.annotations.PublishedAPI;
-
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
-import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
-import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
 @JsonInclude(NON_NULL)
@@ -406,22 +404,14 @@ public abstract class EntityDefinition {
 
     CompressionType correctCompression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
     Charset correctCharset = getFirstNonNull(charset, DEFAULT_CHARSET);
-    Format correctFormat;
-    if (format == null && data != null) {
-      correctFormat = Format.detectFormat(stringFromBytes(data, correctCharset));
-    } else {
-      correctFormat = getFirstNonNull(format, DEFAULT_FORMAT);
-    }
 
     if (data != null) {
       return new SimpleEntityDefinition(
-          simpleStringStyle, correctCompression, correctFormat, correctCharset, data);
+          simpleStringStyle, correctCompression, format, correctCharset, data);
     } else if (dataStoreRef != null) {
-      return new DataRefEntityDefinition(
-          correctCompression, correctFormat, correctCharset, dataStoreRef);
+      return new DataRefEntityDefinition(correctCompression, format, correctCharset, dataStoreRef);
     } else if (filePath != null) {
-      return new FilePathEntityDefinition(
-          correctCompression, correctFormat, correctCharset, filePath);
+      return new FilePathEntityDefinition(correctCompression, format, correctCharset, filePath);
     } else {
       return EmptyEntityDefinition.INSTANCE;
     }

@@ -42,7 +42,7 @@ public class SimpleEntityDefinition extends EntityDefinition {
   }
 
   SimpleEntityDefinition(@NonNull String text, @NonNull Charset charset) {
-    this(true, NONE, Format.TEXT, charset, bytesFromString(text, charset));
+    this(true, NONE, null, charset, bytesFromString(text, charset));
   }
 
   SimpleEntityDefinition(

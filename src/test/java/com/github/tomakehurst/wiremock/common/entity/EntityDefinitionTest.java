@@ -25,11 +25,9 @@ import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.buildEntityDefinition;
 import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
-import static com.github.tomakehurst.wiremock.common.entity.Format.HTML;
 import static com.github.tomakehurst.wiremock.common.entity.Format.JSON;
 import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
 import static com.github.tomakehurst.wiremock.common.entity.Format.XML;
-import static com.github.tomakehurst.wiremock.common.entity.Format.YAML;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -408,52 +406,6 @@ public class EntityDefinitionTest {
   }
 
   @Test
-  void detectsTextFormatWhenNotSpecified() {
-    assertThat(entity().setData("\n{}  ").build().getFormat(), is(JSON));
-    assertThat(entity().setData("  []").build().getFormat(), is(JSON));
-    assertThat(entity().setData("  \n<things />").build().getFormat(), is(XML));
-
-    String yaml =
-        // language=yaml
-        """
-            root:
-              myList:
-                - one
-                - two
-                - three
-            """;
-    assertThat(entity().setData(yaml).build().getFormat(), is(YAML));
-
-    String html =
-        // language=html
-        """
-            <html lang="">
-              <body>
-                <h1>Hello World</h1>
-              </body>
-            </html>
-            """;
-    assertThat(entity().setData(html).build().getFormat(), is(HTML));
-
-    assertThat(entity().setData("just some prose").build().getFormat(), is(TEXT));
-  }
-
-  @Test
-  void detectsTextFormatWhenNotSpecifiedDuringDeserialization() {
-    var json =
-        // language=json
-        """
-            {
-              "data": "\\n{ \\"key\\": \\"value\\" }  "
-            }
-            """;
-
-    EntityDefinition entity = Json.read(json, EntityDefinition.class);
-
-    assertThat(entity.getFormat(), is(JSON));
-  }
-
-  @Test
   void serialisesSimpleStringEntityDefinitionAsString() {
     EntityDefinition entityDefinition = EntityDefinition.simple("simple text");
     String json = Json.write(entityDefinition);
@@ -642,19 +594,8 @@ public class EntityDefinitionTest {
 
   @Test
   void deserialisedAndBuiltInstancesAreEquivalent() {
-    var json =
-        // language=json
-        """
-            {
-              "data": "{}",
-              "format": "json",
-              "compression": "none",
-              "charset": "utf-8"
-            }
-            """;
-
     var deserialised = Json.read("\"blah\"", EntityDefinition.class);
-    var built = EntityDefinition.builder().setData("blah").setFormat(TEXT).build();
+    var built = EntityDefinition.builder().setData("blah").setFormat(null).build();
 
     assertEquals(deserialised, built);
   }

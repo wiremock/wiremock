@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
-import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
-import static com.github.tomakehurst.wiremock.common.entity.Format.detectFormat;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -46,7 +44,7 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       return EntityDefinition.buildEntityDefinition(
           true,
           CompressionType.NONE,
-          TEXT,
+          null,
           charset,
           null,
           bytesFromString(node.asText(), charset),
@@ -129,11 +127,7 @@ public class EntityDefinitionDeserializer extends StdDeserializer<EntityDefiniti
       return Format.BINARY;
     }
 
-    if (data != null) {
-      return detectFormat(data);
-    }
-
-    return EntityDefinition.DEFAULT_FORMAT;
+    return null;
   }
 
   private static @Nullable DataStoreRef buildDataRef(
