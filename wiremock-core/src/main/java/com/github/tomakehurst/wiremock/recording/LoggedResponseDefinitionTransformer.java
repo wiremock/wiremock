@@ -18,10 +18,9 @@ package com.github.tomakehurst.wiremock.recording;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.*;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.http.*;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,16 +44,11 @@ public class LoggedResponseDefinitionTransformer
         new ResponseDefinitionBuilder().withStatus(response.getStatus());
 
     if (response.getBody() != null && response.getBody().length > 0) {
-
-      byte[] body = bodyDecompressedIfRequired(response);
-      String mimeType = response.getMimeType();
-      Charset charset = response.getCharset();
-      if (determineIsTextFromMimeType(mimeType)) {
-        responseDefinitionBuilder.withEntityBody(
-            EntityDefinition.builder().setCharset(charset).setData(body).build());
-      } else {
-        responseDefinitionBuilder.withBody(body);
-      }
+      final EntityDefinition.Builder bodyBuilder =
+          EntityDefinition.builder().setData(response.getBody());
+      EntityMetadata.copyFromHeaders(response.getHeaders(), bodyBuilder);
+      final EntityDefinition body = bodyBuilder.build();
+      responseDefinitionBuilder.withEntityBody(body.decompressIfPossible());
     }
 
     if (response.getHeaders() != null) {
@@ -62,14 +56,6 @@ public class LoggedResponseDefinitionTransformer
     }
 
     return responseDefinitionBuilder.build();
-  }
-
-  private byte[] bodyDecompressedIfRequired(LoggedResponse response) {
-    if (response.getHeaders() != null
-        && response.getHeaders().getHeader(CONTENT_ENCODING).containsValue("gzip")) {
-      return Gzip.unGzip(response.getBody());
-    }
-    return response.getBody();
   }
 
   private HttpHeaders withoutContentEncodingAndContentLength(LoggedResponse response) {

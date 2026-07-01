@@ -235,6 +235,10 @@ public abstract class EntityDefinition {
     return builder.build();
   }
 
+  public EntityDefinition decompressIfPossible() {
+    return isDecompressable() ? decompress() : this;
+  }
+
   public EntityDefinition decompress() {
     final CompressionType compression = getCompression();
     if (GZIP.equals(compression)) {

@@ -35,10 +35,8 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
 import org.wiremock.url.AbsoluteUrl;
@@ -47,8 +45,9 @@ import org.wiremock.url.Rfc3986Validator;
 class WhatWGUrlInvariantTests {
 
   @Test
-//  @EnabledIf("remoteDataReachable")
-  @Disabled("we should update this in a separate lifecycle rather than forcing it during unrelated work")
+  //  @EnabledIf("remoteDataReachable")
+  @Disabled(
+      "we should update this in a separate lifecycle rather than forcing it during unrelated work")
   void test_data_is_up_to_date() throws IOException {
     String expected = WhatWGUrlTestManagement.readRemote();
     try {
