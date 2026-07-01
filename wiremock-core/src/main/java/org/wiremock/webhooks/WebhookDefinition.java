@@ -82,7 +82,7 @@ public class WebhookDefinition {
     this.method = method;
     this.url = url;
     this.headers = getFirstNonNull(headers, new HttpHeaders());
-    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
+    this.body = body;
     this.delay = delay;
     this.parameters = parameters;
   }
