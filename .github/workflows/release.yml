@@ -77,7 +77,7 @@ jobs:
 
       - name: Trigger Docker beta release
         run: |
-          gh workflow run release-4.x-beta \
+          gh workflow run release-4.x-beta.yml \
             --repo wiremock/wiremock-docker \
             -f image_version=1 \
             -f wiremock_version=${{ needs.publish-core.outputs.version }}
