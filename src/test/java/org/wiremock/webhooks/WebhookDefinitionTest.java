@@ -110,7 +110,6 @@ public class WebhookDefinitionTest {
     EntityDefinition entity = webhookDefinition.getBodyEntityDefinition();
     assertThat(entity.getFilePath(), nullValue());
     assertThat(entity.getDataAsString(), is("<stuff />"));
-    assertThat(entity.getFormat(), is(Format.XML));
   }
 
   @Test
@@ -133,7 +132,6 @@ public class WebhookDefinitionTest {
 
     EntityDefinition entity = webhookDefinition.getBodyEntityDefinition();
     assertThat(entity.getFilePath(), is("webhooks/body.json"));
-    assertThat(entity.getFormat(), is(Format.JSON));
     assertThat(entity.getData(), nullValue());
   }
 

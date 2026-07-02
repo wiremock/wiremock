@@ -501,46 +501,6 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  void takesCharsetFromContentTypeHeaderWhenAvailableAndNotSetExplicitly() {
-    var json =
-        // language=JSON
-        """
-            {
-              "headers": {
-                "Content-Type": "text/plain; charset=UTF-16"
-              },
-              "body": {
-                "data": "odd charset"
-              }
-            }
-            """;
-
-    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
-
-    assertThat(responseDefinition.getBodyEntity().getCharset(), is(StandardCharsets.UTF_16));
-  }
-
-  @Test
-  void takesContentEncodingFromHeaderWhenAvailable() {
-    var json =
-        // language=JSON
-        """
-            {
-              "headers": {
-                "Content-Encoding": "gzip"
-              },
-              "body": {
-                "data": "compressed"
-              }
-            }
-            """;
-
-    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
-
-    assertThat(responseDefinition.getBodyEntity().getCompression(), is(CompressionType.GZIP));
-  }
-
-  @Test
   void absentBodyFieldResultInEmptyBody() {
     var json =
         // language=JSON
@@ -597,8 +557,6 @@ public class ResponseDefinitionTest {
 
     EntityDefinition body = responseDefinition.getBodyEntity();
     assertThat(body.getFilePath(), is("bodies/data.json"));
-    assertThat(body.getCharset(), is(StandardCharsets.UTF_16));
-    assertThat(body.getFormat(), is(JSON));
     assertThat(body.getCompression(), is(CompressionType.NONE));
   }
 
@@ -614,7 +572,27 @@ public class ResponseDefinitionTest {
             .build();
 
     EntityDefinition entity = responseDefinition.getBodyEntity();
-    assertThat(entity.getFormat(), is(JSON)); // JSON detectd from the actual body string
+    assertThat(entity.getFormat(), nullValue());
     assertThat(entity.getCharset(), is(UTF_8)); // default
+  }
+
+  @Test
+  void templatedBodyWithBinaryHeaderIsPreserved() {
+    var json =
+        // language=json
+        """
+            {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/octet-stream"
+              },
+              "body": "{{request.body}}"
+            }
+            """;
+
+    ResponseDefinition responseDefinition = Json.read(json, ResponseDefinition.class);
+
+    assertThat(Json.write(responseDefinition), jsonEquals(json));
+    assertThat(responseDefinition.getBody(), is("{{request.body}}"));
   }
 }

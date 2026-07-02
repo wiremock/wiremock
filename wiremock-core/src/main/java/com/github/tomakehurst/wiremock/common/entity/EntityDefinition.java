@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.common.entity;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.GZIP;
 import static com.github.tomakehurst.wiremock.common.entity.CompressionType.NONE;
 import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
@@ -34,7 +33,6 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.nio.charset.Charset;
 import java.util.Objects;
@@ -120,15 +118,6 @@ public abstract class EntityDefinition {
     }
 
     return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
-  }
-
-  public static EntityDefinition resolveEntityAttributesFromHeaders(
-      HttpHeaders headers, EntityDefinition entityDefinition) {
-    if (entityDefinition.isAbsent()) {
-      return entityDefinition;
-    }
-
-    return entityDefinition.transform(builder -> EntityMetadata.copyFromHeaders(headers, builder));
   }
 
   public @NonNull Entity resolve(@Nullable Stores stores) {
@@ -233,6 +222,10 @@ public abstract class EntityDefinition {
     final Builder builder = toBuilder();
     transformer.accept(builder);
     return builder.build();
+  }
+
+  public EntityDefinition decompressIfPossible() {
+    return isDecompressable() ? decompress() : this;
   }
 
   public EntityDefinition decompress() {
@@ -411,22 +404,14 @@ public abstract class EntityDefinition {
 
     CompressionType correctCompression = tryToGuessCompressionTypeIfNotSpecified(compression, data);
     Charset correctCharset = getFirstNonNull(charset, DEFAULT_CHARSET);
-    Format correctFormat;
-    if (format == null && data != null) {
-      correctFormat = Format.detectFormat(stringFromBytes(data, correctCharset));
-    } else {
-      correctFormat = getFirstNonNull(format, DEFAULT_FORMAT);
-    }
 
     if (data != null) {
       return new SimpleEntityDefinition(
-          simpleStringStyle, correctCompression, correctFormat, correctCharset, data);
+          simpleStringStyle, correctCompression, format, correctCharset, data);
     } else if (dataStoreRef != null) {
-      return new DataRefEntityDefinition(
-          correctCompression, correctFormat, correctCharset, dataStoreRef);
+      return new DataRefEntityDefinition(correctCompression, format, correctCharset, dataStoreRef);
     } else if (filePath != null) {
-      return new FilePathEntityDefinition(
-          correctCompression, correctFormat, correctCharset, filePath);
+      return new FilePathEntityDefinition(correctCompression, format, correctCharset, filePath);
     } else {
       return EmptyEntityDefinition.INSTANCE;
     }

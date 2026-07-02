@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -1380,6 +1381,20 @@ public class ResponseTemplateTransformerTest {
 
     String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");
     assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
+  }
+
+  @Test
+  void templateCanBeUsedForWithBinaryContentType() {
+    String bodyBase64 = "ZmFrZWJpbmFyeQo=";
+
+    ResponseDefinition result =
+        transform(
+            mockRequest().url("/bin").method(POST).body(bodyBase64),
+            aResponse()
+                .withHeader("Content-Type", "application/octet-stream")
+                .withBody("{{request.body}}"));
+
+    assertThat(result.getTextBody(), is(bodyBase64));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {

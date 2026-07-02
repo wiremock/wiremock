@@ -157,7 +157,8 @@ public class ResponseDefinition {
     this.removeProxyRequestHeaders =
         removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : List.of();
 
-    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
+    //    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
+    this.body = body;
 
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
