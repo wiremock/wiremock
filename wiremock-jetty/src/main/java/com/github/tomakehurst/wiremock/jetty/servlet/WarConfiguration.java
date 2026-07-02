@@ -117,7 +117,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public Notifier notifier() {
-    return null;
+    return (Notifier) servletContext.getAttribute(Notifier.KEY);
   }
 
   @Override

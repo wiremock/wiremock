@@ -39,6 +39,9 @@ public class WireMockWebContextListener implements ServletContextListener {
         Boolean.parseBoolean(
             getFirstNonNull(context.getInitParameter("verboseLoggingEnabled"), "true"));
 
+    Notifier notifier = new Slf4jNotifier(verboseLoggingEnabled);
+    context.setAttribute(Notifier.KEY, notifier);
+
     WireMockApp wireMockApp =
         new WireMockApp(new WarConfiguration(context), new NotImplementedContainer());
 
@@ -46,7 +49,6 @@ public class WireMockWebContextListener implements ServletContextListener {
     context.setAttribute(StubRequestHandler.class.getName(), wireMockApp.buildStubRequestHandler());
     context.setAttribute(
         AdminRequestHandler.class.getName(), wireMockApp.buildAdminRequestHandler());
-    context.setAttribute(Notifier.KEY, new Slf4jNotifier(verboseLoggingEnabled));
   }
 
   @Override

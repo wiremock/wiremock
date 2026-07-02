@@ -49,11 +49,11 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
       List<RequestFilter> requestFilters,
       List<RequestFilterV2> v2RequestFilters,
       DataTruncationSettings dataTruncationSettings,
-      Notifier notifier) {
+      Notifier configuredNotifier) {
     this.responseRenderer = responseRenderer;
     this.filterProcessor = new FilterProcessor(requestFilters, v2RequestFilters);
     this.dataTruncationSettings = dataTruncationSettings;
-    this.notifier = notifier;
+    this.notifier = configuredNotifier != null ? configuredNotifier : notifier();
   }
 
   @Override
