@@ -30,9 +30,14 @@ jobs:
       - name: Set snapshot version
         run: ./gradlew set-snapshot-version --stacktrace ${{ github.event_name == 'workflow_dispatch' && format('-PsnapshotVersion={0}-SNAPSHOT', github.ref_name) || '' }}
 
+      - name: Read snapshot version
+        id: version
+        run: |
+          VERSION=$(grep '^version=' wiremock-core/src/main/resources/version.properties | cut -d= -f2)
+          echo "snapshot_version=${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Publish to GitHub Packages
         id: publish_package
-        run: ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace
-
+        run: ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository --stacktrace -PreleaseVersion=${{ steps.version.outputs.snapshot_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
