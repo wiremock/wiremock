@@ -31,17 +31,17 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public Scenario getByName(String name) {
+  public synchronized Scenario getByName(String name) {
     return store.get(name).orElse(null);
   }
 
   @Override
-  public List<Scenario> getAll() {
+  public synchronized List<Scenario> getAll() {
     return store.getAll().collect(toList());
   }
 
   @Override
-  public void onStubMappingAdded(StubMapping mapping) {
+  public synchronized void onStubMappingAdded(StubMapping mapping) {
     if (mapping.isInScenario()) {
       String scenarioName = mapping.getScenarioName();
       Scenario scenario =
@@ -53,7 +53,7 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
+  public synchronized void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
     if (oldMapping.isInScenario()
         && !oldMapping.getScenarioName().equals(newMapping.getScenarioName())) {
       Scenario scenarioForOldMapping =
@@ -80,7 +80,7 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void onStubMappingRemoved(StubMapping mapping) {
+  public synchronized void onStubMappingRemoved(StubMapping mapping) {
     if (mapping.isInScenario()) {
       final String scenarioName = mapping.getScenarioName();
       Scenario scenario =
@@ -98,7 +98,7 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void onStubServed(StubMapping mapping) {
+  public synchronized void onStubServed(StubMapping mapping) {
     if (mapping.isInScenario()) {
       final String scenarioName = mapping.getScenarioName();
       Scenario scenario = store.get(scenarioName).orElseThrow(IllegalStateException::new);
@@ -112,17 +112,17 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void reset() {
+  public synchronized void reset() {
     store.getAll().map(Scenario::reset).forEach(scenario -> store.put(scenario.getId(), scenario));
   }
 
   @Override
-  public void resetSingle(String name) {
+  public synchronized void resetSingle(String name) {
     setSingleScenarioState(name, Scenario::reset);
   }
 
   @Override
-  public void setSingle(String name, String state) {
+  public synchronized void setSingle(String name, String state) {
     setSingleScenarioState(name, scenario -> scenario.setState(state));
   }
 
@@ -137,12 +137,12 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void clear() {
+  public synchronized void clear() {
     store.clear();
   }
 
   @Override
-  public boolean mappingMatchesScenarioState(StubMapping mapping) {
+  public synchronized boolean mappingMatchesScenarioState(StubMapping mapping) {
     String currentScenarioState = getByName(mapping.getScenarioName()).getState();
     return mapping.getRequiredScenarioState().equals(currentScenarioState);
   }
