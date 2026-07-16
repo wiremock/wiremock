@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -335,8 +335,8 @@ public class ScenariosTest {
             .build();
     scenarios.onStubMappingAdded(mapping2);
 
-    assertThat(scenarios.mappingMatchesScenarioState(mapping1), is(true));
-    assertThat(scenarios.mappingMatchesScenarioState(mapping2), is(false));
+    assertThat(scenarios.snapshot().mappingMatchesScenarioState(mapping1), is(true));
+    assertThat(scenarios.snapshot().mappingMatchesScenarioState(mapping2), is(false));
   }
 
   @Test

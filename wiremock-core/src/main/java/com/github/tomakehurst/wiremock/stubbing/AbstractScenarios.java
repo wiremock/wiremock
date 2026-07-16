@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,5 +145,10 @@ public abstract class AbstractScenarios implements Scenarios {
   public boolean mappingMatchesScenarioState(StubMapping mapping) {
     String currentScenarioState = getByName(mapping.getScenarioName()).getState();
     return mapping.getRequiredScenarioState().equals(currentScenarioState);
+  }
+
+  @Override
+  public ScenarioSnapshot snapshot() {
+    return new ScenarioSnapshot(store.getAll());
   }
 }
