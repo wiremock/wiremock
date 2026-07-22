@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,12 +41,12 @@ public class MultipartValuePatternBuilder {
 
   public MultipartValuePatternBuilder withName(String name) {
     this.name = name;
-    return withHeader("Content-Disposition", containing("name=\"" + name + "\""));
+    return this;
   }
 
   public MultipartValuePatternBuilder withFileName(String filename) {
     this.filename = filename;
-    return withHeader("Content-Disposition", containing("filename=\"" + filename + "\""));
+    return this;
   }
 
   public MultipartValuePatternBuilder withHeader(String name, StringValuePattern headerPattern) {
@@ -62,10 +60,17 @@ public class MultipartValuePatternBuilder {
   }
 
   public MultipartValuePattern build() {
-    return headerPatterns.isEmpty() && bodyPatterns.isEmpty()
+    return isNullOrEmpty(name)
+            && isNullOrEmpty(filename)
+            && headerPatterns.isEmpty()
+            && bodyPatterns.isEmpty()
         ? null
         : headerPatterns.isEmpty()
             ? new MultipartValuePattern(name, filename, matchingType, null, bodyPatterns)
             : new MultipartValuePattern(name, filename, matchingType, headerPatterns, bodyPatterns);
+  }
+
+  private static boolean isNullOrEmpty(String value) {
+    return value == null || value.isEmpty();
   }
 }

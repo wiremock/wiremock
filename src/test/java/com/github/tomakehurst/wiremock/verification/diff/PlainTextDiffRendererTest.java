@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.FormParameter;
@@ -436,6 +438,53 @@ class PlainTextDiffRendererTest {
     System.out.println(output);
 
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_multipart.txt")));
+  }
+
+  @Test
+  void showsMultipartFileNameMismatch() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withMultipartRequestBody(aMultipart().withName("avatar").withFileName("pic.png"))
+                .build(),
+            mockRequest()
+                .method(POST)
+                .url("/thing")
+                .header("Content-Type", "multipart/form-data")
+                .part(mockPart().name("avatar").filename("wrong.png")));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(output, containsString("Multipart filename: pic.png"));
+    assertThat(output, containsString("wrong.png"));
+    assertThat(output, containsString("Multipart filename does not match"));
+  }
+
+  @Test
+  void usesContentDispositionFallbackForMultipartAttributesInDiff() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withMultipartRequestBody(
+                    aMultipart()
+                        .withName("avatar")
+                        .withFileName("pic.png")
+                        .withBody(equalTo("expected body")))
+                .build(),
+            mockRequest()
+                .method(POST)
+                .url("/thing")
+                .header("Content-Type", "multipart/form-data")
+                .part(
+                    mockPart()
+                        .header("Content-Disposition", "form-data; name=avatar; filename=pic.png")
+                        .body("wrong body")));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(output, not(containsString("Multipart name does not match")));
+    assertThat(output, not(containsString("Multipart filename does not match")));
+    assertThat(output, containsString("Body does not match"));
   }
 
   @Test
