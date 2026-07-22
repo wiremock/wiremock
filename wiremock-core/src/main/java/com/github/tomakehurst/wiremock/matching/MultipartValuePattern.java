@@ -19,12 +19,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.fileupload.ParameterParser;
 
 public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
@@ -65,14 +67,17 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
   @Override
   public MatchResult match(final Request.Part value) {
-    if (headers != null || bodyPatterns != null) {
-      return MatchResult.aggregate(
-          headers != null ? matchHeaderPatterns(value) : MatchResult.exactMatch(),
-          bodyPatterns != null ? matchBodyPatterns(value) : MatchResult.exactMatch(),
-          filename != null ? matchFileName(value) : MatchResult.exactMatch());
+    MatchResult headerMatch =
+        headers != null ? matchHeaderPatterns(value) : MatchResult.exactMatch();
+    MatchResult bodyMatch =
+        bodyPatterns != null ? matchBodyPatterns(value) : MatchResult.exactMatch();
+    MatchResult fileNameMatch = filename != null ? matchFileName(value) : MatchResult.exactMatch();
+
+    if (name != null && !name.isEmpty()) {
+      return MatchResult.aggregate(headerMatch, bodyMatch, fileNameMatch, matchName(value));
     }
 
-    return MatchResult.exactMatch();
+    return MatchResult.aggregate(headerMatch, bodyMatch, fileNameMatch);
   }
 
   public MatchResult match(final Request request) {
@@ -117,27 +122,64 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     return bodyPatterns;
   }
 
+  private MatchResult matchName(final Request.Part part) {
+    return matchContentDispositionParameter(name, part.getName(), "name", part);
+  }
+
   private MatchResult matchFileName(final Request.Part part) {
-    if (filename != null && !filename.isEmpty()) {
-      return MatchResult.of(filename.equals(part.getFileName()));
+    return matchContentDispositionParameter(filename, part.getFileName(), "filename", part);
+  }
+
+  private MatchResult matchContentDispositionParameter(
+      String expectedValue, String actualValue, String parameterName, Request.Part part) {
+    if (expectedValue == null || expectedValue.isEmpty()) {
+      return MatchResult.exactMatch();
     }
-    return MatchResult.exactMatch();
+
+    if (actualValue != null && !actualValue.isEmpty()) {
+      return MatchResult.of(expectedValue.equals(actualValue));
+    }
+
+    HttpHeader contentDisposition = part.getHeader("Content-Disposition");
+    if (contentDisposition == null) {
+      return MatchResult.noMatch();
+    }
+
+    return MatchResult.of(
+        contentDisposition.getValues().stream()
+            .anyMatch(
+                headerValue ->
+                    contentDispositionHasParameter(headerValue, parameterName, expectedValue)));
+  }
+
+  private static boolean contentDispositionHasParameter(
+      String headerValue, String parameterName, String expectedValue) {
+    ParameterParser parser = new ParameterParser();
+    parser.setLowerCaseNames(true);
+
+    String parsedValue = parser.parse(headerValue, ';').get(parameterName);
+    return parsedValue != null && expectedValue.equals(parsedValue.trim());
   }
 
   private MatchResult matchHeaderPatterns(final Request.Part part) {
     if (headers != null && !headers.isEmpty()) {
-      return MatchResult.aggregate(
+      List<MatchResult> headerMatches =
           headers.entrySet().stream()
               .map(
                   headerPattern ->
                       headerPattern.getValue().match(part.getHeader(headerPattern.getKey())))
-              .collect(Collectors.toList()));
+              .collect(Collectors.toList());
+      return MatchResult.aggregate(headerMatches);
     }
 
     return MatchResult.exactMatch();
   }
 
   private MatchResult matchBodyPatterns(final Request.Part value) {
+    if (bodyPatterns == null || bodyPatterns.isEmpty()) {
+      return MatchResult.exactMatch();
+    }
+
     return MatchResult.aggregate(
         bodyPatterns.stream()
             .map(bodyPattern -> matchBody(value, bodyPattern))

@@ -58,7 +58,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.fileupload.ParameterParser;
 
 public class Diff {
 
@@ -183,12 +185,14 @@ public class Diff {
           for (Request.Part part : request.getParts()) {
             diffLineList.add(SPACER);
             String patternPartName = pattern.getName() == null ? "" : ": " + pattern.getName();
-            String partName = part.getName() == null ? "" : part.getName();
+            String partName =
+                resolveMultipartAttribute(part.getName(), part, "name", pattern.getName());
             diffLineList.add(
                 new SectionDelimiter("[Multipart" + patternPartName + "]", "[" + partName + "]"));
             diffLineList.add(SPACER);
 
             if (!pattern.match(part).isExactMatch()) {
+              addMultipartAttributeDiffs(pattern, part, diffLineList);
               addHeaderSectionWithSpacerIfPresent(
                   pattern.getHeaders(), part.getHeaders(), diffLineList);
               addBodySectionIfPresent(
@@ -202,6 +206,72 @@ public class Diff {
         }
       }
     }
+  }
+
+  private void addMultipartAttributeDiffs(
+      MultipartValuePattern pattern, Request.Part part, List<DiffLine<?>> diffLineList) {
+    boolean nameMismatch =
+        addMultipartAttributeDiff(
+            "Multipart name",
+            pattern.getName(),
+            resolveMultipartAttribute(part.getName(), part, "name", pattern.getName()),
+            diffLineList);
+    boolean fileNameMismatch =
+        addMultipartAttributeDiff(
+            "Multipart filename",
+            pattern.getFileName(),
+            resolveMultipartAttribute(part.getFileName(), part, "filename", pattern.getFileName()),
+            diffLineList);
+
+    if (nameMismatch || fileNameMismatch) {
+      diffLineList.add(SPACER);
+    }
+  }
+
+  private boolean addMultipartAttributeDiff(
+      String attribute, String expected, String actual, List<DiffLine<?>> diffLineList) {
+    if (isEmpty(expected)) {
+      return false;
+    }
+
+    DiffLine<String> attributeDiff =
+        new DiffLine<>(attribute, equalTo(expected), actual, attribute + ": " + expected);
+    if (attributeDiff.isExactMatch()) {
+      return false;
+    }
+
+    diffLineList.addAll(toDiffDescriptionLines(attributeDiff));
+    return true;
+  }
+
+  private static String resolveMultipartAttribute(
+      String structuredValue, Request.Part part, String parameterName, String expectedValue) {
+    if (!isEmpty(structuredValue)) {
+      return structuredValue;
+    }
+
+    HttpHeader contentDisposition = part.getHeader("Content-Disposition");
+    if (contentDisposition == null) {
+      return "";
+    }
+
+    ParameterParser parser = new ParameterParser();
+    parser.setLowerCaseNames(true);
+    String firstParsedValue = null;
+    for (String headerValue : contentDisposition.getValues()) {
+      String parsedValue = parser.parse(headerValue, ';').get(parameterName);
+      if (parsedValue != null) {
+        parsedValue = parsedValue.trim();
+        if (firstParsedValue == null) {
+          firstParsedValue = parsedValue;
+        }
+        if (Objects.equals(expectedValue, parsedValue)) {
+          return parsedValue;
+        }
+      }
+    }
+
+    return firstParsedValue == null ? "" : firstParsedValue;
   }
 
   private void addCookiesSectionWithSpacerIfPresent(List<DiffLine<?>> diffLineList) {
