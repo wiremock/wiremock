@@ -142,12 +142,6 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public boolean mappingMatchesScenarioState(StubMapping mapping) {
-    String currentScenarioState = getByName(mapping.getScenarioName()).getState();
-    return mapping.getRequiredScenarioState().equals(currentScenarioState);
-  }
-
-  @Override
   public ScenarioSnapshot snapshot() {
     return new ScenarioSnapshot(store.getAll());
   }

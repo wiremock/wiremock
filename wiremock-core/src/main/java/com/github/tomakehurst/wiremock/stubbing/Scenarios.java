@@ -38,8 +38,5 @@ public interface Scenarios {
 
   void clear();
 
-  @SuppressWarnings("unused")
-  boolean mappingMatchesScenarioState(StubMapping mapping);
-
   ScenarioSnapshot snapshot();
 }
