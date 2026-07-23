@@ -21,7 +21,14 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -418,6 +425,52 @@ public class ScenariosTest {
     Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
     assertThat(possibleStates, hasItems("Started", "step two"));
     assertThat(possibleStates.size(), is(2));
+  }
+
+  @Test
+  public void removesScenarioCompletelyWhenAllMappingsAreRemovedConcurrently() throws Exception {
+    int mappingCount = 100;
+    StubMapping[] mappings = new StubMapping[mappingCount];
+
+    for (int i = 0; i < mappingCount; i++) {
+      mappings[i] =
+          get("/scenarios/" + i)
+              .inScenario("one")
+              .whenScenarioStateIs(STARTED)
+              .willSetStateTo("step_" + i)
+              .willReturn(ok())
+              .build();
+      scenarios.onStubMappingAdded(mappings[i]);
+    }
+
+    CountDownLatch ready = new CountDownLatch(mappingCount);
+    CountDownLatch start = new CountDownLatch(1);
+    ExecutorService executorService = Executors.newFixedThreadPool(mappingCount);
+    List<Future<?>> futures = new ArrayList<>();
+
+    try {
+      for (StubMapping mapping : mappings) {
+        futures.add(
+            executorService.submit(
+                () -> {
+                  ready.countDown();
+                  start.await();
+                  scenarios.onStubMappingRemoved(mapping);
+                  return null;
+                }));
+      }
+
+      assertThat(ready.await(10, TimeUnit.SECONDS), is(true));
+      start.countDown();
+    } finally {
+      executorService.shutdown();
+    }
+
+    assertThat(executorService.awaitTermination(10, TimeUnit.SECONDS), is(true));
+    for (Future<?> future : futures) {
+      future.get();
+    }
+    assertThat(scenarios.getByName("one"), nullValue());
   }
 
   @Test
