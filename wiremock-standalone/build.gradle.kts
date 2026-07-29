@@ -29,7 +29,10 @@ tasks.shadowJar {
     project.configurations.runtimeClasspath.get(),
   )
   manifest {
-    attributes("Main-Class" to "wiremock.Run")
+    attributes(
+      "Main-Class" to "wiremock.Run",
+      "Automatic-Module-Name" to "wiremock.standalone",
+    )
   }
   relocate("org.mortbay", "wiremock.org.mortbay")
   relocate("org.eclipse", "wiremock.org.eclipse")
@@ -75,6 +78,7 @@ tasks.shadowJar {
   exclude("META-INF/versions/21/**")
   exclude("META-INF/versions/22/**")
   exclude("module-info.class")
+  exclude("META-INF/versions/*/module-info.class")
   exclude("handlebars-*.js")
 }
 
