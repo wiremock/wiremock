@@ -1228,6 +1228,34 @@
         }
       }
     },
+    "/__admin/scenarios/{name}/state": {
+      "parameters": [
+        {
+          "description": "The name of the scenario",
+          "in": "path",
+          "name": "name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "operationId": "setScenarioState",
+        "summary": "Set the state of an individual scenario",
+        "tags": [
+          "Scenarios"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/scenarioState"
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully set state"
+          }
+        }
+      }
+    },
     "/__admin/scenarios/reset": {
       "post": {
         "operationId": "resetAllScenarios",
