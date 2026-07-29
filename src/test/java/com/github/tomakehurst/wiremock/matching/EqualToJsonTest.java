@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -617,14 +617,195 @@ public class EqualToJsonTest {
 
     assertThat(match.getSubEvents().size(), is(1));
     Errors.Error error =
-        match.getSubEvents().stream()
-            .findFirst()
-            .get()
-            .getDataAs(Errors.class)
-            .getErrors()
-            .stream()
+        match.getSubEvents().stream().findFirst().get().getDataAs(Errors.class).getErrors().stream()
             .findFirst()
             .get();
     assertThat(error.getDetail(), startsWith("Unexpected end-of-input"));
+  }
+
+  @Test
+  public void doesNotMatchWhenActualHasExtraNullField() {
+    String expected = "{ \"one\": 1, \"two\": 2}";
+    String actual = "{ \"one\": 1, \"two\": 2, \"three\": null}";
+
+    assertFalse(WireMock.equalToJson(expected, false, false, false).match(actual).isExactMatch());
+  }
+
+  @Test
+  public void doesNotMatchWhenExtraNullFieldInNestedObject() {
+    String expected =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inner\": {\n"
+            + "      \"one\": 1\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+    String actual =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inner\": {\n"
+            + "      \"one\": 1,\n"
+            + "      \"two\": null\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    MatchResult match = new EqualToJsonPattern(expected, false, false, false).match(actual);
+
+    assertFalse(match.isExactMatch());
+  }
+
+  @Test
+  public void doesNotMatchWithExtraNullFieldWhenArrayOrderIgnored() {
+    String expected = "[ { \"one\": 1 }, { \"three\": 3 } ]";
+    String actual = "[ { \"three\": 3 }, { \"two\": null, \"one\": 1 } ]";
+
+    MatchResult match = new EqualToJsonPattern(expected, true, false, false).match(actual);
+
+    assertFalse(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWhenActualHasExtraNullField() {
+    String expected = "{ \"one\": 1, \"two\": 2}";
+    String actual = "{ \"one\": 1, \"two\": 2, \"three\": null}";
+
+    assertTrue(WireMock.equalToJson(expected, false, false, true).match(actual).isExactMatch());
+  }
+
+  @Test
+  public void matchesWhenExtraNullFieldInNestedObject() {
+    String expected =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inner\": {\n"
+            + "      \"one\": 1\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+    String actual =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inner\": {\n"
+            + "      \"one\": 1,\n"
+            + "      \"two\": null\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    MatchResult match = new EqualToJsonPattern(expected, false, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWithExtraNullFieldWhenArrayOrderPreserved() {
+    String expected = "[ { \"one\": 1 } ]";
+    String actual = "[ { \"one\": 1, \"two\": null } ]";
+
+    MatchResult match = new EqualToJsonPattern(expected, false, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWithExtraNullFieldWhenArrayOrderIgnored() {
+    String expected = "[ { \"one\": 1 } ]";
+    String actual = "[ { \"two\": null, \"one\": 1 } ]";
+
+    MatchResult match = new EqualToJsonPattern(expected, true, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWhenNestedArrayOrderedHasExtraNullFields() {
+    String expected =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inners\": [\n"
+            + "      { \"one\": 1 },\n"
+            + "      { \"one\": 2 }\n"
+            + "    ]\n"
+            + "  }\n"
+            + "}";
+    String actual =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inners\": [\n"
+            + "      { \"one\": 1, \"two\": null },\n"
+            + "      { \"one\": 2, \"two\": null }\n"
+            + "    ]\n"
+            + "  }\n"
+            + "}";
+
+    MatchResult match = new EqualToJsonPattern(expected, false, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWhenNestedArrayUnorderedHasExtraNullFields() {
+    String expected =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inners\": [\n"
+            + "      { \"one\": 1 },\n"
+            + "      { \"one\": 2 } \n"
+            + "    ]\n"
+            + "  }\n"
+            + "}";
+    String actual =
+        "{\n"
+            + "  \"outer\": {\n"
+            + "    \"inners\": [\n"
+            + "      { \"one\": 2, \"two\": null }, \n"
+            + "      { \"one\": 1, \"two\": null } \n"
+            + "    ]\n"
+            + "  }\n"
+            + "}";
+
+    MatchResult match = new EqualToJsonPattern(expected, true, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesWhenArrayHasNestedObjectsWithExtraNullFields() {
+    String expected =
+        "[\n"
+            + "  {\n"
+            + "    \"one\": 1,\n"
+            + "    \"outer\": {\n"
+            + "      \"inner\": { \"two\": 2, \"three\": 3 }\n"
+            + "    }\n"
+            + "  },\n"
+            + "  {\n"
+            + "    \"one\": 2,\n"
+            + "    \"outer\": {\n"
+            + "      \"inner\": { \"four\": 4 }\n"
+            + "    }\n"
+            + "  }\n"
+            + "]";
+    String actual =
+        "[\n"
+            + "  {\n"
+            + "    \"one\": 1,\n"
+            + "    \"outer\": {\n"
+            + "      \"inner\": { \"two\": 2, \"three\": 3 }\n"
+            + "    }\n"
+            + "  },\n"
+            + "  {\n"
+            + "    \"one\": 2,\n"
+            + "    \"outer\": {\n"
+            + "      \"inner\": { \"four\": 4, \"five\": null }\n"
+            + "    }\n"
+            + "  }\n"
+            + "]";
+
+    MatchResult match = new EqualToJsonPattern(expected, false, false, true).match(actual);
+
+    assertTrue(match.isExactMatch());
   }
 }
