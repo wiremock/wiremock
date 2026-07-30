@@ -130,7 +130,7 @@ jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess"
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
 jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
 
-jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.1" }
 
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on",  version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref = "bouncycastle" }

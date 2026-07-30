@@ -7,7 +7,7 @@ tasks.jar {
 }
 
 dependencies {
-  api("org.jspecify:jspecify:1.0.0")
+  api("org.jspecify:jspecify:1.0.1")
   api(project(":wiremock-url:wiremock-string-parser"))
   api("tools.jackson.core:jackson-core:3.0.0")
   api("tools.jackson.core:jackson-databind:3.0.0")

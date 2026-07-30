@@ -14,7 +14,7 @@ dependencies {
 
   implementation(project(":wiremock-url:wiremock-string-parser"))
 
-  compileOnly("org.jspecify:jspecify:1.0.0")
+  compileOnly("org.jspecify:jspecify:1.0.1")
 
   testImplementation("com.fasterxml.jackson.core:jackson-core:2.5.0")
   testImplementation("com.fasterxml.jackson.core:jackson-databind:2.5.0")
