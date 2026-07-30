@@ -8,7 +8,7 @@ tasks.jar {
 }
 
 dependencies {
-  api("org.jspecify:jspecify:1.0.0")
+  api("org.jspecify:jspecify:1.0.1")
   api(project(":wiremock-url:wiremock-string-parser"))
   compileOnly("org.jetbrains:annotations:26.1.0")
 

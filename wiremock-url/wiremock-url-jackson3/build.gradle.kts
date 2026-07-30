@@ -12,7 +12,7 @@ dependencies {
 
   implementation(project(":wiremock-url:wiremock-string-parser"))
 
-  compileOnly("org.jspecify:jspecify:1.0.0")
+  compileOnly("org.jspecify:jspecify:1.0.1")
 
   testImplementation("tools.jackson.core:jackson-databind:3.0.0")
   testImplementation(platform("org.junit:junit-bom:5.14.4"))
