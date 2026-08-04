@@ -342,11 +342,17 @@ public class EqualToXmlPattern extends StringValuePattern {
           .collect(Collectors.toList());
     }
 
+    private static String getNameForComparison(Node node) {
+      String localName = node.getLocalName();
+      return localName != null ? localName : node.getNodeName();
+    }
+
     private Comparator<Node> getComparator() {
       if (Objects.nonNull(secondaryOrderByTextContent) && secondaryOrderByTextContent) {
-        return Comparator.comparing(Node::getLocalName).thenComparing(Node::getTextContent);
+        return Comparator.comparing(OrderInvariantNodeMatcher::getNameForComparison)
+            .thenComparing(Node::getTextContent);
       } else {
-        return Comparator.comparing(Node::getLocalName);
+        return Comparator.comparing(OrderInvariantNodeMatcher::getNameForComparison);
       }
     }
   }
