@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -66,6 +67,14 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     ClassicHttpResponse response = httpClient.execute(request);
 
     assertThat(EntityUtils.toString(response.getEntity()), response.getCode(), is(200));
+  }
+
+  @Test
+  public void matchesMultipartNameAndFileNameIndependentlyInEitherDslOrder() throws Exception {
+    assertMultipartNameAndFileNameMatching(
+        "/multipart-name-first", aMultipart().withName("avatar").withFileName("pic.png"));
+    assertMultipartNameAndFileNameMatching(
+        "/multipart-filename-first", aMultipart().withFileName("pic.png").withName("avatar"));
   }
 
   @Test
@@ -329,5 +338,26 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("Search results"));
+  }
+
+  private void assertMultipartNameAndFileNameMatching(
+      String url, MultipartValuePatternBuilder pattern) throws Exception {
+    stubFor(post(url).withMultipartRequestBody(pattern).willReturn(ok()));
+
+    assertThat(postMultipartFile(url, "avatar", "pic.png"), is(200));
+    assertThat(postMultipartFile(url, "not-avatar", "pic.png"), is(404));
+    assertThat(postMultipartFile(url, "avatar", "not-pic.png"), is(404));
+  }
+
+  private int postMultipartFile(String url, String name, String filename) throws Exception {
+    ClassicHttpRequest request =
+        ClassicRequestBuilder.post(wireMockServer.baseUrl() + url)
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .addBinaryBody(name, "ABCD".getBytes(), ContentType.DEFAULT_BINARY, filename)
+                    .build())
+            .build();
+
+    return httpClient.execute(request, response -> response.getCode());
   }
 }
