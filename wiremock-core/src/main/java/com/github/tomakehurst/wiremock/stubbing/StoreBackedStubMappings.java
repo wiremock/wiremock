@@ -95,13 +95,17 @@ public class StoreBackedStubMappings implements StubMappings {
 
     final List<SubEvent> subEvents = new ArrayList<>();
 
+    // Match against one point-in-time snapshot of scenario state so that a concurrent request
+    // advancing a scenario mid-scan cannot cause every candidate to be skipped (which would
+    // otherwise leave the request unmatched even though a stub exists for every state).
+    final ScenarioSnapshot scenarioSnapshot = scenarios.snapshot();
     StubMapping matchingStub =
         store
             .findAllMatchingRequest(request, customMatchers, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()
-                        || scenarios.mappingMatchesScenarioState(stubMapping))
+                        || scenarioSnapshot.mappingMatchesScenarioState(stubMapping))
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
 
