@@ -145,7 +145,7 @@
     }
 
     $(function() {
-        var base = window.location.href.startsWith('file') ?
+        const base = window.location.href.startsWith('file') ?
             'http://localhost:8080' :
             '';
 
@@ -159,7 +159,7 @@
         });
 
         $('#startRecording').click(function(event) {
-            var baseUrl = $('#targetBaseUrl').val();
+            const baseUrl = $('#targetBaseUrl').val();
             if (baseUrl == null || baseUrl.length === 0) {
                 showError('You need to enter a valid target URL.');
                 return;
@@ -191,7 +191,7 @@
                 crossDomain: true,
                 url: base + '/__admin/recordings/stop'
             }).done(function(data) {
-                var count = data.mappings.length;
+                const count = data.mappings.length;
                 showMessage('Captured ' + count + ' stub mappings.');
                 $('#startRecording').attr('disabled', false);
             });
