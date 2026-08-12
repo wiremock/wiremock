@@ -144,4 +144,4 @@ spotless = { id = "com.diffplug.spotless", version = "8.9.0" }
 sonarqube = { id = "org.sonarqube", version = "7.4.0.8496" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 japicmp = { id = "me.champeau.gradle.japicmp", version = "0.4.6" }
-task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }
+task-tree = { id = "com.dorongold.task-tree", version = "4.0.2" }
