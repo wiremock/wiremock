@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,41 @@ public class MultipartValuePatternBuilderTest {
   }
 
   @Test
-  public void testBuilderWithNameNoHeadersAndNoBody() {
+  public void storesNameAndFileNameWithoutImplicitHeaderPatterns() {
+    MultipartValuePattern nameFirst =
+        aMultipart().withName("avatar").withFileName("pic.png").build();
+    MultipartValuePattern fileNameFirst =
+        aMultipart().withFileName("pic.png").withName("avatar").build();
+
+    assertThat(nameFirst, is(fileNameFirst));
+    assertThat(nameFirst.getName(), is("avatar"));
+    assertThat(nameFirst.getFileName(), is("pic.png"));
+    assertNull(nameFirst.getHeaders());
+  }
+
+  @Test
+  public void preservesExplicitContentDispositionPatternRegardlessOfHelperOrder() {
+    MultipartValuePattern headerFirst =
+        aMultipart()
+            .withHeader("Content-Disposition", containing("form-data"))
+            .withName("avatar")
+            .withFileName("pic.png")
+            .build();
+    MultipartValuePattern headerLast =
+        aMultipart()
+            .withName("avatar")
+            .withFileName("pic.png")
+            .withHeader("Content-Disposition", containing("form-data"))
+            .build();
+
+    assertThat(headerFirst, is(headerLast));
+    assertThat(
+        headerFirst.getHeaders().get("Content-Disposition"),
+        is(MultiValuePattern.of(containing("form-data"))));
+  }
+
+  @Test
+  public void returnsNullWhenNoMultipartConstraintsAreSpecified() {
     MultipartValuePattern pattern = aMultipart().build();
     assertNull(pattern);
   }

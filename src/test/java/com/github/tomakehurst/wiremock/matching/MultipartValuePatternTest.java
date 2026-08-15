@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,286 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
+import java.util.Map;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 public class MultipartValuePatternTest {
+
+  @Test
+  public void matchesNameAndFileNameIndependentlyWhenNameIsSpecifiedFirst() {
+    MultipartValuePattern pattern = aMultipart().withName("avatar").withFileName("pic.png").build();
+
+    assertNameAndFileNameMatching(pattern);
+  }
+
+  @Test
+  public void matchesNameAndFileNameIndependentlyWhenFileNameIsSpecifiedFirst() {
+    MultipartValuePattern pattern = aMultipart().withFileName("pic.png").withName("avatar").build();
+
+    assertNameAndFileNameMatching(pattern);
+  }
+
+  @Test
+  public void matchesNameAndFileNameWithEqualDistanceRegardlessOfDslOrder() {
+    MultipartValuePattern nameFirst =
+        aMultipart().withName("avatar").withFileName("pic.png").build();
+    MultipartValuePattern fileNameFirst =
+        aMultipart().withFileName("pic.png").withName("avatar").build();
+    MockMultipart matchingPart =
+        mockPart()
+            .name("avatar")
+            .filename("pic.png")
+            .header("Content-Disposition", "form-data; name=avatar; filename=pic.png");
+    MockMultipart wrongNamePart =
+        mockPart()
+            .name("not-avatar")
+            .filename("pic.png")
+            .header("Content-Disposition", "form-data; name=not-avatar; filename=pic.png");
+    MockMultipart wrongFileNamePart =
+        mockPart()
+            .name("avatar")
+            .filename("not-pic.png")
+            .header("Content-Disposition", "form-data; name=avatar; filename=not-pic.png");
+
+    assertTrue(nameFirst.match(matchingPart).isExactMatch());
+    assertTrue(fileNameFirst.match(matchingPart).isExactMatch());
+    assertThat(
+        nameFirst.match(wrongNamePart).getDistance(),
+        is(fileNameFirst.match(wrongNamePart).getDistance()));
+    assertThat(nameFirst.match(wrongNamePart).getDistance(), closeTo(0.25, 0.0001));
+    assertThat(
+        nameFirst.match(wrongFileNamePart).getDistance(),
+        is(fileNameFirst.match(wrongFileNamePart).getDistance()));
+    assertThat(nameFirst.match(wrongFileNamePart).getDistance(), closeTo(0.25, 0.0001));
+  }
+
+  @Test
+  public void appliesExplicitContentDispositionPatternsRegardlessOfDslOrder() {
+    assertContentDispositionHeaderIsApplied(
+        aMultipart()
+            .withHeader("Content-Disposition", containing("name=\"avatar\""))
+            .withName("avatar")
+            .withFileName("pic.png")
+            .build());
+    assertContentDispositionHeaderIsApplied(
+        aMultipart()
+            .withName("avatar")
+            .withFileName("pic.png")
+            .withHeader("Content-Disposition", containing("name=\"avatar\""))
+            .build());
+    assertContentDispositionHeaderIsApplied(
+        aMultipart()
+            .withHeader("Content-Disposition", containing("filename=\"pic.png\""))
+            .withFileName("pic.png")
+            .withName("avatar")
+            .build());
+    assertContentDispositionHeaderIsApplied(
+        aMultipart()
+            .withFileName("pic.png")
+            .withName("avatar")
+            .withHeader("Content-Disposition", containing("filename=\"pic.png\""))
+            .build());
+  }
+
+  @Test
+  public void appliesExplicitContentDispositionPatternsFromJson() {
+    MultipartValuePattern namePattern =
+        Json.read(
+            """
+            {
+              "name": "avatar",
+              "fileName": "pic.png",
+              "matchingType": "ANY",
+              "headers": {
+                "Content-Disposition": { "contains": "name=\\\"avatar\\\"" }
+              }
+            }
+            """,
+            MultipartValuePattern.class);
+    MultipartValuePattern fileNamePattern =
+        Json.read(
+            """
+            {
+              "name": "avatar",
+              "fileName": "pic.png",
+              "matchingType": "ANY",
+              "headers": {
+                "Content-Disposition": { "contains": "filename=\\\"pic.png\\\"" }
+              }
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertContentDispositionHeaderIsApplied(namePattern);
+    assertContentDispositionHeaderIsApplied(fileNamePattern);
+  }
+
+  @Test
+  public void matchesNameWithoutHeaderOrBodyPatterns() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "name": "avatar",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(pattern.match(mockPart().name("avatar")).isExactMatch());
+    assertFalse(pattern.match(mockPart().name("not-avatar")).isExactMatch());
+  }
+
+  @Test
+  public void fallsBackToContentDispositionWhenPartNameIsUnavailable() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "name": "avatar",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(
+        pattern
+            .match(mockPart().header("Content-Disposition", "attachment; name=\"avatar\""))
+            .isExactMatch());
+    assertTrue(
+        pattern
+            .match(
+                mockPart()
+                    .name("")
+                    .header("Content-Disposition", "attachment; name=avatar; filename=pic.png"))
+            .isExactMatch());
+    assertFalse(
+        pattern
+            .match(
+                mockPart()
+                    .name("not-avatar")
+                    .header("Content-Disposition", "attachment; name=avatar"))
+            .isExactMatch());
+    assertFalse(
+        pattern
+            .match(
+                mockPart()
+                    .filename("avatar")
+                    .header("Content-Disposition", "attachment; filename=\"avatar\""))
+            .isExactMatch());
+    assertFalse(pattern.match(mockPart()).isExactMatch());
+  }
+
+  @Test
+  public void fallsBackToContentDispositionWhenPartFileNameIsUnavailable() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "fileName": "pic.png",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(
+        pattern
+            .match(
+                mockPart()
+                    .header("Content-Disposition", "attachment; name=avatar; filename=pic.png"))
+            .isExactMatch());
+    assertFalse(pattern.match(mockPart()).isExactMatch());
+  }
+
+  @Test
+  public void fallsBackAcrossMultipleContentDispositionValuesAndCaseInsensitiveParameters() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "name": "avatar",
+              "fileName": "pic.png",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(
+        pattern
+            .match(
+                mockPart()
+                    .header(
+                        "Content-Disposition",
+                        "form-data; ignored=value",
+                        "attachment; NaMe=avatar; FiLeNaMe=\"pic.png\""))
+            .isExactMatch());
+  }
+
+  @Test
+  public void treatsNullContentDispositionHeaderAsNoMatchDuringFallback() {
+    MultipartValuePattern namePattern = aMultipart().withName("avatar").build();
+    MultipartValuePattern fileNamePattern = aMultipart().withFileName("pic.png").build();
+    Request.Part part = partReturningNullHeader();
+
+    assertFalse(namePattern.match(part).isExactMatch());
+    assertFalse(fileNamePattern.match(part).isExactMatch());
+  }
+
+  @Test
+  public void preservesDistanceWhenNameIsAbsentOrEmpty() {
+    MockMultipart part = mockPart().header("X-Test", "actual");
+
+    assertThat(headerOnlyPattern(null).match(part).getDistance(), closeTo(1.0 / 3.0, 0.0001));
+    assertThat(headerOnlyPattern("").match(part).getDistance(), closeTo(1.0 / 3.0, 0.0001));
+  }
+
+  @Test
+  public void ignoresEmptyNameAndFileNameConstraints() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "name": "",
+              "fileName": "",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(pattern.match(mockPart().name("avatar").filename("pic.png")).isExactMatch());
+  }
+
+  @Test
+  public void matchesFileNameWithoutHeaderOrBodyPatterns() {
+    MultipartValuePattern pattern =
+        Json.read(
+            """
+            {
+              "fileName": "pic.png",
+              "matchingType": "ANY"
+            }
+            """,
+            MultipartValuePattern.class);
+
+    assertTrue(pattern.match(mockPart().filename("pic.png")).isExactMatch());
+    assertFalse(pattern.match(mockPart().filename("not-pic.png")).isExactMatch());
+  }
 
   @Test
   public void deserialisesCorrectlyWhenNoBodyOrHeaderMatchersPresent() {
@@ -186,9 +454,6 @@ public class MultipartValuePatternTest {
                 + "  \"name\" : \"title\",\n"
                 + "  \"matchingType\" : \"ANY\",\n"
                 + "  \"headers\" : {\n"
-                + "    \"Content-Disposition\" : {\n"
-                + "      \"contains\" : \"name=\\\"title\\\"\"\n"
-                + "    },\n"
                 + "    \"X-First-Header\" : {\n"
                 + "      \"equalTo\" : \"One\"\n"
                 + "    },\n"
@@ -200,6 +465,27 @@ public class MultipartValuePatternTest {
                 + "    \"equalToJson\" : \"{ \\\"thing\\\": 123 }\"\n"
                 + "  } ]\n"
                 + "}"));
+  }
+
+  @Test
+  public void serialisesDedicatedFieldsWithoutAnImplicitContentDispositionPattern() {
+    JsonNode generatedPattern =
+        Json.node(Json.write(aMultipart().withName("avatar").withFileName("pic.png").build()));
+    JsonNode explicitHeaderPattern =
+        Json.node(
+            Json.write(
+                aMultipart()
+                    .withName("avatar")
+                    .withFileName("pic.png")
+                    .withHeader("Content-Disposition", containing("form-data"))
+                    .build()));
+
+    assertThat(generatedPattern.get("name").textValue(), is("avatar"));
+    assertThat(generatedPattern.get("fileName").textValue(), is("pic.png"));
+    assertFalse(generatedPattern.has("headers"));
+    assertThat(
+        explicitHeaderPattern.get("headers").get("Content-Disposition").get("contains").textValue(),
+        is("form-data"));
   }
 
   @Test
@@ -292,5 +578,77 @@ public class MultipartValuePatternTest {
     assertNotEquals(patternA.hashCode(), patternC.hashCode());
     assertNotEquals(patternB, patternC);
     assertNotEquals(patternB.hashCode(), patternC.hashCode());
+  }
+
+  private static void assertNameAndFileNameMatching(MultipartValuePattern pattern) {
+    assertTrue(pattern.match(part("avatar", "pic.png")).isExactMatch());
+    assertFalse(pattern.match(part("not-avatar", "pic.png")).isExactMatch());
+    assertFalse(pattern.match(part("avatar", "not-pic.png")).isExactMatch());
+
+    MockMultipart partWithNameInFileName =
+        mockPart()
+            .name("not-avatar")
+            .filename("avatar")
+            .header("Content-Disposition", "form-data; name=\"not-avatar\"; filename=\"avatar\"");
+    assertFalse(pattern.match(partWithNameInFileName).isExactMatch());
+  }
+
+  private static MockMultipart part(String name, String filename) {
+    return mockPart()
+        .name(name)
+        .filename(filename)
+        .header(
+            "Content-Disposition",
+            "form-data; name=\"" + name + "\"; filename=\"" + filename + "\"");
+  }
+
+  private static MultipartValuePattern headerOnlyPattern(String name) {
+    return new MultipartValuePattern(
+        name,
+        null,
+        MultipartValuePattern.MatchingType.ANY,
+        Map.of("X-Test", MultiValuePattern.of(absent())),
+        null);
+  }
+
+  private static void assertContentDispositionHeaderIsApplied(MultipartValuePattern pattern) {
+    MatchResult result =
+        pattern.match(
+            mockPart()
+                .name("avatar")
+                .filename("pic.png")
+                .header("Content-Disposition", "form-data; name=avatar; filename=pic.png"));
+
+    assertFalse(result.isExactMatch());
+    assertThat(result.getDistance(), closeTo(0.25, 0.0001));
+  }
+
+  private static Request.Part partReturningNullHeader() {
+    return new Request.Part() {
+      @Override
+      public String getName() {
+        return null;
+      }
+
+      @Override
+      public String getFileName() {
+        return null;
+      }
+
+      @Override
+      public HttpHeader getHeader(String name) {
+        return null;
+      }
+
+      @Override
+      public HttpHeaders getHeaders() {
+        return HttpHeaders.noHeaders();
+      }
+
+      @Override
+      public Entity getBodyEntity() {
+        return null;
+      }
+    };
   }
 }
