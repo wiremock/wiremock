@@ -7,7 +7,6 @@ dependencies {
     api(libs.apache.http5.core)
 
     api(project(":wiremock-core"))
-    implementation(project(":wiremock-core:certificate-generator"))
     implementation(project(":wiremock-url:wiremock-url"))
 
     testImplementation(platform(libs.junit.bom))

@@ -35,7 +35,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.Stubbing;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.io.IOException;

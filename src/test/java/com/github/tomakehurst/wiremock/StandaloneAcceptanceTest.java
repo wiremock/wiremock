@@ -34,7 +34,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.standalone.MappingFileException;
-import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
+import com.github.tomakehurst.wiremock.standalone.cli.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;

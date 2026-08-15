@@ -9,7 +9,7 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemp
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.Stubbing;
 
 import java.util.ArrayList;
 import java.util.List;

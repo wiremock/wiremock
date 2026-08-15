@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.crypto;
 
 import static java.util.Objects.requireNonNull;
 
-import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateAuthority;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.cert.CertificateException;

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.ssl;
+package com.github.tomakehurst.wiremock.http.ssl.cert;
 
-import static com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority.prepend;
+import static com.github.tomakehurst.wiremock.http.ssl.cert.CertificateAuthority.prepend;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;

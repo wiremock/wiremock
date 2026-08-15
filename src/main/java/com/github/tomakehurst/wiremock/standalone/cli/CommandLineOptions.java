@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.standalone;
+package com.github.tomakehurst.wiremock.standalone.cli;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
@@ -45,6 +45,9 @@ import com.github.tomakehurst.wiremock.jetty.JettySettings;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
+import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.io.IOException;

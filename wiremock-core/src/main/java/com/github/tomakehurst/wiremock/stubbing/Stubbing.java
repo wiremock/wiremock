@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.junit;
+package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
@@ -22,8 +22,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
