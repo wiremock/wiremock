@@ -40,6 +40,9 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-httpclient-apache5")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.httpclient.apache5")
+    }
 }
 
 publishing {

@@ -4,6 +4,9 @@ plugins {
 
 tasks.jar {
   archiveBaseName.set("wiremock-string-parser-jackson3")
+  manifest {
+    attributes("Automatic-Module-Name" to "org.wiremock.stringparser.jackson3")
+  }
 }
 
 dependencies {

@@ -81,6 +81,9 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-core")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.core")
+    }
 }
 
 publishing {

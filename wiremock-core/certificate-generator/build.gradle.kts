@@ -3,6 +3,12 @@ plugins {
   id("com.gradleup.shadow")
 }
 
+tasks.jar {
+  manifest {
+    attributes("Automatic-Module-Name" to "org.wiremock.certificate.generator")
+  }
+}
+
 tasks.shadowJar {
   archiveClassifier = "with-deps"
   description = "Create a shadow JAR with bouncy castle dependencies minimized"
