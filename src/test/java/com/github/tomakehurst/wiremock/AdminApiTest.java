@@ -819,6 +819,10 @@ class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response = testClient.get("/__admin/docs/swagger");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), containsString("\"openapi\": \"3.0.0\""));
+    assertThat(
+        response.content(),
+        containsString(
+            "This stub mapping's priority relative to others. If omitted, the default priority is 5. 1 is highest."));
   }
 
   @Test
