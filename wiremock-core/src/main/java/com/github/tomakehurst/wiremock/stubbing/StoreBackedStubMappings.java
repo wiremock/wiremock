@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_MATCH;
@@ -28,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.extension.*;
@@ -97,15 +99,17 @@ public class StoreBackedStubMappings implements StubMappings {
 
     // Match against one point-in-time snapshot of scenario state so that a concurrent request
     // advancing a scenario mid-scan cannot cause every candidate to be skipped (which would
-    // otherwise leave the request unmatched even though a stub exists for every state).
-    final ScenarioSnapshot scenarioSnapshot = scenarios.snapshot();
+    // otherwise leave the request unmatched even though a stub exists for every state). Taken
+    // lazily, on the first candidate that is constrained by scenario state, so that requests
+    // matching no scenario never pay for it.
+    final Lazy<ScenarioSnapshot> scenarioSnapshot = lazy(scenarios::snapshot);
     StubMapping matchingStub =
         store
             .findAllMatchingRequest(request, customMatchers, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()
-                        || scenarioSnapshot.mappingMatchesScenarioState(stubMapping))
+                        || scenarioSnapshot.get().mappingMatchesScenarioState(stubMapping))
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
 
