@@ -1,6 +1,9 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     id("wiremock.common-conventions")
     alias(libs.plugins.japicmp)
+    alias(libs.plugins.jmh)
 }
 
 apply(from = "buildSchema.gradle")
@@ -81,6 +84,33 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-core")
+}
+
+dependencies {
+    jmh(libs.jmh.core)
+    jmh(libs.jmh.generator.annprocess)
+}
+
+jmh {
+    includes.add(".*Benchmark.*")
+    resultFormat.set("JSON")
+}
+
+// Exposes the raw JMH command line, e.g.
+// ./gradlew :wiremock-core:jmhRun --args="ScenarioMatchingBenchmark -t 4 -rf json -rff out.json"
+tasks.register<JavaExec>("jmhRun") {
+    dependsOn("jmhCompileGeneratedClasses")
+    mainClass.set("org.openjdk.jmh.Main")
+    classpath = files(
+        layout.buildDirectory.dir("jmh-generated-classes"),
+        layout.buildDirectory.dir("jmh-generated-resources"),
+        sourceSets["jmh"].runtimeClasspath,
+    )
+}
+
+// Benchmarks are throwaway measurement code, not published API
+tasks.named<JavaCompile>("compileJmhJava") {
+    options.errorprone.enabled = false
 }
 
 publishing {
