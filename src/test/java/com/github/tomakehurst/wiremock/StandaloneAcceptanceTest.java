@@ -194,7 +194,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.firstHeader("Content-Type"), startsWith("text/html"));
     assertThat(response.content(), containsString("<title>WireMock Recorder</title>"));
 
-    response = testClient.get("/__admin/recorder/lib/jquery-3.6.0.min.js");
+    response = testClient.get("/__admin/recorder/lib/jquery-4.0.0.min.js");
     assertThat(response.statusCode(), is(200));
     assertThat(response.firstHeader("Content-Type"), startsWith("text/javascript"));
   }
