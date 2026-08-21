@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.github.tomakehurst.wiremock.junit.DslWrapper;
+import com.github.tomakehurst.wiremock.stubbing.DslWrapper;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;

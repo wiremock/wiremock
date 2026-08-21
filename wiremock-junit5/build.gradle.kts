@@ -24,6 +24,9 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-junit5")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.junit5")
+    }
 }
 
 publishing {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.ssl;
+package com.github.tomakehurst.wiremock.http.ssl.cert;
 
 import static java.util.Objects.requireNonNull;
 
@@ -106,7 +106,7 @@ public class CertificateAuthority {
     return key;
   }
 
-  CertChainAndKey generateCertificate(String keyType, SNIHostName hostName)
+  public CertChainAndKey generateCertificate(String keyType, SNIHostName hostName)
       throws CertificateGenerationUnsupportedException {
     try {
       KeyPair pair = generateKeyPair(keyType);

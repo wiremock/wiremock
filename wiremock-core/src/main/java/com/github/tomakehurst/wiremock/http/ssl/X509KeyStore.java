@@ -19,6 +19,8 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertChainAndKey;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateAuthority;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;

@@ -7,7 +7,6 @@ dependencies {
     api(libs.apache.http5.core)
 
     api(project(":wiremock-core"))
-    implementation(project(":wiremock-core:certificate-generator"))
     implementation(project(":wiremock-url:wiremock-url"))
 
     testImplementation(platform(libs.junit.bom))
@@ -40,6 +39,9 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-httpclient-apache5")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.httpclient.apache5")
+    }
 }
 
 publishing {
