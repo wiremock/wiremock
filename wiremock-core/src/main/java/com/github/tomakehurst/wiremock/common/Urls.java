@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,5 +45,41 @@ public class Urls {
     int nodeCount = uriPathNodes.size();
 
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
+  }
+
+  /**
+   * Normalises the value matched by any kind of {@link UrlPattern} (e.g. one created via {@code
+   * urlEqualTo}, {@code urlMatching}, {@code urlPathEqualTo}, {@code urlPathMatching} or {@code
+   * urlPathTemplate}) into its path segments.
+   *
+   * <p>This works generically across all current and future {@link UrlPattern} subtypes by parsing
+   * the matcher's own {@code toString()} description, rather than switching on specific pattern
+   * classes.
+   */
+  public static List<String> urlPatternToPathSegments(UrlPattern urlPattern) {
+    String description = urlPattern.toString();
+    String withoutScopePrefix =
+        description.startsWith("path and query ")
+            ? description.substring("path and query ".length())
+            : description.startsWith("path ")
+                ? description.substring("path ".length())
+                : description;
+
+    int firstSpaceIndex = withoutScopePrefix.indexOf(' ');
+    String matchedValue =
+        firstSpaceIndex >= 0 ? withoutScopePrefix.substring(firstSpaceIndex + 1) : "";
+    String pathOnly = matchedValue.split("\\?", 2)[0];
+
+    return Arrays.stream(pathOnly.split("/")).filter(part -> !part.isEmpty()).toList();
+  }
+
+  /**
+   * Normalises the value matched by any kind of {@link UrlPattern} into a set of dash-joined path
+   * parts, e.g. for use in a human-readable name.
+   *
+   * @see #urlPatternToPathSegments(UrlPattern)
+   */
+  public static String urlPatternToPathParts(UrlPattern urlPattern) {
+    return String.join("-", urlPatternToPathSegments(urlPattern));
   }
 }

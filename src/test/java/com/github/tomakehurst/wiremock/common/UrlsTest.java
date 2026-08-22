@@ -15,6 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -103,5 +109,42 @@ public class UrlsTest {
     Map<String, QueryParameter> query =
         Urls.toQueryParameterMap(Url.parse("/a/b/").getQueryOrEmpty());
     assertThat(query.isEmpty(), is(true));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlEqualTo() {
+    assertThat(Urls.urlPatternToPathParts(urlEqualTo("/stateful/1")), is("stateful-1"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlPathEqualTo() {
+    assertThat(Urls.urlPatternToPathParts(urlPathEqualTo("/stateful/1")), is("stateful-1"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlMatching() {
+    assertThat(Urls.urlPatternToPathParts(urlMatching("/stateful/.*")), is("stateful-.*"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlPathMatching() {
+    assertThat(Urls.urlPatternToPathParts(urlPathMatching("/stateful/.*")), is("stateful-.*"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlPathTemplate() {
+    assertThat(
+        Urls.urlPatternToPathParts(urlPathTemplate("/stateful/{state_id}")),
+        is("stateful-{state_id}"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesUrlEqualToWithQueryString() {
+    assertThat(Urls.urlPatternToPathParts(urlEqualTo("/stateful/1?foo=bar")), is("stateful-1"));
+  }
+
+  @Test
+  public void urlPatternToPathPartsHandlesAnyUrl() {
+    assertThat(Urls.urlPatternToPathParts(anyUrl()), is(""));
   }
 }

@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -27,7 +26,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.wiremock.url.PathAndQuery;
 
 class ScenarioProcessor {
 
@@ -75,11 +73,7 @@ class ScenarioProcessor {
         "scenario-"
             + scenarioIndex
             + "-"
-            + Urls.urlToPathParts(
-                PathAndQuery.parse(
-                    getFirstNonNull(
-                        firstScenario.getRequest().getUrl(),
-                        firstScenario.getRequest().getUrlPath())));
+            + Urls.urlPatternToPathParts(firstScenario.getRequest().getUrlMatcher());
 
     return IntStream.range(1, stubMappings.size() + 1)
         .mapToObj(

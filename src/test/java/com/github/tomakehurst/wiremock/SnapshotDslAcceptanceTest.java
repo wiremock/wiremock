@@ -60,7 +60,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         new WireMockServer(
             wireMockConfig()
                 .dynamicPort()
-                .extensions(new TestParameterisedTransformer())
+                .extensions(new TestParameterisedTransformer(), new UrlPathTemplateTransformer())
                 .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingService.start();
     proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
@@ -288,6 +288,21 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void
+      buildsAScenarioForRepeatedRequestsWhenTransformerChangesUrlPatternToUrlPathTemplate() {
+    targetService.stubFor(get("/stateful/1").willReturn(ok("One")));
+    client.get("/stateful/1");
+
+    targetService.stubFor(get("/stateful/2").willReturn(ok("Two")));
+    client.get("/stateful/2");
+
+    List<StubMapping> mappings =
+        snapshotRecord(recordSpec().transformers("url-path-template-transformer"));
+
+    assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
+  }
+
+  @Test
   public void appliesTransformerWithParameters() {
     client.get("/transform-this");
 
@@ -436,6 +451,31 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     @Override
     public String getName() {
       return "test-transformer";
+    }
+  }
+
+  public static class UrlPathTemplateTransformer extends StubMappingTransformer {
+
+    @Override
+    public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
+      String urlPath = stubMapping.getRequest().getUrl();
+      String pathTemplate = urlPath.replaceAll("/[^/]+$", "/{state_id}");
+      return stubMapping.transform(
+          b ->
+              b.setRequest(
+                  stubMapping
+                      .getRequest()
+                      .transform(rb -> rb.setUrl(WireMock.urlPathTemplate(pathTemplate)))));
+    }
+
+    @Override
+    public boolean applyGlobally() {
+      return false;
+    }
+
+    @Override
+    public String getName() {
+      return "url-path-template-transformer";
     }
   }
 }
