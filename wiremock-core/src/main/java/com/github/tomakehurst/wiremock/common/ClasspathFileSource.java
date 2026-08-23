@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getLoader;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ public class ClasspathFileSource implements FileSource {
   private final String path;
   private final ClassLoader classLoader;
   private URI pathUri;
-  private ZipFile zipFile;
   private File rootDirectory;
 
   public ClasspathFileSource(String path) {
@@ -63,14 +62,9 @@ public class ClasspathFileSource implements FileSource {
 
       this.pathUri = resource.toURI();
 
-      if (asList("jar", "war", "ear", "zip").contains(pathUri.getScheme())) {
-        String jarFileUri = pathUri.getSchemeSpecificPart().split("!")[0];
-        String jarFilePath = jarFileUri.replace("file:", "");
-        File file = new File(jarFilePath);
-        zipFile = new ZipFile(file);
-      } else if (pathUri.getScheme().equals("file")) {
+      if (pathUri.getScheme().equals("file")) {
         rootDirectory = new File(pathUri);
-      } else {
+      } else if (!isArchive(pathUri)) {
         throw new IllegalArgumentException(
             "ClasspathFileSource can't handle paths of type " + pathUri.getScheme());
       }
@@ -115,15 +109,19 @@ public class ClasspathFileSource implements FileSource {
 
   private Optional<URI> getZipEntryUri(final String name) {
     final String lookFor = path + "/" + name;
-    final Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
-    while (enumeration.hasMoreElements()) {
-      final ZipEntry candidate = enumeration.nextElement();
-      if (candidate.getName().equals(lookFor)) {
-        return Optional.ofNullable(getUriFor(candidate));
+    try (ZipFile resourceZipFile = openZipFile(pathUri)) {
+      final Enumeration<? extends ZipEntry> enumeration = resourceZipFile.entries();
+      while (enumeration.hasMoreElements()) {
+        final ZipEntry candidate = enumeration.nextElement();
+        if (candidate.getName().equals(lookFor)) {
+          return Optional.of(getUriFor(pathUri, candidate));
+        }
       }
-    }
 
-    return Optional.empty();
+      return Optional.empty();
+    } catch (Exception e) {
+      return throwUnchecked(e, null);
+    }
   }
 
   @Override
@@ -146,21 +144,75 @@ public class ClasspathFileSource implements FileSource {
 
   @Override
   public List<TextFile> listFilesRecursively() {
-    if (isFileSystem()) {
-      assertExistsAndIsDirectory();
+    try {
+      Enumeration<URL> resources = getClassLoader().getResources(path);
+      if (!resources.hasMoreElements()) {
+        return listFilesRecursively(pathUri);
+      }
+
+      List<TextFile> files = new ArrayList<>();
+      while (resources.hasMoreElements()) {
+        files.addAll(listFilesRecursively(resources.nextElement().toURI()));
+      }
+      return files;
+    } catch (Exception e) {
+      return throwUnchecked(e, List.class);
+    }
+  }
+
+  private List<TextFile> listFilesRecursively(URI resourceUri) throws Exception {
+    if (resourceUri.getScheme().equals("file")) {
+      File resourceRoot = new File(resourceUri);
+      assertExistsAndIsDirectory(resourceRoot);
       List<File> fileList = new ArrayList<>();
-      recursivelyAddFilesToList(rootDirectory, fileList);
+      recursivelyAddFilesToList(resourceRoot, fileList);
       return toTextFileList(fileList);
     }
 
-    return zipFile.stream()
-        .filter(jarEntry -> !jarEntry.isDirectory() && jarEntry.getName().startsWith(path))
-        .map(jarEntry -> new TextFile(getUriFor(jarEntry)))
-        .collect(Collectors.toList());
+    if (!isArchive(resourceUri)) {
+      throw new IllegalArgumentException(
+          "ClasspathFileSource can't handle paths of type " + resourceUri.getScheme());
+    }
+
+    try (ZipFile resourceZipFile = openZipFile(resourceUri)) {
+      return resourceZipFile.stream()
+          .filter(jarEntry -> !jarEntry.isDirectory() && jarEntry.getName().startsWith(path))
+          .map(jarEntry -> new TextFile(getUriFor(resourceUri, jarEntry)))
+          .collect(Collectors.toList());
+    }
   }
 
-  private URI getUriFor(ZipEntry jarEntry) {
-    return getResourceURI(ClasspathFileSource.class, jarEntry.getName());
+  private static boolean isArchive(URI resourceUri) {
+    return asList("jar", "war", "ear", "zip").contains(resourceUri.getScheme());
+  }
+
+  private static ZipFile openZipFile(URI resourceUri) throws IOException {
+    return new ZipFile(new File(getArchiveUri(resourceUri)));
+  }
+
+  private static URI getArchiveUri(URI resourceUri) {
+    String schemeSpecificPart = resourceUri.getRawSchemeSpecificPart();
+    int separatorIndex = schemeSpecificPart.indexOf("!/");
+    if (separatorIndex < 0) {
+      throw new IllegalArgumentException("Invalid archive URI: " + resourceUri);
+    }
+
+    return URI.create(schemeSpecificPart.substring(0, separatorIndex));
+  }
+
+  private static URI getUriFor(URI resourceUri, ZipEntry jarEntry) {
+    try {
+      String encodedEntryPath =
+          new URI(null, null, "/" + jarEntry.getName(), null).getRawPath().substring(1);
+      return URI.create(
+          resourceUri.getScheme()
+              + ":"
+              + getArchiveUri(resourceUri).toASCIIString()
+              + "!/"
+              + encodedEntryPath);
+    } catch (Exception e) {
+      return throwUnchecked(e, URI.class);
+    }
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
@@ -198,11 +250,11 @@ public class ClasspathFileSource implements FileSource {
   @Override
   public void deleteFile(String name) {}
 
-  private void assertExistsAndIsDirectory() {
-    if (rootDirectory.exists() && !rootDirectory.isDirectory()) {
-      throw new RuntimeException(rootDirectory + " is not a directory");
-    } else if (!rootDirectory.exists()) {
-      throw new RuntimeException(rootDirectory + " does not exist");
+  private void assertExistsAndIsDirectory(File directory) {
+    if (directory.exists() && !directory.isDirectory()) {
+      throw new IllegalStateException(directory + " is not a directory");
+    } else if (!directory.exists()) {
+      throw new IllegalStateException(directory + " does not exist");
     }
   }
 }
