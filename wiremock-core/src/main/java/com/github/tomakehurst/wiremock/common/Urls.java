@@ -57,19 +57,11 @@ public class Urls {
    * classes.
    */
   public static List<String> urlPatternToPathSegments(UrlPattern urlPattern) {
-    String description = urlPattern.toString();
-    String withoutScopePrefix =
-        description.startsWith("path and query ")
-            ? description.substring("path and query ".length())
-            : description.startsWith("path ")
-                ? description.substring("path ".length())
-                : description;
+    if (!urlPattern.isSpecified()) {
+      return List.of();
+    }
 
-    int firstSpaceIndex = withoutScopePrefix.indexOf(' ');
-    String matchedValue =
-        firstSpaceIndex >= 0 ? withoutScopePrefix.substring(firstSpaceIndex + 1) : "";
-    String pathOnly = matchedValue.split("\\?", 2)[0];
-
+    String pathOnly = urlPattern.getExpected().split("\\?", 2)[0];
     return Arrays.stream(pathOnly.split("/")).filter(part -> !part.isEmpty()).toList();
   }
 
