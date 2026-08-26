@@ -408,6 +408,22 @@ public class Strings {
     return wrappedLine.toString();
   }
 
+  public static String substringToFirst(final String str, final String separator) {
+    if (isEmpty(str)) {
+      return str;
+    }
+    if (isEmpty(separator)) {
+      return "";
+    }
+
+    final int pos = str.indexOf(separator);
+    if (pos == -1 || pos == str.length() - separator.length()) {
+      return "";
+    }
+
+    return str.substring(0, pos + separator.length() - 1);
+  }
+
   public static String substringAfterLast(final String str, final int separator) {
     if (isEmpty(str)) {
       return str;

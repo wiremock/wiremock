@@ -61,8 +61,20 @@ public class Urls {
       return List.of();
     }
 
-    String pathOnly = urlPattern.getExpected().split("\\?", 2)[0];
+    String pathOnly = getPathPart(urlPattern);
     return Arrays.stream(pathOnly.split("/")).filter(part -> !part.isEmpty()).toList();
+  }
+
+  public static String getPathPart(final UrlPattern urlPattern) {
+    final String expected = urlPattern.getExpected();
+    final String separator = urlPattern.isRegex() ? "\\?" : "?";
+
+    final int pos = expected.indexOf(separator);
+    if (pos == -1) {
+      return expected;
+    }
+
+    return expected.substring(0, pos + separator.length() - 1);
   }
 
   /**

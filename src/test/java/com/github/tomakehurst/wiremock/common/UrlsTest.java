@@ -127,8 +127,15 @@ public class UrlsTest {
   }
 
   @Test
+  public void urlPatternToPathPartsHandlesUrlMatchingWithQuery() {
+    assertThat(
+        Urls.urlPatternToPathParts(urlMatching("/stateful/.*\\?detail=summary&page=1")),
+        is("stateful-.*\\"));
+  }
+
+  @Test
   public void urlPatternToPathPartsHandlesUrlPathMatching() {
-    assertThat(Urls.urlPatternToPathParts(urlPathMatching("/stateful/.*")), is("stateful-.*"));
+    assertThat(Urls.urlPatternToPathParts(urlPathMatching("/stat?ful/.*")), is("stat?ful-.*"));
   }
 
   @Test
