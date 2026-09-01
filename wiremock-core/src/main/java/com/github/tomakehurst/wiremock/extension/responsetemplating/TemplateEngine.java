@@ -208,27 +208,26 @@ public class TemplateEngine {
 
         return result;
       } else {
-        return request.getParts().stream()
-            .collect(
-                Collectors.toMap(
-                    Request.Part::getName,
-                    part ->
-                        new RequestPartTemplateModel(
-                            part.getName(),
-                            part.getHeaders().all().stream()
-                                .collect(
-                                    Collectors.toMap(
-                                        HttpHeader::key,
-                                        header -> ListOrSingle.of(header.values()),
-                                        (e1, e2) -> {
-                                          throw new IllegalStateException("Duplicate header name");
-                                        },
-                                        LinkedHashMap::new)),
-                            part.getBodyEntity()),
-                    (e1, e2) -> {
-                      throw new IllegalStateException("Duplicate request part name");
-                    },
-                    LinkedHashMap::new));
+        Map<String, RequestPartTemplateModel> result = new LinkedHashMap<>();
+        int partIndex = 0;
+        for (Request.Part part : request.getParts()) {
+          String key = part.getName() != null ? part.getName() : "part-" + partIndex++;
+          result.put(
+              key,
+              new RequestPartTemplateModel(
+                  key,
+                  part.getHeaders().all().stream()
+                      .collect(
+                          Collectors.toMap(
+                              HttpHeader::key,
+                              header -> ListOrSingle.of(header.values()),
+                              (e1, e2) -> {
+                                throw new IllegalStateException("Duplicate header name");
+                              },
+                              LinkedHashMap::new)),
+                  part.getBodyEntity()));
+        }
+        return result;
       }
     }
 
