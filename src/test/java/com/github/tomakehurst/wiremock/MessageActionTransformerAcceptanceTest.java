@@ -46,6 +46,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     wm.addMessageStubMapping(
         message()
@@ -71,6 +72,7 @@ public class MessageActionTransformerAcceptanceTest {
                         new SuffixingMessageActionTransformer("2"),
                         new SuffixingMessageActionTransformer("3")))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     wm.addMessageStubMapping(
         message()
@@ -91,6 +93,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     wm.addMessageStubMapping(
         message()
@@ -111,6 +114,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new EchoingMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     wm.addMessageStubMapping(
         message()
@@ -131,6 +135,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     wm.addMessageStubMapping(
         message()

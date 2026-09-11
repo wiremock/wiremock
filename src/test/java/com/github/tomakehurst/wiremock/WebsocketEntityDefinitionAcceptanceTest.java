@@ -15,9 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
@@ -30,6 +33,7 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
@@ -181,6 +185,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     wireMockServer.stop();
     File tempRoot = setupTempFileRoot();
     setupServer(wireMockConfig().withRootDirectory(tempRoot.getAbsolutePath()));
+    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     File messageFile = new File(tempRoot, "__files/message-body.txt");
     writeString(messageFile.toPath(), "Hello from file!");
@@ -202,6 +207,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   @Test
   void binaryEntityDefinitionWithFilePathResolvesFromFilesStore() throws Exception {
     File tempRoot = setupServerWithTempFileRoot();
+    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
 
     byte[] binaryContent = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
     File binaryFile = new File(tempRoot, "__files/binary-body.bin");

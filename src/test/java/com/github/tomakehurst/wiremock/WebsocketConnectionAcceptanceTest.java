@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -33,6 +36,7 @@ import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import com.github.tomakehurst.wiremock.verification.LoggedRequestInitiatedChannel;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -210,6 +214,11 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                     .webSocketIdleTimeout(1000))
             .build();
 
+    @BeforeEach
+    void setupCatchAll() {
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    }
+
     @Test
     void websocketConnectionClosesAfterIdleTimeout() throws Exception {
       WebsocketTestClient testClient = new WebsocketTestClient();
@@ -256,6 +265,11 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                     .withRootDirectory(filePath("empty"))
                     .webSocketMaxTextMessageSize(1024))
             .build();
+
+    @BeforeEach
+    void setupCatchAll() {
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    }
 
     @Test
     void acceptsTextMessageWithinLimit() throws Exception {
@@ -306,6 +320,11 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                     .withRootDirectory(filePath("empty"))
                     .webSocketMaxBinaryMessageSize(1024))
             .build();
+
+    @BeforeEach
+    void setupCatchAll() {
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    }
 
     @Test
     void acceptsBinaryMessageWithinLimit() throws Exception {

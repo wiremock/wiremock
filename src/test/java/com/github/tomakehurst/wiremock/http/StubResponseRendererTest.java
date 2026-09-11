@@ -136,6 +136,7 @@ public class StubResponseRendererTest {
             null,
             null,
             null,
+            null,
             true));
   }
 }

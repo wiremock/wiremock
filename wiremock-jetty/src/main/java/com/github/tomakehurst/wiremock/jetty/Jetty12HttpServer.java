@@ -39,9 +39,7 @@ import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.servlet.NotMatchedServlet;
 import com.github.tomakehurst.wiremock.jetty.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.jetty.ssl.SslContexts;
-import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.DispatcherType;
 import java.time.Duration;
 import java.util.*;
@@ -394,33 +392,17 @@ public class Jetty12HttpServer extends JettyHttpServer {
       addCorsFilter(mockServiceContext);
     }
 
-    // Configure WebSocket support using the filter-based approach
-    // This ensures non-WebSocket requests pass through to the normal servlet chain
+    // Configure WebSocket support
     JettyWebSocketServletContainerInitializer.configure(
         mockServiceContext,
         (servletContext, container) -> {
-          // Set WebSocket configuration from options
           container.setIdleTimeout(Duration.ofMillis(options.getWebSocketIdleTimeout()));
           container.setMaxTextMessageSize(options.getWebSocketMaxTextMessageSize());
           container.setMaxBinaryMessageSize(options.getWebSocketMaxBinaryMessageSize());
-
-          // Add WebSocket mapping that accepts all WebSocket upgrade requests
-          container.addMapping(
-              "/*",
-              (upgradeRequest, upgradeResponse) -> {
-                // Convert the upgrade request to a WireMock Request and create a snapshot
-                // We need to create a LoggedRequest snapshot because the servlet request
-                // becomes invalid after the WebSocket upgrade completes
-                com.github.tomakehurst.wiremock.http.Request servletRequest =
-                    new WireMockHttpServletRequestAdapter(
-                        upgradeRequest.getHttpServletRequest(), null, false);
-                com.github.tomakehurst.wiremock.http.Request wireMockRequest =
-                    LoggedRequest.createFrom(servletRequest);
-
-                // Create and return the WebSocket endpoint
-                return new WireMockWebSocketEndpoint(messageStubRequestHandler, wireMockRequest);
-              });
         });
+
+    mockServiceContext.setAttribute(
+        MessageStubRequestHandler.class.getName(), messageStubRequestHandler);
 
     decorateMockServiceContextAfterConfig(mockServiceContext);
 

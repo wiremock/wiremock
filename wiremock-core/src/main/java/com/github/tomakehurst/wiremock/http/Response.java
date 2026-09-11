@@ -41,10 +41,11 @@ public class Response {
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String protocol;
+  private final boolean acceptWebSocket;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null);
+        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null, false);
   }
 
   public static Builder response() {
@@ -61,7 +62,8 @@ public class Response {
       long initialDelay,
       ChunkedDribbleDelay chunkedDribbleDelay,
       boolean fromProxy,
-      String protocol) {
+      String protocol,
+      boolean acceptWebSocket) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -72,6 +74,7 @@ public class Response {
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
     this.protocol = protocol;
+    this.acceptWebSocket = acceptWebSocket;
   }
 
   private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
@@ -136,6 +139,10 @@ public class Response {
     return fromProxy;
   }
 
+  public boolean isAcceptWebSocket() {
+    return acceptWebSocket;
+  }
+
   public boolean isDecompressible() {
     return body.isDecompressible();
   }
@@ -166,6 +173,7 @@ public class Response {
     private long initialDelay;
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String protocol;
+    private boolean acceptWebSocket;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -178,6 +186,7 @@ public class Response {
       responseBuilder.initialDelay = response.getInitialDelay();
       responseBuilder.chunkedDribbleDelay = response.getChunkedDribbleDelay();
       responseBuilder.fromProxy = response.isFromProxy();
+      responseBuilder.acceptWebSocket = response.isAcceptWebSocket();
       return responseBuilder;
     }
 
@@ -276,6 +285,11 @@ public class Response {
       return this;
     }
 
+    public Builder acceptWebSocket(boolean acceptWebSocket) {
+      this.acceptWebSocket = acceptWebSocket;
+      return this;
+    }
+
     public Response build() {
       return new Response(
           status,
@@ -287,7 +301,8 @@ public class Response {
           initialDelay,
           chunkedDribbleDelay,
           fromProxy,
-          protocol);
+          protocol,
+          acceptWebSocket);
     }
 
     public Builder protocol(final String protocol) {
