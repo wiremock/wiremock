@@ -51,7 +51,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null);
+          null, null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -74,7 +74,8 @@ public class ResponseDefinitionTest {
             Fault.EMPTY_RESPONSE,
             List.of("transformer-1"),
             Parameters.one("name", "Jeff"),
-            true);
+            true,
+            null);
 
     ResponseDefinition copiedResponse = copyOf(response);
 
@@ -395,7 +396,8 @@ public class ResponseDefinitionTest {
             Fault.EMPTY_RESPONSE,
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
-            true);
+            null,
+            null);
 
     var copy = responseDefinition.toBuilder().build();
     assertThat(copy, is(responseDefinition));

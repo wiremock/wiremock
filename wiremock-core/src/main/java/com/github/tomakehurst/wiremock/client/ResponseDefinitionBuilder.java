@@ -219,6 +219,11 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withAcceptWebSocket() {
+    builder.setAcceptWebSocket(true);
+    return this;
+  }
+
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
     public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {

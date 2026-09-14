@@ -15,11 +15,21 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class WebsocketAcceptanceTestBase extends AcceptanceTestBase {
+
+  @BeforeEach
+  void setupWebSocketStub() {
+    stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+  }
 
   @AfterEach
   void resetMessageStubsAfterTest() {
