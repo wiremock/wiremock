@@ -225,9 +225,9 @@ public class TemplateEngine {
                                         },
                                         LinkedHashMap::new)),
                             part.getBodyEntity()),
-                    (e1, e2) -> {
-                      throw new IllegalStateException("Duplicate request part name");
-                    },
+                    // A form may legitimately repeat a field name. Keep the first part,
+                    // as Request#getPart does, rather than failing the whole template.
+                    (e1, e2) -> e1,
                     LinkedHashMap::new));
       }
     }
