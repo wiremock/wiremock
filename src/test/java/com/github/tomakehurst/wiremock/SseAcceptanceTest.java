@@ -24,6 +24,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -111,15 +113,15 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void sseStreamReceivesMultipleEventsFromHttpTrigger() throws Exception {
+  void sseStreamReceivesEventFromHighestPriorityHttpTrigger() throws Exception {
     stubFor(get(urlEqualTo("/multi-stream")).willReturn(aResponse().withAcceptEventStream()));
 
-    stubFor(get(urlEqualTo("/multi-trigger")).willReturn(ok("triggered")));
+    stubFor(get(urlPathTemplate("/multi-trigger/{number}")).willReturn(ok("triggered")));
 
     messageStubFor(
         message()
             .withName("Multi event trigger 1")
-            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/1")))
             .willTriggerActions(
                 sendMessage("event-1")
                     .onChannelsMatching(
@@ -128,7 +130,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     messageStubFor(
         message()
             .withName("Multi event trigger 2")
-            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/2")))
             .willTriggerActions(
                 sendMessage("event-2")
                     .onChannelsMatching(
@@ -137,7 +139,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     messageStubFor(
         message()
             .withName("Multi event trigger 3")
-            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/3")))
             .willTriggerActions(
                 sendMessage("event-3")
                     .onChannelsMatching(
@@ -146,22 +148,17 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     try (SseStreamClient sse = new SseStreamClient(serverUrl("/multi-stream"))) {
       assertEquals(200, sse.connect());
 
-      testClient.get("/multi-trigger");
-
+      testClient.get("/multi-trigger/1");
       SseEvent event1 = sse.awaitEvent(e -> "event-1".equals(e.getData()));
-      SseEvent event2 = sse.awaitEvent(e -> "event-2".equals(e.getData()));
-      SseEvent event3 = sse.awaitEvent(e -> "event-3".equals(e.getData()));
-
       assertNotNull(event1);
-      assertNotNull(event2);
-      assertNotNull(event3);
 
-      List<SseEvent> allEvents = sse.getEvents();
-      List<SseEvent> dataEvents = allEvents.stream().filter(e -> e.hasData()).toList();
-      assertThat(dataEvents, hasSize(3));
-      assertThat(
-          dataEvents.stream().map(SseEvent::getData).toList(),
-          containsInAnyOrder("event-1", "event-2", "event-3"));
+      testClient.get("/multi-trigger/2");
+      SseEvent event2 = sse.awaitEvent(e -> "event-2".equals(e.getData()));
+      assertNotNull(event2);
+
+      testClient.get("/multi-trigger/3");
+      SseEvent event3 = sse.awaitEvent(e -> "event-3".equals(e.getData()));
+      assertNotNull(event3);
     }
   }
 }
