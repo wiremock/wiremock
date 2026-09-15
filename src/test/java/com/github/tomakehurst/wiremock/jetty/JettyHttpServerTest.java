@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -77,7 +78,17 @@ public class JettyHttpServerTest {
             false,
             Collections.emptyList(),
             Collections.emptyList(),
-            NO_TRUNCATION);
+            NO_TRUNCATION,
+            new Notifier() {
+              @Override
+              public void info(String message) {}
+
+              @Override
+              public void error(String message) {}
+
+              @Override
+              public void error(String message, Throwable t) {}
+            });
     stubRequestHandler =
         new StubRequestHandler(
             Mockito.mock(StubServer.class),
@@ -90,7 +101,17 @@ public class JettyHttpServerTest {
             Collections.emptyList(),
             false,
             NO_TRUNCATION,
-            new PlainTextStubNotMatchedRenderer(Extensions.NONE));
+            new PlainTextStubNotMatchedRenderer(Extensions.NONE),
+            new Notifier() {
+              @Override
+              public void info(String message) {}
+
+              @Override
+              public void error(String message) {}
+
+              @Override
+              public void error(String message, Throwable t) {}
+            });
     messageStubRequestHandler =
         new MessageStubRequestHandler(
             messageStubMappings,
