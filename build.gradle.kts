@@ -185,7 +185,10 @@ val testJar by tasks.registering(Jar::class) {
 tasks.jar {
   archiveBaseName.set("wiremock")
   manifest {
-    attributes("Main-Class" to "wiremock.Run")
+    attributes(
+      "Main-Class" to "wiremock.Run",
+      "Automatic-Module-Name" to "org.wiremock",
+    )
   }
 }
 

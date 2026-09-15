@@ -5,6 +5,9 @@ plugins {
 
 tasks.jar {
   archiveBaseName.set("wiremock-url")
+  manifest {
+    attributes("Automatic-Module-Name" to "org.wiremock.url")
+  }
 }
 
 dependencies {

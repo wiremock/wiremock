@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertChainAndKey;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateAuthority;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateGenerationUnsupportedException;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;

@@ -81,7 +81,8 @@ class UnusedCodeTest {
               .and(
                   not(
                       assignableTo(
-                          com.github.tomakehurst.wiremock.standalone.WireMockServerRunner.class)))
+                          com.github.tomakehurst.wiremock.standalone.cli.WireMockServerRunner
+                              .class)))
               .and(not(ANONYMOUS_CLASSES))
               .should(beReferencedClass)
               .as("should use all classes")

@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.ssl;
+package com.github.tomakehurst.wiremock.http.ssl.cert;
 
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-
-class CertChainAndKey {
-  final X509Certificate[] certificateChain;
-  final PrivateKey key;
-
-  CertChainAndKey(X509Certificate[] certificateChain, PrivateKey key) {
-    this.certificateChain = certificateChain;
-    this.key = key;
+public class CertificateGenerationUnsupportedException extends Exception {
+  public CertificateGenerationUnsupportedException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

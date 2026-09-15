@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateGenerationUnsupportedException;
 import java.net.Socket;
 import java.security.KeyStoreException;
 import java.security.Principal;
