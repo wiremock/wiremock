@@ -78,6 +78,7 @@ public class ResponseDefinition {
   private final @Nullable AbsoluteUrl browserProxyUrl;
   private final Boolean wasConfigured;
   private final Boolean acceptWebSocket;
+  private final Boolean acceptEventStream;
 
   @JsonCreator
   public ResponseDefinition(
@@ -99,7 +100,8 @@ public class ResponseDefinition {
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters,
       @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
-      @JsonProperty("acceptWebSocket") Boolean acceptWebSocket) {
+      @JsonProperty("acceptWebSocket") Boolean acceptWebSocket,
+      @JsonProperty("acceptEventStream") Boolean acceptEventStream) {
     this(
         status,
         statusMessage,
@@ -117,7 +119,8 @@ public class ResponseDefinition {
         transformerParameters,
         null,
         wasConfigured,
-        acceptWebSocket);
+        acceptWebSocket,
+        acceptEventStream);
   }
 
   private static EntityDefinition resolveBody(
@@ -151,7 +154,8 @@ public class ResponseDefinition {
       Parameters transformerParameters,
       @Nullable AbsoluteUrl browserProxyUrl,
       Boolean wasConfigured,
-      Boolean acceptWebSocket) {
+      Boolean acceptWebSocket,
+      Boolean acceptEventStream) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
 
@@ -176,6 +180,7 @@ public class ResponseDefinition {
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
     this.acceptWebSocket = acceptWebSocket;
+    this.acceptEventStream = acceptEventStream;
   }
 
   public static ResponseDefinition notFound() {
@@ -275,7 +280,8 @@ public class ResponseDefinition {
         this.transformerParameters,
         this.browserProxyUrl,
         this.wasConfigured,
-        this.acceptWebSocket);
+        this.acceptWebSocket,
+        this.acceptEventStream);
   }
 
   public ResponseDefinition transform(Consumer<Builder> transformer) {
@@ -419,6 +425,11 @@ public class ResponseDefinition {
     return Boolean.TRUE.equals(acceptWebSocket) ? true : null;
   }
 
+  @JsonProperty("acceptEventStream")
+  public @Nullable Boolean getAcceptEventStream() {
+    return Boolean.TRUE.equals(acceptEventStream) ? true : null;
+  }
+
   public Fault getFault() {
     return fault;
   }
@@ -460,7 +471,8 @@ public class ResponseDefinition {
         && Objects.equals(transformerParameters, that.transformerParameters)
         && Objects.equals(browserProxyUrl, that.browserProxyUrl)
         && Objects.equals(wasConfigured, that.wasConfigured)
-        && Objects.equals(acceptWebSocket, that.acceptWebSocket);
+        && Objects.equals(acceptWebSocket, that.acceptWebSocket)
+        && Objects.equals(acceptEventStream, that.acceptEventStream);
   }
 
   @Override
@@ -482,7 +494,8 @@ public class ResponseDefinition {
         transformerParameters,
         browserProxyUrl,
         wasConfigured,
-        acceptWebSocket);
+        acceptWebSocket,
+        acceptEventStream);
   }
 
   @Override
@@ -511,6 +524,7 @@ public class ResponseDefinition {
     private Boolean wasConfigured = true;
     private Request originalRequest;
     private Boolean acceptWebSocket;
+    private Boolean acceptEventStream;
 
     public Builder() {}
 
@@ -532,6 +546,7 @@ public class ResponseDefinition {
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;
       this.acceptWebSocket = original.acceptWebSocket;
+      this.acceptEventStream = original.acceptEventStream;
     }
 
     public int getStatus() {
@@ -756,6 +771,11 @@ public class ResponseDefinition {
       return this;
     }
 
+    public Builder setAcceptEventStream(Boolean acceptEventStream) {
+      this.acceptEventStream = acceptEventStream;
+      return this;
+    }
+
     public Builder setOriginalRequest(Request originalRequest) {
       this.originalRequest = originalRequest;
       return this;
@@ -764,6 +784,9 @@ public class ResponseDefinition {
     public ResponseDefinition build() {
       if (Boolean.TRUE.equals(acceptWebSocket)) {
         validateWebSocketOnly();
+      }
+      if (Boolean.TRUE.equals(acceptEventStream)) {
+        validateEventStreamOnly();
       }
       return new ResponseDefinition(
           status,
@@ -782,7 +805,8 @@ public class ResponseDefinition {
           transformerParameters,
           browserProxyUrl,
           wasConfigured,
-          acceptWebSocket);
+          acceptWebSocket,
+          acceptEventStream);
     }
 
     private void validateWebSocketOnly() {
@@ -794,6 +818,23 @@ public class ResponseDefinition {
       }
       if (fault != null) {
         throw new IllegalStateException("Cannot return a fault when accepting a WebSocket");
+      }
+    }
+
+    private void validateEventStreamOnly() {
+      if (Boolean.TRUE.equals(acceptWebSocket)) {
+        throw new IllegalStateException(
+            "Cannot set acceptEventStream when acceptWebSocket is already set");
+      }
+      if (!(body instanceof EmptyEntityDefinition)) {
+        throw new IllegalStateException(
+            "Cannot set a response body when accepting an event stream");
+      }
+      if (proxyBaseUrl != null || browserProxyUrl != null) {
+        throw new IllegalStateException("Cannot proxy when accepting an event stream");
+      }
+      if (fault != null) {
+        throw new IllegalStateException("Cannot return a fault when accepting an event stream");
       }
     }
   }

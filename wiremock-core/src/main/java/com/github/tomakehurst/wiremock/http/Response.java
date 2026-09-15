@@ -42,10 +42,22 @@ public class Response {
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String protocol;
   private final boolean acceptWebSocket;
+  private final boolean acceptEventStream;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null, false);
+        HTTP_NOT_FOUND,
+        null,
+        Entity.EMPTY,
+        noHeaders(),
+        false,
+        null,
+        0,
+        null,
+        false,
+        null,
+        false,
+        false);
   }
 
   public static Builder response() {
@@ -63,7 +75,8 @@ public class Response {
       ChunkedDribbleDelay chunkedDribbleDelay,
       boolean fromProxy,
       String protocol,
-      boolean acceptWebSocket) {
+      boolean acceptWebSocket,
+      boolean acceptEventStream) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -75,6 +88,7 @@ public class Response {
     this.fromProxy = fromProxy;
     this.protocol = protocol;
     this.acceptWebSocket = acceptWebSocket;
+    this.acceptEventStream = acceptEventStream;
   }
 
   private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
@@ -143,6 +157,10 @@ public class Response {
     return acceptWebSocket;
   }
 
+  public boolean isAcceptEventStream() {
+    return acceptEventStream;
+  }
+
   public boolean isDecompressible() {
     return body.isDecompressible();
   }
@@ -174,6 +192,7 @@ public class Response {
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String protocol;
     private boolean acceptWebSocket;
+    private boolean acceptEventStream;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -187,6 +206,7 @@ public class Response {
       responseBuilder.chunkedDribbleDelay = response.getChunkedDribbleDelay();
       responseBuilder.fromProxy = response.isFromProxy();
       responseBuilder.acceptWebSocket = response.isAcceptWebSocket();
+      responseBuilder.acceptEventStream = response.isAcceptEventStream();
       return responseBuilder;
     }
 
@@ -290,6 +310,11 @@ public class Response {
       return this;
     }
 
+    public Builder acceptEventStream(boolean acceptEventStream) {
+      this.acceptEventStream = acceptEventStream;
+      return this;
+    }
+
     public Response build() {
       return new Response(
           status,
@@ -302,7 +327,8 @@ public class Response {
           chunkedDribbleDelay,
           fromProxy,
           protocol,
-          acceptWebSocket);
+          acceptWebSocket,
+          acceptEventStream);
     }
 
     public Builder protocol(final String protocol) {

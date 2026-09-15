@@ -51,7 +51,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null, null);
+          null, null, null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -75,6 +75,7 @@ public class ResponseDefinitionTest {
             List.of("transformer-1"),
             Parameters.one("name", "Jeff"),
             true,
+            null,
             null);
 
     ResponseDefinition copiedResponse = copyOf(response);
@@ -397,6 +398,7 @@ public class ResponseDefinitionTest {
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
             null,
+            null,
             null);
 
     var copy = responseDefinition.toBuilder().build();
@@ -596,5 +598,56 @@ public class ResponseDefinitionTest {
 
     assertThat(Json.write(responseDefinition), jsonEquals(json));
     assertThat(responseDefinition.getBody(), is("{{request.body}}"));
+  }
+
+  @Test
+  void serialisesAcceptEventStream() {
+    ResponseDefinition responseDef =
+        responseDefinition().withStatus(200).withAcceptEventStream().build();
+
+    String json = Json.write(responseDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "status": 200,
+              "acceptEventStream": true
+            }
+            """));
+  }
+
+  @Test
+  void deserialisesAcceptEventStream() {
+    var json =
+        """
+            {
+              "status": 200,
+              "acceptEventStream": true
+            }
+            """;
+
+    ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
+
+    assertThat(responseDef.getAcceptEventStream(), is(true));
+  }
+
+  @Test
+  void acceptEventStreamIsNullWhenNotSet() {
+    ResponseDefinition responseDef = responseDefinition().withStatus(200).build();
+
+    assertThat(responseDef.getAcceptEventStream(), nullValue());
+  }
+
+  @Test
+  void acceptEventStreamBuilderCopy() {
+    ResponseDefinition original =
+        responseDefinition().withStatus(200).withAcceptEventStream().build();
+
+    ResponseDefinition copy = copyOf(original);
+
+    assertThat(copy.getAcceptEventStream(), is(true));
+    assertEquals(original, copy);
   }
 }
