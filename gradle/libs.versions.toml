@@ -100,7 +100,7 @@ handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebar
 handlebars-helpers = { module = "com.github.jknack:handlebars-helpers", version.ref = "handlebars" }
 
 # File upload
-commons-fileupload = { module = "commons-fileupload:commons-fileupload", version = "1.6.0" }
+commons-fileupload2 = { module = "org.apache.commons:commons-fileupload2", version = "2.0.0-M5" }
 
 # JSON Schema
 json-schema-validator = { module = "com.networknt:json-schema-validator", version = "2.0.1" }

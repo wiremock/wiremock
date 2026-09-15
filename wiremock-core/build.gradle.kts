@@ -9,7 +9,7 @@ plugins {
 apply(from = "buildSchema.gradle")
 
 dependencies {
-    api(libs.commons.fileupload)
+    api(libs.commons.fileupload2)
     api(libs.guava) {
         exclude(group = "com.google.code.findbugs", module = "jsr305")
     }
