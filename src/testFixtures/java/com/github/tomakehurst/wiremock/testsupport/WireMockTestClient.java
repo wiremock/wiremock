@@ -28,11 +28,20 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.MimeTypes;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
@@ -415,6 +424,170 @@ public class WireMockTestClient {
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);
+    }
+  }
+
+  public static class SseStreamClient implements AutoCloseable {
+
+    private final HttpClient client;
+    private final HttpRequest request;
+    private final List<SseEvent> events = new CopyOnWriteArrayList<>();
+    private HttpResponse<java.io.InputStream> response;
+    private Thread readerThread;
+
+    public SseStreamClient(String url) {
+      this.client = HttpClient.newHttpClient();
+      this.request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .timeout(Duration.ofSeconds(30))
+              .GET()
+              .build();
+    }
+
+    public int connect() throws IOException, InterruptedException {
+      response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      readerThread = new Thread(this::readEvents, "sse-reader");
+      readerThread.setDaemon(true);
+      readerThread.start();
+      return response.statusCode();
+    }
+
+    public String header(String name) {
+      return response.headers().firstValue(name).orElse(null);
+    }
+
+    public List<SseEvent> getEvents() {
+      return new ArrayList<>(events);
+    }
+
+    public SseEvent awaitEvent(Predicate<SseEvent> predicate, long timeoutMillis) {
+      long start = System.currentTimeMillis();
+      while (System.currentTimeMillis() - start < timeoutMillis) {
+        for (SseEvent event : events) {
+          if (predicate.test(event)) {
+            return event;
+          }
+        }
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return null;
+        }
+      }
+      return null;
+    }
+
+    public SseEvent awaitEvent(Predicate<SseEvent> predicate) {
+      return awaitEvent(predicate, 5000);
+    }
+
+    private void readEvents() {
+      try (BufferedReader reader =
+          new BufferedReader(new java.io.InputStreamReader(response.body()))) {
+        String eventName = null;
+        String eventData = null;
+        StringBuilder dataBuilder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null && !Thread.currentThread().isInterrupted()) {
+          if (line.startsWith("event:")) {
+            eventName = line.substring(6).trim();
+          } else if (line.startsWith("data:")) {
+            if (dataBuilder.length() > 0) {
+              dataBuilder.append("\n");
+            }
+            dataBuilder.append(line.substring(5).trim());
+          } else if (line.startsWith("id:")) {
+            String id = line.substring(3).trim();
+            if (eventName == null && dataBuilder.length() == 0) {
+              eventData = id;
+            }
+          } else if (line.startsWith(":")) {
+            events.add(SseEvent.comment(line.substring(1).trim()));
+          } else if (line.isEmpty()) {
+            if (dataBuilder.length() > 0 || eventName != null) {
+              String data = dataBuilder.length() > 0 ? dataBuilder.toString() : null;
+              events.add(new SseEvent(eventName, data, null));
+              eventName = null;
+              dataBuilder.setLength(0);
+            } else if (eventData != null) {
+              events.add(new SseEvent(null, null, eventData));
+              eventData = null;
+            }
+          }
+        }
+      } catch (IOException e) {
+        // stream closed
+      }
+    }
+
+    @Override
+    public void close() throws Exception {
+      if (readerThread != null) {
+        readerThread.interrupt();
+      }
+    }
+
+    public static class SseEvent {
+      private final String name;
+      private final String data;
+      private final String id;
+      private final String comment;
+
+      public SseEvent(String name, String data, String id) {
+        this.name = name;
+        this.data = data;
+        this.id = id;
+        this.comment = null;
+      }
+
+      private SseEvent(String comment) {
+        this.name = null;
+        this.data = null;
+        this.id = null;
+        this.comment = comment;
+      }
+
+      static SseEvent comment(String text) {
+        return new SseEvent(text);
+      }
+
+      public String getName() {
+        return name;
+      }
+
+      public String getData() {
+        return data;
+      }
+
+      public String getId() {
+        return id;
+      }
+
+      public String getComment() {
+        return comment;
+      }
+
+      public boolean hasName(String name) {
+        return name != null && name.equals(this.name);
+      }
+
+      public boolean hasData() {
+        return data != null && !data.isEmpty();
+      }
+
+      public boolean hasData(String data) {
+        return data != null && data.equals(this.data);
+      }
+
+      @Override
+      public String toString() {
+        if (comment != null) {
+          return "SseEvent{comment='" + comment + "'}";
+        }
+        return "SseEvent{name='" + name + "', id='" + id + "', data='" + data + "'}";
+      }
     }
   }
 }
