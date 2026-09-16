@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
+import static com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -109,7 +110,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
         () ->
             aResponse()
                 .withAcceptEventStream()
-                .withFault(com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE)
+                .withFault(EMPTY_RESPONSE)
                 .build());
   }
 
@@ -231,7 +232,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
     stubFor(
         get(urlEqualTo("/sse-stub-trigger"))
-            .withId(java.util.UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
             .willReturn(ok("triggered")));
 
     messageStubFor(
