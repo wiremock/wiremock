@@ -96,6 +96,24 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void acceptEventStreamRejectsProxy() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> aResponse().withAcceptEventStream().proxiedFrom("http://example.com").build());
+  }
+
+  @Test
+  void acceptEventStreamRejectsFault() {
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            aResponse()
+                .withAcceptEventStream()
+                .withFault(com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE)
+                .build());
+  }
+
+  @Test
   void acceptEventStreamRejectsWebSocket() {
     assertThrows(
         IllegalStateException.class,
