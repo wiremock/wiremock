@@ -224,4 +224,32 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
             .getChannelId();
     assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(false));
   }
+
+  @Test
+  void sseStreamReceivesMessageFromHttpStubTrigger() throws Exception {
+    stubFor(get(urlEqualTo("/sse-stub-stream")).willReturn(aResponse().withAcceptEventStream()));
+
+    stubFor(
+        get(urlEqualTo("/sse-stub-trigger"))
+            .withId(java.util.UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("SSE stub trigger")
+            .triggeredByHttpStub("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
+            .willTriggerActions(
+                sendMessage("stub-triggered-event")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/sse-stub-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/sse-stub-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/sse-stub-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "stub-triggered-event".equals(e.getData()));
+      assertNotNull(event);
+    }
+  }
 }
