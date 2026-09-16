@@ -115,7 +115,10 @@ public class HttpStubServeEventListener implements ServeEventListener {
   }
 
   private void executeSendMessageAction(SendMessageAction action) {
-    Message message = new Message(action.getMessage().getBody().resolve(stores));
+    MessageDefinition definition = action.getMessage();
+    Message message =
+        new Message(
+            definition.getBody().resolve(stores), definition.getEventName(), definition.getId());
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof RequestInitiatedChannelTarget requestTarget) {

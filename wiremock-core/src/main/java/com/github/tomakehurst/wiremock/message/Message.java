@@ -36,9 +36,17 @@ import org.jspecify.annotations.Nullable;
 public class Message {
 
   private final Entity body;
+  @Nullable private final String eventName;
+  @Nullable private final String id;
 
   public Message(Entity body) {
+    this(body, null, null);
+  }
+
+  public Message(Entity body, @Nullable String eventName, @Nullable String id) {
     this.body = body;
+    this.eventName = eventName;
+    this.id = id;
   }
 
   @JsonIgnore
@@ -69,16 +77,28 @@ public class Message {
     return body != Entity.EMPTY && Format.BINARY.equals(body.getFormat());
   }
 
+  @JsonIgnore
+  public @Nullable String getEventName() {
+    return eventName;
+  }
+
+  @JsonIgnore
+  public @Nullable String getId() {
+    return id;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (getClass() != o.getClass()) return false;
     Message message = (Message) o;
-    return Objects.equals(body, message.body);
+    return Objects.equals(body, message.body)
+        && Objects.equals(eventName, message.eventName)
+        && Objects.equals(id, message.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(body);
+    return Objects.hash(body, eventName, id);
   }
 
   @Override
@@ -98,11 +118,15 @@ public class Message {
   @NullUnmarked
   public static class Builder {
     private Entity body;
+    @Nullable private String eventName;
+    @Nullable private String id;
 
     public Builder() {}
 
     private Builder(Message message) {
       this.body = message.body;
+      this.eventName = message.eventName;
+      this.id = message.id;
     }
 
     public Builder withBody(Entity body) {
@@ -125,8 +149,18 @@ public class Message {
       return this;
     }
 
+    public Builder withEventName(@Nullable String eventName) {
+      this.eventName = eventName;
+      return this;
+    }
+
+    public Builder withId(@Nullable String id) {
+      this.id = id;
+      return this;
+    }
+
     public Message build() {
-      return new Message(body);
+      return new Message(body, eventName, id);
     }
   }
 

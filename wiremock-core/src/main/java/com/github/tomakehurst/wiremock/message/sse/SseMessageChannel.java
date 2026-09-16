@@ -64,13 +64,12 @@ public class SseMessageChannel implements RequestInitiatedMessageChannel {
   public void sendMessage(Message message) {
     if (session != null && session.isOpen()) {
       String data;
-      String eventName = null;
       if (message.isBinary()) {
         data = java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes());
       } else {
         data = message.getBodyAsString();
       }
-      session.sendEvent(eventName, data, null);
+      session.sendEvent(message.getEventName(), data, message.getId());
     }
   }
 

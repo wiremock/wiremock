@@ -31,10 +31,21 @@ import org.jspecify.annotations.Nullable;
 public class MessageDefinition {
 
   private final EntityDefinition body;
+  @Nullable private final String eventName;
+  @Nullable private final String id;
 
   @JsonCreator
-  public MessageDefinition(@JsonProperty("body") EntityDefinition body) {
+  public MessageDefinition(
+      @JsonProperty("body") EntityDefinition body,
+      @Nullable @JsonProperty("eventName") String eventName,
+      @Nullable @JsonProperty("id") String id) {
     this.body = body;
+    this.eventName = eventName;
+    this.id = id;
+  }
+
+  public MessageDefinition(EntityDefinition body) {
+    this(body, null, null);
   }
 
   public static MessageDefinition fromString(@Nullable String message) {
@@ -49,16 +60,26 @@ public class MessageDefinition {
     return body;
   }
 
+  public @Nullable String getEventName() {
+    return eventName;
+  }
+
+  public @Nullable String getId() {
+    return id;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (getClass() != o.getClass()) return false;
     MessageDefinition that = (MessageDefinition) o;
-    return Objects.equals(body, that.body);
+    return Objects.equals(body, that.body)
+        && Objects.equals(eventName, that.eventName)
+        && Objects.equals(id, that.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(body);
+    return Objects.hash(body, eventName, id);
   }
 }
