@@ -20,7 +20,6 @@ dependencies {
 
     implementation(project(":wiremock-core:certificate-generator"))
     implementation(libs.jetty.alpn.server)
-    implementation(libs.jetty.ee11.servlets)
     implementation(libs.jetty.http)
     implementation(libs.jetty.http2.common)
     implementation(libs.jetty.http2.server)

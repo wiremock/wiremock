@@ -21,12 +21,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,9 +62,7 @@ public class CrossOriginTest {
 
       assertThat(response.statusCode(), is(200));
       assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
-      assertThat(
-          response.firstHeader("Access-Control-Allow-Methods"),
-          is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+      assertAllowedMethods(response);
     }
 
     @Test
@@ -77,9 +77,7 @@ public class CrossOriginTest {
 
       assertThat(response.statusCode(), is(200));
       assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
-      assertThat(
-          response.firstHeader("Access-Control-Allow-Methods"),
-          is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+      assertAllowedMethods(response);
     }
   }
 
@@ -110,5 +108,11 @@ public class CrossOriginTest {
       assertThat(response.statusCode(), is(200));
       assertThat(response.firstHeader("Access-Control-Allow-Origin"), nullValue());
     }
+  }
+
+  private static void assertAllowedMethods(WireMockResponse response) {
+    assertThat(
+        Arrays.asList(response.firstHeader("Access-Control-Allow-Methods").split(",")),
+        containsInAnyOrder("OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
   }
 }
