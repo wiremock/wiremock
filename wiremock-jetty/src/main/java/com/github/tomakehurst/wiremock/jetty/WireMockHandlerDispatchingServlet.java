@@ -52,7 +52,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.eclipse.jetty.ee11.websocket.server.JettyWebSocketServerContainer;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
@@ -296,9 +299,19 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       AsyncContext asyncContext = httpServletRequest.startAsync();
       asyncContext.setTimeout(0);
       try {
-        JettySseSession sseSession = new JettySseSession(asyncContext);
+        AtomicReference<UUID> channelIdRef = new AtomicReference<>();
+        JettySseSession sseSession =
+            new JettySseSession(
+                asyncContext,
+                () -> {
+                  UUID id = channelIdRef.get();
+                  if (id != null) {
+                    messageStubRequestHandler.getMessageChannels().remove(id);
+                  }
+                });
         LoggedRequest snapshot = LoggedRequest.createFrom(request);
         SseMessageChannel channel = new SseMessageChannel(snapshot, sseSession);
+        channelIdRef.set(channel.getId());
         messageStubRequestHandler.getMessageChannels().add(channel);
         sseSession.comment("ok");
       } catch (IOException e) {

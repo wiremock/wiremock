@@ -28,10 +28,12 @@ public class JettySseSession implements SseSession {
 
   private final EventSource.Emitter emitter;
   private final AsyncContext asyncContext;
+  private final Runnable onClose;
   private volatile boolean open = true;
 
-  public JettySseSession(AsyncContext asyncContext) throws IOException {
+  public JettySseSession(AsyncContext asyncContext, Runnable onClose) throws IOException {
     this.asyncContext = asyncContext;
+    this.onClose = onClose;
     this.emitter = HELPER.newEmitter(asyncContext);
   }
 
@@ -80,6 +82,9 @@ public class JettySseSession implements SseSession {
     try {
       asyncContext.complete();
     } catch (IllegalStateException ignored) {
+    }
+    if (onClose != null) {
+      onClose.run();
     }
   }
 

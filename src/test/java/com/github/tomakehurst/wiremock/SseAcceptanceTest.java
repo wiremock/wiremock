@@ -17,9 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServeEvents;
 import static com.github.tomakehurst.wiremock.client.WireMock.message;
 import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -35,6 +37,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient.SseEvent;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -158,5 +162,48 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
       SseEvent event3 = sse.awaitEvent(e -> "event-3".equals(e.getData()));
       assertNotNull(event3);
     }
+  }
+
+  @Test
+  void channelIsRemovedOnSseDisconnect() throws Exception {
+    stubFor(get(urlEqualTo("/cleanup-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/cleanup-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Cleanup trigger")
+            .triggeredByHttpRequest(
+                newRequestPattern().withUrl(urlPathEqualTo("/cleanup-trigger")))
+            .willTriggerActions(
+                sendMessage("disconnect-payload")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/cleanup-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/cleanup-stream"))) {
+      assertEquals(200, sse.connect());
+
+      resetMessageJournal();
+      testClient.get("/cleanup-trigger");
+      SseEvent event = sse.awaitEvent(e -> e.hasData());
+      assertNotNull(event);
+
+      MessageServeEvent sentEvent =
+          getAllMessageServeEvents().stream()
+              .filter(MessageServeEvent::isSent)
+              .findFirst()
+              .orElseThrow();
+      UUID channelId = sentEvent.getChannelId();
+      assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(true));
+    }
+
+    Thread.sleep(200);
+    testClient.get("/cleanup-trigger");
+    UUID channelId =
+        getAllMessageServeEvents().stream()
+            .filter(MessageServeEvent::isSent)
+            .findFirst()
+            .orElseThrow()
+            .getChannelId();
+    assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(false));
   }
 }

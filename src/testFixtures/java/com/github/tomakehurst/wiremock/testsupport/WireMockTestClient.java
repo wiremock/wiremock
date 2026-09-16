@@ -527,6 +527,9 @@ public class WireMockTestClient {
       if (readerThread != null) {
         readerThread.interrupt();
       }
+      if (response != null) {
+        response.body().close();
+      }
     }
 
     public static class SseEvent {
