@@ -229,6 +229,16 @@ public class MessageStubMapping implements Prioritisable {
       return onChannelFromRequestMatching(ChannelType.WEBSOCKET, channelPatternBuilder.build());
     }
 
+    public Builder onSseChannelFromRequestMatching(String urlPath) {
+      return onChannelFromRequestMatching(
+          ChannelType.SSE, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    }
+
+    public Builder onSseChannelFromRequestMatching(
+        RequestPatternBuilder channelPatternBuilder) {
+      return onChannelFromRequestMatching(ChannelType.SSE, channelPatternBuilder.build());
+    }
+
     public Builder onChannelFromRequestMatching(ChannelType channelType, String urlPath) {
       return onChannelFromRequestMatching(
           channelType, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
