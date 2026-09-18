@@ -108,8 +108,10 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
   }
 
   private SendMessageAction rebuildAction(SendMessageAction original, String newBody) {
+    MessageDefinition originalMessage = original.getMessage();
     return new SendMessageAction(
-        new MessageDefinition(EntityDefinition.full(newBody)),
+        new MessageDefinition(
+            EntityDefinition.full(newBody), originalMessage.getEventName(), originalMessage.getId()),
         original.getChannelTarget(),
         original.getTransformers(),
         original.getTransformerParameters());

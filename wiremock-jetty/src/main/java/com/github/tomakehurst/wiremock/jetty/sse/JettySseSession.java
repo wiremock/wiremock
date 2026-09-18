@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.jetty.sse;
 
 import com.github.tomakehurst.wiremock.message.sse.SseSession;
 import jakarta.servlet.AsyncContext;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.eclipse.jetty.ee11.servlets.EventSource;
 import org.eclipse.jetty.ee11.servlets.EventSourceServlet;
 
@@ -48,6 +50,11 @@ public class JettySseSession implements SseSession {
       return;
     }
     try {
+      if (id != null) {
+        ServletOutputStream out = asyncContext.getResponse().getOutputStream();
+        out.write(("id: " + id + "\r\n").getBytes(StandardCharsets.UTF_8));
+        out.flush();
+      }
       if (eventName != null && data != null) {
         emitter.event(eventName, data);
       } else if (data != null) {
