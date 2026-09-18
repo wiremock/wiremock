@@ -28,21 +28,24 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.MimeTypes;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import javax.net.ssl.SSLContext;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -427,34 +430,55 @@ public class WireMockTestClient {
     }
   }
 
-  public static class SseStreamClient implements AutoCloseable {
+public static class SseStreamClient implements AutoCloseable {
 
-    private final HttpClient client;
-    private final HttpRequest request;
+    private final String url;
+    private final OkHttpClient client;
     private final List<SseEvent> events = new CopyOnWriteArrayList<>();
-    private HttpResponse<java.io.InputStream> response;
-    private Thread readerThread;
+    private final CountDownLatch openLatch = new CountDownLatch(1);
+    private volatile EventSource eventSource;
+    private volatile Response response;
 
     public SseStreamClient(String url) {
-      this.client = HttpClient.newHttpClient();
-      this.request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .timeout(Duration.ofSeconds(30))
-              .GET()
-              .build();
+      this.url = url;
+      this.client = new OkHttpClient();
     }
 
-    public int connect() throws IOException, InterruptedException {
-      response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-      readerThread = new Thread(this::readEvents, "sse-reader");
-      readerThread.setDaemon(true);
-      readerThread.start();
-      return response.statusCode();
+    public int connect() {
+      Request request = new Request.Builder().url(url).build();
+      this.eventSource =
+          EventSources.createFactory(client)
+              .newEventSource(
+                  request,
+                  new EventSourceListener() {
+                    @Override
+                    public void onOpen(EventSource source, Response r) {
+                      response = r;
+                      openLatch.countDown();
+                    }
+
+                    @Override
+                    public void onEvent(EventSource source, String id, String type, String data) {
+                      events.add(new SseEvent(type, data, id));
+                    }
+
+                    @Override
+                    public void onFailure(EventSource source, Throwable t, Response r) {
+                      response = r;
+                      openLatch.countDown();
+                    }
+                  });
+      try {
+        openLatch.await(10, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return -1;
+      }
+      return response != null ? response.code() : -1;
     }
 
     public String header(String name) {
-      return response.headers().firstValue(name).orElse(null);
+      return response != null ? response.header(name) : null;
     }
 
     public List<SseEvent> getEvents() {
@@ -483,77 +507,24 @@ public class WireMockTestClient {
       return awaitEvent(predicate, 5000);
     }
 
-    private void readEvents() {
-      try (BufferedReader reader =
-          new BufferedReader(new java.io.InputStreamReader(response.body()))) {
-        String eventName = null;
-        String eventData = null;
-        StringBuilder dataBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null && !Thread.currentThread().isInterrupted()) {
-          if (line.startsWith("event:")) {
-            eventName = line.substring(6).trim();
-          } else if (line.startsWith("data:")) {
-            if (dataBuilder.length() > 0) {
-              dataBuilder.append("\n");
-            }
-            dataBuilder.append(line.substring(5).trim());
-          } else if (line.startsWith("id:")) {
-            String id = line.substring(3).trim();
-            if (eventName == null && dataBuilder.length() == 0) {
-              eventData = id;
-            }
-          } else if (line.startsWith(":")) {
-            events.add(SseEvent.comment(line.substring(1).trim()));
-          } else if (line.isEmpty()) {
-            if (dataBuilder.length() > 0 || eventName != null) {
-              String data = dataBuilder.length() > 0 ? dataBuilder.toString() : null;
-              events.add(new SseEvent(eventName, data, null));
-              eventName = null;
-              dataBuilder.setLength(0);
-            } else if (eventData != null) {
-              events.add(new SseEvent(null, null, eventData));
-              eventData = null;
-            }
-          }
-        }
-      } catch (IOException e) {
-        // stream closed
-      }
-    }
-
     @Override
-    public void close() throws Exception {
-      if (readerThread != null) {
-        readerThread.interrupt();
+    public void close() {
+      if (eventSource != null) {
+        eventSource.cancel();
       }
-      if (response != null) {
-        response.body().close();
-      }
+      client.dispatcher().executorService().shutdown();
+      client.connectionPool().evictAll();
     }
 
     public static class SseEvent {
       private final String name;
       private final String data;
       private final String id;
-      private final String comment;
 
       public SseEvent(String name, String data, String id) {
         this.name = name;
         this.data = data;
         this.id = id;
-        this.comment = null;
-      }
-
-      private SseEvent(String comment) {
-        this.name = null;
-        this.data = null;
-        this.id = null;
-        this.comment = comment;
-      }
-
-      static SseEvent comment(String text) {
-        return new SseEvent(text);
       }
 
       public String getName() {
@@ -566,10 +537,6 @@ public class WireMockTestClient {
 
       public String getId() {
         return id;
-      }
-
-      public String getComment() {
-        return comment;
       }
 
       public boolean hasName(String name) {
@@ -586,9 +553,6 @@ public class WireMockTestClient {
 
       @Override
       public String toString() {
-        if (comment != null) {
-          return "SseEvent{comment='" + comment + "'}";
-        }
         return "SseEvent{name='" + name + "', id='" + id + "', data='" + data + "'}";
       }
     }

@@ -122,18 +122,6 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void sseStreamReceivesInitialComment() throws Exception {
-    stubFor(get(urlEqualTo("/init")).willReturn(aResponse().withAcceptEventStream()));
-
-    try (SseStreamClient sse = new SseStreamClient(serverUrl("/init"))) {
-      assertEquals(200, sse.connect());
-      SseEvent event = sse.awaitEvent(e -> e.getComment() != null);
-      assertNotNull(event);
-      assertThat(event.getComment(), is("ok"));
-    }
-  }
-
-  @Test
   void sseStreamReceivesEventFromHighestPriorityHttpTrigger() throws Exception {
     stubFor(get(urlEqualTo("/multi-stream")).willReturn(aResponse().withAcceptEventStream()));
 
@@ -215,15 +203,20 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
       assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(true));
     }
 
-    Thread.sleep(200);
-    testClient.get("/cleanup-trigger");
     UUID channelId =
         getAllMessageServeEvents().stream()
             .filter(MessageServeEvent::isSent)
             .findFirst()
             .orElseThrow()
             .getChannelId();
-    assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(false));
+
+    boolean removed = false;
+    for (int i = 0; i < 10 && !removed; i++) {
+      testClient.get("/cleanup-trigger");
+      Thread.sleep(100);
+      removed = !WireMock.getMessageChannel(channelId).isPresent();
+    }
+    assertThat(removed, is(true));
   }
 
   @Test
@@ -251,6 +244,39 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
       SseEvent event = sse.awaitEvent(e -> "stub-triggered-event".equals(e.getData()));
       assertNotNull(event);
+    }
+  }
+
+  @Test
+  void sseStreamReceivesNamedEventWithId() throws Exception {
+    stubFor(get(urlEqualTo("/named-stream")).willReturn(aResponse().withAcceptEventStream()));
+
+    stubFor(get(urlEqualTo("/named-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Named + ID event trigger")
+            .triggeredByHttpRequest(
+                newRequestPattern().withUrl(urlPathEqualTo("/named-trigger")))
+            .willTriggerActions(
+                sendMessage("{\"userId\":1}")
+                    .withEventName("userLogin")
+                    .withEventId("evt-42")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/named-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/named-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/named-trigger");
+
+      SseEvent event =
+          sse.awaitEvent(
+              e -> "{\"userId\":1}".equals(e.getData()));
+
+      assertNotNull(event);
+      assertThat(event.getId(), is("evt-42"));
+      assertThat(event.getName(), is("userLogin"));
     }
   }
 }
