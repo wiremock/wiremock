@@ -234,7 +234,9 @@ public class MessageSerializationTest {
                 "id": "11111111-2222-3333-4444-555555555555",
                 "open": true
               },
-              "message": "test message",
+              "message": {
+                "body": "test message"
+              },
               "wasMatched": true,
               "timestamp": "2025-01-15T10:30:00Z",
               "stubMapping": {
@@ -499,7 +501,9 @@ public class MessageSerializationTest {
                 "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
                 "open": true
               },
-              "message": "sent message",
+              "message": {
+                "body": "sent message"
+              },
               "wasMatched": true,
               "timestamp": "2025-01-15T12:00:00Z"
             }

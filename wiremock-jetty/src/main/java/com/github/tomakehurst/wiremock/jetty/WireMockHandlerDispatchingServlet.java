@@ -55,7 +55,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.eclipse.jetty.ee11.websocket.server.JettyWebSocketServerContainer;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {

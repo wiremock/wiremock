@@ -26,6 +26,9 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public class SseMessageChannel implements RequestInitiatedMessageChannel {
 
+  public static final String EVENT_HEADER = "event";
+  public static final String ID_HEADER = "id";
+
   private final UUID id;
   private final Request request;
   @Nullable private final SseSession session;
@@ -69,7 +72,10 @@ public class SseMessageChannel implements RequestInitiatedMessageChannel {
       } else {
         data = message.getBodyAsString();
       }
-      session.sendEvent(message.getEventName(), data, message.getId());
+      session.sendEvent(
+          message.getHeaders().getFirstValue(EVENT_HEADER),
+          data,
+          message.getHeaders().getFirstValue(ID_HEADER));
     }
   }
 

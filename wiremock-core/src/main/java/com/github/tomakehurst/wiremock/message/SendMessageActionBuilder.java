@@ -25,15 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public class SendMessageActionBuilder {
 
   private final EntityDefinition.Builder entityBuilder = entity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
-  @Nullable private String eventName;
-  @Nullable private String id;
+  private MessageHeaders headers = MessageHeaders.noHeaders();
 
   public SendMessageActionBuilder() {}
 
@@ -53,13 +51,13 @@ public class SendMessageActionBuilder {
     return this;
   }
 
-  public SendMessageActionBuilder withEventName(@Nullable String eventName) {
-    this.eventName = eventName;
+  public SendMessageActionBuilder withHeader(String key, String... values) {
+    this.headers = this.headers.plus(new MessageHeader(key, values));
     return this;
   }
 
-  public SendMessageActionBuilder withEventId(@Nullable String id) {
-    this.id = id;
+  public SendMessageActionBuilder withHeaders(MessageHeaders headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -88,20 +86,17 @@ public class SendMessageActionBuilder {
   }
 
   private MessageDefinition resolveMessage() {
-    return new MessageDefinition(resolveBody(), eventName, id);
+    return new MessageDefinition(resolveBody(), headers);
   }
 
   public SendMessageAction onOriginatingChannel() {
     return new SendMessageAction(
-        new MessageDefinition(resolveBody(), eventName, id),
-        OriginatingChannelTarget.INSTANCE,
-        transformers,
-        transformerParameters);
+        resolveMessage(), OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
     return new SendMessageAction(
-        new MessageDefinition(resolveBody(), eventName, id),
+        resolveMessage(),
         RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
         transformers,
         transformerParameters);
@@ -133,7 +128,7 @@ public class SendMessageActionBuilder {
 
   public SendMessageAction onChannel(String providerName, String channelName) {
     return new SendMessageAction(
-        new MessageDefinition(resolveBody(), eventName, id),
+        resolveMessage(),
         new FixedChannelTarget(providerName, channelName),
         transformers,
         transformerParameters);

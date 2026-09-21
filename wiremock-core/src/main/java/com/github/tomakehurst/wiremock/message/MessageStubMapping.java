@@ -234,8 +234,7 @@ public class MessageStubMapping implements Prioritisable {
           ChannelType.SSE, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
     }
 
-    public Builder onSseChannelFromRequestMatching(
-        RequestPatternBuilder channelPatternBuilder) {
+    public Builder onSseChannelFromRequestMatching(RequestPatternBuilder channelPatternBuilder) {
       return onChannelFromRequestMatching(ChannelType.SSE, channelPatternBuilder.build());
     }
 

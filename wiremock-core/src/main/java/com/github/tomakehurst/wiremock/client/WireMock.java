@@ -85,6 +85,7 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
+import com.github.tomakehurst.wiremock.message.sse.SendSseMessageActionBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -1306,6 +1307,14 @@ public class WireMock {
 
   public static SendMessageActionBuilder sendMessage(String message) {
     return new SendMessageActionBuilder().withBody(message);
+  }
+
+  public static SendSseMessageActionBuilder sendSse() {
+    return new SendSseMessageActionBuilder();
+  }
+
+  public static SendSseMessageActionBuilder sendSse(String data) {
+    return new SendSseMessageActionBuilder(data);
   }
 
   public static MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {

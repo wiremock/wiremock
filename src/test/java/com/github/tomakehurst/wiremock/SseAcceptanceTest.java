@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendSse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -107,11 +108,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   void acceptEventStreamRejectsFault() {
     assertThrows(
         IllegalStateException.class,
-        () ->
-            aResponse()
-                .withAcceptEventStream()
-                .withFault(EMPTY_RESPONSE)
-                .build());
+        () -> aResponse().withAcceptEventStream().withFault(EMPTY_RESPONSE).build());
   }
 
   @Test
@@ -179,8 +176,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     messageStubFor(
         message()
             .withName("Cleanup trigger")
-            .triggeredByHttpRequest(
-                newRequestPattern().withUrl(urlPathEqualTo("/cleanup-trigger")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/cleanup-trigger")))
             .willTriggerActions(
                 sendMessage("disconnect-payload")
                     .onChannelsMatching(
@@ -256,10 +252,9 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     messageStubFor(
         message()
             .withName("Named + ID event trigger")
-            .triggeredByHttpRequest(
-                newRequestPattern().withUrl(urlPathEqualTo("/named-trigger")))
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/named-trigger")))
             .willTriggerActions(
-                sendMessage("{\"userId\":1}")
+                sendSse("{\"userId\":1}")
                     .withEventName("userLogin")
                     .withEventId("evt-42")
                     .onChannelsMatching(
@@ -270,9 +265,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
       testClient.get("/named-trigger");
 
-      SseEvent event =
-          sse.awaitEvent(
-              e -> "{\"userId\":1}".equals(e.getData()));
+      SseEvent event = sse.awaitEvent(e -> "{\"userId\":1}".equals(e.getData()));
 
       assertNotNull(event);
       assertThat(event.getId(), is("evt-42"));

@@ -430,7 +430,7 @@ public class WireMockTestClient {
     }
   }
 
-public static class SseStreamClient implements AutoCloseable {
+  public static class SseStreamClient implements AutoCloseable {
 
     private final String url;
     private final OkHttpClient client;
