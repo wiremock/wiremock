@@ -108,6 +108,17 @@ public class MessageHeaders {
     return new MessageHeaders(combined);
   }
 
+  public MessageHeaders withReplaced(MessageHeader replacement) {
+    List<MessageHeader> remaining = new ArrayList<>();
+    for (MessageHeader header : all()) {
+      if (!header.keyEquals(replacement.key())) {
+        remaining.add(header);
+      }
+    }
+    remaining.add(replacement);
+    return new MessageHeaders(remaining);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

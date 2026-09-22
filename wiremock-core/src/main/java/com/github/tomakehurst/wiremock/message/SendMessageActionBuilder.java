@@ -89,6 +89,14 @@ public class SendMessageActionBuilder {
     return new MessageDefinition(resolveBody(), headers);
   }
 
+  protected MessageHeaders headers() {
+    return headers;
+  }
+
+  protected void replaceHeader(MessageHeader header) {
+    this.headers = this.headers.withReplaced(header);
+  }
+
   public SendMessageAction onOriginatingChannel() {
     return new SendMessageAction(
         resolveMessage(), OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
@@ -108,14 +116,15 @@ public class SendMessageActionBuilder {
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
     return new TargetedSendMessageActionBuilder(
-        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
+        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters, headers);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
     return new TargetedSendMessageActionBuilder(
         RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
         transformers,
-        transformerParameters);
+        transformerParameters,
+        headers);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
@@ -123,7 +132,8 @@ public class SendMessageActionBuilder {
     return new TargetedSendMessageActionBuilder(
         RequestInitiatedChannelTarget.forPattern(targetChannelPatternBuilder.build()),
         transformers,
-        transformerParameters);
+        transformerParameters,
+        headers);
   }
 
   public SendMessageAction onChannel(String providerName, String channelName) {
@@ -138,17 +148,22 @@ public class SendMessageActionBuilder {
     private final ChannelTarget channelTarget;
     private final List<String> transformers;
     private final Parameters transformerParameters;
+    private final MessageHeaders headers;
 
     TargetedSendMessageActionBuilder(
-        ChannelTarget channelTarget, List<String> transformers, Parameters transformerParameters) {
+        ChannelTarget channelTarget,
+        List<String> transformers,
+        Parameters transformerParameters,
+        MessageHeaders headers) {
       this.channelTarget = channelTarget;
       this.transformers = transformers;
       this.transformerParameters = transformerParameters;
+      this.headers = headers;
     }
 
     public SendMessageAction withMessage(EntityDefinition body) {
       return new SendMessageAction(
-          new MessageDefinition(body), channelTarget, transformers, transformerParameters);
+          new MessageDefinition(body, headers), channelTarget, transformers, transformerParameters);
     }
 
     public SendMessageAction withMessage(EntityDefinition.Builder bodyBuilder) {

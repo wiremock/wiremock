@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.message.sse;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
 import com.github.tomakehurst.wiremock.message.MessageHeaders;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
+import java.util.List;
 
 public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
 
@@ -28,13 +30,27 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
   }
 
   public SendSseMessageActionBuilder withEventName(String eventName) {
-    withHeader(SseMessageChannel.EVENT_HEADER, eventName);
+    replaceHeader(new MessageHeader(SseMessageChannel.EVENT_HEADER, eventName));
     return this;
   }
 
   public SendSseMessageActionBuilder withEventId(String id) {
-    withHeader(SseMessageChannel.ID_HEADER, id);
+    replaceHeader(new MessageHeader(SseMessageChannel.ID_HEADER, id));
     return this;
+  }
+
+  private static void validateSingleValuedSseHeaders(MessageHeaders headers) {
+    for (String key : List.of(SseMessageChannel.EVENT_HEADER, SseMessageChannel.ID_HEADER)) {
+      MessageHeader header = headers.getHeader(key);
+      if (header.isPresent() && !header.isSingleValued()) {
+        throw new IllegalStateException(
+            "SSE header '"
+                + key
+                + "' must have a single value but had "
+                + header.values().size()
+                + ". Use withEventName/withEventId, or a single-valued withHeader.");
+      }
+    }
   }
 
   @Override
@@ -57,12 +73,15 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
 
   @Override
   public SendSseMessageActionBuilder withHeader(String key, String... values) {
-    super.withHeader(key, values);
+    MessageHeaders candidate = headers().plus(new MessageHeader(key, values));
+    validateSingleValuedSseHeaders(candidate);
+    super.withHeaders(candidate);
     return this;
   }
 
   @Override
   public SendSseMessageActionBuilder withHeaders(MessageHeaders headers) {
+    validateSingleValuedSseHeaders(headers);
     super.withHeaders(headers);
     return this;
   }

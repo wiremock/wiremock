@@ -26,6 +26,7 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -47,6 +48,8 @@ import com.github.tomakehurst.wiremock.message.HttpStubTrigger;
 import com.github.tomakehurst.wiremock.message.IncomingMessageTrigger;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
+import com.github.tomakehurst.wiremock.message.MessageHeaders;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
@@ -1141,5 +1144,80 @@ public class MessageSerializationTest {
 
     assertThat(deserializedTarget.getChannelType(), is(ChannelType.WEBSOCKET));
     assertThat(deserializedTarget.getRequestPattern().getUrl(), is("/round-trip-target"));
+  }
+
+  @Test
+  void multiValuedHeadersSerialiseAsArrayAndRoundTrip() {
+    SendMessageAction action =
+        sendMessage("body").withHeader("custom", "v1", "v2").onOriginatingChannel();
+
+    String json = Json.write(action);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "type": "send",
+              "message": {
+                "body": {
+                  "data": "body"
+                },
+                "headers": {
+                  "custom": ["v1", "v2"]
+                }
+              },
+              "channelTarget": {
+                "type": "originating"
+              }
+            }
+            """));
+
+    SendMessageAction restored = Json.read(json, SendMessageAction.class);
+    assertThat(
+        restored.getMessage().getHeaders().getHeader("custom").values(), contains("v1", "v2"));
+  }
+
+  @Test
+  void messageWithHeadersSerialisesInObjectForm() {
+    Message message =
+        Message.builder()
+            .withTextBody("payload")
+            .withHeader("event", "userLogin")
+            .withHeader("id", "42")
+            .build();
+
+    String json = Json.write(message);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=JSON
+            """
+            {
+              "body": "payload",
+              "headers": {
+                "event": "userLogin",
+                "id": "42"
+              }
+            }
+            """));
+
+    Message restored = Json.read(json, Message.class);
+    assertThat(restored.getBodyAsString(), is("payload"));
+    assertThat(
+        restored.getHeaders(),
+        is(
+            new MessageHeaders(
+                new MessageHeader("event", "userLogin"), new MessageHeader("id", "42"))));
+  }
+
+  @Test
+  void messageDeserialisesFromLegacyBareString() {
+    Message restored = Json.read("\"legacy body\"", Message.class);
+
+    assertThat(restored.getBodyAsString(), is("legacy body"));
+    assertThat(restored.getHeaders().isEmpty(), is(true));
   }
 }

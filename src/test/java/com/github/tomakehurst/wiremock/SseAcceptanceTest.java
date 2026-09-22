@@ -35,6 +35,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.message.MessageHeaders;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient;
@@ -270,6 +272,109 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
       assertNotNull(event);
       assertThat(event.getId(), is("evt-42"));
       assertThat(event.getName(), is("userLogin"));
+    }
+  }
+
+  @Test
+  void headerValuesAreTemplatedFromTriggeringRequest() throws Exception {
+    stubFor(get(urlEqualTo("/tmpl-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlPathEqualTo("/tmpl-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Templated headers trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/tmpl-trigger")))
+            .willTriggerActions(
+                sendSse("templated-body")
+                    .withEventName("{{request.path}}")
+                    .withEventId("{{request.method}}")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/tmpl-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/tmpl-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/tmpl-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "templated-body".equals(e.getData()));
+      assertNotNull(event);
+      assertThat(event.getName(), is("/tmpl-trigger"));
+      assertThat(event.getId(), is("GET"));
+    }
+  }
+
+  @Test
+  void repeatedWithEventNameReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withEventName("first")
+            .withEventName("second")
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("event").values(), hasSize(1));
+    assertThat(headers.getFirstValue("event"), is("second"));
+  }
+
+  @Test
+  void multiValuedSseHeadersRejectedAtMutationTime() {
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("event", "a", "b"));
+
+    assertThrows(
+        IllegalStateException.class,
+        () -> sendSse("data").withHeader("event", "a").withHeader("event", "b"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("id", "a", "b"));
+  }
+
+  @Test
+  void multiValuedEventHeaderFromRawJsonUsesFirstValue() {
+    stubFor(get(urlEqualTo("/raw-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/raw-trigger")).willReturn(ok("triggered")));
+
+    testClient.postJson(
+        "/__admin/message-mappings",
+        // language=json
+        """
+        {
+          "name": "raw multi-value",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": {
+              "method": "GET",
+              "urlPath": "/raw-trigger"
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": {
+                  "data": "raw-body"
+                },
+                "headers": {
+                  "event": ["alpha", "beta"]
+                }
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "urlPath": "/raw-stream"
+                }
+              }
+            }
+          ]
+        }
+        """);
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/raw-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/raw-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "raw-body".equals(e.getData()));
+      assertNotNull(event);
+      assertThat(event.getName(), is("alpha"));
     }
   }
 }
