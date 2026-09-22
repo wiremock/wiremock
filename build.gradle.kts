@@ -35,7 +35,7 @@ dependencies {
   testFixturesApi(libs.apache.http5.client)
   testFixturesApi(libs.apache.http5.core)
   testFixturesApi(platform(libs.okhttp.bom))
-  testFixturesApi(libs.okhttp.sse)
+  testFixturesImplementation(libs.okhttp.sse)
   testFixturesApi(libs.guava)
   testFixturesApi(libs.hamcrest)
   testFixturesApi(libs.handlebars)
