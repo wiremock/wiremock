@@ -28,7 +28,11 @@ public class SseMessageValidator implements MessageValidator {
 
   @Override
   public void validate(MessageDefinition message) {
-    for (String key : List.of(SseMessageChannel.EVENT_HEADER, SseMessageChannel.ID_HEADER)) {
+    for (String key :
+        List.of(
+            SseMessageChannel.EVENT_HEADER,
+            SseMessageChannel.ID_HEADER,
+            SseMessageChannel.RETRY_HEADER)) {
       MessageHeader header = message.getHeaders().getHeader(key);
       if (header.isPresent()) {
         for (String value : header.values()) {

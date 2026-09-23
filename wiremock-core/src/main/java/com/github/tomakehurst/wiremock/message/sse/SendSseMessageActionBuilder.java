@@ -59,8 +59,17 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
     return this;
   }
 
+  public SendSseMessageActionBuilder withRetry(long milliseconds) {
+    replaceHeader(new MessageHeader(SseMessageChannel.RETRY_HEADER, String.valueOf(milliseconds)));
+    return this;
+  }
+
   private static void validateSingleValuedSseHeaders(MessageHeaders headers) {
-    for (String key : List.of(SseMessageChannel.EVENT_HEADER, SseMessageChannel.ID_HEADER)) {
+    for (String key :
+        List.of(
+            SseMessageChannel.EVENT_HEADER,
+            SseMessageChannel.ID_HEADER,
+            SseMessageChannel.RETRY_HEADER)) {
       MessageHeader header = headers.getHeader(key);
       if (header.isPresent() && !header.isSingleValued()) {
         throw new IllegalStateException(
@@ -68,7 +77,7 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
                 + key
                 + "' must have a single value but had "
                 + header.values().size()
-                + ". Use withEventName/withEventId, or a single-valued withHeader.");
+                + ". Use withEventName/withEventId/withRetry, or a single-valued withHeader.");
       }
     }
   }

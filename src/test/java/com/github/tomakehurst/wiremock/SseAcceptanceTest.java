@@ -324,6 +324,57 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void retryHeaderIsDeliveredAsRetryFieldInFrame() throws Exception {
+    stubFor(get(urlEqualTo("/retry-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/retry-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("retry trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/retry-trigger")))
+            .willTriggerActions(
+                sendSse("retry-body")
+                    .withEventId("r1")
+                    .withRetry(5000)
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/retry-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/retry-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/retry-trigger");
+
+      assertThat(source.readUtf8Line(), is("id: r1"));
+      assertThat(source.readUtf8Line(), is("retry: 5000"));
+      assertThat(source.readUtf8Line(), is("data: retry-body"));
+      assertThat(source.readUtf8Line(), is(""));
+    }
+  }
+
+  @Test
+  void repeatedWithRetryReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withRetry(1000)
+            .withRetry(2000)
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("retry").values(), hasSize(1));
+    assertThat(headers.getFirstValue("retry"), is("2000"));
+  }
+
+  @Test
   void multiValuedSseHeadersRejectedAtMutationTime() {
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("event", "a", "b"));
 
@@ -332,6 +383,35 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
         () -> sendSse("data").withHeader("event", "a").withHeader("event", "b"));
 
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("id", "a", "b"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("retry", "a", "b"));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInRetryHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"retry\": \"1\\n2\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/retry"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'retry' must not contain line breaks"
+                }
+              ]
+            }
+            """));
   }
 
   @Test

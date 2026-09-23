@@ -45,7 +45,7 @@ public class JettySseSession implements SseSession {
   }
 
   @Override
-  public void sendEvent(String eventName, String data, String id) {
+  public void sendEvent(String eventName, String data, String id, String retry) {
     if (!open) {
       return;
     }
@@ -55,6 +55,9 @@ public class JettySseSession implements SseSession {
     }
     if (eventName != null) {
       appendFrameLine(frame, "event: " + eventName);
+    }
+    if (retry != null) {
+      appendFrameLine(frame, "retry: " + retry);
     }
     for (String line : (data == null ? "" : data).split("\r\n|\r|\n", -1)) {
       appendFrameLine(frame, line.isEmpty() ? "data:" : "data: " + line);
