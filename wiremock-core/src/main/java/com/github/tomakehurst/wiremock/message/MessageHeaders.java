@@ -67,14 +67,10 @@ public class MessageHeaders {
     return NO_HEADERS;
   }
 
-  public MessageHeader getHeader(String key) {
-    if (!headers.containsKey(new CaseInsensitiveKey(key))) {
-      return MessageHeader.absent(key);
-    }
-
-    Collection<String> values = headers.get(new CaseInsensitiveKey(key));
-    return new MessageHeader(key, values);
-  }
+public MessageHeader getHeader(String key) {                                                                                                                                                                                                                                                                                   
+    Collection<String> values = headers.get(new CaseInsensitiveKey(key));                                                                                                                                                                                                                                                        
+    return values.isEmpty() ? MessageHeader.absent(key) : new MessageHeader(key, values);                                                                                                                                                                                                                                        
+  } 
 
   public @Nullable String getFirstValue(String key) {
     MessageHeader header = getHeader(key);
