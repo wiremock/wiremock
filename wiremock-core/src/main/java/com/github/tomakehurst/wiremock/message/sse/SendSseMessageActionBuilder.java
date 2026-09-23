@@ -30,11 +30,13 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
   }
 
   public SendSseMessageActionBuilder withEventName(String eventName) {
+    validateNoLineBreaks("event name", eventName);
     replaceHeader(new MessageHeader(SseMessageChannel.EVENT_HEADER, eventName));
     return this;
   }
 
   public SendSseMessageActionBuilder withEventId(String id) {
+    validateNoLineBreaks("event id", id);
     replaceHeader(new MessageHeader(SseMessageChannel.ID_HEADER, id));
     return this;
   }
@@ -53,8 +55,24 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
     }
   }
 
+  private static void validateHeadersHaveNoLineBreaks(MessageHeaders headers) {
+    for (MessageHeader header : headers.all()) {
+      validateNoLineBreaks("header key", header.key());
+      for (String value : header.values()) {
+        validateNoLineBreaks("header value", value);
+      }
+    }
+  }
+
+  private static void validateNoLineBreaks(String description, String value) {
+    if (value != null && (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0)) {
+      throw new IllegalStateException("SSE " + description + " must not contain line breaks");
+    }
+  }
+
   @Override
   public SendSseMessageActionBuilder withBody(String message) {
+    validateNoLineBreaks("message body", message);
     super.withBody(message);
     return this;
   }
@@ -73,6 +91,10 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
 
   @Override
   public SendSseMessageActionBuilder withHeader(String key, String... values) {
+    validateNoLineBreaks("header key", key);
+    for (String value : values) {
+      validateNoLineBreaks("header value", value);
+    }
     MessageHeaders candidate = headers().plus(new MessageHeader(key, values));
     validateSingleValuedSseHeaders(candidate);
     super.withHeaders(candidate);
@@ -81,6 +103,7 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
 
   @Override
   public SendSseMessageActionBuilder withHeaders(MessageHeaders headers) {
+    validateHeadersHaveNoLineBreaks(headers);
     validateSingleValuedSseHeaders(headers);
     super.withHeaders(headers);
     return this;

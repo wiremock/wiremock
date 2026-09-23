@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
 import com.github.tomakehurst.wiremock.message.MessageHeaders;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -325,6 +326,56 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
         () -> sendSse("data").withHeader("event", "a").withHeader("event", "b"));
 
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("id", "a", "b"));
+  }
+
+  @Test
+  void lineBreaksInBodyRejectedAtCreationTime() {
+    IllegalStateException lf =
+        assertThrows(IllegalStateException.class, () -> sendSse("some\ndata"));
+    assertThat(lf.getMessage(), is("SSE message body must not contain line breaks"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("some\rdata"));
+    assertThrows(IllegalStateException.class, () -> sendSse("some\r\ndata"));
+    assertThrows(IllegalStateException.class, () -> sendSse().withBody("some\ndata"));
+  }
+
+  @Test
+  void lineBreaksInEventNameAndIdRejectedAtCreationTime() {
+    IllegalStateException eventName =
+        assertThrows(IllegalStateException.class, () -> sendSse("data").withEventName("ev\r\nent"));
+    assertThat(eventName.getMessage(), is("SSE event name must not contain line breaks"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withEventName("ev\nent"));
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withEventId("id\r1"));
+
+    IllegalStateException eventId =
+        assertThrows(IllegalStateException.class, () -> sendSse("data").withEventId("id\n1"));
+    assertThat(eventId.getMessage(), is("SSE event id must not contain line breaks"));
+  }
+
+  @Test
+  void lineBreaksInHeaderKeysAndValuesRejectedAtCreationTime() {
+    IllegalStateException key =
+        assertThrows(
+            IllegalStateException.class, () -> sendSse("data").withHeader("bad\nkey", "v"));
+    assertThat(key.getMessage(), is("SSE header key must not contain line breaks"));
+
+    IllegalStateException value =
+        assertThrows(
+            IllegalStateException.class, () -> sendSse("data").withHeader("key", "bad\r\nvalue"));
+    assertThat(value.getMessage(), is("SSE header value must not contain line breaks"));
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            sendSse("data")
+                .withHeaders(new MessageHeaders(new MessageHeader("bad\nkey", "value"))));
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            sendSse("data")
+                .withHeaders(new MessageHeaders(new MessageHeader("key", "bad\nvalue"))));
   }
 
   @Test
