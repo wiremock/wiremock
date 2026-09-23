@@ -402,9 +402,9 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
                 {
                   "code": 10,
                   "source": {
-                    "pointer": "/actions/0"
+                    "pointer": "headers/event"
                   },
-                  "title": "Error parsing JSON",
+                  "title": "Invalid SSE message",
                   "detail": "SSE header 'event' must not contain line breaks"
                 }
               ]
@@ -429,9 +429,9 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
                 {
                   "code": 10,
                   "source": {
-                    "pointer": "/actions/0"
+                    "pointer": "headers/id"
                   },
-                  "title": "Error parsing JSON",
+                  "title": "Invalid SSE message",
                   "detail": "SSE header 'id' must not contain line breaks"
                 }
               ]
@@ -456,9 +456,9 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
                 {
                   "code": 10,
                   "source": {
-                    "pointer": "/actions/0"
+                    "pointer": "body"
                   },
-                  "title": "Error parsing JSON",
+                  "title": "Invalid SSE message",
                   "detail": "SSE message body must not contain line breaks"
                 }
               ]

@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.message.channel;
 
 import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
+import org.jspecify.annotations.Nullable;
 
 public interface ChannelProviderDriver {
 
@@ -26,4 +28,6 @@ public interface ChannelProviderDriver {
   void send(ChannelProvider provider, String channelName, Message message);
 
   void deleteChannel(ChannelProvider provider, String channelName);
+
+  @Nullable MessageValidator getMessageValidator();
 }

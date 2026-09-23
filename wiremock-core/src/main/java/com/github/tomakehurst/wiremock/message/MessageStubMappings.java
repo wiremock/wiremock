@@ -22,21 +22,31 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MessageStubMappings {
 
   private final MessageStubMappingStore store;
+  private final Consumer<MessageStubMapping> validator;
 
   public MessageStubMappings(MessageStubMappingStore store) {
+    this(store, mapping -> {});
+  }
+
+  public MessageStubMappings(
+      MessageStubMappingStore store, Consumer<MessageStubMapping> validator) {
     this.store = store;
+    this.validator = validator;
   }
 
   public void add(MessageStubMapping mapping) {
+    validator.accept(mapping);
     store.add(mapping);
   }
 
   public Optional<MessageStubMapping> edit(MessageStubMapping updated) {
+    validator.accept(updated);
     return store.get(updated.getId()).map(existing -> store.replace(existing, updated));
   }
 
