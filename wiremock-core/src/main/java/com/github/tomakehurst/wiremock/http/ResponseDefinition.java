@@ -77,8 +77,8 @@ public class ResponseDefinition {
 
   private final @Nullable AbsoluteUrl browserProxyUrl;
   private final Boolean wasConfigured;
-  private final Boolean acceptWebSocket;
-  private final Boolean acceptEventStream;
+  private final Boolean openWebsocketChannel;
+  private final Boolean openSseChannel;
 
   @JsonCreator
   public ResponseDefinition(
@@ -100,8 +100,8 @@ public class ResponseDefinition {
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters,
       @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
-      @JsonProperty("acceptWebSocket") Boolean acceptWebSocket,
-      @JsonProperty("acceptEventStream") Boolean acceptEventStream) {
+      @JsonProperty("openWebsocketChannel") Boolean openWebsocketChannel,
+      @JsonProperty("openSseChannel") Boolean openSseChannel) {
     this(
         status,
         statusMessage,
@@ -119,8 +119,8 @@ public class ResponseDefinition {
         transformerParameters,
         null,
         wasConfigured,
-        acceptWebSocket,
-        acceptEventStream);
+        openWebsocketChannel,
+        openSseChannel);
   }
 
   private static EntityDefinition resolveBody(
@@ -154,8 +154,8 @@ public class ResponseDefinition {
       Parameters transformerParameters,
       @Nullable AbsoluteUrl browserProxyUrl,
       Boolean wasConfigured,
-      Boolean acceptWebSocket,
-      Boolean acceptEventStream) {
+      Boolean openWebsocketChannel,
+      Boolean openSseChannel) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
 
@@ -179,8 +179,8 @@ public class ResponseDefinition {
         transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
-    this.acceptWebSocket = acceptWebSocket;
-    this.acceptEventStream = acceptEventStream;
+    this.openWebsocketChannel = openWebsocketChannel;
+    this.openSseChannel = openSseChannel;
   }
 
   public static ResponseDefinition notFound() {
@@ -280,8 +280,8 @@ public class ResponseDefinition {
         this.transformerParameters,
         this.browserProxyUrl,
         this.wasConfigured,
-        this.acceptWebSocket,
-        this.acceptEventStream);
+        this.openWebsocketChannel,
+        this.openSseChannel);
   }
 
   public ResponseDefinition transform(Consumer<Builder> transformer) {
@@ -420,14 +420,14 @@ public class ResponseDefinition {
     return browserProxyUrl;
   }
 
-  @JsonProperty("acceptWebSocket")
-  public @Nullable Boolean getAcceptWebSocket() {
-    return Boolean.TRUE.equals(acceptWebSocket) ? true : null;
+  @JsonProperty("openWebsocketChannel")
+  public @Nullable Boolean getOpenWebsocketChannel() {
+    return Boolean.TRUE.equals(openWebsocketChannel) ? true : null;
   }
 
-  @JsonProperty("acceptEventStream")
-  public @Nullable Boolean getAcceptEventStream() {
-    return Boolean.TRUE.equals(acceptEventStream) ? true : null;
+  @JsonProperty("openSseChannel")
+  public @Nullable Boolean getOpenSseChannel() {
+    return Boolean.TRUE.equals(openSseChannel) ? true : null;
   }
 
   public Fault getFault() {
@@ -471,8 +471,8 @@ public class ResponseDefinition {
         && Objects.equals(transformerParameters, that.transformerParameters)
         && Objects.equals(browserProxyUrl, that.browserProxyUrl)
         && Objects.equals(wasConfigured, that.wasConfigured)
-        && Objects.equals(acceptWebSocket, that.acceptWebSocket)
-        && Objects.equals(acceptEventStream, that.acceptEventStream);
+        && Objects.equals(openWebsocketChannel, that.openWebsocketChannel)
+        && Objects.equals(openSseChannel, that.openSseChannel);
   }
 
   @Override
@@ -494,8 +494,8 @@ public class ResponseDefinition {
         transformerParameters,
         browserProxyUrl,
         wasConfigured,
-        acceptWebSocket,
-        acceptEventStream);
+        openWebsocketChannel,
+        openSseChannel);
   }
 
   @Override
@@ -523,8 +523,8 @@ public class ResponseDefinition {
     private @Nullable AbsoluteUrl browserProxyUrl;
     private Boolean wasConfigured = true;
     private Request originalRequest;
-    private Boolean acceptWebSocket;
-    private Boolean acceptEventStream;
+    private Boolean openWebsocketChannel;
+    private Boolean openSseChannel;
 
     public Builder() {}
 
@@ -545,8 +545,8 @@ public class ResponseDefinition {
       this.transformerParameters = original.transformerParameters;
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;
-      this.acceptWebSocket = original.acceptWebSocket;
-      this.acceptEventStream = original.acceptEventStream;
+      this.openWebsocketChannel = original.openWebsocketChannel;
+      this.openSseChannel = original.openSseChannel;
     }
 
     public int getStatus() {
@@ -766,13 +766,13 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setAcceptWebSocket(Boolean acceptWebSocket) {
-      this.acceptWebSocket = acceptWebSocket;
+    public Builder setOpenWebsocketChannel(Boolean openWebsocketChannel) {
+      this.openWebsocketChannel = openWebsocketChannel;
       return this;
     }
 
-    public Builder setAcceptEventStream(Boolean acceptEventStream) {
-      this.acceptEventStream = acceptEventStream;
+    public Builder setOpenSseChannel(Boolean openSseChannel) {
+      this.openSseChannel = openSseChannel;
       return this;
     }
 
@@ -782,10 +782,10 @@ public class ResponseDefinition {
     }
 
     public ResponseDefinition build() {
-      if (Boolean.TRUE.equals(acceptWebSocket)) {
+      if (Boolean.TRUE.equals(openWebsocketChannel)) {
         validateWebSocketOnly();
       }
-      if (Boolean.TRUE.equals(acceptEventStream)) {
+      if (Boolean.TRUE.equals(openSseChannel)) {
         validateEventStreamOnly();
       }
       return new ResponseDefinition(
@@ -805,8 +805,8 @@ public class ResponseDefinition {
           transformerParameters,
           browserProxyUrl,
           wasConfigured,
-          acceptWebSocket,
-          acceptEventStream);
+          openWebsocketChannel,
+          openSseChannel);
     }
 
     private void validateWebSocketOnly() {
@@ -822,9 +822,9 @@ public class ResponseDefinition {
     }
 
     private void validateEventStreamOnly() {
-      if (Boolean.TRUE.equals(acceptWebSocket)) {
+      if (Boolean.TRUE.equals(openWebsocketChannel)) {
         throw new IllegalStateException(
-            "Cannot set acceptEventStream when acceptWebSocket is already set");
+            "Cannot set openSseChannel when openWebsocketChannel is already set");
       }
       if (!(body instanceof EmptyEntityDefinition)) {
         throw new IllegalStateException(

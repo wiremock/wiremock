@@ -185,7 +185,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
     wireMockServer.stop();
     File tempRoot = setupTempFileRoot();
     setupServer(wireMockConfig().withRootDirectory(tempRoot.getAbsolutePath()));
-    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     File messageFile = new File(tempRoot, "__files/message-body.txt");
     writeString(messageFile.toPath(), "Hello from file!");
@@ -207,7 +207,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
   @Test
   void binaryEntityDefinitionWithFilePathResolvesFromFilesStore() throws Exception {
     File tempRoot = setupServerWithTempFileRoot();
-    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    WireMock.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     byte[] binaryContent = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
     File binaryFile = new File(tempRoot, "__files/binary-body.bin");

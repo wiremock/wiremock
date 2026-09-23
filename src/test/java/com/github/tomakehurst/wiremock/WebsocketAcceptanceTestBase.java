@@ -28,7 +28,7 @@ public abstract class WebsocketAcceptanceTestBase extends AcceptanceTestBase {
 
   @BeforeEach
   void setupWebSocketStub() {
-    stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
   }
 
   @AfterEach

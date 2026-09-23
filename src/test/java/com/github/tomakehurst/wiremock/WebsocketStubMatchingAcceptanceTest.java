@@ -43,7 +43,7 @@ public class WebsocketStubMatchingAcceptanceTest extends WebsocketAcceptanceTest
   }
 
   @Test
-  void stubWithoutAcceptWebSocketWinsOverDefaultWebSocketHandling() {
+  void stubWithoutOpenWebsocketChannelWinsOverDefaultWebSocketHandling() {
     stubFor(get(urlEqualTo("/ws")).willReturn(ok("stub body")));
 
     WireMockResponse response =
@@ -67,8 +67,8 @@ public class WebsocketStubMatchingAcceptanceTest extends WebsocketAcceptanceTest
   }
 
   @Test
-  void stubWithAcceptWebSocketPerformsUpgrade() {
-    stubFor(get(urlEqualTo("/accept-ws")).willReturn(aResponse().withAcceptWebSocket()));
+  void stubWithOpenWebsocketChannelPerformsUpgrade() {
+    stubFor(get(urlEqualTo("/accept-ws")).willReturn(aResponse().openWebsocketChannel()));
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String url = websocketUrl("/accept-ws");
@@ -82,26 +82,26 @@ public class WebsocketStubMatchingAcceptanceTest extends WebsocketAcceptanceTest
   }
 
   @Test
-  void acceptWebSocketRejectsBody() {
+  void openWebsocketChannelRejectsBody() {
     assertThrows(
         IllegalStateException.class,
-        () -> aResponse().withAcceptWebSocket().withBody("body").build());
+        () -> aResponse().openWebsocketChannel().withBody("body").build());
   }
 
   @Test
-  void acceptWebSocketRejectsProxy() {
+  void openWebsocketChannelRejectsProxy() {
     assertThrows(
         IllegalStateException.class,
-        () -> aResponse().withAcceptWebSocket().proxiedFrom("http://example.com").build());
+        () -> aResponse().openWebsocketChannel().proxiedFrom("http://example.com").build());
   }
 
   @Test
-  void acceptWebSocketRejectsFault() {
+  void openWebsocketChannelRejectsFault() {
     assertThrows(
         IllegalStateException.class,
         () ->
             aResponse()
-                .withAcceptWebSocket()
+                .openWebsocketChannel()
                 .withFault(com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE)
                 .build());
   }

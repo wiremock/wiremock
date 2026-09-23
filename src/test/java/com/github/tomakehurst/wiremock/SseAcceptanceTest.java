@@ -74,8 +74,8 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void stubWithAcceptEventStreamReturnsEventStreamContentType() throws Exception {
-    stubFor(get(urlEqualTo("/events")).willReturn(aResponse().withAcceptEventStream()));
+  void stubWithOpenSseChannelReturnsEventStreamContentType() throws Exception {
+    stubFor(get(urlEqualTo("/events")).willReturn(aResponse().openSseChannel()));
 
     try (SseStreamClient sse = new SseStreamClient(serverUrl("/events"))) {
       assertEquals(200, sse.connect());
@@ -84,7 +84,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void stubWithoutAcceptEventStreamServesRegularResponse() {
+  void stubWithoutOpenSseChannelServesRegularResponse() {
     stubFor(get(urlEqualTo("/events")).willReturn(ok("plain body")));
 
     WireMockResponse response = testClient.get("/events");
@@ -101,36 +101,35 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void acceptEventStreamRejectsBody() {
+  void openSseChannelRejectsBody() {
     assertThrows(
-        IllegalStateException.class,
-        () -> aResponse().withAcceptEventStream().withBody("body").build());
+        IllegalStateException.class, () -> aResponse().openSseChannel().withBody("body").build());
   }
 
   @Test
-  void acceptEventStreamRejectsProxy() {
+  void openSseChannelRejectsProxy() {
     assertThrows(
         IllegalStateException.class,
-        () -> aResponse().withAcceptEventStream().proxiedFrom("http://example.com").build());
+        () -> aResponse().openSseChannel().proxiedFrom("http://example.com").build());
   }
 
   @Test
-  void acceptEventStreamRejectsFault() {
+  void openSseChannelRejectsFault() {
     assertThrows(
         IllegalStateException.class,
-        () -> aResponse().withAcceptEventStream().withFault(EMPTY_RESPONSE).build());
+        () -> aResponse().openSseChannel().withFault(EMPTY_RESPONSE).build());
   }
 
   @Test
-  void acceptEventStreamRejectsWebSocket() {
+  void openSseChannelRejectsWebSocket() {
     assertThrows(
         IllegalStateException.class,
-        () -> aResponse().withAcceptEventStream().withAcceptWebSocket().build());
+        () -> aResponse().openSseChannel().openWebsocketChannel().build());
   }
 
   @Test
   void sseStreamReceivesEventFromHighestPriorityHttpTrigger() throws Exception {
-    stubFor(get(urlEqualTo("/multi-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/multi-stream")).willReturn(aResponse().openSseChannel()));
 
     stubFor(get(urlPathTemplate("/multi-trigger/{number}")).willReturn(ok("triggered")));
 
@@ -180,7 +179,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void channelIsRemovedOnSseDisconnect() throws Exception {
-    stubFor(get(urlEqualTo("/cleanup-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/cleanup-stream")).willReturn(aResponse().openSseChannel()));
     stubFor(get(urlEqualTo("/cleanup-trigger")).willReturn(ok("triggered")));
 
     messageStubFor(
@@ -227,7 +226,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void sseStreamReceivesMessageFromHttpStubTrigger() throws Exception {
-    stubFor(get(urlEqualTo("/sse-stub-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/sse-stub-stream")).willReturn(aResponse().openSseChannel()));
 
     stubFor(
         get(urlEqualTo("/sse-stub-trigger"))
@@ -255,7 +254,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void sseStreamReceivesNamedEventWithId() throws Exception {
-    stubFor(get(urlEqualTo("/named-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/named-stream")).willReturn(aResponse().openSseChannel()));
 
     stubFor(get(urlEqualTo("/named-trigger")).willReturn(ok("triggered")));
 
@@ -285,7 +284,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void headerValuesAreTemplatedFromTriggeringRequest() throws Exception {
-    stubFor(get(urlEqualTo("/tmpl-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/tmpl-stream")).willReturn(aResponse().openSseChannel()));
     stubFor(get(urlPathEqualTo("/tmpl-trigger")).willReturn(ok("triggered")));
 
     messageStubFor(
@@ -494,7 +493,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void untypedStubWithLineBrokenEventHeaderIsDeliveredWithoutIt() throws Exception {
-    stubFor(get(urlEqualTo("/untyped-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/untyped-stream")).willReturn(aResponse().openSseChannel()));
     stubFor(get(urlEqualTo("/untyped-trigger")).willReturn(ok("triggered")));
 
     WireMockResponse created =
@@ -565,7 +564,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void multiValuedEventHeaderFromRawJsonUsesFirstValue() {
-    stubFor(get(urlEqualTo("/raw-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/raw-stream")).willReturn(aResponse().openSseChannel()));
     stubFor(get(urlEqualTo("/raw-trigger")).willReturn(ok("triggered")));
 
     testClient.postJson(
@@ -616,7 +615,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void bodilessMessageIsDeliveredAsTerminatedEmptyDataEvent() throws Exception {
-    stubFor(get(urlEqualTo("/bodiless-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/bodiless-stream")).willReturn(aResponse().openSseChannel()));
     stubFor(get(urlEqualTo("/bodiless-trigger")).willReturn(ok("triggered")));
 
     messageStubFor(

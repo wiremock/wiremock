@@ -601,9 +601,8 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  void serialisesAcceptEventStream() {
-    ResponseDefinition responseDef =
-        responseDefinition().withStatus(200).withAcceptEventStream().build();
+  void serialisesOpenSseChannel() {
+    ResponseDefinition responseDef = responseDefinition().withStatus(200).openSseChannel().build();
 
     String json = Json.write(responseDef);
 
@@ -613,41 +612,40 @@ public class ResponseDefinitionTest {
             """
             {
               "status": 200,
-              "acceptEventStream": true
+              "openSseChannel": true
             }
             """));
   }
 
   @Test
-  void deserialisesAcceptEventStream() {
+  void deserialisesOpenSseChannel() {
     var json =
         """
             {
               "status": 200,
-              "acceptEventStream": true
+              "openSseChannel": true
             }
             """;
 
     ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
 
-    assertThat(responseDef.getAcceptEventStream(), is(true));
+    assertThat(responseDef.getOpenSseChannel(), is(true));
   }
 
   @Test
-  void acceptEventStreamIsNullWhenNotSet() {
+  void openSseChannelIsNullWhenNotSet() {
     ResponseDefinition responseDef = responseDefinition().withStatus(200).build();
 
-    assertThat(responseDef.getAcceptEventStream(), nullValue());
+    assertThat(responseDef.getOpenSseChannel(), nullValue());
   }
 
   @Test
-  void acceptEventStreamBuilderCopy() {
-    ResponseDefinition original =
-        responseDefinition().withStatus(200).withAcceptEventStream().build();
+  void openSseChannelBuilderCopy() {
+    ResponseDefinition original = responseDefinition().withStatus(200).openSseChannel().build();
 
     ResponseDefinition copy = copyOf(original);
 
-    assertThat(copy.getAcceptEventStream(), is(true));
+    assertThat(copy.getOpenSseChannel(), is(true));
     assertEquals(original, copy);
   }
 }

@@ -238,9 +238,9 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     private void respondTo(Request request, Response response) {
       try {
-        if (response.wasConfigured() && response.isAcceptWebSocket()) {
+        if (response.wasConfigured() && response.isOpenWebsocketChannel()) {
           performWebSocketUpgrade(request);
-        } else if (response.wasConfigured() && response.isAcceptEventStream()) {
+        } else if (response.wasConfigured() && response.isOpenSseChannel()) {
           performEventStream(request);
         } else if (response.wasConfigured()) {
           applyResponse(response, httpServletRequest, httpServletResponse);

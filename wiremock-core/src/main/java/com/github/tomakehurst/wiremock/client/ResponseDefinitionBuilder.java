@@ -219,13 +219,13 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
-  public ResponseDefinitionBuilder withAcceptWebSocket() {
-    builder.setAcceptWebSocket(true);
+  public ResponseDefinitionBuilder openWebsocketChannel() {
+    builder.setOpenWebsocketChannel(true);
     return this;
   }
 
-  public ResponseDefinitionBuilder withAcceptEventStream() {
-    builder.setAcceptEventStream(true);
+  public ResponseDefinitionBuilder openSseChannel() {
+    builder.setOpenSseChannel(true);
     return this;
   }
 
