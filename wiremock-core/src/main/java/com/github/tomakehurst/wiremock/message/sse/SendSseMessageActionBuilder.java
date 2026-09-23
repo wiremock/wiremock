@@ -16,8 +16,12 @@
 package com.github.tomakehurst.wiremock.message.sse;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageHeader;
 import com.github.tomakehurst.wiremock.message.MessageHeaders;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
 import java.util.List;
 
@@ -27,6 +31,20 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
 
   public SendSseMessageActionBuilder(String data) {
     withBody(data);
+  }
+
+  @Override
+  public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
+    return buildAction(sseTarget(targetChannelPattern));
+  }
+
+  @Override
+  public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
+    return targetedBuilder(sseTarget(targetChannelPattern));
+  }
+
+  private static RequestInitiatedChannelTarget sseTarget(RequestPattern requestPattern) {
+    return RequestInitiatedChannelTarget.forTypeAndPattern(ChannelType.SSE, requestPattern);
   }
 
   public SendSseMessageActionBuilder withEventName(String eventName) {

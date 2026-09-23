@@ -52,6 +52,14 @@ public class SendMessageAction implements MessageAction {
     this.transformers = transformers != null ? new ArrayList<>(transformers) : new ArrayList<>();
     this.transformerParameters =
         transformerParameters != null ? transformerParameters : Parameters.empty();
+    validateMessage();
+  }
+
+  private void validateMessage() {
+    if (this.channelTarget instanceof RequestInitiatedChannelTarget requestTarget) {
+      MessageValidators.forChannelType(requestTarget.getChannelType())
+          .ifPresent(validator -> validator.validate(message));
+    }
   }
 
   public static SendMessageAction toOriginatingChannel(EntityDefinition body) {

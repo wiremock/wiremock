@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
+import java.util.Base64;
 import java.util.UUID;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -68,15 +69,23 @@ public class SseMessageChannel implements RequestInitiatedMessageChannel {
     if (session != null && session.isOpen()) {
       String data;
       if (message.isBinary()) {
-        data = java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes());
+        data = Base64.getEncoder().encodeToString(message.getBodyAsBytes());
       } else {
         data = message.getBodyAsString();
       }
       session.sendEvent(
-          message.getHeaders().getFirstValue(EVENT_HEADER),
+          wireSafeHeaderValue(message, EVENT_HEADER),
           data,
-          message.getHeaders().getFirstValue(ID_HEADER));
+          wireSafeHeaderValue(message, ID_HEADER));
     }
+  }
+
+  private static @Nullable String wireSafeHeaderValue(Message message, String key) {
+    String value = message.getHeaders().getFirstValue(key);
+    if (value != null && (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0)) {
+      return null;
+    }
+    return value;
   }
 
   @Override

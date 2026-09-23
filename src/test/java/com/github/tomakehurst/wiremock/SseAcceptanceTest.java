@@ -30,13 +30,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageHeader;
 import com.github.tomakehurst.wiremock.message.MessageHeaders;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -380,6 +383,184 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
         () ->
             sendSse("data")
                 .withHeaders(new MessageHeaders(new MessageHeader("key", "bad\nvalue"))));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInEventHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"a\\nb\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "/actions/0"
+                  },
+                  "title": "Error parsing JSON",
+                  "detail": "SSE header 'event' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInIdHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"id\": \"7\\r\\n8\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "/actions/0"
+                  },
+                  "title": "Error parsing JSON",
+                  "detail": "SSE header 'id' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInBody() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"ok\"", "line1\\nline2"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "/actions/0"
+                  },
+                  "title": "Error parsing JSON",
+                  "detail": "SSE message body must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInEventHeaderOnEdit() {
+    WireMockResponse created =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"ok\"", "lb-body"));
+    assertThat(created.statusCode(), is(201));
+    String id = created.content().replaceAll("(?s).*\"id\"\\s*:\\s*\"([^\"]+)\".*", "$1");
+
+    WireMockResponse edited =
+        testClient.putJson(
+            "/__admin/message-mappings/" + id, messageStubJson("\"event\": \"a\\nb\"", "lb-body"));
+
+    assertThat(edited.statusCode(), is(422));
+  }
+
+  @Test
+  void sseDslStampsChannelTypeOnTarget() {
+    SendMessageAction action =
+        sendSse("data").onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    assertThat(action.getChannelTarget(), instanceOf(RequestInitiatedChannelTarget.class));
+    assertThat(
+        ((RequestInitiatedChannelTarget) action.getChannelTarget()).getChannelType(),
+        is(ChannelType.SSE));
+  }
+
+  @Test
+  void untypedStubWithLineBrokenEventHeaderIsDeliveredWithoutIt() throws Exception {
+    stubFor(get(urlEqualTo("/untyped-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/untyped-trigger")).willReturn(ok("triggered")));
+
+    WireMockResponse created =
+        testClient.postJson(
+            "/__admin/message-mappings",
+            // language=json
+            """
+            {
+              "name": "untyped line breaks",
+              "trigger": {
+                "type": "http-request",
+                "requestPattern": { "method": "GET", "urlPath": "/untyped-trigger" }
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": { "data": "safe" },
+                    "headers": { "event": "a\\nb" }
+                  },
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "requestPattern": { "urlPath": "/untyped-stream" }
+                  }
+                }
+              ]
+            }
+            """);
+    assertThat(created.statusCode(), is(201));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/untyped-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/untyped-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "safe".equals(e.getData()));
+      assertNotNull(event);
+      assertNull(event.getName());
+    }
+  }
+
+  private static String messageStubJson(String headerJson, String body) {
+    return """
+        {
+          "name": "line-break rejection",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": { "method": "GET", "urlPath": "/lb-trigger" }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": { "data": "%s" },
+                "headers": { %s }
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "channelType": "sse",
+                "requestPattern": { "urlPath": "/lb-stream" }
+              }
+            }
+          ]
+        }
+        """
+        .formatted(body, headerJson);
   }
 
   @Test

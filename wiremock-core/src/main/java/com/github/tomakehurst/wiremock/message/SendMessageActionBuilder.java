@@ -97,17 +97,22 @@ public class SendMessageActionBuilder {
     this.headers = this.headers.withReplaced(header);
   }
 
-  public SendMessageAction onOriginatingChannel() {
+  protected SendMessageAction buildAction(ChannelTarget channelTarget) {
     return new SendMessageAction(
-        resolveMessage(), OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
+        resolveMessage(), channelTarget, transformers, transformerParameters);
+  }
+
+  protected TargetedSendMessageActionBuilder targetedBuilder(ChannelTarget channelTarget) {
+    return new TargetedSendMessageActionBuilder(
+        channelTarget, transformers, transformerParameters, headers);
+  }
+
+  public SendMessageAction onOriginatingChannel() {
+    return buildAction(OriginatingChannelTarget.INSTANCE);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return new SendMessageAction(
-        resolveMessage(),
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters);
+    return buildAction(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
@@ -115,33 +120,20 @@ public class SendMessageActionBuilder {
   }
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
-    return new TargetedSendMessageActionBuilder(
-        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters, headers);
+    return targetedBuilder(OriginatingChannelTarget.INSTANCE);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters,
-        headers);
+    return targetedBuilder(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
       RequestPatternBuilder targetChannelPatternBuilder) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPatternBuilder.build()),
-        transformers,
-        transformerParameters,
-        headers);
+    return toMatchingChannels(targetChannelPatternBuilder.build());
   }
 
   public SendMessageAction onChannel(String providerName, String channelName) {
-    return new SendMessageAction(
-        resolveMessage(),
-        new FixedChannelTarget(providerName, channelName),
-        transformers,
-        transformerParameters);
+    return buildAction(new FixedChannelTarget(providerName, channelName));
   }
 
   public static class TargetedSendMessageActionBuilder {
