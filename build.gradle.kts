@@ -53,6 +53,7 @@ dependencies {
 
   testImplementation(platform(libs.okhttp.bom))
   testImplementation(libs.okhttp)
+  testImplementation(libs.okio)
 
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)
