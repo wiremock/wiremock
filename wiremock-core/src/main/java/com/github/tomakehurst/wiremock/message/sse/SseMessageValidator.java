@@ -32,7 +32,8 @@ public class SseMessageValidator implements MessageValidator {
         List.of(
             SseMessageChannel.EVENT_HEADER,
             SseMessageChannel.ID_HEADER,
-            SseMessageChannel.RETRY_HEADER)) {
+            SseMessageChannel.RETRY_HEADER,
+            SseMessageChannel.COMMENT_HEADER)) {
       MessageHeader header = message.getHeaders().getHeader(key);
       if (header.isPresent()) {
         for (String value : header.values()) {

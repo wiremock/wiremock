@@ -375,6 +375,57 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void commentHeaderIsDeliveredAsCommentLineInFrame() throws Exception {
+    stubFor(get(urlEqualTo("/comment-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/comment-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("comment trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/comment-trigger")))
+            .willTriggerActions(
+                sendSse("comment-body")
+                    .withEventId("c1")
+                    .withComment("keep-alive")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/comment-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/comment-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/comment-trigger");
+
+      assertThat(source.readUtf8Line(), is(": keep-alive"));
+      assertThat(source.readUtf8Line(), is("id: c1"));
+      assertThat(source.readUtf8Line(), is("data: comment-body"));
+      assertThat(source.readUtf8Line(), is(""));
+    }
+  }
+
+  @Test
+  void repeatedWithCommentReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withComment("first")
+            .withComment("second")
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("comment").values(), hasSize(1));
+    assertThat(headers.getFirstValue("comment"), is("second"));
+  }
+
+  @Test
   void multiValuedSseHeadersRejectedAtMutationTime() {
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("event", "a", "b"));
 
@@ -385,6 +436,36 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("id", "a", "b"));
 
     assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("retry", "a", "b"));
+
+    assertThrows(
+        IllegalStateException.class, () -> sendSse("data").withHeader("comment", "a", "b"));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInCommentHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"comment\": \"a\\nb\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/comment"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'comment' must not contain line breaks"
+                }
+              ]
+            }
+            """));
   }
 
   @Test

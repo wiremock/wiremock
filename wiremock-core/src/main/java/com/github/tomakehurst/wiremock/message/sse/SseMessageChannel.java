@@ -30,6 +30,7 @@ public class SseMessageChannel implements RequestInitiatedMessageChannel {
   public static final String EVENT_HEADER = "event";
   public static final String ID_HEADER = "id";
   public static final String RETRY_HEADER = "retry";
+  public static final String COMMENT_HEADER = "comment";
 
   private final UUID id;
   private final Request request;
@@ -78,7 +79,8 @@ public class SseMessageChannel implements RequestInitiatedMessageChannel {
           wireSafeHeaderValue(message, EVENT_HEADER),
           data,
           wireSafeHeaderValue(message, ID_HEADER),
-          wireSafeHeaderValue(message, RETRY_HEADER));
+          wireSafeHeaderValue(message, RETRY_HEADER),
+          wireSafeHeaderValue(message, COMMENT_HEADER));
     }
   }
 

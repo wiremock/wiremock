@@ -45,11 +45,14 @@ public class JettySseSession implements SseSession {
   }
 
   @Override
-  public void sendEvent(String eventName, String data, String id, String retry) {
+  public void sendEvent(String eventName, String data, String id, String retry, String comment) {
     if (!open) {
       return;
     }
     StringBuilder frame = new StringBuilder();
+    if (comment != null) {
+      appendFrameLine(frame, ": " + comment);
+    }
     if (id != null) {
       appendFrameLine(frame, "id: " + id);
     }

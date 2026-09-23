@@ -64,12 +64,19 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
     return this;
   }
 
+  public SendSseMessageActionBuilder withComment(String comment) {
+    validateNoLineBreaks("comment", comment);
+    replaceHeader(new MessageHeader(SseMessageChannel.COMMENT_HEADER, comment));
+    return this;
+  }
+
   private static void validateSingleValuedSseHeaders(MessageHeaders headers) {
     for (String key :
         List.of(
             SseMessageChannel.EVENT_HEADER,
             SseMessageChannel.ID_HEADER,
-            SseMessageChannel.RETRY_HEADER)) {
+            SseMessageChannel.RETRY_HEADER,
+            SseMessageChannel.COMMENT_HEADER)) {
       MessageHeader header = headers.getHeader(key);
       if (header.isPresent() && !header.isSingleValued()) {
         throw new IllegalStateException(
@@ -77,7 +84,8 @@ public class SendSseMessageActionBuilder extends SendMessageActionBuilder {
                 + key
                 + "' must have a single value but had "
                 + header.values().size()
-                + ". Use withEventName/withEventId/withRetry, or a single-valued withHeader.");
+                + ". Use withEventName/withEventId/withRetry/withComment, or a single-valued"
+                + " withHeader.");
       }
     }
   }

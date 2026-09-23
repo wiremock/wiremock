@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.message.sse;
 
 public interface SseSession {
 
-  void sendEvent(String eventName, String data, String id, String retry);
+  void sendEvent(String eventName, String data, String id, String retry, String comment);
 
   void close();
 
