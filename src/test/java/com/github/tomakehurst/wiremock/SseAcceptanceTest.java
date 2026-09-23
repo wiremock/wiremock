@@ -44,6 +44,10 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamC
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient.SseEvent;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.UUID;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -426,6 +430,48 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
       SseEvent event = sse.awaitEvent(e -> "raw-body".equals(e.getData()));
       assertNotNull(event);
       assertThat(event.getName(), is("alpha"));
+    }
+  }
+
+  @Test
+  void bodilessMessageIsDeliveredAsTerminatedEmptyDataEvent() throws Exception {
+    stubFor(get(urlEqualTo("/bodiless-stream")).willReturn(aResponse().withAcceptEventStream()));
+    stubFor(get(urlEqualTo("/bodiless-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("bodiless")
+            .triggeredByHttpRequest(
+                newRequestPattern().withUrl(urlPathEqualTo("/bodiless-trigger")))
+            .willTriggerActions(
+                sendSse()
+                    .withEventId("7")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/bodiless-stream"))),
+                sendSse("after")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/bodiless-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/bodiless-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/bodiless-trigger");
+
+      assertThat(source.readUtf8Line(), is("id: 7"));
+      assertThat(source.readUtf8Line(), is("data:"));
+      assertThat(source.readUtf8Line(), is(""));
+      assertThat(source.readUtf8Line(), is("data: after"));
+      assertThat(source.readUtf8Line(), is(""));
     }
   }
 }

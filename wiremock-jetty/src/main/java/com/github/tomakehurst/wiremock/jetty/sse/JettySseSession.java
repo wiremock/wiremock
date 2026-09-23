@@ -49,21 +49,29 @@ public class JettySseSession implements SseSession {
     if (!open) {
       return;
     }
+    StringBuilder frame = new StringBuilder();
+    if (id != null) {
+      appendFrameLine(frame, "id: " + id);
+    }
+    if (eventName != null) {
+      appendFrameLine(frame, "event: " + eventName);
+    }
+    for (String line : (data == null ? "" : data).split("\r\n|\r|\n", -1)) {
+      appendFrameLine(frame, line.isEmpty() ? "data:" : "data: " + line);
+    }
+    frame.append("\r\n");
     try {
-      if (id != null) {
-        ServletOutputStream out = asyncContext.getResponse().getOutputStream();
-        out.write(("id: " + id + "\r\n").getBytes(StandardCharsets.UTF_8));
-        out.flush();
-      }
-      if (eventName != null && data != null) {
-        emitter.event(eventName, data);
-      } else if (data != null) {
-        emitter.data(data);
-      }
+      ServletOutputStream out = asyncContext.getResponse().getOutputStream();
+      out.write(frame.toString().getBytes(StandardCharsets.UTF_8));
+      out.flush();
     } catch (IOException e) {
       open = false;
       completeAsyncContext();
     }
+  }
+
+  private static void appendFrameLine(StringBuilder frame, String line) {
+    frame.append(line).append("\r\n");
   }
 
   @Override
