@@ -79,7 +79,7 @@ jobs:
         run: |
           gh workflow run release-4.x-beta.yml \
             --repo wiremock/wiremock-docker \
-            -f image_version=1 \
-            -f wiremock_version=${{ needs.publish-core.outputs.version }}
+            -f version=1 \
+            -f bundled-version=${{ needs.publish-core.outputs.version }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
