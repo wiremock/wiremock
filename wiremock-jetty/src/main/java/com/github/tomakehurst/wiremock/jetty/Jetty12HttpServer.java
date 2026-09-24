@@ -46,7 +46,6 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee11.servlet.*;
-import org.eclipse.jetty.ee11.servlets.CrossOriginFilter;
 import org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketServletContainerInitializer;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
@@ -54,6 +53,7 @@ import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.resource.Resource;
@@ -213,12 +213,11 @@ public class Jetty12HttpServer extends JettyHttpServer {
             options.filesRoot().child(WireMockApp.FILES_ROOT),
             options.getAsynchronousResponseSettings(),
             options.getChunkedEncodingPolicy(),
-            options.getStubCorsEnabled(),
             options.browserProxySettings().enabled(),
             notifier);
 
     final List<Handler> handlers = new ArrayList<>(Arrays.asList(extensionHandlers()));
-    handlers.add(adminContext);
+    handlers.add(wrapWithCors(adminContext, ADMIN_CONTEXT_ROOT));
     Handler.Abstract asyncTimeoutSettingHandler =
         new Handler.Abstract() {
           @Override
@@ -231,10 +230,12 @@ public class Jetty12HttpServer extends JettyHttpServer {
         };
     handlers.add(asyncTimeoutSettingHandler);
 
+    Handler mockHandler =
+        options.getStubCorsEnabled() ? wrapWithCors(mockServiceContext, "/") : mockServiceContext;
     if (options.getGzipDisabled()) {
-      handlers.add(mockServiceContext);
+      handlers.add(mockHandler);
     } else {
-      addGZipHandler(mockServiceContext, handlers);
+      addGZipHandler(mockHandler, handlers);
     }
 
     if (options.browserProxySettings().enabled()) {
@@ -253,10 +254,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
   @SuppressWarnings("unused")
   protected void decorateAdminServiceContextAfterConfig(
       ServletContextHandler adminServiceContext) {}
-
-  private void addCorsFilter(ServletContextHandler context) {
-    context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
-  }
 
   private ServletContextHandler addAdminContext(
       AdminRequestHandler adminRequestHandler, Notifier notifier) {
@@ -297,8 +294,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
     adminContext.addServlet(NotMatchedServlet.class, "/not-matched");
 
-    addCorsFilter(adminContext);
-
     decorateAdminServiceContextAfterConfig(adminContext);
 
     return adminContext;
@@ -310,7 +305,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
       FileSource fileSource,
       AsynchronousResponseSettings asynchronousResponseSettings,
       Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
-      boolean stubCorsEnabled,
       boolean browserProxyingEnabled,
       Notifier notifier) {
     ServletContextHandler mockServiceContext = new ServletContextHandler();
@@ -388,10 +382,6 @@ public class Jetty12HttpServer extends JettyHttpServer {
     mockServiceContext.addFilter(
         TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
-    if (stubCorsEnabled) {
-      addCorsFilter(mockServiceContext);
-    }
-
     // Configure WebSocket support
     JettyWebSocketServletContainerInitializer.configure(
         mockServiceContext,
@@ -415,11 +405,11 @@ public class Jetty12HttpServer extends JettyHttpServer {
   @SuppressWarnings("unused")
   protected void decorateMockServiceContextAfterConfig(ServletContextHandler mockServiceContext) {}
 
-  private void addGZipHandler(ServletContextHandler mockServiceContext, List<Handler> handlers) {
+  private void addGZipHandler(Handler mockServiceHandler, List<Handler> handlers) {
     try {
       GzipHandler gzipHandler = new GzipHandler();
       gzipHandler.addIncludedMethods(GZIPPABLE_METHODS);
-      gzipHandler.setHandler(mockServiceContext);
+      gzipHandler.setHandler(mockServiceHandler);
       gzipHandler.setVary(null);
       handlers.add(gzipHandler);
     } catch (Exception e) {
@@ -427,18 +417,36 @@ public class Jetty12HttpServer extends JettyHttpServer {
     }
   }
 
-  private FilterHolder buildCorsFilter() {
-    FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
-    filterHolder.setInitParameters(
-        Map.of(
-            "chainPreflight",
-            "false",
-            "allowedOrigins",
-            "*",
-            "allowedHeaders",
-            "*",
-            "allowedMethods",
-            "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-    return filterHolder;
+  private Handler wrapWithCors(Handler handler, String contextPath) {
+    CrossOriginHandler cors = new CrossOriginHandler();
+    cors.setAllowedOriginPatterns(Set.of("*"));
+    cors.setAllowedHeaders(Set.of("*"));
+    cors.setAllowedMethods(Set.of("OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
+    cors.setDeliverPreflightRequests(false);
+    cors.setHandler(handler);
+    if ("/".equals(contextPath)) {
+      return cors;
+    }
+    return new ContextScopedHandler(cors, contextPath);
+  }
+
+  // CrossOriginHandler answers preflight itself, so it must not wrap the admin
+  // context in a Sequence without a path gate or stub OPTIONS are swallowed.
+  private static final class ContextScopedHandler extends Handler.Wrapper {
+    private final String contextPath;
+
+    private ContextScopedHandler(Handler handler, String contextPath) {
+      super(handler);
+      this.contextPath = contextPath;
+    }
+
+    @Override
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      String path = request.getHttpURI().getCanonicalPath();
+      if (path == null || !(path.equals(contextPath) || path.startsWith(contextPath + "/"))) {
+        return false;
+      }
+      return super.handle(request, response, callback);
+    }
   }
 }
