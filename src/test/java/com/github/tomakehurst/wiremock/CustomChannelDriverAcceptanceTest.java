@@ -32,14 +32,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
 import com.github.tomakehurst.wiremock.message.channel.InboundMessageSink;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +53,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -128,6 +135,64 @@ public class CustomChannelDriverAcceptanceTest {
     waitAtMost(5, SECONDS).until(() -> driver.getMessages("orders").contains("pong"));
   }
 
+  @Test
+  void driverSuppliedValidatorRejectsInvalidMessageStub() {
+    WireMockResponse response =
+        testClient.postJson("/__admin/message-mappings", fixedChannelStubJson("boom!"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "body"
+                  },
+                  "title": "Invalid test message",
+                  "detail": "Message body must not contain '!'"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void driverSuppliedValidatorAcceptsValidMessageStub() {
+    WireMockResponse response =
+        testClient.postJson("/__admin/message-mappings", fixedChannelStubJson("order-placed"));
+
+    assertThat(response.statusCode(), is(201));
+  }
+
+  private static String fixedChannelStubJson(String body) {
+    return """
+        {
+          "name": "driver validated",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": { "method": "GET", "urlPath": "/api/orders" }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": { "body": { "data": "%s" } },
+              "channelTarget": {
+                "type": "fixed-channel",
+                "providerName": "custom-events",
+                "channelName": "orders"
+              }
+            }
+          ]
+        }
+        """
+        .formatted(body);
+  }
+
   public static class TestChannelProviderDriver implements CustomChannelProviderDriver {
 
     private final Map<String, InboundMessageSink> sinks = new ConcurrentHashMap<>();
@@ -160,6 +225,19 @@ public class CustomChannelDriverAcceptanceTest {
     @Override
     public void deleteChannel(ChannelProvider provider, String channelName) {
       deletedChannels.add(channelName);
+    }
+
+    @Override
+    public @Nullable MessageValidator getMessageValidator() {
+      return message -> {
+        if (message.getBody().isPlainInlineString()
+            && message.getBody().getData() instanceof String body
+            && body.contains("!")) {
+          throw new InvalidInputException(
+              Errors.single(
+                  10, "body", "Invalid test message", "Message body must not contain '!'"));
+        }
+      };
     }
 
     public List<String> getDeletedChannels() {

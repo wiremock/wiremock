@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HttpStubServeEventListener implements ServeEventListener {
 
@@ -69,9 +70,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
     }
 
     List<MessageStubMapping> matchingStubs = findMatchingMessageStubs(serveEvent);
-    for (MessageStubMapping stub : matchingStubs) {
-      executeActions(stub, serveEvent);
-    }
+    Optional<MessageStubMapping> firstMatch = matchingStubs.stream().findFirst();
+    firstMatch.ifPresent(stub -> executeActions(stub, serveEvent));
   }
 
   private List<MessageStubMapping> findMatchingMessageStubs(ServeEvent serveEvent) {
@@ -115,7 +115,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
   }
 
   private void executeSendMessageAction(SendMessageAction action) {
-    Message message = new Message(action.getMessage().getBody().resolve(stores));
+    MessageDefinition definition = action.getMessage();
+    Message message = new Message(definition.getBody().resolve(stores), definition.getHeaders());
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof RequestInitiatedChannelTarget requestTarget) {

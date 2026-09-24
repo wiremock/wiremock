@@ -51,7 +51,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null, null);
+          null, null, null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -75,6 +75,7 @@ public class ResponseDefinitionTest {
             List.of("transformer-1"),
             Parameters.one("name", "Jeff"),
             true,
+            null,
             null);
 
     ResponseDefinition copiedResponse = copyOf(response);
@@ -397,6 +398,7 @@ public class ResponseDefinitionTest {
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
             null,
+            null,
             null);
 
     var copy = responseDefinition.toBuilder().build();
@@ -596,5 +598,54 @@ public class ResponseDefinitionTest {
 
     assertThat(Json.write(responseDefinition), jsonEquals(json));
     assertThat(responseDefinition.getBody(), is("{{request.body}}"));
+  }
+
+  @Test
+  void serialisesOpenSseChannel() {
+    ResponseDefinition responseDef = responseDefinition().withStatus(200).openSseChannel().build();
+
+    String json = Json.write(responseDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            """
+            {
+              "status": 200,
+              "openSseChannel": true
+            }
+            """));
+  }
+
+  @Test
+  void deserialisesOpenSseChannel() {
+    var json =
+        """
+            {
+              "status": 200,
+              "openSseChannel": true
+            }
+            """;
+
+    ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
+
+    assertThat(responseDef.getOpenSseChannel(), is(true));
+  }
+
+  @Test
+  void openSseChannelIsNullWhenNotSet() {
+    ResponseDefinition responseDef = responseDefinition().withStatus(200).build();
+
+    assertThat(responseDef.getOpenSseChannel(), nullValue());
+  }
+
+  @Test
+  void openSseChannelBuilderCopy() {
+    ResponseDefinition original = responseDefinition().withStatus(200).openSseChannel().build();
+
+    ResponseDefinition copy = copyOf(original);
+
+    assertThat(copy.getOpenSseChannel(), is(true));
+    assertEquals(original, copy);
   }
 }

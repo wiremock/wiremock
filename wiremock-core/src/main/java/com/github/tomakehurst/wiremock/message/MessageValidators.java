@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.message.channel;
+package com.github.tomakehurst.wiremock.message;
 
-import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageValidator;
+import com.github.tomakehurst.wiremock.message.sse.SseMessageValidator;
+import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
-public interface ChannelProviderDriver {
+public class MessageValidators {
 
-  String getType();
+  private static final Map<ChannelType, MessageValidator> VALIDATORS =
+      Map.of(ChannelType.SSE, SseMessageValidator.INSTANCE);
 
-  void createChannel(ChannelProvider provider, String channelName, InboundMessageSink sink);
-
-  void send(ChannelProvider provider, String channelName, Message message);
-
-  void deleteChannel(ChannelProvider provider, String channelName);
-
-  @Nullable MessageValidator getMessageValidator();
+  public static Optional<MessageValidator> forChannelType(@Nullable ChannelType channelType) {
+    return Optional.ofNullable(channelType).map(VALIDATORS::get);
+  }
 }

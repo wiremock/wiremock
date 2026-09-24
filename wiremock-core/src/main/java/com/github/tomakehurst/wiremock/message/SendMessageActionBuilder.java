@@ -31,6 +31,7 @@ public class SendMessageActionBuilder {
   private final EntityDefinition.Builder entityBuilder = entity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
+  private MessageHeaders headers = MessageHeaders.noHeaders();
 
   public SendMessageActionBuilder() {}
 
@@ -47,6 +48,16 @@ public class SendMessageActionBuilder {
 
   public SendMessageActionBuilder withBodyFromFile(String filePath) {
     entityBuilder.setFilePath(filePath);
+    return this;
+  }
+
+  public SendMessageActionBuilder withHeader(String key, String... values) {
+    this.headers = this.headers.plus(new MessageHeader(key, values));
+    return this;
+  }
+
+  public SendMessageActionBuilder withHeaders(MessageHeaders headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -74,20 +85,34 @@ public class SendMessageActionBuilder {
     return entityBuilder.build();
   }
 
-  public SendMessageAction onOriginatingChannel() {
+  private MessageDefinition resolveMessage() {
+    return new MessageDefinition(resolveBody(), headers);
+  }
+
+  protected MessageHeaders headers() {
+    return headers;
+  }
+
+  protected void replaceHeader(MessageHeader header) {
+    this.headers = this.headers.withReplaced(header);
+  }
+
+  protected SendMessageAction buildAction(ChannelTarget channelTarget) {
     return new SendMessageAction(
-        new MessageDefinition(resolveBody()),
-        OriginatingChannelTarget.INSTANCE,
-        transformers,
-        transformerParameters);
+        resolveMessage(), channelTarget, transformers, transformerParameters);
+  }
+
+  protected TargetedSendMessageActionBuilder targetedBuilder(ChannelTarget channelTarget) {
+    return new TargetedSendMessageActionBuilder(
+        channelTarget, transformers, transformerParameters, headers);
+  }
+
+  public SendMessageAction onOriginatingChannel() {
+    return buildAction(OriginatingChannelTarget.INSTANCE);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return new SendMessageAction(
-        new MessageDefinition(resolveBody()),
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters);
+    return buildAction(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
@@ -95,48 +120,42 @@ public class SendMessageActionBuilder {
   }
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
-    return new TargetedSendMessageActionBuilder(
-        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
+    return targetedBuilder(OriginatingChannelTarget.INSTANCE);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters);
+    return targetedBuilder(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
       RequestPatternBuilder targetChannelPatternBuilder) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPatternBuilder.build()),
-        transformers,
-        transformerParameters);
+    return toMatchingChannels(targetChannelPatternBuilder.build());
   }
 
   public SendMessageAction onChannel(String providerName, String channelName) {
-    return new SendMessageAction(
-        new MessageDefinition(resolveBody()),
-        new FixedChannelTarget(providerName, channelName),
-        transformers,
-        transformerParameters);
+    return buildAction(new FixedChannelTarget(providerName, channelName));
   }
 
   public static class TargetedSendMessageActionBuilder {
     private final ChannelTarget channelTarget;
     private final List<String> transformers;
     private final Parameters transformerParameters;
+    private final MessageHeaders headers;
 
     TargetedSendMessageActionBuilder(
-        ChannelTarget channelTarget, List<String> transformers, Parameters transformerParameters) {
+        ChannelTarget channelTarget,
+        List<String> transformers,
+        Parameters transformerParameters,
+        MessageHeaders headers) {
       this.channelTarget = channelTarget;
       this.transformers = transformers;
       this.transformerParameters = transformerParameters;
+      this.headers = headers;
     }
 
     public SendMessageAction withMessage(EntityDefinition body) {
       return new SendMessageAction(
-          new MessageDefinition(body), channelTarget, transformers, transformerParameters);
+          new MessageDefinition(body, headers), channelTarget, transformers, transformerParameters);
     }
 
     public SendMessageAction withMessage(EntityDefinition.Builder bodyBuilder) {

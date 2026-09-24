@@ -34,6 +34,8 @@ dependencies {
 
   testFixturesApi(libs.apache.http5.client)
   testFixturesApi(libs.apache.http5.core)
+  testFixturesApi(platform(libs.okhttp.bom))
+  testFixturesImplementation(libs.okhttp.sse)
   testFixturesApi(libs.guava)
   testFixturesApi(libs.hamcrest)
   testFixturesApi(libs.handlebars)
@@ -51,6 +53,7 @@ dependencies {
 
   testImplementation(platform(libs.okhttp.bom))
   testImplementation(libs.okhttp)
+  testImplementation(libs.okio)
 
   testImplementation(project(":wiremock-junit5"))
   testImplementation(libs.apache.http5.client)

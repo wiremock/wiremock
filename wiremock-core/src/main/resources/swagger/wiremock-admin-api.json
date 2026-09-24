@@ -4372,7 +4372,27 @@
                 }
               }
             ]
+          },
+          "headers": {
+            "$ref": "#/components/schemas/message-headers"
           }
+        }
+      },
+      "message-headers": {
+        "type": "object",
+        "description": "Protocol-specific message headers. Keys are protocol-reserved names, e.g. 'event' and 'id' for server-sent events, 'key' and 'topic' for Kafka.",
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         }
       },
       "channel-target": {
@@ -4542,8 +4562,22 @@
             "description": "The HTTP request that initiated the channel (for request-initiated channels)"
           },
           "message": {
-            "type": "string",
-            "description": "The message body as a string"
+            "type": "object",
+            "description": "The message that was sent or received",
+            "properties": {
+              "body": {
+                "type": "string",
+                "description": "The message body as a string (text messages)"
+              },
+              "base64Body": {
+                "type": "string",
+                "format": "byte",
+                "description": "The message body, base64-encoded (binary messages)"
+              },
+              "headers": {
+                "$ref": "#/components/schemas/message-headers"
+              }
+            }
           },
           "stubMapping": {
             "$ref": "#/components/schemas/message-stub-mapping",

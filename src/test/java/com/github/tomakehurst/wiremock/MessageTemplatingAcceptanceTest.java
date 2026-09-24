@@ -39,7 +39,7 @@ public class MessageTemplatingAcceptanceTest {
   @Test
   void templatesMessageBodyWithIncomingMessageContent() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.messageStubFor(
         message()
@@ -57,7 +57,7 @@ public class MessageTemplatingAcceptanceTest {
   @Test
   void templatesMessageBodyWithRandomValue() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.messageStubFor(
         message()
@@ -78,7 +78,7 @@ public class MessageTemplatingAcceptanceTest {
   @Test
   void templatesMessageBodyWithJsonPath() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.messageStubFor(
         message()
@@ -98,7 +98,7 @@ public class MessageTemplatingAcceptanceTest {
   @Test
   void templatesMessageBodyWithInitiatingRequestData() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.messageStubFor(
         message()
@@ -118,7 +118,7 @@ public class MessageTemplatingAcceptanceTest {
   @Test
   void templatesMessageBodyWithMultipleHelpers() {
     wm = new WireMockServer(wireMockConfig().dynamicPort()).startServer();
-    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.messageStubFor(
         message()

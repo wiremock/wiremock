@@ -152,7 +152,8 @@ public class StubResponseRenderer implements ResponseRenderer {
                 responseDefinition.getFixedDelayMilliseconds(),
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
-            .acceptWebSocket(Boolean.TRUE.equals(responseDefinition.getAcceptWebSocket()));
+            .openWebsocketChannel(Boolean.TRUE.equals(responseDefinition.getOpenWebsocketChannel()))
+            .openSseChannel(Boolean.TRUE.equals(responseDefinition.getOpenSseChannel()));
 
     responseBuilder.body(responseDefinition.getBodyEntity().resolve(stores));
 

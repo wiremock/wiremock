@@ -41,11 +41,23 @@ public class Response {
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String protocol;
-  private final boolean acceptWebSocket;
+  private final boolean openWebsocketChannel;
+  private final boolean openSseChannel;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null, false);
+        HTTP_NOT_FOUND,
+        null,
+        Entity.EMPTY,
+        noHeaders(),
+        false,
+        null,
+        0,
+        null,
+        false,
+        null,
+        false,
+        false);
   }
 
   public static Builder response() {
@@ -63,7 +75,8 @@ public class Response {
       ChunkedDribbleDelay chunkedDribbleDelay,
       boolean fromProxy,
       String protocol,
-      boolean acceptWebSocket) {
+      boolean openWebsocketChannel,
+      boolean openSseChannel) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -74,7 +87,8 @@ public class Response {
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
     this.protocol = protocol;
-    this.acceptWebSocket = acceptWebSocket;
+    this.openWebsocketChannel = openWebsocketChannel;
+    this.openSseChannel = openSseChannel;
   }
 
   private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
@@ -139,8 +153,12 @@ public class Response {
     return fromProxy;
   }
 
-  public boolean isAcceptWebSocket() {
-    return acceptWebSocket;
+  public boolean isOpenWebsocketChannel() {
+    return openWebsocketChannel;
+  }
+
+  public boolean isOpenSseChannel() {
+    return openSseChannel;
   }
 
   public boolean isDecompressible() {
@@ -173,7 +191,8 @@ public class Response {
     private long initialDelay;
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String protocol;
-    private boolean acceptWebSocket;
+    private boolean openWebsocketChannel;
+    private boolean openSseChannel;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -186,7 +205,8 @@ public class Response {
       responseBuilder.initialDelay = response.getInitialDelay();
       responseBuilder.chunkedDribbleDelay = response.getChunkedDribbleDelay();
       responseBuilder.fromProxy = response.isFromProxy();
-      responseBuilder.acceptWebSocket = response.isAcceptWebSocket();
+      responseBuilder.openWebsocketChannel = response.isOpenWebsocketChannel();
+      responseBuilder.openSseChannel = response.isOpenSseChannel();
       return responseBuilder;
     }
 
@@ -285,8 +305,13 @@ public class Response {
       return this;
     }
 
-    public Builder acceptWebSocket(boolean acceptWebSocket) {
-      this.acceptWebSocket = acceptWebSocket;
+    public Builder openWebsocketChannel(boolean openWebsocketChannel) {
+      this.openWebsocketChannel = openWebsocketChannel;
+      return this;
+    }
+
+    public Builder openSseChannel(boolean openSseChannel) {
+      this.openSseChannel = openSseChannel;
       return this;
     }
 
@@ -302,7 +327,8 @@ public class Response {
           chunkedDribbleDelay,
           fromProxy,
           protocol,
-          acceptWebSocket);
+          openWebsocketChannel,
+          openSseChannel);
     }
 
     public Builder protocol(final String protocol) {

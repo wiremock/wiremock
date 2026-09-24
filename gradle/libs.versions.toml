@@ -59,6 +59,7 @@ apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", vers
 # OkHttp
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.5.0" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse" }
 
 okio = { module = "com.squareup.okio:okio", version = "3.18.2" }
 

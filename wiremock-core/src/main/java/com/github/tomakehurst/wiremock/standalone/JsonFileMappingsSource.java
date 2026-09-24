@@ -160,6 +160,8 @@ public class JsonFileMappingsSource implements MappingsSource {
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+      } catch (InvalidInputException e) {
+        throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
       } catch (IOException e) {
         throwUnchecked(e);
       }

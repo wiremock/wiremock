@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.message.channel;
 
 import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.Nullable;
 
 public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
 
@@ -43,6 +45,11 @@ public class InMemoryChannelProviderDriver implements ChannelProviderDriver {
   @Override
   public void deleteChannel(ChannelProvider provider, String channelName) {
     sinks.remove(key(provider.getName(), channelName));
+  }
+
+  @Override
+  public @Nullable MessageValidator getMessageValidator() {
+    return null;
   }
 
   /**

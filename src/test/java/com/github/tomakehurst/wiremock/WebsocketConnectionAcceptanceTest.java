@@ -216,7 +216,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
 
     @BeforeEach
     void setupCatchAll() {
-      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
     }
 
     @Test
@@ -268,7 +268,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
 
     @BeforeEach
     void setupCatchAll() {
-      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
     }
 
     @Test
@@ -323,7 +323,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
 
     @BeforeEach
     void setupCatchAll() {
-      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().withAcceptWebSocket()));
+      wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
     }
 
     @Test

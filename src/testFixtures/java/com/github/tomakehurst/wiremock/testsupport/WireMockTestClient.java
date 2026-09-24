@@ -32,8 +32,20 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import javax.net.ssl.SSLContext;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -415,6 +427,134 @@ public class WireMockTestClient {
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);
+    }
+  }
+
+  public static class SseStreamClient implements AutoCloseable {
+
+    private final String url;
+    private final OkHttpClient client;
+    private final List<SseEvent> events = new CopyOnWriteArrayList<>();
+    private final CountDownLatch openLatch = new CountDownLatch(1);
+    private volatile EventSource eventSource;
+    private volatile Response response;
+
+    public SseStreamClient(String url) {
+      this.url = url;
+      this.client = new OkHttpClient();
+    }
+
+    public int connect() {
+      Request request = new Request.Builder().url(url).build();
+      this.eventSource =
+          EventSources.createFactory(client)
+              .newEventSource(
+                  request,
+                  new EventSourceListener() {
+                    @Override
+                    public void onOpen(EventSource source, Response r) {
+                      response = r;
+                      openLatch.countDown();
+                    }
+
+                    @Override
+                    public void onEvent(EventSource source, String id, String type, String data) {
+                      events.add(new SseEvent(type, data, id));
+                    }
+
+                    @Override
+                    public void onFailure(EventSource source, Throwable t, Response r) {
+                      response = r;
+                      openLatch.countDown();
+                    }
+                  });
+      try {
+        openLatch.await(10, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return -1;
+      }
+      return response != null ? response.code() : -1;
+    }
+
+    public String header(String name) {
+      return response != null ? response.header(name) : null;
+    }
+
+    public List<SseEvent> getEvents() {
+      return new ArrayList<>(events);
+    }
+
+    public SseEvent awaitEvent(Predicate<SseEvent> predicate, long timeoutMillis) {
+      long start = System.currentTimeMillis();
+      while (System.currentTimeMillis() - start < timeoutMillis) {
+        for (SseEvent event : events) {
+          if (predicate.test(event)) {
+            return event;
+          }
+        }
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return null;
+        }
+      }
+      return null;
+    }
+
+    public SseEvent awaitEvent(Predicate<SseEvent> predicate) {
+      return awaitEvent(predicate, 5000);
+    }
+
+    @Override
+    public void close() {
+      if (eventSource != null) {
+        eventSource.cancel();
+      }
+      client.dispatcher().executorService().shutdown();
+      client.connectionPool().evictAll();
+    }
+
+    public static class SseEvent {
+      private final String name;
+      private final String data;
+      private final String id;
+
+      public SseEvent(String name, String data, String id) {
+        this.name = name;
+        this.data = data;
+        this.id = id;
+      }
+
+      public String getName() {
+        return name;
+      }
+
+      public String getData() {
+        return data;
+      }
+
+      public String getId() {
+        return id;
+      }
+
+      public boolean hasName(String name) {
+        return name != null && name.equals(this.name);
+      }
+
+      public boolean hasData() {
+        return data != null && !data.isEmpty();
+      }
+
+      public boolean hasData(String data) {
+        return data != null && data.equals(this.data);
+      }
+
+      @Override
+      public String toString() {
+        return "SseEvent{name='" + name + "', id='" + id + "', data='" + data + "'}";
+      }
     }
   }
 }

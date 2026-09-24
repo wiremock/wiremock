@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.message.FixedChannel;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
 import com.github.tomakehurst.wiremock.store.ChannelProviderStore;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +91,13 @@ public class ChannelProviderRegistry {
     ChannelProviderDriver driver = drivers.get(provider.getDriverType());
     driver.createChannel(provider, channelDefinition.getChannelName(), sink);
     return new FixedChannel(driver, provider, channelDefinition.getChannelName());
+  }
+
+  public Optional<MessageValidator> validatorForProvider(String providerName) {
+    return providerStore
+        .get(providerName)
+        .map(provider -> drivers.get(provider.getDriverType()))
+        .map(ChannelProviderDriver::getMessageValidator);
   }
 
   private ChannelProvider requireProvider(String providerName) {

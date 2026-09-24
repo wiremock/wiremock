@@ -35,17 +35,24 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelTarget;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.FixedChannel;
+import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
 import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
+import com.github.tomakehurst.wiremock.message.MessageValidators;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
 import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
 import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
@@ -155,7 +162,9 @@ public class WireMockApp implements StubServer, Admin {
                 options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
 
     this.messageChannels = new MessageChannels(stores);
-    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+    this.messageStubMappings =
+        new MessageStubMappings(
+            stores.getMessageStubMappingStore(), this::validateMessageStubMapping);
     this.channelProviderRegistry = new ChannelProviderRegistry(stores.getChannelProviderStore());
     extensions
         .ofType(CustomChannelProviderDriver.class)
@@ -814,6 +823,24 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     messageStubMappings.add(messageStubMapping);
+  }
+
+  private void validateMessageStubMapping(MessageStubMapping mapping) {
+    for (MessageAction action : mapping.getActions()) {
+      if (action instanceof SendMessageAction sendAction) {
+        messageValidatorFor(sendAction.getChannelTarget())
+            .ifPresent(validator -> validator.validate(sendAction.getMessage()));
+      }
+    }
+  }
+
+  private Optional<MessageValidator> messageValidatorFor(ChannelTarget target) {
+    if (target instanceof RequestInitiatedChannelTarget requestTarget) {
+      return MessageValidators.forChannelType(requestTarget.getChannelType());
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      return channelProviderRegistry.validatorForProvider(fixedTarget.getProviderName());
+    }
+    return Optional.empty();
   }
 
   @Override

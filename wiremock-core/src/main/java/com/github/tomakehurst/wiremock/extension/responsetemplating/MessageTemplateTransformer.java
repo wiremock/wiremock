@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageActionContext;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
+import com.github.tomakehurst.wiremock.message.MessageHeaders;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.HashMap;
@@ -69,7 +71,23 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
     HandlebarsOptimizedTemplate template = templateEngine.getTemplate(bodyContent, bodyContent);
     String transformedBody = template.apply(model);
 
-    return rebuildAction(sendAction, transformedBody);
+    return rebuildAction(sendAction, transformedBody, model);
+  }
+
+  private MessageHeaders transformHeaders(MessageHeaders headers, Map<String, Object> model) {
+    MessageHeaders transformed = MessageHeaders.noHeaders();
+    for (MessageHeader header : headers.all()) {
+      String[] transformedValues =
+          header.values().stream()
+              .map(
+                  value -> {
+                    HandlebarsOptimizedTemplate template = templateEngine.getTemplate(value, value);
+                    return template.apply(model);
+                  })
+              .toArray(String[]::new);
+      transformed = transformed.plus(new MessageHeader(header.key(), transformedValues));
+    }
+    return transformed;
   }
 
   private String extractBodyContent(EntityDefinition body) {
@@ -107,9 +125,12 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
     return model;
   }
 
-  private SendMessageAction rebuildAction(SendMessageAction original, String newBody) {
+  private SendMessageAction rebuildAction(
+      SendMessageAction original, String newBody, Map<String, Object> model) {
     return new SendMessageAction(
-        new MessageDefinition(EntityDefinition.full(newBody)),
+        new MessageDefinition(
+            EntityDefinition.full(newBody),
+            transformHeaders(original.getMessage().getHeaders(), model)),
         original.getChannelTarget(),
         original.getTransformers(),
         original.getTransformerParameters());

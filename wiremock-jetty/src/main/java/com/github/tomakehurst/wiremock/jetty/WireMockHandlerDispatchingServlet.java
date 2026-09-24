@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.jetty.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -36,8 +37,10 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.servlet.NoFaultInjectorFactory;
+import com.github.tomakehurst.wiremock.jetty.sse.JettySseSession;
 import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.sse.SseMessageChannel;
 import com.github.tomakehurst.wiremock.servlet.BodyChunker;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -49,7 +52,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.jetty.ee11.websocket.server.JettyWebSocketServerContainer;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
@@ -233,8 +238,10 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     private void respondTo(Request request, Response response) {
       try {
-        if (response.wasConfigured() && response.isAcceptWebSocket()) {
+        if (response.wasConfigured() && response.isOpenWebsocketChannel()) {
           performWebSocketUpgrade(request);
+        } else if (response.wasConfigured() && response.isOpenSseChannel()) {
+          performEventStream(request);
         } else if (response.wasConfigured()) {
           applyResponse(response, httpServletRequest, httpServletResponse);
         } else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
@@ -265,6 +272,47 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
                 new WireMockWebSocketEndpoint(messageStubRequestHandler, snapshot),
             httpServletRequest,
             httpServletResponse);
+      } catch (IOException e) {
+        throwUnchecked(e);
+      }
+    }
+
+    private void performEventStream(Request request) {
+      if (messageStubRequestHandler == null) {
+        try {
+          httpServletResponse.sendError(HTTP_NOT_FOUND);
+        } catch (IOException e) {
+          throwUnchecked(e);
+        }
+        return;
+      }
+      httpServletResponse.setStatus(HTTP_OK);
+      httpServletResponse.setContentType("text/event-stream");
+      httpServletResponse.setCharacterEncoding(UTF_8.name());
+      httpServletResponse.addHeader("Connection", "close");
+      try {
+        httpServletResponse.flushBuffer();
+      } catch (IOException e) {
+        throwUnchecked(e);
+      }
+      AsyncContext asyncContext = httpServletRequest.startAsync();
+      asyncContext.setTimeout(0);
+      try {
+        AtomicReference<UUID> channelIdRef = new AtomicReference<>();
+        JettySseSession sseSession =
+            new JettySseSession(
+                asyncContext,
+                () -> {
+                  UUID id = channelIdRef.get();
+                  if (id != null) {
+                    messageStubRequestHandler.getMessageChannels().remove(id);
+                  }
+                });
+        LoggedRequest snapshot = LoggedRequest.createFrom(request);
+        SseMessageChannel channel = new SseMessageChannel(snapshot, sseSession);
+        channelIdRef.set(channel.getId());
+        messageStubRequestHandler.getMessageChannels().add(channel);
+        sseSession.comment("ok");
       } catch (IOException e) {
         throwUnchecked(e);
       }

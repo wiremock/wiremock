@@ -77,7 +77,8 @@ public class ResponseDefinition {
 
   private final @Nullable AbsoluteUrl browserProxyUrl;
   private final Boolean wasConfigured;
-  private final Boolean acceptWebSocket;
+  private final Boolean openWebsocketChannel;
+  private final Boolean openSseChannel;
 
   @JsonCreator
   public ResponseDefinition(
@@ -99,7 +100,8 @@ public class ResponseDefinition {
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters,
       @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
-      @JsonProperty("acceptWebSocket") Boolean acceptWebSocket) {
+      @JsonProperty("openWebsocketChannel") Boolean openWebsocketChannel,
+      @JsonProperty("openSseChannel") Boolean openSseChannel) {
     this(
         status,
         statusMessage,
@@ -117,7 +119,8 @@ public class ResponseDefinition {
         transformerParameters,
         null,
         wasConfigured,
-        acceptWebSocket);
+        openWebsocketChannel,
+        openSseChannel);
   }
 
   private static EntityDefinition resolveBody(
@@ -151,7 +154,8 @@ public class ResponseDefinition {
       Parameters transformerParameters,
       @Nullable AbsoluteUrl browserProxyUrl,
       Boolean wasConfigured,
-      Boolean acceptWebSocket) {
+      Boolean openWebsocketChannel,
+      Boolean openSseChannel) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
 
@@ -175,7 +179,8 @@ public class ResponseDefinition {
         transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
-    this.acceptWebSocket = acceptWebSocket;
+    this.openWebsocketChannel = openWebsocketChannel;
+    this.openSseChannel = openSseChannel;
   }
 
   public static ResponseDefinition notFound() {
@@ -275,7 +280,8 @@ public class ResponseDefinition {
         this.transformerParameters,
         this.browserProxyUrl,
         this.wasConfigured,
-        this.acceptWebSocket);
+        this.openWebsocketChannel,
+        this.openSseChannel);
   }
 
   public ResponseDefinition transform(Consumer<Builder> transformer) {
@@ -414,9 +420,14 @@ public class ResponseDefinition {
     return browserProxyUrl;
   }
 
-  @JsonProperty("acceptWebSocket")
-  public @Nullable Boolean getAcceptWebSocket() {
-    return Boolean.TRUE.equals(acceptWebSocket) ? true : null;
+  @JsonProperty("openWebsocketChannel")
+  public @Nullable Boolean getOpenWebsocketChannel() {
+    return Boolean.TRUE.equals(openWebsocketChannel) ? true : null;
+  }
+
+  @JsonProperty("openSseChannel")
+  public @Nullable Boolean getOpenSseChannel() {
+    return Boolean.TRUE.equals(openSseChannel) ? true : null;
   }
 
   public Fault getFault() {
@@ -460,7 +471,8 @@ public class ResponseDefinition {
         && Objects.equals(transformerParameters, that.transformerParameters)
         && Objects.equals(browserProxyUrl, that.browserProxyUrl)
         && Objects.equals(wasConfigured, that.wasConfigured)
-        && Objects.equals(acceptWebSocket, that.acceptWebSocket);
+        && Objects.equals(openWebsocketChannel, that.openWebsocketChannel)
+        && Objects.equals(openSseChannel, that.openSseChannel);
   }
 
   @Override
@@ -482,7 +494,8 @@ public class ResponseDefinition {
         transformerParameters,
         browserProxyUrl,
         wasConfigured,
-        acceptWebSocket);
+        openWebsocketChannel,
+        openSseChannel);
   }
 
   @Override
@@ -510,7 +523,8 @@ public class ResponseDefinition {
     private @Nullable AbsoluteUrl browserProxyUrl;
     private Boolean wasConfigured = true;
     private Request originalRequest;
-    private Boolean acceptWebSocket;
+    private Boolean openWebsocketChannel;
+    private Boolean openSseChannel;
 
     public Builder() {}
 
@@ -531,7 +545,8 @@ public class ResponseDefinition {
       this.transformerParameters = original.transformerParameters;
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;
-      this.acceptWebSocket = original.acceptWebSocket;
+      this.openWebsocketChannel = original.openWebsocketChannel;
+      this.openSseChannel = original.openSseChannel;
     }
 
     public int getStatus() {
@@ -751,8 +766,13 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setAcceptWebSocket(Boolean acceptWebSocket) {
-      this.acceptWebSocket = acceptWebSocket;
+    public Builder setOpenWebsocketChannel(Boolean openWebsocketChannel) {
+      this.openWebsocketChannel = openWebsocketChannel;
+      return this;
+    }
+
+    public Builder setOpenSseChannel(Boolean openSseChannel) {
+      this.openSseChannel = openSseChannel;
       return this;
     }
 
@@ -762,8 +782,11 @@ public class ResponseDefinition {
     }
 
     public ResponseDefinition build() {
-      if (Boolean.TRUE.equals(acceptWebSocket)) {
+      if (Boolean.TRUE.equals(openWebsocketChannel)) {
         validateWebSocketOnly();
+      }
+      if (Boolean.TRUE.equals(openSseChannel)) {
+        validateEventStreamOnly();
       }
       return new ResponseDefinition(
           status,
@@ -782,7 +805,8 @@ public class ResponseDefinition {
           transformerParameters,
           browserProxyUrl,
           wasConfigured,
-          acceptWebSocket);
+          openWebsocketChannel,
+          openSseChannel);
     }
 
     private void validateWebSocketOnly() {
@@ -794,6 +818,23 @@ public class ResponseDefinition {
       }
       if (fault != null) {
         throw new IllegalStateException("Cannot return a fault when accepting a WebSocket");
+      }
+    }
+
+    private void validateEventStreamOnly() {
+      if (Boolean.TRUE.equals(openWebsocketChannel)) {
+        throw new IllegalStateException(
+            "Cannot set openSseChannel when openWebsocketChannel is already set");
+      }
+      if (!(body instanceof EmptyEntityDefinition)) {
+        throw new IllegalStateException(
+            "Cannot set a response body when accepting an event stream");
+      }
+      if (proxyBaseUrl != null || browserProxyUrl != null) {
+        throw new IllegalStateException("Cannot proxy when accepting an event stream");
+      }
+      if (fault != null) {
+        throw new IllegalStateException("Cannot return a fault when accepting an event stream");
       }
     }
   }
