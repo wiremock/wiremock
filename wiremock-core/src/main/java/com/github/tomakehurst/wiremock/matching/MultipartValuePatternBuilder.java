@@ -43,12 +43,20 @@ public class MultipartValuePatternBuilder {
 
   public MultipartValuePatternBuilder withName(String name) {
     this.name = name;
-    return withHeader("Content-Disposition", containing("name=\"" + name + "\""));
+    return withHeader(
+        "Content-Disposition",
+        filename == null
+            ? containing("name=\"" + name + "\"")
+            : containing("name=\"" + name + "\"").and(containing("filename=\"" + filename + "\"")));
   }
 
   public MultipartValuePatternBuilder withFileName(String filename) {
     this.filename = filename;
-    return withHeader("Content-Disposition", containing("filename=\"" + filename + "\""));
+    return withHeader(
+        "Content-Disposition",
+        name == null
+            ? containing("filename=\"" + filename + "\"")
+            : containing("name=\"" + name + "\"").and(containing("filename=\"" + filename + "\"")));
   }
 
   public MultipartValuePatternBuilder withHeader(String name, StringValuePattern headerPattern) {
