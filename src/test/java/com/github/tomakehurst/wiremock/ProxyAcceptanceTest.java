@@ -400,6 +400,28 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
+  public void additionalProxyRequestUserAgentOverridesTheOriginalRequestUserAgent() {
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlEqualTo("/additional-user-agent")).willReturn(aResponse().withStatus(200)));
+    proxy.register(
+        get(urlEqualTo("/additional-user-agent"))
+            .willReturn(
+                aResponse()
+                    .proxiedFrom(targetServiceBaseUrl)
+                    .withAdditionalRequestHeader("User-Agent", "mapping-user-agent")));
+
+    testClient.get("/additional-user-agent", withHeader("User-Agent", "original-user-agent"));
+
+    List<LoggedRequest> proxiedRequests =
+        target.find(getRequestedFor(urlEqualTo("/additional-user-agent")));
+    assertThat(proxiedRequests, hasSize(1));
+    assertThat(
+        proxiedRequests.get(0).header("User-Agent").values(), contains("mapping-user-agent"));
+  }
+
+  @Test
   public void proxiesPatchRequestsWithBody() {
     initWithDefaultConfig();
 

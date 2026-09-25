@@ -41,6 +41,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
   private final Set<String> supportedEncodings;
+  private final boolean preserveUserAgentProxyHeader;
 
   @SuppressWarnings("unused")
   public ProxyResponseRenderer(
@@ -57,6 +58,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         settingsStore,
         stubCorsEnabled,
         null,
+        false,
         reverseProxyClient,
         forwardProxyClient);
   }
@@ -70,11 +72,33 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       HttpClient reverseProxyClient,
       HttpClient forwardProxyClient) {
 
+    this(
+        preserveHostHeader,
+        hostHeaderValue,
+        settingsStore,
+        stubCorsEnabled,
+        supportedEncodings,
+        false,
+        reverseProxyClient,
+        forwardProxyClient);
+  }
+
+  public ProxyResponseRenderer(
+      boolean preserveHostHeader,
+      String hostHeaderValue,
+      SettingsStore settingsStore,
+      boolean stubCorsEnabled,
+      Set<String> supportedEncodings,
+      boolean preserveUserAgentProxyHeader,
+      HttpClient reverseProxyClient,
+      HttpClient forwardProxyClient) {
+
     this.settingsStore = settingsStore;
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
     this.stubCorsEnabled = stubCorsEnabled;
     this.supportedEncodings = supportedEncodings;
+    this.preserveUserAgentProxyHeader = preserveUserAgentProxyHeader;
 
     this.forwardProxyClient = forwardProxyClient;
     this.reverseProxyClient = reverseProxyClient;
@@ -224,6 +248,11 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             requestBuilder, response, key, originalRequest);
         case HttpClient.ACCEPT_ENCODING_HEADER -> addAcceptEncodingHeader(
             requestBuilder, key, originalRequest);
+        case HttpClient.USER_AGENT -> {
+          if (preserveUserAgentProxyHeader) {
+            copyHeader(requestBuilder, key, originalRequest);
+          }
+        }
         default -> copyHeader(requestBuilder, key, originalRequest);
       }
     }
