@@ -160,14 +160,25 @@ public abstract class AbstractFileSource implements FileSource {
   private void assertFilePathIsUnderRoot(String path) {
     try {
       String rootPath = rootDirectory.getCanonicalPath();
+      String rootAbsolutePath = rootDirectory.getAbsolutePath();
 
       File file = new File(path);
       String filePath =
           file.isAbsolute()
               ? new File(path).getCanonicalPath()
               : new File(rootDirectory, path).getCanonicalPath();
+      String fileAbsolutePath =
+          file.isAbsolute()
+              ? new File(path).getAbsolutePath()
+              : new File(rootDirectory, path).getAbsolutePath();
 
-      if (!Paths.get(filePath).normalize().startsWith(rootPath)) {
+      // Check both the canonical path (which resolves symlinks) and the absolute path.
+      // The canonical path check catches path traversal attacks. The absolute path
+      // fallback handles filesystems where the root directory contains symlinks to
+      // files outside of it (e.g. Bazel's sandboxed runfiles), where the canonical
+      // path of a contained file legitimately resolves outside the root directory.
+      if (!Paths.get(filePath).normalize().startsWith(rootPath)
+          && !Paths.get(fileAbsolutePath).normalize().startsWith(rootAbsolutePath)) {
         throw new NotAuthorisedException(
             "Access to file "
                 + path
