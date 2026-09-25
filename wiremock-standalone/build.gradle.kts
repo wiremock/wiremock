@@ -75,6 +75,7 @@ tasks.shadowJar {
   exclude("META-INF/versions/21/**")
   exclude("META-INF/versions/22/**")
   exclude("module-info.class")
+  exclude("META-INF/versions/*/module-info.class")
   exclude("handlebars-*.js")
 }
 

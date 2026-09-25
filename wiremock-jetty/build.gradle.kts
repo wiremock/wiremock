@@ -70,6 +70,9 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("wiremock-jetty")
+    manifest {
+        attributes("Automatic-Module-Name" to "org.wiremock.jetty")
+    }
 }
 
 publishing {

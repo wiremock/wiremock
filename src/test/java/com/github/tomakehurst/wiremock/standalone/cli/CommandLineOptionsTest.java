@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.standalone;
+package com.github.tomakehurst.wiremock.standalone.cli;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
@@ -44,6 +44,7 @@ import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -465,7 +466,7 @@ public class CommandLineOptionsTest {
     CommandLineOptions options =
         new CommandLineOptions(
             "--extensions",
-            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
+            "com.github.tomakehurst.wiremock.standalone.cli.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.cli.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
 
     ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
 
@@ -473,8 +474,8 @@ public class CommandLineOptionsTest {
     assertThat(
         extensionDeclarations.getClassNames(),
         hasItems(
-            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1",
-            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1"));
+            "com.github.tomakehurst.wiremock.standalone.cli.CommandLineOptionsTest$RequestExt1",
+            "com.github.tomakehurst.wiremock.standalone.cli.CommandLineOptionsTest$ResponseDefinitionTransformerExt1"));
   }
 
   @Test

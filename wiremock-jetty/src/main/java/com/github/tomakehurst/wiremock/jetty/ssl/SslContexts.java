@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
-import com.github.tomakehurst.wiremock.http.ssl.CertificateGenerationUnsupportedException;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateAuthority;
+import com.github.tomakehurst.wiremock.http.ssl.cert.CertificateGenerationUnsupportedException;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
