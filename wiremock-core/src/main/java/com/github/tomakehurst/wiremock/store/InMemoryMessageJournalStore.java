@@ -37,10 +37,11 @@ public class InMemoryMessageJournalStore implements MessageJournalStore {
       new CopyOnWriteArrayList<>();
 
   @Override
-  public void add(MessageServeEvent event) {
+  public void add(MessageServeEvent event, Integer maxEntries) {
     MessageServeEvent previous = events.put(event.getId(), event);
     deque.addFirst(event.getId());
     notifyListeners(new StoreEvent<>(event.getId(), previous, event));
+    if (maxEntries != null) evictExcess(maxEntries);
   }
 
   @Override
@@ -48,10 +49,12 @@ public class InMemoryMessageJournalStore implements MessageJournalStore {
     return deque.stream().map(events::get).filter(Objects::nonNull);
   }
 
-  @Override
-  public void removeLast() {
-    final UUID id = deque.pollLast();
-    if (id != null) {
+  private void evictExcess(int maxEntries) {
+    while (deque.size() > maxEntries) {
+      final UUID id = deque.pollLast();
+      if (id == null) {
+        break;
+      }
       MessageServeEvent removed = events.remove(id);
       if (removed != null) {
         notifyListeners(new StoreEvent<>(id, removed, null));

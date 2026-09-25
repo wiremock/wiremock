@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,7 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public void requestReceived(ServeEvent serveEvent) {
-    store.add(serveEvent);
-    removeOldEntries();
+    store.add(serveEvent, maxEntries);
   }
 
   @Override
@@ -118,14 +117,6 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   private Stream<LoggedRequest> getRequests() {
     return store.getAll().map(ServeEvent::getRequest);
-  }
-
-  private void removeOldEntries() {
-    if (maxEntries != null) {
-      while (store.getAllKeys().count() > maxEntries) {
-        store.removeLast();
-      }
-    }
   }
 
   private static Predicate<ServeEvent> withStubMetadataMatching(

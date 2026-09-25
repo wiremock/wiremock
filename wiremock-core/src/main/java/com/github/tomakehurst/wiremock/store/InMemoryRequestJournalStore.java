@@ -29,9 +29,10 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
   private final Map<UUID, ServeEvent> serveEvents = new ConcurrentHashMap<>();
 
   @Override
-  public void add(ServeEvent event) {
+  public void add(ServeEvent event, Integer maxEntries) {
     serveEvents.put(event.getId(), event);
     deque.addFirst(event.getId());
+    if (maxEntries != null) evictExcess(maxEntries);
   }
 
   @Override
@@ -39,10 +40,12 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
     return deque.stream().map(serveEvents::get).filter(Objects::nonNull);
   }
 
-  @Override
-  public void removeLast() {
-    final UUID id = deque.pollLast();
-    if (id != null) {
+  private void evictExcess(int maxEntries) {
+    while (deque.size() > maxEntries) {
+      final UUID id = deque.pollLast();
+      if (id == null) {
+        break;
+      }
       serveEvents.remove(id);
     }
   }

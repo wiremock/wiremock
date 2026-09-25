@@ -72,8 +72,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
 
   @Override
   public void messageReceived(MessageServeEvent event) {
-    store.add(event);
-    removeOldEntries();
+    store.add(event, maxEntries);
   }
 
   @Override
@@ -164,14 +163,6 @@ public class StoreBackedMessageJournal implements MessageJournal {
     }
 
     return store.getAll().filter(pattern::matches).limit(count).collect(toList());
-  }
-
-  private void removeOldEntries() {
-    if (maxEntries != null) {
-      while (store.getAllKeys().count() > maxEntries) {
-        store.removeLast();
-      }
-    }
   }
 
   private static MessagePattern withStubMetadataMatching(final StringValuePattern metadataPattern) {
