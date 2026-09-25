@@ -43,7 +43,7 @@ public class ToJsonHelperTest extends HandlebarsHelperTestBase {
     ResponseDefinition responseDefinition =
         transform(transformer, mockRequest(), aResponse().withBody(responseTemplate));
 
-    assertThat(responseDefinition.getBody(), is(""));
+    assertThat(responseDefinition.getBody(), is("null"));
   }
 
   @Test
