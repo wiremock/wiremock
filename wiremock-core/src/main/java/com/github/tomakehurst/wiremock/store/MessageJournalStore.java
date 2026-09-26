@@ -28,8 +28,6 @@ public interface MessageJournalStore extends Store<UUID, MessageServeEvent> {
 
   void add(MessageServeEvent event);
 
-  void removeLast();
-
   void registerEventListener(Consumer<? super StoreEvent<UUID, MessageServeEvent>> listener);
 
   void unregisterEventListener(Consumer<? super StoreEvent<UUID, MessageServeEvent>> listener);

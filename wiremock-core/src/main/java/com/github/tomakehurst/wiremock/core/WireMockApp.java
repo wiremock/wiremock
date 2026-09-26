@@ -150,16 +150,12 @@ public class WireMockApp implements StubServer, Admin {
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
-            : new StoreBackedRequestJournal(
-                options.maxRequestJournalEntries().orElse(null),
-                customMatchers,
-                stores.getRequestJournalStore());
+            : new StoreBackedRequestJournal(customMatchers, stores.getRequestJournalStore());
 
     messageJournal =
         options.requestJournalDisabled()
             ? new DisabledMessageJournal()
-            : new StoreBackedMessageJournal(
-                options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
+            : new StoreBackedMessageJournal(stores.getMessageJournalStore());
 
     this.messageChannels = new MessageChannels(stores);
     this.messageStubMappings =

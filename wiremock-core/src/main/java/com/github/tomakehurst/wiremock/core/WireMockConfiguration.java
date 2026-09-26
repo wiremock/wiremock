@@ -89,6 +89,7 @@ public class WireMockConfiguration implements Options {
   private final List<String> trustedProxyTargets = new ArrayList<>();
 
   private ProxySettings proxySettings = ProxySettings.NO_PROXY;
+  private Boolean proxyPassThrough;
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
   private Stores stores;
   private MappingsSource mappingsSource;
@@ -171,10 +172,17 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration proxyPassThrough(boolean proxyPassThrough) {
-    GlobalSettings newSettings =
-        getStores().getSettingsStore().get().copy().proxyPassThrough(proxyPassThrough).build();
-    getStores().getSettingsStore().set(newSettings);
+    this.proxyPassThrough = proxyPassThrough;
+    if (stores != null) {
+      applyProxyPassThroughSetting();
+    }
     return this;
+  }
+
+  private void applyProxyPassThroughSetting() {
+    GlobalSettings newSettings =
+        stores.getSettingsStore().get().copy().proxyPassThrough(proxyPassThrough).build();
+    stores.getSettingsStore().set(newSettings);
   }
 
   public WireMockConfiguration timeout(int timeout) {
@@ -638,7 +646,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public Stores getStores() {
     if (stores == null) {
-      stores = new DefaultStores(filesRoot);
+      stores = new DefaultStores(filesRoot, maxRequestJournalEntries.orElse(null));
+      if (proxyPassThrough != null) {
+        applyProxyPassThroughSetting();
+      }
     }
 
     return stores;

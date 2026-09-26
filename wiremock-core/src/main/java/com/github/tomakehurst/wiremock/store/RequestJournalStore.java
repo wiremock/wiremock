@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,4 @@ public interface RequestJournalStore extends Store<UUID, ServeEvent> {
   Stream<ServeEvent> getAll();
 
   void add(ServeEvent event);
-
-  void removeLast();
 }

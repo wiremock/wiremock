@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.Beta;
 
 /**
@@ -31,16 +32,26 @@ import org.wiremock.annotations.Beta;
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryMessageJournalStore implements MessageJournalStore {
 
+  private final Integer maxEntries;
   private final Deque<UUID> deque = new ConcurrentLinkedDeque<>();
   private final Map<UUID, MessageServeEvent> events = new ConcurrentHashMap<>();
   private final List<Consumer<? super StoreEvent<UUID, MessageServeEvent>>> eventListeners =
       new CopyOnWriteArrayList<>();
+
+  public InMemoryMessageJournalStore(@Nullable Integer maxEntries) {
+    if (maxEntries != null && maxEntries < 0) {
+      throw new IllegalArgumentException(
+          "Maximum number of entries of journal must be greater than zero");
+    }
+    this.maxEntries = maxEntries;
+  }
 
   @Override
   public void add(MessageServeEvent event) {
     MessageServeEvent previous = events.put(event.getId(), event);
     deque.addFirst(event.getId());
     notifyListeners(new StoreEvent<>(event.getId(), previous, event));
+    evictExcess();
   }
 
   @Override
@@ -48,10 +59,14 @@ public class InMemoryMessageJournalStore implements MessageJournalStore {
     return deque.stream().map(events::get).filter(Objects::nonNull);
   }
 
-  @Override
-  public void removeLast() {
-    final UUID id = deque.pollLast();
-    if (id != null) {
+  private void evictExcess() {
+    if (maxEntries == null) return;
+
+    while (deque.size() > maxEntries) {
+      final UUID id = deque.pollLast();
+      if (id == null) {
+        break;
+      }
       MessageServeEvent removed = events.remove(id);
       if (removed != null) {
         notifyListeners(new StoreEvent<>(id, removed, null));
