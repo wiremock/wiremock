@@ -28,15 +28,15 @@ public class InMemoryRequestJournalStoreTest {
 
   @Test
   void addWithNullMaxEntriesRetainsAllEntries() {
-    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore();
+    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore(null);
 
     ServeEvent one = serveEvent("/one");
     ServeEvent two = serveEvent("/two");
     ServeEvent three = serveEvent("/three");
 
-    store.add(one, null);
-    store.add(two, null);
-    store.add(three, null);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(
@@ -45,15 +45,15 @@ public class InMemoryRequestJournalStoreTest {
 
   @Test
   void addDoesNotEvictWhenEntryCountEqualsMaxEntries() {
-    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore();
+    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore(3);
 
     ServeEvent one = serveEvent("/one");
     ServeEvent two = serveEvent("/two");
     ServeEvent three = serveEvent("/three");
 
-    store.add(one, 3);
-    store.add(two, 3);
-    store.add(three, 3);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(
@@ -62,15 +62,15 @@ public class InMemoryRequestJournalStoreTest {
 
   @Test
   void addEvictsOldestEntryWhenExceedingMaxEntriesByOne() {
-    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore();
+    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore(2);
 
     ServeEvent one = serveEvent("/one");
     ServeEvent two = serveEvent("/two");
     ServeEvent three = serveEvent("/three");
 
-    store.add(one, 2);
-    store.add(two, 2);
-    store.add(three, 2);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(2L));
     assertThat(store.get(one.getId()).isPresent(), is(false));
@@ -80,35 +80,13 @@ public class InMemoryRequestJournalStoreTest {
 
   @Test
   void addWithMaxEntriesOfZeroLeavesStoreEmpty() {
-    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore();
+    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore(0);
 
     ServeEvent one = serveEvent("/one");
-    store.add(one, 0);
+    store.add(one);
 
     assertThat(store.getAllKeys().count(), is(0L));
     assertThat(store.get(one.getId()).isPresent(), is(false));
-  }
-
-  @Test
-  void addEvictsMultipleEntriesInASingleCallWhenFarExceedingMaxEntries() {
-    InMemoryRequestJournalStore store = new InMemoryRequestJournalStore();
-
-    ServeEvent one = serveEvent("/one");
-    ServeEvent two = serveEvent("/two");
-    ServeEvent three = serveEvent("/three");
-    ServeEvent four = serveEvent("/four");
-
-    store.add(one, null);
-    store.add(two, null);
-    store.add(three, null);
-
-    store.add(four, 1);
-
-    assertThat(store.getAllKeys().count(), is(1L));
-    assertThat(store.get(four.getId()).isPresent(), is(true));
-    assertThat(store.get(one.getId()).isPresent(), is(false));
-    assertThat(store.get(two.getId()).isPresent(), is(false));
-    assertThat(store.get(three.getId()).isPresent(), is(false));
   }
 
   private static ServeEvent serveEvent(String url) {

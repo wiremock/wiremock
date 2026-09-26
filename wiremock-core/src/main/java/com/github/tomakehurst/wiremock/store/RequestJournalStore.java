@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.store;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
@@ -26,5 +25,5 @@ public interface RequestJournalStore extends Store<UUID, ServeEvent> {
 
   Stream<ServeEvent> getAll();
 
-  void add(ServeEvent event, @Nullable Integer maxEntries);
+  void add(ServeEvent event);
 }

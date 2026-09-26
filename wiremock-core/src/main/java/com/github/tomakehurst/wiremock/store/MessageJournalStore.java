@@ -26,7 +26,7 @@ public interface MessageJournalStore extends Store<UUID, MessageServeEvent> {
 
   Stream<MessageServeEvent> getAll();
 
-  void add(MessageServeEvent event, Integer maxEntries);
+  void add(MessageServeEvent event);
 
   void registerEventListener(Consumer<? super StoreEvent<UUID, MessageServeEvent>> listener);
 

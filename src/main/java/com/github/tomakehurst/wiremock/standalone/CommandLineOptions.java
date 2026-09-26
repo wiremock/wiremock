@@ -438,7 +438,7 @@ public class CommandLineOptions implements Options {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
     }
 
-    stores = new DefaultStores(fileSource);
+    stores = new DefaultStores(fileSource, maxRequestJournalEntries().orElse(null));
 
     if (optionSet.has(PROXY_PASS_THROUGH)) {
       GlobalSettings newSettings =

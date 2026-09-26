@@ -31,15 +31,15 @@ public class InMemoryMessageJournalStoreTest {
 
   @Test
   void addWithNullMaxEntriesRetainsAllEntries() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
+    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore(null);
 
     MessageServeEvent one = messageServeEvent();
     MessageServeEvent two = messageServeEvent();
     MessageServeEvent three = messageServeEvent();
 
-    store.add(one, null);
-    store.add(two, null);
-    store.add(three, null);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(
@@ -48,15 +48,15 @@ public class InMemoryMessageJournalStoreTest {
 
   @Test
   void addDoesNotEvictWhenEntryCountEqualsMaxEntries() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
+    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore(3);
 
     MessageServeEvent one = messageServeEvent();
     MessageServeEvent two = messageServeEvent();
     MessageServeEvent three = messageServeEvent();
 
-    store.add(one, 3);
-    store.add(two, 3);
-    store.add(three, 3);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(
@@ -65,15 +65,15 @@ public class InMemoryMessageJournalStoreTest {
 
   @Test
   void addEvictsOldestEntryWhenExceedingMaxEntriesByOne() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
+    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore(2);
 
     MessageServeEvent one = messageServeEvent();
     MessageServeEvent two = messageServeEvent();
     MessageServeEvent three = messageServeEvent();
 
-    store.add(one, 2);
-    store.add(two, 2);
-    store.add(three, 2);
+    store.add(one);
+    store.add(two);
+    store.add(three);
 
     assertThat(store.getAllKeys().count(), is(2L));
     assertThat(store.get(one.getId()).isPresent(), is(false));
@@ -83,59 +83,27 @@ public class InMemoryMessageJournalStoreTest {
 
   @Test
   void addWithMaxEntriesOfZeroLeavesStoreEmpty() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
+    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore(0);
 
     MessageServeEvent one = messageServeEvent();
-    store.add(one, 0);
+    store.add(one);
 
     assertThat(store.getAllKeys().count(), is(0L));
     assertThat(store.get(one.getId()).isPresent(), is(false));
   }
 
   @Test
-  void addEvictsMultipleEntriesInASingleCallWhenFarExceedingMaxEntries() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
-
-    MessageServeEvent one = messageServeEvent();
-    MessageServeEvent two = messageServeEvent();
-    MessageServeEvent three = messageServeEvent();
-    MessageServeEvent four = messageServeEvent();
-
-    store.add(one, null);
-    store.add(two, null);
-    store.add(three, null);
-
-    List<StoreEvent<UUID, MessageServeEvent>> events = new ArrayList<>();
-    store.registerEventListener(events::add);
-
-    store.add(four, 1);
-
-    assertThat(store.getAllKeys().count(), is(1L));
-    assertThat(store.get(four.getId()).isPresent(), is(true));
-    assertThat(store.get(one.getId()).isPresent(), is(false));
-    assertThat(store.get(two.getId()).isPresent(), is(false));
-    assertThat(store.get(three.getId()).isPresent(), is(false));
-    assertThat(
-        events,
-        contains(
-            new StoreEvent<>(four.getId(), null, four),
-            new StoreEvent<>(one.getId(), one, null),
-            new StoreEvent<>(two.getId(), two, null),
-            new StoreEvent<>(three.getId(), three, null)));
-  }
-
-  @Test
   void addNotifiesListenersForBothTheAddedEntryAndAnyEvictedEntries() {
-    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore();
+    InMemoryMessageJournalStore store = new InMemoryMessageJournalStore(1);
 
     MessageServeEvent one = messageServeEvent();
     MessageServeEvent two = messageServeEvent();
-    store.add(one, 1);
+    store.add(one);
 
     List<StoreEvent<UUID, MessageServeEvent>> events = new ArrayList<>();
     store.registerEventListener(events::add);
 
-    store.add(two, 1);
+    store.add(two);
 
     assertThat(
         events,

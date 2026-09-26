@@ -34,19 +34,10 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   protected final RequestJournalStore store;
 
-  private final Integer maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
   public AbstractRequestJournal(
-      Integer maxEntries,
-      Map<String, RequestMatcherExtension> customMatchers,
-      RequestJournalStore store) {
-
-    if (maxEntries != null && maxEntries < 0) {
-      throw new IllegalArgumentException(
-          "Maximum number of entries of journal must be greater than zero");
-    }
-    this.maxEntries = maxEntries;
+      Map<String, RequestMatcherExtension> customMatchers, RequestJournalStore store) {
     this.customMatchers = customMatchers;
     this.store = store;
   }
@@ -66,7 +57,7 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public void requestReceived(ServeEvent serveEvent) {
-    store.add(serveEvent, maxEntries);
+    store.add(serveEvent);
   }
 
   @Override

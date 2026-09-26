@@ -20,19 +20,29 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryRequestJournalStore implements RequestJournalStore {
 
+  private final Integer maxEntries;
   private final Deque<UUID> deque = new ConcurrentLinkedDeque<>();
   private final Map<UUID, ServeEvent> serveEvents = new ConcurrentHashMap<>();
 
+  public InMemoryRequestJournalStore(@Nullable Integer maxEntries) {
+    if (maxEntries != null && maxEntries < 0) {
+      throw new IllegalArgumentException(
+          "Maximum number of entries of journal must be greater than zero");
+    }
+    this.maxEntries = maxEntries;
+  }
+
   @Override
-  public void add(ServeEvent event, Integer maxEntries) {
+  public void add(ServeEvent event) {
     serveEvents.put(event.getId(), event);
     deque.addFirst(event.getId());
-    if (maxEntries != null) evictExcess(maxEntries);
+    evictExcess();
   }
 
   @Override
@@ -40,7 +50,9 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
     return deque.stream().map(serveEvents::get).filter(Objects::nonNull);
   }
 
-  private void evictExcess(int maxEntries) {
+  private void evictExcess() {
+    if (maxEntries == null) return;
+
     while (deque.size() > maxEntries) {
       final UUID id = deque.pollLast();
       if (id == null) {

@@ -32,14 +32,8 @@ import java.util.function.Consumer;
 public class StoreBackedMessageJournal implements MessageJournal {
 
   protected final MessageJournalStore store;
-  private final Integer maxEntries;
 
-  public StoreBackedMessageJournal(Integer maxEntries, MessageJournalStore store) {
-    if (maxEntries != null && maxEntries < 0) {
-      throw new IllegalArgumentException(
-          "Maximum number of entries of journal must be greater than zero");
-    }
-    this.maxEntries = maxEntries;
+  public StoreBackedMessageJournal(MessageJournalStore store) {
     this.store = store;
   }
 
@@ -72,7 +66,7 @@ public class StoreBackedMessageJournal implements MessageJournal {
 
   @Override
   public void messageReceived(MessageServeEvent event) {
-    store.add(event, maxEntries);
+    store.add(event);
   }
 
   @Override

@@ -93,7 +93,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public Stores getStores() {
-    return new DefaultStores(filesRoot());
+    return new DefaultStores(filesRoot(), maxRequestJournalEntries().orElse(null));
   }
 
   @Override
