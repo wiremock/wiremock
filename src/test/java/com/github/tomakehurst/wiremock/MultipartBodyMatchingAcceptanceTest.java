@@ -79,6 +79,16 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     assertThat(postMultipartFile(url, "avatar", "pic.png"), is(200));
     assertThat(postMultipartFile(url, "not-avatar", "pic.png"), is(404));
     assertThat(postMultipartFile(url, "avatar", "not-pic.png"), is(404));
+
+    String reversedUrl = "/multipart-filename-and-name";
+    stubFor(
+        post(reversedUrl)
+            .withMultipartRequestBody(aMultipart().withFileName("pic.png").withName("avatar"))
+            .willReturn(ok()));
+
+    assertThat(postMultipartFile(reversedUrl, "avatar", "pic.png"), is(200));
+    assertThat(postMultipartFile(reversedUrl, "not-avatar", "pic.png"), is(404));
+    assertThat(postMultipartFile(reversedUrl, "avatar", "not-pic.png"), is(404));
   }
 
   @Test
