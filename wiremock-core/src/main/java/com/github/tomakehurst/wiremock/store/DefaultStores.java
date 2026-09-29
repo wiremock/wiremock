@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.store.files.FileSourceJsonObjectStore;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
@@ -41,15 +42,19 @@ public class DefaultStores implements Stores {
   private final Map<String, ObjectStore> objectStores;
 
   public DefaultStores(FileSource fileRoot) {
+    this(fileRoot, null);
+  }
+
+  public DefaultStores(FileSource fileRoot, @Nullable Integer maxRequestJournalEntries) {
     this.fileRoot = fileRoot;
 
     this.stubMappingStore = new InMemoryStubMappingStore();
-    this.requestJournalStore = new InMemoryRequestJournalStore();
+    this.requestJournalStore = new InMemoryRequestJournalStore(maxRequestJournalEntries);
     this.settingsStore = new InMemorySettingsStore();
     this.scenariosStore = new InMemoryScenariosStore();
     this.messageChannelStore = new InMemoryMessageChannelStore();
     this.messageStubMappingStore = new InMemoryMessageStubMappingStore();
-    this.messageJournalStore = new InMemoryMessageJournalStore();
+    this.messageJournalStore = new InMemoryMessageJournalStore(maxRequestJournalEntries);
     this.channelProviderStore = new InMemoryChannelProviderStore();
 
     objectStores = new ConcurrentHashMap<>();

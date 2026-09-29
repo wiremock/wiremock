@@ -20,6 +20,6 @@ import com.github.tomakehurst.wiremock.store.InMemoryMessageJournalStore;
 public class InMemoryMessageJournal extends StoreBackedMessageJournal {
 
   public InMemoryMessageJournal(Integer maxEntries) {
-    super(maxEntries, new InMemoryMessageJournalStore());
+    super(new InMemoryMessageJournalStore(maxEntries));
   }
 }
