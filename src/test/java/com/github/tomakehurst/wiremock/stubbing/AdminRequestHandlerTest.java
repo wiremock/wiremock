@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -64,7 +65,17 @@ public class AdminRequestHandlerTest {
             false,
             Collections.emptyList(),
             Collections.emptyList(),
-            new DataTruncationSettings(Limit.UNLIMITED));
+            new DataTruncationSettings(Limit.UNLIMITED),
+            new Notifier() {
+              @Override
+              public void info(String message) {}
+
+              @Override
+              public void error(String message) {}
+
+              @Override
+              public void error(String message, Throwable t) {}
+            });
   }
 
   @Test
