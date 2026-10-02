@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,26 +33,16 @@ public class MathsHelper extends HandlebarsHelper<Object> {
     String operator = options.params[0].toString();
     BigDecimal right = coerceToBigDecimal(options.params[1]);
 
-    BigDecimal result = null;
+    BigDecimal result;
     switch (operator) {
-      case "+":
-        result = left.add(right);
-        break;
-      case "-":
-        result = left.subtract(right);
-        break;
-      case "*":
-      case "x":
-        result = left.multiply(right);
-        break;
-      case "/":
-        result = left.divide(right, RoundingMode.HALF_UP);
-        break;
-      case "%":
-        result = left.remainder(right);
-        break;
-      default:
+      case "+" -> result = left.add(right);
+      case "-" -> result = left.subtract(right);
+      case "*", "x" -> result = left.multiply(right);
+      case "/" -> result = left.divide(right, RoundingMode.HALF_UP);
+      case "%" -> result = left.remainder(right);
+      default -> {
         return handleError(operator + " is not a valid mathematical operator");
+      }
     }
 
     return reduceToPrimitiveNumber(result);

@@ -21,14 +21,18 @@ import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.MessageJournal;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HttpStubServeEventListener implements ServeEventListener {
 
   private final MessageStubMappings messageStubMappings;
   private final MessageChannels messageChannels;
+  private final MessageJournal messageJournal;
   private final Stores stores;
   private final Map<String, RequestMatcherExtension> customMatchers;
   private final List<MessageActionTransformer> actionTransformers;
@@ -36,11 +40,13 @@ public class HttpStubServeEventListener implements ServeEventListener {
   public HttpStubServeEventListener(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
+      MessageJournal messageJournal,
       Stores stores,
       Map<String, RequestMatcherExtension> customMatchers,
       List<MessageActionTransformer> actionTransformers) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
+    this.messageJournal = messageJournal;
     this.stores = stores;
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
     this.actionTransformers =
@@ -64,9 +70,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
     }
 
     List<MessageStubMapping> matchingStubs = findMatchingMessageStubs(serveEvent);
-    for (MessageStubMapping stub : matchingStubs) {
-      executeActions(stub, serveEvent);
-    }
+    Optional<MessageStubMapping> firstMatch = matchingStubs.stream().findFirst();
+    firstMatch.ifPresent(stub -> executeActions(stub, serveEvent));
   }
 
   private List<MessageStubMapping> findMatchingMessageStubs(ServeEvent serveEvent) {
@@ -110,7 +115,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
   }
 
   private void executeSendMessageAction(SendMessageAction action) {
-    Message message = MessageStubRequestHandler.resolveToMessage(action.getMessage(), stores);
+    MessageDefinition definition = action.getMessage();
+    Message message = new Message(definition.getBody().resolve(stores), definition.getHeaders());
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof RequestInitiatedChannelTarget requestTarget) {
@@ -125,7 +131,13 @@ public class HttpStubServeEventListener implements ServeEventListener {
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
         channel.sendMessage(message);
+        messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
       }
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      FixedChannel outboundChannel =
+          messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
+      outboundChannel.sendMessage(message);
+      messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, message));
     }
   }
 }

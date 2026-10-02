@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
   @Override
   public Object apply(Object inputJson, Options options) throws IOException {
-    if (!(inputJson instanceof String)) {
+    if (!(inputJson instanceof String string)) {
       return handleError("Input JSON must be a string");
     }
     if (inputJson.equals("null")) {
@@ -45,7 +45,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
       return handleError("A single JSONPath expression parameter must be supplied");
     }
     Object jsonPathString = options.param(0);
-    if (!(jsonPathString instanceof String)) {
+    if (!(jsonPathString instanceof String jsonPath)) {
       return handleError("JSONPath parameter must be a string");
     }
 
@@ -54,10 +54,10 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     if (options.hash != null) {
       Object orderParam = options.hash.get("order");
       if (orderParam != null) {
-        if (!(orderParam instanceof String)) {
+        if (!(orderParam instanceof String orderString)) {
           return handleError("order parameter must be a string");
         }
-        order = (String) orderParam;
+        order = orderString;
         if (!order.equals("asc") && !order.equals("desc")) {
           return handleError("order parameter must be 'asc' or 'desc'");
         }
@@ -69,10 +69,10 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     if (options.hash != null) {
       Object nullsParam = options.hash.get("nulls");
       if (nullsParam != null) {
-        if (!(nullsParam instanceof String)) {
+        if (!(nullsParam instanceof String nullsString)) {
           return handleError("nulls parameter must be a string");
         }
-        nullsPlacement = (String) nullsParam;
+        nullsPlacement = nullsString;
         if (!nullsPlacement.equals("first") && !nullsPlacement.equals("last")) {
           return handleError("nulls parameter must be 'first' or 'last'");
         }
@@ -80,7 +80,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     }
 
     // Extract array path from JsonPath
-    String arrayPath = extractArrayPath((String) jsonPathString);
+    String arrayPath = extractArrayPath(jsonPath);
     if (arrayPath == null) {
       return handleError(
           "JSONPath must include [*] to specify array location (e.g., '$[*].name' or '$.users[*].name')");
@@ -88,7 +88,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     DocumentContext jsonDocument;
     try {
-      jsonDocument = getParsedDocument((String) inputJson, options);
+      jsonDocument = getParsedDocument(string, options);
     } catch (Exception e) {
       return handleError("Input JSON string is not valid JSON ('" + inputJson + "')", e);
     }
@@ -97,7 +97,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
     // so sortValues[i] corresponds to array[i]
     List<?> sortValues;
     try {
-      sortValues = readJsonPath(jsonDocument, (String) jsonPathString, List.class, options);
+      sortValues = readJsonPath(jsonDocument, jsonPath, List.class, options);
     } catch (PathNotFoundException e) {
       return handleError(
           "JSONPath expression did not match any values ('" + jsonPathString + "')", e);
@@ -124,7 +124,7 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
 
     // Validate sort values list matches array size
     if (sortValues.size() != array.size()) {
-      return handleError(getError(sortValues, array, (String) jsonPathString));
+      return handleError(getError(sortValues, array, jsonPath));
     }
 
     // Handle empty arrays early - nothing to validate or sort
@@ -287,8 +287,8 @@ public class JsonSortHelper extends HandlebarsHelper<Object> {
   }
 
   private BigDecimal toBigDecimal(Number number) {
-    if (number instanceof BigDecimal) {
-      return (BigDecimal) number;
+    if (number instanceof BigDecimal bigDecimal) {
+      return bigDecimal;
     } else if (number instanceof Integer
         || number instanceof Long
         || number instanceof Short

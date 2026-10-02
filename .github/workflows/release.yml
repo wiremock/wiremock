@@ -1,7 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - '[0-9]*'
 
 jobs:
   publish-core:
@@ -9,22 +11,30 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.parse_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+
+      - id: parse_version
+        run: echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
 
-      - name: Publish core package
-        id: publish_package
-        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace
+      - name: Apply release version
+        run: ./gradlew apply-release-version -PreleaseVersion=${{ steps.parse_version.outputs.version }} --no-configuration-cache --stacktrace
 
+      - name: Publish core package
+        run: ./gradlew publishAndReleaseToMavenCentral -PreleaseVersion=${{ steps.parse_version.outputs.version }} --no-configuration-cache --stacktrace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ vars.MAVEN_CENTRAL_USERNAME }}
@@ -32,3 +42,44 @@ jobs:
           OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
           SONATYPE_CLOSE_TIMEOUT_SECONDS: 1800
+
+  trigger-wiremock-org-update:
+    needs: publish-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WIREMOCK_APP_ID }}
+          private-key: ${{ secrets.WIREMOCK_APP_PRIVATE_KEY }}
+          owner: wiremock
+
+      - name: Trigger Bump WireMock versions
+        run: |
+          gh workflow run "Bump WireMock Versions" \
+            --repo wiremock/wiremock.org \
+            -f WIREMOCK_BETA=${{ needs.publish-core.outputs.version }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  trigger-docker-release:
+    needs: publish-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WIREMOCK_APP_ID }}
+          private-key: ${{ secrets.WIREMOCK_APP_PRIVATE_KEY }}
+          owner: wiremock
+
+      - name: Trigger Docker beta release
+        run: |
+          gh workflow run release-4.x-beta.yml \
+            --repo wiremock/wiremock-docker \
+            -f version=1 \
+            -f bundled-version=${{ needs.publish-core.outputs.version }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}

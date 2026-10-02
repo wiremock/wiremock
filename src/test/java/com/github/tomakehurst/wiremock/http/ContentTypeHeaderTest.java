@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasValue;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isAbsent;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -88,24 +90,36 @@ public class ContentTypeHeaderTest {
   @Test
   public void returnsCharsetWhenPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=iso-8859-1");
-    assertThat(header.charset(), is(StandardCharsets.ISO_8859_1));
+    assertThat(header.charset(), hasValue(StandardCharsets.ISO_8859_1));
   }
 
   @Test
   public void returnsDefaultCharsetWhenEncodingNotPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain");
-    assertThat(header.charset(), is(UTF_8));
+    assertThat(header.charset(), isAbsent());
   }
 
   @Test
   public void returnsDefaultCharsetWhenAbsent() {
     ContentTypeHeader header = ContentTypeHeader.absent();
-    assertThat(header.charset(), is(UTF_8));
+    assertThat(header.charset(), isAbsent());
   }
 
   @Test
   public void returnsDefaultCharsetWhenIllegalEncoding() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=invalid");
-    assertThat(header.charset(), is(UTF_8));
+    assertThat(header.charset(), isAbsent());
+  }
+
+  @Test
+  void trimsCharset() {
+    ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=UTF-8 ");
+    assertThat(header.charset().get(), is(UTF_8));
+  }
+
+  @Test
+  void returnsNoCharsetWhenNameContainsInvalidCharacter() {
+    ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=UTF-*");
+    assertThat(header.charset(), isAbsent());
   }
 }

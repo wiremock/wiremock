@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface ServeEventListener extends Extension {
 
   enum RequestPhase {
@@ -28,18 +30,10 @@ public interface ServeEventListener extends Extension {
 
   default void onEvent(RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
     switch (requestPhase) {
-      case BEFORE_MATCH:
-        beforeMatch(serveEvent, parameters);
-        break;
-      case AFTER_MATCH:
-        afterMatch(serveEvent, parameters);
-        break;
-      case BEFORE_RESPONSE_SENT:
-        beforeResponseSent(serveEvent, parameters);
-        break;
-      case AFTER_COMPLETE:
-        afterComplete(serveEvent, parameters);
-        break;
+      case BEFORE_MATCH -> beforeMatch(serveEvent, parameters);
+      case AFTER_MATCH -> afterMatch(serveEvent, parameters);
+      case BEFORE_RESPONSE_SENT -> beforeResponseSent(serveEvent, parameters);
+      case AFTER_COMPLETE -> afterComplete(serveEvent, parameters);
     }
   }
 

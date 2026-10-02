@@ -160,6 +160,8 @@ public class JsonFileMappingsSource implements MappingsSource {
         }
       } catch (JsonException e) {
         throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+      } catch (InvalidInputException e) {
+        throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
       } catch (IOException e) {
         throwUnchecked(e);
       }
@@ -170,7 +172,7 @@ public class JsonFileMappingsSource implements MappingsSource {
     final String path;
     final boolean multi;
 
-    public StubMappingFileMetadata(String path, boolean multi) {
+    private StubMappingFileMetadata(String path, boolean multi) {
       this.path = path;
       this.multi = multi;
     }

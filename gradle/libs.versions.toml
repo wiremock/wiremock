@@ -1,17 +1,18 @@
 [versions]
-jetty = "12.1.8"
-jackson = "2.21.3"
-xmlUnit = "2.11.0"
-jsonUnit = "5.1.1"
+jetty = "12.1.13"
+jackson = "2.22.3"
+xmlUnit = "2.14.0"
+jsonUnit = "6.2.0"
 junitJupiter = "5.14.4"
-handlebars = "4.5.0"
+handlebars = "4.5.5"
 slf4j = "2.0.17"
 hamcrest = "3.0"
-mockito = "5.23.0"
+mockito = "5.24.0"
 jmh = "1.37"
 apache-http5 = "5.4.3"
-archunit = "1.4.2"
-bouncycastle = "1.84"
+archunit = "1.5.1"
+bouncycastle = "1.86"
+errorprone = "2.42.0"
 
 [libraries]
 # Jetty dependencies
@@ -49,17 +50,18 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
 
 # Guava
-guava = { module = "com.google.guava:guava", version = "33.6.0-jre" }
+guava = { module = "com.google.guava:guava", version = "33.7.1-jre" }
 
 # HTTP Client
-apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6.1" }
-apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4.2" }
+apache-http5-client = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6.4" }
+apache-http5-core = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4.4" }
 
 # OkHttp
-okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.3.2" }
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "5.5.0" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse" }
 
-okio = { module = "com.squareup.okio:okio", version = "3.17.0" }
+okio = { module = "com.squareup.okio:okio", version = "3.18.2" }
 
 # XML Unit
 xmlunit-core = { module = "org.xmlunit:xmlunit-core", version.ref = "xmlUnit" }
@@ -129,14 +131,18 @@ jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess"
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version = "6.1.0" }
 jakarta-websockets = { module = "jakarta.websocket:jakarta.websocket-client-api", version="2.2.0" }
 
-jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.1" }
 
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on",  version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on",  version.ref = "bouncycastle" }
 
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+errorprone-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
+
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.4.0" }
-sonarqube = { id = "org.sonarqube", version = "7.3.0.8198" }
+spotless = { id = "com.diffplug.spotless", version = "8.10.3" }
+sonarqube = { id = "org.sonarqube", version = "7.5.0.8588" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
-task-tree = { id = "com.dorongold.task-tree", version = "4.0.1" }
+japicmp = { id = "me.champeau.gradle.japicmp", version = "0.4.6" }
+task-tree = { id = "com.dorongold.task-tree", version = "4.0.2" }

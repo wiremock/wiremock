@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,8 @@ public class StubMappingPersistenceAcceptanceTest {
     wireMockServer.resetToDefaultMappings(); // Loads from the file system
 
     assertThat(wm.getStubMappings().get(0).getId(), is(stubId));
-    assertThat(wm.getStubMappings().get(0).getResponse().getBody(), is("initial"));
+    assertThat(
+        wm.getStubMappings().get(0).getResponse().getBodyEntity().getDataAsString(), is("initial"));
 
     wm.editStub(
         get(urlEqualTo("/edit")).withId(stubId).willReturn(aResponse().withBody("modified")));

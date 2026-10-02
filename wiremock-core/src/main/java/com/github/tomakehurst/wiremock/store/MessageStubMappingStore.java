@@ -30,6 +30,8 @@ public interface MessageStubMappingStore {
 
   MessageStubMapping add(MessageStubMapping mapping);
 
+  MessageStubMapping replace(MessageStubMapping existing, MessageStubMapping updated);
+
   void remove(UUID id);
 
   void clear();

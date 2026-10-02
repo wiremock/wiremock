@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@JsonDeserialize()
+@JsonDeserialize
 class SingleMessageStubMappingWrapper implements MessageStubMappingOrMappings {
 
   private final MessageStubMapping mapping;

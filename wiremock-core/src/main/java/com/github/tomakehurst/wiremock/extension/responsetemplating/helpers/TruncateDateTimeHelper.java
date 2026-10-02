@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@ public class TruncateDateTimeHelper extends HandlebarsHelper<Object> {
           "Truncation type must be specified as the first parameter to truncateDate");
     }
 
-    if (context instanceof Date) {
-      Date date = (Date) context;
+    if (context instanceof Date date) {
       DateTimeTruncation truncation = DateTimeTruncation.fromString(options.params[0].toString());
       return truncation.truncate(date);
     }

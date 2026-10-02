@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Strings.substringAfterLast;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
+import static com.github.tomakehurst.wiremock.common.entity.EntityDefinition.DEFAULT_CHARSET;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,7 +95,8 @@ public class ContentTypes {
       return substringAfterLast(lastPathSegment, ".");
     }
 
-    return determineTextFileExtension(stringFromBytes(responseBody, contentTypeHeader.charset()));
+    return determineTextFileExtension(
+        stringFromBytes(responseBody, contentTypeHeader.charset().orElse(DEFAULT_CHARSET)));
   }
 
   public static TextType determineTextType(String content) {

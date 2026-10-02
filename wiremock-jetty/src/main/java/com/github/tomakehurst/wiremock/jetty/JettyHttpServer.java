@@ -186,6 +186,7 @@ public abstract class JettyHttpServer implements HttpServer {
       jettyServer.stop();
       jettyServer.join();
     } catch (TimeoutException ignored) {
+      // ignore
     } catch (Exception e) {
       throwUnchecked(e);
     }

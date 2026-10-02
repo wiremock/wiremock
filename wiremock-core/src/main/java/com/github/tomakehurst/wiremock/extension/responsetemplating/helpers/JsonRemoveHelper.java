@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,32 +29,31 @@ class JsonRemoveHelper extends HandlebarsHelper<Object> {
 
   @Override
   public String apply(Object inputJson, Options options) {
-    if (!(inputJson instanceof String)) {
+    if (!(inputJson instanceof String string)) {
       return handleError("Input JSON must be a string");
     }
     if (inputJson.equals("null")) {
       // No op
-      return (String) inputJson;
+      return string;
     }
     if (options.params.length != 1) {
       return handleError("A single JSONPath expression parameter must be supplied");
     }
     Object jsonPathString = options.param(0);
-    if (!(jsonPathString instanceof String)) {
+    if (!(jsonPathString instanceof String jsonPath)) {
       return handleError("JSONPath parameter must be a string");
     }
     DocumentContext jsonDocument;
     try {
-      jsonDocument = parseContext.parse((String) inputJson);
+      jsonDocument = parseContext.parse(string);
     } catch (Exception e) {
       return handleError("Input JSON string is not valid JSON ('" + inputJson + "')", e);
     }
     try {
-      if (((String) jsonPathString).isEmpty())
-        throw new InvalidPathException("JSONPath expression is empty");
-      return jsonDocument.delete((String) jsonPathString).jsonString();
+      if (jsonPath.isEmpty()) throw new InvalidPathException("JSONPath expression is empty");
+      return jsonDocument.delete(jsonPath).jsonString();
     } catch (PathNotFoundException e) {
-      return (String) inputJson;
+      return string;
     } catch (InvalidPathException e) {
       String message =
           "JSONPath parameter is not a valid JSONPath expression ('" + jsonPathString + "')";

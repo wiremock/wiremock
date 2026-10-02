@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -27,6 +24,8 @@ import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageActionContext;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
+import com.github.tomakehurst.wiremock.message.MessageHeaders;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import java.util.HashMap;
@@ -72,23 +71,31 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
     HandlebarsOptimizedTemplate template = templateEngine.getTemplate(bodyContent, bodyContent);
     String transformedBody = template.apply(model);
 
-    return rebuildAction(sendAction, transformedBody);
+    return rebuildAction(sendAction, transformedBody, model);
+  }
+
+  private MessageHeaders transformHeaders(MessageHeaders headers, Map<String, Object> model) {
+    MessageHeaders transformed = MessageHeaders.noHeaders();
+    for (MessageHeader header : headers.all()) {
+      String[] transformedValues =
+          header.values().stream()
+              .map(
+                  value -> {
+                    HandlebarsOptimizedTemplate template = templateEngine.getTemplate(value, value);
+                    return template.apply(model);
+                  })
+              .toArray(String[]::new);
+      transformed = transformed.plus(new MessageHeader(header.key(), transformedValues));
+    }
+    return transformed;
   }
 
   private String extractBodyContent(EntityDefinition body) {
-    if (body instanceof StringEntityDefinition stringDef) {
-      return stringDef.getValue();
+    if (body.isBinary()) {
+      return null;
     }
-    if (body instanceof TextEntityDefinition textDef) {
-      Object data = textDef.getData();
-      if (data instanceof String) {
-        return (String) data;
-      }
-      if (data != null) {
-        return Json.write(data);
-      }
-    }
-    return null;
+
+    return body.getDataAsString();
   }
 
   private Map<String, Object> buildModel(MessageActionContext context, SendMessageAction action) {
@@ -100,9 +107,8 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
         model.put("message", new MessageTemplateModel(incomingMessage));
       }
       MessageChannel channel = context.getOriginatingChannel();
-      if (channel instanceof RequestInitiatedMessageChannel) {
-        Request initiatingRequest =
-            ((RequestInitiatedMessageChannel) channel).getInitiatingRequest();
+      if (channel instanceof RequestInitiatedMessageChannel requestInitiatedMessageChannel) {
+        Request initiatingRequest = requestInitiatedMessageChannel.getInitiatingRequest();
         if (initiatingRequest != null) {
           model.putAll(templateEngine.buildModelForRequest(initiatingRequest));
         }
@@ -119,9 +125,12 @@ public class MessageTemplateTransformer implements MessageActionTransformer {
     return model;
   }
 
-  private SendMessageAction rebuildAction(SendMessageAction original, String newBody) {
+  private SendMessageAction rebuildAction(
+      SendMessageAction original, String newBody, Map<String, Object> model) {
     return new SendMessageAction(
-        new MessageDefinition(new StringEntityDefinition(newBody)),
+        new MessageDefinition(
+            EntityDefinition.full(newBody),
+            transformHeaders(original.getMessage().getHeaders(), model)),
         original.getChannelTarget(),
         original.getTransformers(),
         original.getTransformerParameters());

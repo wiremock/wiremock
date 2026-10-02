@@ -35,15 +35,29 @@ import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.message.ChannelTarget;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.FixedChannel;
+import com.github.tomakehurst.wiremock.message.FixedChannelTarget;
 import com.github.tomakehurst.wiremock.message.HttpStubServeEventListener;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageChannels;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.MessageStubMappings;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
+import com.github.tomakehurst.wiremock.message.MessageValidator;
+import com.github.tomakehurst.wiremock.message.MessageValidators;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProviderRegistry;
+import com.github.tomakehurst.wiremock.message.channel.CustomChannelProviderDriver;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
+import com.github.tomakehurst.wiremock.message.channel.InboundMessageSink;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -52,6 +66,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
@@ -89,10 +104,13 @@ public class WireMockApp implements StubServer, Admin {
   private final Map<String, ServeEventListener> serveEventListeners;
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
+  private final ChannelProviderRegistry channelProviderRegistry;
+  private MessageStubRequestHandler messageStubRequestHandler;
 
   private final Options options;
 
   private final Extensions extensions;
+  private Map<String, RequestMatcherExtension> customMatchers;
 
   public WireMockApp(Options options, Container container) {
     if (!options.getDisableOptimizeXmlFactoriesLoading() && !FACTORIES_LOADING_OPTIMIZED.get()) {
@@ -127,33 +145,48 @@ public class WireMockApp implements StubServer, Admin {
             options.filesRoot().child(FILES_ROOT));
     extensions.load();
 
-    Map<String, RequestMatcherExtension> customMatchers =
-        extensions.ofType(RequestMatcherExtension.class);
+    customMatchers = extensions.ofType(RequestMatcherExtension.class);
 
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
-            : new StoreBackedRequestJournal(
-                options.maxRequestJournalEntries().orElse(null),
-                customMatchers,
-                stores.getRequestJournalStore());
+            : new StoreBackedRequestJournal(customMatchers, stores.getRequestJournalStore());
 
     messageJournal =
         options.requestJournalDisabled()
             ? new DisabledMessageJournal()
-            : new StoreBackedMessageJournal(
-                options.maxRequestJournalEntries().orElse(null), stores.getMessageJournalStore());
+            : new StoreBackedMessageJournal(stores.getMessageJournalStore());
 
-    this.messageChannels = new MessageChannels(stores.getMessageChannelStore());
-    this.messageStubMappings = new MessageStubMappings(stores.getMessageStubMappingStore());
+    this.messageChannels = new MessageChannels(stores);
+    this.messageStubMappings =
+        new MessageStubMappings(
+            stores.getMessageStubMappingStore(), this::validateMessageStubMapping);
+    this.channelProviderRegistry = new ChannelProviderRegistry(stores.getChannelProviderStore());
+    extensions
+        .ofType(CustomChannelProviderDriver.class)
+        .values()
+        .forEach(channelProviderRegistry::registerDriver);
+
+    List<MessageActionTransformer> messageActionTransformers =
+        List.copyOf(extensions.ofType(MessageActionTransformer.class).values());
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
             messageStubMappings,
             messageChannels,
+            messageJournal,
             stores,
             customMatchers,
-            List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+            messageActionTransformers);
+
+    messageStubRequestHandler =
+        new MessageStubRequestHandler(
+            messageStubMappings,
+            messageChannels,
+            messageJournal,
+            stores,
+            messageActionTransformers,
+            customMatchers);
     Map<String, ServeEventListener> extensionListeners =
         extensions.ofType(ServeEventListener.class);
     Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
@@ -246,7 +279,8 @@ public class WireMockApp implements StubServer, Admin {
                 reverseProxyClient,
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
-            List.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
+            List.copyOf(extensions.ofType(ResponseTransformerV2.class).values()),
+            stores),
         this,
         postServeActions,
         serveEventListeners,
@@ -259,12 +293,7 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   public MessageStubRequestHandler buildMessageStubRequestHandler() {
-    return new MessageStubRequestHandler(
-        messageStubMappings,
-        messageChannels,
-        messageJournal,
-        stores,
-        List.copyOf(extensions.ofType(MessageActionTransformer.class).values()));
+    return messageStubRequestHandler;
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
@@ -555,6 +584,10 @@ public class WireMockApp implements StubServer, Admin {
     return extensions;
   }
 
+  public Stores getStores() {
+    return stores;
+  }
+
   @Override
   public void shutdownServer() {
     extensions.stopAll();
@@ -562,6 +595,7 @@ public class WireMockApp implements StubServer, Admin {
     container.shutdown();
   }
 
+  @Override
   public SnapshotRecordResult snapshotRecord() {
     return snapshotRecord(RecordSpec.DEFAULTS);
   }
@@ -571,6 +605,7 @@ public class WireMockApp implements StubServer, Admin {
     return snapshotRecord(spec.build());
   }
 
+  @Override
   public SnapshotRecordResult snapshotRecord(RecordSpec recordSpec) {
     return recorder.takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
   }
@@ -686,11 +721,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, MessageDefinition message) {
+      ChannelType type, RequestPattern requestPattern, MessageDefinition messageDefinition) {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
+    Message message = new Message(messageDefinition.getBody().resolve(stores));
     List<RequestInitiatedMessageChannel> matchedChannels =
         messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
+    for (RequestInitiatedMessageChannel channel : matchedChannels) {
+      messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
+    }
     List<LoggedMessageChannel> loggedChannels =
         matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());
     return new SendChannelMessageResult(loggedChannels);
@@ -706,8 +745,98 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return SingleMessageChannelResult.of(
+        messageChannels.get(id).map(LoggedMessageChannel::createFrom).orElse(null));
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    messageChannels.remove(id);
+  }
+
+  @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return new ListChannelProvidersResult(channelProviderRegistry.listAllProviders());
+  }
+
+  @Override
+  public SingleChannelProviderResult getChannelProvider(String name) {
+    return new SingleChannelProviderResult(channelProviderRegistry.getProvider(name).orElse(null));
+  }
+
+  @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    return channelProviderRegistry.renameProvider(currentName, update);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    channelProviderRegistry.registerProvider(provider);
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    channelProviderRegistry.removeProvider(name);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channelDefinition) {
+    String providerName = channelDefinition.getProviderName();
+    String channelName = channelDefinition.getChannelName();
+    InboundMessageSink sink =
+        message -> receiveInboundFixedChannelMessage(providerName, channelName, message);
+    final FixedChannel channel = channelProviderRegistry.createChannel(channelDefinition, sink);
+    messageChannels.add(channel);
+    return LoggedMessageChannel.createFrom(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition messageDefinition) {
+    Message incomingMessage = new Message(messageDefinition.getBody().resolve(stores));
+    messageChannels.requireFixed(providerName, channelName).sendMessage(incomingMessage);
+  }
+
+  private void receiveInboundFixedChannelMessage(
+      String providerName, String channelName, Message message) {
+    FixedChannel inboundChannel = messageChannels.requireFixed(providerName, channelName);
+    messageStubRequestHandler.processMessage(inboundChannel, message);
+  }
+
+  @Override
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return SingleMessageStubMappingResult.fromOptional(messageStubMappings.get(id));
+  }
+
+  @Override
+  public SingleMessageStubMappingResult editMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return SingleMessageStubMappingResult.fromOptional(
+        messageStubMappings.edit(messageStubMapping));
+  }
+
+  @Override
   public void addMessageStubMapping(MessageStubMapping messageStubMapping) {
     messageStubMappings.add(messageStubMapping);
+  }
+
+  private void validateMessageStubMapping(MessageStubMapping mapping) {
+    for (MessageAction action : mapping.getActions()) {
+      if (action instanceof SendMessageAction sendAction) {
+        messageValidatorFor(sendAction.getChannelTarget())
+            .ifPresent(validator -> validator.validate(sendAction.getMessage()));
+      }
+    }
+  }
+
+  private Optional<MessageValidator> messageValidatorFor(ChannelTarget target) {
+    if (target instanceof RequestInitiatedChannelTarget requestTarget) {
+      return MessageValidators.forChannelType(requestTarget.getChannelType());
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      return channelProviderRegistry.validatorForProvider(fixedTarget.getProviderName());
+    }
+    return Optional.empty();
   }
 
   @Override

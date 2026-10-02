@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -42,10 +44,10 @@ class HealthCheckTaskTest {
 
     assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
     assertThat(response.getStatusMessage(), is("Wiremock is ok"));
-    assertThat(
-        response.getStatusMessage(),
-        equalTo(response.getReponseBody().asJson().get("message").asText()));
-    assertThat(response.getReponseBody().asJson().get("status").asText(), is("healthy"));
-    assertThat(response.getReponseBody().asJson().get("version").asText(), is("X.X.X"));
+
+    JsonNode bodyJson = Json.node(response.getTextBody());
+    assertThat(response.getStatusMessage(), equalTo(bodyJson.get("message").asText()));
+    assertThat(bodyJson.get("status").asText(), is("healthy"));
+    assertThat(bodyJson.get("version").asText(), is("X.X.X"));
   }
 }

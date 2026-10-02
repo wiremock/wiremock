@@ -29,6 +29,7 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import javax.net.ssl.SNIHostName;
@@ -154,7 +155,7 @@ public class CertificateAuthority {
       String sanDnsName,
       boolean isCA)
       throws IOException, OperatorCreationException, CertificateException {
-    ZonedDateTime start = ZonedDateTime.now().minus(Period.ofDays(1));
+    ZonedDateTime start = ZonedDateTime.now(ZoneId.systemDefault()).minus(Period.ofDays(1));
     return buildCertificate(
         sigAlg,
         publicKey,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.errorprone.annotations.InlineMe;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.Callable;
@@ -59,12 +60,23 @@ public class Exceptions {
     throw (T) toThrow;
   }
 
-  public static <T> T uncheck(Callable<T> work, Class<T> returnType) {
+  public static <T> T uncheck(Callable<T> work) {
     try {
       return work.call();
     } catch (Exception e) {
-      return throwUnchecked(e, returnType);
+      return throwUnchecked(e, null);
     }
+  }
+
+  /**
+   * @deprecated Use {@link #uncheck(Callable)} instead.
+   */
+  @Deprecated(since = "4.0", forRemoval = true)
+  @InlineMe(
+      replacement = "Exceptions.uncheck(work)",
+      imports = "com.github.tomakehurst.wiremock.common.Exceptions")
+  public static <T> T uncheck(Callable<T> work, @SuppressWarnings("unused") Class<T> returnType) {
+    return uncheck(work);
   }
 
   public static void uncheck(RunnableWithException work) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,6 +191,35 @@ public class MultipartTemplatingAcceptanceTest {
                         [name='text', headers={content-disposition=form-data; name="text", content-type=text/plain; charset=UTF-8}, body=hello]
                         [name='file', headers={content-disposition=form-data; name="file"; filename="abcd.bin", content-type=application/octet-stream}, body=ABCD]
                         """));
+  }
+
+  @Test
+  public void duplicatePartNamesAreAvailableViaTemplating() {
+    wm.stubFor(
+        post("/templated")
+            .willReturn(
+                ok(
+                    """
+                                multipart:{{request.multipart}}
+                                part count = {{size request.parts}}
+                                first={{request.parts.thename.body}}""")));
+
+    WireMockResponse response =
+        client.post(
+            "/templated",
+            MultipartEntityBuilder.create()
+                .addTextBody("thename", "one", ContentType.TEXT_PLAIN)
+                .addTextBody("thename", "two", ContentType.TEXT_PLAIN)
+                .build());
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(
+        response.content(),
+        is(
+            """
+                        multipart:true
+                        part count = 1
+                        first=one"""));
   }
 
   @Test

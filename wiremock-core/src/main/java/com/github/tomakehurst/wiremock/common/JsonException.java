@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,48 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.List;
-import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class JsonException extends InvalidInputException {
+
+  private static final Pattern MISSING_REQUIRED_PROPERTY =
+      Pattern.compile("Missing required creator property '([^']+)'");
 
   protected JsonException(Errors errors) {
     super(errors);
   }
 
   public static JsonException fromJackson(JsonProcessingException processingException) {
+    if (processingException instanceof MismatchedInputException mie) {
+      Matcher matcher = MISSING_REQUIRED_PROPERTY.matcher(mie.getOriginalMessage());
+      if (matcher.find()) {
+        String fieldName = matcher.group(1);
+        return new JsonException(Errors.validation(fieldName, fieldName + " is required"));
+      }
+    }
+
     Throwable rootCause = getRootCause(processingException);
 
     String message = rootCause.getMessage();
-    if (rootCause instanceof PatternSyntaxException) {
-      PatternSyntaxException patternSyntaxException = (PatternSyntaxException) rootCause;
+    if (rootCause instanceof PatternSyntaxException patternSyntaxException) {
       message = patternSyntaxException.getMessage();
-    } else if (rootCause instanceof JsonMappingException) {
-      message = ((JsonMappingException) rootCause).getOriginalMessage();
-    } else if (rootCause instanceof InvalidInputException) {
-      message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
+    } else if (rootCause instanceof JsonMappingException jsonMappingException) {
+      message = jsonMappingException.getOriginalMessage();
+    } else if (rootCause instanceof InvalidInputException invalidInputException) {
+      message = invalidInputException.getErrors().first().getDetail();
     }
 
     String pointer = null;
-    if (processingException instanceof JsonMappingException) {
+    if (processingException instanceof JsonMappingException jsonMappingException) {
       List<String> nodes =
-          ((JsonMappingException) processingException)
-              .getPath().stream().map(TO_NODE_NAMES).collect(Collectors.toList());
+          jsonMappingException.getPath().stream()
+              .map(JsonException::toNodeName)
+              .collect(Collectors.toList());
       pointer = "/" + String.join("/", nodes);
     }
 
@@ -60,7 +73,7 @@ public class JsonException extends InvalidInputException {
     return e;
   }
 
-  private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES =
-      input ->
-          input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
+  private static String toNodeName(JsonMappingException.Reference input) {
+    return input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
+  }
 }

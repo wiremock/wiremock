@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,10 @@ public class KeyLocks {
 
   private final ConcurrentHashMap<String, LockWrapper> locks = new ConcurrentHashMap<>();
 
-  @SuppressWarnings("unchecked")
   public <T> T withLock(String key, Callable<T> action) {
     try {
       lock(key);
-      return (T) Exceptions.uncheck(action::call, Object.class);
+      return Exceptions.uncheck(action);
     } finally {
       unlock(key);
     }

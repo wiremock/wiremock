@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class BasicResponseRenderer implements ResponseRenderer {
@@ -24,10 +25,11 @@ public class BasicResponseRenderer implements ResponseRenderer {
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    Entity body = responseDefinition.getBodyEntity().resolve(null);
     return response()
         .status(responseDefinition.getStatus())
         .headers(responseDefinition.getHeaders())
-        .body(responseDefinition.getByteBody())
+        .body(body)
         .build();
   }
 }

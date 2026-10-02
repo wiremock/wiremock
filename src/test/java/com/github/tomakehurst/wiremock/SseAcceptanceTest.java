@@ -1,0 +1,818 @@
+/*
+ * Copyright (C) 2025-2026 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllMessageServeEvents;
+import static com.github.tomakehurst.wiremock.client.WireMock.message;
+import static com.github.tomakehurst.wiremock.client.WireMock.messageStubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.sendSse;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
+import static com.github.tomakehurst.wiremock.http.Fault.EMPTY_RESPONSE;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.message.ChannelType;
+import com.github.tomakehurst.wiremock.message.MessageHeader;
+import com.github.tomakehurst.wiremock.message.MessageHeaders;
+import com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient.SseStreamClient.SseEvent;
+import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
+import java.util.UUID;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSource;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class SseAcceptanceTest extends AcceptanceTestBase {
+
+  private final WireMockTestClient testClient = new WireMockTestClient(wireMockServer.port());
+
+  @BeforeEach
+  void setup() {
+    WireMock.reset();
+  }
+
+  @AfterEach
+  void cleanup() {
+    WireMock.resetMessageStubs();
+  }
+
+  private String serverUrl(String path) {
+    return "http://localhost:" + wireMockServer.port() + path;
+  }
+
+  @Test
+  void stubWithOpenSseChannelReturnsEventStreamContentType() throws Exception {
+    stubFor(get(urlEqualTo("/events")).willReturn(aResponse().openSseChannel()));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/events"))) {
+      assertEquals(200, sse.connect());
+      assertThat(sse.header("content-type"), containsString("text/event-stream"));
+    }
+  }
+
+  @Test
+  void stubWithoutOpenSseChannelServesRegularResponse() {
+    stubFor(get(urlEqualTo("/events")).willReturn(ok("plain body")));
+
+    WireMockResponse response = testClient.get("/events");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("plain body"));
+  }
+
+  @Test
+  void noStubGivesNotFound() {
+    WireMockResponse response = testClient.get("/events");
+
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  void openSseChannelRejectsBody() {
+    assertThrows(
+        IllegalStateException.class, () -> aResponse().openSseChannel().withBody("body").build());
+  }
+
+  @Test
+  void openSseChannelRejectsProxy() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> aResponse().openSseChannel().proxiedFrom("http://example.com").build());
+  }
+
+  @Test
+  void openSseChannelRejectsFault() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> aResponse().openSseChannel().withFault(EMPTY_RESPONSE).build());
+  }
+
+  @Test
+  void openSseChannelRejectsWebSocket() {
+    assertThrows(
+        IllegalStateException.class,
+        () -> aResponse().openSseChannel().openWebsocketChannel().build());
+  }
+
+  @Test
+  void sseStreamReceivesEventFromHighestPriorityHttpTrigger() throws Exception {
+    stubFor(get(urlEqualTo("/multi-stream")).willReturn(aResponse().openSseChannel()));
+
+    stubFor(get(urlPathTemplate("/multi-trigger/{number}")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Multi event trigger 1")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/1")))
+            .willTriggerActions(
+                sendMessage("event-1")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/multi-stream")))));
+
+    messageStubFor(
+        message()
+            .withName("Multi event trigger 2")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/2")))
+            .willTriggerActions(
+                sendMessage("event-2")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/multi-stream")))));
+
+    messageStubFor(
+        message()
+            .withName("Multi event trigger 3")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/multi-trigger/3")))
+            .willTriggerActions(
+                sendMessage("event-3")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/multi-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/multi-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/multi-trigger/1");
+      SseEvent event1 = sse.awaitEvent(e -> "event-1".equals(e.getData()));
+      assertNotNull(event1);
+
+      testClient.get("/multi-trigger/2");
+      SseEvent event2 = sse.awaitEvent(e -> "event-2".equals(e.getData()));
+      assertNotNull(event2);
+
+      testClient.get("/multi-trigger/3");
+      SseEvent event3 = sse.awaitEvent(e -> "event-3".equals(e.getData()));
+      assertNotNull(event3);
+    }
+  }
+
+  @Test
+  void channelIsRemovedOnSseDisconnect() throws Exception {
+    stubFor(get(urlEqualTo("/cleanup-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/cleanup-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Cleanup trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/cleanup-trigger")))
+            .willTriggerActions(
+                sendMessage("disconnect-payload")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/cleanup-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/cleanup-stream"))) {
+      assertEquals(200, sse.connect());
+
+      resetMessageJournal();
+      testClient.get("/cleanup-trigger");
+      SseEvent event = sse.awaitEvent(e -> e.hasData());
+      assertNotNull(event);
+
+      MessageServeEvent sentEvent =
+          getAllMessageServeEvents().stream()
+              .filter(MessageServeEvent::isSent)
+              .findFirst()
+              .orElseThrow();
+      UUID channelId = sentEvent.getChannelId();
+      assertThat(WireMock.getMessageChannel(channelId).isPresent(), is(true));
+    }
+
+    UUID channelId =
+        getAllMessageServeEvents().stream()
+            .filter(MessageServeEvent::isSent)
+            .findFirst()
+            .orElseThrow()
+            .getChannelId();
+
+    boolean removed = false;
+    for (int i = 0; i < 10 && !removed; i++) {
+      testClient.get("/cleanup-trigger");
+      Thread.sleep(100);
+      removed = !WireMock.getMessageChannel(channelId).isPresent();
+    }
+    assertThat(removed, is(true));
+  }
+
+  @Test
+  void sseStreamReceivesMessageFromHttpStubTrigger() throws Exception {
+    stubFor(get(urlEqualTo("/sse-stub-stream")).willReturn(aResponse().openSseChannel()));
+
+    stubFor(
+        get(urlEqualTo("/sse-stub-trigger"))
+            .withId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+            .willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("SSE stub trigger")
+            .triggeredByHttpStub("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
+            .willTriggerActions(
+                sendMessage("stub-triggered-event")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/sse-stub-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/sse-stub-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/sse-stub-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "stub-triggered-event".equals(e.getData()));
+      assertNotNull(event);
+    }
+  }
+
+  @Test
+  void sseStreamReceivesNamedEventWithId() throws Exception {
+    stubFor(get(urlEqualTo("/named-stream")).willReturn(aResponse().openSseChannel()));
+
+    stubFor(get(urlEqualTo("/named-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Named + ID event trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/named-trigger")))
+            .willTriggerActions(
+                sendSse("{\"userId\":1}")
+                    .withEventName("userLogin")
+                    .withEventId("evt-42")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/named-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/named-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/named-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "{\"userId\":1}".equals(e.getData()));
+
+      assertNotNull(event);
+      assertThat(event.getId(), is("evt-42"));
+      assertThat(event.getName(), is("userLogin"));
+    }
+  }
+
+  @Test
+  void headerValuesAreTemplatedFromTriggeringRequest() throws Exception {
+    stubFor(get(urlEqualTo("/tmpl-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlPathEqualTo("/tmpl-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("Templated headers trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/tmpl-trigger")))
+            .willTriggerActions(
+                sendSse("templated-body")
+                    .withEventName("{{request.path}}")
+                    .withEventId("{{request.method}}")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/tmpl-stream")))));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/tmpl-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/tmpl-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "templated-body".equals(e.getData()));
+      assertNotNull(event);
+      assertThat(event.getName(), is("/tmpl-trigger"));
+      assertThat(event.getId(), is("GET"));
+    }
+  }
+
+  @Test
+  void repeatedWithEventNameReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withEventName("first")
+            .withEventName("second")
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("event").values(), hasSize(1));
+    assertThat(headers.getFirstValue("event"), is("second"));
+  }
+
+  @Test
+  void retryHeaderIsDeliveredAsRetryFieldInFrame() throws Exception {
+    stubFor(get(urlEqualTo("/retry-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/retry-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("retry trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/retry-trigger")))
+            .willTriggerActions(
+                sendSse("retry-body")
+                    .withEventId("r1")
+                    .withRetry(5000)
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/retry-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/retry-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/retry-trigger");
+
+      assertThat(source.readUtf8Line(), is("id: r1"));
+      assertThat(source.readUtf8Line(), is("retry: 5000"));
+      assertThat(source.readUtf8Line(), is("data: retry-body"));
+      assertThat(source.readUtf8Line(), is(""));
+    }
+  }
+
+  @Test
+  void repeatedWithRetryReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withRetry(1000)
+            .withRetry(2000)
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("retry").values(), hasSize(1));
+    assertThat(headers.getFirstValue("retry"), is("2000"));
+  }
+
+  @Test
+  void commentHeaderIsDeliveredAsCommentLineInFrame() throws Exception {
+    stubFor(get(urlEqualTo("/comment-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/comment-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("comment trigger")
+            .triggeredByHttpRequest(newRequestPattern().withUrl(urlPathEqualTo("/comment-trigger")))
+            .willTriggerActions(
+                sendSse("comment-body")
+                    .withEventId("c1")
+                    .withComment("keep-alive")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/comment-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/comment-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/comment-trigger");
+
+      assertThat(source.readUtf8Line(), is(": keep-alive"));
+      assertThat(source.readUtf8Line(), is("id: c1"));
+      assertThat(source.readUtf8Line(), is("data: comment-body"));
+      assertThat(source.readUtf8Line(), is(""));
+    }
+  }
+
+  @Test
+  void repeatedWithCommentReplacesPreviousValue() {
+    SendMessageAction action =
+        sendSse("data")
+            .withComment("first")
+            .withComment("second")
+            .onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    MessageHeaders headers = action.getMessage().getHeaders();
+    assertThat(headers.getHeader("comment").values(), hasSize(1));
+    assertThat(headers.getFirstValue("comment"), is("second"));
+  }
+
+  @Test
+  void multiValuedSseHeadersRejectedAtMutationTime() {
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("event", "a", "b"));
+
+    assertThrows(
+        IllegalStateException.class,
+        () -> sendSse("data").withHeader("event", "a").withHeader("event", "b"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("id", "a", "b"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withHeader("retry", "a", "b"));
+
+    assertThrows(
+        IllegalStateException.class, () -> sendSse("data").withHeader("comment", "a", "b"));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInCommentHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"comment\": \"a\\nb\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/comment"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'comment' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInRetryHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"retry\": \"1\\n2\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/retry"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'retry' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void lineBreaksInBodyRejectedAtCreationTime() {
+    IllegalStateException lf =
+        assertThrows(IllegalStateException.class, () -> sendSse("some\ndata"));
+    assertThat(lf.getMessage(), is("SSE message body must not contain line breaks"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("some\rdata"));
+    assertThrows(IllegalStateException.class, () -> sendSse("some\r\ndata"));
+    assertThrows(IllegalStateException.class, () -> sendSse().withBody("some\ndata"));
+  }
+
+  @Test
+  void lineBreaksInEventNameAndIdRejectedAtCreationTime() {
+    IllegalStateException eventName =
+        assertThrows(IllegalStateException.class, () -> sendSse("data").withEventName("ev\r\nent"));
+    assertThat(eventName.getMessage(), is("SSE event name must not contain line breaks"));
+
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withEventName("ev\nent"));
+    assertThrows(IllegalStateException.class, () -> sendSse("data").withEventId("id\r1"));
+
+    IllegalStateException eventId =
+        assertThrows(IllegalStateException.class, () -> sendSse("data").withEventId("id\n1"));
+    assertThat(eventId.getMessage(), is("SSE event id must not contain line breaks"));
+  }
+
+  @Test
+  void lineBreaksInHeaderKeysAndValuesRejectedAtCreationTime() {
+    IllegalStateException key =
+        assertThrows(
+            IllegalStateException.class, () -> sendSse("data").withHeader("bad\nkey", "v"));
+    assertThat(key.getMessage(), is("SSE header key must not contain line breaks"));
+
+    IllegalStateException value =
+        assertThrows(
+            IllegalStateException.class, () -> sendSse("data").withHeader("key", "bad\r\nvalue"));
+    assertThat(value.getMessage(), is("SSE header value must not contain line breaks"));
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            sendSse("data")
+                .withHeaders(new MessageHeaders(new MessageHeader("bad\nkey", "value"))));
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            sendSse("data")
+                .withHeaders(new MessageHeaders(new MessageHeader("key", "bad\nvalue"))));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInEventHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"a\\nb\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/event"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'event' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInIdHeader() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"id\": \"7\\r\\n8\"", "lb-body"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "headers/id"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE header 'id' must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInBody() {
+    WireMockResponse response =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"ok\"", "line1\\nline2"));
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "errors": [
+                {
+                  "code": 10,
+                  "source": {
+                    "pointer": "body"
+                  },
+                  "title": "Invalid SSE message",
+                  "detail": "SSE message body must not contain line breaks"
+                }
+              ]
+            }
+            """));
+  }
+
+  @Test
+  void stubApiRejectsLineBreaksInEventHeaderOnEdit() {
+    WireMockResponse created =
+        testClient.postJson(
+            "/__admin/message-mappings", messageStubJson("\"event\": \"ok\"", "lb-body"));
+    assertThat(created.statusCode(), is(201));
+    String id = created.content().replaceAll("(?s).*\"id\"\\s*:\\s*\"([^\"]+)\".*", "$1");
+
+    WireMockResponse edited =
+        testClient.putJson(
+            "/__admin/message-mappings/" + id, messageStubJson("\"event\": \"a\\nb\"", "lb-body"));
+
+    assertThat(edited.statusCode(), is(422));
+  }
+
+  @Test
+  void sseDslStampsChannelTypeOnTarget() {
+    SendMessageAction action =
+        sendSse("data").onChannelsMatching(newRequestPattern().withUrl(urlPathEqualTo("/x")));
+
+    assertThat(action.getChannelTarget(), instanceOf(RequestInitiatedChannelTarget.class));
+    assertThat(
+        ((RequestInitiatedChannelTarget) action.getChannelTarget()).getChannelType(),
+        is(ChannelType.SSE));
+  }
+
+  @Test
+  void untypedStubWithLineBrokenEventHeaderIsDeliveredWithoutIt() throws Exception {
+    stubFor(get(urlEqualTo("/untyped-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/untyped-trigger")).willReturn(ok("triggered")));
+
+    WireMockResponse created =
+        testClient.postJson(
+            "/__admin/message-mappings",
+            // language=json
+            """
+            {
+              "name": "untyped line breaks",
+              "trigger": {
+                "type": "http-request",
+                "requestPattern": { "method": "GET", "urlPath": "/untyped-trigger" }
+              },
+              "actions": [
+                {
+                  "type": "send",
+                  "message": {
+                    "body": { "data": "safe" },
+                    "headers": { "event": "a\\nb" }
+                  },
+                  "channelTarget": {
+                    "type": "request-initiated",
+                    "requestPattern": { "urlPath": "/untyped-stream" }
+                  }
+                }
+              ]
+            }
+            """);
+    assertThat(created.statusCode(), is(201));
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/untyped-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/untyped-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "safe".equals(e.getData()));
+      assertNotNull(event);
+      assertNull(event.getName());
+    }
+  }
+
+  private static String messageStubJson(String headerJson, String body) {
+    return """
+        {
+          "name": "line-break rejection",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": { "method": "GET", "urlPath": "/lb-trigger" }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": { "data": "%s" },
+                "headers": { %s }
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "channelType": "sse",
+                "requestPattern": { "urlPath": "/lb-stream" }
+              }
+            }
+          ]
+        }
+        """
+        .formatted(body, headerJson);
+  }
+
+  @Test
+  void multiValuedEventHeaderFromRawJsonUsesFirstValue() {
+    stubFor(get(urlEqualTo("/raw-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/raw-trigger")).willReturn(ok("triggered")));
+
+    testClient.postJson(
+        "/__admin/message-mappings",
+        // language=json
+        """
+        {
+          "name": "raw multi-value",
+          "trigger": {
+            "type": "http-request",
+            "requestPattern": {
+              "method": "GET",
+              "urlPath": "/raw-trigger"
+            }
+          },
+          "actions": [
+            {
+              "type": "send",
+              "message": {
+                "body": {
+                  "data": "raw-body"
+                },
+                "headers": {
+                  "event": ["alpha", "beta"]
+                }
+              },
+              "channelTarget": {
+                "type": "request-initiated",
+                "requestPattern": {
+                  "urlPath": "/raw-stream"
+                }
+              }
+            }
+          ]
+        }
+        """);
+
+    try (SseStreamClient sse = new SseStreamClient(serverUrl("/raw-stream"))) {
+      assertEquals(200, sse.connect());
+
+      testClient.get("/raw-trigger");
+
+      SseEvent event = sse.awaitEvent(e -> "raw-body".equals(e.getData()));
+      assertNotNull(event);
+      assertThat(event.getName(), is("alpha"));
+    }
+  }
+
+  @Test
+  void bodilessMessageIsDeliveredAsTerminatedEmptyDataEvent() throws Exception {
+    stubFor(get(urlEqualTo("/bodiless-stream")).willReturn(aResponse().openSseChannel()));
+    stubFor(get(urlEqualTo("/bodiless-trigger")).willReturn(ok("triggered")));
+
+    messageStubFor(
+        message()
+            .withName("bodiless")
+            .triggeredByHttpRequest(
+                newRequestPattern().withUrl(urlPathEqualTo("/bodiless-trigger")))
+            .willTriggerActions(
+                sendSse()
+                    .withEventId("7")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/bodiless-stream"))),
+                sendSse("after")
+                    .onChannelsMatching(
+                        newRequestPattern().withUrl(urlPathEqualTo("/bodiless-stream")))));
+
+    Request request =
+        new Request.Builder()
+            .url(serverUrl("/bodiless-stream"))
+            .header("Accept", "text/event-stream")
+            .build();
+
+    try (Response response = new OkHttpClient().newCall(request).execute()) {
+      assertThat(response.code(), is(200));
+      BufferedSource source = response.body().source();
+
+      assertThat(source.readUtf8Line(), is(": ok"));
+      assertThat(source.readUtf8Line(), is(""));
+
+      testClient.get("/bodiless-trigger");
+
+      assertThat(source.readUtf8Line(), is("id: 7"));
+      assertThat(source.readUtf8Line(), is("data:"));
+      assertThat(source.readUtf8Line(), is(""));
+      assertThat(source.readUtf8Line(), is("data: after"));
+      assertThat(source.readUtf8Line(), is(""));
+    }
+  }
+}

@@ -27,5 +27,6 @@ public interface Prioritisable {
 
   long getInsertionIndex();
 
+  @SuppressWarnings("TypeParameterUnusedInFormals")
   <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex);
 }

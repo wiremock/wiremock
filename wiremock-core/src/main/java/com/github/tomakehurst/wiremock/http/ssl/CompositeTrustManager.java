@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.copyOf;
 
 import java.net.Socket;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import javax.net.ssl.SSLEngine;
@@ -107,7 +107,7 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
 
   @Override
   public X509Certificate[] getAcceptedIssuers() {
-    return copyOf(acceptedIssuers, acceptedIssuers.length);
+    return Arrays.copyOf(acceptedIssuers, acceptedIssuers.length);
   }
 
   private void checkAllTrustManagers(CertificateChecker certificateChecker)

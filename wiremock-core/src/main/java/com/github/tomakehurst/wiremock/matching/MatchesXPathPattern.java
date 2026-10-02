@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,7 @@ public class MatchesXPathPattern extends PathPattern {
     final ListOrSingle<XmlNode> nodes;
     final List<SubEvent> subEvents;
 
-    public XmlNodeFindResult(ListOrSingle<XmlNode> nodes, SubEvent... subEvents) {
+    private XmlNodeFindResult(ListOrSingle<XmlNode> nodes, SubEvent... subEvents) {
       this.nodes = nodes;
       this.subEvents = List.of(subEvents);
     }

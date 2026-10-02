@@ -1,6 +1,12 @@
+import net.ltgt.gradle.errorprone.CheckSeverity
+import net.ltgt.gradle.errorprone.ErrorProneOptions
+import net.ltgt.gradle.errorprone.errorprone
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.net.URI
+
+val libs = the<LibrariesForLibs>()
 
 plugins {
   `java-library`
@@ -12,13 +18,57 @@ plugins {
   id("com.gradleup.shadow")
   id("org.sonarqube")
   id("com.vanniktech.maven.publish.base")
+  id("net.ltgt.errorprone")
 }
 
 group = "org.wiremock"
-version = "4.0.0-beta.34"
+version = providers.gradleProperty("releaseVersion").getOrElse("0.0.0-dev")
 
 repositories {
   mavenCentral()
+}
+
+dependencies {
+  val nullawayDep = "com.uber.nullaway:nullaway:0.13.5"
+  annotationProcessor(nullawayDep)
+  testFixturesAnnotationProcessor(nullawayDep)
+  testAnnotationProcessor(nullawayDep)
+  errorprone(libs.errorprone.core)
+}
+
+tasks.compileJava {
+  options.errorprone {
+    defaultErrorProneConfig()
+  }
+}
+
+tasks.compileTestJava {
+  options.errorprone {
+    disableAllChecks = true
+  }
+}
+
+tasks.compileTestFixturesJava {
+  options.errorprone {
+    defaultErrorProneConfig()
+    check("MutablePublicArray", CheckSeverity.OFF)
+    check("JavaUtilDate", CheckSeverity.OFF)
+  }
+}
+
+private fun ErrorProneOptions.defaultErrorProneConfig() {
+  check("NullAway", CheckSeverity.ERROR)
+  check("NullableOptional", CheckSeverity.OFF)
+  check("UndefinedEquals", CheckSeverity.OFF)
+  check("EqualsGetClass", CheckSeverity.OFF)
+  check("StringSplitter", CheckSeverity.OFF)
+  check("InlineFormatString", CheckSeverity.OFF)
+  check("ClassInitializationDeadlock", CheckSeverity.OFF)
+  check("InlineMeSuggester", CheckSeverity.OFF)
+  check("ImmutableEnumChecker", CheckSeverity.OFF)
+  check("MissingSummary", CheckSeverity.OFF)
+  check("MixedMutabilityReturnType", CheckSeverity.OFF)
+  option("NullAway:AnnotatedPackages", "org.wiremock.url")
 }
 
 java {

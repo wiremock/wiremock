@@ -1,6 +1,8 @@
 [
 { "input": "http://f:b/c", "base": "http://example.org/foo/bar", "failure": true },
 { "input": "http://f:fifty-two/c", "base": "http://example.org/foo/bar", "failure": true },
+{ "input": "http://é@é", "href": "http://%C3%A9@xn--9ca/", "origin": "http://xn--9ca", "protocol": "http:", "username": "%C3%A9", "password": "", "host": "xn--9ca", "hostname": "xn--9ca", "port": "", "pathname": "/", "search": "", "hash": "" },
+{ "input": "http://é@example.com", "href": "http://%C3%A9@example.com/", "origin": "http://example.com", "protocol": "http:", "username": "%C3%A9", "password": "", "host": "example.com", "hostname": "example.com", "port": "", "pathname": "/", "search": "", "hash": "" },
 { "input": "http://::@c@d:2", "base": "http://example.org/foo/bar", "href": "http://:%3A%40c@d:2/", "origin": "http://d:2", "protocol": "http:", "username": "", "password": "%3A%40c", "host": "d:2", "hostname": "d", "port": "2", "pathname": "/", "search": "", "hash": "" },
 { "input": "http:[61:27]/:foo", "base": "http://example.org/foo/bar", "href": "http://example.org/foo/[61:27]/:foo", "origin": "http://example.org", "protocol": "http:", "username": "", "password": "", "host": "example.org", "hostname": "example.org", "port": "", "pathname": "/foo/[61:27]/:foo", "search": "", "hash": "" },
 { "input": "http://2001::1", "base": "http://example.org/foo/bar", "failure": true },

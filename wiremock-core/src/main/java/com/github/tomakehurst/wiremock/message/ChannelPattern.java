@@ -24,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "type",
     visible = true)
 @JsonSubTypes({
-  @JsonSubTypes.Type(value = RequestInitiatedChannelPattern.class, name = "websocket")
+  @JsonSubTypes.Type(value = RequestInitiatedChannelPattern.class, name = "websocket"),
+  @JsonSubTypes.Type(value = FixedChannelPattern.class, name = "fixed")
 })
 public interface ChannelPattern {
 

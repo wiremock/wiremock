@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,7 +194,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.firstHeader("Content-Type"), startsWith("text/html"));
     assertThat(response.content(), containsString("<title>WireMock Recorder</title>"));
 
-    response = testClient.get("/__admin/recorder/lib/jquery-3.6.0.min.js");
+    response = testClient.get("/__admin/recorder/lib/jquery-4.0.0.min.js");
     assertThat(response.statusCode(), is(200));
     assertThat(response.firstHeader("Content-Type"), startsWith("text/javascript"));
   }

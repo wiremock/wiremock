@@ -20,6 +20,8 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 import com.github.tomakehurst.wiremock.admin.tasks.*;
+import com.github.tomakehurst.wiremock.admin.tasks.CreateFixedChannelTask;
+import com.github.tomakehurst.wiremock.admin.tasks.RegisterChannelProviderTask;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.store.Stores;
@@ -121,7 +123,16 @@ public class AdminRoutes {
     router.add(GET, "/version", new GetVersionTask());
 
     router.add(GET, "/channels", new GetAllMessageChannelsTask());
+    router.add(GET, "/channels/{id}", new GetMessageChannelTask());
+    router.add(DELETE, "/channels/{id}", new RemoveMessageChannelTask());
+    router.add(POST, "/channels", new CreateFixedChannelTask());
     router.add(POST, "/channels/send", new SendChannelMessageTask());
+
+    router.add(GET, "/channel-providers", new GetAllChannelProvidersTask());
+    router.add(POST, "/channel-providers", new RegisterChannelProviderTask());
+    router.add(GET, "/channel-providers/{name}", new GetChannelProviderTask());
+    router.add(PUT, "/channel-providers/{name}", new UpdateChannelProviderTask());
+    router.add(DELETE, "/channel-providers/{name}", new RemoveChannelProviderTask());
 
     router.add(GET, "/messages", new GetAllMessageEventsTask());
     router.add(DELETE, "/messages", new ResetMessageJournalTask());
@@ -137,6 +148,8 @@ public class AdminRoutes {
     router.add(GET, "/message-mappings", new GetAllMessageStubMappingsTask());
     router.add(POST, "/message-mappings", new CreateMessageStubMappingTask());
     router.add(DELETE, "/message-mappings", new ResetMessageStubMappingsTask());
+    router.add(GET, "/message-mappings/{id}", new GetMessageStubMappingTask());
+    router.add(PUT, "/message-mappings/{id}", new EditMessageStubMappingTask());
     router.add(DELETE, "/message-mappings/{id}", new RemoveMessageStubMappingTask());
     router.add(
         POST, "/message-mappings/find-by-metadata", new FindMessageStubMappingsByMetadataTask());

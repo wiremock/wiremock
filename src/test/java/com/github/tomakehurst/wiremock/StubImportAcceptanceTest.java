@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
     assertThat(stubs.size(), is(3));
-    assertThat(stubs.get(2).getResponse().getBody(), is("Updated"));
+    assertThat(stubs.get(2).getResponse().getBodyEntity().getDataAsString(), is("Updated"));
   }
 
   @Test
@@ -87,7 +87,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
     assertThat(stubs.size(), is(3));
-    assertThat(stubs.get(2).getResponse().getBody(), is("Original"));
+    assertThat(stubs.get(2).getResponse().getBodyEntity().getDataAsString(), is("Original"));
   }
 
   @Test
@@ -109,7 +109,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
     assertThat(stubs, hasItem(stubMappingWithUrl("/one")));
     assertThat(stubs, hasItem(stubMappingWithUrl("/two")));
     assertThat(stubs, hasItem(stubMappingWithUrl("/three")));
-    assertThat(stubs.get(2).getResponse().getBody(), is("Updated"));
+    assertThat(stubs.get(2).getResponse().getBodyEntity().getDataAsString(), is("Updated"));
   }
 
   @Test

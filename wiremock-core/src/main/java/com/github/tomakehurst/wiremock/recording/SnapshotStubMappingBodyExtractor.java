@@ -15,15 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.List;
+import org.wiremock.url.Path;
 import org.wiremock.url.PathAndQuery;
+import org.wiremock.url.Segment;
 
 class SnapshotStubMappingBodyExtractor {
   private final BlobStore filesBlobStore;
@@ -41,10 +41,10 @@ class SnapshotStubMappingBodyExtractor {
   StubMapping extractInPlace(StubMapping stubMapping) {
     byte[] body = stubMapping.getResponse().getByteBody();
     HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
-    PathAndQuery pathAndQuery =
-        PathAndQuery.parse(
-            getFirstNonNull(
-                stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()));
+    List<String> pathSegments =
+        Urls.urlPatternToPathSegments(stubMapping.getRequest().getUrlMatcher());
+    Path path = Path.of(pathSegments.stream().map(Segment::encode)).toAbsolutePath();
+    PathAndQuery pathAndQuery = PathAndQuery.of(path);
     String extension =
         ContentTypes.determineFileExtension(
             pathAndQuery, responseHeaders.getContentTypeHeader(), body);
@@ -54,18 +54,6 @@ class SnapshotStubMappingBodyExtractor {
 
     filesBlobStore.put(bodyFileName, body);
 
-    // used to prevent ambiguous method call error for withBody()
-    String noStringBody = null;
-    byte[] noByteBody = null;
-
-    return stubMapping.transform(
-        sm ->
-            sm.setResponse(
-                ResponseDefinitionBuilder.like(stubMapping.getResponse())
-                    .withBodyFile(bodyFileName)
-                    .withBody(noStringBody)
-                    .withBody(noByteBody)
-                    .withBase64Body(null)
-                    .build()));
+    return stubMapping.transform(sm -> sm.response(rd -> rd.setBodyFileName(bodyFileName)));
   }
 }

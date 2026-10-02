@@ -17,28 +17,75 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.common.entity.Format.BINARY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.isOneOf;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
+import com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleMessageStubMappingResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.AbsentPattern;
+import com.github.tomakehurst.wiremock.matching.AfterDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToNumberPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.GreaterThanNumberPattern;
+import com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.LessThanEqualNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LessThanNumberPattern;
+import com.github.tomakehurst.wiremock.matching.LogicalAnd;
+import com.github.tomakehurst.wiremock.matching.LogicalOr;
+import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
+import com.github.tomakehurst.wiremock.matching.MatchesJsonSchemaPattern;
+import com.github.tomakehurst.wiremock.matching.MatchesXPathPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.NegativeContainsPattern;
+import com.github.tomakehurst.wiremock.matching.NegativeRegexPattern;
+import com.github.tomakehurst.wiremock.matching.NotPattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.message.Message;
+import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageActionBuilder;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
+import com.github.tomakehurst.wiremock.message.sse.SendSseMessageActionBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -64,13 +111,19 @@ import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.Path;
 import org.wiremock.url.PathAndQuery;
 
 @SuppressWarnings("unused")
+@PublishedAPI
 public class WireMock {
 
   private static final int DEFAULT_PORT = 8080;
@@ -402,6 +455,26 @@ public class WireMock {
 
   public static StringValuePattern or(StringValuePattern... matchers) {
     return new LogicalOr(matchers);
+  }
+
+  public static EntityDefinition.Builder textEntity(String text) {
+    return EntityDefinition.builder().setData(text);
+  }
+
+  public static EntityDefinition.Builder entity() {
+    return EntityDefinition.builder();
+  }
+
+  public static EntityDefinition.Builder binaryEntity(byte[] data) {
+    return EntityDefinition.builder().setFormat(BINARY).setData(data);
+  }
+
+  public static EntityDefinition.Builder binaryEntity() {
+    return EntityDefinition.builder().setFormat(BINARY);
+  }
+
+  public static JsonEntityDefinition jsonEntity(Object data) {
+    return new JsonEntityDefinition(data);
   }
 
   public void saveMappings() {
@@ -1141,12 +1214,107 @@ public class WireMock {
     return MessageStubMapping.builder();
   }
 
+  public static ChannelProvider.Builder channelProvider() {
+    return new ChannelProvider.Builder();
+  }
+
+  public static ListChannelProvidersResult listAllChannelProviders() {
+    return defaultInstance.get().allChannelProviders();
+  }
+
+  public ListChannelProvidersResult allChannelProviders() {
+    return admin.listAllChannelProviders();
+  }
+
+  public static SingleChannelProviderResult getChannelProvider(String name) {
+    return defaultInstance.get().channelProviderByName(name);
+  }
+
+  public SingleChannelProviderResult channelProviderByName(String name) {
+    return admin.getChannelProvider(name);
+  }
+
+  public static ChannelProvider updateChannelProvider(
+      String currentName, ChannelProvider.Builder update) {
+    return defaultInstance.get().updateAChannelProvider(currentName, update.build());
+  }
+
+  public ChannelProvider updateAChannelProvider(String currentName, ChannelProvider update) {
+    return admin.updateChannelProvider(currentName, update);
+  }
+
+  public static void registerChannelProvider(ChannelProvider.Builder builder) {
+    defaultInstance.get().registerAChannelProvider(builder.build());
+  }
+
+  public void registerAChannelProvider(ChannelProvider provider) {
+    admin.registerChannelProvider(provider);
+  }
+
+  public static void removeChannelProvider(String name) {
+    defaultInstance.get().removeAChannelProvider(name);
+  }
+
+  public void removeAChannelProvider(String name) {
+    admin.removeChannelProvider(name);
+  }
+
+  public static FixedChannelDefinition.Builder fixedChannel() {
+    return new FixedChannelDefinition.Builder();
+  }
+
+  public static UUID createFixedChannel(FixedChannelDefinition.Builder builder) {
+    return defaultInstance.get().createAFixedChannel(builder.build());
+  }
+
+  public UUID createAFixedChannel(FixedChannelDefinition channelDefinition) {
+    return admin.createFixedChannel(channelDefinition).getId();
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, String body) {
+    defaultInstance.get().sendMessageToSingleFixedChannel(providerName, channelName, body);
+  }
+
+  public void sendMessageToSingleFixedChannel(
+      String providerName, String channelName, String body) {
+    admin.sendChannelMessage(
+        providerName, channelName, new MessageDefinition(EntityDefinition.simple(body)));
+  }
+
+  public static void sendMessageToFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    defaultInstance
+        .get()
+        .sendMessageToSingleFixedChannel(providerName, channelName, messageBuilder);
+  }
+
+  public void sendMessageToSingleFixedChannel(
+      String providerName, String channelName, Message.Builder messageBuilder) {
+    Message message = messageBuilder.build();
+    EntityDefinition entityDef =
+        message.isBinary()
+            ? EntityDefinition.fromBase64(
+                java.util.Base64.getEncoder().encodeToString(message.getBodyAsBytes()))
+            : EntityDefinition.simple(message.getBodyAsString());
+
+    admin.sendChannelMessage(providerName, channelName, new MessageDefinition(entityDef));
+  }
+
   public static SendMessageActionBuilder sendMessage() {
     return new SendMessageActionBuilder();
   }
 
   public static SendMessageActionBuilder sendMessage(String message) {
     return new SendMessageActionBuilder().withBody(message);
+  }
+
+  public static SendSseMessageActionBuilder sendSse() {
+    return new SendSseMessageActionBuilder();
+  }
+
+  public static SendSseMessageActionBuilder sendSse(String data) {
+    return new SendSseMessageActionBuilder(data);
   }
 
   public static MessageStubMapping messageStubFor(MessageStubMappingBuilder builder) {
@@ -1200,6 +1368,23 @@ public class WireMock {
     admin.removeMessageStubsByMetadata(pattern);
   }
 
+  public static MessageStubMapping getMessageStub(UUID id) {
+    return defaultInstance.get().getMessageStubMapping(id).getItem();
+  }
+
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return admin.getMessageStubMapping(id);
+  }
+
+  public static MessageStubMapping editMessageStub(MessageStubMapping messageStubMapping) {
+    return defaultInstance.get().updateMessageStubMapping(messageStubMapping).getItem();
+  }
+
+  public SingleMessageStubMappingResult updateMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return admin.editMessageStubMapping(messageStubMapping);
+  }
+
   public static ListMessageStubMappingsResult listAllMessageStubMappings() {
     return defaultInstance.get().allMessageStubMappings();
   }
@@ -1214,6 +1399,22 @@ public class WireMock {
 
   public ListMessageChannelsResult allMessageChannels() {
     return admin.listAllMessageChannels();
+  }
+
+  public static SingleMessageChannelResult getMessageChannel(UUID id) {
+    return defaultInstance.get().getMessageChannelById(id);
+  }
+
+  public SingleMessageChannelResult getMessageChannelById(UUID id) {
+    return admin.getMessageChannel(id);
+  }
+
+  public static void removeMessageChannel(UUID id) {
+    defaultInstance.get().removeMessageChannelById(id);
+  }
+
+  public void removeMessageChannelById(UUID id) {
+    admin.removeMessageChannel(id);
   }
 
   // Message journal verification methods

@@ -64,3 +64,5 @@ scripts/client-cert.*
 notes.txt
 
 .kotlin/
+
+.claude

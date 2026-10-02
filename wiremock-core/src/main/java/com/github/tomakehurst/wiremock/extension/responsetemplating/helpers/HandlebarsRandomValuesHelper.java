@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.*;
 
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
 
 public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
@@ -29,31 +30,16 @@ public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
     boolean uppercase = options.hash("uppercase", false);
 
     String type = options.hash("type", "ALPHANUMERIC");
-    String rawValue;
-
-    switch (type) {
-      case "ALPHANUMERIC":
-        rawValue = randomAlphanumeric(length);
-        break;
-      case "ALPHABETIC":
-        rawValue = randomAlphabetic(length);
-        break;
-      case "NUMERIC":
-        rawValue = randomNumeric(length);
-        break;
-      case "ALPHANUMERIC_AND_SYMBOLS":
-        rawValue = random(length, 33, 126, false, false);
-        break;
-      case "UUID":
-        rawValue = UUID.randomUUID().toString();
-        break;
-      case "HEXADECIMAL":
-        rawValue = random(length, "ABCDEF0123456789");
-        break;
-      default:
-        rawValue = randomAscii(length);
-        break;
-    }
-    return uppercase ? rawValue.toUpperCase() : rawValue.toLowerCase();
+    String rawValue =
+        switch (type) {
+          case "ALPHANUMERIC" -> randomAlphanumeric(length);
+          case "ALPHABETIC" -> randomAlphabetic(length);
+          case "NUMERIC" -> randomNumeric(length);
+          case "ALPHANUMERIC_AND_SYMBOLS" -> random(length, 33, 126, false, false);
+          case "UUID" -> UUID.randomUUID().toString();
+          case "HEXADECIMAL" -> random(length, "ABCDEF0123456789");
+          default -> randomAscii(length);
+        };
+    return uppercase ? rawValue.toUpperCase(Locale.ROOT) : rawValue.toLowerCase(Locale.ROOT);
   }
 }

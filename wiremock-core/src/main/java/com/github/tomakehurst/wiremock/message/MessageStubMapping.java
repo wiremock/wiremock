@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.message;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
@@ -94,6 +95,7 @@ public class MessageStubMapping implements Prioritisable {
     return new Builder(this);
   }
 
+  @Override
   public UUID getId() {
     return id;
   }
@@ -102,6 +104,7 @@ public class MessageStubMapping implements Prioritisable {
     return name;
   }
 
+  @Override
   public Integer getPriority() {
     return priority;
   }
@@ -126,11 +129,12 @@ public class MessageStubMapping implements Prioritisable {
     return false;
   }
 
+  @Override
   public long getInsertionIndex() {
     return insertionIndex;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   @Override
   public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
     return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));
@@ -225,6 +229,15 @@ public class MessageStubMapping implements Prioritisable {
       return onChannelFromRequestMatching(ChannelType.WEBSOCKET, channelPatternBuilder.build());
     }
 
+    public Builder onSseChannelFromRequestMatching(String urlPath) {
+      return onChannelFromRequestMatching(
+          ChannelType.SSE, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    }
+
+    public Builder onSseChannelFromRequestMatching(RequestPatternBuilder channelPatternBuilder) {
+      return onChannelFromRequestMatching(ChannelType.SSE, channelPatternBuilder.build());
+    }
+
     public Builder onChannelFromRequestMatching(ChannelType channelType, String urlPath) {
       return onChannelFromRequestMatching(
           channelType, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
@@ -264,6 +277,17 @@ public class MessageStubMapping implements Prioritisable {
 
     public Builder triggeredByHttpRequest(RequestPatternBuilder requestPatternBuilder) {
       this.explicitTrigger = HttpRequestTrigger.forRequestPattern(requestPatternBuilder.build());
+      return this;
+    }
+
+    public Builder triggeredByMessageOnChannel(String channelProvider, String channelName) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, equalTo(channelName));
+      return this;
+    }
+
+    public Builder triggeredByMessageOnChannel(
+        String channelProvider, StringValuePattern channelNamePattern) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, channelNamePattern);
       return this;
     }
 

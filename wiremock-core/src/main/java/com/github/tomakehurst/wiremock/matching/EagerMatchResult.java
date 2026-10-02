@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,6 @@ public class EagerMatchResult extends MatchResult {
 
   private final double distance;
 
-  EagerMatchResult(double distance) {
-    this(distance, List.of());
-  }
-
   EagerMatchResult(double distance, List<SubEvent> subEvents) {
     this(distance, subEvents, List.of());
   }
@@ -36,10 +32,12 @@ public class EagerMatchResult extends MatchResult {
     this.distance = distance;
   }
 
+  @Override
   public double getDistance() {
     return distance;
   }
 
+  @Override
   public boolean isExactMatch() {
     return distance == 0;
   }

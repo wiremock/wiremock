@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -30,11 +32,15 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface Admin {
 
   void addStubMapping(StubMapping stubMapping);
@@ -146,7 +152,7 @@ public interface Admin {
    * @return result containing the matched channels that were messaged
    */
   default SendChannelMessageResult sendChannelMessage(
-      ChannelType type, RequestPattern requestPattern, String message) {
+      ChannelType type, RequestPattern requestPattern, @Nullable String message) {
     return sendChannelMessage(type, requestPattern, MessageDefinition.fromString(message));
   }
 
@@ -156,6 +162,40 @@ public interface Admin {
    * @return result containing all message channels
    */
   ListMessageChannelsResult listAllMessageChannels();
+
+  SingleMessageChannelResult getMessageChannel(UUID id);
+
+  ListChannelProvidersResult listAllChannelProviders();
+
+  SingleChannelProviderResult getChannelProvider(String name);
+
+  ChannelProvider updateChannelProvider(String currentName, ChannelProvider update);
+
+  void registerChannelProvider(ChannelProvider provider);
+
+  void removeChannelProvider(String name);
+
+  LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel);
+
+  void removeMessageChannel(UUID id);
+
+  void sendChannelMessage(String providerName, String channelName, MessageDefinition message);
+
+  /**
+   * Gets a message stub mapping by its ID.
+   *
+   * @param id the ID of the message stub mapping
+   * @return result containing the mapping if found
+   */
+  SingleMessageStubMappingResult getMessageStubMapping(UUID id);
+
+  /**
+   * Replaces a message stub mapping identified by its ID with the given mapping.
+   *
+   * @param messageStubMapping the updated message stub mapping
+   * @return result containing the updated mapping if found, empty if no mapping with that ID exists
+   */
+  SingleMessageStubMappingResult editMessageStubMapping(MessageStubMapping messageStubMapping);
 
   /**
    * Adds a message stub mapping that will be matched against incoming messages on channels.

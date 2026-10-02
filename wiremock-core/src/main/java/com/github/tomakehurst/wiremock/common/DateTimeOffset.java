@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.SECONDS;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateTimeOffset {
 
@@ -44,10 +45,10 @@ public class DateTimeOffset {
 
     if (parts.length == 2) {
       amount = Integer.parseInt(parts[0]);
-      amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase());
+      amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase(Locale.ROOT));
     } else {
       amount = Integer.parseInt(parts[1]);
-      amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase());
+      amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase(Locale.ROOT));
     }
 
     return new DateTimeOffset(amount, amountUnit);
@@ -71,7 +72,7 @@ public class DateTimeOffset {
       return date;
     }
 
-    final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Z"));
+    final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
     ZonedDateTime output = shift(input);
     return Date.from(output.toInstant());
   }
@@ -86,6 +87,6 @@ public class DateTimeOffset {
 
   @Override
   public String toString() {
-    return amount + " " + amountUnit.name().toLowerCase();
+    return amount + " " + amountUnit.name().toLowerCase(Locale.ROOT);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.concurrent.ThreadLocalRandom;
+import org.wiremock.annotations.PublishedAPI;
 
 /**
  * Distribution that returns values uniformally distributed across a range.
@@ -25,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * between 50 and 60. This would useful for representing an average delay of 55ms with a +/- 5ms
  * jitter.
  */
+@PublishedAPI
 public final class UniformDistribution implements DelayDistribution {
 
   @JsonProperty("lower")

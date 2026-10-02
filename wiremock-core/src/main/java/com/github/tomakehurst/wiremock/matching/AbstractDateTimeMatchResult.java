@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
   }
 
   private double calculateDistance(Temporal start, Temporal end) {
-    long absoluteTimeDifference = Math.abs((ChronoUnit.MILLIS.between(start, end)));
+    long absoluteTimeDifference = Math.abs(ChronoUnit.MILLIS.between(start, end));
     return (double) absoluteTimeDifference / (absoluteTimeDifference + 2 * ONE_YEAR_IN_MILLIS);
   }
 }

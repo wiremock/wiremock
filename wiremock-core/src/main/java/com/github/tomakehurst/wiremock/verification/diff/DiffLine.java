@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ class DiffLine<V> {
   }
 
   private boolean isUrlRegexPattern() {
-    return pattern instanceof UrlPattern && ((UrlPattern) pattern).isRegex();
+    return pattern instanceof UrlPattern urlPattern && urlPattern.isRegex();
   }
 
   public List<DiffDescription> getDiffDescriptions() {

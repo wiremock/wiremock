@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Collection;
 import java.util.List;
@@ -145,13 +145,13 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   }
 
   private static MatchResult matchBody(Request.Part part, ContentPattern<?> bodyPattern) {
-    Body body = part.getBody();
+    Entity body = part.getBodyEntity();
     if (body == null) {
       return MatchResult.noMatch();
     }
 
     if (BinaryEqualToPattern.class.isAssignableFrom(bodyPattern.getClass())) {
-      return ((BinaryEqualToPattern) bodyPattern).match(body.asBytes());
+      return ((BinaryEqualToPattern) bodyPattern).match(body.getData());
     }
 
     return ((StringValuePattern) bodyPattern).match(body.asString());

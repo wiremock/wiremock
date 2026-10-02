@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ import com.google.common.collect.MultimapBuilder;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders {
@@ -121,7 +123,7 @@ public class HttpHeaders {
 
     HttpHeaders that = (HttpHeaders) o;
 
-    return headers != null ? headers.equals(that.headers) : that.headers == null;
+    return Objects.equals(headers, that.headers);
   }
 
   @Override

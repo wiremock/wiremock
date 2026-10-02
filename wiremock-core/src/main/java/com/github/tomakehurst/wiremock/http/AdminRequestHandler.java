@@ -101,6 +101,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     } catch (NotPermittedException npe) {
       return initialServeEvent.withResponseDefinition(
           ResponseDefinition.notPermitted(npe.getErrors()));
+    } catch (ConflictException ce) {
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.conflict(ce.getErrors()));
     } catch (Throwable t) {
       notifier().error("Unrecoverable error handling admin request", t);
       throw t;

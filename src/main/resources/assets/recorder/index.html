@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>WireMock Recorder</title>
 
-    <script src='/__admin/recorder/lib/jquery-3.6.0.min.js' type='text/javascript'></script>
+    <script src='lib/jquery-4.0.0.min.js' type='text/javascript'></script>
 
-    <style type="text/css">
+    <style>
         body {
             font-family: sans-serif;
         }
@@ -107,7 +107,7 @@
 
 <div class="content">
     <h1>
-        <img src="/__admin/recorder/images/wiremock-concept-icon-01.png" id="logo"/>
+        <img src="images/wiremock-concept-icon-01.png" id="logo" alt="WireMock Logo"/>
         WireMock Recorder
     </h1>
 
@@ -120,8 +120,9 @@
 
     <div class="ca-cert-box">
         <p>To record stubs from an HTTPS endpoint using browser (forward) proxying, you may need to trust WireMock's CA cert, which
-        can be downloaded here: <a href="../certs/wiremock-ca.crt">wiremock-ca.crt</a>
-        <p>See the <a href="http://wiremock.org/docs/proxying/#browser-proxying-of-https" target="_blank">documentation on HTTPS proxying</a> for more details.
+        can be downloaded here: <!--suppress HtmlUnknownTarget -->
+          <a href="../certs/wiremock-ca.crt">wiremock-ca.crt</a>
+        <p>See the <a href="https://wiremock.org/docs/proxying/#browser-proxying-of-https" target="_blank">documentation on HTTPS proxying</a> for more details.
     </div>
 </div>
 
@@ -145,7 +146,7 @@
     }
 
     $(function() {
-        var base = window.location.href.startsWith('file') ?
+        const base = window.location.href.startsWith('file') ?
             'http://localhost:8080' :
             '';
 
@@ -159,7 +160,7 @@
         });
 
         $('#startRecording').click(function(event) {
-            var baseUrl = $('#targetBaseUrl').val();
+            const baseUrl = $('#targetBaseUrl').val();
             if (baseUrl == null || baseUrl.length === 0) {
                 showError('You need to enter a valid target URL.');
                 return;
@@ -191,7 +192,7 @@
                 crossDomain: true,
                 url: base + '/__admin/recordings/stop'
             }).done(function(data) {
-                var count = data.mappings.length;
+                const count = data.mappings.length;
                 showMessage('Captured ' + count + ' stub mappings.');
                 $('#startRecording').attr('disabled', false);
             });

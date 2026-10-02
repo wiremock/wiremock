@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         new WireMockServer(
             wireMockConfig()
                 .dynamicPort()
-                .extensions(new TestParameterisedTransformer())
+                .extensions(new TestParameterisedTransformer(), new UrlPathTemplateTransformer())
                 .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingService.start();
     proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
@@ -104,7 +104,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(),
         is("text/plain"));
-    assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
+    assertThat(
+        returnedMappings.get(2).getResponse().getBodyEntity().getDataAsString(), is("Number one"));
 
     assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
     assertThat(returnedMappings.get(1).getRequest().getMethod(), is(RequestMethod.QUERY));
@@ -228,16 +229,28 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(mappings.size(), is(4));
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/small/text").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/small/text")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         nullValue());
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/large/text")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         startsWith("large_text"));
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/small/binary")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         nullValue());
     assertThat(
-        WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
+        WireMatchers.findMappingWithUrl(mappings, "/large/binary")
+            .getResponse()
+            .getBodyEntity()
+            .getFilePath(),
         startsWith("large_binary"));
   }
 
@@ -272,6 +285,21 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(mappings.get(2).getRequiredScenarioState(), is(Scenario.STARTED));
     assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
     assertThat(mappings.get(0).getRequiredScenarioState(), is("scenario-1-stateful-3"));
+  }
+
+  @Test
+  public void
+      buildsAScenarioForRepeatedRequestsWhenTransformerChangesUrlPatternToUrlPathTemplate() {
+    targetService.stubFor(get("/stateful/1").willReturn(ok("One")));
+    client.get("/stateful/1");
+
+    targetService.stubFor(get("/stateful/2").willReturn(ok("Two")));
+    client.get("/stateful/2");
+
+    List<StubMapping> mappings =
+        snapshotRecord(recordSpec().transformers("url-path-template-transformer"));
+
+    assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
   }
 
   @Test
@@ -423,6 +451,31 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     @Override
     public String getName() {
       return "test-transformer";
+    }
+  }
+
+  public static class UrlPathTemplateTransformer extends StubMappingTransformer {
+
+    @Override
+    public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
+      String urlPath = stubMapping.getRequest().getUrl();
+      String pathTemplate = urlPath.replaceAll("/[^/]+$", "/{state_id}");
+      return stubMapping.transform(
+          b ->
+              b.setRequest(
+                  stubMapping
+                      .getRequest()
+                      .transform(rb -> rb.setUrl(WireMock.urlPathTemplate(pathTemplate)))));
+    }
+
+    @Override
+    public boolean applyGlobally() {
+      return false;
+    }
+
+    @Override
+    public String getName() {
+      return "url-path-template-transformer";
     }
   }
 }

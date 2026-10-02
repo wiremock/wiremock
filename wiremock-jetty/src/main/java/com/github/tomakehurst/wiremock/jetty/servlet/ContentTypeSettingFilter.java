@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,13 @@ public class ContentTypeSettingFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-    if (response instanceof HttpServletResponse) {
+    if (response instanceof HttpServletResponse servletResponse) {
       String filePath = ((HttpServletRequest) request).getRequestURI();
       String contentType = context.getMimeType(filePath);
       if (contentType == null) {
         contentType = "application/json";
       }
-      ((HttpServletResponse) response).setContentType(contentType);
+      servletResponse.setContentType(contentType);
     }
 
     chain.doFilter(request, response);

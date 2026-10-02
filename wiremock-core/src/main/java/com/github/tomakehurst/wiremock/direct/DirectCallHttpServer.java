@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.wiremock.annotations.PublishedAPI;
 
 /**
  * An implementation of the {@link HttpServer} that doesn't actually run an HTTP server.
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeoutException;
  * <p>This is to allow the use of Wiremock through direct method calls, which is then suitable for
  * i.e. running in Serverless applications.
  */
+@PublishedAPI
 public class DirectCallHttpServer implements HttpServer {
   private final AdminRequestHandler adminRequestHandler;
   private final StubRequestHandler stubRequestHandler;

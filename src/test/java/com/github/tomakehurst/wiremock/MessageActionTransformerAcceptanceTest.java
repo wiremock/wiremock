@@ -21,8 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
 import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageActionContext;
@@ -48,6 +46,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new PrefixingMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.addMessageStubMapping(
         message()
@@ -73,6 +72,7 @@ public class MessageActionTransformerAcceptanceTest {
                         new SuffixingMessageActionTransformer("2"),
                         new SuffixingMessageActionTransformer("3")))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.addMessageStubMapping(
         message()
@@ -93,6 +93,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.addMessageStubMapping(
         message()
@@ -113,6 +114,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new EchoingMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.addMessageStubMapping(
         message()
@@ -133,6 +135,7 @@ public class MessageActionTransformerAcceptanceTest {
         new WireMockServer(
                 wireMockConfig().dynamicPort().extensions(new NonGlobalMessageActionTransformer()))
             .startServer();
+    wm.stubFor(get(anyUrl()).atPriority(10).willReturn(aResponse().openWebsocketChannel()));
 
     wm.addMessageStubMapping(
         message()
@@ -229,11 +232,8 @@ public class MessageActionTransformerAcceptanceTest {
 
   private static String getMessageBody(SendMessageAction action) {
     EntityDefinition body = action.getBody();
-    if (body instanceof StringEntityDefinition stringDef) {
-      return stringDef.getValue();
-    }
-    if (body instanceof TextEntityDefinition textDef) {
-      Object data = textDef.getData();
+    if (body != null) {
+      Object data = body.getData();
       return data != null ? data.toString() : "";
     }
     return "";

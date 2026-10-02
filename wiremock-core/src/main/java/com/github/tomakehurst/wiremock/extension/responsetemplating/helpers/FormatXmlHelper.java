@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,14 +76,10 @@ public class FormatXmlHelper extends AbstractFormattingHelper {
   protected String apply(String bodyText, Format format) {
     try {
       var xml = read(bodyText);
-      switch (format) {
-        case pretty:
-          return print(xml, "yes");
-        case compact:
-          return print(xml, "no");
-        default:
-          throw new IllegalStateException();
-      }
+      return switch (format) {
+        case pretty -> print(xml, "yes");
+        case compact -> print(xml, "no");
+      };
     } catch (XmlException
         | ParserConfigurationException
         | IOException

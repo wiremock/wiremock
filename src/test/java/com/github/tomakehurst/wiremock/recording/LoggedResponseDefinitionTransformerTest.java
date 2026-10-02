@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,13 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.entity.Format.TEXT;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.jupiter.api.Test;
 
@@ -44,9 +48,32 @@ public class LoggedResponseDefinitionTransformerTest {
                 .body("foo")
                 .build(),
             UNLIMITED);
+
     final ResponseDefinition expected =
-        responseDefinition().withHeader("Content-Type", "text/plain").withBody("foo").build();
+        responseDefinition()
+            .withHeader("Content-Type", "text/plain")
+            .withEntityBody(EntityDefinition.builder().setData("foo").setFormat(TEXT).build())
+            .build();
+
     assertEquals(expected, aTransformer().apply(response));
+  }
+
+  @Test
+  public void applyWithTextBodyPreservesOriginalCharsetBytes() {
+    final String body = "Grüße, Köln";
+    final byte[] bodyBytes = body.getBytes(ISO_8859_1);
+    final LoggedResponse response =
+        LoggedResponse.from(
+            Response.response()
+                .headers(new HttpHeaders(new ContentTypeHeader("text/plain; charset=ISO-8859-1")))
+                .body(bodyBytes)
+                .build(),
+            UNLIMITED);
+
+    final ResponseDefinition result = aTransformer().apply(response);
+
+    assertEquals(body, result.getTextBody());
+    assertArrayEquals(bodyBytes, result.getByteBody());
   }
 
   @Test

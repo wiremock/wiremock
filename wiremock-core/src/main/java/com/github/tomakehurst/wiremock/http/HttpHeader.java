@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class HttpHeader extends MultiValue {
 
   public HttpHeader(String key, String... values) {
@@ -75,7 +78,7 @@ public class HttpHeader extends MultiValue {
 
   @Override
   public int hashCode() {
-    int result = key != null ? key.toLowerCase().hashCode() : 0;
+    int result = key != null ? key.toLowerCase(Locale.ROOT).hashCode() : 0;
     result = 31 * result + (values != null ? values.hashCode() : 0);
     return result;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,16 +121,18 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
       ZonedDateTime zonedDateTime,
       LocalDateTime localDateTime,
       DateTimeOffset expectedOffset,
-      String actualDatetimeFormat,
+      String actualDateTimeFormat,
       DateTimeTruncation truncateExpected,
       DateTimeTruncation truncateActual) {
     super(dateTimeSpec);
     this.zonedDateTime = zonedDateTime;
     this.localDateTime = localDateTime;
     this.expectedOffset = expectedOffset;
-    this.actualDateTimeFormat = actualDatetimeFormat;
+    this.actualDateTimeFormat = actualDateTimeFormat;
     this.actualDateTimeParser =
-        actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
+        this.actualDateTimeFormat != null
+            ? DateTimeParser.forFormat(this.actualDateTimeFormat)
+            : null;
     this.truncateExpected = truncateExpected;
     this.truncateActual = truncateActual;
   }
@@ -153,38 +155,38 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         || dateTimeSpec.replaceAll("(?i)now ", "").matches("^[\\-+]?[0-9]+ [a-zA-Z]+$");
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T actualFormat(String format) {
     this.actualDateTimeFormat = format;
     this.actualDateTimeParser = DateTimeParser.forFormat(format);
     return (T) this;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T expectedOffset(int amount, DateTimeUnit unit) {
     this.expectedOffset = new DateTimeOffset(amount, unit);
     return (T) this;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T expectedOffset(DateTimeOffset offset) {
     this.expectedOffset = offset;
     return (T) this;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T truncateExpected(DateTimeTruncation truncation) {
     this.truncateExpected = truncation;
     return (T) this;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T truncateActual(DateTimeTruncation truncation) {
     this.truncateActual = truncation;
     return (T) this;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T extends AbstractDateTimePattern> T applyTruncationLast(boolean applyTruncationLast) {
     this.applyTruncationLast = applyTruncationLast;
     return (T) this;
@@ -225,6 +227,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     return getMatchResult(zonedExpectedDateTime, localDateTime, zonedActual, localActual);
   }
 
+  @SuppressWarnings("JavaTimeDefaultTimeZone")
   private ZonedDateTime calculateExpectedFromNow() {
     final ZonedDateTime now = ZonedDateTime.now();
     if (applyTruncationLast) {

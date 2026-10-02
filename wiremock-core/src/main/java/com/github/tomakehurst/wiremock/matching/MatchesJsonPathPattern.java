@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public class MatchesJsonPathPattern extends PathPattern {
     return expectedValue;
   }
 
+  @Override
   protected MatchResult isSimpleMatch(String value) {
     // For performance reason, don't try to parse XML value
     if (value != null && value.trim().startsWith("<")) {
@@ -98,6 +99,7 @@ public class MatchesJsonPathPattern extends PathPattern {
     }
   }
 
+  @Override
   protected MatchResult isAdvancedMatch(String value) {
     try {
       ListOrSingle<String> expressionResult = getExpressionResult(value);
@@ -155,6 +157,7 @@ public class MatchesJsonPathPattern extends PathPattern {
     try {
       obj = evaluateJsonPath(value);
     } catch (PathNotFoundException ignored) {
+      // ignore
     } catch (Exception e) {
       String error;
       if (e.getMessage().equalsIgnoreCase("invalid container object")) {

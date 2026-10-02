@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ public class EqualToJsonPattern extends StringValuePattern {
 
   private static class CountingDiffListener implements DifferenceListener {
 
-    public int count = 0;
+    private int count = 0;
 
     @Override
     public void diff(Difference difference, DifferenceContext context) {

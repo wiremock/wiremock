@@ -21,13 +21,16 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.Path;
 
 @SuppressWarnings("UnusedReturnValue")
+@PublishedAPI
 public class ResponseDefinitionBuilder {
 
   protected final ResponseDefinition.Builder builder;
@@ -56,6 +59,18 @@ public class ResponseDefinitionBuilder {
         .build();
   }
 
+  public static ResponseDefinition jsonResponse(Object body, Class<?> view) {
+    return jsonResponse(body, HTTP_OK, view);
+  }
+
+  public static ResponseDefinition jsonResponse(Object body, int status, Class<?> view) {
+    return new ResponseDefinitionBuilder()
+        .withBody(Json.write(body, view))
+        .withStatus(status)
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+        .build();
+  }
+
   public ResponseDefinitionBuilder but() {
     return this;
   }
@@ -75,23 +90,28 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withSimpleBody(String body) {
+    builder.setBody(EntityDefinition.simple(body));
+    return this;
+  }
+
   public ResponseDefinitionBuilder withBody(String body) {
-    builder.setBody(Body.fromOneOf(null, body, null, null));
+    builder.setBody(body);
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    builder.setBody(Body.fromOneOf(body, null, null, null));
+    builder.setBody(body);
     return this;
   }
 
-  public ResponseDefinitionBuilder withResponseBody(Body body) {
+  public ResponseDefinitionBuilder withEntityBody(EntityDefinition body) {
     builder.setBody(body);
     return this;
   }
 
   public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
-    builder.setBody(Body.fromOneOf(null, null, jsonBody, null));
+    builder.setBody(EntityDefinition.json(jsonBody));
     return this;
   }
 
@@ -170,7 +190,14 @@ public class ResponseDefinitionBuilder {
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
-  public static <T> ResponseDefinitionBuilder okForEmptyJson() {
+  public static <T> ResponseDefinitionBuilder okForJson(T body, Class<?> view) {
+    return responseDefinition()
+        .withStatus(HTTP_OK)
+        .withBody(Json.write(body, view))
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
+  }
+
+  public static ResponseDefinitionBuilder okForEmptyJson() {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody("{}")
@@ -183,12 +210,22 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBase64Body(String base64Body) {
-    builder.setBody(Body.fromOneOf(null, null, null, base64Body));
+    builder.setBody(EntityDefinition.fromBase64(base64Body));
     return this;
   }
 
   public ResponseDefinitionBuilder withStatusMessage(String message) {
     builder.setStatusMessage(message);
+    return this;
+  }
+
+  public ResponseDefinitionBuilder openWebsocketChannel() {
+    builder.setOpenWebsocketChannel(true);
+    return this;
+  }
+
+  public ResponseDefinitionBuilder openSseChannel() {
+    builder.setOpenSseChannel(true);
     return this;
   }
 
@@ -210,7 +247,7 @@ public class ResponseDefinitionBuilder {
     }
 
     public ProxyResponseDefinitionBuilder withRemoveRequestHeader(String key) {
-      builder.getRemoveProxyRequestHeaders().add(key.toLowerCase());
+      builder.getRemoveProxyRequestHeaders().add(key.toLowerCase(Locale.ROOT));
       return this;
     }
 
