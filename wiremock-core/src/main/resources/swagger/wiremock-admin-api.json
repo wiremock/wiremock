@@ -3619,7 +3619,17 @@
                 "type": "object",
                 "description": "Map of response headers to send",
                 "additionalProperties": {
-                  "type": "string"
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
                 }
               },
               "additionalProxyRequestHeaders": {
