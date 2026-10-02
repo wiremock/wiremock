@@ -1001,7 +1001,7 @@
         },
         "priority" : {
           "type" : "integer",
-          "description" : "This message stub mapping's priority relative to others. 1 is highest.",
+          "description" : "This message stub mapping's priority relative to others. If omitted, the default priority is 5. 1 is highest.",
           "minimum" : 1
         },
         "trigger" : {
@@ -1664,7 +1664,7 @@
         },
         "priority" : {
           "type" : "integer",
-          "description" : "This stub mapping's priority relative to others. 1 is highest.",
+          "description" : "This stub mapping's priority relative to others. If omitted, the default priority is 5. 1 is highest.",
           "minimum" : 1
         },
         "scenarioName" : {
