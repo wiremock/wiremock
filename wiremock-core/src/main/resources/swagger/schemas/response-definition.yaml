@@ -21,7 +21,11 @@ allOf:
         type: object
         description: Extra request headers to send when proxying to another host.
         additionalProperties:
-          type: string
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
       removeProxyRequestHeaders:
         type: array
         description: Request headers to remove when proxying to another host.
