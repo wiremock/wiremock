@@ -211,7 +211,9 @@ public class CommandLineOptions implements Options {
             "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.")
         .requiredIf(HTTPS_KEYSTORE_PASSWORD)
         .withRequiredArg()
-        .defaultsTo(getResource(CommandLineOptions.class, "keystore").toString());
+        .defaultsTo(
+            getResource(CommandLineOptions.class, "com/github/tomakehurst/wiremock/keystore")
+                .toString());
     optionParser
         .accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL")
         .withRequiredArg();
