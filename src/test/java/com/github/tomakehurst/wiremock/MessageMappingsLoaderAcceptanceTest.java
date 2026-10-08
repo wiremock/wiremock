@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithId;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.messageStubMappingWithName;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import java.util.List;
 import java.util.UUID;
@@ -132,5 +134,40 @@ public class MessageMappingsLoaderAcceptanceTest {
     assertThat(
         stubs,
         hasItem(messageStubMappingWithId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))));
+  }
+
+  @Test
+  public void resetAllRemovesProgrammaticMessageStubsAndDoesNotDuplicateFileStubs() {
+    buildWireMock(configuration.usingFilesUnderClasspath("reset-message-stubs"));
+    wireMockServer.messageStubFor(programmaticMessageStub());
+
+    wireMockServer.resetAll();
+    wireMockServer.resetAll();
+
+    assertThat(messageStubNames(), contains("File message stub without id"));
+  }
+
+  @Test
+  public void resetToDefaultMappingsRemovesProgrammaticMessageStubsAndDoesNotDuplicateFileStubs() {
+    buildWireMock(configuration.usingFilesUnderClasspath("reset-message-stubs"));
+    wireMockServer.messageStubFor(programmaticMessageStub());
+
+    wireMockServer.resetToDefaultMappings();
+    wireMockServer.resetToDefaultMappings();
+
+    assertThat(messageStubNames(), contains("File message stub without id"));
+  }
+
+  private static MessageStubMapping programmaticMessageStub() {
+    return MessageStubMapping.builder()
+        .withName("Programmatic message stub")
+        .triggersAction(SendMessageAction.toOriginatingChannel("response"))
+        .build();
+  }
+
+  private List<String> messageStubNames() {
+    return wireMockServer.getMessageStubMappingsList().stream()
+        .map(MessageStubMapping::getName)
+        .toList();
   }
 }
