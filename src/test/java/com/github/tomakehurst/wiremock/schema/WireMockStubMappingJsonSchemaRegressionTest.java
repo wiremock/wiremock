@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -33,6 +34,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class WireMockStubMappingJsonSchemaRegressionTest {
 
@@ -79,6 +82,28 @@ class WireMockStubMappingJsonSchemaRegressionTest {
               + " has been updated - compare it with the previous version, and if you are happy with the changes commit them.");
       throw e;
     }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"\"text/plain\"", "[\"a=1\", \"b=2\"]", "[]"})
+  void acceptsStringAndArrayResponseHeaders(String headerValue) {
+    assertThat(responseHeaderSchema().validate(Json.node(headerValue)), is(empty()));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"123", "true", "null", "{}", "[123]", "[\"a=1\", false]"})
+  void rejectsInvalidResponseHeaders(String headerValue) {
+    assertThat(responseHeaderSchema().validate(Json.node(headerValue)), is(not(empty())));
+  }
+
+  private Schema responseHeaderSchema() {
+    JsonNode schemaJson = Json.node(loadResourceAsString(SCHEMA_PATH));
+    JsonNode headerSchema =
+        schemaJson.at("/definitions/response-definition/allOf/0/properties/headers");
+    SpecificationVersion version =
+        SpecificationVersion.fromDialectId(schemaJson.get("$schema").textValue()).orElseThrow();
+    return SchemaRegistry.withDefaultDialect(version)
+        .getSchema(headerSchema.get("additionalProperties"));
   }
 
   private String loadResourceAsString(String resourcePath) {
