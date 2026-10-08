@@ -82,10 +82,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     Path path = withoutAdminRoot(request.getPathAndQueryWithoutPrefix().getPath());
 
     try {
+      var requestSpec = adminRoutes.requestSpecFor(request.getMethod(), path);
       AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);
-
-      PathTemplate uriTemplate =
-          adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
+      PathTemplate uriTemplate = requestSpec.getUriTemplate();
       PathParams pathParams = uriTemplate.parse(path);
 
       return initialServeEvent.withResponseDefinition(
