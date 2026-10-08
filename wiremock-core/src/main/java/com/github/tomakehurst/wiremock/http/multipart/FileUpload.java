@@ -27,30 +27,30 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileItemHeaders;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
-import org.apache.commons.fileupload.FileUploadBase.IOFileUploadException;
-import org.apache.commons.fileupload.FileUploadBase.InvalidContentTypeException;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.fileupload.ParameterParser;
-import org.apache.commons.fileupload.RequestContext;
-import org.apache.commons.fileupload.UploadContext;
-import org.apache.commons.fileupload.util.Closeable;
-import org.apache.commons.fileupload.util.FileItemHeadersImpl;
-import org.apache.commons.fileupload.util.LimitedInputStream;
-import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.fileupload2.FileItem;
+import org.apache.commons.fileupload2.FileItemFactory;
+import org.apache.commons.fileupload2.FileItemHeaders;
+import org.apache.commons.fileupload2.FileItemIterator;
+import org.apache.commons.fileupload2.FileItemStream;
+import org.apache.commons.fileupload2.FileUploadBase;
+import org.apache.commons.fileupload2.FileUploadBase.FileSizeLimitExceededException;
+import org.apache.commons.fileupload2.FileUploadBase.FileUploadIOException;
+import org.apache.commons.fileupload2.FileUploadBase.IOFileUploadException;
+import org.apache.commons.fileupload2.FileUploadBase.InvalidContentTypeException;
+import org.apache.commons.fileupload2.FileUploadBase.SizeLimitExceededException;
+import org.apache.commons.fileupload2.FileUploadException;
+import org.apache.commons.fileupload2.MultipartStream;
+import org.apache.commons.fileupload2.ParameterParser;
+import org.apache.commons.fileupload2.RequestContext;
+import org.apache.commons.fileupload2.UploadContext;
+import org.apache.commons.fileupload2.util.Closeable;
+import org.apache.commons.fileupload2.util.FileItemHeadersImpl;
+import org.apache.commons.fileupload2.util.LimitedInputStream;
+import org.apache.commons.fileupload2.util.Streams;
 
 /**
- * The implementation is largely ported from {@link org.apache.commons.fileupload.FileUpload} and
- * {@link org.apache.commons.fileupload.FileUploadBase} to support 'jakarta.servlet' instead of
+ * The implementation is largely ported from {@link org.apache.commons.fileupload2.FileUpload} and
+ * {@link org.apache.commons.fileupload2.FileUploadBase} to support 'jakarta.servlet' instead of
  * 'javax.servlet'. The standard support of multipart content type by Jetty in limited to
  * 'multipart/form-data', so 'multipart/mixed' and 'multipart/related' are not recognized and parsed
  * properly. To preserve backward compatibility and support wider range of multipart content,

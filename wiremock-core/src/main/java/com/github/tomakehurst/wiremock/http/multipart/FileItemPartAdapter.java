@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemHeaders;
+import org.apache.commons.fileupload2.FileItem;
+import org.apache.commons.fileupload2.FileItemHeaders;
 
 public class FileItemPartAdapter implements Request.Part {
 
