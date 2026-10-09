@@ -428,7 +428,9 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void resetToDefaultMappings() {
     stubMappings.reset();
+    messageStubMappings.clear();
     resetRequests();
+    resetMessageJournal();
     loadDefaultMappings();
   }
 

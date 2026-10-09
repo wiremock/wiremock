@@ -31,6 +31,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEvent;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsForStubsMatchingMetadata;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeMessageServeEventsMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.reset;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageJournal;
 import static com.github.tomakehurst.wiremock.client.WireMock.sendMessage;
 import static com.github.tomakehurst.wiremock.client.WireMock.verifyMessageEvent;
@@ -89,6 +90,21 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     assertThat(event.getMessage().getBodyAsString(), is("journal-test"));
     assertThat(event.getWasMatched(), is(true));
     assertThat(event.getStubMapping().getName(), is("Journal test stub"));
+  }
+
+  @Test
+  void resetAllClearsMessageJournal() {
+    resetMessageJournal();
+
+    WebsocketTestClient testClient = new WebsocketTestClient();
+    testClient.connect(websocketUrl("/reset-journal-test"));
+    waitAtMost(5, SECONDS).until(testClient::isConnected);
+    testClient.sendMessage("before-reset");
+    waitAtMost(5, SECONDS).until(() -> !getAllMessageServeEvents().isEmpty());
+
+    reset();
+
+    assertThat(getAllMessageServeEvents().size(), is(0));
   }
 
   @Test
