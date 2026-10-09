@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -703,6 +703,31 @@ public class EqualToXmlPatternTest {
     EqualToXmlPattern pattern =
         new EqualToXmlPattern("<body><!-- Comment --><entry/><entry/></body>", false, true);
     MatchResult result = pattern.match("<body><entry/><entry/><!-- A different comment --></body>");
+    assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  void noNamespaceAwarenessMatchesDifferentlyNamedSiblingElementsRegardlessOfOrder() {
+    String expected = "<root><a>1</a><b>2</b></root>";
+    EqualToXmlPattern pattern = equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.NONE);
+
+    assertTrue(pattern.match(expected).isExactMatch());
+    assertTrue(pattern.match("<root><b>2</b><a>1</a></root>").isExactMatch());
+  }
+
+  @Test
+  void noNamespaceAwarenessIgnoresOrderOfSameNamedSiblingElements() {
+    EqualToXmlPattern pattern =
+        equalToXml(
+            "<root><item>1</item><item>2</item></root>",
+            false,
+            null,
+            null,
+            true,
+            EqualToXmlPattern.NamespaceAwareness.NONE);
+
+    MatchResult result = pattern.match("<root><item>2</item><item>1</item></root>");
+
     assertTrue(result.isExactMatch());
   }
 
