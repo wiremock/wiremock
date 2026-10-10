@@ -32,11 +32,15 @@ import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFacto
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -60,6 +64,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class HttpsAcceptanceTest {
 
@@ -112,7 +119,8 @@ class HttpsAcceptanceTest {
         exception
             .getMessage()
             .contains(
-                "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped."));
+                "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is"
+                    + " stopped."));
   }
 
   @Test
@@ -259,6 +267,41 @@ class HttpsAcceptanceTest {
 
     assertThat(
         secureContentFor(url("/https-test"), testClientCertPath, TRUST_STORE_PASSWORD),
+        is("HTTPS content"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void acceptsClientCertificateWithDifferentKeyAndTrustStoreTypes(
+      boolean http2TlsDisabled, @TempDir Path tempDir) throws Exception {
+    KeyStore clientStore = readKeyStore(TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+    KeyStore trustStore = KeyStore.getInstance("JCEKS");
+    trustStore.load(null, TRUST_STORE_PASSWORD.toCharArray());
+    for (String alias : Collections.list(clientStore.aliases())) {
+      trustStore.setCertificateEntry(alias, clientStore.getCertificate(alias));
+    }
+    Path trustStorePath = tempDir.resolve("truststore.jceks");
+    try (OutputStream output = Files.newOutputStream(trustStorePath)) {
+      trustStore.store(output, TRUST_STORE_PASSWORD.toCharArray());
+    }
+
+    wireMockServer =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .http2TlsDisabled(http2TlsDisabled)
+                .keystorePath(KEY_STORE_PATH)
+                .keystoreType("JKS")
+                .trustStorePath(trustStorePath.toString())
+                .trustStorePassword(TRUST_STORE_PASSWORD)
+                .trustStoreType("JCEKS")
+                .needClientAuth(true));
+    wireMockServer.start();
+    wireMockServer.stubFor(get("/https-test").willReturn(ok("HTTPS content")));
+
+    assertThat(
+        secureContentFor(url("/https-test"), TRUST_STORE_PATH, TRUST_STORE_PASSWORD),
         is("HTTPS content"));
   }
 
