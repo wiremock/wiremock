@@ -241,7 +241,8 @@ public class WireMockApp implements StubServer, Admin {
         options.getHttpsRequiredForAdminApi(),
         getAdminRequestFilters(),
         getV2AdminRequestFilters(),
-        options.getDataTruncationSettings());
+        options.getDataTruncationSettings(),
+        options.notifier());
   }
 
   public StubRequestHandler buildStubRequestHandler() {
@@ -289,7 +290,8 @@ public class WireMockApp implements StubServer, Admin {
         getV2StubRequestFilters(),
         options.getStubRequestLoggingDisabled(),
         options.getDataTruncationSettings(),
-        options.getNotMatchedRendererFactory().apply(extensions));
+        options.getNotMatchedRendererFactory().apply(extensions),
+        options.notifier());
   }
 
   public MessageStubRequestHandler buildMessageStubRequestHandler() {
