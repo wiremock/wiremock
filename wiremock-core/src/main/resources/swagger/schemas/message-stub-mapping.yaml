@@ -14,7 +14,7 @@ properties:
     description: The message stub mapping's name
   priority:
     type: integer
-    description: This message stub mapping's priority relative to others. 1 is highest.
+    description: This message stub mapping's priority relative to others. If omitted, the default priority is 5. 1 is highest.
     minimum: 1
   trigger:
     $ref: 'message-trigger.yaml'
@@ -27,4 +27,3 @@ properties:
     type: object
     description: Arbitrary metadata to be attached to the stub mapping
     additionalProperties: true
-
