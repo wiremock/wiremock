@@ -68,6 +68,7 @@ public class SslContexts {
     if (httpsSettings.hasTrustStore()) {
       sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
       sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
+      sslContextFactory.setTrustStoreType(httpsSettings.trustStoreType());
     }
     sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
   }
