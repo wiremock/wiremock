@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
@@ -230,6 +231,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
     assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
     assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
+  }
+
+  @Test
+  public void recordsRequestWithInvalidJsonBodyUsingEqualTo() {
+    targetService.stubFor(post("/record-invalid-json").willReturn(ok()));
+
+    startRecording(targetBaseUrl);
+
+    String invalidJson = "{ field: \"value\", field2: \"value\" }";
+    client.postWithBody("/record-invalid-json", invalidJson, "application/json");
+
+    List<StubMapping> returnedMappings = stopRecording().getStubMappings();
+
+    EqualToPattern bodyPattern =
+        (EqualToPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+    assertThat(bodyPattern.getEqualTo(), is(invalidJson));
   }
 
   @Test

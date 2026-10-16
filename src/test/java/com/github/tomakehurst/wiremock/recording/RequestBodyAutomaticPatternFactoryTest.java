@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,11 +80,30 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
+  public void forRequestWithInvalidJsonBodyFallsBackToEqualTo() {
+    String invalidJson = "{ field: \"value\" }";
+    Request request = mockRequest().header("Content-Type", "application/json").body(invalidJson);
+    EqualToPattern pattern = (EqualToPattern) patternForRequest(request);
+
+    assertThat(pattern.getEqualTo(), is(invalidJson));
+    assertThat(pattern.getCaseInsensitive(), is(false));
+  }
+
+  @Test
   public void forRequestWithXmlBody() {
     Request request = mockRequest().header("Content-Type", "application/xml").body(XML_TEST_STRING);
     EqualToXmlPattern pattern = (EqualToXmlPattern) patternForRequest(request);
 
     assertThat(pattern.getEqualToXml(), is(XML_TEST_STRING));
+  }
+
+  @Test
+  public void forRequestWithInvalidXmlBodyFallsBackToEqualTo() {
+    String invalidXml = "<foo>";
+    Request request = mockRequest().header("Content-Type", "application/xml").body(invalidXml);
+    EqualToPattern pattern = (EqualToPattern) patternForRequest(request);
+
+    assertThat(pattern.getEqualTo(), is(invalidXml));
   }
 
   @Test
