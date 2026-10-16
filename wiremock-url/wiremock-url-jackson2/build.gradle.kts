@@ -24,7 +24,7 @@ dependencies {
   testImplementation(libs.junit.jupiter.params)
   testImplementation(libs.assertj.core)
 
-  testImplementation("io.github.classgraph:classgraph:4.8.197")
+  testImplementation("io.github.classgraph:classgraph:4.8.199")
 
   testRuntimeOnly(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
