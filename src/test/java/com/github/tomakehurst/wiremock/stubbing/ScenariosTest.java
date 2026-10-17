@@ -21,7 +21,14 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import com.github.tomakehurst.wiremock.store.InMemoryScenariosStore;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -135,6 +142,43 @@ public class ScenariosTest {
     scenarios.onStubMappingRemoved(mapping2);
 
     assertThat(scenarios.getAll(), empty());
+  }
+
+  @Test
+  public void removesScenarioCompletelyWhenMappingsAreRemovedConcurrently() throws Exception {
+    CoordinatedReadScenariosStore store = new CoordinatedReadScenariosStore();
+    scenarios = new InMemoryScenarios(store);
+
+    StubMapping mapping1 =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    StubMapping mapping2 =
+        get("/scenarios/2")
+            .inScenario("one")
+            .whenScenarioStateIs("step_2")
+            .willSetStateTo("step_3")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(mapping1);
+    scenarios.onStubMappingAdded(mapping2);
+    store.coordinateNextTwoReads();
+
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    try {
+      Future<?> firstRemoval = executor.submit(() -> scenarios.onStubMappingRemoved(mapping1));
+      Future<?> secondRemoval = executor.submit(() -> scenarios.onStubMappingRemoved(mapping2));
+
+      firstRemoval.get();
+      secondRemoval.get();
+    } finally {
+      executor.shutdownNow();
+    }
+
+    assertThat(scenarios.getByName("one"), nullValue());
   }
 
   @Test
@@ -441,5 +485,30 @@ public class ScenariosTest {
     Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
     assertThat(possibleStates, hasItems("A", "B", "C", "D"));
     assertThat(possibleStates.size(), is(4));
+  }
+
+  private static class CoordinatedReadScenariosStore extends InMemoryScenariosStore {
+
+    private volatile CountDownLatch coordinatedReads;
+
+    void coordinateNextTwoReads() {
+      coordinatedReads = new CountDownLatch(2);
+    }
+
+    @Override
+    public Optional<Scenario> get(String key) {
+      Optional<Scenario> scenario = super.get(key);
+      CountDownLatch reads = coordinatedReads;
+      if (reads != null) {
+        reads.countDown();
+        try {
+          reads.await(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
+        }
+      }
+      return scenario;
+    }
   }
 }
