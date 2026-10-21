@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.FormParameter;
@@ -375,6 +377,28 @@ class PlainTextDiffRendererTest {
     System.out.println(output);
 
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-pattern.txt")));
+  }
+
+  @Test
+  void doesNotSuggestUrlsMustStartWithSlashForRegexThatCanMatchLeadingSlash() {
+    Diff diff =
+        new Diff(
+            get(urlPathMatching(".*foo.*")).build(), mockRequest().method(GET).url("/bar/baz"));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(output, containsString("URL does not match"));
+    assertThat(output, not(containsString("URLs must start with a /")));
+  }
+
+  @Test
+  void suggestsUrlsMustStartWithSlashForRegexThatCannotMatchLeadingSlash() {
+    Diff diff =
+        new Diff(get(urlPathMatching("foo.*")).build(), mockRequest().method(GET).url("/foo/bar"));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(output, containsString("URLs must start with a /"));
   }
 
   @Test
