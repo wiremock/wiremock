@@ -88,7 +88,6 @@ public class CertificateAuthority {
     } catch (NoSuchAlgorithmException
         | CertificateException
         | IOException
-        | OperatorCreationException
         | NoSuchMethodError
         | VerifyError
         | NoClassDefFoundError
@@ -128,7 +127,6 @@ public class CertificateAuthority {
     } catch (NoSuchAlgorithmException
         | CertificateException
         | IOException
-        | OperatorCreationException
         | NoSuchMethodError
         | VerifyError
         | NoClassDefFoundError
@@ -154,7 +152,7 @@ public class CertificateAuthority {
       X500Principal issuer,
       String sanDnsName,
       boolean isCA)
-      throws IOException, OperatorCreationException, CertificateException {
+      throws IOException, CertificateException {
     ZonedDateTime start = ZonedDateTime.now(ZoneId.systemDefault()).minus(Period.ofDays(1));
     return buildCertificate(
         sigAlg,
@@ -180,7 +178,7 @@ public class CertificateAuthority {
       X500Principal issuer,
       String sanDnsName,
       boolean isCA)
-      throws IOException, CertificateException, OperatorCreationException {
+      throws IOException, CertificateException {
     SubjectPublicKeyInfo subjectKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
     SubjectPublicKeyInfo signerKeyInfo =
         SubjectPublicKeyInfo.getInstance(signerPublicKey.getEncoded());
@@ -214,9 +212,18 @@ public class CertificateAuthority {
           false,
           new GeneralNames(new GeneralName(GeneralName.dNSName, sanDnsName)));
     }
-    ContentSigner signer = new JcaContentSignerBuilder(sigAlg).build(signerPrivateKey);
+    ContentSigner signer = buildContentSigner(sigAlg, signerPrivateKey);
     X509CertificateHolder holder = builder.build(signer);
     return new JcaX509CertificateConverter().getCertificate(holder);
+  }
+
+  private static ContentSigner buildContentSigner(String sigAlg, PrivateKey signerPrivateKey)
+      throws CertificateException {
+    try {
+      return new JcaContentSignerBuilder(sigAlg).build(signerPrivateKey);
+    } catch (OperatorCreationException e) {
+      throw new CertificateException("Cannot create content signer", e);
+    }
   }
 
   public static <T> T[] prepend(T t, T[] original) {

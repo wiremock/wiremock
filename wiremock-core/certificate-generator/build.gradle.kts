@@ -13,7 +13,7 @@ tasks.shadowJar {
 }
 
 dependencies {
-  api(libs.bouncycastle.bcpkix)
+  implementation(libs.bouncycastle.bcpkix)
   implementation(libs.bouncycastle.bcprov)
 }
 

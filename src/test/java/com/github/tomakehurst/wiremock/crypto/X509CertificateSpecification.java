@@ -24,7 +24,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import javax.security.auth.x500.X500Principal;
-import org.bouncycastle.operator.OperatorCreationException;
 
 public class X509CertificateSpecification implements CertificateSpecification {
 
@@ -43,8 +42,7 @@ public class X509CertificateSpecification implements CertificateSpecification {
   }
 
   @Override
-  public X509Certificate certificateFor(KeyPair keyPair)
-      throws CertificateException, IOException, OperatorCreationException {
+  public X509Certificate certificateFor(KeyPair keyPair) throws CertificateException, IOException {
     return CertificateAuthority.buildCertificate(
         CertificateAuthority.SIG_ALG_PREFIX + "RSA",
         keyPair.getPublic(),
