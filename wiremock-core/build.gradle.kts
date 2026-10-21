@@ -49,6 +49,9 @@ dependencies {
     implementation(libs.xmlunit.placeholders)
     compileOnly(libs.errorprone.annotations)
 
+    // nashorn-core (via handlebars) and accessors-smart (via json-path) pull in vulnerable asm versions
+    implementation(platform(libs.asm.bom))
+
     modules {
         module("org.apache.logging.log4j:log4j-core") {
             replacedBy("org.apache.logging.log4j:log4j-to-slf4j")
