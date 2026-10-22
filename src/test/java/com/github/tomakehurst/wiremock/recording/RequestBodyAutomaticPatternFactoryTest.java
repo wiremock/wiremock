@@ -90,6 +90,18 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
+  public void forRequestWithInvalidJsonBodyRespectsCaseInsensitiveOption() {
+    String invalidJson = "{ field: \"value\" }";
+    RequestBodyAutomaticPatternFactory patternFactory =
+        new RequestBodyAutomaticPatternFactory(false, false, true);
+    Request request = mockRequest().header("Content-Type", "application/json").body(invalidJson);
+    EqualToPattern pattern = (EqualToPattern) patternFactory.forRequest(request);
+
+    assertThat(pattern.getEqualTo(), is(invalidJson));
+    assertThat(pattern.getCaseInsensitive(), is(true));
+  }
+
+  @Test
   public void forRequestWithXmlBody() {
     Request request = mockRequest().header("Content-Type", "application/xml").body(XML_TEST_STRING);
     EqualToXmlPattern pattern = (EqualToXmlPattern) patternForRequest(request);
