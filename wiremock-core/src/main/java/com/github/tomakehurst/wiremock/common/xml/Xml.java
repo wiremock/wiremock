@@ -48,8 +48,8 @@ public class Xml {
 
   public static void optimizeFactoriesLoading() {
     try {
-      String transformerFactoryImpl = TransformerFactory.newDefaultInstance().getClass().getName();
-      String xPathFactoryImpl = XPathFactory.newDefaultInstance().getClass().getName();
+      String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
+      String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
 
       System.setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
       System.setProperty(
@@ -97,7 +97,7 @@ public class Xml {
               .getDeclaredConstructor()
               .newInstance();
     } catch (Exception e) {
-      transformerFactory = TransformerFactory.newDefaultInstance();
+      transformerFactory = TransformerFactory.newInstance();
     }
     transformerFactory.setAttribute("indent-number", 2);
     transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
@@ -148,7 +148,7 @@ public class Xml {
           new BuilderPerThreadDocumentBuilderFactory(
               new SilentErrorDocumentBuilderFactory(
                   new SkipResolvingEntitiesDocumentBuilderFactory(
-                      DocumentBuilderFactory.newDefaultInstance())));
+                      DocumentBuilderFactory.newInstance())));
       dbf.setFeature("http://xml.org/sax/features/validation", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
       dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
