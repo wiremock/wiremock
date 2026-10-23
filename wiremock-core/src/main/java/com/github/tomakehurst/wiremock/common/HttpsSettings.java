@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class HttpsSettings {
 
@@ -30,6 +33,7 @@ public class HttpsSettings {
   private final String trustStorePassword;
   private final String trustStoreType;
   private final boolean needClientAuth;
+  private final Map<String, String> clientKeyAliases;
 
   public HttpsSettings(
       int port,
@@ -41,6 +45,33 @@ public class HttpsSettings {
       String trustStorePassword,
       String trustStoreType,
       boolean needClientAuth) {
+    this(
+        port,
+        keyStorePath,
+        keyStorePassword,
+        keyManagerPassword,
+        keyStoreType,
+        trustStorePath,
+        trustStorePassword,
+        trustStoreType,
+        needClientAuth,
+        Collections.emptyMap());
+  }
+
+  public HttpsSettings(
+      int port,
+      String keyStorePath,
+      String keyStorePassword,
+      String keyManagerPassword,
+      String keyStoreType,
+      String trustStorePath,
+      String trustStorePassword,
+      String trustStoreType,
+      boolean needClientAuth,
+      Map<String, String> clientKeyAliases) {
+    this.clientKeyAliases =
+        Collections.unmodifiableMap(
+            new LinkedHashMap<>(clientKeyAliases != null ? clientKeyAliases : Map.of()));
     this.port = port;
     this.keyStorePath = keyStorePath;
     this.keyStorePassword = keyStorePassword;
@@ -96,6 +127,14 @@ public class HttpsSettings {
     return trustStorePath != null;
   }
 
+  /**
+   * Target host (exact, or "*.suffix") to the trust store alias of the client certificate to
+   * present when proxying to that host. Hosts not listed use the JDK's default selection.
+   */
+  public Map<String, String> clientKeyAliases() {
+    return clientKeyAliases;
+  }
+
   public KeyStoreSettings trustStore() {
     return trustStorePath != null
         ? new KeyStoreSettings(trustStorePath, trustStorePassword, trustStoreType)
@@ -125,6 +164,8 @@ public class HttpsSettings {
         + '\''
         + ", needClientAuth="
         + needClientAuth
+        + ", clientKeyAliases="
+        + clientKeyAliases
         + '}';
   }
 
@@ -139,6 +180,7 @@ public class HttpsSettings {
     private String trustStorePassword = "password";
     private String trustStoreType = "JKS";
     private boolean needClientAuth = false;
+    private final Map<String, String> clientKeyAliases = new LinkedHashMap<>();
 
     public Builder port(int port) {
       this.port = port;
@@ -185,6 +227,13 @@ public class HttpsSettings {
       return this;
     }
 
+    public Builder clientKeyAliases(Map<String, String> clientKeyAliases) {
+      if (clientKeyAliases != null) {
+        this.clientKeyAliases.putAll(clientKeyAliases);
+      }
+      return this;
+    }
+
     public HttpsSettings build() {
       return new HttpsSettings(
           port,
@@ -195,7 +244,8 @@ public class HttpsSettings {
           trustStorePath,
           trustStorePassword,
           trustStoreType,
-          needClientAuth);
+          needClientAuth,
+          clientKeyAliases);
     }
   }
 }
