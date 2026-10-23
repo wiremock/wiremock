@@ -25,8 +25,16 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class AbstractDateTimePattern extends StringValuePattern {
+
+  private static final List<Function<String, LocalDateTime>> DEFAULT_LOCAL_PARSERS =
+      List.of(
+          LocalDateTime::parse,
+          s -> LocalDate.parse(s).atStartOfDay(),
+          s -> YearMonth.parse(s).atDay(1).atStartOfDay(),
+          s -> Year.parse(s).atDay(1).atStartOfDay());
 
   private final ZonedDateTime zonedDateTime;
   private final LocalDateTime localDateTime;
@@ -281,33 +289,25 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
       return null;
     }
 
-    try {
-      return parser != null
-          ? parser.parseLocalDateTime(dateTimeString)
-          : LocalDateTime.parse(dateTimeString);
-    } catch (DateTimeParseException ignored) {
+    for (Function<String, LocalDateTime> parseFunction : getLocalParsers(parser)) {
       try {
-        return (parser != null
-                ? parser.parseLocalDate(dateTimeString)
-                : LocalDate.parse(dateTimeString))
-            .atStartOfDay();
-      } catch (DateTimeParseException ignored2) {
-        try {
-          return (parser != null
-                  ? parser.parseYearMonth(dateTimeString)
-                  : YearMonth.parse(dateTimeString))
-              .atDay(1)
-              .atStartOfDay();
-        } catch (DateTimeParseException ignored3) {
-          try {
-            return (parser != null ? parser.parseYear(dateTimeString) : Year.parse(dateTimeString))
-                .atDay(1)
-                .atStartOfDay();
-          } catch (DateTimeParseException ignored4) {
-            return null;
-          }
-        }
+        return parseFunction.apply(dateTimeString);
+      } catch (DateTimeParseException ignored) {
+        // Try next parser
       }
     }
+
+    return null;
+  }
+
+  private static List<Function<String, LocalDateTime>> getLocalParsers(DateTimeParser parser) {
+    if (parser == null) {
+      return DEFAULT_LOCAL_PARSERS;
+    }
+    return List.of(
+        parser::parseLocalDateTime,
+        s -> parser.parseLocalDate(s).atStartOfDay(),
+        s -> parser.parseYearMonth(s).atDay(1).atStartOfDay(),
+        s -> parser.parseYear(s).atDay(1).atStartOfDay());
   }
 }
