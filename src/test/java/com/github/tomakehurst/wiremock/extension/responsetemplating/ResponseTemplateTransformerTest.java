@@ -1007,7 +1007,7 @@ public class ResponseTemplateTransformerTest {
     assertThat(
         transform("{{arrayRemove (array 1 'three') position=-2}}"),
         is(
-            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
   }
 
   @Test
@@ -1015,7 +1015,23 @@ public class ResponseTemplateTransformerTest {
     assertThat(
         transform("{{arrayRemove (array 1 'three') position=3}}"),
         is(
-            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemWithPositionEqualToTheArrayLengthReturnsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemFromAnEmptyArrayReturnsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array)}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
   }
 
   @Test
