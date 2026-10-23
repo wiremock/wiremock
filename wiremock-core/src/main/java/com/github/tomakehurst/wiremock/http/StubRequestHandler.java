@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.*;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
@@ -56,8 +56,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
       List<RequestFilterV2> v2RequestFilters,
       boolean loggingDisabled,
       DataTruncationSettings dataTruncationSettings,
-      NotMatchedRenderer notMatchedRenderer) {
-    super(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings);
+      NotMatchedRenderer notMatchedRenderer,
+      Notifier notifier) {
+    super(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings, notifier);
     this.stubServer = stubServer;
     this.admin = admin;
     this.postServeActions = postServeActions;
@@ -127,7 +128,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
         Parameters parameters = postServeActionDef.getParameters();
         action.doAction(serveEvent, admin, parameters);
       } else {
-        notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
+        notifier.error("No extension was found named \"" + postServeActionDef.getName() + "\"");
       }
     }
   }
