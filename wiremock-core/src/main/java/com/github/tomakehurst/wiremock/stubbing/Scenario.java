@@ -99,7 +99,8 @@ public class Scenario {
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
+    Set<StubMapping> newMappings =
+        new LinkedHashSet<>(withoutStubMapping(stubMapping).getMappings());
     newMappings.add(stubMapping);
 
     return new Scenario(id, state, newMappings);

@@ -193,6 +193,32 @@ public class ScenariosTest {
   }
 
   @Test
+  public void replacesTheOldVersionOfAStubUpdatedWithinTheSameScenario() {
+    StubMapping oldMapping =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(oldMapping);
+    StubMapping newMapping =
+        get("/scenarios/1")
+            .withId(oldMapping.getId())
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_3")
+            .willReturn(ok())
+            .build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one").getMappings(), contains(newMapping));
+    assertThat(
+        scenarios.getByName("one").getPossibleStates(), containsInAnyOrder(STARTED, "step_3"));
+  }
+
+  @Test
   public void stubMappingCanStopBeingInScenario() {
     StubMapping oldMapping =
         get("/scenarios/1")
