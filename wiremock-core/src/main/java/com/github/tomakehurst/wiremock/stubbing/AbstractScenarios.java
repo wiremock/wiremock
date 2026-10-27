@@ -131,7 +131,8 @@ public abstract class AbstractScenarios implements Scenarios {
     store.compute(
         mapping.getScenarioName(),
         current ->
-            Optional.of(current.orElseThrow(IllegalStateException::new).withoutStubMapping(mapping))
+            current
+                .map(scenario -> scenario.withoutStubMapping(mapping))
                 .filter(scenario -> !scenario.getMappings().isEmpty()));
   }
 

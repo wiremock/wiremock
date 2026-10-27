@@ -198,6 +198,31 @@ public class ScenariosTest {
   }
 
   @Test
+  public void ignoresRemovalOfAStubWhoseScenarioIsMissing() {
+    StubMapping mapping = get("/scenarios/1").inScenario("one").willReturn(ok()).build();
+    scenarios.onStubMappingAdded(mapping);
+    scenarios.clear();
+
+    scenarios.onStubMappingRemoved(mapping);
+
+    assertThat(scenarios.getAll(), is(empty()));
+  }
+
+  @Test
+  public void movesAStubToANewScenarioWhenItsOldScenarioIsMissing() {
+    StubMapping oldMapping = get("/scenarios/1").inScenario("one").willReturn(ok()).build();
+    scenarios.onStubMappingAdded(oldMapping);
+    scenarios.clear();
+    StubMapping newMapping =
+        get("/scenarios/1").withId(oldMapping.getId()).inScenario("two").willReturn(ok()).build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one"), nullValue());
+    assertThat(scenarios.getByName("two").getMappings(), contains(newMapping));
+  }
+
+  @Test
   public void modifiesScenarioStateWhenStubServed() {
     StubMapping mapping1 =
         get("/scenarios/1")
