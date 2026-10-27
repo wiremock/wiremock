@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.store.ScenariosStore;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public abstract class AbstractScenarios implements Scenarios {
 
@@ -43,12 +44,7 @@ public abstract class AbstractScenarios implements Scenarios {
   @Override
   public void onStubMappingAdded(StubMapping mapping) {
     if (mapping.isInScenario()) {
-      String scenarioName = mapping.getScenarioName();
-      Scenario scenario =
-          getFirstNonNull(
-                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
-              .withStubMapping(mapping);
-      store.put(scenarioName, scenario);
+      addToScenario(mapping);
     }
   }
 
@@ -56,64 +52,41 @@ public abstract class AbstractScenarios implements Scenarios {
   public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
     if (oldMapping.isInScenario()
         && !oldMapping.getScenarioName().equals(newMapping.getScenarioName())) {
-      Scenario scenarioForOldMapping =
-          store
-              .get(oldMapping.getScenarioName())
-              .map(scenario -> scenario.withoutStubMapping(oldMapping))
-              .orElseThrow(IllegalStateException::new);
-
-      if (scenarioForOldMapping.getMappings().isEmpty()) {
-        store.remove(scenarioForOldMapping.getId());
-      } else {
-        store.put(oldMapping.getScenarioName(), scenarioForOldMapping);
-      }
+      removeFromScenario(oldMapping);
     }
 
     if (newMapping.isInScenario()) {
-      String scenarioName = newMapping.getScenarioName();
-      Scenario scenario =
-          getFirstNonNull(
-                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
-              .withStubMapping(newMapping);
-      store.put(scenarioName, scenario);
+      addToScenario(newMapping);
     }
   }
 
   @Override
   public void onStubMappingRemoved(StubMapping mapping) {
     if (mapping.isInScenario()) {
-      final String scenarioName = mapping.getScenarioName();
-      Scenario scenario =
-          store
-              .get(scenarioName)
-              .orElseThrow(IllegalStateException::new)
-              .withoutStubMapping(mapping);
-
-      if (scenario.getMappings().isEmpty()) {
-        store.remove(scenarioName);
-      } else {
-        store.put(scenarioName, scenario);
-      }
+      removeFromScenario(mapping);
     }
   }
 
   @Override
   public void onStubServed(StubMapping mapping) {
     if (mapping.isInScenario()) {
-      final String scenarioName = mapping.getScenarioName();
-      Scenario scenario = store.get(scenarioName).orElseThrow(IllegalStateException::new);
-      if (mapping.modifiesScenarioState()
-          && (mapping.getRequiredScenarioState() == null
-              || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
-        Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
-        store.put(scenarioName, newScenario);
+      if (mapping.modifiesScenarioState()) {
+        store.compute(
+            mapping.getScenarioName(),
+            current ->
+                Optional.of(transition(current.orElseThrow(IllegalStateException::new), mapping)));
+      } else if (store.get(mapping.getScenarioName()).isEmpty()) {
+        throw new IllegalStateException();
       }
     }
   }
 
   @Override
   public void reset() {
-    store.getAll().map(Scenario::reset).forEach(scenario -> store.put(scenario.getId(), scenario));
+    store
+        .getAllKeys()
+        .collect(toList())
+        .forEach(name -> store.compute(name, current -> current.map(Scenario::reset)));
   }
 
   @Override
@@ -126,14 +99,40 @@ public abstract class AbstractScenarios implements Scenarios {
     setSingleScenarioState(name, scenario -> scenario.setState(state));
   }
 
-  private void setSingleScenarioState(
-      String name, java.util.function.Function<Scenario, Scenario> fn) {
-    Scenario scenario =
-        store
-            .get(name)
-            .orElseThrow(() -> new NotFoundException("Scenario " + name + " does not exist"));
+  private void setSingleScenarioState(String name, UnaryOperator<Scenario> fn) {
+    store.compute(
+        name,
+        current ->
+            Optional.of(
+                fn.apply(
+                    current.orElseThrow(
+                        () -> new NotFoundException("Scenario " + name + " does not exist")))));
+  }
 
-    store.put(name, fn.apply(scenario));
+  private static Scenario transition(Scenario scenario, StubMapping mapping) {
+    return mapping.getRequiredScenarioState() == null
+            || scenario.getState().equals(mapping.getRequiredScenarioState())
+        ? scenario.setState(mapping.getNewScenarioState())
+        : scenario;
+  }
+
+  private void addToScenario(StubMapping mapping) {
+    String scenarioName = mapping.getScenarioName();
+    store.compute(
+        scenarioName,
+        current ->
+            Optional.of(
+                current
+                    .orElseGet(() -> Scenario.inStartedState(scenarioName))
+                    .withStubMapping(mapping)));
+  }
+
+  private void removeFromScenario(StubMapping mapping) {
+    store.compute(
+        mapping.getScenarioName(),
+        current ->
+            Optional.of(current.orElseThrow(IllegalStateException::new).withoutStubMapping(mapping))
+                .filter(scenario -> !scenario.getMappings().isEmpty()));
   }
 
   @Override
