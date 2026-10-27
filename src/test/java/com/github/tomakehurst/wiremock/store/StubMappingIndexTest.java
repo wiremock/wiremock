@@ -53,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class StubMappingIndexTest {
 
@@ -100,6 +102,42 @@ class StubMappingIndexTest {
     assertThat(
         candidatesFor(POST, "/a/b/c?q=1"),
         contains(anything, regex, partialSegmentTemplate, template, exact));
+  }
+
+  @Test
+  void regexStubsAreBucketedByTheCompleteSegmentsOfTheirLiteralStart() {
+    StubMapping literalStart = add(get(urlPathMatching("^/a/b/[0-9]+")));
+    StubMapping optionalLastCharacter = add(get(urlMatching("/a/b/?")));
+    add(get(urlMatching("/z/.*")));
+    StubMapping alternation = add(get(urlMatching("/z/.*|/a/b/c")));
+
+    assertThat(
+        candidatesFor(GET, "/a/b/c"), contains(alternation, optionalLastCharacter, literalStart));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "(?i)/a/b/c,        /A/B/c",
+    "/a/b/c+,           /a/b/ccc",
+    "/a/b/c*,           /a/b/",
+    "/a/b{2},           /a/bb",
+    "/a\\/b/c,          /a/b/c",
+    "/a/b$,             /a/b",
+    "\\Q/a/b\\E/c,       /a/b/c",
+    "/a/b/(c|d),        /a/b/d",
+    "/a/b/[cd],         /a/b/d",
+    "/a/b/.,            /a/b/c",
+    "(/a|/b)/c,         /b/c",
+    "^/a/b/[0-9]+$,     /a/b/12"
+  })
+  void regexStubsAreCandidatesForEveryPathTheyMatch(String regex, String path) {
+    StubMapping stub = add(get(urlPathMatching(regex)));
+
+    assertThat(
+        regex + " should match " + path,
+        stub.getRequest().isMatchedBy(requestFor(GET, path), Map.of()),
+        is(true));
+    assertThat(candidatesFor(GET, path), contains(stub));
   }
 
   @Test

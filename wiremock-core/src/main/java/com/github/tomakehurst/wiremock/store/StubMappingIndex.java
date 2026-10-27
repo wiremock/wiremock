@@ -28,6 +28,8 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern.IsOneOf;
 import com.github.tomakehurst.wiremock.matching.PathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.ArrayList;
@@ -39,10 +41,15 @@ import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 final class StubMappingIndex {
+
+  private static final Pattern LITERAL_START_OF_REGEX =
+      Pattern.compile("\\^?(?<literal>[\\w/~%,;:=@!&'-]*)(?<quantifier>[?*+{]?)");
 
   private final Map<String, Bucket> byExactPath = new ConcurrentHashMap<>();
   private final Map<String, Bucket> byPathPrefix = new ConcurrentHashMap<>();
@@ -123,9 +130,26 @@ final class StubMappingIndex {
   }
 
   private static Optional<String> pathPrefixOf(UrlPattern url) {
-    return url.getPattern() instanceof PathTemplatePattern template
-        ? completeSegmentsOf(template.getPathTemplate().literalPrefix())
-        : Optional.empty();
+    StringValuePattern pattern = url.getPattern();
+    if (pattern instanceof PathTemplatePattern template) {
+      return completeSegmentsOf(template.getPathTemplate().literalPrefix());
+    } else if (pattern instanceof RegexPattern regex && regex.getClass() == RegexPattern.class) {
+      return completeSegmentsOf(literalPrefixOf(regex.getMatches()));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private static String literalPrefixOf(String regex) {
+    Matcher literalStart = LITERAL_START_OF_REGEX.matcher(regex);
+    if (regex.contains("|") || !literalStart.lookingAt()) {
+      return "";
+    }
+    String literal = literalStart.group("literal");
+    boolean lastCharacterIsQuantified = !literalStart.group("quantifier").isEmpty();
+    return lastCharacterIsQuantified && !literal.isEmpty()
+        ? literal.substring(0, literal.length() - 1)
+        : literal;
   }
 
   private static Optional<String> completeSegmentsOf(String literalPrefix) {
