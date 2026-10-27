@@ -123,6 +123,21 @@ public class ScenariosTest {
   }
 
   @Test
+  public void keepsTheOrderOfTheRemainingStubsWhenAStubIsRemoved() {
+    List<StubMapping> mappings =
+        IntStream.rangeClosed(1, 20)
+            .mapToObj(i -> get("/scenarios/" + i).inScenario("one").willReturn(ok()).build())
+            .collect(toList());
+    mappings.forEach(scenarios::onStubMappingAdded);
+
+    scenarios.onStubMappingRemoved(mappings.get(0));
+
+    assertThat(
+        List.copyOf(scenarios.getByName("one").getMappings()),
+        is(mappings.subList(1, mappings.size())));
+  }
+
+  @Test
   public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToRemoval() {
     StubMapping mapping1 =
         get("/scenarios/1")
