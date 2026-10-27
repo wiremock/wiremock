@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toCollection;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -99,7 +99,8 @@ public class Scenario {
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
+    Set<StubMapping> newMappings =
+        new LinkedHashSet<>(withoutStubMapping(stubMapping).getMappings());
     newMappings.add(stubMapping);
 
     return new Scenario(id, state, newMappings);
@@ -109,7 +110,7 @@ public class Scenario {
     Set<StubMapping> newMappings =
         stubMappings.stream()
             .filter(stub -> !stub.getId().equals(stubMapping.getId()))
-            .collect(toSet());
+            .collect(toCollection(LinkedHashSet::new));
     return new Scenario(id, state, newMappings);
   }
 

@@ -18,10 +18,24 @@ package com.github.tomakehurst.wiremock.stubbing;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.store.InMemoryScenariosStore;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterators;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -109,6 +123,21 @@ public class ScenariosTest {
   }
 
   @Test
+  public void keepsTheOrderOfTheRemainingStubsWhenAStubIsRemoved() {
+    List<StubMapping> mappings =
+        IntStream.rangeClosed(1, 20)
+            .mapToObj(i -> get("/scenarios/" + i).inScenario("one").willReturn(ok()).build())
+            .collect(toList());
+    mappings.forEach(scenarios::onStubMappingAdded);
+
+    scenarios.onStubMappingRemoved(mappings.get(0));
+
+    assertThat(
+        List.copyOf(scenarios.getByName("one").getMappings()),
+        is(mappings.subList(1, mappings.size())));
+  }
+
+  @Test
   public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToRemoval() {
     StubMapping mapping1 =
         get("/scenarios/1")
@@ -164,6 +193,32 @@ public class ScenariosTest {
   }
 
   @Test
+  public void replacesTheOldVersionOfAStubUpdatedWithinTheSameScenario() {
+    StubMapping oldMapping =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(oldMapping);
+    StubMapping newMapping =
+        get("/scenarios/1")
+            .withId(oldMapping.getId())
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_3")
+            .willReturn(ok())
+            .build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one").getMappings(), contains(newMapping));
+    assertThat(
+        scenarios.getByName("one").getPossibleStates(), containsInAnyOrder(STARTED, "step_3"));
+  }
+
+  @Test
   public void stubMappingCanStopBeingInScenario() {
     StubMapping oldMapping =
         get("/scenarios/1")
@@ -181,6 +236,31 @@ public class ScenariosTest {
     scenarios.onStubMappingUpdated(oldMapping, newMapping);
 
     assertThat(scenarios.getByName("one"), nullValue());
+  }
+
+  @Test
+  public void ignoresRemovalOfAStubWhoseScenarioIsMissing() {
+    StubMapping mapping = get("/scenarios/1").inScenario("one").willReturn(ok()).build();
+    scenarios.onStubMappingAdded(mapping);
+    scenarios.clear();
+
+    scenarios.onStubMappingRemoved(mapping);
+
+    assertThat(scenarios.getAll(), is(empty()));
+  }
+
+  @Test
+  public void movesAStubToANewScenarioWhenItsOldScenarioIsMissing() {
+    StubMapping oldMapping = get("/scenarios/1").inScenario("one").willReturn(ok()).build();
+    scenarios.onStubMappingAdded(oldMapping);
+    scenarios.clear();
+    StubMapping newMapping =
+        get("/scenarios/1").withId(oldMapping.getId()).inScenario("two").willReturn(ok()).build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one"), nullValue());
+    assertThat(scenarios.getByName("two").getMappings(), contains(newMapping));
   }
 
   @Test
@@ -239,6 +319,13 @@ public class ScenariosTest {
   }
 
   @Test
+  public void failsWhenStubThatDoesNotChangeStateIsServedForAMissingScenario() {
+    StubMapping mapping = get("/scenarios/1").inScenario("missing").willReturn(ok()).build();
+
+    assertThrows(IllegalStateException.class, () -> scenarios.onStubServed(mapping));
+  }
+
+  @Test
   public void resetsAllScenarios() {
     StubMapping mapping1 =
         get("/scenarios/1")
@@ -277,6 +364,24 @@ public class ScenariosTest {
 
     assertThat(scenarios.getByName("one").getState(), is(STARTED));
     assertThat(scenarios.getByName("two").getState(), is(STARTED));
+  }
+
+  @Test
+  public void resetsScenariosInAStoreThatCannotBeModifiedWhileStreamingItsKeys() {
+    scenarios = new InMemoryScenarios(new LiveKeysScenariosStore());
+    StubMapping mapping =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(mapping);
+    scenarios.onStubServed(mapping);
+
+    scenarios.reset();
+
+    assertThat(scenarios.getByName("one").getState(), is(STARTED));
   }
 
   @Test
@@ -441,5 +546,94 @@ public class ScenariosTest {
     Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
     assertThat(possibleStates, hasItems("A", "B", "C", "D"));
     assertThat(possibleStates.size(), is(4));
+  }
+
+  @Test
+  public void doesNotLoseAStateChangeWhenAStubIsAddedToTheScenarioConcurrently() {
+    StubMapping toOne =
+        get("/advance")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("ONE")
+            .willReturn(ok())
+            .build();
+    StubMapping toStarted =
+        get("/advance")
+            .inScenario("one")
+            .whenScenarioStateIs("ONE")
+            .willSetStateTo(STARTED)
+            .willReturn(ok())
+            .build();
+    StubMapping read = get("/read").inScenario("one").willReturn(ok()).build();
+    scenarios.onStubMappingAdded(toOne);
+    scenarios.onStubMappingAdded(toStarted);
+
+    AtomicBoolean stop = new AtomicBoolean(false);
+    CompletableFuture<Void> adder =
+        CompletableFuture.runAsync(
+            () -> {
+              while (!stop.get()) {
+                scenarios.onStubMappingAdded(read);
+              }
+            });
+
+    try {
+      List<Transition> lostStateChanges =
+          IntStream.rangeClosed(1, 100_000)
+              .mapToObj(
+                  round -> {
+                    StubMapping advance =
+                        scenarios.getByName("one").getState().equals(STARTED) ? toOne : toStarted;
+                    scenarios.onStubServed(advance);
+                    return new Transition(
+                        round,
+                        advance.getNewScenarioState(),
+                        scenarios.getByName("one").getState());
+                  })
+              .filter(Transition::lost)
+              .collect(toList());
+      assertThat(lostStateChanges, is(empty()));
+    } finally {
+      stop.set(true);
+      adder.join();
+    }
+  }
+
+  private record Transition(int round, String set, String read) {
+    boolean lost() {
+      return !set.equals(read);
+    }
+  }
+
+  private static class LiveKeysScenariosStore extends InMemoryScenariosStore {
+
+    private boolean streamingKeys = false;
+
+    @Override
+    public Stream<String> getAllKeys() {
+      Iterator<String> keys = super.getAllKeys().iterator();
+      Iterator<String> trackingKeys =
+          new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+              streamingKeys = keys.hasNext();
+              return streamingKeys;
+            }
+
+            @Override
+            public String next() {
+              return keys.next();
+            }
+          };
+      return StreamSupport.stream(Spliterators.spliteratorUnknownSize(trackingKeys, 0), false);
+    }
+
+    @Override
+    public void compute(String key, UnaryOperator<Optional<Scenario>> remapping) {
+      if (streamingKeys) {
+        throw new ConcurrentModificationException();
+      }
+      super.compute(key, remapping);
+    }
   }
 }
