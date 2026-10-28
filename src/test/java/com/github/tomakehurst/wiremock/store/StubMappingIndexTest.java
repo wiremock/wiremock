@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -48,6 +49,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +61,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class StubMappingIndexTest {
 
   private static final String EMPTY_INDEX =
-      "StubMappingIndex{byExactPath=[], byPathPrefix=[], withoutConcretePath=0, byMethod=[], forAnyMethod=0}";
+      "StubMappingIndex{byExactPath=[], byPathPrefix=[], longestPathPrefix=0, withoutConcretePath=0, byMethod=[], forAnyMethod=0}";
 
   private final StubMappingIndex index = new StubMappingIndex();
   private final List<StubMapping> allStubs = new ArrayList<>();
@@ -197,6 +199,15 @@ class StubMappingIndexTest {
     StubMapping relative = add(get(urlEqualTo("a")));
 
     assertThat(candidatesFor(GET, "/a"), contains(relative, caseInsensitive));
+  }
+
+  @Test
+  void lookingUpCandidatesCostsNoMoreThanTheLongestStubbedPrefix() {
+    add(get(urlPathTemplate("/a/{id}")));
+    String pathWithVeryManySegments = "/".repeat(200_000);
+
+    assertTimeoutPreemptively(
+        Duration.ofSeconds(2), () -> candidatesFor(GET, pathWithVeryManySegments));
   }
 
   @Test

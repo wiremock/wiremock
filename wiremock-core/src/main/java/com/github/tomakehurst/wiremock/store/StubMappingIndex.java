@@ -53,6 +53,7 @@ final class StubMappingIndex {
 
   private final Map<String, Bucket> byExactPath = new ConcurrentHashMap<>();
   private final Map<String, Bucket> byPathPrefix = new ConcurrentHashMap<>();
+  private final AtomicInteger longestPathPrefix = new AtomicInteger();
   private final Bucket withoutConcretePath = new Bucket();
   private final Map<RequestMethod, Bucket> byMethod = new ConcurrentHashMap<>();
   private final Bucket forAnyMethod = new Bucket();
@@ -63,6 +64,7 @@ final class StubMappingIndex {
 
   void remove(StubMapping stub) {
     slotsFor(stub).forEach(slot -> slot.remove(stub));
+    longestPathPrefix.set(byPathPrefix.keySet().stream().mapToInt(String::length).max().orElse(0));
   }
 
   void clear() {
@@ -71,6 +73,7 @@ final class StubMappingIndex {
     withoutConcretePath.clear();
     byMethod.clear();
     forAnyMethod.clear();
+    longestPathPrefix.set(0);
   }
 
   @Override
@@ -79,6 +82,8 @@ final class StubMappingIndex {
         + byExactPath.keySet()
         + ", byPathPrefix="
         + byPathPrefix.keySet()
+        + ", longestPathPrefix="
+        + longestPathPrefix.get()
         + ", withoutConcretePath="
         + withoutConcretePath.size()
         + ", byMethod="
@@ -102,7 +107,7 @@ final class StubMappingIndex {
     UrlPattern url = stub.getRequest().getUrlMatcher();
     return exactPathOf(url)
         .<Slot>map(path -> new MapSlot<>(byExactPath, path))
-        .or(() -> pathPrefixOf(url).map(prefix -> new MapSlot<>(byPathPrefix, prefix)))
+        .or(() -> pathPrefixOf(url).map(this::pathPrefixSlot))
         .orElse(withoutConcretePath);
   }
 
@@ -115,6 +120,11 @@ final class StubMappingIndex {
     } else {
       return Stream.of(forAnyMethod);
     }
+  }
+
+  private Slot pathPrefixSlot(String prefix) {
+    longestPathPrefix.accumulateAndGet(prefix.length(), Math::max);
+    return new MapSlot<>(byPathPrefix, prefix);
   }
 
   private Slot methodSlot(RequestMethod method) {
@@ -164,7 +174,10 @@ final class StubMappingIndex {
     Candidates candidates = new Candidates();
     candidates.addIfNotEmpty(byExactPath.get(path));
     candidates.addIfNotEmpty(withoutConcretePath);
-    for (int slash = path.indexOf('/', 1); slash > 0; slash = path.indexOf('/', slash + 1)) {
+    int longestPrefix = longestPathPrefix.get();
+    for (int slash = path.indexOf('/', 1);
+        slash > 0 && slash <= longestPrefix;
+        slash = path.indexOf('/', slash + 1)) {
       candidates.addIfNotEmpty(byPathPrefix.get(path.substring(0, slash)));
     }
     return candidates;
