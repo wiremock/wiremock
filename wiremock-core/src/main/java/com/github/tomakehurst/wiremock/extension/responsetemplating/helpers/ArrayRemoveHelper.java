@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ public class ArrayRemoveHelper extends AbstractArrayHelper {
     }
 
     final Integer positionToRemove = getFirstNonNull(position, list.size() - 1);
-    final ArrayList<Object> mutableList = new ArrayList<>(list);
-    if (position != null && (position < 0 || position > mutableList.size())) {
+    if (positionToRemove < 0 || positionToRemove >= list.size()) {
       return handleError(
-          "position must be greater than or equal to 0 and less than or equal to the size of the list");
+          "position must be greater than or equal to 0 and less than the size of the list");
     }
+    final ArrayList<Object> mutableList = new ArrayList<>(list);
     mutableList.remove((int) positionToRemove);
 
     return mutableList;
