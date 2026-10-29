@@ -18,13 +18,16 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -230,5 +233,29 @@ public class SingleRootFileSourceTest {
           SingleRootFileSource fileSource = new SingleRootFileSource(EXIST_FILES_ROOT_PATH);
           fileSource.getBinaryFileNamed("non-existent-file").getStream();
         });
+  }
+
+  @Test
+  void allowsReadingFileViaSymlinkInsideRootWhenCanonicalPathIsOutsideRoot(
+      @TempDir Path rootDir, @TempDir Path externalDir) throws IOException {
+    // Simulates Bazel's sandboxed runfiles, where the root directory contains symlinks
+    // to files that physically reside outside of it. The canonical path of such a file
+    // resolves outside the root, but access to it is legitimate (see #2964).
+    File externalFile = externalDir.resolve("external.xml").toFile();
+    Files.write(externalFile.toPath(), "<root/>".getBytes(UTF_8));
+
+    Path symlink = rootDir.resolve("aliased.xml");
+    try {
+      Files.createSymbolicLink(symlink, externalFile.toPath());
+    } catch (IOException | UnsupportedOperationException e) {
+      // Symbolic links may not be supported on this platform (e.g. Windows without privileges)
+      assumeTrue(false, "Symbolic links not supported on this platform");
+      return;
+    }
+
+    SingleRootFileSource fileSource = new SingleRootFileSource(rootDir.toFile());
+
+    // Must NOT throw NotAuthorisedException
+    fileSource.getBinaryFileNamed("aliased.xml");
   }
 }
