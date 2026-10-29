@@ -270,6 +270,9 @@ public class EqualToXmlPattern extends StringValuePattern {
     try {
       factory.setFeature("http://apache.org/xml/features/include-comments", false);
       factory.setFeature("http://xml.org/sax/features/namespaces", namespaceAware);
+      // The expected document is shared between threads and matching only reads it through
+      // cloneNode, but a deferred DOM mutates itself on first read, so it must be fully built here.
+      factory.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", false);
     } catch (ParserConfigurationException e) {
       throwUnchecked(e);
     }
