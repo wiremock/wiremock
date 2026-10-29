@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -160,6 +161,47 @@ public class CommandLineOptionsTest {
     assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
     assertThat(options.httpsSettings().trustStoreType(), is("PKCS12"));
     assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
+  }
+
+  @Test
+  public void setsClientKeyAliasesFromRepeatedAndCommaSeparatedOptions() {
+    CommandLineOptions options =
+        new CommandLineOptions(
+            "--https-truststore", "/my/truststore",
+            "--https-client-key-alias", "a.example.com=client-a, *.b.example.com=client-b",
+            "--https-client-key-alias", "c.example.com = client-c");
+
+    assertThat(
+        options.httpsSettings().clientKeyAliases(),
+        is(
+            Map.of(
+                "a.example.com", "client-a",
+                "*.b.example.com", "client-b",
+                "c.example.com", "client-c")));
+    assertThat(
+        options.toString(),
+        containsString("a.example.com=client-a, *.b.example.com=client-b, c.example.com=client-c"));
+  }
+
+  @Test
+  public void hasNoClientKeyAliasesByDefault() {
+    CommandLineOptions options = new CommandLineOptions("--https-truststore", "/my/truststore");
+
+    assertThat(options.httpsSettings().clientKeyAliases().isEmpty(), is(true));
+  }
+
+  @Test
+  public void rejectsClientKeyAliasWithoutAliasOrWithoutTrustStore() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CommandLineOptions(
+                    "--https-truststore", "/my/truststore",
+                    "--https-client-key-alias", "a.example.com")
+                .httpsSettings());
+    assertThrows(
+        Exception.class,
+        () -> new CommandLineOptions("--https-client-key-alias", "a.example.com=client-a"));
   }
 
   @Test
