@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,15 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.xml.XmlException;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -1038,5 +1045,46 @@ public class EqualToXmlPatternTest {
     String expected = "<abc asdas:atdf=\"asdas\">123</abc>";
     EqualToXmlPattern pattern = equalToXml(expected, EqualToXmlPattern.NamespaceAwareness.NONE);
     assertThat(pattern.getExpected(), is(expected));
+  }
+
+  @Test
+  void matchesConsistentlyWhenTheSamePatternIsMatchedConcurrently() throws Exception {
+    StringBuilder xml = new StringBuilder("<things>");
+    for (int i = 0; i < 20; i++) {
+      xml.append("<thing id=\"")
+          .append(i)
+          .append("\" characteristic=\"tepid\"><name>Thing ")
+          .append(i)
+          .append("</name><description>A thing</description></thing>");
+    }
+    String expected = xml.append("</things>").toString();
+
+    int threads = 4;
+    ExecutorService executor = Executors.newFixedThreadPool(threads);
+    try {
+      for (int round = 0; round < 100; round++) {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expected);
+        CountDownLatch ready = new CountDownLatch(threads);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Boolean>> results = new ArrayList<>();
+        for (int i = 0; i < threads; i++) {
+          results.add(
+              executor.submit(
+                  () -> {
+                    ready.countDown();
+                    start.await();
+                    return pattern.match(expected).isExactMatch();
+                  }));
+        }
+        assertTrue(ready.await(10, TimeUnit.SECONDS));
+        start.countDown();
+
+        for (Future<Boolean> result : results) {
+          assertTrue(result.get(10, TimeUnit.SECONDS), "round " + round);
+        }
+      }
+    } finally {
+      executor.shutdownNow();
+    }
   }
 }
