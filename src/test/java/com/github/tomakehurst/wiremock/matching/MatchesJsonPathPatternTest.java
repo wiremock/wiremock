@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -345,6 +345,38 @@ public class MatchesJsonPathPatternTest {
 
     StringValuePattern pattern =
         WireMock.matchingJsonPath("$.volumeControl.max", WireMock.equalToJson("[1,2,3,11]"));
+    MatchResult match = pattern.match(json);
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesObjectExpressionResultContainingNullValuesAgainstEqualToJson() {
+    String json = "{ \"data\": { \"foo\": \"foo\", \"bar\": null } }";
+
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath(
+            "$.data", WireMock.equalToJson("{\"foo\": \"foo\", \"bar\": null}"));
+    MatchResult match = pattern.match(json);
+    assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void doesNotMatchObjectExpressionResultWhenNullValueIsNotExpected() {
+    String json = "{ \"data\": { \"foo\": \"foo\", \"bar\": null } }";
+
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath("$.data", WireMock.equalToJson("{\"foo\": \"foo\"}"));
+    MatchResult match = pattern.match(json);
+    assertFalse(match.isExactMatch());
+  }
+
+  @Test
+  public void matchesArrayExpressionResultContainingObjectsWithNullValuesAgainstEqualToJson() {
+    String json = "{ \"items\": [ { \"id\": 1, \"name\": null } ] }";
+
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath(
+            "$.items", WireMock.equalToJson("[ { \"id\": 1, \"name\": null } ]"));
     MatchResult match = pattern.match(json);
     assertTrue(match.isExactMatch());
   }
