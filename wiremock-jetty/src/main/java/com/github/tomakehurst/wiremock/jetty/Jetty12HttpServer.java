@@ -47,10 +47,16 @@ import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee11.servlet.*;
 import org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http.MetaData;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
+import org.eclipse.jetty.io.Connection;
+import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.CrossOriginHandler;
@@ -93,7 +99,23 @@ public class Jetty12HttpServer extends JettyHttpServer {
                 new HttpConnectionFactory(httpConfig),
                 options.getHttp2PlainDisabled()
                     ? null
-                    : new HTTP2CServerConnectionFactory(httpConfig))
+                    : new HTTP2CServerConnectionFactory(httpConfig) {
+                      @Override
+                      public Connection upgradeConnection(
+                          Connector connector,
+                          EndPoint endPoint,
+                          MetaData.Request request,
+                          HttpFields.Mutable response101) {
+                        // Jetty cannot upgrade a request with an unconsumed chunked body.
+                        if (request
+                            .getHttpFields()
+                            .contains(
+                                HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString())) {
+                          return null;
+                        }
+                        return super.upgradeConnection(connector, endPoint, request, response101);
+                      }
+                    })
             .filter(Objects::nonNull)
             .toArray(ConnectionFactory[]::new);
 
