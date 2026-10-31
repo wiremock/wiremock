@@ -35,6 +35,62 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class MatchesXPathPatternTest {
 
   @Test
+  public void returnsNoExactMatchWhenBooleanXPathExpressionIsFalse() {
+    String mySolarSystemXML =
+        "<solar-system>"
+            + "<planet name='Earth' position='3' supportsLife='yes'/>"
+            + "<planet name='Venus' position='4'/></solar-system>";
+
+    StringValuePattern pattern = WireMock.matchingXPath("count(//planet) = 99");
+
+    MatchResult match = pattern.match(mySolarSystemXML);
+    assertFalse(match.isExactMatch(), "Expected XPath boolean-false to not match");
+    assertThat(match.getDistance(), is(1.0));
+  }
+
+  @Test
+  public void returnsExactMatchWhenBooleanXPathExpressionIsTrue() {
+    String mySolarSystemXML =
+        "<solar-system>"
+            + "<planet name='Earth' position='3' supportsLife='yes'/>"
+            + "<planet name='Venus' position='4'/></solar-system>";
+
+    StringValuePattern pattern = WireMock.matchingXPath("count(//planet) = 2");
+
+    MatchResult match = pattern.match(mySolarSystemXML);
+    assertTrue(match.isExactMatch(), "Expected XPath boolean-true to match");
+    assertThat(match.getDistance(), is(0.0));
+  }
+
+  @Test
+  public void returnsNoExactMatchWhenContainsExpressionIsFalse() {
+    String mySolarSystemXML =
+        "<solar-system>"
+            + "<planet name='Earth' position='3' supportsLife='yes'/>"
+            + "<planet name='Venus' position='4'/></solar-system>";
+
+    StringValuePattern pattern = WireMock.matchingXPath("contains('abc','z')");
+
+    MatchResult match = pattern.match(mySolarSystemXML);
+    assertFalse(match.isExactMatch(), "Expected contains false to not match");
+    assertThat(match.getDistance(), is(1.0));
+  }
+
+  @Test
+  public void returnsNoExactMatchWhenComparisonExpressionIsFalse() {
+    String mySolarSystemXML =
+        "<solar-system>"
+            + "<planet name='Earth' position='3' supportsLife='yes'/>"
+            + "<planet name='Venus' position='4'/></solar-system>";
+
+    StringValuePattern pattern = WireMock.matchingXPath("1 = 2");
+
+    MatchResult match = pattern.match(mySolarSystemXML);
+    assertFalse(match.isExactMatch(), "Expected 1=2 false to not match");
+    assertThat(match.getDistance(), is(1.0));
+  }
+
+  @Test
   public void returnsExactMatchWhenXPathMatches() {
     String mySolarSystemXML =
         "<solar-system>"
