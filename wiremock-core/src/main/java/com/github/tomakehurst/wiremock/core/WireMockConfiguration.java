@@ -50,7 +50,9 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -78,6 +80,7 @@ public class WireMockConfiguration implements Options {
   private String trustStorePath;
   private String trustStorePassword = "password";
   private String trustStoreType = "JKS";
+  private final Map<String, String> clientKeyAliases = new LinkedHashMap<>();
   private boolean needClientAuth;
 
   private boolean browserProxyingEnabled = false;
@@ -303,6 +306,15 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration trustStoreType(String trustStoreType) {
     this.trustStoreType = trustStoreType;
+    return this;
+  }
+
+  /**
+   * When proxying to {@code host} (exact, or "*.domain"), present the client certificate stored
+   * under {@code alias} in the trust store, instead of the one the JDK picks.
+   */
+  public WireMockConfiguration clientKeyAlias(String host, String alias) {
+    this.clientKeyAliases.put(host, alias);
     return this;
   }
 
@@ -630,6 +642,7 @@ public class WireMockConfiguration implements Options {
         .trustStorePassword(trustStorePassword)
         .trustStoreType(trustStoreType)
         .needClientAuth(needClientAuth)
+        .clientKeyAliases(clientKeyAliases)
         .build();
   }
 

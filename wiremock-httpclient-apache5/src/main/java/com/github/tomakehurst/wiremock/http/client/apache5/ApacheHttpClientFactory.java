@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,12 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
       List<String> trustedHosts,
       boolean useSystemProperties) {
     final CloseableHttpClient apacheClient =
-        createClient(
+        StaticApacheHttpClientFactory.createClient(
             options.getMaxHttpClientConnections(),
             options.proxyTimeout(),
             options.proxyVia(),
             options.httpsSettings().trustStore(),
+            options.httpsSettings().clientKeyAliases(),
             trustAllCertificates,
             trustedHosts,
             useSystemProperties,
@@ -86,6 +87,7 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
         timeoutMilliseconds,
         proxySettings,
         trustStoreSettings,
+        Collections.emptyMap(),
         trustAllCertificates,
         trustedHosts,
         useSystemProperties,

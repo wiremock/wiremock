@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,11 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.http.ssl.*;
 import java.security.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -55,6 +58,7 @@ class StaticApacheHttpClientFactory {
       int timeoutMilliseconds,
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
+      Map<String, String> clientKeyAliases,
       boolean trustAllCertificates,
       final List<String> trustedHosts,
       boolean useSystemProperties,
@@ -107,7 +111,7 @@ class StaticApacheHttpClientFactory {
     }
 
     final SSLContext sslContext =
-        buildSslContext(trustStoreSettings, trustAllCertificates, trustedHosts);
+        buildSslContext(trustStoreSettings, clientKeyAliases, trustAllCertificates, trustedHosts);
     LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
     builder.setConnectionManager(
         PoolingHttpClientConnectionManagerBuilder.create()
@@ -146,10 +150,15 @@ class StaticApacheHttpClientFactory {
 
   private static SSLContext buildSslContext(
       KeyStoreSettings trustStoreSettings,
+      Map<String, String> clientKeyAliases,
       boolean trustAllCertificates,
       List<String> trustedHosts) {
     if (trustStoreSettings != NO_STORE) {
-      return buildSSLContextWithTrustStore(trustStoreSettings, trustAllCertificates, trustedHosts);
+      return buildSSLContextWithTrustStore(
+          trustStoreSettings, clientKeyAliases, trustAllCertificates, trustedHosts);
+    } else if (!clientKeyAliases.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Client certificate aliases " + clientKeyAliases + " require an HTTPS trust store");
     } else if (trustAllCertificates) {
       return buildAllowAnythingSSLContext();
     } else {
@@ -165,13 +174,16 @@ class StaticApacheHttpClientFactory {
 
   private static SSLContext buildSSLContextWithTrustStore(
       KeyStoreSettings trustStoreSettings,
+      Map<String, String> clientKeyAliases,
       boolean trustSelfSignedCertificates,
       List<String> trustedHosts) {
+    KeyStore trustStore = trustStoreSettings.loadStore();
+    checkClientKeyAliasesExist(trustStore, trustStoreSettings.path(), clientKeyAliases);
     try {
-      KeyStore trustStore = trustStoreSettings.loadStore();
       SSLContextBuilder sslContextBuilder =
           SSLContextBuilder.create()
-              .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray());
+              .loadKeyMaterial(
+                  trustStore, trustStoreSettings.password().toCharArray(), clientKeyAliases);
       if (trustSelfSignedCertificates) {
         sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
       } else if (containsCertificate(trustStore)) {
@@ -184,6 +196,38 @@ class StaticApacheHttpClientFactory {
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);
     }
+  }
+
+  /** Fails fast on a mapping to an alias that is missing or is not a private key entry. */
+  private static void checkClientKeyAliasesExist(
+      KeyStore trustStore, String trustStorePath, Map<String, String> clientKeyAliases) {
+    try {
+      for (Map.Entry<String, String> mapping : clientKeyAliases.entrySet()) {
+        if (!trustStore.isKeyEntry(mapping.getValue().trim())) {
+          throw new IllegalArgumentException(
+              "Client certificate alias '"
+                  + mapping.getValue()
+                  + "' for host '"
+                  + mapping.getKey()
+                  + "' is not a private key entry in trust store "
+                  + trustStorePath
+                  + "; private key entries: "
+                  + keyEntryAliases(trustStore));
+        }
+      }
+    } catch (KeyStoreException e) {
+      throwUnchecked(e);
+    }
+  }
+
+  private static List<String> keyEntryAliases(KeyStore keyStore) throws KeyStoreException {
+    List<String> aliases = new ArrayList<>();
+    for (String alias : Collections.list(keyStore.aliases())) {
+      if (keyStore.isKeyEntry(alias)) {
+        aliases.add(alias);
+      }
+    }
+    return aliases;
   }
 
   private static boolean containsCertificate(KeyStore trustStore) throws KeyStoreException {

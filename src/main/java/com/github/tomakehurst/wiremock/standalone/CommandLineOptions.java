@@ -81,6 +81,7 @@ public class CommandLineOptions implements Options {
   private static final String HTTPS_TRUSTSTORE = "https-truststore";
   private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
   private static final String HTTPS_TRUSTSTORE_TYPE = "truststore-type";
+  private static final String HTTPS_CLIENT_KEY_ALIAS = "https-client-key-alias";
   private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
   private static final String VERBOSE = "verbose";
   private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
@@ -191,6 +192,15 @@ public class CommandLineOptions implements Options {
         .requiredIf(REQUIRE_CLIENT_CERT)
         .requiredIf(HTTPS_TRUSTSTORE_PASSWORD)
         .withRequiredArg();
+    optionParser
+        .accepts(
+            HTTPS_CLIENT_KEY_ALIAS,
+            "host=alias: when proxying to host, present the client certificate stored under alias in"
+                + " the HTTPS trust store. host may be exact or *.domain. Repeatable or"
+                + " comma-separated. Unmapped hosts use the default selection.")
+        .availableIf(HTTPS_TRUSTSTORE)
+        .withRequiredArg()
+        .withValuesSeparatedBy(',');
     optionParser
         .accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.")
         .withRequiredArg()
@@ -612,7 +622,26 @@ public class CommandLineOptions implements Options {
         .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
         .trustStoreType((String) optionSet.valueOf(HTTPS_TRUSTSTORE_TYPE))
         .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT))
+        .clientKeyAliases(clientKeyAliases())
         .build();
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, String> clientKeyAliases() {
+    Map<String, String> aliases = new LinkedHashMap<>();
+    for (String mapping : (List<String>) optionSet.valuesOf(HTTPS_CLIENT_KEY_ALIAS)) {
+      String trimmed = mapping.trim();
+      if (trimmed.isEmpty()) {
+        continue;
+      }
+      int separator = trimmed.indexOf('=');
+      if (separator <= 0 || separator == trimmed.length() - 1) {
+        throw new IllegalArgumentException(
+            "--" + HTTPS_CLIENT_KEY_ALIAS + " expects host=alias, got: " + mapping);
+      }
+      aliases.put(trimmed.substring(0, separator).trim(), trimmed.substring(separator + 1).trim());
+    }
+    return aliases;
   }
 
   private JettySettings jettySettings() {
@@ -839,6 +868,15 @@ public class CommandLineOptions implements Options {
 
     if (httpsSettings().enabled()) {
       map.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+    }
+
+    Map<String, String> clientKeyAliases = httpsSettings().clientKeyAliases();
+    if (!clientKeyAliases.isEmpty()) {
+      map.put(
+          HTTPS_CLIENT_KEY_ALIAS,
+          clientKeyAliases.entrySet().stream()
+              .map(e -> e.getKey() + "=" + e.getValue())
+              .collect(Collectors.joining(", ")));
     }
 
     if (proxyVia() != NO_PROXY) {
