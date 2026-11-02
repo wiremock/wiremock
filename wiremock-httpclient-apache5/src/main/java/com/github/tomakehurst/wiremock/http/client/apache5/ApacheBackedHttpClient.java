@@ -46,22 +46,23 @@ import org.wiremock.url.AbsoluteUrl;
 public class ApacheBackedHttpClient implements HttpClient {
 
   private final CloseableHttpClient apacheHttpClient;
-  private final boolean preserveUserAgentProxyHeader;
+
+  public ApacheBackedHttpClient(CloseableHttpClient apacheHttpClient) {
+    this.apacheHttpClient = apacheHttpClient;
+  }
 
   public ApacheBackedHttpClient(
       CloseableHttpClient apacheHttpClient, boolean preserveUserAgentProxyHeader) {
-    this.apacheHttpClient = apacheHttpClient;
-    this.preserveUserAgentProxyHeader = preserveUserAgentProxyHeader;
+    this(apacheHttpClient);
   }
 
   @Override
   public Response execute(Request request) throws IOException {
-    ClassicHttpRequest apacheRequest = createApacheRequest(request, preserveUserAgentProxyHeader);
+    ClassicHttpRequest apacheRequest = createApacheRequest(request);
     return apacheHttpClient.execute(apacheRequest, ApacheBackedHttpClient::toWireMockHttpResponse);
   }
 
-  private static ClassicHttpRequest createApacheRequest(
-      Request request, boolean preserveUserAgentProxyHeader) {
+  private static ClassicHttpRequest createApacheRequest(Request request) {
     ContentType contentType =
         request.contentTypeHeader().isPresent()
             ? ContentType.parse(request.contentTypeHeader().firstValue())
@@ -76,9 +77,7 @@ public class ApacheBackedHttpClient implements HttpClient {
                     .filter(
                         header ->
                             !FORBIDDEN_REQUEST_HEADERS.contains(
-                                    header.key().toLowerCase(Locale.ROOT))
-                                || (preserveUserAgentProxyHeader
-                                    && header.key().equalsIgnoreCase(USER_AGENT)))
+                                header.key().toLowerCase(Locale.ROOT)))
                     .flatMap(
                         header ->
                             header.values().stream()

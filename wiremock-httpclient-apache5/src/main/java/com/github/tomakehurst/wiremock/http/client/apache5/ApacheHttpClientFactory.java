@@ -49,7 +49,7 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
             options.getDisableConnectionReuse(),
             null);
 
-    return new ApacheBackedHttpClient(apacheClient, options.shouldPreserveUserAgentProxyHeader());
+    return new ApacheBackedHttpClient(apacheClient);
   }
 
   public static CloseableHttpClient createClient() {
