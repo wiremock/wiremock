@@ -54,7 +54,7 @@ public abstract class HandlebarsHelperTestBase {
     try {
       assertThat((String) renderHelperValue(helper, content, pathExpression), expectation);
     } catch (final IOException e) {
-      Assertions.fail(FAIL_GRACEFULLY_MSG);
+      Assertions.fail(FAIL_GRACEFULLY_MSG, e);
     }
   }
 
