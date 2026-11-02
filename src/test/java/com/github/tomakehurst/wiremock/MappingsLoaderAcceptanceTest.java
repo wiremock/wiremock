@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -31,6 +32,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +57,25 @@ public class MappingsLoaderAcceptanceTest {
     wireMockServer = new WireMockServer(options);
     wireMockServer.start();
     testClient = new WireMockTestClient(wireMockServer.port());
+
+    int clientPort =
+        Optional.ofNullable(System.getenv("CLIENT_PORT"))
+            .map(Integer::parseInt)
+            .orElse(wireMockServer.port());
+
+    WireMock wireMockClient = new WireMock(clientPort);
+    WireMock.configureFor(wireMockClient);
+  }
+
+  @Test
+  public void mappingsLoadedFromJsonFilesStatically() {
+    buildWireMock(configuration);
+
+    WireMock.loadMappings(filePath("test-file-root"));
+
+    WireMockResponse response = testClient.get("/testmapping");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("default test mapping"));
   }
 
   @Test
