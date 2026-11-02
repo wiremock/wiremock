@@ -115,6 +115,7 @@ public class AdminRoutes {
 
     router.add(GET, "/docs/swagger", new GetSwaggerSpecTask());
     router.add(GET, "/docs", new GetDocIndexTask());
+    router.add(GET, "/docs/", new GetDocIndexTask());
 
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
 
@@ -166,11 +167,15 @@ public class AdminRoutes {
   }
 
   public AdminTask taskFor(final RequestMethod method, final Path path) {
+    return routes.get(requestSpecFor(method, path));
+  }
+
+  public RequestSpec requestSpecFor(final RequestMethod method, final Path path) {
     return routes.entrySet().stream()
-        .filter(entry -> entry.getKey().matches(method, path))
-        .map(Entry::getValue)
+        .map(Entry::getKey)
+        .filter(requestSpec -> requestSpec.matches(method, path))
         .findFirst()
-        .orElseGet(NotFoundAdminTask::new);
+        .orElseThrow(() -> new NotFoundException("No route matched " + method + " " + path));
   }
 
   public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {
