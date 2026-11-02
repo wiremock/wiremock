@@ -78,6 +78,11 @@ public abstract class XmlNode {
         nodes.forEach(node -> xmlNodes.add(new XmlDomNode(node)));
       }
       case NODE -> xmlNodes.add(new XmlDomNode((Node) evaluationResult.value()));
+      case BOOLEAN -> {
+        if (Boolean.TRUE.equals(evaluationResult.value())) {
+          xmlNodes.add(new XmlPrimitiveNode<>(evaluationResult.value()));
+        }
+      }
       default -> xmlNodes.add(new XmlPrimitiveNode<>(evaluationResult.value()));
     }
 
