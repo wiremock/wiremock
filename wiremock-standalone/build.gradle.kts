@@ -57,6 +57,8 @@ tasks.shadowJar {
   relocate("org.yaml", "wiremock.org.yaml")
   relocate("com.ethlo", "wiremock.com.ethlo")
   relocate("com.networknt", "wiremock.com.networknt")
+  // json-schema-validator loads its messages from jsv-messages*.properties at the jar root
+  relocate("jsv-messages", "wiremock.jsv-messages")
   relocate("org.jspecify", "wiremock.org.jspecify")
   relocate("org.bouncycastle", "wiremock.org.bouncycastle")
 
