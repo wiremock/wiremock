@@ -62,6 +62,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     testClient.withWebsocketSession(
         url,
         session -> {
+          waitForOpenChannels("/notifications", 1);
           RequestPattern pattern = newRequestPattern().withUrl("/notifications").build();
           SendChannelMessageResult result1 =
               wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Hello WebSocket!");
@@ -98,6 +99,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
             testClient2.withWebsocketSession(
                 url,
                 session2 -> {
+                  waitForOpenChannels("/broadcast", 2);
                   RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
                   SendChannelMessageResult result =
                       wireMockServer.sendChannelMessage(
@@ -134,6 +136,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
             testClientB.withWebsocketSession(
                 urlB,
                 sessionB -> {
+                  waitForOpenChannels("/channel-a", 1);
                   RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
                   SendChannelMessageResult result =
                       wireMockServer.sendChannelMessage(
@@ -161,6 +164,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
             testClient2.withWebsocketSession(
                 url2,
                 session2 -> {
+                  waitForOpenChannels("/events/user1", 1);
+                  waitForOpenChannels("/events/user2", 1);
                   RequestPattern pattern =
                       newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
                   SendChannelMessageResult result =
@@ -184,6 +189,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     testClient.withWebsocketSession(
         url,
         session -> {
+          waitForOpenChannels("/temp-channel", 1);
           RequestPattern pattern = newRequestPattern().withUrl("/temp-channel").build();
           SendChannelMessageResult result1 =
               wireMockServer.sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Before close");
@@ -291,7 +297,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     }
 
     @Test
-    void closesConnectionWhenTextMessageExceedsLimit() throws Exception {
+    void closesConnectionWhenTextMessageExceedsLimit() {
       WebsocketTestClient testClient = new WebsocketTestClient();
       String url = "ws://localhost:" + wm.getPort() + "/text-size-test";
 
@@ -303,8 +309,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
       testClient.sendMessage(largeMessage);
 
       // Connection should be closed due to message size violation
-      Thread.sleep(200);
-      assertThat(testClient.isConnected(), is(false));
+      waitAtMost(5, SECONDS).until(() -> !testClient.isConnected());
     }
   }
 
@@ -346,7 +351,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     }
 
     @Test
-    void closesConnectionWhenBinaryMessageExceedsLimit() throws Exception {
+    void closesConnectionWhenBinaryMessageExceedsLimit() {
       WebsocketTestClient testClient = new WebsocketTestClient();
       String url = "ws://localhost:" + wm.getPort() + "/binary-size-test";
 
@@ -358,8 +363,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
       testClient.sendBinaryMessage(largeMessage);
 
       // Connection should be closed due to message size violation
-      Thread.sleep(200);
-      assertThat(testClient.isConnected(), is(false));
+      waitAtMost(5, SECONDS).until(() -> !testClient.isConnected());
     }
   }
 }

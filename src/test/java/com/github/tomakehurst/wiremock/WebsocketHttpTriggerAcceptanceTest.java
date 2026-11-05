@@ -56,7 +56,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     wsClient.connect(websocketUrl("/ws-journal"));
-    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+    waitForOpenChannels("/ws-journal", 1);
 
     testClient.get("/api/journal-trigger");
 
@@ -87,7 +87,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-events");
     wsClient.connect(wsUrl);
-    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+    waitForOpenChannels("/ws-events", 1);
 
     testClient.get("/api/trigger-event");
 
@@ -113,7 +113,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-notifications");
     wsClient.connect(wsUrl);
-    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+    waitForOpenChannels("/ws-notifications", 1);
 
     testClient.get("/api/notify/user123");
 
@@ -134,7 +134,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
     WebsocketTestClient wsClient = new WebsocketTestClient();
     String wsUrl = websocketUrl("/ws-no-stub");
     wsClient.connect(wsUrl);
-    waitAtMost(5, SECONDS).until(wsClient::isConnected);
+    waitForOpenChannels("/ws-no-stub", 1);
 
     testClient.get("/api/no-stub");
 
@@ -163,8 +163,8 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
     String wsUrl2 = websocketUrl("/ws-broadcast-2");
     wsClient1.connect(wsUrl1);
     wsClient2.connect(wsUrl2);
-    waitAtMost(5, SECONDS).until(wsClient1::isConnected);
-    waitAtMost(5, SECONDS).until(wsClient2::isConnected);
+    waitForOpenChannels("/ws-broadcast-1", 1);
+    waitForOpenChannels("/ws-broadcast-2", 1);
 
     testClient.postWithBody("/api/broadcast", "trigger", "text/plain");
 
