@@ -297,7 +297,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     }
 
     @Test
-    void closesConnectionWhenTextMessageExceedsLimit() throws Exception {
+    void closesConnectionWhenTextMessageExceedsLimit() {
       WebsocketTestClient testClient = new WebsocketTestClient();
       String url = "ws://localhost:" + wm.getPort() + "/text-size-test";
 
@@ -309,8 +309,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
       testClient.sendMessage(largeMessage);
 
       // Connection should be closed due to message size violation
-      Thread.sleep(200);
-      assertThat(testClient.isConnected(), is(false));
+      waitAtMost(5, SECONDS).until(() -> !testClient.isConnected());
     }
   }
 
@@ -352,7 +351,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
     }
 
     @Test
-    void closesConnectionWhenBinaryMessageExceedsLimit() throws Exception {
+    void closesConnectionWhenBinaryMessageExceedsLimit() {
       WebsocketTestClient testClient = new WebsocketTestClient();
       String url = "ws://localhost:" + wm.getPort() + "/binary-size-test";
 
@@ -364,8 +363,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
       testClient.sendBinaryMessage(largeMessage);
 
       // Connection should be closed due to message size violation
-      Thread.sleep(200);
-      assertThat(testClient.isConnected(), is(false));
+      waitAtMost(5, SECONDS).until(() -> !testClient.isConnected());
     }
   }
 }
