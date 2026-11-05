@@ -131,7 +131,9 @@ public class CommandLineOptionsTest {
   @Test
   public void defaultsKeystorePathIfNotSpecifiedWhenHttpsEnabled() {
     CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
-    assertThat(options.httpsSettings().keyStorePath(), endsWith("/keystore"));
+    assertThat(
+        options.httpsSettings().keyStorePath(),
+        endsWith("/com/github/tomakehurst/wiremock/keystore"));
   }
 
   @Test
