@@ -538,8 +538,8 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     testClient1.connect(url1);
     testClient2.connect(url2);
 
-    waitAtMost(5, SECONDS).until(testClient1::isConnected);
-    waitAtMost(5, SECONDS).until(testClient2::isConnected);
+    waitForOpenChannels("/channel-list-1", 1);
+    waitForOpenChannels("/channel-list-2", 1);
 
     ListMessageChannelsResult result = listAllMessageChannels();
 
@@ -626,7 +626,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     testClient.connect(websocketUrl("/no-stub-send-test"));
-    waitAtMost(5, SECONDS).until(testClient::isConnected);
+    waitForOpenChannels("/no-stub-send-test", 1);
 
     var pattern = newRequestPattern().withUrl("/no-stub-send-test").build();
     wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "no-stub-message");
@@ -647,7 +647,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     String url = websocketUrl("/api-send-journal-test");
 
     testClient.connect(url);
-    waitAtMost(5, SECONDS).until(testClient::isConnected);
+    waitForOpenChannels("/api-send-journal-test", 1);
 
     var pattern = newRequestPattern().withUrl("/api-send-journal-test").build();
     wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "api-journal-message");
@@ -681,8 +681,8 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
 
     triggerClient.connect(websocketUrl("/stub-sent-event-trigger"));
     targetClient.connect(websocketUrl("/stub-sent-event-target"));
-    waitAtMost(5, SECONDS).until(triggerClient::isConnected);
-    waitAtMost(5, SECONDS).until(targetClient::isConnected);
+    waitForOpenChannels("/stub-sent-event-trigger", 1);
+    waitForOpenChannels("/stub-sent-event-target", 1);
 
     triggerClient.sendMessage("trigger-stub-send");
 
