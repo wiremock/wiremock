@@ -29,9 +29,8 @@ import org.wiremock.stringparser.ParsedString;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.5">RFC 3986 Section 3.5</a>
  */
-public interface Fragment extends PercentEncoded<Fragment>, ParsedString {
-
-  Fragment EMPTY = new FragmentValue("", true);
+public non-sealed interface Fragment
+    extends FragmentConstants, PercentEncoded<Fragment>, ParsedString {
 
   /**
    * Returns a normalised form of this fragment.

@@ -31,13 +31,7 @@ import org.wiremock.stringparser.ParsedString;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3">RFC 3986 Section 3.3</a>
  */
-public interface Path extends PercentEncoded<Path>, ParsedString {
-
-  /** An empty path with no segments. */
-  Path EMPTY = new PathValue("", true);
-
-  /** A root path consisting of a single forward slash. */
-  Path ROOT = new PathValue("/", true);
+public non-sealed interface Path extends PathConstants, PercentEncoded<Path>, ParsedString {
 
   /**
    * Returns {@code true} if this path is absolute (starts with {@code /}).
