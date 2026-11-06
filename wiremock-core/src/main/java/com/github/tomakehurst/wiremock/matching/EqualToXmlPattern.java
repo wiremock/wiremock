@@ -109,7 +109,7 @@ public class EqualToXmlPattern extends StringValuePattern {
             .collect(Collectors.toSet());
 
     IgnoreUncountedDifferenceEvaluator baseDifferenceEvaluator =
-        new IgnoreUncountedDifferenceEvaluator(comparisonsToExempt);
+        new IgnoreUncountedDifferenceEvaluator(comparisonsToExempt, namespaceAwareness);
     if (enablePlaceholders != null && enablePlaceholders) {
       diffEvaluator =
           DifferenceEvaluators.chain(
@@ -217,8 +217,8 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
                       (comparison, outcome) -> {
-                        if (countedComparisons.contains(comparison.getType())
-                            && comparison.getControlDetails().getValue() != null) {
+                        if (shouldCountComparison(
+                            comparison, countedComparisons, namespaceAwareness)) {
                           totalComparisons.incrementAndGet();
                           if (outcome == ComparisonResult.DIFFERENT) {
                             differences.incrementAndGet();
@@ -276,11 +276,25 @@ public class EqualToXmlPattern extends StringValuePattern {
     return factory;
   }
 
+  private static boolean shouldCountComparison(
+      Comparison comparison,
+      Set<ComparisonType> countedComparisons,
+      NamespaceAwareness namespaceAwareness) {
+    return countedComparisons.contains(comparison.getType())
+        && (comparison.getControlDetails().getValue() != null
+            || ((namespaceAwareness == null || namespaceAwareness == NamespaceAwareness.STRICT)
+                && comparison.getType() == NAMESPACE_URI
+                && comparison.getTestDetails().getValue() != null));
+  }
+
   private static class IgnoreUncountedDifferenceEvaluator implements DifferenceEvaluator {
 
     private final Set<ComparisonType> finalCountedComparisons;
+    private final NamespaceAwareness namespaceAwareness;
 
-    private IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
+    private IgnoreUncountedDifferenceEvaluator(
+        Set<ComparisonType> exemptedComparisons, NamespaceAwareness namespaceAwareness) {
+      this.namespaceAwareness = namespaceAwareness;
       finalCountedComparisons =
           exemptedComparisons != null
               ? COUNTED_COMPARISONS.stream()
@@ -291,8 +305,7 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     @Override
     public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-      if (finalCountedComparisons.contains(comparison.getType())
-          && comparison.getControlDetails().getValue() != null) {
+      if (shouldCountComparison(comparison, finalCountedComparisons, namespaceAwareness)) {
         return outcome;
       }
 
