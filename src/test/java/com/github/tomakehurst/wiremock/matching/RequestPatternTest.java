@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
@@ -50,8 +51,10 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -1143,6 +1146,49 @@ class RequestPatternTest {
     assertThat(pattern.getScheme(), is(""));
     assertThat(Json.write(pattern), jsonEquals("""
         {"method": "ANY", "scheme": ""}"""));
+  }
+
+  @Test
+  void equalRequestPatternsHaveEqualHashCodes() {
+    RequestPattern a = RequestPattern.ANYTHING;
+    RequestPattern b = newRequestPattern(RequestMethod.ANY, anyUrl()).build();
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+  }
+
+  @Test
+  void equalRequestPatternsWithSameFieldsHaveEqualHashCodes() {
+    RequestPattern a =
+        newRequestPattern(GET, urlPathEqualTo("/my/url"))
+            .withHeader("Accept", equalTo("text/plain"))
+            .withQueryParam("search", containing("thing"))
+            .build();
+    RequestPattern b =
+        newRequestPattern(GET, urlPathEqualTo("/my/url"))
+            .withHeader("Accept", equalTo("text/plain"))
+            .withQueryParam("search", containing("thing"))
+            .build();
+    RequestPattern c = newRequestPattern(GET, urlPathEqualTo("/other")).build();
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void requestPatternWorksAsHashMapKeyAcrossEqualInstances() {
+    Map<RequestPattern, String> byPattern = new HashMap<>();
+    RequestPattern first = newRequestPattern(PUT, urlEqualTo("/items/1")).build();
+    RequestPattern second = newRequestPattern(PUT, urlEqualTo("/items/1")).build();
+
+    byPattern.put(first, "stub-a");
+
+    assertThat(byPattern.get(second), is("stub-a"));
+    assertThat(byPattern.containsKey(second), is(true));
   }
 
   static Matcher<ContentPattern<?>> valuePattern(
