@@ -22,8 +22,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.wiremock.url.PathAndQuery;
 
 /**
@@ -33,11 +37,30 @@ import org.wiremock.url.PathAndQuery;
 class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
   private final Map<String, CaptureHeadersSpec> headers;
   private final RequestBodyPatternFactory bodyPatternFactory;
+  private final boolean captureAllHeaders;
+  private final Set<String> excludedHeaders;
 
   RequestPatternTransformer(
       Map<String, CaptureHeadersSpec> headers, RequestBodyPatternFactory bodyPatternFactory) {
+    this(headers, false, List.of(), bodyPatternFactory);
+  }
+
+  RequestPatternTransformer(
+      Map<String, CaptureHeadersSpec> headers,
+      boolean captureAllHeaders,
+      List<String> excludeHeaders,
+      RequestBodyPatternFactory bodyPatternFactory) {
+
     this.headers = headers;
+    this.captureAllHeaders = captureAllHeaders;
     this.bodyPatternFactory = bodyPatternFactory;
+
+    this.excludedHeaders =
+        excludeHeaders == null
+            ? Set.of()
+            : excludeHeaders.stream()
+                .map(header -> header.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
   }
 
   /** Returns a RequestPatternBuilder matching a given Request */
@@ -65,7 +88,9 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
                   : havingExactly(decodedValues));
         });
 
-    if (headers != null && !headers.isEmpty()) {
+    if (captureAllHeaders) {
+      captureAllHeaders(request, builder);
+    } else if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
         String headerName = header.getKey();
         if (request.containsHeader(headerName)) {
@@ -83,5 +108,34 @@ class RequestPatternTransformer implements Function<Request, RequestPatternBuild
     }
 
     return builder;
+  }
+
+  private void captureAllHeaders(Request request, RequestPatternBuilder builder) {
+    for (String headerName : request.getAllHeaderKeys()) {
+      if (excludedHeaders.contains(headerName.toLowerCase(Locale.ROOT))) {
+        continue;
+      }
+
+      CaptureHeadersSpec spec = findCaptureHeaderSpec(headerName);
+
+      builder.withHeader(
+          headerName,
+          new EqualToPattern(
+              request.getHeader(headerName), spec != null ? spec.getCaseInsensitive() : null));
+    }
+  }
+
+  private CaptureHeadersSpec findCaptureHeaderSpec(String headerName) {
+    if (headers == null) {
+      return null;
+    }
+
+    for (Map.Entry<String, CaptureHeadersSpec> entry : headers.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase(headerName)) {
+        return entry.getValue();
+      }
+    }
+
+    return null;
   }
 }

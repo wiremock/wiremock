@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ public class RecordSpecBuilder {
   private List<String> transformerNames;
   private Parameters transformerParameters;
   private boolean allowNonProxied;
+  private boolean captureAllHeaders;
+  private final List<String> excludeHeaders = new ArrayList<>();
 
   public RecordSpecBuilder forTarget(String targetBaseUrl) {
     this.targetBaseUrl = targetBaseUrl;
@@ -97,6 +100,16 @@ public class RecordSpecBuilder {
 
   public RecordSpecBuilder captureHeader(String key, Boolean caseInsensitive) {
     headers.put(key, new CaptureHeadersSpec(caseInsensitive));
+    return this;
+  }
+
+  public RecordSpecBuilder captureAllHeaders() {
+    this.captureAllHeaders = true;
+    return this;
+  }
+
+  public RecordSpecBuilder excludeHeaders(String... headers) {
+    this.excludeHeaders.addAll(asList(headers));
     return this;
   }
 
@@ -159,6 +172,8 @@ public class RecordSpecBuilder {
         targetBaseUrl,
         filters,
         headers.isEmpty() ? null : headers,
+        captureAllHeaders,
+        excludeHeaders,
         requestBodyPatternFactory,
         responseDefinitionBodyMatcher,
         SnapshotOutputFormatter.FULL,
