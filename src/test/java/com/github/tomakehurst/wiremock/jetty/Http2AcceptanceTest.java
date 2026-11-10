@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jetty.http.HttpVersion.HTTP_2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -29,7 +32,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.channels.ClosedChannelException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -67,6 +74,44 @@ public class Http2AcceptanceTest {
     ContentResponse response = client.GET(wm.getRuntimeInfo().getHttpBaseUrl() + "/thing");
     assertThat(response.getVersion(), is(HTTP_2));
     assertThat(response.getStatus(), is(200));
+  }
+
+  @Test
+  public void upgradesBodylessHttp1RequestToHttp2() throws Exception {
+    wm.stubFor(get("/thing").willReturn(ok("received")));
+
+    HttpRequest request =
+        HttpRequest.newBuilder(URI.create(wm.getRuntimeInfo().getHttpBaseUrl() + "/thing"))
+            .version(java.net.http.HttpClient.Version.HTTP_2)
+            .GET()
+            .build();
+    HttpResponse<String> response =
+        java.net.http.HttpClient.newHttpClient()
+            .send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
+
+    assertThat(response.version(), is(java.net.http.HttpClient.Version.HTTP_2));
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.body(), is("received"));
+  }
+
+  @Test
+  public void servesChunkedRequestAttemptingHttp2Upgrade() throws Exception {
+    wm.stubFor(post("/thing").withRequestBody(equalTo("aaa")).willReturn(ok("received")));
+
+    // An unknown-length body makes the JDK client send Transfer-Encoding: chunked.
+    HttpRequest request =
+        HttpRequest.newBuilder(URI.create(wm.getRuntimeInfo().getHttpBaseUrl() + "/thing"))
+            .version(java.net.http.HttpClient.Version.HTTP_2)
+            .POST(
+                HttpRequest.BodyPublishers.ofInputStream(
+                    () -> new ByteArrayInputStream("aaa".getBytes(UTF_8))))
+            .build();
+    HttpResponse<String> response =
+        java.net.http.HttpClient.newHttpClient()
+            .send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.body(), is("received"));
   }
 
   @Test
