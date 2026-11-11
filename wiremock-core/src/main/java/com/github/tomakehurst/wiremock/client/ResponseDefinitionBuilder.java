@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import java.util.*;
 import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.PublishedAPI;
@@ -219,14 +220,17 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
-  public ResponseDefinitionBuilder openWebsocketChannel() {
-    builder.setOpenWebsocketChannel(true);
+  public ResponseDefinitionBuilder openChannelOfType(ChannelType channelType) {
+    builder.setOpenChannelOfType(channelType);
     return this;
   }
 
+  public ResponseDefinitionBuilder openWebsocketChannel() {
+    return openChannelOfType(ChannelType.WEBSOCKET);
+  }
+
   public ResponseDefinitionBuilder openSseChannel() {
-    builder.setOpenSseChannel(true);
-    return this;
+    return openChannelOfType(ChannelType.SSE);
   }
 
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
