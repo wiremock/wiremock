@@ -24,8 +24,10 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 import org.wiremock.annotations.PublishedAPI;
 
 @PublishedAPI
@@ -41,23 +43,11 @@ public class Response {
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
   private final String protocol;
-  private final boolean openWebsocketChannel;
-  private final boolean openSseChannel;
+  private final @Nullable ChannelType openChannelOfType;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND,
-        null,
-        Entity.EMPTY,
-        noHeaders(),
-        false,
-        null,
-        0,
-        null,
-        false,
-        null,
-        false,
-        false);
+        HTTP_NOT_FOUND, null, Entity.EMPTY, noHeaders(), false, null, 0, null, false, null, null);
   }
 
   public static Builder response() {
@@ -75,8 +65,7 @@ public class Response {
       ChunkedDribbleDelay chunkedDribbleDelay,
       boolean fromProxy,
       String protocol,
-      boolean openWebsocketChannel,
-      boolean openSseChannel) {
+      @Nullable ChannelType openChannelOfType) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -87,8 +76,7 @@ public class Response {
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
     this.protocol = protocol;
-    this.openWebsocketChannel = openWebsocketChannel;
-    this.openSseChannel = openSseChannel;
+    this.openChannelOfType = openChannelOfType;
   }
 
   private static Entity resolveBodyAttributes(HttpHeaders headers, Entity entity) {
@@ -153,12 +141,8 @@ public class Response {
     return fromProxy;
   }
 
-  public boolean isOpenWebsocketChannel() {
-    return openWebsocketChannel;
-  }
-
-  public boolean isOpenSseChannel() {
-    return openSseChannel;
+  public @Nullable ChannelType getOpenChannelOfType() {
+    return openChannelOfType;
   }
 
   public boolean isDecompressible() {
@@ -191,8 +175,7 @@ public class Response {
     private long initialDelay;
     private ChunkedDribbleDelay chunkedDribbleDelay;
     private String protocol;
-    private boolean openWebsocketChannel;
-    private boolean openSseChannel;
+    private @Nullable ChannelType openChannelOfType;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -205,8 +188,7 @@ public class Response {
       responseBuilder.initialDelay = response.getInitialDelay();
       responseBuilder.chunkedDribbleDelay = response.getChunkedDribbleDelay();
       responseBuilder.fromProxy = response.isFromProxy();
-      responseBuilder.openWebsocketChannel = response.isOpenWebsocketChannel();
-      responseBuilder.openSseChannel = response.isOpenSseChannel();
+      responseBuilder.openChannelOfType = response.getOpenChannelOfType();
       return responseBuilder;
     }
 
@@ -305,13 +287,8 @@ public class Response {
       return this;
     }
 
-    public Builder openWebsocketChannel(boolean openWebsocketChannel) {
-      this.openWebsocketChannel = openWebsocketChannel;
-      return this;
-    }
-
-    public Builder openSseChannel(boolean openSseChannel) {
-      this.openSseChannel = openSseChannel;
+    public Builder openChannelOfType(@Nullable ChannelType openChannelOfType) {
+      this.openChannelOfType = openChannelOfType;
       return this;
     }
 
@@ -327,8 +304,7 @@ public class Response {
           chunkedDribbleDelay,
           fromProxy,
           protocol,
-          openWebsocketChannel,
-          openSseChannel);
+          openChannelOfType);
     }
 
     public Builder protocol(final String protocol) {

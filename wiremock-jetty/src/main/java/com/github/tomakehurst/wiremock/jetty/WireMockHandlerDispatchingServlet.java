@@ -39,6 +39,7 @@ import com.github.tomakehurst.wiremock.jetty.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.servlet.NoFaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.sse.JettySseSession;
 import com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import com.github.tomakehurst.wiremock.message.sse.SseMessageChannel;
 import com.github.tomakehurst.wiremock.servlet.BodyChunker;
@@ -238,9 +239,9 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     private void respondTo(Request request, Response response) {
       try {
-        if (response.wasConfigured() && response.isOpenWebsocketChannel()) {
+        if (response.wasConfigured() && response.getOpenChannelOfType() == ChannelType.WEBSOCKET) {
           performWebSocketUpgrade(request);
-        } else if (response.wasConfigured() && response.isOpenSseChannel()) {
+        } else if (response.wasConfigured() && response.getOpenChannelOfType() == ChannelType.SSE) {
           performEventStream(request);
         } else if (response.wasConfigured()) {
           applyResponse(response, httpServletRequest, httpServletResponse);

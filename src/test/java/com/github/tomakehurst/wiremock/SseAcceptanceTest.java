@@ -121,10 +121,13 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void openSseChannelRejectsWebSocket() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> aResponse().openSseChannel().openWebsocketChannel().build());
+  void openChannelOfTypeIsSingleValuedSoLastCallWins() {
+    assertThat(
+        aResponse().openSseChannel().openWebsocketChannel().build().getOpenChannelOfType(),
+        is(ChannelType.WEBSOCKET));
+    assertThat(
+        aResponse().openWebsocketChannel().openSseChannel().build().getOpenChannelOfType(),
+        is(ChannelType.SSE));
   }
 
   @Test

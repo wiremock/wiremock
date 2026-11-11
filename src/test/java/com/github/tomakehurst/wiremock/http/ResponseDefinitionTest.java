@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.common.entity.SimpleEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class ResponseDefinitionTest {
   public static final ResponseDefinition ALL_NULLS_RESPONSE_DEFINITION =
       new ResponseDefinition(
           200, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null, null, null, null);
+          null, null, null, null);
 
   @Test
   public void copyProducesEqualObject() {
@@ -75,7 +76,6 @@ public class ResponseDefinitionTest {
             List.of("transformer-1"),
             Parameters.one("name", "Jeff"),
             true,
-            null,
             null);
 
     ResponseDefinition copiedResponse = copyOf(response);
@@ -398,7 +398,6 @@ public class ResponseDefinitionTest {
             List.of("my-transformer"),
             Parameters.one("p-1", "p1v1"),
             null,
-            null,
             null);
 
     var copy = responseDefinition.toBuilder().build();
@@ -609,43 +608,122 @@ public class ResponseDefinitionTest {
     assertThat(
         json,
         jsonEquals(
+            // language=json
             """
             {
               "status": 200,
-              "openSseChannel": true
+              "openChannelOfType": "sse"
             }
             """));
   }
 
   @Test
-  void deserialisesOpenSseChannel() {
-    var json =
-        """
+  void serialisesOpenWebsocketChannel() {
+    ResponseDefinition responseDef =
+        responseDefinition().withStatus(200).openWebsocketChannel().build();
+
+    String json = Json.write(responseDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=json
+            """
             {
               "status": 200,
-              "openSseChannel": true
+              "openChannelOfType": "websocket"
             }
-            """;
+            """));
+  }
+
+  @Test
+  void serialisesOpenChannelOfTypeInPrivateView() {
+    ResponseDefinition responseDef = responseDefinition().withStatus(200).openSseChannel().build();
+
+    String json = Json.writePrivate(responseDef);
+
+    assertThat(
+        json,
+        jsonEquals(
+            // language=json
+            """
+            {
+              "status": 200,
+              "openChannelOfType": "sse"
+            }
+            """));
+  }
+
+  @Test
+  void deserialisesOpenChannelOfTypeSse() {
+    var json =
+        // language=json
+        """
+        {
+          "status": 200,
+          "openChannelOfType": "sse"
+        }
+        """;
 
     ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
 
-    assertThat(responseDef.getOpenSseChannel(), is(true));
+    assertThat(responseDef.getOpenChannelOfType(), is(ChannelType.SSE));
   }
 
   @Test
-  void openSseChannelIsNullWhenNotSet() {
+  void deserialisesOpenChannelOfTypeWebsocket() {
+    var json =
+        // language=json
+        """
+        {
+          "status": 200,
+          "openChannelOfType": "websocket"
+        }
+        """;
+
+    ResponseDefinition responseDef = Json.read(json, ResponseDefinition.class);
+
+    assertThat(responseDef.getOpenChannelOfType(), is(ChannelType.WEBSOCKET));
+  }
+
+  @Test
+  void openChannelOfTypeIsNullAndOmittedFromJsonWhenNotSet() {
     ResponseDefinition responseDef = responseDefinition().withStatus(200).build();
 
-    assertThat(responseDef.getOpenSseChannel(), nullValue());
+    assertThat(responseDef.getOpenChannelOfType(), nullValue());
+    assertThat(
+        Json.write(responseDef),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "status": 200
+            }
+            """));
   }
 
   @Test
-  void openSseChannelBuilderCopy() {
+  void openChannelOfTypeBuilderCopy() {
     ResponseDefinition original = responseDefinition().withStatus(200).openSseChannel().build();
 
     ResponseDefinition copy = copyOf(original);
 
-    assertThat(copy.getOpenSseChannel(), is(true));
+    assertThat(copy.getOpenChannelOfType(), is(ChannelType.SSE));
     assertEquals(original, copy);
+  }
+
+  @Test
+  void rejectsOpeningChannelOfNonRequestInitiatedType() {
+    IllegalStateException exception =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                responseDefinition().withStatus(200).openChannelOfType(ChannelType.FIXED).build());
+
+    assertThat(
+        exception.getMessage(),
+        is(
+            "Cannot open a channel of type fixed from a response. "
+                + "Only request-initiated channel types (websocket, sse) can be opened"));
   }
 }
