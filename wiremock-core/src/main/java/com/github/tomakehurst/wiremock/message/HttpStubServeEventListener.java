@@ -15,7 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.MESSAGE_SENT;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListenerUtils.triggerListeners;
+
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListener;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -36,6 +41,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
   private final Stores stores;
   private final Map<String, RequestMatcherExtension> customMatchers;
   private final List<MessageActionTransformer> actionTransformers;
+  private final Map<String, MessageServeEventListener> messageServeEventListeners;
 
   public HttpStubServeEventListener(
       MessageStubMappings messageStubMappings,
@@ -44,6 +50,24 @@ public class HttpStubServeEventListener implements ServeEventListener {
       Stores stores,
       Map<String, RequestMatcherExtension> customMatchers,
       List<MessageActionTransformer> actionTransformers) {
+    this(
+        messageStubMappings,
+        messageChannels,
+        messageJournal,
+        stores,
+        customMatchers,
+        actionTransformers,
+        Collections.emptyMap());
+  }
+
+  public HttpStubServeEventListener(
+      MessageStubMappings messageStubMappings,
+      MessageChannels messageChannels,
+      MessageJournal messageJournal,
+      Stores stores,
+      Map<String, RequestMatcherExtension> customMatchers,
+      List<MessageActionTransformer> actionTransformers,
+      Map<String, MessageServeEventListener> messageServeEventListeners) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
@@ -51,6 +75,8 @@ public class HttpStubServeEventListener implements ServeEventListener {
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
+    this.messageServeEventListeners =
+        messageServeEventListeners != null ? messageServeEventListeners : Collections.emptyMap();
   }
 
   @Override
@@ -94,7 +120,7 @@ public class HttpStubServeEventListener implements ServeEventListener {
     MessageActionContext context = MessageActionContext.forHttpTrigger(stub, httpServeEvent);
     for (MessageAction action : stub.getActions()) {
       MessageAction transformedAction = applyTransformations(action, context);
-      executeAction(transformedAction);
+      executeAction(transformedAction, stub.getServeEventListeners());
     }
   }
 
@@ -108,13 +134,15 @@ public class HttpStubServeEventListener implements ServeEventListener {
     return result;
   }
 
-  private void executeAction(MessageAction action) {
+  private void executeAction(
+      MessageAction action, List<MessageServeEventListenerDefinition> listenerDefinitions) {
     if (action instanceof SendMessageAction sendAction) {
-      executeSendMessageAction(sendAction);
+      executeSendMessageAction(sendAction, listenerDefinitions);
     }
   }
 
-  private void executeSendMessageAction(SendMessageAction action) {
+  private void executeSendMessageAction(
+      SendMessageAction action, List<MessageServeEventListenerDefinition> listenerDefinitions) {
     MessageDefinition definition = action.getMessage();
     Message message = new Message(definition.getBody().resolve(stores), definition.getHeaders());
     ChannelTarget target = action.getChannelTarget();
@@ -130,14 +158,22 @@ public class HttpStubServeEventListener implements ServeEventListener {
             messageChannels.findByRequestPattern(requestTarget.getRequestPattern(), customMatchers);
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
-        channel.sendMessage(message);
-        messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
+        sendAndRecord(channel, message, listenerDefinitions);
       }
     } else if (target instanceof FixedChannelTarget fixedTarget) {
       FixedChannel outboundChannel =
           messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
-      outboundChannel.sendMessage(message);
-      messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, message));
+      sendAndRecord(outboundChannel, message, listenerDefinitions);
     }
+  }
+
+  private void sendAndRecord(
+      MessageChannel channel,
+      Message message,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
+    channel.sendMessage(message);
+    MessageServeEvent sentEvent = MessageServeEvent.sent(channel, message);
+    messageJournal.messageReceived(sentEvent);
+    triggerListeners(messageServeEventListeners, MESSAGE_SENT, sentEvent, listenerDefinitions);
   }
 }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -37,11 +38,20 @@ class SingleMessageStubMappingWrapper implements MessageStubMappingOrMappings {
       @JsonProperty("priority") Integer priority,
       @JsonProperty("trigger") MessageTrigger trigger,
       @JsonProperty("actions") List<MessageAction> actions,
+      @JsonProperty("serveEventListeners")
+          List<MessageServeEventListenerDefinition> serveEventListeners,
       @JsonProperty("metadata") Metadata metadata,
       @JsonProperty("insertionIndex") Long insertionIndex) {
     this.mapping =
         new MessageStubMapping(
-            id, name, priority, trigger, actions, metadata, getFirstNonNull(insertionIndex, 0L));
+            id,
+            name,
+            priority,
+            trigger,
+            actions,
+            serveEventListeners,
+            metadata,
+            getFirstNonNull(insertionIndex, 0L));
   }
 
   @Override

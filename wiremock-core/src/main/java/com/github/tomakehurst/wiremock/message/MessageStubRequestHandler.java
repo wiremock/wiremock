@@ -15,8 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.AFTER_COMPLETE;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.AFTER_MATCH;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.BEFORE_MATCH;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.MESSAGE_SENT;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListenerUtils.triggerListeners;
+
 import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListener;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
@@ -34,6 +42,7 @@ public class MessageStubRequestHandler {
   private final Stores stores;
   private final List<MessageActionTransformer> actionTransformers;
   private final Map<String, RequestMatcherExtension> customMatchers;
+  private final Map<String, MessageServeEventListener> serveEventListeners;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
@@ -42,6 +51,24 @@ public class MessageStubRequestHandler {
       Stores stores,
       List<MessageActionTransformer> actionTransformers,
       Map<String, RequestMatcherExtension> customMatchers) {
+    this(
+        messageStubMappings,
+        messageChannels,
+        messageJournal,
+        stores,
+        actionTransformers,
+        customMatchers,
+        Collections.emptyMap());
+  }
+
+  public MessageStubRequestHandler(
+      MessageStubMappings messageStubMappings,
+      MessageChannels messageChannels,
+      MessageJournal messageJournal,
+      Stores stores,
+      List<MessageActionTransformer> actionTransformers,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, MessageServeEventListener> serveEventListeners) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
@@ -49,6 +76,8 @@ public class MessageStubRequestHandler {
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
     this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
+    this.serveEventListeners =
+        serveEventListeners != null ? serveEventListeners : Collections.emptyMap();
   }
 
   public void processTextMessage(MessageChannel channel, String text) {
@@ -62,18 +91,24 @@ public class MessageStubRequestHandler {
   }
 
   public void processMessage(MessageChannel channel, Message message) {
+    MessageServeEvent initialEvent = MessageServeEvent.receivedUnmatched(channel, message);
+    triggerListeners(serveEventListeners, BEFORE_MATCH, initialEvent);
+
     Optional<MessageStubMapping> matchingStub =
         messageStubMappings.findMatchingStub(channel, message);
-    if (matchingStub.isPresent()) {
-      MessageStubMapping stub = matchingStub.get();
-      executeActions(stub, channel, message);
+    MessageServeEvent event =
+        matchingStub
+            .map(
+                stub ->
+                    initialEvent.transform(
+                        builder -> builder.withStubMapping(stub).withWasMatched(true)))
+            .orElse(initialEvent);
+    triggerListeners(serveEventListeners, AFTER_MATCH, event);
 
-      MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
-      messageJournal.messageReceived(event);
-    } else {
-      MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
-      messageJournal.messageReceived(event);
-    }
+    matchingStub.ifPresent(stub -> executeActions(stub, channel, message));
+
+    messageJournal.messageReceived(event);
+    triggerListeners(serveEventListeners, AFTER_COMPLETE, event);
   }
 
   private void executeActions(
@@ -82,7 +117,7 @@ public class MessageStubRequestHandler {
         MessageActionContext.forIncomingMessage(stub, originatingChannel, incomingMessage);
     for (MessageAction action : stub.getActions()) {
       MessageAction transformedAction = applyTransformations(action, context);
-      executeAction(transformedAction, originatingChannel);
+      executeAction(transformedAction, originatingChannel, stub.getServeEventListeners());
     }
   }
 
@@ -96,25 +131,28 @@ public class MessageStubRequestHandler {
     return result;
   }
 
-  private void executeAction(MessageAction action, MessageChannel originatingChannel) {
+  private void executeAction(
+      MessageAction action,
+      MessageChannel originatingChannel,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
     if (action instanceof SendMessageAction sendAction) {
-      executeSendMessageAction(sendAction, originatingChannel);
+      executeSendMessageAction(sendAction, originatingChannel, listenerDefinitions);
     }
   }
 
   private void executeSendMessageAction(
-      SendMessageAction action, MessageChannel originatingChannel) {
+      SendMessageAction action,
+      MessageChannel originatingChannel,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
     Message message = resolveToMessage(action.getMessage());
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof OriginatingChannelTarget) {
-      originatingChannel.sendMessage(message);
-      messageJournal.messageReceived(MessageServeEvent.sent(originatingChannel, message));
+      sendAndRecord(originatingChannel, message, listenerDefinitions);
     } else if (target instanceof FixedChannelTarget fixedTarget) {
       FixedChannel outboundChannel =
           messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
-      outboundChannel.sendMessage(message);
-      messageJournal.messageReceived(MessageServeEvent.sent(outboundChannel, message));
+      sendAndRecord(outboundChannel, message, listenerDefinitions);
     } else if (target instanceof RequestInitiatedChannelTarget requestTarget) {
       List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
@@ -126,10 +164,19 @@ public class MessageStubRequestHandler {
             messageChannels.findByRequestPattern(requestTarget.getRequestPattern(), customMatchers);
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
-        channel.sendMessage(message);
-        messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
+        sendAndRecord(channel, message, listenerDefinitions);
       }
     }
+  }
+
+  private void sendAndRecord(
+      MessageChannel channel,
+      Message message,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
+    channel.sendMessage(message);
+    MessageServeEvent sentEvent = MessageServeEvent.sent(channel, message);
+    messageJournal.messageReceived(sentEvent);
+    triggerListeners(serveEventListeners, MESSAGE_SENT, sentEvent, listenerDefinitions);
   }
 
   private Message resolveToMessage(MessageDefinition messageDefinition) {

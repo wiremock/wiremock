@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.ListFunctions.indexBy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.MESSAGE_SENT;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListenerUtils.triggerListeners;
 import static com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePolicy.OVERWRITE;
 import static java.util.stream.Collectors.toSet;
 
@@ -102,6 +104,7 @@ public class WireMockApp implements StubServer, Admin {
   private final List<GlobalSettingsListener> globalSettingsListeners;
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
   private final Map<String, ServeEventListener> serveEventListeners;
+  private final Map<String, MessageServeEventListener> messageServeEventListeners;
   private final MessageChannels messageChannels;
   private final MessageStubMappings messageStubMappings;
   private final ChannelProviderRegistry channelProviderRegistry;
@@ -169,6 +172,8 @@ public class WireMockApp implements StubServer, Admin {
 
     List<MessageActionTransformer> messageActionTransformers =
         List.copyOf(extensions.ofType(MessageActionTransformer.class).values());
+    messageServeEventListeners =
+        Collections.unmodifiableMap(extensions.ofType(MessageServeEventListener.class));
 
     HttpStubServeEventListener httpStubListener =
         new HttpStubServeEventListener(
@@ -177,7 +182,8 @@ public class WireMockApp implements StubServer, Admin {
             messageJournal,
             stores,
             customMatchers,
-            messageActionTransformers);
+            messageActionTransformers,
+            messageServeEventListeners);
 
     messageStubRequestHandler =
         new MessageStubRequestHandler(
@@ -186,7 +192,8 @@ public class WireMockApp implements StubServer, Admin {
             messageJournal,
             stores,
             messageActionTransformers,
-            customMatchers);
+            customMatchers,
+            messageServeEventListeners);
     Map<String, ServeEventListener> extensionListeners =
         extensions.ofType(ServeEventListener.class);
     Map<String, ServeEventListener> combinedListeners = new HashMap<>(extensionListeners);
@@ -730,7 +737,9 @@ public class WireMockApp implements StubServer, Admin {
     List<RequestInitiatedMessageChannel> matchedChannels =
         messageChannels.sendMessageToMatchingByType(type, requestPattern, message, customMatchers);
     for (RequestInitiatedMessageChannel channel : matchedChannels) {
-      messageJournal.messageReceived(MessageServeEvent.sent(channel, message));
+      MessageServeEvent sentEvent = MessageServeEvent.sent(channel, message);
+      messageJournal.messageReceived(sentEvent);
+      triggerListeners(messageServeEventListeners, MESSAGE_SENT, sentEvent);
     }
     List<LoggedMessageChannel> loggedChannels =
         matchedChannels.stream().map(LoggedMessageChannel::createFrom).collect(Collectors.toList());
