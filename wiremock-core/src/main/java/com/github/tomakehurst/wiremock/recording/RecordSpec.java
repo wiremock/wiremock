@@ -77,8 +77,14 @@ public class RecordSpec {
       @JsonProperty("transformerParameters") Parameters transformerParameters) {
     this.targetBaseUrl = targetBaseUrl;
     this.filters = filters == null ? ProxiedServeEventFilters.ALLOW_ALL : filters;
+    if (Boolean.TRUE.equals(captureAllHeaders)
+        && captureHeaders != null
+        && !captureHeaders.isEmpty()) {
+      throw new IllegalArgumentException(
+          "captureHeaders and captureAllHeaders cannot be used together");
+    }
     this.captureHeaders = captureHeaders;
-    this.captureAllHeaders = captureAllHeaders != null && captureAllHeaders;
+    this.captureAllHeaders = Boolean.TRUE.equals(captureAllHeaders);
     this.excludeHeaders = excludeHeaders == null ? List.of() : List.copyOf(excludeHeaders);
     this.requestBodyPatternFactory =
         requestBodyPatternFactory == null

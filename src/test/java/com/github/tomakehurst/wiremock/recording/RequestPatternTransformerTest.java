@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.http.Request;
@@ -94,9 +96,9 @@ public class RequestPatternTransformerTest {
             .withHeader("X-Foo", equalTo("bar"))
             .withHeader("Accept", equalTo("application/json"));
 
-    assertEquals(
-        expected.build(),
-        new RequestPatternTransformer(null, true, List.of(), null).apply(request).build());
+    assertThat(
+        new RequestPatternTransformer(null, true, List.of(), null).apply(request).build(),
+        is(expected.build()));
   }
 
   @Test
@@ -112,11 +114,11 @@ public class RequestPatternTransformerTest {
         new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
             .withHeader("X-Foo", equalTo("bar"));
 
-    assertEquals(
-        expected.build(),
+    assertThat(
         new RequestPatternTransformer(null, true, List.of("authorization"), null)
             .apply(request)
-            .build());
+            .build(),
+        is(expected.build()));
   }
 
   @Test
@@ -136,9 +138,9 @@ public class RequestPatternTransformerTest {
     Map<String, CaptureHeadersSpec> headers =
         Map.of("x-caseinsensitive", new CaptureHeadersSpec(true));
 
-    assertEquals(
-        expected.build(),
-        new RequestPatternTransformer(headers, true, List.of(), null).apply(request).build());
+    assertThat(
+        new RequestPatternTransformer(headers, true, List.of(), null).apply(request).build(),
+        is(expected.build()));
   }
 
   @Test
@@ -156,11 +158,11 @@ public class RequestPatternTransformerTest {
 
     Map<String, CaptureHeadersSpec> headers = Map.of("Authorization", new CaptureHeadersSpec(true));
 
-    assertEquals(
-        expected.build(),
+    assertThat(
         new RequestPatternTransformer(headers, true, List.of("authorization"), null)
             .apply(request)
-            .build());
+            .build(),
+        is(expected.build()));
   }
 
   @Test
@@ -178,10 +180,10 @@ public class RequestPatternTransformerTest {
 
     Map<String, CaptureHeadersSpec> headers = Map.of("X-Foo", new CaptureHeadersSpec(false));
 
-    assertEquals(
-        expected.build(),
+    assertThat(
         new RequestPatternTransformer(headers, false, List.of("X-Foo"), null)
             .apply(request)
-            .build());
+            .build(),
+        is(expected.build()));
   }
 }
