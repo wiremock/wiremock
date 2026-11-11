@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http.multipart;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.multipart.FileItemPartAdapter.TO_PARTS;
+import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -54,7 +54,10 @@ public class PartParser {
       List<FileItem> items = upload.parseRequest(uploadContext);
       return items.stream().map(TO_PARTS).collect(Collectors.toList());
     } catch (FileUploadException e) {
-      return throwUnchecked(e, Collection.class);
+      // A body that cannot be parsed as multipart content must not fail the whole
+      // request. Treat it as having no parts so the request can still be served,
+      // matched and recorded. Fixes https://github.com/wiremock/wiremock/issues/3133
+      return emptyList();
     }
   }
 
