@@ -16,11 +16,9 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
 @JsonIgnoreProperties({"$schema", "meta", "uuid"})
-@JsonDeserialize
 public class MessageStubMappingCollection implements MessageStubMappingOrMappings {
 
   private List<MessageStubMapping> messageMappings;

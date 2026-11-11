@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -49,7 +50,7 @@ import org.jspecify.annotations.NonNull;
 
 @JsonInclude(NON_EMPTY)
 @JsonIgnoreProperties({"$schema", "uuid", "insertionIndex"})
-public class MessageStubMapping implements Prioritisable {
+public class MessageStubMapping implements Prioritisable, MessageStubMappingOrMappings {
 
   public static final int DEFAULT_PRIORITY = 5;
 
@@ -134,6 +135,18 @@ public class MessageStubMapping implements Prioritisable {
   @NonNull
   public Metadata getMetadata() {
     return metadata;
+  }
+
+  @JsonIgnore
+  @Override
+  public List<MessageStubMapping> getMappingOrMappings() {
+    return List.of(this);
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isMulti() {
+    return false;
   }
 
   public boolean matches(MessageChannel channel, Message message) {
