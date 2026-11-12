@@ -37,6 +37,9 @@ public class RecordSpec {
   // matcher
   private final Map<String, CaptureHeadersSpec> captureHeaders;
 
+  private final Boolean captureAllHeaders;
+  private final List<String> excludeHeaders;
+
   // Factory for the StringValuePattern that will be used to match request bodies
   private final RequestBodyPatternFactory requestBodyPatternFactory;
 
@@ -63,6 +66,8 @@ public class RecordSpec {
       @JsonProperty("targetBaseUrl") String targetBaseUrl,
       @JsonProperty("filters") ProxiedServeEventFilters filters,
       @JsonProperty("captureHeaders") Map<String, CaptureHeadersSpec> captureHeaders,
+      @JsonProperty("captureAllHeaders") Boolean captureAllHeaders,
+      @JsonProperty("excludeHeaders") List<String> excludeHeaders,
       @JsonProperty("requestBodyPattern") RequestBodyPatternFactory requestBodyPatternFactory,
       @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
       @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
@@ -73,6 +78,8 @@ public class RecordSpec {
     this.targetBaseUrl = targetBaseUrl;
     this.filters = filters == null ? ProxiedServeEventFilters.ALLOW_ALL : filters;
     this.captureHeaders = captureHeaders;
+    this.captureAllHeaders = captureAllHeaders != null && captureAllHeaders;
+    this.excludeHeaders = excludeHeaders == null ? List.of() : List.copyOf(excludeHeaders);
     this.requestBodyPatternFactory =
         requestBodyPatternFactory == null
             ? RequestBodyAutomaticPatternFactory.DEFAULTS
@@ -86,13 +93,14 @@ public class RecordSpec {
   }
 
   private RecordSpec() {
-    this(null, null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public static final RecordSpec DEFAULTS = new RecordSpec();
 
   public static RecordSpec forBaseUrl(String targetBaseUrl) {
-    return new RecordSpec(targetBaseUrl, null, null, null, null, null, null, true, null, null);
+    return new RecordSpec(
+        targetBaseUrl, null, null, null, null, null, null, null, true, null, null, null);
   }
 
   public String getTargetBaseUrl() {
@@ -105,6 +113,14 @@ public class RecordSpec {
 
   public Map<String, CaptureHeadersSpec> getCaptureHeaders() {
     return captureHeaders;
+  }
+
+  public boolean shouldCaptureAllHeaders() {
+    return captureAllHeaders;
+  }
+
+  public List<String> getExcludeHeaders() {
+    return excludeHeaders;
   }
 
   public SnapshotOutputFormatter getOutputFormat() {

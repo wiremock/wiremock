@@ -19,6 +19,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -53,6 +55,13 @@ public class Recorder {
   }
 
   public synchronized void startRecording(RecordSpec spec) {
+    if (spec.getCaptureHeaders() != null
+        && !spec.getCaptureHeaders().isEmpty()
+        && spec.shouldCaptureAllHeaders()) {
+      throw new InvalidInputException(
+          Errors.single(10, "captureHeaders and captureAllHeaders cannot be used together"));
+    }
+
     RecorderState state = stateStore.get();
     if (state.getStatus() == RecordingStatus.Recording) {
       return;
@@ -116,6 +125,8 @@ public class Recorder {
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(),
+                recordSpec.shouldCaptureAllHeaders(),
+                recordSpec.getExcludeHeaders(),
                 recordSpec.getRequestBodyPatternFactory(),
                 recordSpec.shouldPersist()),
             getStubMappingPostProcessor(recordSpec));
