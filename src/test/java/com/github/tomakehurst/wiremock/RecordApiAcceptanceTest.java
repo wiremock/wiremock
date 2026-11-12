@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJs
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -769,5 +771,31 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
     // Should have persisted the stub mapping (2 = 1 proxy + 1 recorded)
     assertEquals(2, proxyingService.getStubMappings().size());
+  }
+
+  @Test
+  public void rejectsRecordingWhenCaptureHeadersAndCaptureAllHeadersAreBothConfigured() {
+    proxyServerStartWithEmptyFileRoot();
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "captureAllHeaders": true,
+          "captureHeaders": {
+            "Accept": {}
+          },
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    WireMockResponse response =
+        proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        containsString("captureHeaders and captureAllHeaders cannot be used together"));
   }
 }
