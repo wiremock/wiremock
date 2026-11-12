@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
@@ -40,6 +42,7 @@ import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithSer
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.AfterEach;
@@ -830,10 +833,15 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
     StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/foo/bar");
 
-    var capturedHeaders = createdMapping.getRequest().getHeaders();
+    Map<String, MultiValuePattern> capturedHeaders = createdMapping.getRequest().getHeaders();
 
-    assertThat(capturedHeaders, hasKey("Accept"));
-    assertThat(capturedHeaders, hasKey("X-Custom"));
+    assertThat(
+        capturedHeaders.get("Accept"), is(new SingleMatchMultiValuePattern(equalTo("text/plain"))));
+
+    assertThat(
+        capturedHeaders.get("X-Custom"),
+        is(new SingleMatchMultiValuePattern(equalTo("custom-value"))));
+
     assertThat(capturedHeaders, not(hasKey("X-Excluded")));
   }
 }
