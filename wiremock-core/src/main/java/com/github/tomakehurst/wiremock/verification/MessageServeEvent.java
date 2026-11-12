@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.common.ParameterUtils;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.MessageChannel;
@@ -33,6 +34,7 @@ import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.base.Stopwatch;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
@@ -170,6 +172,11 @@ public class MessageServeEvent {
 
   public boolean getWasMatched() {
     return wasMatched;
+  }
+
+  @JsonIgnore
+  public List<MessageServeEventListenerDefinition> getServeEventListeners() {
+    return stubMapping != null ? stubMapping.getServeEventListeners() : List.of();
   }
 
   public Instant getTimestamp() {

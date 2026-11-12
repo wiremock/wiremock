@@ -1014,6 +1014,28 @@
             "$ref" : "#/definitions/message-action"
           }
         },
+        "serveEventListeners" : {
+          "type" : "array",
+          "description" : "The list of message serve event listeners to trigger for this stub",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string"
+              },
+              "phases" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string",
+                  "enum" : [ "BEFORE_MATCH", "AFTER_MATCH", "AFTER_COMPLETE", "MESSAGE_SENT" ]
+                }
+              },
+              "parameters" : {
+                "type" : "object"
+              }
+            }
+          }
+        },
         "metadata" : {
           "type" : "object",
           "description" : "Arbitrary metadata to be attached to the stub mapping",

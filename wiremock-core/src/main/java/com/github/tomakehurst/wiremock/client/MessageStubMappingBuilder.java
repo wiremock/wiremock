@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.message.MessageAction;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.wiremock.annotations.PublishedAPI;
 
@@ -82,6 +84,40 @@ public interface MessageStubMappingBuilder {
    * @return this builder
    */
   MessageStubMappingBuilder withMetadata(Metadata.Builder metadata);
+
+  /**
+   * Attaches a message serve event listener extension to this stub, firing only in the given phase.
+   *
+   * @param phase the phase in which the listener should fire
+   * @param extensionName the name of the listener extension
+   * @param parameters parameters to pass to the listener
+   * @return this builder
+   */
+  default <P> MessageStubMappingBuilder withServeEventListener(
+      MessagePhase phase, String extensionName, P parameters) {
+    return withServeEventListener(Set.of(phase), extensionName, parameters);
+  }
+
+  /**
+   * Attaches a message serve event listener extension to this stub, firing only in the given
+   * phases.
+   *
+   * @param phases the phases in which the listener should fire
+   * @param extensionName the name of the listener extension
+   * @param parameters parameters to pass to the listener
+   * @return this builder
+   */
+  <P> MessageStubMappingBuilder withServeEventListener(
+      Set<MessagePhase> phases, String extensionName, P parameters);
+
+  /**
+   * Attaches a message serve event listener extension to this stub, firing in all phases.
+   *
+   * @param extensionName the name of the listener extension
+   * @param parameters parameters to pass to the listener
+   * @return this builder
+   */
+  <P> MessageStubMappingBuilder withServeEventListener(String extensionName, P parameters);
 
   /**
    * Configures the actions to trigger when this stub matches. This method terminates the builder
