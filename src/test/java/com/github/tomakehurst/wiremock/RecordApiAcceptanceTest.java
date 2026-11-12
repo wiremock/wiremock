@@ -24,7 +24,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappi
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -797,5 +799,41 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         response.content(),
         containsString("captureHeaders and captureAllHeaders cannot be used together"));
+  }
+
+  @Test
+  public void recordsAllHeadersExceptExcludedHeaders() {
+    proxyServerStartWithEmptyFileRoot();
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "captureAllHeaders": true,
+          "excludeHeaders": ["x-excluded"],
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    proxyingTestClient.get(
+        "/foo/bar",
+        withHeader("Accept", "text/plain"),
+        withHeader("X-Custom", "custom-value"),
+        withHeader("X-Excluded", "excluded-value"));
+
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
+
+    assertThat(response.statusCode(), is(200));
+
+    StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/foo/bar");
+
+    var capturedHeaders = createdMapping.getRequest().getHeaders();
+
+    assertThat(capturedHeaders, hasKey("Accept"));
+    assertThat(capturedHeaders, hasKey("X-Custom"));
+    assertThat(capturedHeaders, not(hasKey("X-Excluded")));
   }
 }
