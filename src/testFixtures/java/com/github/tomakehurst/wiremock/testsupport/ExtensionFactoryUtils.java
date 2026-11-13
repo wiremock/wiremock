@@ -68,9 +68,7 @@ public class ExtensionFactoryUtils {
 
   public static Extension buildExtension(
       MockWireMockServices wireMockServices, ExtensionFactory factory) {
-    FileSource fileSource =
-        new ClasspathFileSource(
-            ExtensionFactoryUtils.class.getClassLoader().getResource("templates").getPath());
+    FileSource fileSource = new ClasspathFileSource(TestFiles.filePath("templates"));
     wireMockServices.setFileSource(fileSource);
     return factory.create(wireMockServices).stream().findFirst().get();
   }
