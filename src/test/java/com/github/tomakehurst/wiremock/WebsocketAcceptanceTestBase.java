@@ -20,7 +20,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetMessageStubs;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.waitAtMost;
 
+import com.github.tomakehurst.wiremock.verification.LoggedMessageChannel;
+import com.github.tomakehurst.wiremock.verification.LoggedRequestInitiatedChannel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -38,5 +42,18 @@ public abstract class WebsocketAcceptanceTestBase extends AcceptanceTestBase {
 
   protected String websocketUrl(String path) {
     return "ws://localhost:" + wireMockServer.port() + path;
+  }
+
+  protected void waitForOpenChannels(String path, int count) {
+    waitAtMost(5, SECONDS).until(() -> openChannelCount(path) == count);
+  }
+
+  private long openChannelCount(String path) {
+    return wireMockServer.listAllMessageChannels().getChannels().stream()
+        .filter(LoggedMessageChannel::isOpen)
+        .filter(LoggedRequestInitiatedChannel.class::isInstance)
+        .map(LoggedRequestInitiatedChannel.class::cast)
+        .filter(channel -> channel.getInitiatingRequest().getUrl().equals(path))
+        .count();
   }
 }
