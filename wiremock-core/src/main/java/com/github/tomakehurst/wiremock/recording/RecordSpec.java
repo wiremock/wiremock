@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.List;
@@ -115,10 +116,11 @@ public class RecordSpec {
     return captureHeaders;
   }
 
-  public boolean shouldCaptureAllHeaders() {
+  public boolean getCaptureAllHeaders() {
     return captureAllHeaders;
   }
 
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public List<String> getExcludeHeaders() {
     return excludeHeaders;
   }
@@ -153,6 +155,7 @@ public class RecordSpec {
     return extractBodyCriteria;
   }
 
+  @JsonProperty("requestBodyPattern")
   public RequestBodyPatternFactory getRequestBodyPatternFactory() {
     return requestBodyPatternFactory;
   }
