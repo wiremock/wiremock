@@ -1,0 +1,8 @@
+{
+  "resources": [
+    { "glob": "assets/**" },
+    { "glob": "swagger/**" },
+    { "bundle": "joptsimple.ExceptionMessages" },
+    { "bundle": "joptsimple.HelpFormatterMessages" }
+  ]
+}

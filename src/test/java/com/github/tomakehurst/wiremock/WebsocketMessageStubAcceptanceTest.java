@@ -66,7 +66,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void getMessageStubReturnsFalseIsPresentWhenNotFound() {
-    assertThat(wireMockServer.getMessageStubMapping(UUID.randomUUID()).isPresent(), is(false));
+    assertThat(admin().getMessageStubMapping(UUID.randomUUID()).isPresent(), is(false));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
             .triggersAction(SendMessageAction.toOriginatingChannel("nothing"))
             .build();
 
-    assertThat(wireMockServer.editMessageStubMapping(nonExistent).isPresent(), is(false));
+    assertThat(admin().editMessageStubMapping(nonExistent).isPresent(), is(false));
   }
 
   @Test
@@ -115,7 +115,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
             .withBody(equalTo("ping"))
             .triggersAction(SendMessageAction.toOriginatingChannel("pong"))
             .build();
-    wireMockServer.addMessageStubMapping(stub);
+    admin().addMessageStubMapping(stub);
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/echo");
@@ -262,7 +262,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
     String response1 = testClient.sendMessageAndWaitForResponse(url, "test");
     assertThat(response1, is("response"));
 
-    wireMockServer.removeMessageStubMapping(stub.getId());
+    admin().removeMessageStubMapping(stub.getId());
     testClient.clearMessages();
 
     testClient.sendMessage(url, "test");
@@ -359,7 +359,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void canFindMessageStubsByMetadata() {
-    wireMockServer.resetMessageStubMappings();
+    admin().resetMessageStubMappings();
 
     messageStubFor(
         message()
@@ -392,7 +392,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
 
   @Test
   void canRemoveMessageStubsByMetadata() {
-    wireMockServer.resetMessageStubMappings();
+    admin().resetMessageStubMappings();
 
     messageStubFor(
         message()

@@ -30,19 +30,19 @@ public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
   public void canEditAnExistingStubMapping() {
     UUID id = UUID.randomUUID();
 
-    wireMockServer.stubFor(
+    wm.stubFor(
         get(urlEqualTo("/edit-this")).withId(id).willReturn(aResponse().withBody("Original")));
 
     assertThat(testClient.get("/edit-this").content(), is("Original"));
 
-    wireMockServer.editStub(
+    wm.editStub(
         get(urlEqualTo("/edit-this")).withId(id).willReturn(aResponse().withBody("Modified")));
 
     assertThat(testClient.get("/edit-this").content(), is("Modified"));
 
     int editThisStubCount =
         (int)
-            wireMockServer.listAllStubMappings().getMappings().stream()
+            admin().listAllStubMappings().getMappings().stream()
                 .filter(withUrl("/edit-this"))
                 .count();
 

@@ -42,7 +42,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.getWithPreemptiveCredentials(
-            "/basic/auth/preemptive", wireMockServer.port(), "the-username", "thepassword");
+            "/basic/auth/preemptive", serverPort(), "the-username", "thepassword");
 
     assertThat(response.statusCode(), is(200));
   }
@@ -56,7 +56,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.getWithPreemptiveCredentials(
-            "/basic/auth/preemptive", wireMockServer.port(), "the-username", "WRONG!!!");
+            "/basic/auth/preemptive", serverPort(), "the-username", "WRONG!!!");
 
     assertThat(response.statusCode(), is(404));
   }

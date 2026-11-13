@@ -59,12 +59,12 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   private void proxyServerStart(WireMockConfiguration config) {
     proxyingService = new WireMockServer(config.dynamicPort());
     proxyingService.start();
-    proxyTargetUrl = "http://localhost:" + wireMockServer.port();
+    proxyTargetUrl = "http://localhost:" + serverPort();
     proxyingService.stubFor(
         proxyAllTo(proxyTargetUrl).withMetadata(metadata().attr("proxy", true)));
 
     proxyingTestClient = new WireMockTestClient(proxyingService.port());
-    wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
+    wm.stubFor(any(anyUrl()).willReturn(ok()));
   }
 
   private void proxyServerStartWithEmptyFileRoot() {
@@ -73,7 +73,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
   @BeforeEach
   public void clearTargetServerMappings() {
-    wireMockServer.resetMappings();
+    admin().resetMappings();
   }
 
   @AfterEach

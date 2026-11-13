@@ -67,15 +67,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 class AdminApiTest extends AcceptanceTestBase {
 
-  static Stubbing dsl = wireMockServer;
-
+  
   @AfterEach
   public void tearDown() throws Exception {
     deleteAllBodyFiles();
   }
 
   private void deleteAllBodyFiles() throws IOException {
-    FileSource filesRoot = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource filesRoot = serverFilesRoot().child(FILES_ROOT);
     if (filesRoot.exists()) {
       List<TextFile> textFiles = filesRoot.listFilesRecursively();
       for (TextFile textFile : textFiles) {
@@ -87,7 +86,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void getAllStubMappings() throws Exception {
     StubMapping stubMapping =
-        dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
+        wm.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
     String body = testClient.get("/__admin/mappings").content();
 
@@ -117,7 +116,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void getAllStubMappingsWithLimitedResults() {
     for (int i = 1; i <= 20; i++) {
-      dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
+      wm.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
 
     String allBody = testClient.get("/__admin/mappings").content();
@@ -130,7 +129,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void getAllStubMappingsWithLimitedAndOffsetResults() {
     for (int i = 1; i <= 20; i++) {
-      dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
+      wm.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
 
     String limitedBody = testClient.get("/__admin/mappings?limit=4&offset=3").content();
@@ -152,7 +151,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void deprecatedGetAllStubMappings() throws Exception {
-    dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
+    wm.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
     String body = testClient.get("/__admin/").content();
     System.out.println(body);
@@ -176,7 +175,7 @@ class AdminApiTest extends AcceptanceTestBase {
   void getStubMappingById() throws Exception {
     UUID id = UUID.randomUUID();
 
-    dsl.stubFor(
+    wm.stubFor(
         trace(urlEqualTo("/my-addressable-stub"))
             .withId(id)
             .willReturn(aResponse().withStatus(451)));
@@ -202,7 +201,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void getLoggedRequests() {
-    dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
+    wm.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
@@ -226,7 +225,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void getLoggedRequestsWithLimit() {
-    dsl.stubFor(
+    wm.stubFor(
         get(urlPathEqualTo("/received-request/7"))
             .willReturn(aResponse().withStatus(200).withBody("This was matched")));
 
@@ -319,7 +318,7 @@ class AdminApiTest extends AcceptanceTestBase {
       testClient.get("/received-request/" + i);
     }
 
-    List<ServeEvent> serveEvents = dsl.getAllServeEvents();
+    List<ServeEvent> serveEvents = wm.getAllServeEvents();
     UUID servedStubId = serveEvents.get(1).getId();
 
     WireMockResponse response = testClient.get("/__admin/requests/" + servedStubId);
@@ -335,7 +334,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void deleteStubMappingById() {
     StubMapping stubMapping =
-        dsl.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
+        wm.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/delete/this").statusCode(), is(200));
 
@@ -353,7 +352,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void editStubMappingById() throws Exception {
     StubMapping stubMapping =
-        dsl.stubFor(get(urlPathEqualTo("/put/this")).willReturn(aResponse().withStatus(200)));
+        wm.stubFor(get(urlPathEqualTo("/put/this")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/put/this").statusCode(), is(200));
 
@@ -399,8 +398,8 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void resetStubMappingsViaDELETE() {
-    dsl.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
-    dsl.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
+    wm.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/reset-this").statusCode(), is(200));
     assertThat(testClient.get("/reset-this/too").statusCode(), is(200));
@@ -418,26 +417,26 @@ class AdminApiTest extends AcceptanceTestBase {
     testClient.get("/two");
     testClient.get("/three");
 
-    assertThat(dsl.getAllServeEvents().size(), is(3));
+    assertThat(wm.getAllServeEvents().size(), is(3));
 
     WireMockResponse response = testClient.delete("/__admin/requests");
 
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     assertThat(response.content(), is("{}"));
     assertThat(response.statusCode(), is(200));
-    assertThat(dsl.getAllServeEvents().size(), is(0));
+    assertThat(wm.getAllServeEvents().size(), is(0));
   }
 
   @Test
   void resetScenariosViaPOST() {
-    dsl.stubFor(
+    wm.stubFor(
         get(urlEqualTo("/stateful"))
             .inScenario("changing-states")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("final")
             .willReturn(aResponse().withBody("Initial")));
 
-    dsl.stubFor(
+    wm.stubFor(
         get(urlEqualTo("/stateful"))
             .inScenario("changing-states")
             .whenScenarioStateIs("final")
@@ -455,14 +454,14 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void getScenarios() {
-    dsl.stubFor(
+    wm.stubFor(
         get("/one")
             .inScenario("my-scenario")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("2")
             .willReturn(ok("started")));
 
-    dsl.stubFor(
+    wm.stubFor(
         get("/one")
             .inScenario("my-scenario")
             .whenScenarioStateIs("2")
@@ -504,14 +503,14 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void returnsBadEntityWhenAttemptingToSetNonExistentScenarioState() {
-    dsl.stubFor(
+    wm.stubFor(
         get("/one")
             .inScenario("my-scenario")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("2")
             .willReturn(ok("started")));
 
-    dsl.stubFor(
+    wm.stubFor(
         get("/one")
             .inScenario("my-scenario")
             .whenScenarioStateIs("2")
@@ -837,7 +836,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void deleteStubFile() {
     String fileName = "bar.txt";
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile(fileName, "contents");
 
@@ -852,7 +851,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void deleteStubFileInTree() {
     String fileName = "foo/bar.txt";
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile(fileName, "contents");
 
@@ -867,7 +866,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void editStubFileContent() {
     String fileName = "bar.txt";
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile(fileName, "AAA");
 
@@ -884,7 +883,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void createStubFileContentInTree() {
     String fileName = "foo/bar.txt";
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
 
     int statusCode =
@@ -900,7 +899,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void getStubFileContent() {
     String fileName = "foo/bar.txt";
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile(fileName, "AAA");
 
@@ -915,7 +914,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void listStubFiles() {
-    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    FileSource fileSource = serverFilesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile("bar.txt", "contents");
     fileSource.writeTextFile("zoo.txt", "contents");
@@ -929,7 +928,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void fetchStubWithMetadata() {
     UUID id = UUID.randomUUID();
-    wireMockServer.stubFor(
+    wm.stubFor(
         get("/with-metadata")
             .withId(id)
             .withMetadata(
@@ -951,7 +950,7 @@ class AdminApiTest extends AcceptanceTestBase {
   @SuppressWarnings("unchecked")
   void stubMetadataIsAbsentWhenNoneSpecified() {
     UUID id = UUID.randomUUID();
-    wireMockServer.stubFor(get("/without-metadata").withId(id));
+    wm.stubFor(get("/without-metadata").withId(id));
 
     WireMockResponse response = testClient.get("/__admin/mappings/" + id);
     Map<String, ?> data = Json.read(response.content(), Map.class);
@@ -996,7 +995,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
     testClient.postJson("/__admin/mappings/import", IMPORT_JSON);
 
-    List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+    List<StubMapping> stubs = admin().listAllStubMappings().getMappings();
     assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
     assertThat(stubs.size(), is(2));
   }
@@ -1033,7 +1032,7 @@ class AdminApiTest extends AcceptanceTestBase {
         testClient.postJson("/__admin/mappings/import", EMPTY_ID_IMPORT_JSON);
     assertThat(response.statusCode(), is(200));
 
-    List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+    List<StubMapping> stubs = admin().listAllStubMappings().getMappings();
     assertThat(stubs, everyItem(hasIdAndUuid()));
   }
 
@@ -1071,7 +1070,7 @@ class AdminApiTest extends AcceptanceTestBase {
         testClient.postJson("/__admin/mappings/import", EMPTY_UUID_IMPORT_JSON);
     assertThat(response.statusCode(), is(200));
 
-    List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+    List<StubMapping> stubs = admin().listAllStubMappings().getMappings();
     assertThat(stubs, everyItem(hasIdAndUuid()));
   }
 
@@ -1099,7 +1098,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
     assertThat(response.statusCode(), is(200));
     assertThat(
-        wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"),
+        admin().getGlobalSettings().getSettings().getExtended().getInt("mySetting"),
         is(123));
   }
 
@@ -1128,7 +1127,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
     assertThat(response.statusCode(), is(200));
 
-    GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
+    GlobalSettings settings = admin().getGlobalSettings().getSettings();
     assertThat(settings.getDelayDistribution(), Matchers.instanceOf(UniformDistribution.class));
     assertThat(settings.getExtended().getInt("one"), is(1));
     assertThat(
@@ -1141,14 +1140,14 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void patchExtendedGlobalSettings() {
-    wireMockServer.updateGlobalSettings(
+    admin().updateGlobalSettings(
         GlobalSettings.builder().extended(Parameters.one("two", 2)).build());
 
     WireMockResponse response =
         testClient.patchWithBody("/__admin/settings/extended", EXTENDED_JSON, "application/json");
     assertThat(response.statusCode(), is(200));
 
-    Parameters extended = wireMockServer.getGlobalSettings().getSettings().getExtended();
+    Parameters extended = admin().getGlobalSettings().getSettings().getExtended();
     assertThat(extended.getInt("one"), is(11));
     assertThat(extended.getInt("two"), is(2));
     assertThat(extended.getInt("three"), is(3));

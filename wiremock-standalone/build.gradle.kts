@@ -1,5 +1,8 @@
+import java.net.URLClassLoader
+
 plugins {
   id("wiremock.common-conventions")
+  alias(libs.plugins.graalvm.native)
 }
 
 shadow{
@@ -120,4 +123,74 @@ configurations.apiElements {
 configurations.runtimeElements {
   outgoing.artifacts.clear()
   outgoing.artifact(tasks.shadowJar)
+}
+
+// Built from the unshaded runtime classpath so that library-supplied and repository metadata match class names.
+// Native config lives outside src/main/resources so it never leaks into the relocated standalone jar:
+//   src/native-image/generated  agent-traced metadata, rewritten by updateNativeMetadata
+//   src/native-image/resources  native-only classpath entry: hand-written metadata and service registrations
+graalvmNative {
+  binaries.named("main") {
+    imageName = "wiremock"
+    mainClass = "wiremock.Run"
+    sharedLibrary = false
+    // The plugin otherwise compiles the relocated shadow jar
+    classpath.setFrom(configurations.runtimeClasspath, file("src/native-image/resources"))
+    configurationFileDirectories.from(file("src/native-image/generated"))
+    buildArgs.addAll("--no-fallback", "-H:+AddAllCharsets")
+  }
+  metadataRepository {
+    enabled = true
+  }
+}
+
+// Regenerating the metadata:
+//   ./gradlew test standaloneJvmAcceptanceTest -PnativeAgent   (traces the in-process suite and the standalone process)
+//   ./gradlew :wiremock-standalone:updateNativeMetadata          (merges the traces into src/native-image/generated)
+// Entries for types that only exist on the test classpath are dropped, because the tests share packages with main.
+val updateNativeMetadata by tasks.registering {
+  group = "native"
+  description = "Merges native-image-agent traces into src/native-image, keeping only runtime classpath types"
+  val agentOutput = layout.buildDirectory.dir("native-agent")
+  val metadataDir = file("src/native-image/generated")
+  val runtimeClasspath = configurations.runtimeClasspath
+  val javaHome = providers.environmentVariable("GRAALVM_HOME").orElse(providers.systemProperty("java.home"))
+  doLast {
+    // A trace without a metadata file (only the agent's .lock) is from a process that was killed mid-write
+    val traces = agentOutput.get().asFile.listFiles { f -> f.resolve("reachability-metadata.json").exists() }
+      .orEmpty().sorted()
+    require(traces.isNotEmpty()) { "No agent traces in ${agentOutput.get()}; run the tests with -PnativeAgent first" }
+    val merged = temporaryDir.resolve("merged").apply { deleteRecursively() }
+    val inputs = (traces + metadataDir.takeIf { it.resolve("reachability-metadata.json").exists() })
+      .filterNotNull().map { "--input-dir=$it" }
+    providers.exec {
+      commandLine(listOf("${javaHome.get()}/bin/native-image-configure", "generate", "--output-dir=$merged") + inputs)
+    }.result.get().assertNormalExitValue()
+
+    val loader = URLClassLoader(
+      runtimeClasspath.get().files.map { it.toURI().toURL() }.toTypedArray(),
+      ClassLoader.getPlatformClassLoader(),
+    )
+    fun exists(type: Any?): Boolean = when (type) {
+      is String -> loader.getResource(type.removeSuffix("[]").replace("[]", "").replace('.', '/') + ".class") != null
+      is Map<*, *> -> (type["proxy"] as? List<*>).orEmpty().all { exists(it) }
+      else -> false
+    }
+    fun resourceExists(entry: Any?): Boolean {
+      val glob = (entry as? Map<*, *>)?.get("glob") as? String ?: return true
+      return glob.contains('*') || loader.getResource(glob) != null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    val metadata = groovy.json.JsonSlurper().parse(merged.resolve("reachability-metadata.json")) as MutableMap<String, Any?>
+    listOf("reflection", "jni").forEach { key ->
+      (metadata[key] as? List<*>)?.let { entries -> metadata[key] = entries.filter { exists((it as Map<*, *>)["type"]) } }
+    }
+    (metadata["resources"] as? List<*>)?.let { entries -> metadata["resources"] = entries.filter(::resourceExists) }
+    loader.close()
+
+    metadataDir.mkdirs()
+    metadataDir.resolve("reachability-metadata.json")
+      .writeText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata)).replace(Regex("\\[\\s+]"), "[]") + "\n")
+  }
 }

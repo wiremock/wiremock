@@ -60,6 +60,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
   private static final String MAPPINGS = "mappings";
 
   private WireMockServerRunner runner;
+  private ExternalWireMock external;
   private WireMockTestClient testClient;
 
   private WireMockServer otherServer;
@@ -87,7 +88,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
 
   @AfterEach
   public void stopServerRunner() {
-    runner.stop();
+    stopRunner();
     if (otherServer != null) {
       otherServer.stop();
     }
@@ -494,7 +495,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
     // Keep trying the server until it shuts down.
     long startTime = System.currentTimeMillis();
     while (System.currentTimeMillis() - startTime < 5000) {
-      if (!runner.isRunning()) {
+      if (!runnerIsRunning()) {
         return;
       }
     }
@@ -515,7 +516,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
     // Keep trying the server until it shuts down.
     long startTime = System.currentTimeMillis();
     while (System.currentTimeMillis() - startTime < 5000) {
-      if (!runner.isRunning()) {
+      if (!runnerIsRunning()) {
         return;
       }
     }
@@ -544,7 +545,9 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
   void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
     writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-    MappingFileException exception = assertThrows(MappingFileException.class, this::startRunner);
+    Class<? extends RuntimeException> expected =
+        ExternalWireMock.enabled() ? IllegalStateException.class : MappingFileException.class;
+    RuntimeException exception = assertThrows(expected, this::startRunner);
     assertThat(
         exception.getMessage(),
         allOf(
@@ -636,16 +639,32 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
   }
 
   private void startRunner(String... args) {
-    runner = new WireMockServerRunner();
-    runner.run(argsWithPort(argsWithRecordingsPath(args)));
+    int port;
+    if (ExternalWireMock.enabled()) {
+      external = ExternalWireMock.launch(asList(argsWithRecordingsPath(args)));
+      port = external.port();
+    } else {
+      runner = new WireMockServerRunner();
+      runner.run(argsWithPort(argsWithRecordingsPath(args)));
+      port = runner.port();
+    }
 
-    int port = runner.port();
     testClient = new WireMockTestClient(port);
     WireMock.configureFor(port);
   }
 
   private void stopRunner() {
-    runner.stop();
+    if (external != null) {
+      ExternalWireMock stopping = external;
+      external = null;
+      stopping.stop();
+    } else {
+      runner.stop();
+    }
+  }
+
+  private boolean runnerIsRunning() {
+    return external != null ? external.isRunning() : runner.isRunning();
   }
 
   private String[] argsWithRecordingsPath(String[] args) {
@@ -673,7 +692,7 @@ public class StandaloneAcceptanceTest extends AcceptanceTestBase {
   }
 
   private String systemOutText() {
-    return out.toString();
+    return external != null ? external.output() : out.toString();
   }
 
   private String systemErrText() {

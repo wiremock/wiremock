@@ -1,0 +1,3926 @@
+{
+    "reflection": [
+        {
+            "type": "apple.security.AppleProvider",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.ethlo.time.ITU"
+        },
+        {
+            "type": "com.fasterxml.jackson.core.JsonGenerator"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.ObjectMapper"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.deser.BeanDeserializerModifier[]"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.deser.Deserializers[]"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.deser.KeyDeserializers[]"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.deser.ValueInstantiators[]"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.ser.BeanSerializerModifier[]"
+        },
+        {
+            "type": "com.fasterxml.jackson.databind.ser.Serializers[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ExtendedSettingsWrapper",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.global.GlobalSettings"
+                    ]
+                },
+                {
+                    "name": "getSettings",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.GetMessageServeEventsResult",
+            "methods": [
+                {
+                    "name": "getMessageServeEvents",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isMessageJournalDisabled",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.GetScenariosResult",
+            "methods": [
+                {
+                    "name": "getScenarios",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult",
+            "methods": [
+                {
+                    "name": "getRequests",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.HealthCheckResult",
+            "methods": [
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStatus",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTimestamp",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUptimeInSeconds",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getVersion",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult",
+            "methods": [
+                {
+                    "name": "getChannelProviders",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult",
+            "methods": [
+                {
+                    "name": "getChannels",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult",
+            "methods": [
+                {
+                    "name": "getMessageMappings",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult",
+            "methods": [
+                {
+                    "name": "getMappings",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.PaginatedResult",
+            "methods": [
+                {
+                    "name": "getMeta",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta",
+            "fields": [
+                {
+                    "name": "total"
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.RequestJournalDependentResult",
+            "methods": [
+                {
+                    "name": "isRequestJournalDisabled",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.ScenarioState",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SendChannelMessageRequest",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.ChannelType",
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.message.MessageDefinition"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleItemResult",
+            "methods": [
+                {
+                    "name": "getItem",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageServeEventResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.WaitForMessageEventRequest",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.MessagePattern",
+                        "long",
+                        "java.lang.Integer"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.client.BasicCredentials",
+            "fields": [
+                {
+                    "name": "password"
+                },
+                {
+                    "name": "username"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.client.WireMock$JsonSchemaVersion"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Errors",
+            "methods": [
+                {
+                    "name": "getErrors",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Errors$Error",
+            "methods": [
+                {
+                    "name": "getCode",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDetail",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSource",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTitle",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Errors$Error$Source",
+            "methods": [
+                {
+                    "name": "getPointer",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.ListOrSingleSerialiser",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.ListOrStringDeserialiser",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Message",
+            "methods": [
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Metadata",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.Map"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Prioritisable"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.Timing",
+            "methods": [
+                {
+                    "name": "getAddedDelay",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProcessTime",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getResponseSendTime",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getServeTime",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTotalTime",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.CompressionType"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.EntityDefinition",
+            "methods": [
+                {
+                    "name": "getCharset",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCompression",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getData",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFilePath",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFormatForSerialization",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.EntityDefinition$DefaultCharsetFilter",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.EntityDefinition$DefaultCompressionFilter",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.EntityDefinitionDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.FilePathEntityDefinition",
+            "methods": [
+                {
+                    "name": "getFilePath",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.Format",
+            "methods": [
+                {
+                    "name": "value",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.SimpleEntityDefinitionSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.filemaker.FilenameTemplateModel",
+            "methods": [
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.ssl.WritableFileOrClasspathKeyStoreSource",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "char[]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListener$MessagePhase"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.Parameters",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.Map"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.PostServeActionDefinitionListDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.PostServeActionDefinition[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.ServeEventListener$RequestPhase"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.MessageTemplateTransformer$MessageTemplateModel",
+            "methods": [
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel",
+            "methods": [
+                {
+                    "name": "getMethod",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPath",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.global.GlobalSettings",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Integer",
+                        "com.github.tomakehurst.wiremock.http.DelayDistribution",
+                        "com.github.tomakehurst.wiremock.extension.Parameters",
+                        "boolean"
+                    ]
+                },
+                {
+                    "name": "getDelayDistribution",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getExtended",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFixedDelay",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProxyPassThrough",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Cookie",
+            "methods": [
+                {
+                    "name": "getValues",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.DelayDistribution"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Fault"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Fault$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Fault$2"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Fault$3"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Fault$4"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.FormParameter"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.HttpHeadersJsonDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.HttpHeadersJsonSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.LogNormal",
+            "fields": [
+                {
+                    "name": "maxValue"
+                },
+                {
+                    "name": "median"
+                },
+                {
+                    "name": "sigma"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "double",
+                        "double",
+                        "java.lang.Double"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.LoggedResponse",
+            "methods": [
+                {
+                    "name": "getBodyAsBase64",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsString",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFault",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStatus",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isFromProxy",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.MultiValue",
+            "methods": [
+                {
+                    "name": "getKey",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getValues",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.QueryParameter",
+            "methods": [
+                {
+                    "name": "key",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "values",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Request"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Request$Part"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.RequestMethod",
+            "methods": [
+                {
+                    "name": "value",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.RequestMethodConstants"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.RequestMethodJsonDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.ResponseDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.common.entity.EntityDefinition",
+                        "com.fasterxml.jackson.databind.JsonNode",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.HttpHeaders",
+                        "com.github.tomakehurst.wiremock.http.HttpHeaders",
+                        "java.util.List",
+                        "java.lang.Integer",
+                        "com.github.tomakehurst.wiremock.http.DelayDistribution",
+                        "com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.Fault",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.extension.Parameters",
+                        "java.lang.Boolean",
+                        "com.github.tomakehurst.wiremock.message.ChannelType"
+                    ]
+                },
+                {
+                    "name": "getAdditionalProxyRequestHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBase64Body",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyFileName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getChunkedDribbleDelay",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDelayDistribution",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFault",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFixedDelayMilliseconds",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getJsonBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getOpenChannelOfType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProxyBaseUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProxyUrlPrefixToRemove",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRemoveProxyRequestHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStatus",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStatusMessage",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformerParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformers",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isFromConfiguredStub",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.UniformDistribution",
+            "fields": [
+                {
+                    "name": "lower"
+                },
+                {
+                    "name": "upper"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int",
+                        "int"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.WireMockHandlerDispatchingServlet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.servlet.ContentTypeSettingFilter",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.servlet.NotMatchedServlet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.servlet.TrailingSlashFilter",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint",
+            "methods": [
+                {
+                    "name": "onWebSocketBinary",
+                    "parameterTypes": [
+                        "java.nio.ByteBuffer",
+                        "org.eclipse.jetty.websocket.api.Callback"
+                    ]
+                },
+                {
+                    "name": "onWebSocketClose",
+                    "parameterTypes": [
+                        "int",
+                        "java.lang.String",
+                        "org.eclipse.jetty.websocket.api.Callback"
+                    ]
+                },
+                {
+                    "name": "onWebSocketOpen",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.websocket.api.Session"
+                    ]
+                },
+                {
+                    "name": "onWebSocketText",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbsentPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractDateTimePattern",
+            "methods": [
+                {
+                    "name": "getActualFormat",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getApplyTruncationLast",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTruncateActual",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTruncateExpected",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractLogicalMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractRegexPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AdvancedPathPattern",
+            "fields": [
+                {
+                    "name": "expression"
+                },
+                {
+                    "name": "submatcher"
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AfterDateTimePattern",
+            "methods": [
+                {
+                    "name": "getAfter",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AnythingPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern",
+            "methods": [
+                {
+                    "name": "getBefore",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern",
+            "methods": [
+                {
+                    "name": "getBinaryEqualTo",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ContainsPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getContains",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ContentPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ContentPatternDeserialiser",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ContentPattern[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern",
+            "methods": [
+                {
+                    "name": "getEqualToDateTime",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToJsonPattern",
+            "methods": [
+                {
+                    "name": "getSerializedEqualToJson",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreArrayOrder",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreExtraElements",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToPattern",
+            "methods": [
+                {
+                    "name": "getCaseInsensitive",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getEqualTo",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern",
+            "methods": [
+                {
+                    "name": "getEqualToXml",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getExemptedComparisons",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getNamespaceAwareness",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPlaceholderClosingDelimiterRegex",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPlaceholderOpeningDelimiterRegex",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isEnablePlaceholders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreOrderOfSameNode",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern$NamespaceAwareness"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern",
+            "fields": [
+                {
+                    "name": "stringValuePatterns"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern",
+            "fields": [
+                {
+                    "name": "stringValuePatterns"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.JsonPathPatternJsonSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.LogicalAnd",
+            "methods": [
+                {
+                    "name": "getAnd",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.LogicalOr",
+            "methods": [
+                {
+                    "name": "getOr",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonSchemaPattern",
+            "methods": [
+                {
+                    "name": "getMatchesJsonSchema",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSchemaVersion",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesXPathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MemoizingMatchResult",
+            "methods": [
+                {
+                    "name": "getDiffDescriptions",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDistance",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSubEvents",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern$IsNoneOf",
+            "methods": [
+                {
+                    "name": "value",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern$IsOneOf",
+            "methods": [
+                {
+                    "name": "value",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultiValuePattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultiValuePatternDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.matching.MultipartValuePattern$MatchingType",
+                        "java.util.Map",
+                        "java.util.List"
+                    ]
+                },
+                {
+                    "name": "getBodyPatterns",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFileName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMatchingType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePattern$MatchingType"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePattern[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MultipleMatchMultiValuePattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.NamedValueMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.NegativeContainsPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getDoesNotContain",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.NegativeRegexPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getDoesNotMatch",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.NotPattern",
+            "methods": [
+                {
+                    "name": "getNot",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathTemplatePattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RegexPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getMatches",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestPattern",
+            "fields": [
+                {
+                    "name": "basicAuthCredentials"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.matching.StringValuePattern",
+                        "java.lang.Integer",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.matching.StringValuePattern",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.RequestMethod",
+                        "java.util.Map",
+                        "java.util.Map",
+                        "java.util.Map",
+                        "java.util.Map",
+                        "java.util.Map",
+                        "com.github.tomakehurst.wiremock.client.BasicCredentials",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition",
+                        "java.util.List"
+                    ]
+                },
+                {
+                    "name": "getBasicAuthCredentials",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyPatterns",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getClientIp",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCookies",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCustomMatcher",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFormParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHost",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMethod",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMultipartPatterns",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPathParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPort",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getQueryParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getScheme",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrlPath",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrlPathPattern",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrlPathTemplate",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrlPattern",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.matching.StringValuePattern"
+                    ]
+                },
+                {
+                    "name": "getValuePattern",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePattern",
+            "methods": [
+                {
+                    "name": "isAbsent",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePatternJsonDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePattern[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.ValueMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.XPathPatternJsonSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.ChannelPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.ChannelTarget"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.ChannelType",
+            "methods": [
+                {
+                    "name": "fromJson",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "toJson",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.ChannelType$Directionality"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.ChannelType$Lifecycle"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.FixedChannelPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.ChannelType",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.matching.StringValuePattern"
+                    ]
+                },
+                {
+                    "name": "getChannelName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getChannelProvider",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getType",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.FixedChannelTarget",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getChannelName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProviderName",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.HttpRequestTrigger",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern"
+                    ]
+                },
+                {
+                    "name": "getRequestPattern",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.HttpStubTrigger",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID"
+                    ]
+                },
+                {
+                    "name": "getStubId",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.IncomingMessageTrigger",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.ChannelPattern",
+                        "com.github.tomakehurst.wiremock.message.MessagePattern"
+                    ]
+                },
+                {
+                    "name": "getChannel",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.Message",
+            "methods": [
+                {
+                    "name": "getBase64Body",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsString",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageAction"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.common.entity.EntityDefinition",
+                        "com.github.tomakehurst.wiremock.message.MessageHeaders"
+                    ]
+                },
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageHeadersJsonDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageHeadersJsonSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessagePattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern",
+                        "com.github.tomakehurst.wiremock.matching.ContentPattern"
+                    ]
+                },
+                {
+                    "name": "getBodyPattern",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageStubMapping",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "java.lang.String",
+                        "java.lang.Integer",
+                        "com.github.tomakehurst.wiremock.message.MessageTrigger",
+                        "java.util.List",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.common.Metadata",
+                        "long"
+                    ]
+                },
+                {
+                    "name": "getActions",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMetadata",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPriority",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getServeEventListeners",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTrigger",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageStubMappingCollection"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageStubMappingOrMappings"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.MessageTrigger"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.OriginatingChannelTarget",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.RequestInitiatedChannelPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.ChannelType",
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern"
+                    ]
+                },
+                {
+                    "name": "getInitiatingRequestPattern",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getType",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.RequestInitiatedChannelTarget",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.ChannelType",
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern"
+                    ]
+                },
+                {
+                    "name": "getChannelType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequestPattern",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.SendMessageAction",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.MessageDefinition",
+                        "com.github.tomakehurst.wiremock.message.ChannelTarget",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getChannelTarget",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformerParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformers",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.channel.ChannelProvider",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.util.Map"
+                    ]
+                },
+                {
+                    "name": "getDriverType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSettings",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.CaptureHeadersSpec",
+            "methods": [
+                {
+                    "name": "getCaseInsensitive",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.ProxiedServeEventFilters",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFilters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getIds",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isAllowNonProxied",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "setAllowNonProxied",
+                    "parameterTypes": [
+                        "boolean"
+                    ]
+                },
+                {
+                    "name": "setFilters",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RecordSpec",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.recording.ProxiedServeEventFilters",
+                        "java.util.Map",
+                        "java.lang.Boolean",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.recording.RequestBodyPatternFactory",
+                        "com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher",
+                        "com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter",
+                        "java.lang.Boolean",
+                        "java.lang.Boolean",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getCaptureAllHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCaptureHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getExcludeHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getExtractBodyCriteria",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFilters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getOutputFormat",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRepeatsAsScenarios",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequestBodyPatternFactory",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTargetBaseUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformerParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTransformers",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "shouldPersist",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RequestBodyAutomaticPatternFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Boolean",
+                        "java.lang.Boolean"
+                    ]
+                },
+                {
+                    "name": "isCaseInsensitive",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreArrayOrder",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreExtraElements",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RequestBodyPatternFactory"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher",
+            "methods": [
+                {
+                    "name": "getBinarySizeThreshold",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTextSizeThreshold",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcherDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter",
+            "methods": [
+                {
+                    "name": "fromString",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.SnapshotRecordResult",
+            "methods": [
+                {
+                    "name": "getErrors",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.SnapshotRecordResult$Full",
+            "methods": [
+                {
+                    "name": "getMappings",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.Scenario",
+            "methods": [
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMappings",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPossibleStates",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getState",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.ServeEvent",
+            "methods": [
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getResponse",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getResponseDefinition",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStubMapping",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSubEvents",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTiming",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getWasMatched",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubImport",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.stubbing.StubImport$Options"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubImport$Options",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.stubbing.StubImport$Options$DuplicatePolicy",
+                        "java.lang.Boolean"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubImport$Options$DuplicatePolicy"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubMapping",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "java.lang.String",
+                        "java.lang.Boolean",
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern",
+                        "com.github.tomakehurst.wiremock.http.ResponseDefinition",
+                        "java.lang.Integer",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.util.List",
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.common.Metadata",
+                        "long"
+                    ]
+                },
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getInsertionIndex",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMetadata",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getNewScenarioState",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPostServeActions",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPriority",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequiredScenarioState",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getResponse",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getScenarioName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getServeEventListeners",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isPersistent",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubMappingCollection",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "setMappings",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappings"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubMappingOrMappingsJsonDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.StubMapping[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.stubbing.SubEvent",
+            "methods": [
+                {
+                    "name": "getData",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTimeOffsetNanos",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getType",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.FindMessageServeEventsResult",
+            "methods": [
+                {
+                    "name": "getMessageServeEvents",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.FindNearMissesResult",
+            "methods": [
+                {
+                    "name": "getNearMisses",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.FindRequestsResult",
+            "methods": [
+                {
+                    "name": "getRequests",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.FindServeEventsResult",
+            "methods": [
+                {
+                    "name": "getServeEvents",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.JournalBasedResult",
+            "methods": [
+                {
+                    "name": "requestJournalIsDisabled",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.LoggedFixedChannel",
+            "methods": [
+                {
+                    "name": "getChannelName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProviderName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isOpen",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.LoggedMessageChannel"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.LoggedRequest",
+            "fields": [
+                {
+                    "name": "formParameters"
+                },
+                {
+                    "name": "host"
+                },
+                {
+                    "name": "port"
+                },
+                {
+                    "name": "queryParams"
+                },
+                {
+                    "name": "scheme"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.RequestMethod",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.HttpHeaders",
+                        "java.util.Map",
+                        "boolean",
+                        "java.util.Date",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.util.Collection",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getAbsoluteUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsBase64",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsString",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getClientIp",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCookies",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFormParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHost",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getLoggedDate",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getLoggedDateString",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMethod",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPort",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProtocol",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getQueryParams",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getScheme",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isBrowserProxyRequest",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.LoggedRequestInitiatedChannel",
+            "methods": [
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getInitiatingRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isOpen",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.MessageServeEvent",
+            "methods": [
+                {
+                    "name": "getChannel",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getEventType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStubMapping",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSubEvents",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTimestamp",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getWasMatched",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.MessageServeEvent$EventType",
+            "methods": [
+                {
+                    "name": "toJson",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.MessageVerificationResult",
+            "methods": [
+                {
+                    "name": "getCount",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isMessageJournalDisabled",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.NearMiss",
+            "methods": [
+                {
+                    "name": "getMatchResult",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequestPattern",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStubMapping",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.NonEmptyFieldsSerializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.VerificationResult",
+            "methods": [
+                {
+                    "name": "getCount",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.verification.diff.DiffEventData",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getContentType",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getReport",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getStatus",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.google.common.collect.BiMap"
+        },
+        {
+            "type": "com.google.common.collect.ImmutableBiMap"
+        },
+        {
+            "type": "com.google.common.collect.ImmutableMap"
+        },
+        {
+            "type": "com.google.common.collect.ImmutableMapEntry[]"
+        },
+        {
+            "type": "com.google.common.collect.RegularImmutableMap"
+        },
+        {
+            "type": "com.google.common.collect.SingletonImmutableBiMap"
+        },
+        {
+            "type": "com.google.common.util.concurrent.AbstractFutureState",
+            "fields": [
+                {
+                    "name": "listenersField"
+                },
+                {
+                    "name": "valueField"
+                },
+                {
+                    "name": "waitersField"
+                }
+            ]
+        },
+        {
+            "type": "com.google.common.util.concurrent.AbstractFutureState$Waiter",
+            "fields": [
+                {
+                    "name": "next"
+                },
+                {
+                    "name": "thread"
+                }
+            ]
+        },
+        {
+            "type": "com.jayway.jsonpath.spi.cache.CacheProvider"
+        },
+        {
+            "type": "com.sun.crypto.provider.AESCipher$General",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.ARCFOURCipher",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.DESCipher",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.DESedeCipher",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.DHParameters",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.TlsMasterSecretGenerator",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.GarbageCollectorMXBean"
+        },
+        {
+            "type": "com.sun.management.GcInfo"
+        },
+        {
+            "type": "com.sun.management.HotSpotDiagnosticMXBean",
+            "methods": [
+                {
+                    "name": "getVMOption",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.ThreadMXBean"
+        },
+        {
+            "type": "com.sun.management.UnixOperatingSystemMXBean"
+        },
+        {
+            "type": "com.sun.management.VMOption",
+            "methods": [
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getOrigin",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getValue",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isWriteable",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.VMOption$Origin",
+            "jniAccessible": true,
+            "fields": [
+                {
+                    "name": "ATTACH_ON_DEMAND"
+                },
+                {
+                    "name": "CONFIG_FILE"
+                },
+                {
+                    "name": "DEFAULT"
+                },
+                {
+                    "name": "ENVIRON_VAR"
+                },
+                {
+                    "name": "ERGONOMIC"
+                },
+                {
+                    "name": "MANAGEMENT"
+                },
+                {
+                    "name": "OTHER"
+                },
+                {
+                    "name": "VM_CREATION"
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "boolean",
+                        "boolean",
+                        "boolean",
+                        "int"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo[]"
+        },
+        {
+            "type": "com.sun.management.internal.DiagnosticCommandInfo",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "boolean",
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.internal.DiagnosticCommandInfo[]"
+        },
+        {
+            "type": "com.sun.management.internal.Flag",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.Object",
+                        "boolean",
+                        "boolean",
+                        "com.sun.management.VMOption$Origin"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.sun.management.internal.GarbageCollectorExtImpl"
+        },
+        {
+            "type": "com.sun.management.internal.HotSpotDiagnostic"
+        },
+        {
+            "type": "com.sun.management.internal.HotSpotThreadImpl"
+        },
+        {
+            "type": "com.sun.management.internal.OperatingSystemImpl"
+        },
+        {
+            "type": "com.sun.management.internal.VirtualThreadSchedulerImpls$VirtualThreadSchedulerImpl"
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX"
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xml.internal.utils.FastStringBuffer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "jakarta.servlet.http.Cookie[]"
+        },
+        {
+            "type": "java.io.Serializable"
+        },
+        {
+            "type": "java.lang.Boolean",
+            "jniAccessible": true,
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "boolean"
+                    ]
+                },
+                {
+                    "name": "getBoolean",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Byte",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Character",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Class",
+            "methods": [
+                {
+                    "name": "isRecord",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Cloneable"
+        },
+        {
+            "type": "java.lang.Comparable"
+        },
+        {
+            "type": "java.lang.Deprecated"
+        },
+        {
+            "type": "java.lang.Double",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Float",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Integer",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Iterable"
+        },
+        {
+            "type": "java.lang.Long",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Number"
+        },
+        {
+            "type": "java.lang.Object[]"
+        },
+        {
+            "type": "java.lang.SecurityManager",
+            "methods": [
+                {
+                    "name": "checkPermission",
+                    "parameterTypes": [
+                        "java.security.Permission"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Short",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.StackTraceElement"
+        },
+        {
+            "type": "java.lang.String"
+        },
+        {
+            "type": "java.lang.String[]"
+        },
+        {
+            "type": "java.lang.System",
+            "methods": [
+                {
+                    "name": "getSecurityManager",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Thread",
+            "methods": [
+                {
+                    "name": "ofVirtual",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Thread$Builder",
+            "methods": [
+                {
+                    "name": "factory",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Void",
+            "fields": [
+                {
+                    "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.constant.Constable"
+        },
+        {
+            "type": "java.lang.constant.ConstantDesc"
+        },
+        {
+            "type": "java.lang.invoke.VarHandle"
+        },
+        {
+            "type": "java.lang.management.BufferPoolMXBean"
+        },
+        {
+            "type": "java.lang.management.ClassLoadingMXBean"
+        },
+        {
+            "type": "java.lang.management.CompilationMXBean"
+        },
+        {
+            "type": "java.lang.management.LockInfo"
+        },
+        {
+            "type": "java.lang.management.MemoryMXBean"
+        },
+        {
+            "type": "java.lang.management.MemoryManagerMXBean"
+        },
+        {
+            "type": "java.lang.management.MemoryPoolMXBean"
+        },
+        {
+            "type": "java.lang.management.MemoryUsage"
+        },
+        {
+            "type": "java.lang.management.MonitorInfo"
+        },
+        {
+            "type": "java.lang.management.PlatformLoggingMXBean"
+        },
+        {
+            "type": "java.lang.management.RuntimeMXBean"
+        },
+        {
+            "type": "java.lang.management.ThreadInfo"
+        },
+        {
+            "type": "java.math.BigDecimal"
+        },
+        {
+            "type": "java.math.BigInteger"
+        },
+        {
+            "type": "java.net.UnixDomainSocketAddress"
+        },
+        {
+            "type": "java.nio.charset.Charset"
+        },
+        {
+            "type": "java.security.AccessController",
+            "methods": [
+                {
+                    "name": "doPrivileged",
+                    "parameterTypes": [
+                        "java.security.PrivilegedAction"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "java.security.AlgorithmParametersSpi"
+        },
+        {
+            "type": "java.security.KeyStoreSpi"
+        },
+        {
+            "type": "java.security.MessageDigestSpi"
+        },
+        {
+            "type": "java.security.interfaces.RSAPrivateKey"
+        },
+        {
+            "type": "java.security.interfaces.RSAPublicKey"
+        },
+        {
+            "type": "java.util.AbstractCollection"
+        },
+        {
+            "type": "java.util.AbstractList"
+        },
+        {
+            "type": "java.util.AbstractMap"
+        },
+        {
+            "type": "java.util.ArrayList$SubList"
+        },
+        {
+            "type": "java.util.Arrays",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "asList",
+                    "parameterTypes": [
+                        "java.lang.Object[]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "java.util.Collection"
+        },
+        {
+            "type": "java.util.Collections$EmptyMap"
+        },
+        {
+            "type": "java.util.Collections$SingletonList"
+        },
+        {
+            "type": "java.util.Collections$UnmodifiableCollection"
+        },
+        {
+            "type": "java.util.Collections$UnmodifiableList"
+        },
+        {
+            "type": "java.util.Collections$UnmodifiableMap"
+        },
+        {
+            "type": "java.util.Collections$UnmodifiableRandomAccessList"
+        },
+        {
+            "type": "java.util.Date"
+        },
+        {
+            "type": "java.util.HashSet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.util.ImmutableCollections$AbstractImmutableCollection"
+        },
+        {
+            "type": "java.util.ImmutableCollections$AbstractImmutableList"
+        },
+        {
+            "type": "java.util.ImmutableCollections$AbstractImmutableMap"
+        },
+        {
+            "type": "java.util.ImmutableCollections$List12"
+        },
+        {
+            "type": "java.util.ImmutableCollections$ListN"
+        },
+        {
+            "type": "java.util.ImmutableCollections$Map1"
+        },
+        {
+            "type": "java.util.ImmutableCollections$MapN"
+        },
+        {
+            "type": "java.util.List"
+        },
+        {
+            "type": "java.util.Map"
+        },
+        {
+            "type": "java.util.Map$Entry[]"
+        },
+        {
+            "type": "java.util.RandomAccess"
+        },
+        {
+            "type": "java.util.UUID"
+        },
+        {
+            "type": "java.util.concurrent.Executors",
+            "methods": [
+                {
+                    "name": "newThreadPerTaskExecutor",
+                    "parameterTypes": [
+                        "java.util.concurrent.ThreadFactory"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "java.util.function.Predicate"
+        },
+        {
+            "type": "javax.management.MBeanOperationInfo"
+        },
+        {
+            "type": "javax.management.MBeanServerBuilder",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "javax.management.ObjectName"
+        },
+        {
+            "type": "javax.management.StandardEmitterMBean"
+        },
+        {
+            "type": "javax.management.openmbean.CompositeData"
+        },
+        {
+            "type": "javax.management.openmbean.CompositeData[]"
+        },
+        {
+            "type": "javax.management.openmbean.OpenMBeanOperationInfoSupport"
+        },
+        {
+            "type": "javax.management.openmbean.TabularData"
+        },
+        {
+            "type": "javax.security.auth.Subject",
+            "methods": [
+                {
+                    "name": "callAs",
+                    "parameterTypes": [
+                        "javax.security.auth.Subject",
+                        "java.util.concurrent.Callable"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "jdk.management.VirtualThreadSchedulerMXBean"
+        },
+        {
+            "type": "jdk.management.jfr.ConfigurationInfo"
+        },
+        {
+            "type": "jdk.management.jfr.EventTypeInfo"
+        },
+        {
+            "type": "jdk.management.jfr.FlightRecorderMXBean"
+        },
+        {
+            "type": "jdk.management.jfr.FlightRecorderMXBeanImpl"
+        },
+        {
+            "type": "jdk.management.jfr.RecordingInfo"
+        },
+        {
+            "type": "jdk.management.jfr.SettingDescriptorInfo"
+        },
+        {
+            "type": "org.apache.commons.fileupload.MultipartStream",
+            "methods": [
+                {
+                    "name": "newInputStream",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlet.DefaultServlet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.http.Http10FieldPreEncoder"
+        },
+        {
+            "type": "org.eclipse.jetty.http.Http11FieldPreEncoder"
+        },
+        {
+            "type": "org.eclipse.jetty.http.pathmap.PathSpecSet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.http2.hpack.HpackFieldPreEncoder"
+        },
+        {
+            "type": "org.eclipse.jetty.util.AsciiLowerCaseSet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.util.TypeUtil",
+            "methods": [
+                {
+                    "name": "getClassLoaderLocation",
+                    "parameterTypes": [
+                        "java.lang.Class"
+                    ]
+                },
+                {
+                    "name": "getCodeSourceLocation",
+                    "parameterTypes": [
+                        "java.lang.Class"
+                    ]
+                },
+                {
+                    "name": "getModuleLocation",
+                    "parameterTypes": [
+                        "java.lang.Class"
+                    ]
+                },
+                {
+                    "name": "getSystemClassLoaderLocation",
+                    "parameterTypes": [
+                        "java.lang.Class"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.util.Utf8StringBuilder",
+            "methods": [
+                {
+                    "name": "errorActionIgnore",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "errorActionReplace",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "errorActionReport",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.util.ssl.SslContextFactory$Server"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.common.internal.ByteBufferMessageSink",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.websocket.core.CoreSession",
+                        "org.eclipse.jetty.websocket.core.util.MethodHolder",
+                        "boolean"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.internal.FragmentExtension"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.internal.FrameCaptureExtension"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.internal.IdentityExtension"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.internal.ValidationExtension"
+        },
+        {
+            "type": "org.eclipse.jetty.websocket.core.messages.StringMessageSink",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.websocket.core.CoreSession",
+                        "org.eclipse.jetty.websocket.core.util.MethodHolder",
+                        "boolean"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.slf4j.Logger"
+        },
+        {
+            "type": "org.xmlunit.placeholder.IgnorePlaceholderHandler"
+        },
+        {
+            "type": "org.xmlunit.placeholder.IsDateTimePlaceholderHandler"
+        },
+        {
+            "type": "org.xmlunit.placeholder.IsNumberPlaceholderHandler"
+        },
+        {
+            "type": "org.xmlunit.placeholder.MatchesRegexPlaceholderHandler"
+        },
+        {
+            "type": "sun.management.ClassLoadingImpl"
+        },
+        {
+            "type": "sun.management.CompilationImpl"
+        },
+        {
+            "type": "sun.management.ManagementFactoryHelper$1"
+        },
+        {
+            "type": "sun.management.ManagementFactoryHelper$PlatformLoggingImpl"
+        },
+        {
+            "type": "sun.management.MemoryImpl"
+        },
+        {
+            "type": "sun.management.MemoryManagerImpl"
+        },
+        {
+            "type": "sun.management.MemoryPoolImpl"
+        },
+        {
+            "type": "sun.management.RuntimeImpl"
+        },
+        {
+            "type": "sun.management.VMManagementImpl",
+            "jniAccessible": true,
+            "fields": [
+                {
+                    "name": "compTimeMonitoringSupport"
+                },
+                {
+                    "name": "currentThreadCpuTimeSupport"
+                },
+                {
+                    "name": "objectMonitorUsageSupport"
+                },
+                {
+                    "name": "otherThreadCpuTimeSupport"
+                },
+                {
+                    "name": "remoteDiagnosticCommandsSupport"
+                },
+                {
+                    "name": "synchronizerUsageSupport"
+                },
+                {
+                    "name": "threadAllocatedMemorySupport"
+                },
+                {
+                    "name": "threadContentionMonitoringSupport"
+                }
+            ]
+        },
+        {
+            "type": "sun.nio.cs.HistoricallyNamedCharset"
+        },
+        {
+            "type": "sun.nio.cs.UTF_8"
+        },
+        {
+            "type": "sun.nio.cs.Unicode"
+        },
+        {
+            "type": "sun.reflect.misc.Trampoline",
+            "methods": [
+                {
+                    "name": "invoke",
+                    "parameterTypes": [
+                        "java.lang.reflect.Method",
+                        "java.lang.Object",
+                        "java.lang.Object[]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.pkcs12.PKCS12KeyStore",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.DSA$SHA224withDSA",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.DSA$SHA256withDSA",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.JavaKeyStore$DualFormatJKS",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.JavaKeyStore$JKS",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.NativePRNG",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.security.SecureRandomParameters"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.SHA",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.SHA2$SHA224",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.SHA2$SHA256",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.SHA5$SHA384",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.SHA5$SHA512",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.X509Factory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.PSSParameters",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.RSAKeyFactory$Legacy",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.RSAKeyPairGenerator$Legacy",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.RSAPSSSignature",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.RSASignature$SHA224withRSA",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.rsa.RSASignature$SHA256withRSA",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.ssl.KeyManagerFactoryImpl$SunX509",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.ssl.SSLContextImpl$TLSContext",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.AuthorityInfoAccessExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.AuthorityKeyIdentifierExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.BasicConstraintsExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.CRLDistributionPointsExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.CertificatePoliciesExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.ExtendedKeyUsageExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.KeyUsageExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.NetscapeCertTypeExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.PrivateKeyUsageExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.x509.SubjectKeyIdentifierExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.text.resources.cldr.FormatData"
+        },
+        {
+            "type": "sun.text.resources.cldr.FormatData_en"
+        },
+        {
+            "type": "sun.util.resources.cldr.CalendarData"
+        }
+    ],
+    "resources": [
+        {
+            "glob": "META-INF/services/com.github.tomakehurst.wiremock.extension.Extension"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.http.HttpFieldPreEncoder"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.websocket.core.Extension"
+        },
+        {
+            "glob": "META-INF/services/org.xmlunit.placeholder.PlaceholderHandler"
+        },
+        {
+            "glob": "assets"
+        },
+        {
+            "glob": "doc-index.html"
+        },
+        {
+            "glob": "helpers.nashorn.js"
+        },
+        {
+            "glob": "jakarta/servlet/LocalStrings.properties"
+        },
+        {
+            "glob": "jakarta/servlet/http/LocalStrings.properties"
+        },
+        {
+            "glob": "keystore"
+        },
+        {
+            "glob": "org/eclipse/jetty/http/encoding.properties"
+        },
+        {
+            "glob": "org/eclipse/jetty/http/mime.properties"
+        },
+        {
+            "glob": "org/eclipse/jetty/server/jetty-dir.css"
+        },
+        {
+            "glob": "org/eclipse/jetty/version/build.properties"
+        },
+        {
+            "glob": "swagger/wiremock-admin-api.json"
+        },
+        {
+            "glob": "version.properties"
+        },
+        {
+            "bundle": "com.sun.org.apache.xalan.internal.xsltc.compiler.util.ErrorMessages"
+        },
+        {
+            "bundle": "com.sun.org.apache.xerces.internal.impl.msg.XMLMessages"
+        },
+        {
+            "bundle": "com.sun.org.apache.xml.internal.serializer.XMLEntities"
+        },
+        {
+            "bundle": "jakarta.servlet.LocalStrings"
+        },
+        {
+            "bundle": "jakarta.servlet.http.LocalStrings"
+        }
+    ]
+}

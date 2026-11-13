@@ -779,7 +779,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/custom-match-this");
       testClient.get("/custom-match-this");
 
-      wireMockServer.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
+      wm.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
     }
 
     @Test
@@ -787,7 +787,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/custom-match-this");
       testClient.get("/custom-match-that");
 
-      wireMockServer.verify(
+      wm.verify(
           2,
           requestMadeFor(
               new RequestMatcher() {
@@ -948,7 +948,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/local-request-matcher-ext-this");
       testClient.get("/local-request-matcher-ext-that");
 
-      wireMockServer.verify(
+      wm.verify(
           2,
           requestMadeFor(
               "path-contains-param", Parameters.one("path", "local-request-matcher-ext")));

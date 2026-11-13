@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 public class WebsocketStubMatchingAcceptanceTest extends WebsocketAcceptanceTestBase {
 
-  private final WireMockTestClient testClient = new WireMockTestClient(wireMockServer.port());
+  private final WireMockTestClient testClient = new WireMockTestClient(serverPort());
 
   @BeforeEach
   void resetCatchAllStub() {

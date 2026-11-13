@@ -180,6 +180,122 @@ tasks.test {
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 }
 
+// Runs the AcceptanceTestBase suites against WireMock launched as a separate process, so that the
+// standalone JVM jar and the GraalVM native binary are held to the same behaviour.
+// -PnativeAgent runs the JVM target under the GraalVM tracing agent to harvest reachability metadata.
+// RecordingDslAcceptanceTest is left out: it records through an in-process proxy, not the external server.
+val externalAcceptanceTests = listOf(
+  "com.github.tomakehurst.wiremock.AdminApiTest",
+  "com.github.tomakehurst.wiremock.BasicAuthAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ChannelProviderApiAcceptanceTest",
+  "com.github.tomakehurst.wiremock.CookieMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.DateHeaderAcceptanceTest",
+  "com.github.tomakehurst.wiremock.DebugHeadersAcceptanceTest",
+  "com.github.tomakehurst.wiremock.EditMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.EditStubMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.FaultsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.FixedMessageChannelAcceptanceTest",
+  "com.github.tomakehurst.wiremock.GlobalSettingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.GzipAcceptanceTest",
+  "com.github.tomakehurst.wiremock.HeaderMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.JsonSchemaMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.LogTimingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.LooseUrlAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MessageChannelApiValidationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MessageMappingValidationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MultipartBodyMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.NearMissesAcceptanceTest",
+  "com.github.tomakehurst.wiremock.NetworkTrafficListenerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.QueuedThreadPoolAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RecordApiAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RecorderServeEventTransformerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoteMappingsLoaderAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoveStubMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoveStubMappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SavingMappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ScenarioAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ServeEventLogAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SseAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StandaloneAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubImportAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubMetadataAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubRequestLoggingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubbingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SubServeEventsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.UrlMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.UrlPathTemplateMatchingTest",
+  "com.github.tomakehurst.wiremock.VerificationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketConnectionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketHttpTriggerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageJournalAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageStubAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketStubMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.extension.ExtensionLifeCycleAcceptanceTest",
+)
+
+// Tests that depend on in-process state, or on HttpAdminClient defects that the in-process client hides
+val externalAcceptanceTestExclusions = listOf(
+  "com.github.tomakehurst.wiremock.AdminApiTest.getVersionRequest*",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.textEntityDefinitionWithDataStore*",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.textEntityDefinitionWithFilePathResolvesFromFilesStore",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.binaryMessageFromDataStoreCanBeSentAsResponse",
+  // HttpAdminClient cannot deserialise SendChannelMessageResult ("channelsMessaged")
+  "com.github.tomakehurst.wiremock.WebsocketConnectionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageJournalAcceptanceTest.messageJournalRecordsSentEventWhenMessageSentViaApi*",
+  // HttpAdminClient fails on the empty 404 body instead of returning an empty result
+  "com.github.tomakehurst.wiremock.WebsocketMessageStubAcceptanceTest.*ReturnsFalseIsPresentWhenNotFound",
+)
+
+fun registerExternalAcceptanceTest(name: String, targetTask: String, command: Test.() -> String) =
+  tasks.register<Test>(name) {
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = tasks.test.get().classpath
+    systemProperty("user.timezone", "Australia/Sydney")
+    filter {
+      externalAcceptanceTests.forEach { includeTestsMatching(it) }
+      externalAcceptanceTestExclusions.forEach { excludeTestsMatching(it) }
+      isFailOnNoMatchingTests = false
+    }
+    dependsOn(targetTask)
+    outputs.upToDateWhen { false }
+    val testTask = this
+    doFirst { testTask.systemProperty("wiremock.acceptance.externalCommand", testTask.command()) }
+  }
+
+val standaloneJar = layout.projectDirectory.file("wiremock-standalone/build/libs/wiremock-standalone-$version.jar")
+val nativeBinary = layout.projectDirectory.file("wiremock-standalone/build/native/nativeCompile/wiremock")
+val nativeAgentDir = layout.projectDirectory.dir("wiremock-standalone/build/native-agent")
+
+val traceWithNativeAgent = providers.gradleProperty("nativeAgent").isPresent
+
+if (traceWithNativeAgent) {
+  tasks.test {
+    val callerFilter = file("wiremock-standalone/src/native-agent/caller-filter.json")
+    jvmArgs("-agentlib:native-image-agent=config-output-dir=${nativeAgentDir.asFile.absolutePath}/test-{pid},caller-filter-file=$callerFilter")
+  }
+}
+
+registerExternalAcceptanceTest(
+  "standaloneJvmAcceptanceTest",
+  if (traceWithNativeAgent) "classes" else ":wiremock-standalone:shadowJar",
+) {
+  val java = javaLauncher.get().executablePath.asFile.absolutePath
+  if (traceWithNativeAgent) {
+    // The agent must see the unrelocated class names that the native image is built from
+    val agentOutput = "${nativeAgentDir.asFile.absolutePath}/standalone-{pid}"
+    "$java -agentlib:native-image-agent=config-output-dir=$agentOutput -cp ${sourceSets.main.get().runtimeClasspath.asPath} wiremock.Run"
+  } else {
+    "$java -jar ${standaloneJar.asFile.absolutePath}"
+  }
+}
+
+registerExternalAcceptanceTest("nativeAcceptanceTest", ":wiremock-standalone:nativeCompile") {
+  nativeBinary.asFile.absolutePath
+}
+
 val testJar by tasks.registering(Jar::class) {
   archiveClassifier.set("tests")
   from(sourceSets.test.get().output)

@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Test;
 
 public class SseAcceptanceTest extends AcceptanceTestBase {
 
-  private final WireMockTestClient testClient = new WireMockTestClient(wireMockServer.port());
+  private final WireMockTestClient testClient = new WireMockTestClient(serverPort());
 
   @BeforeEach
   void setup() {
@@ -70,7 +70,7 @@ public class SseAcceptanceTest extends AcceptanceTestBase {
   }
 
   private String serverUrl(String path) {
-    return "http://localhost:" + wireMockServer.port() + path;
+    return "http://localhost:" + serverPort() + path;
   }
 
   @Test

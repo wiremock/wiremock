@@ -51,7 +51,7 @@ public class WebsocketEntityDefinitionAcceptanceTest extends WebsocketAcceptance
             .withBody(equalTo("trigger"))
             .triggersAction(sendMessage().withBody("hello world").onOriginatingChannel())
             .build();
-    wireMockServer.addMessageStubMapping(stub);
+    admin().addMessageStubMapping(stub);
 
     WebsocketTestClient testClient = new WebsocketTestClient();
     String url = websocketUrl("/string-data-test");

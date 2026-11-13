@@ -92,7 +92,7 @@ public class JsonSchemaMatchingAcceptanceTest extends AcceptanceTestBase {
                         .withRequestBody(matchingJsonSchema(schema))
                         .willReturn(ok())));
 
-    assertThat(wireMockServer.getStubMappings(), is(empty()));
+    assertThat(wm.getStubMappings(), is(empty()));
   }
 
   @ParameterizedTest

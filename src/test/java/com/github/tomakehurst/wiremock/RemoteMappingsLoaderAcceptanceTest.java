@@ -35,7 +35,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   @BeforeAll
   public static void initWithTempDir() throws Exception {
     setupServerWithTempFileRoot();
-    wmClient = WireMock.create().port(wireMockServer.port()).build();
+    wmClient = WireMock.create().port(serverPort()).build();
     rootDir = new File(getResourceURI(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
   }
 
