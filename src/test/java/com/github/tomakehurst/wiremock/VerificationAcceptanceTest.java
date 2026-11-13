@@ -299,7 +299,8 @@ public class VerificationAcceptanceTest {
     void verifiesWithBodyEquallingNamespacedXpath() {
       testClient.postWithBody(
           "/namespaced/xml",
-          "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>",
+          "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The"
+              + " stuff</s:subThing></t:thing>",
           "application/xml",
           "utf-8");
 

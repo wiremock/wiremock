@@ -16,11 +16,9 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -64,7 +62,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   @BeforeAll
   public static void setupServer() {
     resetFileSourceRoot();
-    setupServer(wireMockConfig().fileSource(new SingleRootFileSource(FILE_SOURCE_ROOT)));
+    setupServerWithRootDirectory(FILE_SOURCE_ROOT.getPath());
   }
 
   @BeforeEach

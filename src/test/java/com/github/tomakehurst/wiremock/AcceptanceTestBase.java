@@ -109,7 +109,7 @@ public class AcceptanceTestBase {
     setupServerWithRootDirectory(defaultTestFilesRoot());
   }
 
-  private static void setupServerWithRootDirectory(String rootDirectory) {
+  protected static void setupServerWithRootDirectory(String rootDirectory) {
     if (!ExternalWireMock.enabled()) {
       setupServer(wireMockConfig().withRootDirectory(rootDirectory));
       return;

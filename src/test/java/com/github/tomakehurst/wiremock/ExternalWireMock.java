@@ -114,10 +114,7 @@ public class ExternalWireMock implements Stubbing {
     List<String> command = new ArrayList<>(List.of(externalCommand().trim().split("\\s+")));
     command.addAll(serverArgs);
     process =
-        new ProcessBuilder(command)
-            .redirectErrorStream(true)
-            .redirectOutput(log.toFile())
-            .start();
+        new ProcessBuilder(command).redirectErrorStream(true).redirectOutput(log.toFile()).start();
     client = WireMock.create().host("127.0.0.1").port(port).build();
     awaitHealthy();
   }
@@ -128,7 +125,33 @@ public class ExternalWireMock implements Stubbing {
     }
   }
 
-  private static int freePort() throws IOException {
+  public record Result(int exitCode, String output) {}
+
+  public static Result runToCompletion(String... args) {
+    try {
+      Path output = Files.createTempFile("wiremock-external-", ".log");
+      List<String> command = new ArrayList<>(List.of(externalCommand().trim().split("\\s+")));
+      command.addAll(List.of(args));
+      Process process =
+          new ProcessBuilder(command)
+              .redirectErrorStream(true)
+              .redirectOutput(output.toFile())
+              .start();
+      if (!process.waitFor(60, TimeUnit.SECONDS)) {
+        process.destroyForcibly().waitFor();
+        throw new IllegalStateException(
+            "External WireMock did not exit:\n" + Files.readString(output));
+      }
+      return new Result(process.exitValue(), Files.readString(output));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public static int freePort() throws IOException {
     try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
     }
@@ -138,8 +161,11 @@ public class ExternalWireMock implements Stubbing {
     long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
     while (System.nanoTime() < deadline) {
       if (!process.isAlive()) {
-        String message = "External WireMock exited with code " + process.exitValue() + ":\n" + output();
-        throw output().contains("Failed to bind") ? new PortRace(message) : new IllegalStateException(message);
+        String message =
+            "External WireMock exited with code " + process.exitValue() + ":\n" + output();
+        throw output().contains("Failed to bind")
+            ? new PortRace(message)
+            : new IllegalStateException(message);
       }
       try {
         HttpURLConnection connection =

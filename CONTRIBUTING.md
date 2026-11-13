@@ -49,6 +49,31 @@ To publish both JARs to your local Maven repository:
 
 If you use IntelliJ, you can also use the corresponding run configurations, **Run Tests**, **Build WireMock** and **Publish to Maven local** respectively.
 
+### Native binary
+
+With a GraalVM JDK as `JAVA_HOME` (or `GRAALVM_HOME`), build the standalone server as a native executable at `wiremock-standalone/build/native/nativeCompile/wiremock`:
+
+```bash
+./gradlew :wiremock-standalone:nativeCompile
+```
+
+The acceptance suites can run against either packaged distribution as a separate process. The native binary must pass the same tests as the standalone JVM jar:
+
+```bash
+./gradlew standaloneJvmAcceptanceTest   # java -jar wiremock-standalone.jar
+./gradlew nativeAcceptanceTest          # the native binary
+./gradlew nativeAcceptanceTest -PnativeStrict   # also fail on any lookup missing from the metadata
+```
+
+Reflection and resource metadata is traced from the tests. After changing serialised model classes or adding resources, regenerate it:
+
+```bash
+./gradlew test standaloneJvmAcceptanceTest -PnativeAgent
+./gradlew updateNativeMetadata
+```
+
+Hand-written metadata, for things the tracing cannot discover, lives under `wiremock-standalone/src/native-image/resources`. Extensions can't be loaded by class name or from jars at runtime. To use an extension with the native binary, it has to be compiled into the image.
+
 ## Contributing Code
 
 Please be mindful of the

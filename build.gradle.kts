@@ -1,7 +1,7 @@
-
 import com.github.gundy.semver4j.model.Version
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
+import java.net.URLClassLoader
 
 buildscript {
   repositories {
@@ -218,6 +218,7 @@ val externalAcceptanceTests = listOf(
   "com.github.tomakehurst.wiremock.ServeEventLogAcceptanceTest",
   "com.github.tomakehurst.wiremock.SseAcceptanceTest",
   "com.github.tomakehurst.wiremock.StandaloneAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StandaloneDistributionAcceptanceTest",
   "com.github.tomakehurst.wiremock.StubImportAcceptanceTest",
   "com.github.tomakehurst.wiremock.StubMetadataAcceptanceTest",
   "com.github.tomakehurst.wiremock.StubRequestLoggingAcceptanceTest",
@@ -294,6 +295,66 @@ registerExternalAcceptanceTest(
 
 registerExternalAcceptanceTest("nativeAcceptanceTest", ":wiremock-standalone:nativeCompile") {
   nativeBinary.asFile.absolutePath
+}
+
+// Regenerating the metadata:
+//   ./gradlew test standaloneJvmAcceptanceTest -PnativeAgent   (traces the in-process suite and the standalone process)
+//   ./gradlew updateNativeMetadata                    (merges the traces into src/native-image/generated)
+// Entries for types that only exist on the test classpath are dropped, because the tests share packages with main.
+val updateNativeMetadata by tasks.registering {
+  group = "native"
+  description = "Merges native-image-agent traces into src/native-image/generated, dropping test-only entries"
+  val agentOutput = nativeAgentDir
+  val metadataFile = file("wiremock-standalone/src/native-image/generated/reachability-metadata.json")
+  val runtimeClasspath = sourceSets.main.get().runtimeClasspath
+  val testClasspath = sourceSets.test.get().runtimeClasspath
+  val javaHome = providers.environmentVariable("GRAALVM_HOME").orElse(providers.systemProperty("java.home"))
+  doLast {
+    // A trace without a metadata file (only the agent's .lock) is from a process that was killed mid-write
+    val traces = agentOutput.asFile.listFiles { f -> f.resolve("reachability-metadata.json").exists() }
+      .orEmpty().sorted()
+    require(traces.isNotEmpty()) { "No agent traces in $agentOutput; run the tests with -PnativeAgent first" }
+    val merged = temporaryDir.resolve("merged").apply { deleteRecursively() }
+    providers.exec {
+      commandLine(
+        listOf("${javaHome.get()}/bin/native-image-configure", "generate", "--output-dir=$merged") +
+          traces.map { "--input-dir=$it" },
+      )
+    }.result.get().assertNormalExitValue()
+
+    fun loaderOf(files: Iterable<File>) =
+      URLClassLoader(files.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getPlatformClassLoader())
+    val runtime = loaderOf(runtimeClasspath)
+    val test = loaderOf(testClasspath)
+    // Entries are kept unless they only exist for the tests. Lookups that failed everywhere stay too:
+    // they are probes for optional classes and services, which exact metadata must also record.
+    fun keep(path: String) = runtime.getResource(path) != null || test.getResource(path) == null
+    fun classFile(type: String) = type.substringBefore("[").replace('.', '/') + ".class"
+    fun keepType(type: Any?): Boolean = when (type) {
+      is String -> keep(classFile(type))
+      is Map<*, *> -> (type["proxy"] as? List<*>).orEmpty().all { keepType(it) }
+      else -> true
+    }
+    fun keepResource(entry: Any?): Boolean {
+      val glob = (entry as? Map<*, *>)?.get("glob") as? String ?: return true
+      // Class files read as resources come from bytecode tooling in the tests (ArchUnit, ByteBuddy)
+      return !glob.endsWith(".class") && (glob.contains('*') || keep(glob))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    val metadata = groovy.json.JsonSlurper().parse(merged.resolve("reachability-metadata.json")) as MutableMap<String, Any?>
+    listOf("reflection", "jni").forEach { key ->
+      (metadata[key] as? List<*>)?.let { entries -> metadata[key] = entries.filter { keepType((it as Map<*, *>)["type"]) } }
+    }
+    (metadata["resources"] as? List<*>)?.let { entries -> metadata["resources"] = entries.filter(::keepResource) }
+    runtime.close()
+    test.close()
+
+    metadataFile.parentFile.mkdirs()
+    metadataFile.writeText(
+      groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata)).replace(Regex("\\[\\s+]"), "[]") + "\n",
+    )
+  }
 }
 
 val testJar by tasks.registering(Jar::class) {

@@ -37,7 +37,6 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
@@ -67,7 +66,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 class AdminApiTest extends AcceptanceTestBase {
 
-  
   @AfterEach
   public void tearDown() throws Exception {
     deleteAllBodyFiles();
@@ -693,7 +691,8 @@ class AdminApiTest extends AcceptanceTestBase {
         errors.first().getDetail(),
         allOf(
             containsString(
-                "Unexpected character ('(' (code 40)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')"),
+                "Unexpected character ('(' (code 40)): expected a valid value (JSON String, Number,"
+                    + " Array, Object or token 'null', 'true' or 'false')"),
             containsString("line: 1, column: 1")));
   }
 
@@ -1098,8 +1097,7 @@ class AdminApiTest extends AcceptanceTestBase {
 
     assertThat(response.statusCode(), is(200));
     assertThat(
-        admin().getGlobalSettings().getSettings().getExtended().getInt("mySetting"),
-        is(123));
+        admin().getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
   }
 
   final String WRAPPED_SETTINGS_JSON =
@@ -1140,8 +1138,8 @@ class AdminApiTest extends AcceptanceTestBase {
 
   @Test
   void patchExtendedGlobalSettings() {
-    admin().updateGlobalSettings(
-        GlobalSettings.builder().extended(Parameters.one("two", 2)).build());
+    admin()
+        .updateGlobalSettings(GlobalSettings.builder().extended(Parameters.one("two", 2)).build());
 
     WireMockResponse response =
         testClient.patchWithBody("/__admin/settings/extended", EXTENDED_JSON, "application/json");

@@ -100,8 +100,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                 session2 -> {
                   RequestPattern pattern = newRequestPattern().withUrl("/broadcast").build();
                   SendChannelMessageResult result =
-                      admin().sendChannelMessage(
-                          ChannelType.WEBSOCKET, pattern, "Broadcast message");
+                      admin()
+                          .sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Broadcast message");
 
                   assertThat(result.getChannelsMessaged(), is(2));
 
@@ -136,8 +136,7 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                 sessionB -> {
                   RequestPattern patternA = newRequestPattern().withUrl("/channel-a").build();
                   SendChannelMessageResult result =
-                      admin().sendChannelMessage(
-                          ChannelType.WEBSOCKET, patternA, "Message for A");
+                      admin().sendChannelMessage(ChannelType.WEBSOCKET, patternA, "Message for A");
 
                   assertThat(result.getChannelsMessaged(), is(1));
 
@@ -164,8 +163,8 @@ public class WebsocketConnectionAcceptanceTest extends WebsocketAcceptanceTestBa
                   RequestPattern pattern =
                       newRequestPattern().withUrl(urlPathMatching("/events/.*")).build();
                   SendChannelMessageResult result =
-                      admin().sendChannelMessage(
-                          ChannelType.WEBSOCKET, pattern, "Event notification");
+                      admin()
+                          .sendChannelMessage(ChannelType.WEBSOCKET, pattern, "Event notification");
 
                   assertThat(result.getChannelsMessaged(), is(2));
 

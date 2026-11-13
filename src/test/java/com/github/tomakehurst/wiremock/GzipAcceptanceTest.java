@@ -46,8 +46,7 @@ public class GzipAcceptanceTest {
 
     @Test
     public void servesGzippedResponseForGet() {
-      wm.stubFor(
-          get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
+      wm.stubFor(get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
 
       WireMockResponse response =
           testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));

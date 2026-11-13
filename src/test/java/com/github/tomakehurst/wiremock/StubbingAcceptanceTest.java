@@ -1077,8 +1077,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
       throws Exception {
     stubFor(get(urlMatching("/dodgy-chars.*")).willReturn(ok()));
 
-    String url =
-        "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+    String url = "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
     int code = getStatusCodeUsingJavaUrlConnection(url);
 
     assertThat(code, is(200));
@@ -1089,8 +1088,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
       throws Exception {
     stubFor(get(urlPathEqualTo("/dodgy-chars")).willReturn(ok()));
 
-    String url =
-        "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+    String url = "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
     int code = getStatusCodeUsingJavaUrlConnection(url);
 
     assertThat(code, is(200));

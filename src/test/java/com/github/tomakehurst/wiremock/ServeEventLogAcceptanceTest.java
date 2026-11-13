@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
@@ -46,7 +45,6 @@ import org.junit.jupiter.api.Test;
 
 public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
-  
   @Test
   public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
     testClient.get("/return/this");

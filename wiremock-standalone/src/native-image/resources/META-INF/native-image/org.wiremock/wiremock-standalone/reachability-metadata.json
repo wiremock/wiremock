@@ -1,8 +1,135 @@
 {
+  "reflection": [
+    {
+      "type": "com.github.tomakehurst.wiremock.admin.model.SendChannelMessageResult",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.admin.model.ServeEventQuery",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.common.entity.SimpleEntityDefinition",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.http.HttpHeaders",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.http.RequestIdDecorator",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.message.MessageHeaders",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "com.github.tomakehurst.wiremock.recording.RecorderState",
+      "allDeclaredConstructors": true,
+      "allDeclaredMethods": true,
+      "allDeclaredFields": true
+    },
+    {
+      "type": "org.json.JSONObject"
+    },
+    {
+      "type": "tools.jackson.databind.ObjectMapper"
+    },
+    {
+      "type": "org.apache.johnzon.mapper.Mapper"
+    },
+    {
+      "type": "com.squareup.moshi.Moshi"
+    },
+    {
+      "type": "com.google.gson.Gson"
+    },
+    {
+      "type": "com.oracle.svm.core.jdk.management.SubstrateThreadMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.jdk.management.SubstrateRuntimeMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.jdk.management.SubstrateCompilationMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.jdk.management.SubstrateClassLoadingMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.IncrementalGarbageCollectorMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.HeapImplMemoryMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.GenScavengeMemoryPoolMXBeans$SurvivorMemoryPoolMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.GenScavengeMemoryPoolMXBeans$OldGenerationMemoryPoolMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.GenScavengeMemoryPoolMXBeans$EdenMemoryPoolMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.genscavenge.CompleteGarbageCollectorMXBean"
+    },
+    {
+      "type": "com.oracle.svm.core.code.CodeCachePoolMXBean$NativeMetadataPool"
+    },
+    {
+      "type": "com.oracle.svm.core.code.CodeCachePoolMXBean$CodeAndDataPool"
+    },
+    {
+      "type": "com.oracle.svm.core.code.CodeCacheManagerMXBean"
+    }
+  ],
   "resources": [
-    { "glob": "assets/**" },
-    { "glob": "swagger/**" },
-    { "bundle": "joptsimple.ExceptionMessages" },
-    { "bundle": "joptsimple.HelpFormatterMessages" }
+    {
+      "glob": "assets/**"
+    },
+    {
+      "glob": "swagger/**"
+    },
+    {
+      "bundle": "joptsimple.ExceptionMessages"
+    },
+    {
+      "bundle": "joptsimple.HelpFormatterMessages"
+    },
+    {
+      "glob": "META-INF/services/com.github.tomakehurst.wiremock.extension.ExtensionFactory"
+    }
   ]
 }

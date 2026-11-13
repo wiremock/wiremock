@@ -10,6 +10,18 @@
             ]
         },
         {
+            "type": "boolean[]"
+        },
+        {
+            "type": "byte[]"
+        },
+        {
+            "type": "char[]"
+        },
+        {
+            "type": "com.aayushatharva.brotli4j.Brotli4jLoader"
+        },
+        {
             "type": "com.ethlo.time.ITU"
         },
         {
@@ -46,6 +58,9 @@
             "type": "com.fasterxml.jackson.databind.ser.Serializers[]"
         },
         {
+            "type": "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.admin.model.ExtendedSettingsWrapper",
             "methods": [
                 {
@@ -75,6 +90,13 @@
             "type": "com.github.tomakehurst.wiremock.admin.model.GetMessageServeEventsResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "boolean"
+                    ]
+                },
+                {
                     "name": "getMessageServeEvents",
                     "parameterTypes": []
                 },
@@ -88,6 +110,12 @@
             "type": "com.github.tomakehurst.wiremock.admin.model.GetScenariosResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                },
+                {
                     "name": "getScenarios",
                     "parameterTypes": []
                 }
@@ -96,6 +124,14 @@
         {
             "type": "com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta",
+                        "boolean"
+                    ]
+                },
                 {
                     "name": "getRequests",
                     "parameterTypes": []
@@ -131,6 +167,13 @@
             "type": "com.github.tomakehurst.wiremock.admin.model.ListChannelProvidersResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta"
+                    ]
+                },
+                {
                     "name": "getChannelProviders",
                     "parameterTypes": []
                 }
@@ -139,6 +182,13 @@
         {
             "type": "com.github.tomakehurst.wiremock.admin.model.ListMessageChannelsResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta"
+                    ]
+                },
                 {
                     "name": "getChannels",
                     "parameterTypes": []
@@ -149,6 +199,13 @@
             "type": "com.github.tomakehurst.wiremock.admin.model.ListMessageStubMappingsResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta"
+                    ]
+                },
+                {
                     "name": "getMessageMappings",
                     "parameterTypes": []
                 }
@@ -157,6 +214,13 @@
         {
             "type": "com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "com.github.tomakehurst.wiremock.admin.model.PaginatedResult$Meta"
+                    ]
+                },
                 {
                     "name": "getMappings",
                     "parameterTypes": []
@@ -178,6 +242,14 @@
                 {
                     "name": "total"
                 }
+            ],
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int"
+                    ]
+                }
             ]
         },
         {
@@ -197,6 +269,10 @@
                     "parameterTypes": [
                         "java.lang.String"
                     ]
+                },
+                {
+                    "name": "getState",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -212,11 +288,39 @@
                         "java.lang.String",
                         "com.github.tomakehurst.wiremock.message.MessageDefinition"
                     ]
+                },
+                {
+                    "name": "getChannelName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getInitiatingRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMessage",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProviderName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getType",
+                    "parameterTypes": []
                 }
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult"
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleChannelProviderResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.channel.ChannelProvider"
+                    ]
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.admin.model.SingleItemResult",
@@ -228,10 +332,57 @@
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult"
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageChannelResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.verification.LoggedMessageChannel"
+                    ]
+                }
+            ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageServeEventResult"
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageServeEventResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.verification.MessageServeEvent"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleMessageStubMappingResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.message.MessageStubMapping"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.stubbing.StubMapping"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.admin.model.VersionResult",
+            "methods": [
+                {
+                    "name": "getVersion",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.admin.model.WaitForMessageEventRequest",
@@ -243,6 +394,18 @@
                         "long",
                         "java.lang.Integer"
                     ]
+                },
+                {
+                    "name": "getCount",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPattern",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTimeoutMillis",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -273,6 +436,12 @@
             "type": "com.github.tomakehurst.wiremock.common.Errors",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                },
+                {
                     "name": "getErrors",
                     "parameterTypes": []
                 }
@@ -281,6 +450,15 @@
         {
             "type": "com.github.tomakehurst.wiremock.common.Errors$Error",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Integer",
+                        "com.github.tomakehurst.wiremock.common.Errors$Error$Source",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
                 {
                     "name": "getCode",
                     "parameterTypes": []
@@ -303,10 +481,19 @@
             "type": "com.github.tomakehurst.wiremock.common.Errors$Error$Source",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
                     "name": "getPointer",
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.ListOrSingle"
         },
         {
             "type": "com.github.tomakehurst.wiremock.common.ListOrSingleSerialiser",
@@ -329,6 +516,12 @@
         {
             "type": "com.github.tomakehurst.wiremock.common.Message",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
                 {
                     "name": "getMessage",
                     "parameterTypes": []
@@ -353,6 +546,16 @@
             "type": "com.github.tomakehurst.wiremock.common.Timing",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Integer",
+                        "java.lang.Integer",
+                        "java.lang.Integer",
+                        "java.lang.Integer",
+                        "java.lang.Integer"
+                    ]
+                },
+                {
                     "name": "getAddedDelay",
                     "parameterTypes": []
                 },
@@ -376,6 +579,23 @@
         },
         {
             "type": "com.github.tomakehurst.wiremock.common.entity.CompressionType"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.entity.DataRefEntityDefinition",
+            "methods": [
+                {
+                    "name": "getDataRef",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDataStore",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getFilePath",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition"
@@ -451,6 +671,15 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition",
+            "methods": [
+                {
+                    "name": "getData",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.common.entity.SimpleEntityDefinitionSerializer",
             "methods": [
                 {
@@ -467,7 +696,19 @@
                     "parameterTypes": []
                 },
                 {
+                    "name": "getMethod",
+                    "parameterTypes": []
+                },
+                {
                     "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequest",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrl",
                     "parameterTypes": []
                 }
             ]
@@ -486,10 +727,66 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.common.xml.XmlDomNode",
+            "methods": [
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getText",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.common.xml.XmlNode",
+            "methods": [
+                {
+                    "name": "getAttributes",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.core.MappingsSaver"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.direct.SleepFacade"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.Extension"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.Extensions"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListener$MessagePhase"
         },
         {
-            "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition"
+            "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.util.Set",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPhases",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition[]"
@@ -502,6 +799,26 @@
                     "parameterTypes": [
                         "java.util.Map"
                     ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.PostServeActionDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getParameters",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -521,10 +838,35 @@
             "type": "com.github.tomakehurst.wiremock.extension.ServeEventListener$RequestPhase"
         },
         {
-            "type": "com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition"
+            "type": "com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.util.Set",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getParameters",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequestPhases",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition[]"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.StubLifecycleListener"
         },
         {
             "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.MessageTemplateTransformer$MessageTemplateModel",
@@ -536,14 +878,117 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.RequestLine",
+            "methods": [
+                {
+                    "name": "getHost",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPort",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getScheme",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.RequestPartTemplateModel",
+            "methods": [
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsBase64",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isBinary",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel",
             "methods": [
+                {
+                    "name": "getBaseUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyAsBase64",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getClientIp",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getCookies",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getId",
+                    "parameterTypes": []
+                },
                 {
                     "name": "getMethod",
                     "parameterTypes": []
                 },
                 {
+                    "name": "getParts",
+                    "parameterTypes": []
+                },
+                {
                     "name": "getPath",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getPathSegments",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getQuery",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRequestLine",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isMultipart",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate",
+            "methods": [
+                {
+                    "name": "toString",
                     "parameterTypes": []
                 }
             ]
@@ -579,11 +1024,43 @@
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay"
+            "type": "com.github.tomakehurst.wiremock.http.AbstractRequestHandler"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Integer",
+                        "java.lang.Integer"
+                    ]
+                },
+                {
+                    "name": "getNumberOfChunks",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getTotalDuration",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.http.Cookie",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "cookie",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.common.ListOrSingle"
+                    ]
+                },
                 {
                     "name": "getValues",
                     "parameterTypes": []
@@ -609,7 +1086,31 @@
             "type": "com.github.tomakehurst.wiremock.http.Fault$4"
         },
         {
-            "type": "com.github.tomakehurst.wiremock.http.FormParameter"
+            "type": "com.github.tomakehurst.wiremock.http.FixedDelayDistribution",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "long"
+                    ]
+                },
+                {
+                    "name": "getMilliseconds",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.FormParameter",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.util.List"
+                    ]
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.http.HttpHeadersJsonDeserializer",
@@ -657,6 +1158,17 @@
             "type": "com.github.tomakehurst.wiremock.http.LoggedResponse",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int",
+                        "com.github.tomakehurst.wiremock.http.HttpHeaders",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.Fault",
+                        "java.lang.String",
+                        "boolean"
+                    ]
+                },
+                {
                     "name": "getBodyAsBase64",
                     "parameterTypes": []
                 },
@@ -699,6 +1211,13 @@
             "type": "com.github.tomakehurst.wiremock.http.QueryParameter",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.util.List"
+                    ]
+                },
+                {
                     "name": "key",
                     "parameterTypes": []
                 },
@@ -734,6 +1253,9 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.http.Response"
         },
         {
             "type": "com.github.tomakehurst.wiremock.http.ResponseDefinition",
@@ -864,6 +1386,14 @@
             "type": "com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFactory"
         },
         {
+            "type": "com.github.tomakehurst.wiremock.jetty.JettyHttpServer",
+            "fields": [
+                {
+                    "name": "httpConnector"
+                }
+            ]
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory"
         },
         {
@@ -903,6 +1433,18 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.jetty.servlet.WireMockWebContextListener",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.jetty.ssl.CertificateGeneratingSslContextFactory"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.jetty.websocket.WireMockWebSocketEndpoint",
             "methods": [
                 {
@@ -938,6 +1480,9 @@
             "type": "com.github.tomakehurst.wiremock.matching.AbsentPattern"
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractDateTimeMatchResult"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.AbstractDateTimePattern",
             "methods": [
                 {
@@ -960,6 +1505,12 @@
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.AbstractLogicalMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractNumberMatchResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.AbstractNumberPattern"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.AbstractRegexPattern"
@@ -985,6 +1536,9 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.AfterDateTimePattern$1"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.AnythingPattern"
         },
         {
@@ -995,6 +1549,9 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern",
@@ -1036,7 +1593,33 @@
             "type": "com.github.tomakehurst.wiremock.matching.ContentPattern[]"
         },
         {
-            "type": "com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition"
+            "type": "com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.extension.Parameters"
+                    ]
+                },
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getParameters",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EagerMatchResult",
+            "methods": [
+                {
+                    "name": "getDistance",
+                    "parameterTypes": []
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern",
@@ -1046,6 +1629,9 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToJsonPattern",
@@ -1065,6 +1651,30 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToJsonPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToJsonPattern$CountingDiffListener"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToNumberPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Number"
+                    ]
+                },
+                {
+                    "name": "getEqualToNumber",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToNumberPattern$1"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToPattern",
             "methods": [
                 {
@@ -1078,7 +1688,13 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToPattern$1"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToPatternWithCaseInsensitivePrefix$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern",
@@ -1114,7 +1730,16 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern$IgnoreUncountedDifferenceEvaluator"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern$NamespaceAwareness"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.EqualToXmlPattern$OrderInvariantNodeMatcher"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern",
@@ -1131,6 +1756,42 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.GreaterThanEqualNumberPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Number"
+                    ]
+                },
+                {
+                    "name": "getGreaterThanEqualNumber",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.GreaterThanEqualNumberPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.GreaterThanNumberPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Number"
+                    ]
+                },
+                {
+                    "name": "getGreaterThanNumber",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.GreaterThanNumberPattern$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern",
@@ -1158,6 +1819,42 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.LessThanEqualNumberPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Number"
+                    ]
+                },
+                {
+                    "name": "getLessThanEqualNumber",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.LessThanEqualNumberPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.LessThanNumberPattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Number"
+                    ]
+                },
+                {
+                    "name": "getLessThanNumber",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.LessThanNumberPattern$1"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.LogicalAnd",
             "methods": [
                 {
@@ -1176,10 +1873,46 @@
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.matching.MatchResult"
+            "type": "com.github.tomakehurst.wiremock.matching.LogicalOr$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchResult",
+            "fields": [
+                {
+                    "name": "diffDescriptions"
+                },
+                {
+                    "name": "subEvents"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "getDiffDescriptions",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getSubEvents",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "partialMatch",
+                    "parameterTypes": [
+                        "double"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchResult$DiffDescription"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchResult$DiffDescription[]"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonSchemaPattern",
@@ -1195,7 +1928,13 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesJsonSchemaPattern$1"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.MatchesXPathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MatchesXPathPattern$XmlNodeFindResult"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.MemoizingMatchResult",
@@ -1213,6 +1952,12 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MemoizingMatchResult$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.MemoizingMatchResult$2"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.MultiRequestMethodPattern"
@@ -1286,6 +2031,9 @@
             "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePattern$MatchingType"
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.MultipartValuePattern[]"
         },
         {
@@ -1325,6 +2073,12 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.NegativeRegexPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.NormalisedNumberComparator"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.NotPattern",
             "methods": [
                 {
@@ -1334,7 +2088,34 @@
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.matching.PathTemplatePattern"
+            "type": "com.github.tomakehurst.wiremock.matching.NotPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathPattern$SubExpressionException"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathPatternJsonSerializer"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathTemplatePattern",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getMatchesPathTemplate",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.PathTemplatePattern$1"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.RegexPattern",
@@ -1350,6 +2131,18 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestMatcherExtension"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestMatcherExtension$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestMatcherExtension$2"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.RequestPattern",
@@ -1462,6 +2255,15 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestPattern$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestPattern$Builder"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.RequestPatternBuilder"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern",
             "methods": [
                 {
@@ -1495,10 +2297,40 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePatternJsonDeserializer$1"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePatternJsonDeserializer$2"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.StringValuePatternJsonDeserializer$3"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.StringValuePattern[]"
         },
         {
+            "type": "com.github.tomakehurst.wiremock.matching.UnwrappedJsonPathPatternJsonSerializer"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.UnwrappedXPathPatternJsonSerializer"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.UrlPathPattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.UrlPattern"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.matching.ValueMatcher"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.WeightedAggregateMatchResult"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.matching.WeightedMatchResult"
         },
         {
             "type": "com.github.tomakehurst.wiremock.matching.XPathPatternJsonSerializer",
@@ -1649,6 +2481,15 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.message.Message$MessageDeserializer",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.message.MessageAction"
         },
         {
@@ -1752,7 +2593,19 @@
             ]
         },
         {
-            "type": "com.github.tomakehurst.wiremock.message.MessageStubMappingCollection"
+            "type": "com.github.tomakehurst.wiremock.message.MessageStubMappingCollection",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "setMessageMappings",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                }
+            ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.message.MessageStubMappingOrMappings"
@@ -1873,12 +2726,26 @@
                         "java.lang.String",
                         "java.lang.String"
                     ]
+                },
+                {
+                    "name": "getChannelName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getProviderName",
+                    "parameterTypes": []
                 }
             ]
         },
         {
             "type": "com.github.tomakehurst.wiremock.recording.CaptureHeadersSpec",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean"
+                    ]
+                },
                 {
                     "name": "getCaseInsensitive",
                     "parameterTypes": []
@@ -1915,6 +2782,35 @@
                     "parameterTypes": [
                         "com.github.tomakehurst.wiremock.matching.RequestPattern"
                     ]
+                },
+                {
+                    "name": "setIds",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RecordError"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RecordError$StubGenerationFailure",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.stubbing.ServeEvent"
+                    ]
+                },
+                {
+                    "name": "originalServeEvent",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "reason",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -1989,6 +2885,24 @@
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.recording.RecordingStatus"
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RecordingStatusResult",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getStatus",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.recording.RequestBodyAutomaticPatternFactory",
             "methods": [
                 {
@@ -2009,6 +2923,50 @@
                 },
                 {
                     "name": "isIgnoreExtraElements",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RequestBodyEqualToJsonPatternFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Boolean"
+                    ]
+                },
+                {
+                    "name": "isIgnoreArrayOrder",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "isIgnoreExtraElements",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RequestBodyEqualToPatternFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean"
+                    ]
+                },
+                {
+                    "name": "isCaseInsensitive",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.recording.RequestBodyEqualToXmlPatternFactory",
+            "methods": [
+                {
+                    "name": "<init>",
                     "parameterTypes": []
                 }
             ]
@@ -2065,14 +3023,50 @@
             "type": "com.github.tomakehurst.wiremock.recording.SnapshotRecordResult$Full",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "java.util.List"
+                    ]
+                },
+                {
                     "name": "getMappings",
                     "parameterTypes": []
                 }
             ]
         },
         {
+            "type": "com.github.tomakehurst.wiremock.recording.SnapshotRecordResult$Ids",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "java.util.List"
+                    ]
+                },
+                {
+                    "name": "getIds",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.github.tomakehurst.wiremock.standalone.MappingsLoader"
+        },
+        {
             "type": "com.github.tomakehurst.wiremock.stubbing.Scenario",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.util.Set",
+                        "java.util.Set"
+                    ]
+                },
                 {
                     "name": "getId",
                     "parameterTypes": []
@@ -2097,7 +3091,25 @@
         },
         {
             "type": "com.github.tomakehurst.wiremock.stubbing.ServeEvent",
+            "fields": [
+                {
+                    "name": "stubMapping"
+                }
+            ],
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "com.github.tomakehurst.wiremock.verification.LoggedRequest",
+                        "com.github.tomakehurst.wiremock.stubbing.StubMapping",
+                        "com.github.tomakehurst.wiremock.http.ResponseDefinition",
+                        "com.github.tomakehurst.wiremock.http.LoggedResponse",
+                        "boolean",
+                        "com.github.tomakehurst.wiremock.common.Timing",
+                        "java.util.Queue"
+                    ]
+                },
                 {
                     "name": "getId",
                     "parameterTypes": []
@@ -2141,6 +3153,14 @@
                         "java.util.List",
                         "com.github.tomakehurst.wiremock.stubbing.StubImport$Options"
                     ]
+                },
+                {
+                    "name": "getImportOptions",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMappings",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -2153,6 +3173,14 @@
                         "com.github.tomakehurst.wiremock.stubbing.StubImport$Options$DuplicatePolicy",
                         "java.lang.Boolean"
                     ]
+                },
+                {
+                    "name": "getDeleteAllNotInImport",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDuplicatePolicy",
+                    "parameterTypes": []
                 }
             ]
         },
@@ -2268,6 +3296,14 @@
             "type": "com.github.tomakehurst.wiremock.stubbing.SubEvent",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.Long",
+                        "java.util.Map"
+                    ]
+                },
+                {
                     "name": "getData",
                     "parameterTypes": []
                 },
@@ -2285,6 +3321,12 @@
             "type": "com.github.tomakehurst.wiremock.verification.FindMessageServeEventsResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                },
+                {
                     "name": "getMessageServeEvents",
                     "parameterTypes": []
                 }
@@ -2293,6 +3335,12 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.FindNearMissesResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                },
                 {
                     "name": "getNearMisses",
                     "parameterTypes": []
@@ -2303,6 +3351,13 @@
             "type": "com.github.tomakehurst.wiremock.verification.FindRequestsResult",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List",
+                        "boolean"
+                    ]
+                },
+                {
                     "name": "getRequests",
                     "parameterTypes": []
                 }
@@ -2311,6 +3366,12 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.FindServeEventsResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.List"
+                    ]
+                },
                 {
                     "name": "getServeEvents",
                     "parameterTypes": []
@@ -2329,6 +3390,15 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.LoggedFixedChannel",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "boolean",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
                 {
                     "name": "getChannelName",
                     "parameterTypes": []
@@ -2461,6 +3531,14 @@
             "type": "com.github.tomakehurst.wiremock.verification.LoggedRequestInitiatedChannel",
             "methods": [
                 {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "boolean",
+                        "com.github.tomakehurst.wiremock.verification.LoggedRequest"
+                    ]
+                },
+                {
                     "name": "getId",
                     "parameterTypes": []
                 },
@@ -2477,6 +3555,19 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.MessageServeEvent",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.util.UUID",
+                        "com.github.tomakehurst.wiremock.verification.MessageServeEvent$EventType",
+                        "com.github.tomakehurst.wiremock.verification.LoggedMessageChannel",
+                        "com.github.tomakehurst.wiremock.message.Message",
+                        "com.github.tomakehurst.wiremock.message.MessageStubMapping",
+                        "boolean",
+                        "java.time.Instant",
+                        "java.util.Queue"
+                    ]
+                },
                 {
                     "name": "getChannel",
                     "parameterTypes": []
@@ -2515,6 +3606,12 @@
             "type": "com.github.tomakehurst.wiremock.verification.MessageServeEvent$EventType",
             "methods": [
                 {
+                    "name": "fromJson",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
                     "name": "toJson",
                     "parameterTypes": []
                 }
@@ -2523,6 +3620,13 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.MessageVerificationResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "int",
+                        "boolean"
+                    ]
+                },
                 {
                     "name": "getCount",
                     "parameterTypes": []
@@ -2536,6 +3640,16 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.NearMiss",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "com.github.tomakehurst.wiremock.verification.LoggedRequest",
+                        "com.github.tomakehurst.wiremock.stubbing.StubMapping",
+                        "com.github.tomakehurst.wiremock.matching.RequestPattern",
+                        "com.github.tomakehurst.wiremock.matching.MatchResult",
+                        "java.lang.String"
+                    ]
+                },
                 {
                     "name": "getMatchResult",
                     "parameterTypes": []
@@ -2566,6 +3680,13 @@
         {
             "type": "com.github.tomakehurst.wiremock.verification.VerificationResult",
             "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Integer",
+                        "boolean"
+                    ]
+                },
                 {
                     "name": "getCount",
                     "parameterTypes": []
@@ -2641,10 +3762,34 @@
             ]
         },
         {
+            "type": "com.google.gson.Gson"
+        },
+        {
+            "type": "com.jayway.jsonpath.internal.function.text.Length",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "com.jayway.jsonpath.spi.cache.CacheProvider"
         },
         {
+            "type": "com.squareup.moshi.Moshi"
+        },
+        {
             "type": "com.sun.crypto.provider.AESCipher$General",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.AESKeyGenerator",
             "methods": [
                 {
                     "name": "<init>",
@@ -2699,6 +3844,89 @@
         },
         {
             "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.HKDFKeyDerivation$HKDFSHA384",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "javax.crypto.KDFParameters"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.HmacCore$HmacSHA384",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.HmacPKCS12PBECore$HmacPKCS12PBE_SHA1",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.HmacPKCS12PBECore$HmacPKCS12PBE_SHA256",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.JceKeyStore",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.PBEKeyFactory$PBEWithMD5AndDES",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.PBEParameters",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndDESede",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndRC2_40",
             "methods": [
                 {
                     "name": "<init>",
@@ -2862,10 +4090,72 @@
             "type": "com.sun.management.internal.VirtualThreadSchedulerImpls$VirtualThreadSchedulerImpl"
         },
         {
-            "type": "com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX"
+            "type": "com.sun.org.apache.xalan.internal.xsltc.compiler.ApplyTemplates",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.compiler.Copy",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.compiler.Stylesheet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.compiler.Template",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "org.w3c.dom.Node"
+                    ]
+                }
+            ]
         },
         {
             "type": "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
             "methods": [
                 {
                     "name": "<init>",
@@ -2883,7 +4173,72 @@
             ]
         },
         {
+            "type": "com.sun.org.apache.xpath.internal.functions.FuncCount",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "com.sun.org.apache.xpath.internal.functions.FuncLocalPart",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "die.verwandlung.GregorSamsa",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "double"
+        },
+        {
+            "type": "double[]"
+        },
+        {
+            "type": "float[]"
+        },
+        {
+            "type": "int[]"
+        },
+        {
             "type": "jakarta.servlet.http.Cookie[]"
+        },
+        {
+            "type": "jakarta.websocket.Endpoint",
+            "methods": [
+                {
+                    "name": "onClose",
+                    "parameterTypes": [
+                        "jakarta.websocket.Session",
+                        "jakarta.websocket.CloseReason"
+                    ]
+                },
+                {
+                    "name": "onError",
+                    "parameterTypes": [
+                        "jakarta.websocket.Session",
+                        "java.lang.Throwable"
+                    ]
+                },
+                {
+                    "name": "onOpen",
+                    "parameterTypes": [
+                        "jakarta.websocket.Session",
+                        "jakarta.websocket.EndpointConfig"
+                    ]
+                }
+            ]
         },
         {
             "type": "java.io.Serializable"
@@ -2929,10 +4284,27 @@
         },
         {
             "type": "java.lang.Class",
+            "jniAccessible": true,
             "methods": [
+                {
+                    "name": "getCanonicalName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getRecordComponents",
+                    "parameterTypes": []
+                },
                 {
                     "name": "isRecord",
                     "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.lang.ClassLoader",
+            "fields": [
+                {
+                    "name": "classLoaderValueMap"
                 }
             ]
         },
@@ -2954,6 +4326,10 @@
             ]
         },
         {
+            "type": "java.lang.Enum",
+            "serializable": true
+        },
+        {
             "type": "java.lang.Float",
             "fields": [
                 {
@@ -2966,6 +4342,21 @@
             "fields": [
                 {
                     "name": "TYPE"
+                }
+            ]
+        },
+        {
+            "type": "java.lang.Integer[]"
+        },
+        {
+            "type": "java.lang.InternalError",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
                 }
             ]
         },
@@ -2984,7 +4375,11 @@
             "type": "java.lang.Number"
         },
         {
-            "type": "java.lang.Object[]"
+            "type": "java.lang.Object[]",
+            "serializable": true
+        },
+        {
+            "type": "java.lang.Record"
         },
         {
             "type": "java.lang.SecurityManager",
@@ -3009,17 +4404,52 @@
             "type": "java.lang.StackTraceElement"
         },
         {
-            "type": "java.lang.String"
+            "type": "java.lang.String",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "lastIndexOf",
+                    "parameterTypes": [
+                        "int"
+                    ]
+                },
+                {
+                    "name": "substring",
+                    "parameterTypes": [
+                        "int"
+                    ]
+                }
+            ]
         },
         {
             "type": "java.lang.String[]"
         },
         {
             "type": "java.lang.System",
+            "jniAccessible": true,
             "methods": [
+                {
+                    "name": "getProperty",
+                    "parameterTypes": [
+                        "java.lang.String"
+                    ]
+                },
                 {
                     "name": "getSecurityManager",
                     "parameterTypes": []
+                },
+                {
+                    "name": "setProperty",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
                 }
             ]
         },
@@ -3095,6 +4525,19 @@
             "type": "java.lang.management.ThreadInfo"
         },
         {
+            "type": "java.lang.reflect.RecordComponent",
+            "methods": [
+                {
+                    "name": "getName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getType",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "java.math.BigDecimal"
         },
         {
@@ -3127,10 +4570,22 @@
             "type": "java.security.MessageDigestSpi"
         },
         {
+            "type": "java.security.cert.X509Certificate"
+        },
+        {
+            "type": "java.security.cert.X509Certificate[]"
+        },
+        {
             "type": "java.security.interfaces.RSAPrivateKey"
         },
         {
             "type": "java.security.interfaces.RSAPublicKey"
+        },
+        {
+            "type": "java.sql.Date"
+        },
+        {
+            "type": "java.sql.Timestamp"
         },
         {
             "type": "java.util.AbstractCollection"
@@ -3140,6 +4595,12 @@
         },
         {
             "type": "java.util.AbstractMap"
+        },
+        {
+            "type": "java.util.AbstractSet"
+        },
+        {
+            "type": "java.util.ArrayList"
         },
         {
             "type": "java.util.ArrayList$SubList"
@@ -3157,10 +4618,19 @@
             ]
         },
         {
+            "type": "java.util.Arrays$ArrayList"
+        },
+        {
             "type": "java.util.Collection"
         },
         {
+            "type": "java.util.Collections$EmptyList"
+        },
+        {
             "type": "java.util.Collections$EmptyMap"
+        },
+        {
+            "type": "java.util.Collections$EmptySet"
         },
         {
             "type": "java.util.Collections$SingletonList"
@@ -3178,10 +4648,17 @@
             "type": "java.util.Collections$UnmodifiableRandomAccessList"
         },
         {
+            "type": "java.util.Collections$UnmodifiableSet"
+        },
+        {
             "type": "java.util.Date"
         },
         {
+            "type": "java.util.HashMap"
+        },
+        {
             "type": "java.util.HashSet",
+            "serializable": true,
             "methods": [
                 {
                     "name": "<init>",
@@ -3199,6 +4676,9 @@
             "type": "java.util.ImmutableCollections$AbstractImmutableMap"
         },
         {
+            "type": "java.util.ImmutableCollections$AbstractImmutableSet"
+        },
+        {
             "type": "java.util.ImmutableCollections$List12"
         },
         {
@@ -3209,6 +4689,16 @@
         },
         {
             "type": "java.util.ImmutableCollections$MapN"
+        },
+        {
+            "type": "java.util.ImmutableCollections$Set12"
+        },
+        {
+            "type": "java.util.ImmutableCollections$SetN"
+        },
+        {
+            "type": "java.util.LinkedHashSet",
+            "serializable": true
         },
         {
             "type": "java.util.List"
@@ -3223,7 +4713,30 @@
             "type": "java.util.RandomAccess"
         },
         {
+            "type": "java.util.SequencedCollection",
+            "methods": [
+                {
+                    "name": "getFirst",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getLast",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "java.util.Set"
+        },
+        {
             "type": "java.util.UUID"
+        },
+        {
+            "type": "java.util.UUID[]"
+        },
+        {
+            "type": "java.util.concurrent.ArrayBlockingQueue",
+            "serializable": true
         },
         {
             "type": "java.util.concurrent.Executors",
@@ -3235,6 +4748,30 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "java.util.concurrent.locks.AbstractOwnableSynchronizer",
+            "serializable": true
+        },
+        {
+            "type": "java.util.concurrent.locks.AbstractQueuedSynchronizer",
+            "serializable": true
+        },
+        {
+            "type": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject",
+            "serializable": true
+        },
+        {
+            "type": "java.util.concurrent.locks.ReentrantLock",
+            "serializable": true
+        },
+        {
+            "type": "java.util.concurrent.locks.ReentrantLock$NonfairSync",
+            "serializable": true
+        },
+        {
+            "type": "java.util.concurrent.locks.ReentrantLock$Sync",
+            "serializable": true
         },
         {
             "type": "java.util.function.Predicate"
@@ -3282,6 +4819,12 @@
             ]
         },
         {
+            "type": "jdk.internal.jrtfs.JrtFileSystemProvider"
+        },
+        {
+            "type": "jdk.internal.misc.Unsafe"
+        },
+        {
             "type": "jdk.management.VirtualThreadSchedulerMXBean"
         },
         {
@@ -3303,6 +4846,39 @@
             "type": "jdk.management.jfr.SettingDescriptorInfo"
         },
         {
+            "type": "long[]"
+        },
+        {
+            "type": "net.javacrumbs.jsonunit.core.internal.Node"
+        },
+        {
+            "type": "net.javacrumbs.jsonunit.core.internal.Node$JsonList"
+        },
+        {
+            "type": "net.javacrumbs.jsonunit.core.internal.Node$JsonMap"
+        },
+        {
+            "type": "net.javacrumbs.jsonunit.core.internal.NodeWrapper"
+        },
+        {
+            "type": "net.minidev.json.JSONArray"
+        },
+        {
+            "type": "net.minidev.json.JSONAware"
+        },
+        {
+            "type": "net.minidev.json.JSONAwareEx"
+        },
+        {
+            "type": "net.minidev.json.JSONStreamAware"
+        },
+        {
+            "type": "net.minidev.json.JSONStreamAwareEx"
+        },
+        {
+            "type": "org.apache.commons.compress.compressors.CompressorStreamFactory"
+        },
+        {
             "type": "org.apache.commons.fileupload.MultipartStream",
             "methods": [
                 {
@@ -3312,6 +4888,36 @@
             ]
         },
         {
+            "type": "org.apache.johnzon.mapper.Mapper"
+        },
+        {
+            "type": "org.eclipse.jetty.alpn.java.client.JDK9ClientALPNProcessor"
+        },
+        {
+            "type": "org.eclipse.jetty.alpn.java.server.JDK9ServerALPNProcessor"
+        },
+        {
+            "type": "org.eclipse.jetty.compression.gzip.GzipCompression"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.annotations.AnnotationConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.jsp.JettyJspServlet"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.plus.webapp.EnvConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.plus.webapp.PlusConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.plus.webapp.PlusDescriptorProcessor"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.security.jaspi.JaspiAuthenticator"
+        },
+        {
             "type": "org.eclipse.jetty.ee11.servlet.DefaultServlet",
             "methods": [
                 {
@@ -3319,6 +4925,222 @@
                     "parameterTypes": []
                 }
             ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlet.FilterHolder[]"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlet.NoJspServlet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlet.listener.IntrospectorCleaner",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlet.security.ConstraintSecurityHandler",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.servlets.DoSFilter"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.FragmentConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JaasConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JaspiConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JettyWebXmlConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JmxConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JndiConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.JspConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.MetaInfConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.ServletsConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.StandardDescriptorProcessor",
+            "methods": [
+                {
+                    "name": "visitContextParam",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitListener",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitLocaleEncodingList",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitMimeMapping",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitSecurityConstraint",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitServlet",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitServletMapping",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitSessionConfig",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                },
+                {
+                    "name": "visitWelcomeFileList",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.ee11.webapp.WebAppContext",
+                        "org.eclipse.jetty.ee11.webapp.Descriptor",
+                        "org.eclipse.jetty.xml.XmlParser$Node"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.WebAppConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.WebInfConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.webapp.WebXmlConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.client.JakartaWebSocketClientContainerProvider"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.common.JakartaWebSocketSession",
+            "methods": [
+                {
+                    "name": "filterReturnType",
+                    "parameterTypes": [
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.common.decoders.ByteBufferDecoder",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.common.decoders.StringDecoder",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.common.messages.DecodedBinaryMessageSink",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.websocket.core.CoreSession",
+                        "org.eclipse.jetty.websocket.core.util.MethodHolder",
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.common.messages.DecodedTextMessageSink",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "org.eclipse.jetty.websocket.core.CoreSession",
+                        "org.eclipse.jetty.websocket.core.util.MethodHolder",
+                        "java.util.List"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.server.config.JakartaWebSocketConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketConfiguration"
+        },
+        {
+            "type": "org.eclipse.jetty.ee11.websocket.server.config.JettyWebSocketServletContainerInitializer"
         },
         {
             "type": "org.eclipse.jetty.http.Http10FieldPreEncoder"
@@ -3339,7 +5161,76 @@
             "type": "org.eclipse.jetty.http2.hpack.HpackFieldPreEncoder"
         },
         {
+            "type": "org.eclipse.jetty.jmx.ObjectMBean"
+        },
+        {
+            "type": "org.eclipse.jetty.jndi.ContextFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.jndi.InitialContextFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.jndi.java.javaNameParser",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.jndi.java.javaURLContextFactory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.security.jaas.JAASLoginService"
+        },
+        {
+            "type": "org.eclipse.jetty.server.handler.ContextHandler",
+            "methods": [
+                {
+                    "name": "getCurrentContextHandler",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "org.eclipse.jetty.util.AsciiLowerCaseSet",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.util.ClassMatcher$ByLocationOrModule",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "org.eclipse.jetty.util.ClassMatcher$ByPackageOrName",
             "methods": [
                 {
                     "name": "<init>",
@@ -3438,7 +5329,175 @@
             ]
         },
         {
+            "type": "org.gradle.api.internal.tasks.testing.filter.TestFilterSpec",
+            "serializable": true
+        },
+        {
+            "type": "org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformSpec",
+            "serializable": true
+        },
+        {
+            "type": "org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessorFactory",
+            "serializable": true
+        },
+        {
+            "type": "org.gradle.api.internal.tasks.testing.worker.TestWorker",
+            "serializable": true
+        },
+        {
+            "type": "org.gradle.api.internal.tasks.testing.worker.TestWorker$State",
+            "serializable": true
+        },
+        {
+            "type": "org.gradle.internal.logging.slf4j.StaticLoggerProvider"
+        },
+        {
+            "type": "org.hamcrest.collection.IsArrayWithSize"
+        },
+        {
+            "type": "org.hamcrest.collection.IsCollectionWithSize"
+        },
+        {
+            "type": "org.hamcrest.collection.IsEmptyCollection"
+        },
+        {
+            "type": "org.hamcrest.collection.IsIterableContainingInAnyOrder"
+        },
+        {
+            "type": "org.hamcrest.collection.IsIterableContainingInOrder"
+        },
+        {
+            "type": "org.hamcrest.collection.IsMapContaining"
+        },
+        {
+            "type": "org.hamcrest.collection.IsMapWithSize"
+        },
+        {
+            "type": "org.hamcrest.comparator.ComparatorMatcherBuilder$ComparatorMatcher"
+        },
+        {
+            "type": "org.hamcrest.core.Every"
+        },
+        {
+            "type": "org.hamcrest.core.IsIterableContaining"
+        },
+        {
+            "type": "org.hamcrest.core.StringContains"
+        },
+        {
+            "type": "org.hamcrest.core.StringEndsWith"
+        },
+        {
+            "type": "org.hamcrest.core.StringRegularExpression"
+        },
+        {
+            "type": "org.hamcrest.core.StringStartsWith"
+        },
+        {
+            "type": "org.hamcrest.core.SubstringMatcher"
+        },
+        {
+            "type": "org.hamcrest.number.IsCloseTo"
+        },
+        {
+            "type": "org.hamcrest.text.IsEmptyString"
+        },
+        {
+            "type": "org.hamcrest.text.IsEqualCompressingWhiteSpace"
+        },
+        {
+            "type": "org.hamcrest.text.IsEqualIgnoringCase"
+        },
+        {
+            "type": "org.hamcrest.text.MatchesPattern"
+        },
+        {
+            "type": "org.jacoco.agent.rt.internal_bac9136.PreMain",
+            "methods": [
+                {
+                    "name": "premain",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.instrument.Instrumentation"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.objectweb.asm.Opcodes",
+            "fields": [
+                {
+                    "name": "ASM9"
+                }
+            ]
+        },
+        {
             "type": "org.slf4j.Logger"
+        },
+        {
+            "type": "org.w3c.dom.Node"
+        },
+        {
+            "type": "org.w3c.dom.NodeList"
+        },
+        {
+            "type": "org.wiremock.webhooks.WebhookDefinition",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.github.tomakehurst.wiremock.http.HttpHeaders",
+                        "com.github.tomakehurst.wiremock.common.entity.EntityDefinition",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "com.fasterxml.jackson.databind.JsonNode",
+                        "com.github.tomakehurst.wiremock.http.DelayDistribution"
+                    ]
+                },
+                {
+                    "name": "getBody",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getBodyFileName",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getDelay",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getHeaders",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getMethod",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getOtherFields",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "getUrl",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "withExtraParameter",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "org.xmlunit.diff.ComparisonType"
+        },
+        {
+            "type": "org.xmlunit.diff.ComparisonType[]"
         },
         {
             "type": "org.xmlunit.placeholder.IgnorePlaceholderHandler"
@@ -3451,6 +5510,83 @@
         },
         {
             "type": "org.xmlunit.placeholder.MatchesRegexPlaceholderHandler"
+        },
+        {
+            "type": "short[]"
+        },
+        {
+            "type": "sun.instrument.InstrumentationImpl",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "long",
+                        "boolean",
+                        "boolean",
+                        "boolean"
+                    ]
+                },
+                {
+                    "name": "loadClassAndCallAgentmain",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "loadClassAndCallPremain",
+                    "parameterTypes": [
+                        "java.lang.String",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "transform",
+                    "parameterTypes": [
+                        "java.lang.Module",
+                        "java.lang.ClassLoader",
+                        "java.lang.String",
+                        "java.lang.Class",
+                        "java.security.ProtectionDomain",
+                        "byte[]",
+                        "boolean"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.launcher.LauncherHelper",
+            "jniAccessible": true,
+            "fields": [
+                {
+                    "name": "isStaticMain"
+                },
+                {
+                    "name": "noArgMain"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "checkAndLoadMain",
+                    "parameterTypes": [
+                        "boolean",
+                        "int",
+                        "java.lang.String"
+                    ]
+                },
+                {
+                    "name": "getApplicationClass",
+                    "parameterTypes": []
+                },
+                {
+                    "name": "makePlatformString",
+                    "parameterTypes": [
+                        "boolean",
+                        "byte[]"
+                    ]
+                }
+            ]
         },
         {
             "type": "sun.management.ClassLoadingImpl"
@@ -3583,6 +5719,15 @@
             ]
         },
         {
+            "type": "sun.security.provider.MD5",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
             "type": "sun.security.provider.NativePRNG",
             "methods": [
                 {
@@ -3640,6 +5785,26 @@
         },
         {
             "type": "sun.security.provider.X509Factory",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": []
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.certpath.CollectionCertStore",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.security.cert.CertStoreParameters"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "sun.security.provider.certpath.SunCertPathBuilder",
             "methods": [
                 {
                     "name": "<init>",
@@ -3837,6 +6002,18 @@
             ]
         },
         {
+            "type": "sun.security.x509.SubjectAlternativeNameExtension",
+            "methods": [
+                {
+                    "name": "<init>",
+                    "parameterTypes": [
+                        "java.lang.Boolean",
+                        "java.lang.Object"
+                    ]
+                }
+            ]
+        },
+        {
             "type": "sun.security.x509.SubjectKeyIdentifierExtension",
             "methods": [
                 {
@@ -3849,33 +6026,285 @@
             ]
         },
         {
+            "type": "sun.text.resources.BreakIteratorInfo"
+        },
+        {
+            "type": "sun.text.resources.BreakIteratorResources"
+        },
+        {
+            "type": "sun.text.resources.BreakIteratorResources_en"
+        },
+        {
+            "type": "sun.text.resources.FormatData"
+        },
+        {
+            "type": "sun.text.resources.FormatData_en"
+        },
+        {
+            "type": "sun.text.resources.FormatData_en_US"
+        },
+        {
+            "type": "sun.text.resources.JavaTimeSupplementary"
+        },
+        {
             "type": "sun.text.resources.cldr.FormatData"
         },
         {
             "type": "sun.text.resources.cldr.FormatData_en"
         },
         {
+            "type": "sun.text.resources.cldr.FormatData_en_US"
+        },
+        {
             "type": "sun.util.resources.cldr.CalendarData"
+        },
+        {
+            "type": "sun.util.resources.cldr.CurrencyNames"
+        },
+        {
+            "type": "sun.util.resources.cldr.CurrencyNames_en"
+        },
+        {
+            "type": "sun.util.resources.cldr.TimeZoneNames"
+        },
+        {
+            "type": "sun.util.resources.cldr.TimeZoneNames_en"
+        },
+        {
+            "type": "sun.util.resources.cldr.TimeZoneNames_en_US"
+        },
+        {
+            "type": "tools.jackson.databind.ObjectMapper"
+        },
+        {
+            "type": "worker.org.gradle.process.internal.worker.GradleWorkerMain",
+            "jniAccessible": true,
+            "methods": [
+                {
+                    "name": "main",
+                    "parameterTypes": [
+                        "java.lang.String[]"
+                    ]
+                }
+            ]
         }
     ],
     "resources": [
         {
+            "glob": "/Users/leeturner/orca/workspaces/wiremock/native-binary/build/resources/test/templates"
+        },
+        {
+            "glob": "/swagger/schemas/absent-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/after-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/and-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/base64-string.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/before-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/binary-equal-to-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/contains-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/content-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/date-time-elements.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/does-not-contain-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/does-not-match-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/equal-to-date-time-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/equal-to-json-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/equal-to-number-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/equal-to-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/equal-to-xml-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/greater-than-equal-number-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/greater-than-number-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/has-exactly-multivalue-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/includes-multivalue-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/less-than-equal-number-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/less-than-number-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/matches-json-path-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/matches-json-schema-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/matches-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/matches-xpath-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/not-pattern.yaml"
+        },
+        {
+            "glob": "/swagger/schemas/or-pattern.yaml"
+        },
+        {
+            "glob": "META-INF/maven/com.google.guava"
+        },
+        {
+            "glob": "META-INF/maven/com.google.guava/guava/pom.properties"
+        },
+        {
+            "glob": "META-INF/maven/com.google.guava/guava/pom.xml"
+        },
+        {
+            "glob": "META-INF/services/com.fasterxml.jackson.databind.Module"
+        },
+        {
             "glob": "META-INF/services/com.github.tomakehurst.wiremock.extension.Extension"
+        },
+        {
+            "glob": "META-INF/services/com.sun.net.httpserver.spi.HttpServerProvider"
+        },
+        {
+            "glob": "META-INF/services/com.tngtech.archunit.lang.extension.ArchUnitExtension"
+        },
+        {
+            "glob": "META-INF/services/jakarta.servlet.ServletContainerInitializer"
+        },
+        {
+            "glob": "META-INF/services/jakarta.websocket.ContainerProvider"
+        },
+        {
+            "glob": "META-INF/services/java.net.spi.InetAddressResolverProvider"
+        },
+        {
+            "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
+        },
+        {
+            "glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"
+        },
+        {
+            "glob": "META-INF/services/java.nio.charset.spi.CharsetProvider"
+        },
+        {
+            "glob": "META-INF/services/java.nio.file.spi.FileSystemProvider"
+        },
+        {
+            "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+        },
+        {
+            "glob": "META-INF/services/java.util.spi.ResourceBundleControlProvider"
+        },
+        {
+            "glob": "META-INF/services/javax.naming.spi.InitialContextFactory"
+        },
+        {
+            "glob": "META-INF/services/javax.xml.parsers.DocumentBuilderFactory"
+        },
+        {
+            "glob": "META-INF/services/javax.xml.parsers.SAXParserFactory"
+        },
+        {
+            "glob": "META-INF/services/net.javacrumbs.jsonunit.providers.Jackson2ObjectMapperProvider"
+        },
+        {
+            "glob": "META-INF/services/org.assertj.core.configuration.Configuration"
+        },
+        {
+            "glob": "META-INF/services/org.assertj.core.presentation.Representation"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.compression.Compression"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.ee11.webapp.Configuration"
         },
         {
             "glob": "META-INF/services/org.eclipse.jetty.http.HttpFieldPreEncoder"
         },
         {
+            "glob": "META-INF/services/org.eclipse.jetty.io.ssl.ALPNProcessor$Client"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.io.ssl.ALPNProcessor$Server"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.security.Authenticator$Factory"
+        },
+        {
+            "glob": "META-INF/services/org.eclipse.jetty.util.security.CredentialProvider"
+        },
+        {
             "glob": "META-INF/services/org.eclipse.jetty.websocket.core.Extension"
+        },
+        {
+            "glob": "META-INF/services/org.junit.platform.commons.support.scanning.ClasspathScanner"
+        },
+        {
+            "glob": "META-INF/services/org.junit.platform.launcher.LauncherDiscoveryListener"
+        },
+        {
+            "glob": "META-INF/services/org.junit.platform.launcher.LauncherSessionListener"
+        },
+        {
+            "glob": "META-INF/services/org.junit.platform.launcher.PostDiscoveryFilter"
+        },
+        {
+            "glob": "META-INF/services/org.junitpioneer.jupiter.IssueProcessor"
+        },
+        {
+            "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
         },
         {
             "glob": "META-INF/services/org.xmlunit.placeholder.PlaceholderHandler"
         },
         {
+            "glob": "archunit_ignore_patterns.txt"
+        },
+        {
             "glob": "assets"
         },
         {
+            "glob": "com/github/tomakehurst/wiremock"
+        },
+        {
+            "glob": "com/github/tomakehurst/wiremock/matching"
+        },
+        {
             "glob": "doc-index.html"
+        },
+        {
+            "glob": "draft-07/schema"
         },
         {
             "glob": "helpers.nashorn.js"
@@ -3884,10 +6313,178 @@
             "glob": "jakarta/servlet/LocalStrings.properties"
         },
         {
+            "glob": "jakarta/servlet/LocalStrings_en.properties"
+        },
+        {
+            "glob": "jakarta/servlet/LocalStrings_en_GB.properties"
+        },
+        {
             "glob": "jakarta/servlet/http/LocalStrings.properties"
         },
         {
+            "glob": "jakarta/servlet/http/LocalStrings_en.properties"
+        },
+        {
+            "glob": "jakarta/servlet/http/LocalStrings_en_GB.properties"
+        },
+        {
+            "glob": "jakarta/servlet/resources/j2ee_1_4.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/j2ee_web_services_client_1_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/jakartaee_9.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/jakartaee_web_services_client_2_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_5.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_6.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_7.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_8.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_web_services_client_1_2.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_web_services_client_1_3.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/javaee_web_services_client_1_4.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_2_2.dtd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_2_3.dtd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_2_4.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_2_5.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_3_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_3_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_4_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_5_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_6_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-app_6_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_3_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_3_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_4_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_5_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_6_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-common_6_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_3_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_3_1.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_4_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_5_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_6_0.xsd"
+        },
+        {
+            "glob": "jakarta/servlet/resources/web-fragment_6_1.xsd"
+        },
+        {
+            "glob": "jetty-websocket-httpclient.xml"
+        },
+        {
+            "glob": "jndi.properties"
+        },
+        {
+            "glob": "joptsimple/HelpFormatterMessages.properties"
+        },
+        {
+            "glob": "joptsimple/HelpFormatterMessages_en.properties"
+        },
+        {
+            "glob": "junit-platform.properties"
+        },
+        {
             "glob": "keystore"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.AnnotationEngine"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.DoNotMockEnforcer"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.DoNotMockEnforcerWithType"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.InstantiatorProvider2"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.MemberAccessor"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.MockMaker"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.MockResolver"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.MockitoLogger"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.PluginSwitch"
+        },
+        {
+            "glob": "mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider"
+        },
+        {
+            "glob": "not/exist"
+        },
+        {
+            "glob": "org/apache/hc/client5/version.properties"
+        },
+        {
+            "glob": "org/eclipse/jetty/ee11/webapp/catalog-ee11.xml"
+        },
+        {
+            "glob": "org/eclipse/jetty/ee11/webapp/webdefault-ee11.xml"
         },
         {
             "glob": "org/eclipse/jetty/http/encoding.properties"
@@ -3896,19 +6493,225 @@
             "glob": "org/eclipse/jetty/http/mime.properties"
         },
         {
+            "glob": "org/eclipse/jetty/jndi/jndiprovider.properties"
+        },
+        {
             "glob": "org/eclipse/jetty/server/jetty-dir.css"
         },
         {
             "glob": "org/eclipse/jetty/version/build.properties"
         },
         {
+            "glob": "org/eclipse/jetty/xml/catalog-org.w3.xml"
+        },
+        {
+            "glob": "org/publicsuffix/list/effective_tld_names.dat"
+        },
+        {
+            "glob": "org/wiremock/url"
+        },
+        {
+            "glob": "reset-message-stubs/__files"
+        },
+        {
+            "glob": "reset-message-stubs/mappings"
+        },
+        {
+            "glob": "schemas/wiremock-message-stub-mapping.json"
+        },
+        {
+            "glob": "schemas/wiremock-stub-mapping.json"
+        },
+        {
+            "glob": "swagger/schemas/absent-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/after-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/and-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/base64-string.yaml"
+        },
+        {
+            "glob": "swagger/schemas/before-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/binary-equal-to-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/contains-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/content-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/date-time-elements.yaml"
+        },
+        {
+            "glob": "swagger/schemas/does-not-contain-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/does-not-match-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/equal-to-date-time-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/equal-to-json-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/equal-to-number-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/equal-to-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/equal-to-xml-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/greater-than-equal-number-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/greater-than-number-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/has-exactly-multivalue-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/includes-multivalue-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/less-than-equal-number-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/less-than-number-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/matches-json-path-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/matches-json-schema-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/matches-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/matches-xpath-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/not-pattern.yaml"
+        },
+        {
+            "glob": "swagger/schemas/or-pattern.yaml"
+        },
+        {
             "glob": "swagger/wiremock-admin-api.json"
+        },
+        {
+            "glob": "test-unknownstore"
         },
         {
             "glob": "version.properties"
         },
         {
+            "glob": "wiremock-stuff"
+        },
+        {
+            "glob": "wiremock-stuff/mappings"
+        },
+        {
+            "glob": "wiremock-stuff/message-mappings"
+        },
+        {
+            "module": "java.base",
+            "glob": "java/util/currency.data"
+        },
+        {
+            "module": "java.base",
+            "glob": "jdk/internal/icu/impl/data/icudt76b/nfc.nrm"
+        },
+        {
+            "module": "java.base",
+            "glob": "jdk/internal/icu/impl/data/icudt76b/nfkc.nrm"
+        },
+        {
+            "module": "java.base",
+            "glob": "jdk/internal/icu/impl/data/icudt76b/uprops.icu"
+        },
+        {
+            "module": "java.base",
+            "glob": "sun/net/idn/uidna.spp"
+        },
+        {
+            "module": "java.base",
+            "glob": "sun/text/resources/LineBreakIteratorData"
+        },
+        {
+            "module": "java.logging",
+            "glob": "sun/util/logging/resources/logging_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xalan/internal/xsltc/compiler/util/ErrorMessages_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xalan/internal/xsltc/compiler/util/ErrorMessages_en_GB.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xalan/internal/xsltc/runtime/ErrorMessages_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xerces/internal/impl/msg/SAXMessages.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xerces/internal/impl/msg/SAXMessages_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xerces/internal/impl/msg/XMLMessages.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xerces/internal/impl/msg/XMLMessages_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xerces/internal/impl/msg/XMLMessages_en_GB.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xml/internal/serializer/Encodings.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities_en.properties"
+        },
+        {
+            "module": "java.xml",
+            "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities_en_GB.properties"
+        },
+        {
+            "module": "jdk.jfr",
+            "glob": "jdk/jfr/internal/query/view.ini"
+        },
+        {
             "bundle": "com.sun.org.apache.xalan.internal.xsltc.compiler.util.ErrorMessages"
+        },
+        {
+            "bundle": "com.sun.org.apache.xalan.internal.xsltc.runtime.ErrorMessages"
+        },
+        {
+            "bundle": "com.sun.org.apache.xerces.internal.impl.msg.SAXMessages"
         },
         {
             "bundle": "com.sun.org.apache.xerces.internal.impl.msg.XMLMessages"
@@ -3917,10 +6720,22 @@
             "bundle": "com.sun.org.apache.xml.internal.serializer.XMLEntities"
         },
         {
+            "bundle": "com.sun.org.apache.xml.internal.serializer.utils.SerializerMessages"
+        },
+        {
+            "bundle": "com.sun.org.apache.xpath.internal.res.XPATHErrorResources"
+        },
+        {
             "bundle": "jakarta.servlet.LocalStrings"
         },
         {
             "bundle": "jakarta.servlet.http.LocalStrings"
+        },
+        {
+            "bundle": "joptsimple.HelpFormatterMessages"
+        },
+        {
+            "bundle": "sun.util.logging.resources.logging"
         }
     ]
 }
