@@ -47,7 +47,8 @@ import java.util.regex.Pattern;
 /**
  * Runs WireMock as a separate process (the standalone JVM jar or the GraalVM native binary) so the
  * acceptance tests can be pointed at a packaged distribution. Enabled by setting the {@code
- * wiremock.acceptance.externalCommand} system property to the launch command.
+ * wiremock.acceptance.externalCommand} system property to the launch command, one argument per
+ * line.
  */
 public class ExternalWireMock implements Stubbing {
 
@@ -59,6 +60,7 @@ public class ExternalWireMock implements Stubbing {
   private final Process process;
   private final Path log;
   private final int port;
+  private final int httpsPort;
   private final WireMock client;
 
   public static boolean enabled() {
@@ -68,6 +70,10 @@ public class ExternalWireMock implements Stubbing {
   private static String externalCommand() {
     String command = System.getProperty(COMMAND_PROPERTY);
     return command == null || command.isBlank() ? null : command;
+  }
+
+  private static List<String> commandLine() {
+    return new ArrayList<>(externalCommand().lines().toList());
   }
 
   public static ExternalWireMock start(String rootDirectory, String... extraArgs) {
@@ -97,15 +103,11 @@ public class ExternalWireMock implements Stubbing {
 
   private ExternalWireMock(List<String> args, boolean disableBanner) throws IOException {
     List<String> serverArgs = new ArrayList<>(args);
-    int portIndex = serverArgs.indexOf("--port");
-    if (portIndex < 0) {
+    if (!serverArgs.contains("--port")) {
       serverArgs.addAll(List.of("--port", "0"));
-      portIndex = serverArgs.size() - 2;
     }
-    if (serverArgs.get(portIndex + 1).equals("0")) {
-      serverArgs.set(portIndex + 1, String.valueOf(freePort()));
-    }
-    port = Integer.parseInt(serverArgs.get(portIndex + 1));
+    port = assignPort(serverArgs, "--port");
+    httpsPort = serverArgs.contains("--https-port") ? assignPort(serverArgs, "--https-port") : -1;
     if (!serverArgs.contains("--bind-address")) {
       serverArgs.addAll(List.of("--bind-address", "127.0.0.1"));
     }
@@ -114,13 +116,20 @@ public class ExternalWireMock implements Stubbing {
     }
 
     log = Files.createTempFile("wiremock-external-", ".log");
-    // ponytail: whitespace split, so the command path must not contain spaces
-    List<String> command = new ArrayList<>(List.of(externalCommand().trim().split("\\s+")));
+    List<String> command = commandLine();
     command.addAll(serverArgs);
     process =
         new ProcessBuilder(command).redirectErrorStream(true).redirectOutput(log.toFile()).start();
     client = WireMock.create().host("127.0.0.1").port(port).build();
     awaitHealthy();
+  }
+
+  private static int assignPort(List<String> args, String option) throws IOException {
+    int index = args.indexOf(option) + 1;
+    if (args.get(index).equals("0")) {
+      args.set(index, String.valueOf(freePort()));
+    }
+    return Integer.parseInt(args.get(index));
   }
 
   private static class PortRace extends IllegalStateException {
@@ -134,7 +143,7 @@ public class ExternalWireMock implements Stubbing {
   public static Result runToCompletion(String... args) {
     try {
       Path output = Files.createTempFile("wiremock-external-", ".log");
-      List<String> command = new ArrayList<>(List.of(externalCommand().trim().split("\\s+")));
+      List<String> command = commandLine();
       command.addAll(List.of(args));
       Process process =
           new ProcessBuilder(command)
@@ -155,7 +164,7 @@ public class ExternalWireMock implements Stubbing {
     }
   }
 
-  public static int freePort() throws IOException {
+  private static int freePort() throws IOException {
     try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
     }
@@ -193,6 +202,10 @@ public class ExternalWireMock implements Stubbing {
 
   public int port() {
     return port;
+  }
+
+  public int httpsPort() {
+    return httpsPort;
   }
 
   public boolean isRunning() {

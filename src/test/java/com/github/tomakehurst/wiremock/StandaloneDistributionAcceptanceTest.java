@@ -135,21 +135,19 @@ public class StandaloneDistributionAcceptanceTest {
 
   @Test
   void servesHttpsUsingTheBundledKeystore() throws Exception {
-    int httpsPort = ExternalWireMock.freePort();
-    external = ExternalWireMock.start(root.toString(), "--https-port", String.valueOf(httpsPort));
+    external = ExternalWireMock.start(root.toString(), "--https-port", "0");
     external.stubFor(get("/secure").willReturn(ok("Secure content")));
 
-    assertThat(httpsGet(httpsPort, "/secure"), is("Secure content"));
+    assertThat(httpsGet(external.httpsPort(), "/secure"), is("Secure content"));
   }
 
   @Test
   void servesHttpsUsingACustomKeystore() throws Exception {
-    int httpsPort = ExternalWireMock.freePort();
     external =
         ExternalWireMock.start(
             root.toString(),
             "--https-port",
-            String.valueOf(httpsPort),
+            "0",
             "--https-keystore",
             filePath("test-keystore-key-man-pwd"),
             "--keystore-type",
@@ -160,7 +158,7 @@ public class StandaloneDistributionAcceptanceTest {
             "anotherpassword");
     external.stubFor(get("/secure").willReturn(ok("Custom keystore")));
 
-    assertThat(httpsGet(httpsPort, "/secure"), is("Custom keystore"));
+    assertThat(httpsGet(external.httpsPort(), "/secure"), is("Custom keystore"));
   }
 
   @Test
@@ -170,7 +168,7 @@ public class StandaloneDistributionAcceptanceTest {
             "--port",
             "0",
             "--https-port",
-            String.valueOf(ExternalWireMock.freePort()),
+            "0",
             "--root-dir",
             root.toString(),
             "--https-keystore",
@@ -184,12 +182,11 @@ public class StandaloneDistributionAcceptanceTest {
   @ParameterizedTest
   @ValueSource(strings = {"pkcs12", "JCEKS"})
   void requiresAClientCertificateWhenConfigured(String trustStoreType) throws Exception {
-    int httpsPort = ExternalWireMock.freePort();
     external =
         ExternalWireMock.start(
             root.toString(),
             "--https-port",
-            String.valueOf(httpsPort),
+            "0",
             "--https-keystore",
             KEY_STORE_PATH,
             "--https-truststore",
@@ -203,11 +200,11 @@ public class StandaloneDistributionAcceptanceTest {
 
     assertThat(
         secureContentFor(
-            "https://localhost:" + httpsPort + "/client-cert",
+            "https://localhost:" + external.httpsPort() + "/client-cert",
             TRUST_STORE_PATH,
             TRUST_STORE_PASSWORD),
         is("Client certificate accepted"));
-    assertThrows(IOException.class, () -> httpsGet(httpsPort, "/client-cert"));
+    assertThrows(IOException.class, () -> httpsGet(external.httpsPort(), "/client-cert"));
   }
 
   @Test
@@ -242,8 +239,7 @@ public class StandaloneDistributionAcceptanceTest {
 
   @Test
   void negotiatesHttp2OverTls() throws Exception {
-    int httpsPort = ExternalWireMock.freePort();
-    external = ExternalWireMock.start(root.toString(), "--https-port", String.valueOf(httpsPort));
+    external = ExternalWireMock.start(root.toString(), "--https-port", "0");
     external.stubFor(get("/h2").willReturn(ok("HTTP/2 response")));
 
     ClientConnector connector = new ClientConnector();
@@ -252,7 +248,7 @@ public class StandaloneDistributionAcceptanceTest {
         new HttpClient(new HttpClientTransportOverHTTP2(new HTTP2Client(connector)));
     client.start();
     try {
-      ContentResponse response = client.GET("https://localhost:" + httpsPort + "/h2");
+      ContentResponse response = client.GET("https://localhost:" + external.httpsPort() + "/h2");
 
       assertThat(response.getVersion(), is(HttpVersion.HTTP_2));
       assertThat(response.getContentAsString(), is("HTTP/2 response"));

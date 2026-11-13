@@ -249,7 +249,7 @@ val externalAcceptanceTestExclusions = listOf(
   "com.github.tomakehurst.wiremock.WebsocketMessageStubAcceptanceTest.*ReturnsFalseIsPresentWhenNotFound",
 )
 
-fun registerExternalAcceptanceTest(name: String, targetTask: String, command: Test.() -> String) =
+fun registerExternalAcceptanceTest(name: String, targetTask: String, command: Test.() -> List<String>) =
   tasks.register<Test>(name) {
     group = "verification"
     testClassesDirs = sourceSets.test.get().output.classesDirs
@@ -263,11 +263,13 @@ fun registerExternalAcceptanceTest(name: String, targetTask: String, command: Te
     dependsOn(targetTask)
     outputs.upToDateWhen { false }
     val testTask = this
-    doFirst { testTask.systemProperty("wiremock.acceptance.externalCommand", testTask.command()) }
+    // One argument per line, so paths may contain spaces
+    doFirst { testTask.systemProperty("wiremock.acceptance.externalCommand", testTask.command().joinToString("\n")) }
   }
 
 val standaloneJar = layout.projectDirectory.file("wiremock-standalone/build/libs/wiremock-standalone-$version.jar")
-val nativeBinary = layout.projectDirectory.file("wiremock-standalone/build/native/nativeCompile/wiremock")
+val nativeBinaryName = if (System.getProperty("os.name").startsWith("Windows")) "wiremock.exe" else "wiremock"
+val nativeBinary = layout.projectDirectory.file("wiremock-standalone/build/native/nativeCompile/$nativeBinaryName")
 val nativeAgentDir = layout.projectDirectory.dir("wiremock-standalone/build/native-agent")
 
 val traceWithNativeAgent = providers.gradleProperty("nativeAgent").isPresent
@@ -285,16 +287,16 @@ registerExternalAcceptanceTest(
 ) {
   val java = javaLauncher.get().executablePath.asFile.absolutePath
   if (traceWithNativeAgent) {
-    // The agent must see the unrelocated class names that the native image is built from
+    // The agent must see the same unrelocated classes and extra resources that the native image is built from
     val agentOutput = "${nativeAgentDir.asFile.absolutePath}/standalone-{pid}"
-    "$java -agentlib:native-image-agent=config-output-dir=$agentOutput -cp ${sourceSets.main.get().runtimeClasspath.asPath} wiremock.Run"
+    listOf(java, "-agentlib:native-image-agent=config-output-dir=$agentOutput", "-cp", (sourceSets.main.get().runtimeClasspath + files("wiremock-standalone/src/native-image/resources")).asPath, "wiremock.Run")
   } else {
-    "$java -jar ${standaloneJar.asFile.absolutePath}"
+    listOf(java, "-jar", standaloneJar.asFile.absolutePath)
   }
 }
 
 registerExternalAcceptanceTest("nativeAcceptanceTest", ":wiremock-standalone:nativeCompile") {
-  nativeBinary.asFile.absolutePath
+  listOf(nativeBinary.asFile.absolutePath)
 }
 
 // Regenerating the metadata:
