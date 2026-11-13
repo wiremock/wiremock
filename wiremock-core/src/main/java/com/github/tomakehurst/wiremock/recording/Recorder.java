@@ -57,7 +57,7 @@ public class Recorder {
   public synchronized void startRecording(RecordSpec spec) {
     if (spec.getCaptureHeaders() != null
         && !spec.getCaptureHeaders().isEmpty()
-        && spec.shouldCaptureAllHeaders()) {
+        && spec.getCaptureAllHeaders()) {
       throw new InvalidInputException(
           Errors.single(10, "captureHeaders and captureAllHeaders cannot be used together"));
     }
@@ -125,7 +125,7 @@ public class Recorder {
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(),
-                recordSpec.shouldCaptureAllHeaders(),
+                recordSpec.getCaptureAllHeaders(),
                 recordSpec.getExcludeHeaders(),
                 recordSpec.getRequestBodyPatternFactory(),
                 recordSpec.shouldPersist()),
