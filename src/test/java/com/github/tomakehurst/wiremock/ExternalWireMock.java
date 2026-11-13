@@ -78,9 +78,13 @@ public class ExternalWireMock implements Stubbing {
   }
 
   public static ExternalWireMock launch(List<String> args) {
+    return launch(args, true);
+  }
+
+  public static ExternalWireMock launch(List<String> args, boolean disableBanner) {
     for (int attempt = 1; ; attempt++) {
       try {
-        return new ExternalWireMock(args);
+        return new ExternalWireMock(args, disableBanner);
       } catch (PortRace e) {
         if (attempt == 3) {
           throw e;
@@ -91,7 +95,7 @@ public class ExternalWireMock implements Stubbing {
     }
   }
 
-  private ExternalWireMock(List<String> args) throws IOException {
+  private ExternalWireMock(List<String> args, boolean disableBanner) throws IOException {
     List<String> serverArgs = new ArrayList<>(args);
     int portIndex = serverArgs.indexOf("--port");
     if (portIndex < 0) {
@@ -105,7 +109,7 @@ public class ExternalWireMock implements Stubbing {
     if (!serverArgs.contains("--bind-address")) {
       serverArgs.addAll(List.of("--bind-address", "127.0.0.1"));
     }
-    if (!serverArgs.contains("--disable-banner")) {
+    if (disableBanner && !serverArgs.contains("--disable-banner")) {
       serverArgs.add("--disable-banner");
     }
 

@@ -1,22 +1,58 @@
 {
   "rules": [
-    { "excludeClasses": "org.gradle.**" },
-    { "excludeClasses": "worker.org.gradle.**" },
-    { "excludeClasses": "org.junit.**" },
-    { "excludeClasses": "org.junitpioneer.**" },
-    { "excludeClasses": "org.opentest4j.**" },
-    { "excludeClasses": "org.mockito.**" },
-    { "excludeClasses": "net.bytebuddy.**" },
-    { "excludeClasses": "org.objenesis.**" },
-    { "excludeClasses": "com.tngtech.archunit.**" },
-    { "excludeClasses": "org.assertj.**" },
-    { "excludeClasses": "org.awaitility.**" },
-    { "excludeClasses": "okhttp3.**" },
-    { "excludeClasses": "okio.**" },
-    { "excludeClasses": "kotlin.**" },
-    { "excludeClasses": "scala.**" },
-    { "excludeClasses": "org.openjdk.jmh.**" },
-    { "excludeClasses": "com.toomuchcoding.**" },
-    { "excludeClasses": "org.jacoco.**" }
+    {
+      "excludeClasses": "org.gradle.**"
+    },
+    {
+      "excludeClasses": "worker.org.gradle.**"
+    },
+    {
+      "excludeClasses": "org.junit.**"
+    },
+    {
+      "excludeClasses": "org.junitpioneer.**"
+    },
+    {
+      "excludeClasses": "org.opentest4j.**"
+    },
+    {
+      "excludeClasses": "org.mockito.**"
+    },
+    {
+      "excludeClasses": "net.bytebuddy.**"
+    },
+    {
+      "excludeClasses": "org.objenesis.**"
+    },
+    {
+      "excludeClasses": "com.tngtech.archunit.**"
+    },
+    {
+      "excludeClasses": "org.assertj.**"
+    },
+    {
+      "excludeClasses": "org.awaitility.**"
+    },
+    {
+      "excludeClasses": "okhttp3.**"
+    },
+    {
+      "excludeClasses": "okio.**"
+    },
+    {
+      "excludeClasses": "kotlin.**"
+    },
+    {
+      "excludeClasses": "scala.**"
+    },
+    {
+      "excludeClasses": "org.openjdk.jmh.**"
+    },
+    {
+      "excludeClasses": "com.toomuchcoding.**"
+    },
+    {
+      "excludeClasses": "org.jacoco.**"
+    }
   ]
 }

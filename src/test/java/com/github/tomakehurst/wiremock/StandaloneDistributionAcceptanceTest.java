@@ -45,6 +45,13 @@ import java.util.List;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.eclipse.jetty.client.ContentResponse;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http2.client.HTTP2Client;
+import org.eclipse.jetty.http2.client.transport.HttpClientTransportOverHTTP2;
+import org.eclipse.jetty.io.ClientConnector;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -126,6 +133,35 @@ public class StandaloneDistributionAcceptanceTest {
               response -> EntityUtils.toString(response.getEntity(), UTF_8));
       assertThat(body, is("Secure content"));
     }
+  }
+
+  @Test
+  void negotiatesHttp2OverTls() throws Exception {
+    int httpsPort = ExternalWireMock.freePort();
+    external = ExternalWireMock.start(root.toString(), "--https-port", String.valueOf(httpsPort));
+    external.stubFor(get("/h2").willReturn(ok("HTTP/2 response")));
+
+    ClientConnector connector = new ClientConnector();
+    connector.setSslContextFactory(new SslContextFactory.Client(true));
+    HttpClient client =
+        new HttpClient(new HttpClientTransportOverHTTP2(new HTTP2Client(connector)));
+    client.start();
+    try {
+      ContentResponse response = client.GET("https://localhost:" + httpsPort + "/h2");
+
+      assertThat(response.getVersion(), is(HttpVersion.HTTP_2));
+      assertThat(response.getContentAsString(), is("HTTP/2 response"));
+    } finally {
+      client.stop();
+    }
+  }
+
+  @Test
+  void startsWithTheDefaultBanner() {
+    external = ExternalWireMock.launch(List.of("--root-dir", root.toString()), false);
+
+    assertThat(external.output(), containsString("port:"));
+    assertThat(external.output(), not(containsString("Exception")));
   }
 
   @Test

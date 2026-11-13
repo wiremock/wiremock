@@ -352,7 +352,10 @@ val updateNativeMetadata by tasks.registering {
 
     metadataFile.parentFile.mkdirs()
     metadataFile.writeText(
-      groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata)).replace(Regex("\\[\\s+]"), "[]") + "\n",
+      // Two-space indentation to match the gson formatting spotless applies to src/**/*.json
+      groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata))
+        .replace(Regex("\\[\\s+]"), "[]")
+        .replace(Regex("(?m)^( {4})+")) { " ".repeat(it.value.length / 2) } + "\n",
     )
   }
 }
