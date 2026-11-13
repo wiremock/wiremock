@@ -51,11 +51,14 @@ If you use IntelliJ, you can also use the corresponding run configurations, **Ru
 
 ### Native binary
 
-With a GraalVM JDK as `JAVA_HOME` (or `GRAALVM_HOME`), build the standalone server as a native executable at `wiremock-standalone/build/native/nativeCompile/wiremock`:
+Building the native executable needs a GraalVM JDK (tested with GraalVM 25). The rest of the build can keep using your normal JDK: point `GRAALVM_HOME` at GraalVM and the native tasks will use it.
 
 ```bash
+export GRAALVM_HOME=/path/to/graalvm
 ./gradlew :wiremock-standalone:nativeCompile
 ```
+
+The executable is written to `wiremock-standalone/build/native/nativeCompile/wiremock`. It only runs on the OS and CPU architecture it was built on.
 
 The acceptance suites can run against either packaged distribution as a separate process. The native binary must pass the same tests as the standalone JVM jar:
 
@@ -65,10 +68,10 @@ The acceptance suites can run against either packaged distribution as a separate
 ./gradlew nativeAcceptanceTest -PnativeStrict   # also fail on any lookup missing from the metadata
 ```
 
-Reflection and resource metadata is traced from the tests. After changing serialised model classes or adding resources, regenerate it:
+Reflection and resource metadata is traced from the tests. After changing serialised model classes or adding resources, regenerate it. The tracing agent ships with GraalVM, so this step needs GraalVM as `JAVA_HOME`, not just `GRAALVM_HOME`:
 
 ```bash
-./gradlew test standaloneJvmAcceptanceTest -PnativeAgent
+JAVA_HOME=$GRAALVM_HOME ./gradlew test standaloneJvmAcceptanceTest -PnativeAgent
 ./gradlew updateNativeMetadata
 ```
 

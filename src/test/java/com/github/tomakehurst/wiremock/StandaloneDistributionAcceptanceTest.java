@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.HttpsAcceptanceTest.readKeyStore;
+import static com.github.tomakehurst.wiremock.HttpsAcceptanceTest.secureContentFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -24,6 +26,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.KEY_STORE_PATH;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.awaitility.Awaitility.await;
@@ -32,6 +38,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.wiremock.webhooks.Webhooks.webhook;
 
@@ -39,8 +46,12 @@ import com.github.tomakehurst.wiremock.http.client.apache5.ApacheHttpClientFacto
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyStore;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -56,6 +67,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Exercises a packaged WireMock distribution (standalone JVM jar or native binary) as a separate
@@ -126,13 +139,105 @@ public class StandaloneDistributionAcceptanceTest {
     external = ExternalWireMock.start(root.toString(), "--https-port", String.valueOf(httpsPort));
     external.stubFor(get("/secure").willReturn(ok("Secure content")));
 
-    try (CloseableHttpClient client = ApacheHttpClientFactory.createClient()) {
-      String body =
-          client.execute(
-              new HttpGet("https://localhost:" + httpsPort + "/secure"),
-              response -> EntityUtils.toString(response.getEntity(), UTF_8));
-      assertThat(body, is("Secure content"));
-    }
+    assertThat(httpsGet(httpsPort, "/secure"), is("Secure content"));
+  }
+
+  @Test
+  void servesHttpsUsingACustomKeystore() throws Exception {
+    int httpsPort = ExternalWireMock.freePort();
+    external =
+        ExternalWireMock.start(
+            root.toString(),
+            "--https-port",
+            String.valueOf(httpsPort),
+            "--https-keystore",
+            filePath("test-keystore-key-man-pwd"),
+            "--keystore-type",
+            "JKS",
+            "--keystore-password",
+            "password",
+            "--key-manager-password",
+            "anotherpassword");
+    external.stubFor(get("/secure").willReturn(ok("Custom keystore")));
+
+    assertThat(httpsGet(httpsPort, "/secure"), is("Custom keystore"));
+  }
+
+  @Test
+  void failsToStartWithTheWrongKeyManagerPassword() throws Exception {
+    ExternalWireMock.Result result =
+        ExternalWireMock.runToCompletion(
+            "--port",
+            "0",
+            "--https-port",
+            String.valueOf(ExternalWireMock.freePort()),
+            "--root-dir",
+            root.toString(),
+            "--https-keystore",
+            filePath("test-keystore-key-man-pwd"),
+            "--key-manager-password",
+            "wrongpassword");
+
+    assertThat(result.output(), result.exitCode(), not(is(0)));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"pkcs12", "JCEKS"})
+  void requiresAClientCertificateWhenConfigured(String trustStoreType) throws Exception {
+    int httpsPort = ExternalWireMock.freePort();
+    external =
+        ExternalWireMock.start(
+            root.toString(),
+            "--https-port",
+            String.valueOf(httpsPort),
+            "--https-keystore",
+            KEY_STORE_PATH,
+            "--https-truststore",
+            trustStoreOfType(trustStoreType),
+            "--truststore-type",
+            trustStoreType,
+            "--truststore-password",
+            TRUST_STORE_PASSWORD,
+            "--https-require-client-cert");
+    external.stubFor(get("/client-cert").willReturn(ok("Client certificate accepted")));
+
+    assertThat(
+        secureContentFor(
+            "https://localhost:" + httpsPort + "/client-cert",
+            TRUST_STORE_PATH,
+            TRUST_STORE_PASSWORD),
+        is("Client certificate accepted"));
+    assertThrows(IOException.class, () -> httpsGet(httpsPort, "/client-cert"));
+  }
+
+  @Test
+  void proxiesToATargetThatRequiresAClientCertificate() {
+    target =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .keystorePath(KEY_STORE_PATH)
+                .trustStorePath(TRUST_STORE_PATH)
+                .trustStorePassword(TRUST_STORE_PASSWORD)
+                .needClientAuth(true));
+    target.start();
+    target.stubFor(get("/client-cert-proxy").willReturn(ok("From target")));
+    external =
+        ExternalWireMock.start(
+            root.toString(),
+            "--https-truststore",
+            TRUST_STORE_PATH,
+            "--truststore-password",
+            TRUST_STORE_PASSWORD);
+    external.stubFor(
+        get("/client-cert-proxy")
+            .willReturn(aResponse().proxiedFrom("https://localhost:" + target.httpsPort())));
+
+    WireMockResponse response = new WireMockTestClient(external.port()).get("/client-cert-proxy");
+
+    assertThat(response.content(), response.statusCode(), is(200));
+    assertThat(response.content(), is("From target"));
   }
 
   @Test
@@ -266,5 +371,27 @@ public class StandaloneDistributionAcceptanceTest {
                 target.verify(
                     postRequestedFor(urlEqualTo("/callback"))
                         .withRequestBody(equalToJson("{\"id\": \"abc\"}"))));
+  }
+
+  private static String httpsGet(int httpsPort, String path) throws IOException {
+    try (CloseableHttpClient client = ApacheHttpClientFactory.createClient()) {
+      return client.execute(
+          new HttpGet("https://localhost:" + httpsPort + path),
+          response -> EntityUtils.toString(response.getEntity(), UTF_8));
+    }
+  }
+
+  private String trustStoreOfType(String type) throws Exception {
+    KeyStore clientStore = readKeyStore(TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+    KeyStore trustStore = KeyStore.getInstance(type);
+    trustStore.load(null, TRUST_STORE_PASSWORD.toCharArray());
+    for (String alias : Collections.list(clientStore.aliases())) {
+      trustStore.setCertificateEntry(alias, clientStore.getCertificate(alias));
+    }
+    Path path = root.resolve("truststore." + type.toLowerCase());
+    try (OutputStream output = Files.newOutputStream(path)) {
+      trustStore.store(output, TRUST_STORE_PASSWORD.toCharArray());
+    }
+    return path.toString();
   }
 }
