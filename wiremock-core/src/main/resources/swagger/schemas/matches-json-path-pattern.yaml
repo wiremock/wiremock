@@ -12,6 +12,7 @@ properties:
               expression:
                 type: string
                 example: "$.name"
+                x-intellij-language-injection: JSONPath
           - $ref: "content-pattern.yaml"
 
         required:

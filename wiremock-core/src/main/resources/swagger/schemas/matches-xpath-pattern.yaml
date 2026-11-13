@@ -12,6 +12,7 @@ properties:
               expression:
                 type: string
                 example: "//Order/Amount"
+                x-intellij-language-injection: XPath
           - $ref: "content-pattern.yaml"
 
         required:

@@ -393,11 +393,13 @@
         },
         "placeholderOpeningDelimiterRegex" : {
           "type" : "string",
-          "example" : "\\["
+          "example" : "\\[",
+          "x-intellij-language-injection" : "RegExp"
         },
         "placeholderClosingDelimiterRegex" : {
           "type" : "string",
-          "example" : "]"
+          "example" : "]",
+          "x-intellij-language-injection" : "RegExp"
         },
         "namespaceAwareness" : {
           "type" : "string",
@@ -731,7 +733,8 @@
               "properties" : {
                 "expression" : {
                   "type" : "string",
-                  "example" : "$.name"
+                  "example" : "$.name",
+                  "x-intellij-language-injection" : "JSONPath"
                 }
               }
             }, {
@@ -787,7 +790,8 @@
               "properties" : {
                 "expression" : {
                   "type" : "string",
-                  "example" : "//Order/Amount"
+                  "example" : "//Order/Amount",
+                  "x-intellij-language-injection" : "XPath"
                 }
               }
             }, {
