@@ -71,7 +71,9 @@ public class WireMockConfiguration implements Options {
   private int containerThreads = DEFAULT_CONTAINER_THREADS;
 
   private int httpsPort = -1;
-  private String keyStorePath = getResource(WireMockConfiguration.class, "keystore").toString();
+  private String keyStorePath =
+      getResource(WireMockConfiguration.class, "com/github/tomakehurst/wiremock/keystore")
+          .toString();
   private String keyStorePassword = "password";
   private String keyManagerPassword = "password";
   private String keyStoreType = "JKS";
