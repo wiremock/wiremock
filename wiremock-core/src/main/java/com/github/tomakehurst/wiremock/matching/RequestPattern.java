@@ -69,7 +69,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   @NonNull private final List<MultipartValuePattern> multipartPatterns;
 
   private final CustomMatcherDefinition customMatcherDefinition;
-  private final ValueMatcher<Request> matcher;
   private final ValueMatcher<Request> inlineCustomMatcher;
 
   @JsonCreator
@@ -146,55 +145,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.customMatcherDefinition = customMatcherDefinition;
     this.multipartPatterns = multiPattern != null ? List.copyOf(multiPattern) : List.of();
     this.inlineCustomMatcher = customMatcher;
-
-    this.matcher =
-        new RequestMatcher() {
-          @Override
-          public MatchResult match(Request request) {
-            final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
-
-            requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
-            requestPartMatchResults.add(weight(hostMatches(request), 10.0));
-            requestPartMatchResults.add(weight(portMatches(request), 10.0));
-            requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
-            requestPartMatchResults.add(
-                weight(
-                    RequestPattern.this.url.match(
-                        request.getPathAndQueryWithoutPrefix().toString()),
-                    10.0));
-            requestPartMatchResults.add(
-                weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
-
-            MatchResult matchResult =
-                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
-
-            if (!matchResult.isExactMatch()) {
-              return matchResult;
-            }
-
-            requestPartMatchResults.add(weight(allPathParamsMatch(request)));
-            requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
-            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
-            requestPartMatchResults.add(weight(allFormParamsMatch(request)));
-            requestPartMatchResults.add(weight(allCookiesMatch(request)));
-            requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
-            requestPartMatchResults.add(weight(allMultipartPatternsMatch(request)));
-
-            matchResult =
-                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
-            if (!matchResult.isExactMatch() || customMatcher == null) {
-              return matchResult;
-            }
-
-            requestPartMatchResults.add(weight(customMatcher.match(request)));
-            return new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
-          }
-
-          @Override
-          public String getName() {
-            return "request-matcher";
-          }
-        };
   }
 
   public static final RequestPattern ANYTHING =
@@ -217,7 +167,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     request = RequestPathParamsDecorator.decorate(request, this);
-    final MatchResult standardMatchResult = matcher.match(request);
+    final MatchResult standardMatchResult = matchStandard(request);
     if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
           getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
@@ -229,6 +179,41 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     return standardMatchResult;
+  }
+
+  private MatchResult matchStandard(Request request) {
+    final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
+
+    requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
+    requestPartMatchResults.add(weight(hostMatches(request), 10.0));
+    requestPartMatchResults.add(weight(portMatches(request), 10.0));
+    requestPartMatchResults.add(weight(clientIpMatches(request), 3.0));
+    requestPartMatchResults.add(
+        weight(url.match(request.getPathAndQueryWithoutPrefix().toString()), 10.0));
+    requestPartMatchResults.add(weight(method.match(request.getMethod()), 3.0));
+
+    MatchResult matchResult =
+        new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+
+    if (!matchResult.isExactMatch()) {
+      return matchResult;
+    }
+
+    requestPartMatchResults.add(weight(allPathParamsMatch(request)));
+    requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
+    requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
+    requestPartMatchResults.add(weight(allFormParamsMatch(request)));
+    requestPartMatchResults.add(weight(allCookiesMatch(request)));
+    requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
+    requestPartMatchResults.add(weight(allMultipartPatternsMatch(request)));
+
+    matchResult = new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+    if (!matchResult.isExactMatch() || inlineCustomMatcher == null) {
+      return matchResult;
+    }
+
+    requestPartMatchResults.add(weight(inlineCustomMatcher.match(request)));
+    return new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
   }
 
   private MatchResult allCookiesMatch(final Request request) {
