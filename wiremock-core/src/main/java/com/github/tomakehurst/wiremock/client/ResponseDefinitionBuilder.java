@@ -158,7 +158,7 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withTransformerParameter(String name, Object value) {
-    return withTransformerParameters(Map.of(name, value));
+    return withTransformerParameters(Collections.singletonMap(name, value));
   }
 
   public ResponseDefinitionBuilder withTransformer(

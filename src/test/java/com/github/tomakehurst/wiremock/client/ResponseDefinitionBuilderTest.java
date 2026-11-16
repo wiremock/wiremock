@@ -58,6 +58,17 @@ class ResponseDefinitionBuilderTest {
   }
 
   @Test
+  void withTransformerParameterShouldAcceptANullValue() {
+    ResponseDefinition responseDefinition =
+        ResponseDefinitionBuilder.responseDefinition()
+            .withTransformerParameter("name", null)
+            .build();
+
+    assertThat(responseDefinition.getTransformerParameters().containsKey("name"), is(true));
+    assertThat(responseDefinition.getTransformerParameters().get("name"), nullValue());
+  }
+
+  @Test
   void likeShouldCreateCompleteResponseDefinitionCopy() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
