@@ -49,6 +49,25 @@ class EntityTest {
   }
 
   @Test
+  void leavesDataUnchangedWhenLabelledGzipButNotGzipped() {
+    Entity mislabelled = Entity.builder().setCompression(GZIP).setData(TEST_DATA).build();
+
+    Entity decompressed = mislabelled.decompressIfPossible();
+
+    assertThat(decompressed.getCompression(), is(NONE));
+    assertThat(Strings.stringFromBytes(decompressed.getData()), is(TEST_DATA));
+  }
+
+  @Test
+  void decompressesEmptyDataLabelledGzipToEmptyData() {
+    Entity empty = Entity.builder().setCompression(GZIP).setData(new byte[0]).build();
+
+    Entity decompressed = empty.decompressIfPossible();
+
+    assertThat(decompressed.getData(), is(new byte[0]));
+  }
+
+  @Test
   void throwsExceptionWhenAttemptingToDecompressBrotli() {
     Entity entity =
         Entity.builder().setFormat(Format.TEXT).setCompression(BROTLI).setData(TEST_DATA).build();

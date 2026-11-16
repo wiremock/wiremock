@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
@@ -96,6 +97,8 @@ public class StreamSources {
   }
 
   private static class GzipDecompressingInputStreamSource implements InputStreamSource {
+    private static final int GZIP_MAGIC_LENGTH = 2;
+
     private final InputStreamSource source;
 
     private GzipDecompressingInputStreamSource(InputStreamSource source) {
@@ -109,7 +112,12 @@ public class StreamSources {
         if (sourceStream == null) {
           return null;
         }
-        return new GZIPInputStream(sourceStream);
+
+        // Data labelled gzip that isn't (e.g. a mislabelled request body) is passed through as-is
+        PushbackInputStream peekable = new PushbackInputStream(sourceStream, GZIP_MAGIC_LENGTH);
+        byte[] header = peekable.readNBytes(GZIP_MAGIC_LENGTH);
+        peekable.unread(header);
+        return Gzip.isGzipped(header) ? new GZIPInputStream(peekable) : peekable;
       } catch (IOException e) {
         return Exceptions.throwUnchecked(e, InputStream.class);
       }
