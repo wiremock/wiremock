@@ -47,11 +47,11 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
 
   public static final StubMapping NOT_CONFIGURED =
       StubMapping.builder().setResponse(ResponseDefinition.notConfigured()).build();
-  private final UUID id;
+  @NonNull private final UUID id;
   private final String name;
   private final Boolean persistent;
-  private final RequestPattern request;
-  private final ResponseDefinition response;
+  @NonNull private final RequestPattern request;
+  @NonNull private final ResponseDefinition response;
   private final Integer priority;
   private final String scenarioName;
   private final String requiredScenarioState;
@@ -115,7 +115,7 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
   }
 
   @Override
-  public UUID getId() {
+  public @NonNull UUID getId() {
     return id;
   }
 
@@ -127,11 +127,11 @@ public final class StubMapping implements StubMappingOrMappings, Prioritisable {
     return persistent;
   }
 
-  public RequestPattern getRequest() {
+  public @NonNull RequestPattern getRequest() {
     return request;
   }
 
-  public ResponseDefinition getResponse() {
+  public @NonNull ResponseDefinition getResponse() {
     return response;
   }
 
