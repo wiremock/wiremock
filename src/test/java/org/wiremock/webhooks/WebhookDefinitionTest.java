@@ -182,4 +182,27 @@ public class WebhookDefinitionTest {
     assertThat(entity.getDataAsString(), jsonEquals("{\"key\":\"value\"}"));
     assertThat(entity.getFormat(), is(Format.JSON));
   }
+
+  @Test
+  void deserialisesExtraParametersWithNullValues() {
+    var json = // language=json
+        """
+                {
+                   "url": "https://example.com/post-me",
+                   "method": "POST",
+                   "firstExtra": null,
+                   "secondExtra": "value",
+                   "thirdExtra": null
+                 }
+                """;
+
+    WebhookDefinition webhookDefinition = Json.read(json, WebhookDefinition.class);
+
+    var extraParameters = webhookDefinition.getOtherFields();
+    assertThat(extraParameters.get("secondExtra"), is("value"));
+    assertThat(extraParameters.containsKey("firstExtra"), is(true));
+    assertThat(extraParameters.get("firstExtra"), nullValue());
+    assertThat(extraParameters.containsKey("thirdExtra"), is(true));
+    assertThat(extraParameters.get("thirdExtra"), nullValue());
+  }
 }
