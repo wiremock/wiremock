@@ -16,12 +16,13 @@
 package com.github.tomakehurst.wiremock.common;
 
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 public interface Prioritisable {
 
   int DEFAULT_PRIORITY = 5;
 
-  UUID getId();
+  @NonNull UUID getId();
 
   Integer getPriority();
 

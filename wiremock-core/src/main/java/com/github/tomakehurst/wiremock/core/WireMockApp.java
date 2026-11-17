@@ -361,10 +361,6 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void addStubMapping(StubMapping stubMapping) {
-    if (stubMapping.getId() == null) {
-      stubMapping = stubMapping.transform(b -> b.setId(UUID.randomUUID()));
-    }
-
     stubMappings.addMapping(stubMapping);
   }
 

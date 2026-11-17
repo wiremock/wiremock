@@ -54,7 +54,7 @@ public class MessageStubMapping implements Prioritisable, MessageStubMappingOrMa
 
   public static final int DEFAULT_PRIORITY = 5;
 
-  private final UUID id;
+  @NonNull private final UUID id;
   private final String name;
   private final Integer priority;
   @NonNull private final MessageTrigger trigger;
@@ -106,7 +106,7 @@ public class MessageStubMapping implements Prioritisable, MessageStubMappingOrMa
   }
 
   @Override
-  public UUID getId() {
+  public @NonNull UUID getId() {
     return id;
   }
 
@@ -119,11 +119,11 @@ public class MessageStubMapping implements Prioritisable, MessageStubMappingOrMa
     return priority;
   }
 
-  public MessageTrigger getTrigger() {
+  public @NonNull MessageTrigger getTrigger() {
     return trigger;
   }
 
-  public List<MessageAction> getActions() {
+  public @NonNull List<MessageAction> getActions() {
     return actions;
   }
 
