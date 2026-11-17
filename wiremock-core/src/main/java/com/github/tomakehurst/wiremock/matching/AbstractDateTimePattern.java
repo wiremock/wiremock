@@ -40,6 +40,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
   private final LocalDateTime localDateTime;
   private String actualDateTimeFormat;
   private DateTimeParser actualDateTimeParser;
+  private List<Function<String, LocalDateTime>> actualLocalParsers = DEFAULT_LOCAL_PARSERS;
   private DateTimeOffset expectedOffset;
   private DateTimeTruncation truncateExpected;
   private DateTimeTruncation truncateActual;
@@ -61,6 +62,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     this.actualDateTimeFormat = actualDateTimeFormat;
     this.actualDateTimeParser =
         actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
+    this.actualLocalParsers = buildLocalParsers(this.actualDateTimeParser);
     this.truncateExpected = truncateExpected;
     this.truncateActual = truncateActual;
   }
@@ -110,6 +112,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     this.actualDateTimeFormat = actualDateFormat;
     this.actualDateTimeParser =
         actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
+    this.actualLocalParsers = buildLocalParsers(this.actualDateTimeParser);
 
     this.truncateExpected = truncateExpected;
     this.truncateActual = truncateActual;
@@ -141,6 +144,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         this.actualDateTimeFormat != null
             ? DateTimeParser.forFormat(this.actualDateTimeFormat)
             : null;
+    this.actualLocalParsers = buildLocalParsers(this.actualDateTimeParser);
     this.truncateExpected = truncateExpected;
     this.truncateActual = truncateActual;
   }
@@ -167,6 +171,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
   public <T extends AbstractDateTimePattern> T actualFormat(String format) {
     this.actualDateTimeFormat = format;
     this.actualDateTimeParser = DateTimeParser.forFormat(format);
+    this.actualLocalParsers = buildLocalParsers(this.actualDateTimeParser);
     return (T) this;
   }
 
@@ -227,7 +232,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
             ? truncateActual.truncate(parseZonedOrNull(value, actualDateTimeParser))
             : parseZonedOrNull(value, actualDateTimeParser);
 
-    final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeParser);
+    final LocalDateTime localActual = parseLocalOrNull(value, actualLocalParsers);
 
     final ZonedDateTime zonedExpectedDateTime =
         isNowOffset() ? calculateExpectedFromNow() : zonedDateTime;
@@ -281,15 +286,16 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
   }
 
   private static LocalDateTime parseLocalOrNull(String dateTimeString) {
-    return parseLocalOrNull(dateTimeString, null);
+    return parseLocalOrNull(dateTimeString, DEFAULT_LOCAL_PARSERS);
   }
 
-  private static LocalDateTime parseLocalOrNull(String dateTimeString, DateTimeParser parser) {
+  private static LocalDateTime parseLocalOrNull(
+      String dateTimeString, List<Function<String, LocalDateTime>> parsers) {
     if (dateTimeString == null) {
       return null;
     }
 
-    for (Function<String, LocalDateTime> parseFunction : getLocalParsers(parser)) {
+    for (Function<String, LocalDateTime> parseFunction : parsers) {
       try {
         return parseFunction.apply(dateTimeString);
       } catch (DateTimeParseException ignored) {
@@ -300,7 +306,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     return null;
   }
 
-  private static List<Function<String, LocalDateTime>> getLocalParsers(DateTimeParser parser) {
+  private static List<Function<String, LocalDateTime>> buildLocalParsers(DateTimeParser parser) {
     if (parser == null) {
       return DEFAULT_LOCAL_PARSERS;
     }
