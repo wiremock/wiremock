@@ -266,7 +266,7 @@ public class FixedMessageChannelAcceptanceTest extends WebsocketAcceptanceTestBa
 
     WebsocketTestClient wsClient = new WebsocketTestClient();
     wsClient.connect(websocketUrl("/ws-subscribers"));
-    Awaitility.waitAtMost(5, TimeUnit.SECONDS).until(wsClient::isConnected);
+    waitForOpenChannels("/ws-subscribers", 1);
 
     sendMessageToFixedChannel("events", "orders", "forward-me");
 

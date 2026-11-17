@@ -239,12 +239,15 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
             receiverClient2.withWebsocketSession(
                 receiverUrl2,
                 session2 -> {
+                  waitForOpenChannels("/broadcast/user1", 1);
+                  waitForOpenChannels("/broadcast/user2", 1);
                   senderClient.sendMessage(senderUrl, "broadcast");
+                  waitAtMost(5, SECONDS)
+                      .until(() -> receiverClient1.getMessages().contains("broadcast message"));
+                  waitAtMost(5, SECONDS)
+                      .until(() -> receiverClient2.getMessages().contains("broadcast message"));
                   return null;
                 }));
-
-    waitAtMost(5, SECONDS).until(() -> receiverClient1.getMessages().contains("broadcast message"));
-    waitAtMost(5, SECONDS).until(() -> receiverClient2.getMessages().contains("broadcast message"));
   }
 
   @Test
@@ -348,8 +351,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
     client1.connect(url);
     client2.connect(url);
 
-    waitAtMost(5, SECONDS).until(client1::isConnected);
-    waitAtMost(5, SECONDS).until(client2::isConnected);
+    waitForOpenChannels("/dsl-broadcast", 2);
 
     client1.sendMessage("broadcast");
 
