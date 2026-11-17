@@ -17,8 +17,9 @@ properties:
       - https
     description: The scheme (protocol) part of the request URL
   host:
-    type: string
-    description: The hostname part of the request URL
+    description: The hostname part of the request URL to match against
+    allOf:
+      - $ref: "content-pattern.yaml"
   port:
     type: integer
     minimum: 1
@@ -77,8 +78,9 @@ properties:
       $ref: "content-pattern.yaml"
 
   clientIp:
-    type: string
     description: The client IP address to match against
+    allOf:
+      - $ref: "content-pattern.yaml"
 
   basicAuthCredentials:
     type: object

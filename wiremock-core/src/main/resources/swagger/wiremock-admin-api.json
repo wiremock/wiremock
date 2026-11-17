@@ -3369,8 +3369,10 @@
             "description": "The scheme (protocol) part of the request URL"
           },
           "host": {
-            "type": "string",
-            "description": "The hostname part of the request URL"
+            "description": "The hostname part of the request URL to match against",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/content-pattern"
+            } ]
           },
           "port": {
             "type": "integer",
@@ -3442,8 +3444,10 @@
             }
           },
           "clientIp": {
-            "type": "string",
-            "description": "The client IP address to match against"
+            "description": "The client IP address to match against",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/content-pattern"
+            } ]
           },
           "basicAuthCredentials": {
             "type": "object",
