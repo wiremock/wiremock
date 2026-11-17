@@ -56,8 +56,7 @@ public class MalformedMultipartAcceptanceTest extends AcceptanceTestBase {
     ClassicHttpRequest request =
         ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/batch")
             .setEntity(
-                new StringEntity(
-                    body, ContentType.parse("multipart/mixed; boundary=batch_123")))
+                new StringEntity(body, ContentType.parse("multipart/mixed; boundary=batch_123")))
             .build();
 
     ClassicHttpResponse response = httpClient.execute(request);
