@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http.multipart;
 import static com.github.tomakehurst.wiremock.http.multipart.FileItemPartAdapter.TO_PARTS;
 import static java.util.Collections.emptyList;
 
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -57,6 +58,10 @@ public class PartParser {
       // A body that cannot be parsed as multipart content must not fail the whole
       // request. Treat it as having no parts so the request can still be served,
       // matched and recorded. Fixes https://github.com/wiremock/wiremock/issues/3133
+      LocalNotifier.notifier()
+          .error(
+              "Failed to parse multipart request body, treating it as having no parts: "
+                  + e.getMessage());
       return emptyList();
     }
   }
