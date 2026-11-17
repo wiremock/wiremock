@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParamet
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -51,7 +52,7 @@ public class Parameters extends Metadata {
   }
 
   public static Parameters one(String name, Object value) {
-    return from(Map.of(name, value));
+    return from(Collections.singletonMap(name, value));
   }
 
   public static <T> Parameters of(T myData) {

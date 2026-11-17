@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,6 +46,14 @@ public class ParametersTest {
     assertThat(parameters.getString("name"), is("Mark"));
     assertThat(parameters.getInt("num"), is(12));
     assertThat(parameters.getString("date"), is("2023-01-01"));
+  }
+
+  @Test
+  public void oneAcceptsANullValue() {
+    Parameters parameters = Parameters.one("name", null);
+
+    assertThat(parameters.containsKey("name"), is(true));
+    assertThat(parameters.get("name"), nullValue());
   }
 
   @Test
