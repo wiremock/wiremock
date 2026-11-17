@@ -83,6 +83,33 @@ On the other hand if you're pretty certain you've found a bug please open an iss
 WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
 you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability.
 
+## Breaking-change report
+
+A [japicmp](https://github.com/melix/japicmp-gradle-plugin)-based report compares the
+current build against the last 3.x release and lists binary-incompatible changes to
+classes annotated `@PublishedAPI`.
+
+If you have [Claude Code](https://claude.ai/code) installed, run the report and produce
+a filtered summary in one step:
+
+```
+/breaking-change-report
+```
+
+To generate the raw report without Claude Code (which will included classes not intended to be part of the published DSL/API):
+
+```bash
+./gradlew :wiremock-core:japicmp
+```
+
+Reports are written to `wiremock-core/build/reports/japicmp/`:
+
+| File | Contents |
+|------|----------|
+| `breaking-changes.html` | Full report (all public classes) |
+| `breaking-changes.txt` | Same, plain text |
+| `breaking-changes-published-api.md` | Filtered to `@PublishedAPI` classes only (produced by the skill) |
+
 ## Contributing
 
 WireMock exists and continues to thrive due to the efforts of contributors.

@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static java.util.Arrays.copyOf;
+import java.util.Arrays;
 
 public final class ArrayFunctions {
 
@@ -23,7 +23,7 @@ public final class ArrayFunctions {
     if (first.length + second.length == 0) {
       return first;
     }
-    T[] both = copyOf(first, first.length + second.length);
+    T[] both = Arrays.copyOf(first, first.length + second.length);
     System.arraycopy(second, 0, both, first.length, second.length);
     return both;
   }

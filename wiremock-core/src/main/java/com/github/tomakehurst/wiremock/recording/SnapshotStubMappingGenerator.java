@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import org.wiremock.url.PathAndQuery;
@@ -48,6 +49,19 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
       boolean markStubsPersistent) {
     this(
         new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
+        new LoggedResponseDefinitionTransformer(),
+        markStubsPersistent);
+  }
+
+  SnapshotStubMappingGenerator(
+      Map<String, CaptureHeadersSpec> captureHeaders,
+      boolean captureAllHeaders,
+      List<String> excludeHeaders,
+      RequestBodyPatternFactory requestBodyPatternFactory,
+      boolean markStubsPersistent) {
+    this(
+        new RequestPatternTransformer(
+            captureHeaders, captureAllHeaders, excludeHeaders, requestBodyPatternFactory),
         new LoggedResponseDefinitionTransformer(),
         markStubsPersistent);
   }

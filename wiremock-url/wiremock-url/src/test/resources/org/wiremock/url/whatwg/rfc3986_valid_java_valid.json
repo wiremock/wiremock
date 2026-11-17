@@ -326,6 +326,8 @@
 { "input": "http://10000000000.com", "base": "http://other.com/", "href": "http://10000000000.com/", "origin": "http://10000000000.com", "protocol": "http:", "username": "", "password": "", "host": "10000000000.com", "hostname": "10000000000.com", "port": "", "pathname": "/", "search": "", "hash": "" },
 { "input": "http://4294967295", "base": "http://other.com/", "href": "http://255.255.255.255/", "origin": "http://255.255.255.255", "protocol": "http:", "username": "", "password": "", "host": "255.255.255.255", "hostname": "255.255.255.255", "port": "", "pathname": "/", "search": "", "hash": "" },
 { "input": "http://4294967296", "base": "http://other.com/", "failure": true },
+{ "input": "http://18446744073709551616", "base": "http://other.com/", "failure": true },
+{ "input": "http://18446744075840258049", "base": "http://other.com/", "failure": true },
 { "input": "http://0xffffffff", "base": "http://other.com/", "href": "http://255.255.255.255/", "origin": "http://255.255.255.255", "protocol": "http:", "username": "", "password": "", "host": "255.255.255.255", "hostname": "255.255.255.255", "port": "", "pathname": "/", "search": "", "hash": "" },
 { "input": "http://0xffffffff1", "base": "http://other.com/", "failure": true },
 { "input": "http://256.256.256.256", "base": "http://other.com/", "failure": true },

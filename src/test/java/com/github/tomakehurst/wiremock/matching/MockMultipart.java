@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.Format;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -28,7 +29,7 @@ public class MockMultipart implements Request.Part {
   private String name;
   private String filename;
   private List<HttpHeader> headers = new ArrayList<>();
-  private Body body;
+  private Entity body;
 
   public static MockMultipart mockPart() {
     return new MockMultipart();
@@ -55,12 +56,12 @@ public class MockMultipart implements Request.Part {
   }
 
   public MockMultipart body(String body) {
-    this.body = new Body(body);
+    this.body = Entity.builder().setFormat(Format.TEXT).setData(body).build();
     return this;
   }
 
   public MockMultipart body(byte[] body) {
-    this.body = new Body(body);
+    this.body = Entity.builder().setFormat(Format.BINARY).setData(body).build();
     return this;
   }
 
@@ -85,7 +86,7 @@ public class MockMultipart implements Request.Part {
   }
 
   @Override
-  public Body getBody() {
+  public Entity getBodyEntity() {
     return body;
   }
 

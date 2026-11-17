@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.store;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
@@ -44,6 +45,12 @@ public class InMemoryScenariosStore implements ScenariosStore {
   @Override
   public void put(String key, Scenario content) {
     scenarioMap.put(key, content);
+  }
+
+  @Override
+  public void compute(String key, UnaryOperator<Optional<Scenario>> remapping) {
+    scenarioMap.compute(
+        key, (k, current) -> remapping.apply(Optional.ofNullable(current)).orElse(null));
   }
 
   @Override

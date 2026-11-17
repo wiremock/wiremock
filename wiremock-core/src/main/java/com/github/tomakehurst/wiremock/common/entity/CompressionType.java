@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Arrays;
 
 public class CompressionType {
 
@@ -33,7 +34,10 @@ public class CompressionType {
 
   @JsonCreator
   public static CompressionType fromString(String value) {
-    return new CompressionType(value);
+    return Arrays.stream(values())
+        .filter(t -> t.type.equalsIgnoreCase(value))
+        .findFirst()
+        .orElseGet(() -> new CompressionType(value));
   }
 
   @JsonValue

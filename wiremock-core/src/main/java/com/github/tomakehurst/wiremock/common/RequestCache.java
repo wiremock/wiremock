@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ public class RequestCache {
         public void put(Key key, Object value) {}
 
         @Override
+        @SuppressWarnings("TypeParameterUnusedInFormals")
         public <T> T get(Key key) {
           return null;
         }
@@ -67,7 +68,7 @@ public class RequestCache {
     cache.put(key, value);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   public <T> T get(Key key) {
     return (T) cache.get(key);
   }

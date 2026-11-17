@@ -17,16 +17,13 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
-import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
-import com.github.tomakehurst.wiremock.message.MessageStubRequestHandler;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -43,28 +40,22 @@ public class InMemoryMessageJournalTest {
   private MessageServeEvent event1, event2, event3;
 
   private static Message message(String text) {
-    return MessageStubRequestHandler.resolveToMessage(MessageDefinition.fromString(text), null);
+    return Message.builder().withTextBody(text).build();
   }
 
   @BeforeEach
   public void createTestEvents() {
     event1 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET,
-            UUID.randomUUID(),
-            mockRequest().url("/channel1"),
+            new LoggedRequestInitiatedChannel(UUID.randomUUID(), ChannelType.WEBSOCKET, null, true),
             message("message1"));
     event2 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET,
-            UUID.randomUUID(),
-            mockRequest().url("/channel2"),
+            new LoggedRequestInitiatedChannel(UUID.randomUUID(), ChannelType.WEBSOCKET, null, true),
             message("message2"));
     event3 =
         MessageServeEvent.receivedUnmatched(
-            ChannelType.WEBSOCKET,
-            UUID.randomUUID(),
-            mockRequest().url("/channel3"),
+            new LoggedRequestInitiatedChannel(UUID.randomUUID(), ChannelType.WEBSOCKET, null, true),
             message("message3"));
   }
 
@@ -283,9 +274,7 @@ public class InMemoryMessageJournalTest {
 
     MessageServeEvent matchedEvent =
         MessageServeEvent.receivedMatched(
-            ChannelType.WEBSOCKET,
-            UUID.randomUUID(),
-            mockRequest().url("/channel"),
+            new LoggedRequestInitiatedChannel(UUID.randomUUID(), ChannelType.WEBSOCKET, null, true),
             message("test message"),
             stub);
 
@@ -304,9 +293,7 @@ public class InMemoryMessageJournalTest {
   public void sentEventHasCorrectEventType() {
     MessageServeEvent sentEvent =
         MessageServeEvent.sent(
-            ChannelType.WEBSOCKET,
-            UUID.randomUUID(),
-            mockRequest().url("/channel"),
+            new LoggedRequestInitiatedChannel(UUID.randomUUID(), ChannelType.WEBSOCKET, null, true),
             message("sent message"));
 
     assertThat(sentEvent.isSent(), is(true));

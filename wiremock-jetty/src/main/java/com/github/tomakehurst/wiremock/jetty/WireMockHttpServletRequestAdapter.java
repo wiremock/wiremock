@@ -15,18 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
 import static com.github.tomakehurst.wiremock.jetty.proxy.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
+import com.github.tomakehurst.wiremock.common.entity.EntityMetadata;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.google.common.collect.ImmutableMultimap;
@@ -52,7 +50,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final Lazy<@NonNull PathAndQuery> pathAndQuery;
   private final Lazy<@NonNull String> absoluteUrl;
   private final Lazy<@NonNull AbsoluteUrl> typedAbsoluteUrl;
-  private final Lazy<byte[]> body;
+  private final Lazy<Entity> bodyEntity;
+  private final Lazy<Entity> bodyEntityDecompressed;
   private final Lazy<Map<String, Cookie>> cookies;
   private final Lazy<Map<String, FormParameter>> formParameters;
   private final Lazy<Collection<Part>> multiParts;
@@ -73,7 +72,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.typedAbsoluteUrl = Lazy.lazy(this::adaptTypedAbsoluteUrl);
     this.headers = Lazy.lazy(this::adaptHeaders);
     this.cookies = Lazy.lazy(this::adaptCookies);
-    this.body = Lazy.lazy(this::adaptBody);
+    this.bodyEntity = Lazy.lazy(this::adaptBodyEntity);
+    this.bodyEntityDecompressed = Lazy.lazy(() -> bodyEntity.get().decompressIfPossible());
     this.formParameters = Lazy.lazy(() -> adaptFormParameters(request));
     this.multiParts = Lazy.lazy(this::adaptParts);
   }
@@ -130,7 +130,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public RequestMethod getMethod() {
-    return RequestMethod.fromString(request.getMethod().toUpperCase());
+    return RequestMethod.fromString(request.getMethod().toUpperCase(Locale.ROOT));
   }
 
   @Override
@@ -161,36 +161,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public byte[] getBody() {
-    return body.get();
+    return bodyEntityDecompressed.get().asBytes();
   }
 
-  private byte[] adaptBody() {
-    byte[] body = Exceptions.uncheck(() -> request.getInputStream().readAllBytes(), byte[].class);
-    boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
-    return isGzipped ? Gzip.unGzip(body) : body;
-  }
+  private Entity adaptBodyEntity() {
+    byte[] rawBytes = Exceptions.uncheck(() -> request.getInputStream().readAllBytes());
 
-  private Charset encodingFromContentTypeHeaderOrUtf8() {
-    ContentTypeHeader contentTypeHeader = contentTypeHeader();
-    if (contentTypeHeader != null) {
-      return contentTypeHeader.charset();
-    }
-    return UTF_8;
-  }
-
-  private boolean hasGzipEncoding() {
-    String encodingHeader = request.getHeader("Content-Encoding");
-    return encodingHeader != null && encodingHeader.contains("gzip");
+    final Entity.Builder builder = Entity.builder().setData(rawBytes);
+    EntityMetadata.copyFromHeaders(getHeaders(), builder);
+    return builder.build();
   }
 
   @Override
   public String getBodyAsString() {
-    return stringFromBytes(getBody(), encodingFromContentTypeHeaderOrUtf8());
+    return bodyEntityDecompressed.get().asString();
   }
 
   @Override
   public String getBodyAsBase64() {
-    return encodeBase64(getBody());
+    return bodyEntityDecompressed.get().asBase64();
+  }
+
+  @Override
+  public Entity getBodyEntity() {
+    return bodyEntity.get();
   }
 
   @Override
@@ -229,8 +223,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private HttpHeaders adaptHeaders() {
-    if (request instanceof org.eclipse.jetty.server.Request) {
-      return getHeadersLinear((org.eclipse.jetty.server.Request) request);
+    if (request instanceof org.eclipse.jetty.server.Request jettyRequest) {
+      return getHeadersLinear(jettyRequest);
     } else {
       return getHeadersQuadratic();
     }
@@ -315,7 +309,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     Collection<Part> multiParts = PartParser.parseFrom(this);
 
-    return (multiParts.isEmpty()) ? null : multiParts;
+    return multiParts.isEmpty() ? null : multiParts;
   }
 
   @Override

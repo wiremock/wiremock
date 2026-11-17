@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2025 Thomas Akehurst
+ * Copyright (C) 2013-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.jetty.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.*;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
@@ -68,17 +69,18 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
   }
 
   @Override
-  public Body getBody() {
+  public Entity getBodyEntity() {
     try {
       byte[] bytes = mPart.getInputStream().readAllBytes();
       HttpHeader header = getHeader(ContentTypeHeader.KEY);
-      ContentTypeHeader contentTypeHeader =
-          header.isPresent()
-              ? new ContentTypeHeader(header.firstValue())
-              : ContentTypeHeader.absent();
-      return Body.ofBinaryOrText(bytes, contentTypeHeader);
+      if (header.isPresent()) {
+        new ContentTypeHeader(header.firstValue());
+      } else {
+        ContentTypeHeader.absent();
+      }
+      return Entity.of(bytes, headers);
     } catch (IOException e) {
-      return throwUnchecked(e, Body.class);
+      return throwUnchecked(e, Entity.class);
     }
   }
 }

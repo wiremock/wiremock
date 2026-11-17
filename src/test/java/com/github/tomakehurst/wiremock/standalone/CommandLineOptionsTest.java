@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_WEBHOOK_THREADPOOL_SIZE;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
+import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,6 +45,7 @@ import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -290,6 +292,15 @@ public class CommandLineOptionsTest {
     assertThat(options.maxRequestJournalEntries(), is(Optional.of(2)));
     CommandLineOptions optionsNoMax = new CommandLineOptions("");
     assertThat(optionsNoMax.maxRequestJournalEntries().isPresent(), is(false));
+  }
+
+  @Test
+  public void maxRequestJournalEntriesIsEnforcedByTheStoresCreatedFromOptions() {
+    CommandLineOptions options = new CommandLineOptions("--max-request-journal-entries", "2");
+
+    addServeEvents(options, 3);
+
+    assertThat(options.getStores().getRequestJournalStore().getAllKeys().count(), is(2L));
   }
 
   @Test
@@ -985,6 +996,15 @@ public class CommandLineOptionsTest {
     CommandLineOptions options = new CommandLineOptions();
 
     assertThat(options.getWebhookThreadPoolSize(), is(DEFAULT_WEBHOOK_THREADPOOL_SIZE));
+  }
+
+  private static void addServeEvents(Options options, int count) {
+    for (int i = 0; i < count; i++) {
+      options
+          .getStores()
+          .getRequestJournalStore()
+          .add(ServeEvent.of(createFrom(mockRequest().url("/" + i))));
+    }
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

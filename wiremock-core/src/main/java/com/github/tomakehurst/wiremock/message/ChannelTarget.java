@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = OriginatingChannelTarget.class, name = "originating"),
-  @JsonSubTypes.Type(value = RequestInitiatedChannelTarget.class, name = "request-initiated")
+  @JsonSubTypes.Type(value = RequestInitiatedChannelTarget.class, name = "request-initiated"),
+  @JsonSubTypes.Type(value = FixedChannelTarget.class, name = "fixed-channel")
 })
 public interface ChannelTarget {}

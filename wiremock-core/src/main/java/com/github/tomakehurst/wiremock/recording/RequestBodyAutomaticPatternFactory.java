@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTex
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.common.xml.XmlException;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 
@@ -58,7 +60,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
   }
 
   /**
-   * If request body was JSON or XML, use "equalToJson" or "equalToXml" (respectively) in the
+   * If request body was valid JSON or XML, use "equalToJson" or "equalToXml" (respectively) in the
    * RequestPattern so it's easier to read. Otherwise, just use "equalTo"
    */
   @Override
@@ -66,10 +68,18 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
     final String mimeType = request.getHeaders().getContentTypeHeader().mimeTypePart();
     if (mimeType != null) {
       if (mimeType.contains("json")) {
-        return new EqualToJsonPattern(
-            request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+        try {
+          return new EqualToJsonPattern(
+              request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+        } catch (JsonException ignored) {
+          // The body isn't valid JSON despite the content type, so match it as plain text
+        }
       } else if (mimeType.contains("xml")) {
-        return new EqualToXmlPattern(request.getBodyAsString());
+        try {
+          return new EqualToXmlPattern(request.getBodyAsString());
+        } catch (XmlException ignored) {
+          // The body isn't valid XML despite the content type, so match it as plain text
+        }
       } else if (mimeType.equals("multipart/form-data")) {
         // TODO: Need to add a matcher that can handle multipart data properly. For now, just always
         // match

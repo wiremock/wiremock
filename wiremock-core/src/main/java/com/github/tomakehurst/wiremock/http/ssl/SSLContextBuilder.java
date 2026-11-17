@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,8 +111,8 @@ public class SSLContextBuilder {
   }
 
   private TrustManager addStrategy(TrustManager tm, TrustStrategy trustStrategy) {
-    if (tm instanceof X509ExtendedTrustManager) {
-      return new TrustManagerDelegate((X509ExtendedTrustManager) tm, trustStrategy);
+    if (tm instanceof X509ExtendedTrustManager x509ExtendedTrustManager) {
+      return new TrustManagerDelegate(x509ExtendedTrustManager, trustStrategy);
     } else {
       return tm;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class WireMockExtension extends DslWrapper
   private boolean isNonStatic = false;
   private Boolean proxyMode;
 
-  WireMockExtension() {
+  public WireMockExtension() {
     configureStaticDsl = true;
     failOnUnmatchedRequests = false;
     isDeclarative = true;
@@ -74,19 +74,6 @@ public class WireMockExtension extends DslWrapper
     this.proxyMode = builder.proxyMode;
     this.isDeclarative = false;
     this.resetOnEachTest = builder.resetOnEachTest;
-  }
-
-  private WireMockExtension(
-      Options options,
-      boolean configureStaticDsl,
-      boolean failOnUnmatchedRequests,
-      boolean proxyMode) {
-    this.options = options;
-    this.configureStaticDsl = configureStaticDsl;
-    this.failOnUnmatchedRequests = failOnUnmatchedRequests;
-    this.proxyMode = proxyMode;
-    this.isDeclarative = false;
-    this.resetOnEachTest = true;
   }
 
   private WireMockExtension(

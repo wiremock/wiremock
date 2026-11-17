@@ -18,7 +18,15 @@ package com.github.tomakehurst.wiremock.http;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,27 +37,36 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.entity.EmptyEntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
+import com.github.tomakehurst.wiremock.common.entity.Format;
+import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.Path;
 
+@PublishedAPI
 @JsonInclude(Include.NON_NULL)
 public class ResponseDefinition {
 
   private final int status;
   private final String statusMessage;
-  private final Body body;
-  private final String bodyFileName;
+
+  private final EntityDefinition body;
+
   private final @NonNull HttpHeaders headers;
   private final @NonNull HttpHeaders additionalProxyRequestHeaders;
   private final @NonNull List<String> removeProxyRequestHeaders;
+
   private final Integer fixedDelayMilliseconds;
   private final DelayDistribution delayDistribution;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
@@ -61,12 +78,13 @@ public class ResponseDefinition {
 
   private final @Nullable AbsoluteUrl browserProxyUrl;
   private final Boolean wasConfigured;
+  private final @Nullable ChannelType openChannelOfType;
 
   @JsonCreator
   public ResponseDefinition(
       @JsonProperty("status") int status,
       @JsonProperty("statusMessage") String statusMessage,
-      @JsonProperty("body") String body,
+      @JsonProperty("body") EntityDefinition body,
       @JsonProperty("jsonBody") JsonNode jsonBody,
       @JsonProperty("base64Body") String base64Body,
       @JsonProperty("bodyFileName") String bodyFileName,
@@ -81,12 +99,12 @@ public class ResponseDefinition {
       @JsonProperty("fault") Fault fault,
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters,
-      @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
+      @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
+      @JsonProperty("openChannelOfType") @Nullable ChannelType openChannelOfType) {
     this(
         status,
         statusMessage,
-        Body.fromOneOf(null, body, jsonBody, base64Body),
-        bodyFileName,
+        resolveBody(body, jsonBody, base64Body, bodyFileName),
         headers,
         additionalProxyRequestHeaders,
         removeProxyRequestHeaders,
@@ -99,14 +117,28 @@ public class ResponseDefinition {
         transformers,
         transformerParameters,
         null,
-        wasConfigured);
+        wasConfigured,
+        openChannelOfType);
   }
 
-  public ResponseDefinition(
+  private static EntityDefinition resolveBody(
+      EntityDefinition body, JsonNode jsonBody, String base64Body, String bodyFileName) {
+    EntityDefinition entityDefinition = body;
+    if (jsonBody != null) {
+      entityDefinition = EntityDefinition.json(jsonBody);
+    } else if (base64Body != null) {
+      entityDefinition = EntityDefinition.fromBase64(base64Body);
+    } else if (bodyFileName != null) {
+      entityDefinition = EntityDefinition.builder().setFilePath(bodyFileName).build();
+    }
+
+    return entityDefinition != null ? entityDefinition : EmptyEntityDefinition.INSTANCE;
+  }
+
+  ResponseDefinition(
       int status,
       String statusMessage,
-      Body body,
-      String bodyFileName,
+      EntityDefinition body,
       HttpHeaders headers,
       HttpHeaders additionalProxyRequestHeaders,
       List<String> removeProxyRequestHeaders,
@@ -119,18 +151,20 @@ public class ResponseDefinition {
       List<String> transformers,
       Parameters transformerParameters,
       @Nullable AbsoluteUrl browserProxyUrl,
-      Boolean wasConfigured) {
+      Boolean wasConfigured,
+      @Nullable ChannelType openChannelOfType) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
-
-    this.body = body;
-    this.bodyFileName = bodyFileName;
 
     this.headers = headers != null ? headers : new HttpHeaders();
     this.additionalProxyRequestHeaders =
         additionalProxyRequestHeaders != null ? additionalProxyRequestHeaders : new HttpHeaders();
     this.removeProxyRequestHeaders =
         removeProxyRequestHeaders != null ? List.copyOf(removeProxyRequestHeaders) : List.of();
+
+    //    this.body = EntityDefinition.resolveEntityAttributesFromHeaders(this.headers, body);
+    this.body = body;
+
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
@@ -142,6 +176,7 @@ public class ResponseDefinition {
         transformerParameters != null ? transformerParameters : Parameters.empty();
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
+    this.openChannelOfType = openChannelOfType;
   }
 
   public static ResponseDefinition notFound() {
@@ -207,6 +242,10 @@ public class ResponseDefinition {
     return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_FORBIDDEN);
   }
 
+  public static ResponseDefinition conflict(Errors errors) {
+    return ResponseDefinitionBuilder.jsonResponse(errors, HTTP_CONFLICT);
+  }
+
   public static ResponseDefinition serverError() {
     return ResponseDefinitionBuilder.responseDefinition().withStatus(HTTP_INTERNAL_ERROR).build();
   }
@@ -224,7 +263,6 @@ public class ResponseDefinition {
         this.status,
         this.statusMessage,
         this.body,
-        this.bodyFileName,
         this.headers,
         this.additionalProxyRequestHeaders,
         this.removeProxyRequestHeaders,
@@ -237,7 +275,8 @@ public class ResponseDefinition {
         this.transformers,
         this.transformerParameters,
         this.browserProxyUrl,
-        this.wasConfigured);
+        this.wasConfigured,
+        this.openChannelOfType);
   }
 
   public ResponseDefinition transform(Consumer<Builder> transformer) {
@@ -277,41 +316,54 @@ public class ResponseDefinition {
   }
 
   public String getBody() {
-    return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
+    if (body.isPlainInlineString()) {
+      return body.getDataAsString();
+    }
+
+    return null;
+  }
+
+  @JsonIgnore
+  public EntityDefinition getBodyEntity() {
+    return body;
   }
 
   @JsonIgnore
   public String getTextBody() {
-    return !body.isBinary() ? body.asString() : null;
+    if (!Objects.equals(body.getFormat(), Format.BINARY)) {
+      return body.getDataAsString();
+    }
+
+    return null;
   }
 
   @JsonIgnore
   public byte[] getByteBody() {
-    return body.asBytes();
-  }
-
-  @JsonIgnore
-  @SuppressWarnings("unused")
-  public byte[] getByteBodyIfBinary() {
-    return body.isBinary() ? body.asBytes() : null;
+    return body.getDataAsBytes();
   }
 
   public String getBase64Body() {
-    return body.isBinary() ? body.asBase64() : null;
-  }
+    if (body.isInline() && (body.isBinary() || body.isCompressed())) {
+      return body.getDataAsString();
+    }
 
-  @JsonIgnore
-  public Body getReponseBody() {
-    return body;
+    return null;
   }
 
   public JsonNode getJsonBody() {
+    if (body instanceof JsonEntityDefinition jsonEntity) {
+      return jsonEntity.getDataAsJson();
+    }
 
-    return body.isJson() ? body.asJson() : null;
+    return null;
   }
 
   public String getBodyFileName() {
-    return bodyFileName;
+    if (body.getFilePath() != null) {
+      return body.getFilePath();
+    }
+
+    return null;
   }
 
   public boolean wasConfigured() {
@@ -320,7 +372,7 @@ public class ResponseDefinition {
 
   @SuppressWarnings("unused")
   public Boolean isFromConfiguredStub() {
-    return wasConfigured == null || wasConfigured ? null : false;
+    return ((wasConfigured == null) || wasConfigured) ? null : false;
   }
 
   public Integer getFixedDelayMilliseconds() {
@@ -344,23 +396,13 @@ public class ResponseDefinition {
   }
 
   @JsonIgnore
-  public boolean specifiesBodyFile() {
-    return bodyFileName != null && body.isAbsent();
-  }
-
-  @JsonIgnore
-  public boolean specifiesBodyContent() {
-    return body.isPresent();
-  }
-
-  @JsonIgnore
   public boolean specifiesTextBodyContent() {
-    return body.isPresent() && !body.isBinary();
+    return !Objects.equals(body.getFormat(), Format.BINARY);
   }
 
   @JsonIgnore
   public boolean specifiesBinaryBodyContent() {
-    return (body.isPresent() && body.isBinary());
+    return Objects.equals(body.getFormat(), Format.BINARY);
   }
 
   @JsonIgnore
@@ -371,6 +413,10 @@ public class ResponseDefinition {
   @JsonIgnore
   public @Nullable AbsoluteUrl getBrowserProxyUrl() {
     return browserProxyUrl;
+  }
+
+  public @Nullable ChannelType getOpenChannelOfType() {
+    return openChannelOfType;
   }
 
   public Fault getFault() {
@@ -401,7 +447,6 @@ public class ResponseDefinition {
     return status == that.status
         && Objects.equals(statusMessage, that.statusMessage)
         && Objects.equals(body, that.body)
-        && Objects.equals(bodyFileName, that.bodyFileName)
         && Objects.equals(headers, that.headers)
         && Objects.equals(additionalProxyRequestHeaders, that.additionalProxyRequestHeaders)
         && Objects.equals(removeProxyRequestHeaders, that.removeProxyRequestHeaders)
@@ -414,7 +459,8 @@ public class ResponseDefinition {
         && Objects.equals(transformers, that.transformers)
         && Objects.equals(transformerParameters, that.transformerParameters)
         && Objects.equals(browserProxyUrl, that.browserProxyUrl)
-        && Objects.equals(wasConfigured, that.wasConfigured);
+        && Objects.equals(wasConfigured, that.wasConfigured)
+        && Objects.equals(openChannelOfType, that.openChannelOfType);
   }
 
   @Override
@@ -423,7 +469,6 @@ public class ResponseDefinition {
         status,
         statusMessage,
         body,
-        bodyFileName,
         headers,
         additionalProxyRequestHeaders,
         removeProxyRequestHeaders,
@@ -436,7 +481,8 @@ public class ResponseDefinition {
         transformers,
         transformerParameters,
         browserProxyUrl,
-        wasConfigured);
+        wasConfigured,
+        openChannelOfType);
   }
 
   @Override
@@ -448,7 +494,7 @@ public class ResponseDefinition {
   public static class Builder {
     private int status = 200;
     private String statusMessage;
-    private Body body = Body.none();
+    private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
     private String bodyFileName;
     private @NonNull HttpHeaders headers = new HttpHeaders();
     private @NonNull HttpHeaders additionalProxyRequestHeaders = new HttpHeaders();
@@ -464,6 +510,7 @@ public class ResponseDefinition {
     private @Nullable AbsoluteUrl browserProxyUrl;
     private Boolean wasConfigured = true;
     private Request originalRequest;
+    private @Nullable ChannelType openChannelOfType;
 
     public Builder() {}
 
@@ -471,7 +518,6 @@ public class ResponseDefinition {
       this.status = original.status;
       this.statusMessage = original.statusMessage;
       this.body = original.body;
-      this.bodyFileName = original.bodyFileName;
       this.headers = original.headers;
       this.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
       this.removeProxyRequestHeaders.addAll(original.removeProxyRequestHeaders);
@@ -485,6 +531,7 @@ public class ResponseDefinition {
       this.transformerParameters = original.transformerParameters;
       this.browserProxyUrl = original.browserProxyUrl;
       this.wasConfigured = original.wasConfigured;
+      this.openChannelOfType = original.openChannelOfType;
     }
 
     public int getStatus() {
@@ -495,7 +542,7 @@ public class ResponseDefinition {
       return statusMessage;
     }
 
-    public Body getBody() {
+    public EntityDefinition getBody() {
       return body;
     }
 
@@ -574,13 +621,42 @@ public class ResponseDefinition {
       return this;
     }
 
-    public Builder setBody(Body body) {
+    public Builder setBody(String body) {
+      this.body = this.body.transform(builder -> builder.setData(body));
+      return this;
+    }
+
+    public Builder setBody(byte[] body) {
+      this.body = this.body.transform(builder -> builder.setData(body));
+      return this;
+    }
+
+    public Builder setBody(EntityDefinition body) {
       this.body = body;
       return this;
     }
 
+    /**
+     * @deprecated use {@link #setBody(EntityDefinition)}
+     */
+    @Deprecated
+    public Builder setBody(Body body) {
+      this.body =
+          this.body.transform(
+              builder ->
+                  builder
+                      .setData(body.asBytes())
+                      .setFormat(
+                          body.isBinary()
+                              ? Format.BINARY
+                              : (body.isJson() ? Format.JSON : Format.TEXT)));
+      return this;
+    }
+
     public Builder setBodyFileName(String bodyFileName) {
-      this.bodyFileName = bodyFileName;
+      if (bodyFileName != null) {
+        this.body = new EntityDefinition.Builder().setFilePath(bodyFileName).build();
+      }
       return this;
     }
 
@@ -675,17 +751,24 @@ public class ResponseDefinition {
       return this;
     }
 
+    public Builder setOpenChannelOfType(@Nullable ChannelType openChannelOfType) {
+      this.openChannelOfType = openChannelOfType;
+      return this;
+    }
+
     public Builder setOriginalRequest(Request originalRequest) {
       this.originalRequest = originalRequest;
       return this;
     }
 
     public ResponseDefinition build() {
+      if (openChannelOfType != null) {
+        validateOpenChannel(openChannelOfType);
+      }
       return new ResponseDefinition(
           status,
           statusMessage,
           body,
-          bodyFileName,
           headers,
           additionalProxyRequestHeaders,
           removeProxyRequestHeaders,
@@ -698,7 +781,33 @@ public class ResponseDefinition {
           transformers,
           transformerParameters,
           browserProxyUrl,
-          wasConfigured);
+          wasConfigured,
+          openChannelOfType);
+    }
+
+    private void validateOpenChannel(ChannelType channelType) {
+      String channelName = channelType.getName();
+      if (!channelType.isRequestInitiated()) {
+        throw new IllegalStateException(
+            "Cannot open a channel of type "
+                + channelName
+                + " from a response. Only request-initiated channel types ("
+                + ChannelType.WEBSOCKET.getName()
+                + ", "
+                + ChannelType.SSE.getName()
+                + ") can be opened");
+      }
+      if (!(body instanceof EmptyEntityDefinition)) {
+        throw new IllegalStateException(
+            "Cannot set a response body when opening a " + channelName + " channel");
+      }
+      if (proxyBaseUrl != null || browserProxyUrl != null) {
+        throw new IllegalStateException("Cannot proxy when opening a " + channelName + " channel");
+      }
+      if (fault != null) {
+        throw new IllegalStateException(
+            "Cannot return a fault when opening a " + channelName + " channel");
+      }
     }
   }
 }

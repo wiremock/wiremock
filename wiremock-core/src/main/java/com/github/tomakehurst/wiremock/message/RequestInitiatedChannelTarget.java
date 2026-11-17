@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 public class RequestInitiatedChannelTarget implements ChannelTarget {
 
@@ -28,7 +29,7 @@ public class RequestInitiatedChannelTarget implements ChannelTarget {
 
   @JsonCreator
   public RequestInitiatedChannelTarget(
-      @JsonProperty("channelType") ChannelType channelType,
+      @Nullable @JsonProperty("channelType") ChannelType channelType,
       @JsonProperty("requestPattern") RequestPattern requestPattern) {
     this.channelType = channelType;
     this.requestPattern = requestPattern;

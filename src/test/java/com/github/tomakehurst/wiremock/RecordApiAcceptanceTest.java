@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,16 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJs
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
@@ -36,6 +42,7 @@ import com.github.tomakehurst.wiremock.testsupport.StubMappingTransformerWithSer
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.AfterEach;
@@ -769,5 +776,72 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
     // Should have persisted the stub mapping (2 = 1 proxy + 1 recorded)
     assertEquals(2, proxyingService.getStubMappings().size());
+  }
+
+  @Test
+  public void rejectsRecordingWhenCaptureHeadersAndCaptureAllHeadersAreBothConfigured() {
+    proxyServerStartWithEmptyFileRoot();
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "captureAllHeaders": true,
+          "captureHeaders": {
+            "Accept": {}
+          },
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    WireMockResponse response =
+        proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        containsString("captureHeaders and captureAllHeaders cannot be used together"));
+  }
+
+  @Test
+  public void recordsAllHeadersExceptExcludedHeaders() {
+    proxyServerStartWithEmptyFileRoot();
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "captureAllHeaders": true,
+          "excludeHeaders": ["x-excluded"],
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    proxyingTestClient.get(
+        "/foo/bar",
+        withHeader("Accept", "text/plain"),
+        withHeader("X-Custom", "custom-value"),
+        withHeader("X-Excluded", "excluded-value"));
+
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
+
+    assertThat(response.statusCode(), is(200));
+
+    StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/foo/bar");
+
+    Map<String, MultiValuePattern> capturedHeaders = createdMapping.getRequest().getHeaders();
+
+    assertThat(
+        capturedHeaders.get("Accept"), is(new SingleMatchMultiValuePattern(equalTo("text/plain"))));
+
+    assertThat(
+        capturedHeaders.get("X-Custom"),
+        is(new SingleMatchMultiValuePattern(equalTo("custom-value"))));
+
+    assertThat(capturedHeaders, not(hasKey("X-Excluded")));
   }
 }

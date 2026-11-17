@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -27,7 +26,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.wiremock.url.PathAndQuery;
 
 class ScenarioProcessor {
 
@@ -38,7 +36,7 @@ class ScenarioProcessor {
                 Collectors.groupingBy(
                     StubMapping::getRequest,
                     LinkedHashMap::new,
-                    Collectors.toCollection(LinkedList::new)));
+                    Collectors.toCollection(ArrayList::new)));
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
         stubsGroupedByRequest.entrySet().stream()
@@ -50,12 +48,12 @@ class ScenarioProcessor {
                     (entry1, entry2) -> entry1,
                     LinkedHashMap::new));
 
-    final List<StubMapping> stubsInScenario = new LinkedList<>();
+    final List<StubMapping> stubsInScenario = new ArrayList<>();
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      final List<StubMapping> batch = new LinkedList<>(entry.getValue());
+      final List<StubMapping> batch = new ArrayList<>(entry.getValue());
       Collections.reverse(batch);
 
       stubsInScenario.addAll(putStubsInScenario(scenarioIndex, batch));
@@ -75,11 +73,7 @@ class ScenarioProcessor {
         "scenario-"
             + scenarioIndex
             + "-"
-            + Urls.urlToPathParts(
-                PathAndQuery.parse(
-                    getFirstNonNull(
-                        firstScenario.getRequest().getUrl(),
-                        firstScenario.getRequest().getUrlPath())));
+            + Urls.urlPatternToPathParts(firstScenario.getRequest().getUrlMatcher());
 
     return IntStream.range(1, stubMappings.size() + 1)
         .mapToObj(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import static java.util.Objects.requireNonNull;
 
+import java.util.function.Supplier;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
 public class Lazy<T> {
 
   public static <T> Lazy<T> lazy(Supplier<T> supplier) {
@@ -25,13 +29,28 @@ public class Lazy<T> {
   }
 
   private final Supplier<T> supplier;
-  private final AtomicReference<T> ref = new AtomicReference<>();
+  private volatile @Nullable T ref;
 
   private Lazy(Supplier<T> supplier) {
     this.supplier = supplier;
   }
 
-  public T get() {
-    return ref.updateAndGet(existing -> existing == null ? supplier.get() : existing);
+  /**
+   * Double-checked locking, so that a supplier which allocates a resource cannot be run twice and
+   * leak the instance that loses the race. Once initialised the fast path is a single volatile
+   * read, so concurrent readers never contend.
+   */
+  public @Nullable T get() {
+    T local = ref;
+    if (local == null) {
+      synchronized (this) {
+        local = ref;
+        if (local == null) {
+          local = supplier.get();
+          ref = local;
+        }
+      }
+    }
+    return local;
   }
 }

@@ -57,8 +57,8 @@ public class IncomingMessageTrigger implements MessageTrigger {
 
   @JsonIgnore
   public RequestPattern getInitiatingRequestPattern() {
-    if (channelPattern instanceof RequestInitiatedChannelPattern) {
-      return ((RequestInitiatedChannelPattern) channelPattern).getInitiatingRequestPattern();
+    if (channelPattern instanceof RequestInitiatedChannelPattern requestInitiatedChannelPattern) {
+      return requestInitiatedChannelPattern.getInitiatingRequestPattern();
     }
     return null;
   }

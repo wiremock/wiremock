@@ -41,11 +41,14 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.MessageDefinition;
 import com.github.tomakehurst.wiremock.message.MessagePattern;
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
+import com.github.tomakehurst.wiremock.message.channel.ChannelProvider;
+import com.github.tomakehurst.wiremock.message.channel.FixedChannelDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -56,6 +59,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.BaseUrl;
 import org.wiremock.url.HostAndPort;
@@ -65,6 +69,7 @@ import org.wiremock.url.RelativeUrl;
 import org.wiremock.url.Scheme;
 import org.wiremock.url.SchemeRegistry;
 
+@PublishedAPI
 public class WireMockServer implements Container, Stubbing, Admin {
 
   private final WireMockApp wireMockApp;
@@ -221,6 +226,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return options.httpsSettings().enabled();
   }
 
+  @Override
   public int port() {
     checkState(
         isRunning() && !options.getHttpDisabled(),
@@ -554,6 +560,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return options;
   }
 
+  public Stores getStores() {
+    return wireMockApp.getStores();
+  }
+
   @Override
   public void shutdownServer() {
     shutdown();
@@ -614,6 +624,63 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public ListMessageChannelsResult listAllMessageChannels() {
     return wireMockApp.listAllMessageChannels();
+  }
+
+  @Override
+  public SingleMessageChannelResult getMessageChannel(UUID id) {
+    return wireMockApp.getMessageChannel(id);
+  }
+
+  @Override
+  public void removeMessageChannel(UUID id) {
+    wireMockApp.removeMessageChannel(id);
+  }
+
+  @Override
+  public ListChannelProvidersResult listAllChannelProviders() {
+    return wireMockApp.listAllChannelProviders();
+  }
+
+  @Override
+  public SingleChannelProviderResult getChannelProvider(String name) {
+    return wireMockApp.getChannelProvider(name);
+  }
+
+  @Override
+  public ChannelProvider updateChannelProvider(String currentName, ChannelProvider update) {
+    return wireMockApp.updateChannelProvider(currentName, update);
+  }
+
+  @Override
+  public void registerChannelProvider(ChannelProvider provider) {
+    wireMockApp.registerChannelProvider(provider);
+  }
+
+  @Override
+  public void removeChannelProvider(String name) {
+    wireMockApp.removeChannelProvider(name);
+  }
+
+  @Override
+  public LoggedMessageChannel createFixedChannel(FixedChannelDefinition channel) {
+    return wireMockApp.createFixedChannel(channel);
+  }
+
+  @Override
+  public void sendChannelMessage(
+      String providerName, String channelName, MessageDefinition message) {
+    wireMockApp.sendChannelMessage(providerName, channelName, message);
+  }
+
+  @Override
+  public SingleMessageStubMappingResult getMessageStubMapping(UUID id) {
+    return wireMockApp.getMessageStubMapping(id);
+  }
+
+  @Override
+  public SingleMessageStubMappingResult editMessageStubMapping(
+      MessageStubMapping messageStubMapping) {
+    return wireMockApp.editMessageStubMapping(messageStubMapping);
   }
 
   @Override

@@ -14,6 +14,7 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(project(":wiremock-httpclient-apache5"))
     testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.jar {

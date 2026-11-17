@@ -16,15 +16,15 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
 
-@JsonDeserialize(using = MessageStubMappingOrMappingsJsonDeserializer.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = MessageStubMapping.class)
+@JsonSubTypes({
+  @JsonSubTypes.Type(MessageStubMappingCollection.class),
+  @JsonSubTypes.Type(MessageStubMapping.class)
+})
 public interface MessageStubMappingOrMappings {
 
   @JsonIgnore
@@ -32,25 +32,4 @@ public interface MessageStubMappingOrMappings {
 
   @JsonIgnore
   boolean isMulti();
-}
-
-class MessageStubMappingOrMappingsJsonDeserializer
-    extends StdDeserializer<MessageStubMappingOrMappings> {
-
-  protected MessageStubMappingOrMappingsJsonDeserializer() {
-    super(MessageStubMappingOrMappings.class);
-  }
-
-  @Override
-  public MessageStubMappingOrMappings deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
-    JsonNode rootNode = parser.readValueAsTree();
-    Class<? extends MessageStubMappingOrMappings> clazz;
-    if (rootNode.has("messageMappings")) {
-      clazz = MessageStubMappingCollection.class;
-    } else {
-      clazz = SingleMessageStubMappingWrapper.class;
-    }
-    return ctxt.readTreeAsValue(rootNode, clazz);
-  }
 }

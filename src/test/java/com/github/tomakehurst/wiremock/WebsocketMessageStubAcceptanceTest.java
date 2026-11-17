@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.editMessageStub;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.findMessageStubsByMetadata;
+import static com.github.tomakehurst.wiremock.client.WireMock.getMessageStub;
 import static com.github.tomakehurst.wiremock.client.WireMock.listAllMessageStubMappings;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
@@ -35,14 +37,75 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.message.MessageStubMapping;
 import com.github.tomakehurst.wiremock.message.SendMessageAction;
 import com.github.tomakehurst.wiremock.testsupport.WebsocketTestClient;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestBase {
+
+  @Test
+  void canGetMessageStubMappingById() {
+    MessageStubMapping stub =
+        messageStubFor(
+            message()
+                .withName("Get by ID stub")
+                .withBody(equalTo("get-me"))
+                .willTriggerActions(sendMessage("got-you").onOriginatingChannel()));
+
+    MessageStubMapping retrieved = getMessageStub(stub.getId());
+
+    assertThat(retrieved, is(notNullValue()));
+    assertThat(retrieved.getId(), is(stub.getId()));
+    assertThat(retrieved.getName(), is("Get by ID stub"));
+  }
+
+  @Test
+  void getMessageStubReturnsFalseIsPresentWhenNotFound() {
+    assertThat(wireMockServer.getMessageStubMapping(UUID.randomUUID()).isPresent(), is(false));
+  }
+
+  @Test
+  void canEditMessageStubMappingById() {
+    MessageStubMapping original =
+        messageStubFor(
+            message()
+                .withName("Original name")
+                .withBody(equalTo("original"))
+                .willTriggerActions(sendMessage("original-response").onOriginatingChannel()));
+
+    MessageStubMapping updated =
+        MessageStubMapping.builder()
+            .withId(original.getId())
+            .withName("Updated name")
+            .withBody(equalTo("updated"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("updated-response"))
+            .build();
+
+    MessageStubMapping result = editMessageStub(updated);
+
+    assertThat(result, is(notNullValue()));
+    assertThat(result.getId(), is(original.getId()));
+    assertThat(result.getName(), is("Updated name"));
+
+    assertThat(getMessageStub(original.getId()).getName(), is("Updated name"));
+  }
+
+  @Test
+  void editMessageStubReturnsFalseIsPresentWhenNotFound() {
+    MessageStubMapping nonExistent =
+        MessageStubMapping.builder()
+            .withName("Ghost")
+            .withBody(equalTo("ghost"))
+            .triggersAction(SendMessageAction.toOriginatingChannel("nothing"))
+            .build();
+
+    assertThat(wireMockServer.editMessageStubMapping(nonExistent).isPresent(), is(false));
+  }
 
   @Test
   void messageStubMappingRespondsToOriginatingChannel() {
@@ -176,12 +239,15 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
             receiverClient2.withWebsocketSession(
                 receiverUrl2,
                 session2 -> {
+                  waitForOpenChannels("/broadcast/user1", 1);
+                  waitForOpenChannels("/broadcast/user2", 1);
                   senderClient.sendMessage(senderUrl, "broadcast");
+                  waitAtMost(5, SECONDS)
+                      .until(() -> receiverClient1.getMessages().contains("broadcast message"));
+                  waitAtMost(5, SECONDS)
+                      .until(() -> receiverClient2.getMessages().contains("broadcast message"));
                   return null;
                 }));
-
-    waitAtMost(5, SECONDS).until(() -> receiverClient1.getMessages().contains("broadcast message"));
-    waitAtMost(5, SECONDS).until(() -> receiverClient2.getMessages().contains("broadcast message"));
   }
 
   @Test
@@ -285,8 +351,7 @@ public class WebsocketMessageStubAcceptanceTest extends WebsocketAcceptanceTestB
     client1.connect(url);
     client2.connect(url);
 
-    waitAtMost(5, SECONDS).until(client1::isConnected);
-    waitAtMost(5, SECONDS).until(client2::isConnected);
+    waitForOpenChannels("/dsl-broadcast", 2);
 
     client1.sendMessage("broadcast");
 

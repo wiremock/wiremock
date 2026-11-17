@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -172,7 +173,9 @@ final class ReflectiveInstance {
 
   public @Nullable ReflectiveInstance field(String name)
       throws NoSuchFieldException, IllegalAccessException {
-    Object result = theClass.getField(name).get(instance);
+    Field field = theClass.getField(name);
+    field.setAccessible(true);
+    Object result = field.get(instance);
     return asInstance(result);
   }
 

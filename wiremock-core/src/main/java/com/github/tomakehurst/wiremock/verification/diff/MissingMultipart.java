@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -43,7 +43,7 @@ public class MissingMultipart implements Request.Part {
   }
 
   @Override
-  public Body getBody() {
+  public Entity getBodyEntity() {
     return null;
   }
 }

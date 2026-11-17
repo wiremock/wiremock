@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import java.util.Collection;
 import java.util.Map;
@@ -24,10 +25,12 @@ import java.util.Set;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.AbsoluteUrl;
 import org.wiremock.url.PathAndQuery;
 import org.wiremock.url.Query;
 
+@PublishedAPI
 public interface Request {
 
   // This is populated by the serve event.
@@ -45,7 +48,15 @@ public interface Request {
 
     HttpHeaders getHeaders();
 
-    Body getBody();
+    Entity getBodyEntity();
+
+    /**
+     * @deprecated use {@link #getBodyEntity()}
+     */
+    @Deprecated
+    default Body getBody() {
+      return new Body(getBodyEntity().asBytes());
+    }
   }
 
   @Deprecated // use getPathAndQueryWithoutPrefix()
@@ -111,6 +122,10 @@ public interface Request {
   String getBodyAsString();
 
   String getBodyAsBase64();
+
+  default Entity getBodyEntity() {
+    return Entity.of(getBody(), getHeaders());
+  }
 
   boolean isMultipart();
 

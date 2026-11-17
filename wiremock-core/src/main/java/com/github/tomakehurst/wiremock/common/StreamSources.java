@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package com.github.tomakehurst.wiremock.common;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
 
 public class StreamSources {
   private StreamSources() {}
@@ -37,6 +40,14 @@ public class StreamSources {
         blobStore
             .getStream(key)
             .orElseThrow(() -> new NotFoundException("Not found in blob store: " + key));
+  }
+
+  public static InputStreamSource compressingGzip(InputStreamSource plain) {
+    return new GzipCompressingInputStreamSource(plain);
+  }
+
+  public static InputStreamSource decompressingGzip(InputStreamSource gzipped) {
+    return new GzipDecompressingInputStreamSource(gzipped);
   }
 
   public static class StringInputStreamSource extends ByteArrayInputStreamSource {
@@ -62,5 +73,54 @@ public class StreamSources {
 
   public static InputStreamSource empty() {
     return forBytes(new byte[0]);
+  }
+
+  private static class GzipCompressingInputStreamSource implements InputStreamSource {
+    private final InputStreamSource source;
+
+    private GzipCompressingInputStreamSource(InputStreamSource source) {
+      this.source = source;
+    }
+
+    @Override
+    public InputStream getStream() {
+      try {
+        InputStream sourceStream = source.getStream();
+        if (sourceStream == null) {
+          return null;
+        }
+        return new GZIPInputStream(sourceStream);
+      } catch (IOException e) {
+        return Exceptions.throwUnchecked(e, InputStream.class);
+      }
+    }
+  }
+
+  private static class GzipDecompressingInputStreamSource implements InputStreamSource {
+    private static final int GZIP_MAGIC_LENGTH = 2;
+
+    private final InputStreamSource source;
+
+    private GzipDecompressingInputStreamSource(InputStreamSource source) {
+      this.source = source;
+    }
+
+    @Override
+    public InputStream getStream() {
+      try {
+        InputStream sourceStream = source.getStream();
+        if (sourceStream == null) {
+          return null;
+        }
+
+        // Data labelled gzip that isn't (e.g. a mislabelled request body) is passed through as-is
+        PushbackInputStream peekable = new PushbackInputStream(sourceStream, GZIP_MAGIC_LENGTH);
+        byte[] header = peekable.readNBytes(GZIP_MAGIC_LENGTH);
+        peekable.unread(header);
+        return Gzip.isGzipped(header) ? new GZIPInputStream(peekable) : peekable;
+      } catch (IOException e) {
+        return Exceptions.throwUnchecked(e, InputStream.class);
+      }
+    }
   }
 }

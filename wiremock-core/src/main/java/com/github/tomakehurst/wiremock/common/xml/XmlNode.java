@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Thomas Akehurst
+ * Copyright (C) 2020-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,11 @@ public abstract class XmlNode {
               // Optimization to get likely transformerFactory directly, rather than going through
               // FactoryFinder#find
               transformerFactory =
-                  (TransformerFactory)
-                      Class.forName(
-                              "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
-                          .getDeclaredConstructor()
-                          .newInstance();
+                  Class.forName(
+                          "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+                      .asSubclass(TransformerFactory.class)
+                      .getDeclaredConstructor()
+                      .newInstance();
             } catch (Exception e) {
               transformerFactory = TransformerFactory.newDefaultInstance();
             }
@@ -73,16 +73,12 @@ public abstract class XmlNode {
     ListOrSingle<XmlNode> xmlNodes = new ListOrSingle<>();
 
     switch (evaluationResult.type()) {
-      case NODESET:
+      case NODESET -> {
         Iterable<Node> nodes = (Iterable<Node>) evaluationResult.value();
         nodes.forEach(node -> xmlNodes.add(new XmlDomNode(node)));
-        break;
-      case NODE:
-        xmlNodes.add(new XmlDomNode((Node) evaluationResult.value()));
-        break;
-      default:
-        xmlNodes.add(new XmlPrimitiveNode<>(evaluationResult.value()));
-        break;
+      }
+      case NODE -> xmlNodes.add(new XmlDomNode((Node) evaluationResult.value()));
+      default -> xmlNodes.add(new XmlPrimitiveNode<>(evaluationResult.value()));
     }
 
     return xmlNodes;

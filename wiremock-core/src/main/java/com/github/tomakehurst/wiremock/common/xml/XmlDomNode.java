@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ public class XmlDomNode extends XmlNode {
     return Collections.unmodifiableMap(map);
   }
 
+  @Override
   public Map<String, String> getAttributes() {
     return attributes;
   }
@@ -69,16 +70,11 @@ public class XmlDomNode extends XmlNode {
 
   @Override
   public String toString() {
-    switch (domNode.getNodeType()) {
-      case Node.TEXT_NODE:
-      case Node.ATTRIBUTE_NODE:
-        return domNode.getTextContent();
-      case Node.DOCUMENT_NODE:
-      case Node.ELEMENT_NODE:
-        return render();
-      default:
-        return domNode.toString();
-    }
+    return switch (domNode.getNodeType()) {
+      case Node.TEXT_NODE, Node.ATTRIBUTE_NODE -> domNode.getTextContent();
+      case Node.DOCUMENT_NODE, Node.ELEMENT_NODE -> render();
+      default -> domNode.toString();
+    };
   }
 
   private String render() {

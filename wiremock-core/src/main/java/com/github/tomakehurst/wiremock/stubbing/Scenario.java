@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Thomas Akehurst
+ * Copyright (C) 2012-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toCollection;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +25,9 @@ import com.github.tomakehurst.wiremock.common.Json;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class Scenario {
 
   public static final String STARTED = "Started";
@@ -97,7 +99,8 @@ public class Scenario {
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
+    Set<StubMapping> newMappings =
+        new LinkedHashSet<>(withoutStubMapping(stubMapping).getMappings());
     newMappings.add(stubMapping);
 
     return new Scenario(id, state, newMappings);
@@ -107,7 +110,7 @@ public class Scenario {
     Set<StubMapping> newMappings =
         stubMappings.stream()
             .filter(stub -> !stub.getId().equals(stubMapping.getId()))
-            .collect(toSet());
+            .collect(toCollection(LinkedHashSet::new));
     return new Scenario(id, state, newMappings);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.List;
 import java.util.Map;
+import org.wiremock.annotations.PublishedAPI;
 
 /** Encapsulates options for generating and outputting StubMappings */
+@PublishedAPI
 public class RecordSpec {
 
   // Target URL when using the recording API. Not applicable to snapshotting
@@ -34,6 +37,9 @@ public class RecordSpec {
   // Headers from the request to include in the stub mapping, if they match the corresponding
   // matcher
   private final Map<String, CaptureHeadersSpec> captureHeaders;
+
+  private final Boolean captureAllHeaders;
+  private final List<String> excludeHeaders;
 
   // Factory for the StringValuePattern that will be used to match request bodies
   private final RequestBodyPatternFactory requestBodyPatternFactory;
@@ -61,6 +67,8 @@ public class RecordSpec {
       @JsonProperty("targetBaseUrl") String targetBaseUrl,
       @JsonProperty("filters") ProxiedServeEventFilters filters,
       @JsonProperty("captureHeaders") Map<String, CaptureHeadersSpec> captureHeaders,
+      @JsonProperty("captureAllHeaders") Boolean captureAllHeaders,
+      @JsonProperty("excludeHeaders") List<String> excludeHeaders,
       @JsonProperty("requestBodyPattern") RequestBodyPatternFactory requestBodyPatternFactory,
       @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
       @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
@@ -71,6 +79,8 @@ public class RecordSpec {
     this.targetBaseUrl = targetBaseUrl;
     this.filters = filters == null ? ProxiedServeEventFilters.ALLOW_ALL : filters;
     this.captureHeaders = captureHeaders;
+    this.captureAllHeaders = captureAllHeaders != null && captureAllHeaders;
+    this.excludeHeaders = excludeHeaders == null ? List.of() : List.copyOf(excludeHeaders);
     this.requestBodyPatternFactory =
         requestBodyPatternFactory == null
             ? RequestBodyAutomaticPatternFactory.DEFAULTS
@@ -84,13 +94,14 @@ public class RecordSpec {
   }
 
   private RecordSpec() {
-    this(null, null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public static final RecordSpec DEFAULTS = new RecordSpec();
 
   public static RecordSpec forBaseUrl(String targetBaseUrl) {
-    return new RecordSpec(targetBaseUrl, null, null, null, null, null, null, true, null, null);
+    return new RecordSpec(
+        targetBaseUrl, null, null, null, null, null, null, null, true, null, null, null);
   }
 
   public String getTargetBaseUrl() {
@@ -103,6 +114,15 @@ public class RecordSpec {
 
   public Map<String, CaptureHeadersSpec> getCaptureHeaders() {
     return captureHeaders;
+  }
+
+  public boolean getCaptureAllHeaders() {
+    return captureAllHeaders;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public List<String> getExcludeHeaders() {
+    return excludeHeaders;
   }
 
   public SnapshotOutputFormatter getOutputFormat() {
@@ -135,6 +155,7 @@ public class RecordSpec {
     return extractBodyCriteria;
   }
 
+  @JsonProperty("requestBodyPattern")
   public RequestBodyPatternFactory getRequestBodyPatternFactory() {
     return requestBodyPatternFactory;
   }

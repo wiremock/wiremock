@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,8 @@ public abstract class AbstractFormattingHelper extends HandlebarsHelper<Object> 
     Format format;
     if (formatOption == null) {
       format = Format.pretty;
-    } else if (formatOption instanceof Format) {
-      format = (Format) formatOption;
+    } else if (formatOption instanceof Format formatValue) {
+      format = formatValue;
     } else if (formatOption instanceof CharSequence) {
       try {
         format = Format.valueOf(formatOption.toString());

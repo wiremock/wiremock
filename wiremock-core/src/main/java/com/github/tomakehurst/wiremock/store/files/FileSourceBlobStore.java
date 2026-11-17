@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     return fileSource.listFilesRecursively().stream()
         .map(TextFile::getPath)
         .map(path -> path.substring(rootPath.length() + 1));
+  }
+
+  @Override
+  public boolean contains(String key) {
+    return fileSource.fileExists(key);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
@@ -233,6 +234,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void recordsRequestWithInvalidJsonBodyUsingEqualTo() {
+    targetService.stubFor(post("/record-invalid-json").willReturn(ok()));
+
+    startRecording(targetBaseUrl);
+
+    String invalidJson = "{ field: \"value\", field2: \"value\" }";
+    client.postWithBody("/record-invalid-json", invalidJson, "application/json");
+
+    List<StubMapping> returnedMappings = stopRecording().getStubMappings();
+
+    EqualToPattern bodyPattern =
+        (EqualToPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+    assertThat(bodyPattern.getEqualTo(), is(invalidJson));
+  }
+
+  @Test
   public void returnsTheRecordingStatus() {
     proxyingService.startRecording(targetBaseUrl);
 
@@ -326,7 +343,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
@@ -348,7 +365,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("large.txt-" + mapping.getId() + ".txt"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
@@ -467,7 +484,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
     List<StubMapping> mappings = proxyingService.stopRecording().getStubMappings();
     StubMapping mapping = mappings.get(0);
-    String bodyFileName = mapping.getResponse().getBodyFileName();
+    String bodyFileName = mapping.getResponse().getBodyEntity().getFilePath();
 
     assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);

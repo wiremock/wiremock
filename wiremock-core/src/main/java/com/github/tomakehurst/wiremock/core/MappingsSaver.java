@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.UUID;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface MappingsSaver {
 
   MappingsSaver NOOP =

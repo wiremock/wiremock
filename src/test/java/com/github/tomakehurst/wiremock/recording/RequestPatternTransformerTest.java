@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -77,5 +80,110 @@ public class RequestPatternTransformerTest {
 
     assertEquals(
         expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());
+  }
+
+  @Test
+  public void applyCapturesAllHeadersWhenCaptureAllHeadersIsEnabled() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("X-Foo", "bar")
+            .header("Accept", "application/json");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("X-Foo", equalTo("bar"))
+            .withHeader("Accept", equalTo("application/json"));
+
+    assertThat(
+        new RequestPatternTransformer(null, true, List.of(), null).apply(request).build(),
+        is(expected.build()));
+  }
+
+  @Test
+  public void applyExcludesHeadersCaseInsensitivelyWhenCapturingAllHeaders() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("X-Foo", "bar")
+            .header("Authorization", "secret");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("X-Foo", equalTo("bar"));
+
+    assertThat(
+        new RequestPatternTransformer(null, true, List.of("authorization"), null)
+            .apply(request)
+            .build(),
+        is(expected.build()));
+  }
+
+  @Test
+  public void applyPreservesExplicitHeaderCaseInsensitiveSettingsWhenCapturingAllHeaders() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("X-CaseInsensitive", "Baz")
+            .header("X-Default", "foo");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("X-CaseInsensitive", equalToIgnoreCase("Baz"))
+            .withHeader("X-Default", equalTo("foo"));
+
+    Map<String, CaptureHeadersSpec> headers =
+        Map.of("x-caseinsensitive", new CaptureHeadersSpec(true));
+
+    assertThat(
+        new RequestPatternTransformer(headers, true, List.of(), null).apply(request).build(),
+        is(expected.build()));
+  }
+
+  @Test
+  public void applyExcludesExplicitlyConfiguredHeadersWhenCapturingAllHeaders() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("Authorization", "secret")
+            .header("X-Foo", "bar");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("X-Foo", equalTo("bar"));
+
+    Map<String, CaptureHeadersSpec> headers = Map.of("Authorization", new CaptureHeadersSpec(true));
+
+    assertThat(
+        new RequestPatternTransformer(headers, true, List.of("authorization"), null)
+            .apply(request)
+            .build(),
+        is(expected.build()));
+  }
+
+  @Test
+  public void applyUsesOnlyConfiguredHeadersWhenCaptureAllHeadersIsDisabled() {
+    Request request =
+        mockRequest()
+            .url("/")
+            .method(RequestMethod.POST)
+            .header("X-Foo", "bar")
+            .header("X-Ignored", "ignored");
+
+    RequestPatternBuilder expected =
+        new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
+            .withHeader("X-Foo", equalTo("bar"));
+
+    Map<String, CaptureHeadersSpec> headers = Map.of("X-Foo", new CaptureHeadersSpec(false));
+
+    assertThat(
+        new RequestPatternTransformer(headers, false, List.of("X-Foo"), null)
+            .apply(request)
+            .build(),
+        is(expected.build()));
   }
 }

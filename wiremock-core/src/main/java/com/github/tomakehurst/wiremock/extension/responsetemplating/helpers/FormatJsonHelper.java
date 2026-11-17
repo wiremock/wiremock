@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,10 @@ public class FormatJsonHelper extends AbstractFormattingHelper {
   @Override
   protected String apply(String bodyText, Format format) {
     try {
-      switch (format) {
-        case pretty:
-          return Json.prettyPrint(bodyText);
-        case compact:
-          return Json.node(bodyText).toString();
-        default:
-          throw new IllegalStateException();
-      }
+      return switch (format) {
+        case pretty -> Json.prettyPrint(bodyText);
+        case compact -> Json.node(bodyText).toString();
+      };
     } catch (JsonException e) {
       return handleError(
           "There was an error parsing the json. Please make sure the json is valid", e);

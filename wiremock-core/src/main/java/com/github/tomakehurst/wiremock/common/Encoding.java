@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ public class Encoding {
 
   private Encoding() {}
 
-  private static Base64Encoder encoder = null;
+  private static volatile Base64Encoder encoder = null;
 
   private static Base64Encoder getInstance() {
     if (encoder == null) {
@@ -38,6 +38,10 @@ public class Encoding {
   }
 
   public static byte[] decodeBase64(String base64) {
+    return base64 != null ? getInstance().decode(base64) : null;
+  }
+
+  public static byte[] decodeBase64(byte[] base64) {
     return base64 != null ? getInstance().decode(base64) : null;
   }
 

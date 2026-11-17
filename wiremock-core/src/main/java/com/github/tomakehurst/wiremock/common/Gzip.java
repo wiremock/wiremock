@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class Gzip {
   }
 
   public static String unGzipToString(byte[] gzippedContent) {
-    return new String(unGzip(gzippedContent));
+    return new String(unGzip(gzippedContent), UTF_8);
   }
 
   public static byte[] gzip(String plainContent) {

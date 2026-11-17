@@ -2,6 +2,11 @@ targetBaseUrl: http://example.mocklab.io
 filters:
   urlPathPattern: "/api/.*"
   method: GET
+captureAllHeaders: true
+excludeHeaders:
+  - Host
+  - Content-Length
+  - Connection
 captureHeaders:
   Accept: {}
   Content-Type:

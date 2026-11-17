@@ -11,9 +11,11 @@ properties:
   placeholderOpeningDelimiterRegex:
     type: string
     example: "\\["
+    x-intellij-language-injection: RegExp
   placeholderClosingDelimiterRegex:
     type: string
     example: "]"
+    x-intellij-language-injection: RegExp
   namespaceAwareness:
     type: string
     enum: ['LEGACY', 'STRICT', 'NONE']

@@ -13,6 +13,8 @@ The following packages contain messaging/websocket functionality:
 ### Rules for these packages:
 
 1. **No Javadoc** - Do not add javadoc comments to classes, interfaces, methods, or fields.
-
 2. **No Comments** - Do not add inline comments except in rare cases to explain non-obvious decisions that cannot be made clear through better naming or code structure.
+3. **Always import** - Do not use fully-qualified class names. Always use `import` statements.
+4. **Use JsonUnit for JSON assertions** - Use `net.javacrumbs.jsonunit.JsonMatchers` (e.g. `jsonEquals`, `jsonPartEquals`) rather than `JSONAssert` for JSON assertions in tests.
+5. **Use multi-line Strings for JSON assertions** - For expected JSON values in tests always use a pretty-printed multi-line string with a `// language=json`
 

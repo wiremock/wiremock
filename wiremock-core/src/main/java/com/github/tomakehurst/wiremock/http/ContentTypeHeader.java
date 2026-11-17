@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
+import com.github.tomakehurst.wiremock.common.entity.MimeType;
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class ContentTypeHeader extends HttpHeader {
 
   public static final String KEY = "Content-Type";
@@ -48,6 +48,11 @@ public class ContentTypeHeader extends HttpHeader {
     return parts != null && parts.length > 0 ? parts[0] : null;
   }
 
+  public MimeType getMimeType() {
+    final String mimeTypePart = mimeTypePart();
+    return mimeTypePart != null ? MimeType.parse(mimeTypePart) : null;
+  }
+
   public Optional<String> encodingPart() {
     for (int i = 1; i < parts.length; i++) {
       if (parts[i].matches("\\s*charset\\s*=.*")) {
@@ -58,15 +63,15 @@ public class ContentTypeHeader extends HttpHeader {
     return Optional.empty();
   }
 
-  public Charset charset() {
-    if (isPresent() && encodingPart().isPresent()) {
-      try {
-        return Charset.forName(encodingPart().get());
-      } catch (UnsupportedCharsetException ignored) {
-        return UTF_8;
+  public Optional<Charset> charset() {
+    try {
+      if (isPresent()) {
+        return encodingPart().map(String::trim).map(Charset::forName);
       }
-    }
 
-    return UTF_8;
+      return Optional.empty();
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 }

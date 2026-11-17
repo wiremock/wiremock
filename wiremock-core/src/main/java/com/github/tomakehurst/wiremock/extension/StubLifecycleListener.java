@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import org.jspecify.annotations.NullMarked;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 @NullMarked
 public interface StubLifecycleListener extends Extension {
 

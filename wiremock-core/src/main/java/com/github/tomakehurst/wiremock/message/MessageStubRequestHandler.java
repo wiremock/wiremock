@@ -15,28 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static java.util.Base64.*;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.AFTER_COMPLETE;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.AFTER_MATCH;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.BEFORE_MATCH;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase.MESSAGE_SENT;
+import static com.github.tomakehurst.wiremock.extension.MessageServeEventListenerUtils.triggerListeners;
 
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Strings;
-import com.github.tomakehurst.wiremock.common.entity.BinaryEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.CompressionType;
-import com.github.tomakehurst.wiremock.common.entity.EncodingType;
 import com.github.tomakehurst.wiremock.common.entity.Entity;
-import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.FormatType;
-import com.github.tomakehurst.wiremock.common.entity.StringEntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.MessageActionTransformer;
-import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListener;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.MessageJournal;
 import com.github.tomakehurst.wiremock.verification.MessageServeEvent;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class MessageStubRequestHandler {
@@ -46,34 +41,74 @@ public class MessageStubRequestHandler {
   private final MessageJournal messageJournal;
   private final Stores stores;
   private final List<MessageActionTransformer> actionTransformers;
+  private final Map<String, RequestMatcherExtension> customMatchers;
+  private final Map<String, MessageServeEventListener> serveEventListeners;
 
   public MessageStubRequestHandler(
       MessageStubMappings messageStubMappings,
       MessageChannels messageChannels,
       MessageJournal messageJournal,
       Stores stores,
-      List<MessageActionTransformer> actionTransformers) {
+      List<MessageActionTransformer> actionTransformers,
+      Map<String, RequestMatcherExtension> customMatchers) {
+    this(
+        messageStubMappings,
+        messageChannels,
+        messageJournal,
+        stores,
+        actionTransformers,
+        customMatchers,
+        Collections.emptyMap());
+  }
+
+  public MessageStubRequestHandler(
+      MessageStubMappings messageStubMappings,
+      MessageChannels messageChannels,
+      MessageJournal messageJournal,
+      Stores stores,
+      List<MessageActionTransformer> actionTransformers,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, MessageServeEventListener> serveEventListeners) {
     this.messageStubMappings = messageStubMappings;
     this.messageChannels = messageChannels;
     this.messageJournal = messageJournal;
     this.stores = stores;
     this.actionTransformers =
         actionTransformers != null ? actionTransformers : Collections.emptyList();
+    this.customMatchers = customMatchers != null ? customMatchers : Collections.emptyMap();
+    this.serveEventListeners =
+        serveEventListeners != null ? serveEventListeners : Collections.emptyMap();
+  }
+
+  public void processTextMessage(MessageChannel channel, String text) {
+    Message message = Message.builder().withTextBody(text).build();
+    processMessage(channel, message);
+  }
+
+  public void processBinaryMessage(MessageChannel channel, byte[] data) {
+    Message message = Message.builder().withBinaryBody(data).build();
+    processMessage(channel, message);
   }
 
   public void processMessage(MessageChannel channel, Message message) {
+    MessageServeEvent initialEvent = MessageServeEvent.receivedUnmatched(channel, message);
+    triggerListeners(serveEventListeners, BEFORE_MATCH, initialEvent);
+
     Optional<MessageStubMapping> matchingStub =
         messageStubMappings.findMatchingStub(channel, message);
-    if (matchingStub.isPresent()) {
-      MessageStubMapping stub = matchingStub.get();
-      executeActions(stub, channel, message);
+    MessageServeEvent event =
+        matchingStub
+            .map(
+                stub ->
+                    initialEvent.transform(
+                        builder -> builder.withStubMapping(stub).withWasMatched(true)))
+            .orElse(initialEvent);
+    triggerListeners(serveEventListeners, AFTER_MATCH, event);
 
-      MessageServeEvent event = MessageServeEvent.receivedMatched(channel, message, stub);
-      messageJournal.messageReceived(event);
-    } else {
-      MessageServeEvent event = MessageServeEvent.receivedUnmatched(channel, message);
-      messageJournal.messageReceived(event);
-    }
+    matchingStub.ifPresent(stub -> executeActions(stub, channel, message));
+
+    messageJournal.messageReceived(event);
+    triggerListeners(serveEventListeners, AFTER_COMPLETE, event);
   }
 
   private void executeActions(
@@ -82,7 +117,7 @@ public class MessageStubRequestHandler {
         MessageActionContext.forIncomingMessage(stub, originatingChannel, incomingMessage);
     for (MessageAction action : stub.getActions()) {
       MessageAction transformedAction = applyTransformations(action, context);
-      executeAction(transformedAction, originatingChannel, incomingMessage);
+      executeAction(transformedAction, originatingChannel, stub.getServeEventListeners());
     }
   }
 
@@ -97,143 +132,56 @@ public class MessageStubRequestHandler {
   }
 
   private void executeAction(
-      MessageAction action, MessageChannel originatingChannel, Message incomingMessage) {
+      MessageAction action,
+      MessageChannel originatingChannel,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
     if (action instanceof SendMessageAction sendAction) {
-      executeSendMessageAction(sendAction, originatingChannel);
+      executeSendMessageAction(sendAction, originatingChannel, listenerDefinitions);
     }
   }
 
   private void executeSendMessageAction(
-      SendMessageAction action, MessageChannel originatingChannel) {
+      SendMessageAction action,
+      MessageChannel originatingChannel,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
     Message message = resolveToMessage(action.getMessage());
     ChannelTarget target = action.getChannelTarget();
 
     if (target instanceof OriginatingChannelTarget) {
-      originatingChannel.sendMessage(message);
+      sendAndRecord(originatingChannel, message, listenerDefinitions);
+    } else if (target instanceof FixedChannelTarget fixedTarget) {
+      FixedChannel outboundChannel =
+          messageChannels.requireFixed(fixedTarget.getProviderName(), fixedTarget.getChannelName());
+      sendAndRecord(outboundChannel, message, listenerDefinitions);
     } else if (target instanceof RequestInitiatedChannelTarget requestTarget) {
       List<RequestInitiatedMessageChannel> matchingChannels;
       if (requestTarget.getChannelType() != null) {
         matchingChannels =
             messageChannels.findByTypeAndRequestPattern(
-                requestTarget.getChannelType(),
-                requestTarget.getRequestPattern(),
-                Collections.emptyMap());
+                requestTarget.getChannelType(), requestTarget.getRequestPattern(), customMatchers);
       } else {
         matchingChannels =
-            messageChannels.findByRequestPattern(
-                requestTarget.getRequestPattern(), Collections.emptyMap());
+            messageChannels.findByRequestPattern(requestTarget.getRequestPattern(), customMatchers);
       }
       for (RequestInitiatedMessageChannel channel : matchingChannels) {
-        channel.sendMessage(message);
+        sendAndRecord(channel, message, listenerDefinitions);
       }
     }
   }
 
-  public Message resolveToMessage(MessageDefinition messageDefinition) {
-    return resolveToMessage(messageDefinition, stores);
+  private void sendAndRecord(
+      MessageChannel channel,
+      Message message,
+      List<MessageServeEventListenerDefinition> listenerDefinitions) {
+    channel.sendMessage(message);
+    MessageServeEvent sentEvent = MessageServeEvent.sent(channel, message);
+    messageJournal.messageReceived(sentEvent);
+    triggerListeners(serveEventListeners, MESSAGE_SENT, sentEvent, listenerDefinitions);
   }
 
-  public static Message resolveToMessage(MessageDefinition messageDefinition, Stores stores) {
-    Entity entity = resolveEntity(messageDefinition.getBody(), stores);
+  private Message resolveToMessage(MessageDefinition messageDefinition) {
+    Entity entity = messageDefinition.getBody().resolve(stores);
     return new Message(entity);
-  }
-
-  private static Entity resolveEntity(EntityDefinition definition, Stores stores) {
-    if (definition instanceof StringEntityDefinition) {
-      String value = ((StringEntityDefinition) definition).getValue();
-      byte[] bytes = value != null ? value.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(EncodingType.TEXT, FormatType.TEXT, CompressionType.NONE, streamSource);
-    }
-
-    if (definition instanceof BinaryEntityDefinition binaryDef) {
-      byte[] bytes = resolveBinaryEntityData(binaryDef, stores);
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.BINARY, FormatType.BASE64, binaryDef.getCompression(), streamSource);
-    }
-
-    if (definition instanceof TextEntityDefinition textDef) {
-      String resolvedData = resolveTextEntityData(textDef, stores);
-      byte[] bytes =
-          resolvedData != null ? resolvedData.getBytes(StandardCharsets.UTF_8) : new byte[0];
-      InputStreamSource streamSource = () -> new ByteArrayInputStream(bytes);
-      return new Entity(
-          EncodingType.TEXT, textDef.getFormat(), textDef.getCompression(), streamSource);
-    }
-
-    throw new UnsupportedOperationException(
-        "Resolution of " + definition.getClass().getSimpleName() + " is not yet supported");
-  }
-
-  private static String resolveTextEntityData(TextEntityDefinition definition, Stores stores) {
-    Object data = definition.getData();
-
-    if (data instanceof String s) {
-      return s;
-    }
-
-    if (data != null) {
-      return Json.write(data);
-    }
-
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).map(Strings::stringFromBytes).orElse(null);
-    }
-
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof String s) {
-                  return s;
-                }
-                return Json.write(value);
-              })
-          .orElse(null);
-    }
-
-    return null;
-  }
-
-  private static byte[] resolveBinaryEntityData(BinaryEntityDefinition definition, Stores stores) {
-    byte[] data = definition.getDataAsBytes();
-    if (data != null) {
-      return data;
-    }
-
-    String filePath = definition.getFilePath();
-    if (filePath != null && stores != null) {
-      BlobStore filesBlobStore = stores.getFilesBlobStore();
-      return filesBlobStore.get(filePath).orElse(new byte[0]);
-    }
-
-    String dataStore = definition.getDataStore();
-    String dataRef = definition.getDataRef();
-    if (dataStore != null && dataRef != null && stores != null) {
-      return stores
-          .getObjectStore(dataStore)
-          .get(dataRef)
-          .map(
-              value -> {
-                if (value instanceof byte[] bytes) {
-                  return bytes;
-                }
-                if (value instanceof String s) {
-                  return getDecoder().decode(s);
-                }
-                return new byte[0];
-              })
-          .orElse(new byte[0]);
-    }
-
-    return new byte[0];
   }
 
   public MessageStubMappings getMessageStubMappings() {

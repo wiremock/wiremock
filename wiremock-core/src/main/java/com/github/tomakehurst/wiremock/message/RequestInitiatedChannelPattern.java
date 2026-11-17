@@ -57,8 +57,8 @@ public class RequestInitiatedChannelPattern implements ChannelPattern {
 
   @Override
   public boolean matches(MessageChannel channel) {
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      return matches(((RequestInitiatedMessageChannel) channel).getInitiatingRequest());
+    if (channel instanceof RequestInitiatedMessageChannel requestInitiatedMessageChannel) {
+      return matches(requestInitiatedMessageChannel.getInitiatingRequest());
     }
     return initiatingRequestPattern == null;
   }

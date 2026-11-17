@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.wiremock.url.Query;
 
+@SuppressWarnings("JavaUtilDate")
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
   private final List<ServeEvent> source;

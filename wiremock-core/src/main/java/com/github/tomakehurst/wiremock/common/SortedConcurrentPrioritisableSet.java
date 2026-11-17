@@ -63,7 +63,7 @@ public class SortedConcurrentPrioritisableSet<T extends Prioritisable> implement
 
   public T add(T mapping) {
     mapping = mapping.withInsertionIndex(insertionCount.getAndIncrement());
-    boolean actuallyAdded = set.add(mapping);
+    set.add(mapping);
     return mapping;
   }
 

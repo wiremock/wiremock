@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Thomas Akehurst
+ * Copyright (C) 2014-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,9 +34,15 @@ public class ExtensionLoader {
     return (Map<String, T>)
         asMap(
             Arrays.stream(classNames)
-                .map(toClasses())
-                .map(toExtensions())
+                .map(ExtensionLoader::toClasses)
+                .map(ExtensionLoader::toExtension)
                 .collect(Collectors.toList()));
+  }
+
+  private static Class<? extends Extension> toClasses(String className) {
+    return Exceptions.uncheck(
+        (Callable<Class<? extends Extension>>)
+            () -> Class.forName(className).asSubclass(Extension.class));
   }
 
   public static Map<String, Extension> load(String... classNames) {
@@ -50,28 +57,16 @@ public class ExtensionLoader {
 
   @SafeVarargs
   public static Map<String, Extension> load(Class<? extends Extension>... classes) {
-    return asMap(Arrays.stream(classes).map(toExtensions()).collect(Collectors.toList()));
+    return asMap(
+        Arrays.stream(classes).map(ExtensionLoader::toExtension).collect(Collectors.toList()));
   }
 
-  private static Function<Class<? extends Extension>, Extension> toExtensions() {
-    return extensionClass -> {
-      try {
-        return extensionClass.getDeclaredConstructor().newInstance();
-      } catch (Exception e) {
-        return throwUnchecked(e, Extension.class);
-      }
-    };
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Function<String, Class<? extends Extension>> toClasses() {
-    return className -> {
-      try {
-        return (Class<? extends Extension>) Class.forName(className);
-      } catch (ClassNotFoundException e) {
-        return throwUnchecked(e, Class.class);
-      }
-    };
+  private static Extension toExtension(Class<? extends Extension> extensionClass) {
+    try {
+      return extensionClass.getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      return throwUnchecked(e, Extension.class);
+    }
   }
 
   public static <T extends Extension> Predicate<Map.Entry<String, Extension>> valueAssignableFrom(

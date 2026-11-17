@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class ClientError extends RuntimeException {
       case 10 -> new InvalidInputException(errors);
       case 30 -> new NotRecordingException();
       case 50 -> new NotPermittedException(errors);
+      case 409 -> new ConflictException(errors);
       default -> new ClientError(errors);
     };
   }

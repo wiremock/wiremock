@@ -428,7 +428,7 @@ public class MatchesJsonSchemaPatternTest {
         matchResult3.getSubEvents(),
         not(
             contains(
-                new TypeSafeMatcher<>() {
+                new TypeSafeMatcher<SubEvent>() {
                   @Override
                   protected boolean matchesSafely(SubEvent item) {
                     return item.getType().equals(SubEvent.ERROR);

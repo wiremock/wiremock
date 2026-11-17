@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,9 @@ public class JoinHelper extends HandlebarsHelper<Object> {
   @Override
   public Object apply(Object context, Options options) throws IOException {
 
-    if (!(context instanceof String)) {
+    if (!(context instanceof String separator)) {
       return handleError("Separator parameter must be a String");
     }
-
-    String separator = (String) context;
 
     List<Object> items;
     Object firstParam = options.param(0, null);

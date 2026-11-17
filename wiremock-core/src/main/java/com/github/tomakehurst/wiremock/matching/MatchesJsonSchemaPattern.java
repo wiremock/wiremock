@@ -143,8 +143,8 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
   private static Errors getInvalidSchemaErrors(Exception e) {
     Errors invalidSchemaErrors;
-    if (e instanceof ClientError) {
-      Errors.Error error = ((ClientError) e).getErrors().first();
+    if (e instanceof ClientError clientError) {
+      Errors.Error error = clientError.getErrors().first();
       invalidSchemaErrors =
           Errors.single(
               error.getCode(),

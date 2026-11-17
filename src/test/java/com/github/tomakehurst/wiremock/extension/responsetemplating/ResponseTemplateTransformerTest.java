@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -1006,7 +1007,7 @@ public class ResponseTemplateTransformerTest {
     assertThat(
         transform("{{arrayRemove (array 1 'three') position=-2}}"),
         is(
-            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
   }
 
   @Test
@@ -1014,7 +1015,23 @@ public class ResponseTemplateTransformerTest {
     assertThat(
         transform("{{arrayRemove (array 1 'three') position=3}}"),
         is(
-            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemWithPositionEqualToTheArrayLengthReturnsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemFromAnEmptyArrayReturnsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array)}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than the size of the list]"));
   }
 
   @Test
@@ -1380,6 +1397,20 @@ public class ResponseTemplateTransformerTest {
 
     String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");
     assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
+  }
+
+  @Test
+  void templateCanBeUsedForWithBinaryContentType() {
+    String bodyBase64 = "ZmFrZWJpbmFyeQo=";
+
+    ResponseDefinition result =
+        transform(
+            mockRequest().url("/bin").method(POST).body(bodyBase64),
+            aResponse()
+                .withHeader("Content-Type", "application/octet-stream")
+                .withBody("{{request.body}}"));
+
+    assertThat(result.getTextBody(), is(bodyBase64));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {

@@ -79,8 +79,8 @@ public class MessagePattern {
   }
 
   public boolean matches(MessageChannel channel, Message message) {
-    if (channel instanceof RequestInitiatedMessageChannel) {
-      return matches(((RequestInitiatedMessageChannel) channel).getInitiatingRequest(), message);
+    if (channel instanceof RequestInitiatedMessageChannel requestInitiatedMessageChannel) {
+      return matches(requestInitiatedMessageChannel.getInitiatingRequest(), message);
     }
     // For non-request-initiated channels, only match if there's no channel pattern
     return matches((Request) null, message);
@@ -97,16 +97,14 @@ public class MessagePattern {
 
     if (bodyPattern != null) {
       MatchResult messageMatch;
-      if (bodyPattern instanceof StringValuePattern) {
+      if (bodyPattern instanceof StringValuePattern stringValuePattern) {
         String messageBody = message != null ? message.getBodyAsString() : null;
-        messageMatch = ((StringValuePattern) bodyPattern).match(messageBody);
+        messageMatch = stringValuePattern.match(messageBody);
       } else {
         byte[] messageBody = message != null ? message.getBodyAsBytes() : null;
         messageMatch = ((ContentPattern<byte[]>) bodyPattern).match(messageBody);
       }
-      if (!messageMatch.isExactMatch()) {
-        return false;
-      }
+      return messageMatch.isExactMatch();
     }
 
     return true;

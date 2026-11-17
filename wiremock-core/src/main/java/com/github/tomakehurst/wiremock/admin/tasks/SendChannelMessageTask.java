@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 /** Admin task that sends a message to channels of a specific type matching a request pattern. */
@@ -35,10 +36,15 @@ public class SendChannelMessageTask implements AdminTask {
     SendChannelMessageRequest request =
         Json.read(serveEvent.getRequest().getBodyAsString(), SendChannelMessageRequest.class);
 
+    if (ChannelType.FIXED == request.getType()) {
+      admin.sendChannelMessage(
+          request.getProviderName(), request.getChannelName(), request.getMessage());
+      return ResponseDefinitionBuilder.responseDefinition().withStatus(HTTP_OK).build();
+    }
+
     SendChannelMessageResult result =
         admin.sendChannelMessage(
             request.getType(), request.getInitiatingRequest(), request.getMessage());
-
     return ResponseDefinitionBuilder.jsonResponse(result, HTTP_OK);
   }
 }

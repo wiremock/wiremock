@@ -15,42 +15,49 @@
  */
 package com.github.tomakehurst.wiremock.message;
 
-import static com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition.aTextMessage;
+import static com.github.tomakehurst.wiremock.client.WireMock.entity;
 
 import com.github.tomakehurst.wiremock.common.entity.EntityDefinition;
-import com.github.tomakehurst.wiremock.common.entity.TextEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public class SendMessageActionBuilder {
 
-  private TextEntityDefinition.Builder textEntityBuilder = aTextMessage();
+  private final EntityDefinition.Builder entityBuilder = entity();
   private final List<String> transformers = new ArrayList<>();
   private Parameters transformerParameters = Parameters.empty();
+  private MessageHeaders headers = MessageHeaders.noHeaders();
 
   public SendMessageActionBuilder() {}
 
   public SendMessageActionBuilder withBody(String message) {
-    this.textEntityBuilder.withBody(message);
+    this.entityBuilder.setData(message);
     return this;
   }
 
-  public SendMessageActionBuilder withBody(Object data) {
-    textEntityBuilder.withBody(data);
-    return this;
-  }
-
-  public SendMessageActionBuilder withBodyFromStore(String storeName, String key) {
-    textEntityBuilder.withDataStore(storeName);
-    textEntityBuilder.withDataRef(key);
+  public SendMessageActionBuilder withBodyFromStore(
+      @NonNull String storeName, @NonNull String key) {
+    entityBuilder.setDataStoreRef(storeName, key);
     return this;
   }
 
   public SendMessageActionBuilder withBodyFromFile(String filePath) {
-    textEntityBuilder.withFilePath(filePath);
+    entityBuilder.setFilePath(filePath);
+    return this;
+  }
+
+  public SendMessageActionBuilder withHeader(String key, String... values) {
+    this.headers = this.headers.plus(new MessageHeader(key, values));
+    return this;
+  }
+
+  public SendMessageActionBuilder withHeaders(MessageHeaders headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -60,9 +67,7 @@ public class SendMessageActionBuilder {
   }
 
   public SendMessageActionBuilder withTransformers(String... transformerNames) {
-    for (String name : transformerNames) {
-      this.transformers.add(name);
-    }
+    this.transformers.addAll(Arrays.asList(transformerNames));
     return this;
   }
 
@@ -77,23 +82,37 @@ public class SendMessageActionBuilder {
   }
 
   private EntityDefinition resolveBody() {
-    return textEntityBuilder.build();
+    return entityBuilder.build();
+  }
+
+  private MessageDefinition resolveMessage() {
+    return new MessageDefinition(resolveBody(), headers);
+  }
+
+  protected MessageHeaders headers() {
+    return headers;
+  }
+
+  protected void replaceHeader(MessageHeader header) {
+    this.headers = this.headers.withReplaced(header);
+  }
+
+  protected SendMessageAction buildAction(ChannelTarget channelTarget) {
+    return new SendMessageAction(
+        resolveMessage(), channelTarget, transformers, transformerParameters);
+  }
+
+  protected TargetedSendMessageActionBuilder targetedBuilder(ChannelTarget channelTarget) {
+    return new TargetedSendMessageActionBuilder(
+        channelTarget, transformers, transformerParameters, headers);
   }
 
   public SendMessageAction onOriginatingChannel() {
-    return new SendMessageAction(
-        new MessageDefinition(resolveBody()),
-        OriginatingChannelTarget.INSTANCE,
-        transformers,
-        transformerParameters);
+    return buildAction(OriginatingChannelTarget.INSTANCE);
   }
 
   public SendMessageAction onChannelsMatching(RequestPattern targetChannelPattern) {
-    return new SendMessageAction(
-        new MessageDefinition(resolveBody()),
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters);
+    return buildAction(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public SendMessageAction onChannelsMatching(RequestPatternBuilder targetChannelPatternBuilder) {
@@ -101,43 +120,45 @@ public class SendMessageActionBuilder {
   }
 
   public TargetedSendMessageActionBuilder toOriginatingChannel() {
-    return new TargetedSendMessageActionBuilder(
-        OriginatingChannelTarget.INSTANCE, transformers, transformerParameters);
+    return targetedBuilder(OriginatingChannelTarget.INSTANCE);
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(RequestPattern targetChannelPattern) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPattern),
-        transformers,
-        transformerParameters);
+    return targetedBuilder(RequestInitiatedChannelTarget.forPattern(targetChannelPattern));
   }
 
   public TargetedSendMessageActionBuilder toMatchingChannels(
       RequestPatternBuilder targetChannelPatternBuilder) {
-    return new TargetedSendMessageActionBuilder(
-        RequestInitiatedChannelTarget.forPattern(targetChannelPatternBuilder.build()),
-        transformers,
-        transformerParameters);
+    return toMatchingChannels(targetChannelPatternBuilder.build());
+  }
+
+  public SendMessageAction onChannel(String providerName, String channelName) {
+    return buildAction(new FixedChannelTarget(providerName, channelName));
   }
 
   public static class TargetedSendMessageActionBuilder {
     private final ChannelTarget channelTarget;
     private final List<String> transformers;
     private final Parameters transformerParameters;
+    private final MessageHeaders headers;
 
     TargetedSendMessageActionBuilder(
-        ChannelTarget channelTarget, List<String> transformers, Parameters transformerParameters) {
+        ChannelTarget channelTarget,
+        List<String> transformers,
+        Parameters transformerParameters,
+        MessageHeaders headers) {
       this.channelTarget = channelTarget;
       this.transformers = transformers;
       this.transformerParameters = transformerParameters;
+      this.headers = headers;
     }
 
     public SendMessageAction withMessage(EntityDefinition body) {
       return new SendMessageAction(
-          new MessageDefinition(body), channelTarget, transformers, transformerParameters);
+          new MessageDefinition(body, headers), channelTarget, transformers, transformerParameters);
     }
 
-    public SendMessageAction withMessage(EntityDefinition.Builder<?> bodyBuilder) {
+    public SendMessageAction withMessage(EntityDefinition.Builder bodyBuilder) {
       return withMessage(bodyBuilder.build());
     }
   }

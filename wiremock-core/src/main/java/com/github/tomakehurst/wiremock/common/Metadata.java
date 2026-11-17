@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public class Metadata implements Map<String, Object> {
 
   private final Map<String, Object> data;
@@ -47,7 +49,7 @@ public class Metadata implements Map<String, Object> {
     Map<String, Object> result = new LinkedHashMap<>();
     for (Map.Entry<? extends String, ?> entry : data.entrySet()) {
       Object value = entry.getValue();
-      if (value instanceof Map && !(this.getClass().isInstance(value))) {
+      if (value instanceof Map && !this.getClass().isInstance(value)) {
         result.put(entry.getKey(), newInstance((Map<String, Object>) value));
       } else {
         result.put(entry.getKey(), value);
@@ -305,9 +307,8 @@ public class Metadata implements Map<String, Object> {
           for (Map.Entry<String, Object> entry : toMerge.entrySet()) {
             if (entry.getValue() instanceof Metadata) {
               Object existing = get(entry.getKey());
-              if (existing instanceof Metadata) {
-                builder.attr(
-                    entry.getKey(), ((Metadata) existing).deepMerge((Metadata) entry.getValue()));
+              if (existing instanceof Metadata metadata) {
+                builder.attr(entry.getKey(), metadata.deepMerge((Metadata) entry.getValue()));
               } else {
                 builder.attr(entry.getKey(), entry.getValue());
               }
@@ -332,7 +333,7 @@ public class Metadata implements Map<String, Object> {
     forEach(
         (key, value) -> {
           if (this.getClass().isInstance(value)) {
-            map.put(key, (this.getClass().cast(value)).asMutableMap());
+            map.put(key, this.getClass().cast(value).asMutableMap());
           } else {
             map.put(key, value);
           }
@@ -361,7 +362,7 @@ public class Metadata implements Map<String, Object> {
     public Builder attr(String key, Consumer<Builder> transformer) {
       final Object existing = get(key);
       final Builder builder =
-          existing instanceof Metadata ? new Builder((Metadata) existing) : builder();
+          existing instanceof Metadata metadata ? new Builder(metadata) : builder();
       transformer.accept(builder);
       attr(key, builder);
       return this;

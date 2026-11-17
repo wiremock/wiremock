@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_MAX_TEMPLATE_CACHE_ENTRIES;
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_WEBHOOK_THREADPOOL_SIZE;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.junit.jupiter.api.Test;
 
 public class WireMockConfigurationTest {
@@ -30,6 +33,28 @@ public class WireMockConfigurationTest {
     WireMockConfiguration wireMockConfiguration =
         WireMockConfiguration.wireMockConfig().proxyPassThrough(false);
     assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
+  @Test
+  public void maxRequestJournalEntriesIsEnforcedEvenWhenProxyPassThroughIsSetFirst() {
+    WireMockConfiguration config =
+        WireMockConfiguration.wireMockConfig().proxyPassThrough(false).maxRequestJournalEntries(2);
+
+    addServeEvents(config, 3);
+
+    assertThat(config.getStores().getRequestJournalStore().getAllKeys().count(), is(2L));
+    assertFalse(config.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
+  @Test
+  public void maxRequestJournalEntriesIsEnforcedWhenProxyPassThroughIsSetAfter() {
+    WireMockConfiguration config =
+        WireMockConfiguration.wireMockConfig().maxRequestJournalEntries(2).proxyPassThrough(false);
+
+    addServeEvents(config, 3);
+
+    assertThat(config.getStores().getRequestJournalStore().getAllKeys().count(), is(2L));
+    assertFalse(config.getStores().getSettingsStore().get().getProxyPassThrough());
   }
 
   @Test
@@ -54,5 +79,14 @@ public class WireMockConfigurationTest {
   void webhookThreadpoolSizeWhenNotSpecified() {
     Options config = WireMockConfiguration.wireMockConfig();
     assertThat(config.getWebhookThreadPoolSize(), is(DEFAULT_WEBHOOK_THREADPOOL_SIZE));
+  }
+
+  private static void addServeEvents(Options config, int count) {
+    for (int i = 0; i < count; i++) {
+      config
+          .getStores()
+          .getRequestJournalStore()
+          .add(ServeEvent.of(createFrom(mockRequest().url("/" + i))));
+    }
   }
 }

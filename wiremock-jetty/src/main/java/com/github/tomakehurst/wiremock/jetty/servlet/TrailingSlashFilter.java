@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class TrailingSlashFilter implements Filter {
     private final String path;
     private final HttpServletRequest request;
 
-    public StatusAndRedirectExposingHttpServletResponse(
+    private StatusAndRedirectExposingHttpServletResponse(
         HttpServletResponse response, String path, HttpServletRequest request) {
       super(response);
       this.path = path;

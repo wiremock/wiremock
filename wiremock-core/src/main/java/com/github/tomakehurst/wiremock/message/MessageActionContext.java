@@ -16,16 +16,17 @@
 package com.github.tomakehurst.wiremock.message;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.jspecify.annotations.NonNull;
 
 public class MessageActionContext {
 
-  private final MessageStubMapping stubMapping;
+  @NonNull private final MessageStubMapping stubMapping;
   private final MessageChannel originatingChannel;
   private final Message incomingMessage;
   private final ServeEvent httpServeEvent;
 
   private MessageActionContext(
-      MessageStubMapping stubMapping,
+      @NonNull MessageStubMapping stubMapping,
       MessageChannel originatingChannel,
       Message incomingMessage,
       ServeEvent httpServeEvent) {
@@ -45,6 +46,7 @@ public class MessageActionContext {
     return new MessageActionContext(stubMapping, null, null, httpServeEvent);
   }
 
+  @NonNull
   public MessageStubMapping getStubMapping() {
     return stubMapping;
   }

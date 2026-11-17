@@ -20,20 +20,23 @@ import com.github.tomakehurst.wiremock.message.ChannelType;
 import com.github.tomakehurst.wiremock.message.Message;
 import com.github.tomakehurst.wiremock.message.RequestInitiatedMessageChannel;
 import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class WebSocketMessageChannel implements RequestInitiatedMessageChannel {
 
   private final UUID id;
   private final Request request;
-  private final WebSocketSession session;
+  @Nullable private final WebSocketSession session;
 
-  public WebSocketMessageChannel(UUID id, Request request, WebSocketSession session) {
+  public WebSocketMessageChannel(UUID id, Request request, @Nullable WebSocketSession session) {
     this.id = id;
     this.request = request;
     this.session = session;
   }
 
-  public WebSocketMessageChannel(Request request, WebSocketSession session) {
+  public WebSocketMessageChannel(Request request, @Nullable WebSocketSession session) {
     this(UUID.randomUUID(), request, session);
   }
 
@@ -52,6 +55,7 @@ public class WebSocketMessageChannel implements RequestInitiatedMessageChannel {
     return request;
   }
 
+  @Nullable
   public WebSocketSession getSession() {
     return session;
   }

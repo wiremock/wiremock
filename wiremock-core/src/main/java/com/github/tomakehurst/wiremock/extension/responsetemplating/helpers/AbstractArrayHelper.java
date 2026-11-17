@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public abstract class AbstractArrayHelper extends HandlebarsHelper<List<?>> {
       position = 0;
     } else if (positionSpec.toString().equalsIgnoreCase("end")) {
       position = null;
-    } else if (positionSpec instanceof Integer) {
-      position = (Integer) positionSpec;
+    } else if (positionSpec instanceof Integer positionInt) {
+      position = positionInt;
     } else {
       position = Integer.parseInt(positionSpec.toString());
     }

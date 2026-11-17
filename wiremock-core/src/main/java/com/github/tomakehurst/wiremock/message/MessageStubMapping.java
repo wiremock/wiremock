@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.message;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,6 +30,9 @@ import com.github.tomakehurst.wiremock.client.MessageStubMappingBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.common.Prioritisable;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListener.MessagePhase;
+import com.github.tomakehurst.wiremock.extension.MessageServeEventListenerDefinition;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -38,13 +43,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 @JsonInclude(NON_EMPTY)
 @JsonIgnoreProperties({"$schema", "uuid", "insertionIndex"})
-public class MessageStubMapping implements Prioritisable {
+public class MessageStubMapping implements Prioritisable, MessageStubMappingOrMappings {
 
   public static final int DEFAULT_PRIORITY = 5;
 
@@ -53,6 +59,7 @@ public class MessageStubMapping implements Prioritisable {
   private final Integer priority;
   @NonNull private final MessageTrigger trigger;
   @NonNull private final List<MessageAction> actions;
+  @NonNull private final List<MessageServeEventListenerDefinition> serveEventListeners;
   @NonNull private final Metadata metadata;
   private final long insertionIndex;
 
@@ -63,6 +70,8 @@ public class MessageStubMapping implements Prioritisable {
       @JsonProperty("priority") Integer priority,
       @JsonProperty("trigger") MessageTrigger trigger,
       @JsonProperty("actions") List<MessageAction> actions,
+      @JsonProperty("serveEventListeners")
+          List<MessageServeEventListenerDefinition> serveEventListeners,
       @JsonProperty("metadata") Metadata metadata,
       @JsonProperty("insertionIndex") @JsonView(Json.PrivateView.class) long insertionIndex) {
     this.id = id != null ? id : UUID.randomUUID();
@@ -70,6 +79,8 @@ public class MessageStubMapping implements Prioritisable {
     this.priority = priority;
     this.trigger = trigger != null ? trigger : IncomingMessageTrigger.ANYTHING;
     this.actions = actions != null ? actions : Collections.emptyList();
+    this.serveEventListeners =
+        serveEventListeners != null ? List.copyOf(serveEventListeners) : List.of();
     this.metadata = metadata != null ? metadata : new Metadata();
     this.insertionIndex = insertionIndex;
   }
@@ -94,6 +105,7 @@ public class MessageStubMapping implements Prioritisable {
     return new Builder(this);
   }
 
+  @Override
   public UUID getId() {
     return id;
   }
@@ -102,6 +114,7 @@ public class MessageStubMapping implements Prioritisable {
     return name;
   }
 
+  @Override
   public Integer getPriority() {
     return priority;
   }
@@ -115,8 +128,25 @@ public class MessageStubMapping implements Prioritisable {
   }
 
   @NonNull
+  public List<MessageServeEventListenerDefinition> getServeEventListeners() {
+    return serveEventListeners;
+  }
+
+  @NonNull
   public Metadata getMetadata() {
     return metadata;
+  }
+
+  @JsonIgnore
+  @Override
+  public List<MessageStubMapping> getMappingOrMappings() {
+    return List.of(this);
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isMulti() {
+    return false;
   }
 
   public boolean matches(MessageChannel channel, Message message) {
@@ -126,11 +156,12 @@ public class MessageStubMapping implements Prioritisable {
     return false;
   }
 
+  @Override
   public long getInsertionIndex() {
     return insertionIndex;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
   @Override
   public <T extends Prioritisable> T withInsertionIndex(long newInsertionIndex) {
     return (T) transform(builder -> builder.setInsertionIndex(newInsertionIndex));
@@ -144,12 +175,13 @@ public class MessageStubMapping implements Prioritisable {
         && Objects.equals(priority, that.priority)
         && Objects.equals(trigger, that.trigger)
         && Objects.equals(actions, that.actions)
+        && Objects.equals(serveEventListeners, that.serveEventListeners)
         && Objects.equals(metadata, that.metadata);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, priority, trigger, actions, metadata);
+    return Objects.hash(id, priority, trigger, actions, serveEventListeners, metadata);
   }
 
   @Override
@@ -165,6 +197,7 @@ public class MessageStubMapping implements Prioritisable {
     private ContentPattern<?> bodyPattern;
     private MessageTrigger explicitTrigger;
     private ArrayList<MessageAction> actions = new ArrayList<>();
+    private List<MessageServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
     @NonNull private Metadata metadata = new Metadata();
     private long insertionIndex;
 
@@ -183,6 +216,7 @@ public class MessageStubMapping implements Prioritisable {
         this.explicitTrigger = existing.trigger;
       }
       this.actions = new ArrayList<>(existing.actions);
+      this.serveEventListeners = new ArrayList<>(existing.serveEventListeners);
       this.metadata = existing.metadata;
       this.insertionIndex = existing.insertionIndex;
     }
@@ -223,6 +257,15 @@ public class MessageStubMapping implements Prioritisable {
     public Builder onWebsocketChannelFromRequestMatching(
         RequestPatternBuilder channelPatternBuilder) {
       return onChannelFromRequestMatching(ChannelType.WEBSOCKET, channelPatternBuilder.build());
+    }
+
+    public Builder onSseChannelFromRequestMatching(String urlPath) {
+      return onChannelFromRequestMatching(
+          ChannelType.SSE, newRequestPattern().withUrl(urlPathEqualTo(urlPath)));
+    }
+
+    public Builder onSseChannelFromRequestMatching(RequestPatternBuilder channelPatternBuilder) {
+      return onChannelFromRequestMatching(ChannelType.SSE, channelPatternBuilder.build());
     }
 
     public Builder onChannelFromRequestMatching(ChannelType channelType, String urlPath) {
@@ -267,6 +310,17 @@ public class MessageStubMapping implements Prioritisable {
       return this;
     }
 
+    public Builder triggeredByMessageOnChannel(String channelProvider, String channelName) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, equalTo(channelName));
+      return this;
+    }
+
+    public Builder triggeredByMessageOnChannel(
+        String channelProvider, StringValuePattern channelNamePattern) {
+      this.channelPattern = FixedChannelPattern.forChannel(channelProvider, channelNamePattern);
+      return this;
+    }
+
     public Builder withActions(List<MessageAction> actions) {
       this.actions = new ArrayList<>(actions);
       return this;
@@ -281,6 +335,32 @@ public class MessageStubMapping implements Prioritisable {
     public Builder triggersAction(MessageAction action) {
       this.actions.add(action);
       return this;
+    }
+
+    @Override
+    public <P> Builder withServeEventListener(
+        Set<MessagePhase> phases, String extensionName, P parameters) {
+      this.serveEventListeners.add(
+          new MessageServeEventListenerDefinition(
+              extensionName, phases, resolveParameters(parameters)));
+      return this;
+    }
+
+    @Override
+    public <P> Builder withServeEventListener(String extensionName, P parameters) {
+      this.serveEventListeners.add(
+          new MessageServeEventListenerDefinition(extensionName, resolveParameters(parameters)));
+      return this;
+    }
+
+    public Builder withServeEventListeners(
+        List<MessageServeEventListenerDefinition> serveEventListeners) {
+      this.serveEventListeners = new ArrayList<>(serveEventListeners);
+      return this;
+    }
+
+    private static <P> Parameters resolveParameters(P parameters) {
+      return parameters instanceof Parameters params ? params : Parameters.of(parameters);
     }
 
     @Override
@@ -321,7 +401,8 @@ public class MessageStubMapping implements Prioritisable {
             bodyPattern != null ? new MessagePattern(null, bodyPattern) : null;
         trigger = new IncomingMessageTrigger(channelPattern, messagePattern);
       }
-      return new MessageStubMapping(id, name, priority, trigger, actions, metadata, insertionIndex);
+      return new MessageStubMapping(
+          id, name, priority, trigger, actions, serveEventListeners, metadata, insertionIndex);
     }
   }
 }

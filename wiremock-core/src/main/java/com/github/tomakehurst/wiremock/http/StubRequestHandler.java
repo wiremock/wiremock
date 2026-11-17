@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
     serveEvent.appendSubEvent(
         SubEvent.NON_MATCH_TYPE,
         new DiffEventData(
-            responseDefinition.getStatus(), contentTypeHeader, responseDefinition.getBody()));
+            responseDefinition.getStatus(),
+            contentTypeHeader,
+            responseDefinition.getBodyEntity().getDataAsString()));
   }
 
   @Override

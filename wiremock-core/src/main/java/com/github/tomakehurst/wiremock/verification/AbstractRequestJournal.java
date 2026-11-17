@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,19 +34,10 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   protected final RequestJournalStore store;
 
-  private final Integer maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
   public AbstractRequestJournal(
-      Integer maxEntries,
-      Map<String, RequestMatcherExtension> customMatchers,
-      RequestJournalStore store) {
-
-    if (maxEntries != null && maxEntries < 0) {
-      throw new IllegalArgumentException(
-          "Maximum number of entries of journal must be greater than zero");
-    }
-    this.maxEntries = maxEntries;
+      Map<String, RequestMatcherExtension> customMatchers, RequestJournalStore store) {
     this.customMatchers = customMatchers;
     this.store = store;
   }
@@ -67,7 +58,6 @@ public abstract class AbstractRequestJournal implements RequestJournal {
   @Override
   public void requestReceived(ServeEvent serveEvent) {
     store.add(serveEvent);
-    removeOldEntries();
   }
 
   @Override
@@ -118,14 +108,6 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   private Stream<LoggedRequest> getRequests() {
     return store.getAll().map(ServeEvent::getRequest);
-  }
-
-  private void removeOldEntries() {
-    if (maxEntries != null) {
-      while (store.getAllKeys().count() > maxEntries) {
-        store.removeLast();
-      }
-    }
   }
 
   private static Predicate<ServeEvent> withStubMetadataMatching(

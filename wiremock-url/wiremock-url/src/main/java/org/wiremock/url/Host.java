@@ -29,10 +29,7 @@ import org.wiremock.stringparser.ParsedString;
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2">RFC 3986 Section
  *     3.2.2</a>
  */
-public interface Host extends PercentEncoded<Host>, ParsedString {
-
-  Host EMPTY = new HostValue("", true);
-  Host LOCALHOST = new HostValue("localhost", true);
+public non-sealed interface Host extends HostConstants, PercentEncoded<Host>, ParsedString {
 
   /**
    * Returns a normalised form of this host.

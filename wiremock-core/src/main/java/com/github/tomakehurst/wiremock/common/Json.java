@@ -126,6 +126,11 @@ public final class Json {
     return read(json, JsonNode.class);
   }
 
+  public static JsonNode node(Object data) {
+    ObjectMapper mapper = getObjectMapper();
+    return mapper.convertValue(data, JsonNode.class);
+  }
+
   public static int maxDeepSize(JsonNode one, JsonNode two) {
     return Math.max(deepSize(one), deepSize(two));
   }

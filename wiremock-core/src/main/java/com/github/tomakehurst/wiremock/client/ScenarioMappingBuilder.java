@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,62 +26,89 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.wiremock.annotations.PublishedAPI;
 
+@PublishedAPI
 public interface ScenarioMappingBuilder extends MappingBuilder {
 
   ScenarioMappingBuilder whenScenarioStateIs(String stateName);
 
   ScenarioMappingBuilder willSetStateTo(String stateName);
 
+  @Override
   ScenarioMappingBuilder atPriority(Integer priority);
 
+  @Override
   ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
 
+  @Override
   ScenarioMappingBuilder withHeader(String key, MultiValuePattern headerPattern);
 
+  @Override
   ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
 
+  @Override
   ScenarioMappingBuilder withQueryParam(String key, MultiValuePattern queryParamPattern);
 
+  @Override
   ScenarioMappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
 
+  @Override
   ScenarioMappingBuilder withFormParam(String key, MultiValuePattern formParamPattern);
 
+  @Override
   ScenarioMappingBuilder withFormParams(Map<String, MultiValuePattern> formParams);
 
+  @Override
   ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
 
+  @Override
   ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
 
+  @Override
   ScenarioMappingBuilder withMultipartRequestBody(
       MultipartValuePatternBuilder multipartPatternBuilder);
 
+  @Override
   ScenarioMappingBuilder inScenario(String scenarioName);
 
+  @Override
   ScenarioMappingBuilder withId(UUID id);
 
+  @Override
   ScenarioMappingBuilder persistent();
 
+  @Override
   ScenarioMappingBuilder persistent(boolean persistent);
 
+  @Override
   ScenarioMappingBuilder withBasicAuth(String username, String password);
 
+  @Override
   ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
+  @Override
   <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
 
+  @Override
   <P> MappingBuilder withServeEventListener(
       Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
 
+  @Override
   <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
+  @Override
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 
+  @Override
   ScenarioMappingBuilder withMetadata(Metadata metadata);
 
+  @Override
   ScenarioMappingBuilder withMetadata(Metadata.Builder metadata);
 
+  @Override
   ScenarioMappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
 
+  @Override
   ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

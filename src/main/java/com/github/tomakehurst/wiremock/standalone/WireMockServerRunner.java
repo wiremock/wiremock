@@ -167,6 +167,7 @@ public class WireMockServerRunner {
           try {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
           } catch (IllegalStateException e) {
+            // ignore
           }
         }
       }

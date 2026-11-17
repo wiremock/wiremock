@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.common.entity.Entity;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.Collection;
 import java.util.Map;
@@ -141,6 +142,11 @@ public class EmptyToStringRequestWrapper implements Request {
   @Override
   public String getBodyAsBase64() {
     return target.getBodyAsBase64();
+  }
+
+  @Override
+  public Entity getBodyEntity() {
+    return target.getBodyEntity();
   }
 
   @Override

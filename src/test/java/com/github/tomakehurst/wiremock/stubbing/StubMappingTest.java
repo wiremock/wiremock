@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,6 +155,7 @@ public class StubMappingTest {
     assertThat(
         stub.toString(),
         jsonEquals(
+            // language=json
             """
             {
               "id": "${json-unit.any-string}",
@@ -373,5 +374,43 @@ public class StubMappingTest {
             null,
             0);
     assertThat(stub.getMetadata(), anEmptyMap());
+  }
+
+  @Test
+  public void builderAndDeserialisedAreEquivalent() {
+    var id = UUID.randomUUID();
+    var built =
+        get("/foo")
+            .withId(id)
+            .withName("Get /foo")
+            .willReturn(ok("updated response").withHeader("Content-Type", "application/json"))
+            .persistent()
+            .build();
+
+    var json =
+        // language=json
+        """
+      {
+         "id" : "%s",
+         "name" : "Get /foo",
+         "request" : {
+           "url" : "/foo",
+           "method" : "GET"
+         },
+         "response" : {
+           "status" : 200,
+           "body" : "updated response",
+           "headers" : {
+             "Content-Type" : "application/json"
+           }
+         },
+         "persistent" : true
+       }
+      """
+            .formatted(id);
+
+    var deserialised = Json.read(json, StubMapping.class);
+
+    assertThat(deserialised, is(built));
   }
 }

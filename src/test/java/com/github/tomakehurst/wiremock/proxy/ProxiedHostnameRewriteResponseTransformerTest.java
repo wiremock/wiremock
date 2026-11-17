@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Thomas Akehurst
+ * Copyright (C) 2025-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,8 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     WireMockResponse response = testClient.get("/start");
 
     // Verify the location header has been rewritten
-    assertThat(response.firstHeader(LOCATION), is("http://localhost:" + proxyingService.port() + "/end"));
+    assertThat(
+        response.firstHeader(LOCATION), is("http://localhost:" + proxyingService.port() + "/end"));
   }
 
   @Test
@@ -166,7 +167,9 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     String responseContent = response.content();
 
     // Verify the link in the response has been rewritten
-    assertThat("{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }", is(responseContent));
+    assertThat(
+        "{ \"link\": \"http://localhost:" + proxyingService.port() + "/other\" }",
+        is(responseContent));
 
     // Verify the content length header is correct
     assertThat(
@@ -268,14 +271,17 @@ class ProxiedHostnameRewriteResponseTransformerTest {
     byte[] gzippedBody = Gzip.gzip(responseString.getBytes());
 
     // Set up the target service to return the JSON
-    target.register(
-        get(urlPathEqualTo("/json"))
-            .willReturn(
-                aResponse()
-                    .withBody(gzippedBody)
-                    .withHeader("Content-Encoding", "gzip")
-                    .withHeader(CONTENT_LENGTH, String.valueOf(gzippedBody.length))
-                    .withHeader("Content-Type", "application/json")));
+    var stub =
+        target.register(
+            get(urlPathEqualTo("/json"))
+                .willReturn(
+                    aResponse()
+                        .withBody(gzippedBody)
+                        .withHeader("Content-Encoding", "gzip")
+                        .withHeader(CONTENT_LENGTH, String.valueOf(gzippedBody.length))
+                        .withHeader("Content-Type", "application/json")));
+
+    assertThat(Gzip.isGzipped(stub.getResponse().getBodyEntity().getDataAsBytes()), is(true));
 
     // Set up the proxy with the hostname rewrite transformer
     proxy.register(

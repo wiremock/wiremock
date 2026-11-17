@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Thomas Akehurst
+ * Copyright (C) 2017-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.matching.MatchResult.DiffDescription;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class DiffLine<V> {
 
@@ -72,11 +74,21 @@ class DiffLine<V> {
 
     if (pattern instanceof UrlPattern
         && pattern != UrlPattern.ANY
-        && !pattern.getExpected().startsWith("/")) {
+        && !pattern.getExpected().startsWith("/")
+        && !regexCanMatchLeadingSlash()) {
       message += ". URLs must start with a /";
     }
 
     return message;
+  }
+
+  private boolean regexCanMatchLeadingSlash() {
+    if (!isUrlRegexPattern()) {
+      return false;
+    }
+
+    Matcher matcher = Pattern.compile(pattern.getExpected(), Pattern.DOTALL).matcher("/");
+    return matcher.matches() || matcher.hitEnd();
   }
 
   private static boolean anyQuestionsMarksAreEscaped(String s) {
@@ -94,7 +106,7 @@ class DiffLine<V> {
   }
 
   private boolean isUrlRegexPattern() {
-    return pattern instanceof UrlPattern && ((UrlPattern) pattern).isRegex();
+    return pattern instanceof UrlPattern urlPattern && urlPattern.isRegex();
   }
 
   public List<DiffDescription> getDiffDescriptions() {

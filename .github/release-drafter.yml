@@ -1,2 +1,3 @@
 # Use https://github.com/wiremock/.github/blob/main/.github/release_drafter.yml
 _extends: .github
+include-pre-releases: true

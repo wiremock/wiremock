@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2025 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
-import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -121,7 +120,7 @@ public class TemplateEngine {
     }
 
     try {
-      return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
+      return cache.get(key, () -> getUncachedTemplate(content));
     } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
       return Exceptions.throwUnchecked(e.getCause(), null);
     }
@@ -176,7 +175,7 @@ public class TemplateEngine {
         adaptedHeaders,
         adaptedCookies,
         request.isMultipart(),
-        Body.ofBinaryOrText(request.getBody(), request.contentTypeHeader()),
+        request.getBodyEntity(),
         buildRequestPartModel(request));
   }
 
@@ -204,7 +203,7 @@ public class TemplateEngine {
                                 throw new IllegalStateException("Duplicate header name");
                               },
                               LinkedHashMap::new)),
-                  part.getBody()));
+                  part.getBodyEntity()));
         }
 
         return result;
@@ -225,10 +224,10 @@ public class TemplateEngine {
                                           throw new IllegalStateException("Duplicate header name");
                                         },
                                         LinkedHashMap::new)),
-                            part.getBody()),
-                    (e1, e2) -> {
-                      throw new IllegalStateException("Duplicate request part name");
-                    },
+                            part.getBodyEntity()),
+                    // A form may legitimately repeat a field name. Keep the first part,
+                    // as Request#getPart does, rather than failing the whole template.
+                    (e1, e2) -> e1,
                     LinkedHashMap::new));
       }
     }

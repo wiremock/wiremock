@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Thomas Akehurst
+ * Copyright (C) 2024-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,13 @@ class JsonArrayAddHelper extends HandlebarsHelper<Object> {
 
   @Override
   public String apply(Object inputJson, Options options) throws IOException {
-    if (!(inputJson instanceof String)) {
+    if (!(inputJson instanceof String string)) {
       return handleError("Base JSON must be a string");
     }
 
     DocumentContext root;
     try {
-      root = parseContext.parse((String) inputJson);
+      root = parseContext.parse(string);
     } catch (Exception e) {
       return handleError("Base JSON is not valid JSON ('" + inputJson + "')", e);
     }
@@ -79,13 +79,13 @@ class JsonArrayAddHelper extends HandlebarsHelper<Object> {
     } else {
       itemToAddString = options.params.length > 0 ? options.params[0] : null;
     }
-    if (!(itemToAddString instanceof String)) {
+    if (!(itemToAddString instanceof String itemString)) {
       return handleError("Item-to-add JSON must be a string");
     }
 
     Object toAdd;
     try {
-      toAdd = Json.read((String) itemToAddString, Object.class);
+      toAdd = Json.read(itemString, Object.class);
     } catch (Exception e) {
       return handleError("Item-to-add JSON is not valid JSON ('" + itemToAddString + "')", e);
     }
@@ -100,9 +100,9 @@ class JsonArrayAddHelper extends HandlebarsHelper<Object> {
         return handleError("flatten option must be a boolean");
       }
     }
-    if (flatten && toAdd instanceof Collection) {
+    if (flatten && toAdd instanceof Collection<?> collection) {
       //noinspection rawtypes,unchecked
-      ((List) currentList).addAll((Collection) toAdd);
+      ((List) currentList).addAll(collection);
     } else {
       //noinspection rawtypes,unchecked
       ((List) currentList).add(toAdd);
