@@ -44,15 +44,27 @@ class WireMockUrlModuleRegistrationTest {
 
   private Set<Class<?>> findPublicParsedStringSubtypes() {
     try (ScanResult scanResult =
-        new ClassGraph().enableClassInfo().acceptPackages("org.wiremock.url").scan()) {
+        new ClassGraph()
+            .enableClasspath()
+            .enableClassInfo()
+            .acceptPackages("org.wiremock.url")
+            .scan()) {
 
-      return scanResult.getClassesImplementing(ParsedString.class).stream()
+      return scanResult.getAllClassesImplementing(ParsedString.class).stream()
           .filter(classInfo -> Modifier.isPublic(classInfo.getModifiers()))
           .filter(ClassInfo::isInterface)
           .filter(classInfo -> !classInfo.getName().equals(ParsedString.class.getName()))
           .filter(classInfo -> !classInfo.getName().equals(PercentEncoded.class.getName()))
-          .map(ClassInfo::loadClass)
+          .map(WireMockUrlModuleRegistrationTest::loadClass)
           .collect(Collectors.toSet());
+    }
+  }
+
+  private static Class<?> loadClass(ClassInfo classInfo) {
+    try {
+      return Class.forName(classInfo.getName());
+    } catch (ClassNotFoundException e) {
+      throw new IllegalStateException(e);
     }
   }
 
