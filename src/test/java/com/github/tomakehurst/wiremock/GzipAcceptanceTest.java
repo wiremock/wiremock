@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Thomas Akehurst
+ * Copyright (C) 2015-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,28 @@ public class GzipAcceptanceTest {
       WireMockResponse response = testClient.post("/gzip-request", compressedBody);
 
       assertThat(response.content(), is("response body"));
+    }
+
+    @Test
+    public void acceptsAndLogsRequestLabelledGzipWhoseBodyIsNotGzipped() {
+      wireMockServer.stubFor(
+          post(urlEqualTo("/mislabelled-gzip-request"))
+              .withRequestBody(equalTo("request body"))
+              .willReturn(aResponse().withBody("response body")));
+
+      WireMockResponse response =
+          testClient.post(
+              "/mislabelled-gzip-request",
+              new StringEntity("request body", ContentType.TEXT_PLAIN),
+              withHeader("Content-Encoding", "gzip"));
+
+      assertThat(response.content(), is("response body"));
+
+      WireMockResponse requestLog = testClient.get("/__admin/requests");
+      assertThat(requestLog.statusCode(), is(200));
+      assertThat(
+          wireMockServer.getAllServeEvents().get(0).getRequest().getBodyAsString(),
+          is("request body"));
     }
   }
 
