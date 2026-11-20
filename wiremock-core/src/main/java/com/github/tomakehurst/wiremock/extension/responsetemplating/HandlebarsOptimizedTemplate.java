@@ -40,7 +40,7 @@ public class HandlebarsOptimizedTemplate {
     int firstDelimStartPosition = content.indexOf(Handlebars.DELIM_START);
     if (firstDelimStartPosition != -1) {
       int lastDelimEndPosition = content.lastIndexOf(Handlebars.DELIM_END);
-      if (lastDelimEndPosition != -1) {
+      if (lastDelimEndPosition > firstDelimStartPosition) {
         containsTemplateExpressions = true;
         startContent = content.substring(0, firstDelimStartPosition);
         templateContent =
