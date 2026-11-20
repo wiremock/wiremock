@@ -819,6 +819,8 @@ class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response = testClient.get("/__admin/docs/swagger");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), containsString("\"openapi\": \"3.0.0\""));
+    assertThat(response.content(), containsString("\"/__admin/scenarios/{name}/state\""));
+    assertThat(response.content(), containsString("\"setScenarioState\""));
   }
 
   @Test
