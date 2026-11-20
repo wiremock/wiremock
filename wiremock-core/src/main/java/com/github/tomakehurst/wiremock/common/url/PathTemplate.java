@@ -74,6 +74,11 @@ public class PathTemplate {
     renderer = rendererBuilder.build();
   }
 
+  public String literalPrefix() {
+    Matcher matcher = SPECIAL_SYMBOL_REGEX.matcher(templateString);
+    return matcher.find() ? templateString.substring(0, matcher.start()) : templateString;
+  }
+
   public boolean matches(String url) {
     return matches(PathAndQuery.parse(url).getPath());
   }
