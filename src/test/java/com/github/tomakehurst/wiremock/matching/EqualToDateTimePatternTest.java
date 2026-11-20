@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2021-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,31 @@ public class EqualToDateTimePatternTest {
 
     assertTrue(matcher.match("2021-06-14T12:13:14").isExactMatch());
     assertFalse(matcher.match("1921-06-14T12:13:14").isExactMatch());
+  }
+
+  @Test
+  public void matchesLocalDateTimeInCustomFormat() {
+    StringValuePattern matcher =
+        WireMock.equalToDateTime("2021-06-14T12:13:14").actualFormat("dd/MM/yyyy HH:mm:ss");
+
+    assertTrue(matcher.match("14/06/2021 12:13:14").isExactMatch());
+    assertFalse(matcher.match("14/06/1921 12:13:14").isExactMatch());
+  }
+
+  @Test
+  public void matchesLocalDateToLocalDate() {
+    StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14");
+
+    assertTrue(matcher.match("2021-06-14").isExactMatch());
+    assertFalse(matcher.match("1921-06-14").isExactMatch());
+  }
+
+  @Test
+  public void matchesLocalDateInCustomFormat() {
+    StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14").actualFormat("dd/MM/yyyy");
+
+    assertTrue(matcher.match("14/06/2021").isExactMatch());
+    assertFalse(matcher.match("14/06/1921").isExactMatch());
   }
 
   @Test
