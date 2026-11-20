@@ -41,7 +41,7 @@ public abstract class WebsocketAcceptanceTestBase extends AcceptanceTestBase {
   }
 
   protected String websocketUrl(String path) {
-    return "ws://localhost:" + wireMockServer.port() + path;
+    return "ws://localhost:" + serverPort() + path;
   }
 
   protected void waitForOpenChannels(String path, int count) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2025 Thomas Akehurst
+ * Copyright (C) 2011-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -299,7 +299,8 @@ public class VerificationAcceptanceTest {
     void verifiesWithBodyEquallingNamespacedXpath() {
       testClient.postWithBody(
           "/namespaced/xml",
-          "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>",
+          "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The"
+              + " stuff</s:subThing></t:thing>",
           "application/xml",
           "utf-8");
 
@@ -779,7 +780,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/custom-match-this");
       testClient.get("/custom-match-this");
 
-      wireMockServer.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
+      wm.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
     }
 
     @Test
@@ -787,7 +788,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/custom-match-this");
       testClient.get("/custom-match-that");
 
-      wireMockServer.verify(
+      wm.verify(
           2,
           requestMadeFor(
               new RequestMatcher() {
@@ -948,7 +949,7 @@ public class VerificationAcceptanceTest {
       testClient.get("/local-request-matcher-ext-this");
       testClient.get("/local-request-matcher-ext-that");
 
-      wireMockServer.verify(
+      wm.verify(
           2,
           requestMadeFor(
               "path-contains-param", Parameters.one("path", "local-request-matcher-ext")));

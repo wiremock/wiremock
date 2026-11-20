@@ -44,17 +44,17 @@ public class LooseUrlAcceptanceTest extends AcceptanceTestBase {
   private void proxyServerStart(WireMockConfiguration config) {
     proxyingService = new WireMockServer(config.dynamicPort());
     proxyingService.start();
-    proxyTargetUrl = "http://localhost:" + wireMockServer.port();
+    proxyTargetUrl = "http://localhost:" + serverPort();
     proxyingService.stubFor(
         proxyAllTo(proxyTargetUrl).withMetadata(metadata().attr("proxy", true)));
 
     client = new OkHttpClient();
-    wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
+    wm.stubFor(any(anyUrl()).willReturn(ok()));
   }
 
   @BeforeEach
   public void clearTargetServerMappings() {
-    wireMockServer.resetMappings();
+    admin().resetMappings();
   }
 
   @AfterEach
@@ -72,7 +72,7 @@ public class LooseUrlAcceptanceTest extends AcceptanceTestBase {
             .newCall(new Builder().url(proxyingService.baseUrl() + "/foo/bar?q={}").build())
             .execute();
     assertThat(response.code()).isEqualTo(200);
-    List<ServeEvent> proxyTargetServeEvents = wireMockServer.getAllServeEvents();
+    List<ServeEvent> proxyTargetServeEvents = wm.getAllServeEvents();
     assertThat(proxyTargetServeEvents).hasSize(1);
     LoggedRequest targetRequest = proxyTargetServeEvents.get(0).getRequest();
     assertThat(targetRequest.getUrl()).isEqualTo("/foo/bar?q=%7B%7D");

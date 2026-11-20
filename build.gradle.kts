@@ -1,7 +1,7 @@
-
 import com.github.gundy.semver4j.model.Version
 import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.Container
+import java.net.URLClassLoader
 
 buildscript {
   repositories {
@@ -178,6 +178,188 @@ tasks {
 tasks.test {
   // Without this the archunit tests fail. I do not know why.
   classpath += sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
+}
+
+// Runs the AcceptanceTestBase suites against WireMock launched as a separate process, so that the
+// standalone JVM jar and the GraalVM native binary are held to the same behaviour.
+// -PnativeAgent runs the JVM target under the GraalVM tracing agent to harvest reachability metadata.
+// RecordingDslAcceptanceTest is left out: it records through an in-process proxy, not the external server.
+val externalAcceptanceTests = listOf(
+  "com.github.tomakehurst.wiremock.AdminApiTest",
+  "com.github.tomakehurst.wiremock.BasicAuthAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ChannelProviderApiAcceptanceTest",
+  "com.github.tomakehurst.wiremock.CookieMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.DateHeaderAcceptanceTest",
+  "com.github.tomakehurst.wiremock.DebugHeadersAcceptanceTest",
+  "com.github.tomakehurst.wiremock.EditMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.EditStubMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.FaultsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.FixedMessageChannelAcceptanceTest",
+  "com.github.tomakehurst.wiremock.GlobalSettingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.GzipAcceptanceTest",
+  "com.github.tomakehurst.wiremock.HeaderMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.JsonSchemaMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.LogTimingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.LooseUrlAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MessageChannelApiValidationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MessageMappingValidationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.MultipartBodyMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.NearMissesAcceptanceTest",
+  "com.github.tomakehurst.wiremock.NetworkTrafficListenerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.QueuedThreadPoolAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RecordApiAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RecorderServeEventTransformerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoteMappingsLoaderAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoveStubMappingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.RemoveStubMappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SavingMappingsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ScenarioAcceptanceTest",
+  "com.github.tomakehurst.wiremock.ServeEventLogAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SseAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StandaloneAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StandaloneDistributionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubImportAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubMetadataAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubRequestLoggingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.StubbingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.SubServeEventsAcceptanceTest",
+  "com.github.tomakehurst.wiremock.UrlMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.UrlPathTemplateMatchingTest",
+  "com.github.tomakehurst.wiremock.VerificationAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketConnectionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketHttpTriggerAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageJournalAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageStubAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketStubMatchingAcceptanceTest",
+  "com.github.tomakehurst.wiremock.extension.ExtensionLifeCycleAcceptanceTest",
+)
+
+// Tests that depend on in-process state, or on HttpAdminClient defects that the in-process client hides
+val externalAcceptanceTestExclusions = listOf(
+  "com.github.tomakehurst.wiremock.AdminApiTest.getVersionRequest*",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.textEntityDefinitionWithDataStore*",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.textEntityDefinitionWithFilePathResolvesFromFilesStore",
+  "com.github.tomakehurst.wiremock.WebsocketEntityDefinitionAcceptanceTest.binaryMessageFromDataStoreCanBeSentAsResponse",
+  // HttpAdminClient cannot deserialise SendChannelMessageResult ("channelsMessaged")
+  "com.github.tomakehurst.wiremock.WebsocketConnectionAcceptanceTest",
+  "com.github.tomakehurst.wiremock.WebsocketMessageJournalAcceptanceTest.messageJournalRecordsSentEventWhenMessageSentViaApi*",
+  // HttpAdminClient fails on the empty 404 body instead of returning an empty result
+  "com.github.tomakehurst.wiremock.WebsocketMessageStubAcceptanceTest.*ReturnsFalseIsPresentWhenNotFound",
+)
+
+fun registerExternalAcceptanceTest(name: String, targetTask: String, command: Test.() -> List<String>) =
+  tasks.register<Test>(name) {
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = tasks.test.get().classpath
+    systemProperty("user.timezone", "Australia/Sydney")
+    filter {
+      externalAcceptanceTests.forEach { includeTestsMatching(it) }
+      externalAcceptanceTestExclusions.forEach { excludeTestsMatching(it) }
+      isFailOnNoMatchingTests = false
+    }
+    dependsOn(targetTask)
+    outputs.upToDateWhen { false }
+    val testTask = this
+    // One argument per line, so paths may contain spaces
+    doFirst { testTask.systemProperty("wiremock.acceptance.externalCommand", testTask.command().joinToString("\n")) }
+  }
+
+val standaloneJar = layout.projectDirectory.file("wiremock-standalone/build/libs/wiremock-standalone-$version.jar")
+val nativeBinaryName = if (System.getProperty("os.name").startsWith("Windows")) "wiremock.exe" else "wiremock"
+val nativeBinary = layout.projectDirectory.file("wiremock-standalone/build/native/nativeCompile/$nativeBinaryName")
+val nativeAgentDir = layout.projectDirectory.dir("wiremock-standalone/build/native-agent")
+
+val traceWithNativeAgent = providers.gradleProperty("nativeAgent").isPresent
+
+if (traceWithNativeAgent) {
+  tasks.test {
+    val callerFilter = file("wiremock-standalone/src/native-agent/caller-filter.json")
+    jvmArgs("-agentlib:native-image-agent=config-output-dir=${nativeAgentDir.asFile.absolutePath}/test-{pid},caller-filter-file=$callerFilter")
+  }
+}
+
+registerExternalAcceptanceTest(
+  "standaloneJvmAcceptanceTest",
+  if (traceWithNativeAgent) "classes" else ":wiremock-standalone:shadowJar",
+) {
+  val java = javaLauncher.get().executablePath.asFile.absolutePath
+  if (traceWithNativeAgent) {
+    // The agent must see the same unrelocated classes and extra resources that the native image is built from
+    val agentOutput = "${nativeAgentDir.asFile.absolutePath}/standalone-{pid}"
+    listOf(java, "-agentlib:native-image-agent=config-output-dir=$agentOutput", "-cp", (sourceSets.main.get().runtimeClasspath + files("wiremock-standalone/src/native-image/resources")).asPath, "wiremock.Run")
+  } else {
+    listOf(java, "-jar", standaloneJar.asFile.absolutePath)
+  }
+}
+
+registerExternalAcceptanceTest("nativeAcceptanceTest", ":wiremock-standalone:nativeCompile") {
+  listOf(nativeBinary.asFile.absolutePath)
+}
+
+// Regenerating the metadata:
+//   ./gradlew test standaloneJvmAcceptanceTest -PnativeAgent   (traces the in-process suite and the standalone process)
+//   ./gradlew updateNativeMetadata                    (merges the traces into src/native-image/generated)
+// Entries for types that only exist on the test classpath are dropped, because the tests share packages with main.
+val updateNativeMetadata by tasks.registering {
+  group = "native"
+  description = "Merges native-image-agent traces into src/native-image/generated, dropping test-only entries"
+  val agentOutput = nativeAgentDir
+  val metadataFile = file("wiremock-standalone/src/native-image/generated/reachability-metadata.json")
+  val runtimeClasspath = sourceSets.main.get().runtimeClasspath
+  val testClasspath = sourceSets.test.get().runtimeClasspath
+  val javaHome = providers.environmentVariable("GRAALVM_HOME").orElse(providers.systemProperty("java.home"))
+  doLast {
+    // A trace without a metadata file (only the agent's .lock) is from a process that was killed mid-write
+    val traces = agentOutput.asFile.listFiles { f -> f.resolve("reachability-metadata.json").exists() }
+      .orEmpty().sorted()
+    require(traces.isNotEmpty()) { "No agent traces in $agentOutput; run the tests with -PnativeAgent first" }
+    val merged = temporaryDir.resolve("merged").apply { deleteRecursively() }
+    providers.exec {
+      commandLine(
+        listOf("${javaHome.get()}/bin/native-image-configure", "generate", "--output-dir=$merged") +
+          traces.map { "--input-dir=$it" },
+      )
+    }.result.get().assertNormalExitValue()
+
+    fun loaderOf(files: Iterable<File>) =
+      URLClassLoader(files.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getPlatformClassLoader())
+    val runtime = loaderOf(runtimeClasspath)
+    val test = loaderOf(testClasspath)
+    // Entries are kept unless they only exist for the tests. Lookups that failed everywhere stay too:
+    // they are probes for optional classes and services, which exact metadata must also record.
+    fun keep(path: String) = runtime.getResource(path) != null || test.getResource(path) == null
+    fun classFile(type: String) = type.substringBefore("[").replace('.', '/') + ".class"
+    fun keepType(type: Any?): Boolean = when (type) {
+      is String -> keep(classFile(type))
+      is Map<*, *> -> (type["proxy"] as? List<*>).orEmpty().all { keepType(it) }
+      else -> true
+    }
+    fun keepResource(entry: Any?): Boolean {
+      val glob = (entry as? Map<*, *>)?.get("glob") as? String ?: return true
+      // Class files read as resources come from bytecode tooling in the tests (ArchUnit, ByteBuddy)
+      return !glob.endsWith(".class") && (glob.contains('*') || keep(glob))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    val metadata = groovy.json.JsonSlurper().parse(merged.resolve("reachability-metadata.json")) as MutableMap<String, Any?>
+    listOf("reflection", "jni").forEach { key ->
+      (metadata[key] as? List<*>)?.let { entries -> metadata[key] = entries.filter { keepType((it as Map<*, *>)["type"]) } }
+    }
+    (metadata["resources"] as? List<*>)?.let { entries -> metadata["resources"] = entries.filter(::keepResource) }
+    runtime.close()
+    test.close()
+
+    metadataFile.parentFile.mkdirs()
+    metadataFile.writeText(
+      // Two-space indentation to match the gson formatting spotless applies to src/**/*.json
+      groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata))
+        .replace(Regex("\\[\\s+]"), "[]")
+        .replace(Regex("(?m)^( {4})+")) { " ".repeat(it.value.length / 2) } + "\n",
+    )
+  }
 }
 
 val testJar by tasks.registering(Jar::class) {

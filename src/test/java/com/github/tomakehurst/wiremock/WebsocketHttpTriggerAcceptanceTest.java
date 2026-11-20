@@ -75,7 +75,7 @@ public class WebsocketHttpTriggerAcceptanceTest extends WebsocketAcceptanceTestB
             .withId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
             .willReturn(aResponse().withStatus(200).withBody("OK")));
 
-    wireMockServer.messageStubFor(
+    wm.messageStubFor(
         message()
             .withName("HTTP stub triggered message")
             .triggeredByHttpStub("11111111-2222-3333-4444-555555555555")

@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
@@ -45,8 +44,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
 public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
-
-  static Stubbing dsl = wireMockServer;
 
   @Test
   public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
@@ -151,7 +148,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void getsAllServeEvents() {
-    dsl.stubFor(
+    wm.stubFor(
         get(urlPathEqualTo("/two")).willReturn(aResponse().withStatus(200).withBody("Exactly 2")));
 
     testClient.get("/one");
@@ -178,7 +175,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void getAllServeEventsPreservesBinaryBody() {
-    dsl.stubFor(
+    wm.stubFor(
         any(anyUrl())
             .willReturn(aResponse().withBody(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)));
 
@@ -192,7 +189,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void getsAllServeEventsThatWereUnmatched() {
-    dsl.stubFor(get("/match").willReturn(ok()));
+    wm.stubFor(get("/match").willReturn(ok()));
 
     testClient.get("/match");
     testClient.get("/no-match");

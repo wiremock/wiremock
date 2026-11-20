@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Thomas Akehurst
+ * Copyright (C) 2018-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void returnsMatchedStubIdHeaderWhenStubMatched() {
     UUID stubId = UUID.randomUUID();
-    wireMockServer.stubFor(get("/the-match").withId(stubId).willReturn(ok()));
+    wm.stubFor(get("/the-match").withId(stubId).willReturn(ok()));
 
     WireMockResponse response = testClient.get("/the-match");
 
@@ -45,7 +45,7 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
     UUID stubId = UUID.randomUUID();
     String name = "My Stub";
 
-    wireMockServer.stubFor(get("/the-match").withId(stubId).withName(name).willReturn(ok()));
+    wm.stubFor(get("/the-match").withId(stubId).withName(name).willReturn(ok()));
 
     WireMockResponse response = testClient.get("/the-match");
 
@@ -63,7 +63,7 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void nonAsciiCharactersAreReplacedByQuestionMarksInStubNameHeader() {
-    wireMockServer.stubFor(any(anyUrl()).withName("start Запрос ?? åéã end").willReturn(ok()));
+    wm.stubFor(any(anyUrl()).withName("start Запрос ?? åéã end").willReturn(ok()));
 
     WireMockResponse response = testClient.get("/the-match");
     assertThat(response.firstHeader("Matched-Stub-Name"), is("start ?????? ?? ??? end"));
