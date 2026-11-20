@@ -57,7 +57,7 @@ public class PartParser {
     } catch (FileUploadException e) {
       // A body that cannot be parsed as multipart content must not fail the whole
       // request. Treat it as having no parts so the request can still be served,
-      // matched and recorded. Fixes https://github.com/wiremock/wiremock/issues/3133
+      // matched and recorded.
       LocalNotifier.notifier()
           .error(
               "Failed to parse multipart request body, treating it as having no parts: "
