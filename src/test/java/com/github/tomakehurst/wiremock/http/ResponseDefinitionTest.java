@@ -726,4 +726,72 @@ public class ResponseDefinitionTest {
             "Cannot open a channel of type fixed from a response. "
                 + "Only request-initiated channel types (websocket, sse) can be opened"));
   }
+
+  @Test
+  public void numericStatusRoundTripsAsJsonNumber() {
+    ResponseDefinition responseDefinition =
+        Json.read(
+            // language=json
+            """
+            {
+              "status": 201
+            }
+            """,
+            ResponseDefinition.class);
+
+    assertThat(responseDefinition.getStatus(), is(201));
+    assertThat(responseDefinition.getStatusTemplate(), nullValue());
+    assertThat(
+        Json.write(responseDefinition),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "status": 201
+            }
+            """));
+  }
+
+  @Test
+  public void numericStringStatusIsTreatedAsNumber() {
+    ResponseDefinition responseDefinition =
+        Json.read(
+            // language=json
+            """
+            {
+              "status": "202"
+            }
+            """,
+            ResponseDefinition.class);
+
+    assertThat(responseDefinition.getStatus(), is(202));
+    assertThat(responseDefinition.getStatusTemplate(), nullValue());
+  }
+
+  @Test
+  public void templatedStatusRoundTripsAsJsonString() {
+    ResponseDefinition responseDefinition =
+        Json.read(
+            // language=json
+            """
+            {
+              "status": "{{request.path.status}}"
+            }
+            """,
+            ResponseDefinition.class);
+
+    assertThat(responseDefinition.getStatusTemplate(), is("{{request.path.status}}"));
+    assertThat(
+        Json.write(responseDefinition),
+        jsonEquals(
+            // language=json
+            """
+            {
+              "status": "{{request.path.status}}"
+            }
+            """));
+    assertThat(responseDefinition.toBuilder().build(), is(responseDefinition));
+    assertThat(
+        responseDefinition.toBuilder().setStatus(404).build().getStatusTemplate(), nullValue());
+  }
 }

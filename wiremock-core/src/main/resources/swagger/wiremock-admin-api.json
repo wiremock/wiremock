@@ -3612,8 +3612,15 @@
             "type": "object",
             "properties": {
               "status": {
-                "type": "integer",
-                "description": "The HTTP status code to be returned"
+                "oneOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "description": "The HTTP status code to be returned. May be a Handlebars template string when response templating is applied, e.g. \"{{request.path.status}}\"."
               },
               "statusMessage": {
                 "type": "string",

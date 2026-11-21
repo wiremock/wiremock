@@ -75,6 +75,21 @@ public class ResponseTemplateTransformer
       final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
 
+      if (responseDefinition.getStatusTemplate() != null) {
+        HandlebarsOptimizedTemplate statusTemplate =
+            templateEngine.getTemplate(
+                HttpTemplateCacheKey.forStatus(responseDefinition),
+                responseDefinition.getStatusTemplate());
+        String renderedStatus = uncheckedApplyTemplate(statusTemplate, model).trim();
+        Integer status = parseStatus(renderedStatus);
+        if (status == null) {
+          return errorResponse(
+              serveEvent,
+              "[ERROR] Templated response status '" + renderedStatus + "' is not an integer");
+        }
+        newResponseDefBuilder.withStatus(status);
+      }
+
       EntityDefinition bodyDefinition = responseDefinition.getBodyEntity();
       HttpTemplateCacheKey templateCacheKey;
       if (bodyDefinition.isFromFile()) {
@@ -159,12 +174,20 @@ public class ResponseTemplateTransformer
         return newResponseDefBuilder.build();
       }
     } catch (HandlebarsException he) {
-      final String message = cleanUpHandlebarsErrorMessage(he);
-      serveEvent.appendSubEvent(SubEvent.error(message));
-      return serverError()
-          .withHeader(ContentTypeHeader.KEY, "text/plain")
-          .withBody(message)
-          .build();
+      return errorResponse(serveEvent, cleanUpHandlebarsErrorMessage(he));
+    }
+  }
+
+  private static ResponseDefinition errorResponse(ServeEvent serveEvent, String message) {
+    serveEvent.appendSubEvent(SubEvent.error(message));
+    return serverError().withHeader(ContentTypeHeader.KEY, "text/plain").withBody(message).build();
+  }
+
+  private static Integer parseStatus(String status) {
+    try {
+      return Integer.parseInt(status);
+    } catch (NumberFormatException e) {
+      return null;
     }
   }
 

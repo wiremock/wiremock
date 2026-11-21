@@ -37,6 +37,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
 public class ResponseTemplatingAcceptanceTest {
@@ -91,6 +93,136 @@ public class ResponseTemplatingAcceptanceTest {
               .willReturn(aResponse().withBody("{{request.path.[0]}}")));
 
       assertThat(client.get("/not-templated").content(), is("{{request.path.[0]}}"));
+    }
+
+    @Test
+    public void templatesResponseStatusFromRequestPath() {
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "urlPathTemplate": "/response-status/{status}"
+            },
+            "response": {
+              "status": "{{request.path.status}}",
+              "transformers": ["response-template"]
+            }
+          }
+          """);
+
+      assertThat(client.get("/response-status/201").statusCode(), is(201));
+      assertThat(client.get("/response-status/418").statusCode(), is(418));
+    }
+
+    @Test
+    public void returnsServerErrorWhenTemplatedStatusIsNotAnInteger() {
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "urlPathTemplate": "/response-status/{status}"
+            },
+            "response": {
+              "status": "{{request.path.status}}",
+              "transformers": ["response-template"]
+            }
+          }
+          """);
+
+      WireMockResponse notANumber = client.get("/response-status/banana");
+      assertThat(notANumber.statusCode(), is(500));
+      assertThat(
+          notANumber.content(), is("[ERROR] Templated response status 'banana' is not an integer"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {999, 0, -1})
+    public void templatedStatusIsHandledTheSameAsALiteralStatus(int status) {
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "urlPathTemplate": "/response-status/{status}"
+            },
+            "response": {
+              "status": "{{request.path.status}}",
+              "transformers": ["response-template"]
+            }
+          }
+          """);
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "url": "/literal-status"
+            },
+            "response": {
+              "status": %d
+            }
+          }
+          """
+              .formatted(status));
+
+      assertThat(
+          client.get("/response-status/" + status).statusCode(),
+          is(client.get("/literal-status").statusCode()));
+    }
+
+    @Test
+    public void returnsServerErrorWhenStatusTemplateIsNotRendered() {
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "urlPathTemplate": "/untemplated-status/{status}"
+            },
+            "response": {
+              "status": "{{request.path.status}}"
+            }
+          }
+          """);
+
+      WireMockResponse response = client.get("/untemplated-status/201");
+      assertThat(response.statusCode(), is(500));
+      assertThat(
+          response.content(),
+          is(
+              "[ERROR] Response status template '{{request.path.status}}' was not rendered. Add the response-template transformer to the stub or enable global templating"));
+    }
+
+    @Test
+    public void numericResponseStatusInJsonStillWorks() {
+      client.postJson(
+          "/__admin/mappings",
+          // language=json
+          """
+          {
+            "request": {
+              "method": "GET",
+              "url": "/numeric-status"
+            },
+            "response": {
+              "status": 202
+            }
+          }
+          """);
+
+      assertThat(client.get("/numeric-status").statusCode(), is(202));
     }
   }
 
