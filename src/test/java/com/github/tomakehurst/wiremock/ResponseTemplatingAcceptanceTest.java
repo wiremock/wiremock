@@ -92,6 +92,48 @@ public class ResponseTemplatingAcceptanceTest {
 
       assertThat(client.get("/not-templated").content(), is("{{request.path.[0]}}"));
     }
+
+    @Test
+    public void resolvesLiteralDottedQueryKeysWithLookupSimple() {
+      wm.stubFor(
+          get(urlPathEqualTo("/literal-lookup"))
+              .willReturn(
+                  aResponse()
+                      .withBody(
+                          "{{lookupSimple request.query 'things.something' assign='queryValues'}}"
+                              + "{{arrayJoin '|' queryValues}}")
+                      .withHeader("X-First", "{{lookupSimple request.query 'things.something'}}")
+                      .withTransformers("response-template")));
+
+      WireMockResponse response =
+          client.get("/literal-lookup?things.something=one&things.something=two");
+
+      assertThat(response.content(), response.statusCode(), is(200));
+      assertThat(response.content(), is("one|two"));
+      assertThat(response.firstHeader("X-First"), is("one"));
+      assertThat(client.get("/literal-lookup?things.something=only").content(), is("only"));
+    }
+
+    @Test
+    public void preservesJsonValuesAssignedWithLookupSimple() {
+      wm.stubFor(
+          post(urlPathEqualTo("/json-lookup"))
+              .willReturn(
+                  aResponse()
+                      .withBody(
+                          "{{parseJson request.body 'data'}}"
+                              + "{{lookupSimple data 'items.values' assign='items'}}"
+                              + "{{lookupSimple data 'response.enabled' assign='enabled'}}"
+                              + "{\"values\":{{{toJson items}}},\"flag\": {{{toJson enabled}}} }")
+                      .withTransformers("response-template")));
+
+      WireMockResponse response =
+          client.postWithBody(
+              "/json-lookup", "{\"items.values\":[1,2],\"response.enabled\":false}");
+
+      assertThat(response.content(), response.statusCode(), is(200));
+      assertThat(response.content(), jsonEquals("{\"values\":[1,2],\"flag\":false}"));
+    }
   }
 
   @Nested
