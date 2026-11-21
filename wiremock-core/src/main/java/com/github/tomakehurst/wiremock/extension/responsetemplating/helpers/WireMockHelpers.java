@@ -109,6 +109,22 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
 
+  normaliseWhitespace {
+    private final NormaliseWhitespaceHelper helper = new NormaliseWhitespaceHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
+  },
+
+  normalizeWhitespace {
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return normaliseWhitespace.apply(context, options);
+    }
+  },
+
   base64 {
     private final Base64Helper helper = new Base64Helper();
 
