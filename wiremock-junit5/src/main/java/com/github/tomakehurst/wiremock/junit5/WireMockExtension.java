@@ -275,6 +275,9 @@ public class WireMockExtension extends DslWrapper
     if (wireMockServer != null && wireMockServer.isRunning()) {
       wireMockServer.stop();
     }
+    if (configureStaticDsl) {
+      WireMock.clearDefaultInstanceFor(this);
+    }
   }
 
   private boolean parameterIsWireMockRuntimeInfo(ParameterContext parameterContext) {
