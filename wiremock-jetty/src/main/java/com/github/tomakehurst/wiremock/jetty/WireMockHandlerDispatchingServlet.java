@@ -27,6 +27,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -54,6 +55,8 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.jetty.ee11.websocket.server.JettyWebSocketServerContainer;
@@ -228,23 +231,25 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       scheduledExecutorService.schedule(
           () -> {
             try {
-              respondTo(request, response);
-            } finally {
+              respondTo(request, response)
+                  .whenComplete((ignored, failure) -> asyncContext.complete());
+            } catch (Throwable e) {
               asyncContext.complete();
+              throw e;
             }
           },
           response.getInitialDelay(),
           MILLISECONDS);
     }
 
-    private void respondTo(Request request, Response response) {
+    private CompletionStage<Void> respondTo(Request request, Response response) {
       try {
         if (response.wasConfigured() && response.getOpenChannelOfType() == ChannelType.WEBSOCKET) {
           performWebSocketUpgrade(request);
         } else if (response.wasConfigured() && response.getOpenChannelOfType() == ChannelType.SSE) {
           performEventStream(request);
         } else if (response.wasConfigured()) {
-          applyResponse(response, httpServletRequest, httpServletResponse);
+          return applyResponse(response, httpServletRequest, httpServletResponse);
         } else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
           forwardToFilesContext(httpServletRequest, httpServletResponse, request);
         } else {
@@ -253,6 +258,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       } catch (Exception e) {
         throwUnchecked(e);
       }
+      return completedFuture(null);
     }
 
     private void performWebSocketUpgrade(Request request) {
@@ -320,7 +326,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     }
   }
 
-  public void applyResponse(
+  public CompletionStage<Void> applyResponse(
       Response response,
       HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse) {
@@ -329,7 +335,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
       fault.apply(faultInjector);
       httpServletResponse.addHeader(Fault.class.getName(), fault.name());
-      return;
+      return completedFuture(null);
     }
 
     httpServletResponse.setStatus(response.getStatus());
@@ -348,10 +354,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     final InputStream bodyStream = response.getBodyEntity().getStreamSource().getStream();
     if (response.shouldAddChunkedDribbleDelay()) {
-      writeAndTranslateExceptionsWithChunkedDribbleDelay(
-          httpServletResponse, bodyStream, response.getChunkedDribbleDelay());
+      return writeAndTranslateExceptionsWithChunkedDribbleDelay(
+          httpServletRequest, httpServletResponse, bodyStream, response.getChunkedDribbleDelay());
     } else {
       writeAndTranslateExceptions(httpServletResponse, bodyStream);
+      return completedFuture(null);
     }
   }
 
@@ -376,34 +383,78 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     }
   }
 
-  private void writeAndTranslateExceptionsWithChunkedDribbleDelay(
+  private CompletionStage<Void> writeAndTranslateExceptionsWithChunkedDribbleDelay(
+      HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse,
       InputStream bodyStream,
       ChunkedDribbleDelay chunkedDribbleDelay) {
-    try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
+    try {
+      ServletOutputStream out = httpServletResponse.getOutputStream();
       byte[] body = bodyStream.readAllBytes();
 
       if (body.length < 1) {
         notifier.error("Cannot chunk dribble delay when no body set");
-        out.flush();
-        return;
+        out.close();
+        return completedFuture(null);
       }
 
       byte[][] chunkedBody = BodyChunker.chunkBody(body, chunkedDribbleDelay.getNumberOfChunks());
 
       int chunkInterval = chunkedDribbleDelay.getTotalDuration() / chunkedBody.length;
 
-      for (byte[] bodyChunk : chunkedBody) {
-        Thread.sleep(chunkInterval);
-        out.write(bodyChunk);
-        out.flush();
+      if (httpServletRequest.isAsyncStarted()) {
+        return scheduleChunks(out, chunkedBody, 0, chunkInterval)
+            .whenComplete((ignored, failure) -> closeQuietly(out));
       }
 
+      try (out) {
+        for (byte[] bodyChunk : chunkedBody) {
+          Thread.sleep(chunkInterval);
+          out.write(bodyChunk);
+          out.flush();
+        }
+      }
     } catch (IOException e) {
       throwUnchecked(e);
     } catch (InterruptedException ignored) {
       // Ignore the interrupt quietly since it's probably the client timing out, which is a
       // completely valid outcome
+    }
+    return completedFuture(null);
+  }
+
+  private CompletableFuture<Void> scheduleChunks(
+      ServletOutputStream out, byte[][] chunks, int index, int chunkInterval) {
+    return index == chunks.length
+        ? completedFuture(null)
+        : writeAfter(chunkInterval, out, chunks[index])
+            .thenCompose(ignored -> scheduleChunks(out, chunks, index + 1, chunkInterval));
+  }
+
+  @SuppressWarnings("FutureReturnValueIgnored")
+  private CompletableFuture<Void> writeAfter(
+      int delayMillis, ServletOutputStream out, byte[] chunk) {
+    CompletableFuture<Void> written = new CompletableFuture<>();
+    scheduledExecutorService.schedule(
+        () -> {
+          try {
+            out.write(chunk);
+            out.flush();
+            written.complete(null);
+          } catch (Exception e) {
+            written.completeExceptionally(e);
+          }
+        },
+        delayMillis,
+        MILLISECONDS);
+    return written;
+  }
+
+  private static void closeQuietly(ServletOutputStream out) {
+    try {
+      out.close();
+    } catch (IOException e) {
+      // client has probably gone away
     }
   }
 
