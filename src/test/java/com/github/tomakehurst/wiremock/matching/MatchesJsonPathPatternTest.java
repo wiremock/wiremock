@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -367,6 +367,12 @@ public class MatchesJsonPathPatternTest {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", absent());
     MatchResult match = pattern.match(json);
     assertTrue(match.isExactMatch());
+  }
+
+  @Test
+  public void doesNotMatchPresentExpressionResultAgainstAbsentValuePattern() {
+    MatchResult match = WireMock.matchingJsonPath("$.foo", absent()).match("{\"foo\": []}");
+    assertFalse(match.isExactMatch());
   }
 
   @Test
