@@ -175,7 +175,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   public void stop() {
-    httpServer.stop();
+    try {
+      httpServer.stop();
+    } finally {
+      WireMock.clearDefaultInstanceFor(this);
+    }
   }
 
   public WireMockServer startServer() {

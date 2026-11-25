@@ -108,16 +108,21 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.networknt.schema.SpecificationVersion;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.wiremock.annotations.InternalAPI;
 import org.wiremock.annotations.PublishedAPI;
 import org.wiremock.url.Path;
 import org.wiremock.url.PathAndQuery;
@@ -133,13 +138,95 @@ public class WireMock {
 
   private final SettingsStore settingsStore = new InMemorySettingsStore();
 
-  private static final InheritableThreadLocal<WireMock> defaultInstance =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected WireMock initialValue() {
-          return WireMock.create().build();
+  private static final DefaultInstanceThreadLocal defaultInstance =
+      new DefaultInstanceThreadLocal();
+
+  private static final class DefaultInstanceHolder {
+    private final WeakReference<Thread> ownerThread;
+    private volatile WireMock instance;
+
+    private DefaultInstanceHolder(Thread ownerThread, WireMock instance) {
+      this.ownerThread = new WeakReference<>(ownerThread);
+      this.instance = instance;
+    }
+
+    private void clear() {
+      this.instance = null;
+    }
+  }
+
+  private static final class DefaultInstanceThreadLocal {
+    private static final InheritableThreadLocal<DefaultInstanceHolder> threadLocal =
+        new InheritableThreadLocal<>();
+    private static final Map<Admin, Set<WeakReference<DefaultInstanceHolder>>> holdersByAdmin =
+        Collections.synchronizedMap(new WeakHashMap<>());
+
+    WireMock get() {
+      DefaultInstanceHolder holder = threadLocal.get();
+      WireMock instance = holder != null ? holder.instance : null;
+      if (instance == null) {
+        instance = WireMock.create().build();
+        set(instance);
+      }
+      return instance;
+    }
+
+    void set(WireMock client) {
+      DefaultInstanceHolder previous = threadLocal.get();
+      if (previous != null && previous.ownerThread.get() == Thread.currentThread()) {
+        previous.clear();
+      }
+      if (client == null) {
+        threadLocal.remove();
+        return;
+      }
+      DefaultInstanceHolder holder = new DefaultInstanceHolder(Thread.currentThread(), client);
+      threadLocal.set(holder);
+      registerHolder(client.admin, holder);
+    }
+
+    private void registerHolder(Admin admin, DefaultInstanceHolder holder) {
+      if (admin == null) {
+        return;
+      }
+      synchronized (holdersByAdmin) {
+        Set<WeakReference<DefaultInstanceHolder>> holders =
+            holdersByAdmin.computeIfAbsent(admin, k -> new HashSet<>());
+        holders.removeIf(ref -> ref.get() == null);
+        holders.add(new WeakReference<>(holder));
+      }
+    }
+
+    void clearFor(Admin admin) {
+      if (admin == null) {
+        return;
+      }
+      Set<WeakReference<DefaultInstanceHolder>> holders;
+      synchronized (holdersByAdmin) {
+        holders = holdersByAdmin.remove(admin);
+      }
+      if (holders != null) {
+        for (WeakReference<DefaultInstanceHolder> ref : holders) {
+          DefaultInstanceHolder holder = ref.get();
+          if (holder != null) {
+            holder.clear();
+          }
         }
-      };
+      }
+      DefaultInstanceHolder current = threadLocal.get();
+      if (current != null && current.instance == null) {
+        threadLocal.remove();
+      }
+    }
+  }
+
+  @InternalAPI(
+      justification =
+          "Used by WireMockServer and WireMockExtension to release defaultInstance references on"
+              + " stop")
+  public static void clearDefaultInstanceFor(Admin admin) {
+    defaultInstance.clearFor(admin);
+  }
 
   public static WireMockBuilder create() {
     return new WireMockBuilder();
