@@ -30,8 +30,10 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -39,6 +41,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
 public class SSLContextBuilder {
@@ -120,12 +123,31 @@ public class SSLContextBuilder {
 
   public SSLContextBuilder loadKeyMaterial(final KeyStore keystore, final char[] keyPassword)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+    return loadKeyMaterial(keystore, keyPassword, Collections.emptyMap());
+  }
+
+  /**
+   * Like {@link #loadKeyMaterial(KeyStore, char[])}, but the client certificate presented to a host
+   * listed in {@code clientKeyAliasesByHost} is the key store entry with the mapped alias, instead
+   * of the one the JDK would pick from the server's certificate request.
+   */
+  public SSLContextBuilder loadKeyMaterial(
+      final KeyStore keystore,
+      final char[] keyPassword,
+      final Map<String, String> clientKeyAliasesByHost)
+      throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
     final KeyManagerFactory kmfactory =
         KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
     kmfactory.init(keystore, keyPassword);
     final KeyManager[] kms = kmfactory.getKeyManagers();
     if (kms != null) {
-      addAll(keyManagers, kms);
+      for (KeyManager km : kms) {
+        if (!clientKeyAliasesByHost.isEmpty() && km instanceof X509ExtendedKeyManager x509Km) {
+          keyManagers.add(new HostSelectingX509KeyManager(x509Km, clientKeyAliasesByHost));
+        } else {
+          keyManagers.add(km);
+        }
+      }
     }
     return this;
   }
