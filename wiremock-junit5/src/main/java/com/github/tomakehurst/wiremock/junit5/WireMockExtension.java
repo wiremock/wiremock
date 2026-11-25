@@ -21,6 +21,9 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.github.tomakehurst.wiremock.junit.DslWrapper;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
@@ -50,6 +53,8 @@ public class WireMockExtension extends DslWrapper
   private WireMockRuntimeInfo runtimeInfo;
   private boolean isNonStatic = false;
   private Boolean proxyMode;
+  private String serverOwnerContextId;
+  private final Map<String, ServerState> serversReplacedByNestedClasses = new HashMap<>();
 
   public WireMockExtension() {
     configureStaticDsl = true;
@@ -219,6 +224,7 @@ public class WireMockExtension extends DslWrapper
     if (wireMockServer == null || !wireMockServer.isRunning()) {
       wireMockServer = new WireMockServer(resolveOptions(extensionContext));
       wireMockServer.start();
+      serverOwnerContextId = extensionContext.getUniqueId();
 
       runtimeInfo = new WireMockRuntimeInfo(wireMockServer);
 
@@ -271,6 +277,52 @@ public class WireMockExtension extends DslWrapper
     return options;
   }
 
+  // When @WireMockTest is declared on both an enclosing class and a @Nested class, JUnit
+  // registers a single extension instance for both, so the nested class needs its own server
+  // to be started here, and the enclosing class's server to be restored afterwards.
+  private boolean isNestedClassWithOwnConfiguration(ExtensionContext context) {
+    if (!isDeclarative || wireMockServer == null || !wireMockServer.isRunning()) {
+      return false;
+    }
+
+    Optional<WireMockTest> annotation =
+        context
+            .getTestClass()
+            .filter(this::isNestedClass)
+            .flatMap(testClass -> AnnotationSupport.findAnnotation(testClass, WireMockTest.class));
+    if (annotation.isEmpty()) {
+      return false;
+    }
+
+    int requestedPort = annotation.get().httpPort();
+    return requestedPort == 0 || requestedPort != wireMockServer.port();
+  }
+
+  private boolean isNestedClass(Class<?> testClass) {
+    return testClass.getEnclosingClass() != null && !Modifier.isStatic(testClass.getModifiers());
+  }
+
+  private void startServerForNestedClass(ExtensionContext context) {
+    serversReplacedByNestedClasses.put(
+        context.getUniqueId(), new ServerState(wireMockServer, runtimeInfo, serverOwnerContextId));
+    wireMockServer = null;
+  }
+
+  private void restore(ServerState state) {
+    wireMockServer = state.server();
+    runtimeInfo = state.runtimeInfo();
+    serverOwnerContextId = state.ownerContextId();
+    this.admin = wireMockServer;
+    this.stubbing = wireMockServer;
+
+    if (configureStaticDsl) {
+      WireMock.configureFor(new WireMock(this));
+    }
+  }
+
+  private record ServerState(
+      WireMockServer server, WireMockRuntimeInfo runtimeInfo, String ownerContextId) {}
+
   private void stopServerIfRunning() {
     if (wireMockServer != null && wireMockServer.isRunning()) {
       wireMockServer.stop();
@@ -284,6 +336,9 @@ public class WireMockExtension extends DslWrapper
 
   @Override
   public final void beforeAll(ExtensionContext context) throws Exception {
+    if (isNestedClassWithOwnConfiguration(context)) {
+      startServerForNestedClass(context);
+    }
     startServerIfRequired(context);
     setAdditionalOptions(context);
 
@@ -312,7 +367,13 @@ public class WireMockExtension extends DslWrapper
 
   @Override
   public final void afterAll(ExtensionContext context) throws Exception {
-    stopServerIfRunning();
+    ServerState enclosingServer = serversReplacedByNestedClasses.remove(context.getUniqueId());
+    if (enclosingServer != null) {
+      stopServerIfRunning();
+      restore(enclosingServer);
+    } else if (!isDeclarative || context.getUniqueId().equals(serverOwnerContextId)) {
+      stopServerIfRunning();
+    }
 
     onAfterAll(context, runtimeInfo);
   }
