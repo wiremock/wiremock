@@ -36,7 +36,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
 
   @BeforeAll
   public static void setup() {
-    admin = wireMockServer;
+    admin = admin();
   }
 
   @Test
@@ -77,7 +77,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
     UUID id1 = UUID.randomUUID();
     wm.stubFor(get("/one").withId(id1).willReturn(ok("Original")));
 
-    WireMock wireMock = new WireMock(wireMockServer.port());
+    WireMock wireMock = new WireMock(serverPort());
     wireMock.importStubMappings(
         stubImport()
             .stub(get("/one").withId(id1).willReturn(ok("Updated")))

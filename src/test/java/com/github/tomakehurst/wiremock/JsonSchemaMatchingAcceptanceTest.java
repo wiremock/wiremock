@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Thomas Akehurst
+ * Copyright (C) 2023-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class JsonSchemaMatchingAcceptanceTest extends AcceptanceTestBase {
                         .withRequestBody(matchingJsonSchema(schema))
                         .willReturn(ok())));
 
-    assertThat(wireMockServer.getStubMappings(), is(empty()));
+    assertThat(wm.getStubMappings(), is(empty()));
   }
 
   @ParameterizedTest

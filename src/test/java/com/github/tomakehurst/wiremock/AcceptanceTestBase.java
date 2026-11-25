@@ -31,8 +31,13 @@ import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BAS
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_TRACE;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import com.github.tomakehurst.wiremock.client.ExternalAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -55,6 +60,9 @@ public class AcceptanceTestBase {
 
   protected static Stubbing wm;
 
+  protected static ExternalWireMock externalWireMock;
+  private static String externalRootDirectory;
+
   @BeforeAll
   public static void setupServer() {
     setupServerWithEmptyFileRoot();
@@ -67,16 +75,22 @@ public class AcceptanceTestBase {
 
   @AfterAll
   public static void serverShutdown() {
-    wireMockServer.stop();
+    if (externalWireMock != null) {
+      ExternalWireMock external = externalWireMock;
+      externalWireMock = null;
+      external.stop();
+    } else if (wireMockServer != null) {
+      wireMockServer.stop();
+    }
   }
 
   public static void setupServerWithEmptyFileRoot() {
-    setupServer(wireMockConfig().withRootDirectory(filePath("empty")));
+    setupServerWithRootDirectory(filePath("empty"));
   }
 
   public static File setupServerWithTempFileRoot() {
     File tempFileRoot = setupTempFileRoot();
-    setupServer(wireMockConfig().withRootDirectory(tempFileRoot.getAbsolutePath()));
+    setupServerWithRootDirectory(tempFileRoot.getAbsolutePath());
     return tempFileRoot;
   }
 
@@ -92,10 +106,28 @@ public class AcceptanceTestBase {
   }
 
   public static void setupServerWithMappingsInFileRoot() {
-    setupServer(wireMockConfig().withRootDirectory(defaultTestFilesRoot()));
+    setupServerWithRootDirectory(defaultTestFilesRoot());
+  }
+
+  protected static void setupServerWithRootDirectory(String rootDirectory) {
+    if (!ExternalWireMock.enabled()) {
+      setupServer(wireMockConfig().withRootDirectory(rootDirectory));
+      return;
+    }
+
+    externalWireMock = ExternalWireMock.start(rootDirectory);
+    externalRootDirectory = rootDirectory;
+    wireMockServer = null;
+    testClient = new WireMockTestClient(externalWireMock.port());
+    WireMock.configureFor(externalWireMock.client());
+    wm = externalWireMock;
   }
 
   public static void setupServer(WireMockConfiguration options) {
+    assumeFalse(
+        ExternalWireMock.enabled(),
+        "Custom in-process server options are not supported against an external WireMock");
+
     System.out.println(
         "Configuring WireMockServer with root directory: " + options.filesRoot().getPath());
 
@@ -122,6 +154,26 @@ public class AcceptanceTestBase {
     WireMock wireMockClient = new WireMock(clientPort);
     WireMock.configureFor(wireMockClient);
     wm = wireMockServer;
+  }
+
+  protected static int serverPort() {
+    return externalWireMock != null ? externalWireMock.port() : wireMockServer.port();
+  }
+
+  protected static Admin admin() {
+    return externalWireMock != null
+        ? ExternalAdminClient.forPort(externalWireMock.port())
+        : wireMockServer;
+  }
+
+  protected static FileSource serverFilesRoot() {
+    return externalWireMock != null
+        ? new SingleRootFileSource(externalRootDirectory)
+        : wireMockServer.getOptions().filesRoot();
+  }
+
+  protected static String serverBaseUrl() {
+    return "http://localhost:" + serverPort();
   }
 
   @BeforeEach

@@ -55,7 +55,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart")
+        ClassicRequestBuilder.post(serverBaseUrl() + "/multipart")
             .setEntity(
                 MultipartEntityBuilder.create()
                     .addTextBody("text", "hello")
@@ -99,7 +99,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/empty-multipart")
+        ClassicRequestBuilder.post(serverBaseUrl() + "/empty-multipart")
             .setHeader(
                 "Content-Type",
                 "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
@@ -124,7 +124,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-mixed")
+        ClassicRequestBuilder.post(serverBaseUrl() + "/multipart-mixed")
             .setEntity(
                 MultipartEntityBuilder.create()
                     .setMimeSubtype("mixed")
@@ -151,7 +151,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-related")
+        ClassicRequestBuilder.post(serverBaseUrl() + "/multipart-related")
             .setEntity(
                 MultipartEntityBuilder.create()
                     .setMimeSubtype("related")
@@ -207,7 +207,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .withMultipartRequestBody(aMultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
 
-    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+    final URL url = new URL(serverBaseUrl() + "/multipart-camelcased-content-type");
 
     final String boundary = "uuid:" + UUID.randomUUID();
 
@@ -260,7 +260,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .withMultipartRequestBody(aMultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
 
-    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+    final URL url = new URL(serverBaseUrl() + "/multipart-camelcased-content-type");
 
     final String boundary = "uuid:" + UUID.randomUUID();
 
@@ -305,7 +305,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     final ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-related")
+        ClassicRequestBuilder.post(serverBaseUrl() + "/multipart-related")
             .setEntity(
                 MultipartEntityBuilder.create()
                     .setMimeSubtype("related")
@@ -356,7 +356,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   private int postMultipartFile(String url, String name, String filename) throws Exception {
     ClassicHttpRequest request =
-        ClassicRequestBuilder.post(wireMockServer.baseUrl() + url)
+        ClassicRequestBuilder.post(serverBaseUrl() + url)
             .setEntity(
                 MultipartEntityBuilder.create()
                     .addBinaryBody(name, "ABCD".getBytes(), ContentType.DEFAULT_BINARY, filename)

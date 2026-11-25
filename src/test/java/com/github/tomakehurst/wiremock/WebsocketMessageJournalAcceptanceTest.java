@@ -629,7 +629,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     waitForOpenChannels("/no-stub-send-test", 1);
 
     var pattern = newRequestPattern().withUrl("/no-stub-send-test").build();
-    wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "no-stub-message");
+    admin().sendChannelMessage(WEBSOCKET, pattern, "no-stub-message");
 
     waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("no-stub-message"));
 
@@ -650,7 +650,7 @@ public class WebsocketMessageJournalAcceptanceTest extends WebsocketAcceptanceTe
     waitForOpenChannels("/api-send-journal-test", 1);
 
     var pattern = newRequestPattern().withUrl("/api-send-journal-test").build();
-    wireMockServer.sendChannelMessage(WEBSOCKET, pattern, "api-journal-message");
+    admin().sendChannelMessage(WEBSOCKET, pattern, "api-journal-message");
 
     waitAtMost(5, SECONDS).until(() -> testClient.getMessages().contains("api-journal-message"));
 

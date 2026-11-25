@@ -1077,8 +1077,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
       throws Exception {
     stubFor(get(urlMatching("/dodgy-chars.*")).willReturn(ok()));
 
-    String url =
-        "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+    String url = "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
     int code = getStatusCodeUsingJavaUrlConnection(url);
 
     assertThat(code, is(200));
@@ -1089,8 +1088,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
       throws Exception {
     stubFor(get(urlPathEqualTo("/dodgy-chars")).willReturn(ok()));
 
-    String url =
-        "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+    String url = "http://localhost:" + serverPort() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
     int code = getStatusCodeUsingJavaUrlConnection(url);
 
     assertThat(code, is(200));
@@ -1443,8 +1441,8 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(testClient.get("/stub-to-remove").statusCode(), is(200));
 
-    StubMapping stub = wireMockServer.getSingleStubMapping(id);
-    wireMockServer.removeStubMapping(stub);
+    StubMapping stub = wm.getSingleStubMapping(id);
+    admin().removeStubMapping(stub);
     assertThat(testClient.get("/stub-to-remove").statusCode(), is(404));
   }
 
@@ -1455,7 +1453,7 @@ class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(200));
 
-    wireMockServer.removeStubMapping(id);
+    admin().removeStubMapping(id);
     assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(404));
   }
 

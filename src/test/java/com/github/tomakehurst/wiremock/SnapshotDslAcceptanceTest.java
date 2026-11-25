@@ -63,7 +63,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .extensions(new TestParameterisedTransformer(), new UrlPathTemplateTransformer())
                 .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingService.start();
-    proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
+    proxyingService.stubFor(proxyAllTo("http://localhost:" + serverPort()));
 
     targetService = wireMockServer;
     proxyStub = targetService.stubFor(any(anyUrl()).willReturn(ok()));

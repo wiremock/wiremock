@@ -46,8 +46,7 @@ public class GzipAcceptanceTest {
 
     @Test
     public void servesGzippedResponseForGet() {
-      wireMockServer.stubFor(
-          get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
+      wm.stubFor(get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
 
       WireMockResponse response =
           testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
@@ -64,7 +63,7 @@ public class GzipAcceptanceTest {
 
     @Test
     public void servesGzippedResponseForPost() {
-      wireMockServer.stubFor(post("/gzip-response").willReturn(ok("body text")));
+      wm.stubFor(post("/gzip-response").willReturn(ok("body text")));
 
       WireMockResponse response =
           testClient.post("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
@@ -78,7 +77,7 @@ public class GzipAcceptanceTest {
 
     @Test
     public void acceptsGzippedRequest() {
-      wireMockServer.stubFor(
+      wm.stubFor(
           any(urlEqualTo("/gzip-request"))
               .withRequestBody(equalTo("request body"))
               .willReturn(aResponse().withBody("response body")));

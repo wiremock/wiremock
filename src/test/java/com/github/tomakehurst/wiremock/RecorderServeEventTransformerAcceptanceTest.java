@@ -42,7 +42,7 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
   private void proxyServerStart(WireMockConfiguration config) {
     proxyingService = new WireMockServer(config.dynamicPort());
     proxyingService.start();
-    String proxyTargetUrl = wireMockServer.getBaseUrl().toString();
+    String proxyTargetUrl = serverBaseUrl();
     proxyingService.stubFor(
         proxyAllTo(proxyTargetUrl).withMetadata(metadata().attr("proxy", true)));
 
@@ -51,7 +51,7 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
 
   @BeforeEach
   public void clearTargetServerMappings() {
-    wireMockServer.resetMappings();
+    admin().resetMappings();
   }
 
   @AfterEach
@@ -87,7 +87,7 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
   @SuppressWarnings("unchecked")
   @Test
   public void appliesGlobalRecorderServeEventTransformerToRecordedStubs() {
-    wireMockServer.stubFor(any(anyUrl()).willReturn(okJson("{\"original\": true}")));
+    wm.stubFor(any(anyUrl()).willReturn(okJson("{\"original\": true}")));
 
     proxyServerStart(
         wireMockConfig()
@@ -126,7 +126,7 @@ public class RecorderServeEventTransformerAcceptanceTest extends AcceptanceTestB
 
   @Test
   public void filtersOutServeEventsWhenTransformerReturnsEmpty() {
-    wireMockServer.stubFor(any(anyUrl()).willReturn(ok("response")));
+    wm.stubFor(any(anyUrl()).willReturn(ok("response")));
 
     proxyServerStart(
         wireMockConfig()

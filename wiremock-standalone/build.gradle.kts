@@ -1,5 +1,6 @@
 plugins {
   id("wiremock.common-conventions")
+  alias(libs.plugins.graalvm.native)
 }
 
 shadow{
@@ -120,4 +121,36 @@ configurations.apiElements {
 configurations.runtimeElements {
   outgoing.artifacts.clear()
   outgoing.artifact(tasks.shadowJar)
+}
+
+// Built from the unshaded runtime classpath so that library-supplied and repository metadata match class names.
+// Native config lives outside src/main/resources so it never leaks into the relocated standalone jar:
+//   src/native-image/generated  agent-traced metadata, rewritten by updateNativeMetadata
+//   src/native-image/resources  native-only classpath entry: hand-written metadata and service registrations
+graalvmNative {
+  binaries.named("main") {
+    imageName = "wiremock"
+    mainClass = "wiremock.Run"
+    sharedLibrary = false
+    // The plugin otherwise compiles the relocated shadow jar
+    classpath.setFrom(configurations.runtimeClasspath, file("src/native-image/resources"))
+    configurationFileDirectories.from(file("src/native-image/generated"))
+    // Charsets and locales are chosen at runtime by mappings and templates, so the image needs them all
+    buildArgs.addAll(
+      "--no-fallback",
+      "-H:+UnlockExperimentalVMOptions",
+      "-H:+AddAllCharsets",
+      "-H:+IncludeAllLocales",
+    )
+    // -PnativeStrict reports every reflection/resource lookup missing from the metadata, instead of
+    // silently behaving as if the element did not exist. The acceptance tests fail on any report.
+    if (providers.gradleProperty("nativeStrict").isPresent) {
+      buildArgs.addAll("--exact-reachability-metadata", "-R:MissingRegistrationReportingMode=Warn")
+    }
+  }
+  // The community repository's nearest-version metadata (e.g. jetty-http 9.4 for Jetty 12) references
+  // members that no longer exist; the traced metadata matches the exact versions on the classpath.
+  metadataRepository {
+    enabled = false
+  }
 }

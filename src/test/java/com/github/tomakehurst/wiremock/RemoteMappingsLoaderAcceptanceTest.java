@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   @BeforeAll
   public static void initWithTempDir() throws Exception {
     setupServerWithTempFileRoot();
-    wmClient = WireMock.create().port(wireMockServer.port()).build();
+    wmClient = WireMock.create().port(serverPort()).build();
     rootDir = new File(getResourceURI(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
   }
 
