@@ -297,7 +297,19 @@ class AdminApiTest extends AcceptanceTestBase {
     JsonVerifiable error = check.field("errors").elementWithIndex(0);
     error.field("code").isEqualTo(10);
     error.field("source").field("pointer").isEqualTo("since");
-    error.field("title").isEqualTo("foo is not a valid ISO8601 date");
+    error.field("title").isEqualTo("Invalid format for since, supported formats are `2025-07-24` and `2025-07-24T10:20:03Z`");
+  }
+
+  @Test
+  void getLoggedRequestsAcceptsSinceLocalDate() {
+    testClient.get("/received-request/local-date");
+
+    String sinceDate = java.time.LocalDate.now(java.time.ZoneOffset.UTC).minusDays(1).toString();
+    WireMockResponse response = testClient.get("/__admin/requests?since=" + sinceDate);
+
+    assertThat(response.statusCode(), is(200));
+    JsonVerifiable check = JsonAssertion.assertThat(response.content());
+    check.field("meta").field("total").isGreaterThanOrEqualTo(1);
   }
 
   @Test
