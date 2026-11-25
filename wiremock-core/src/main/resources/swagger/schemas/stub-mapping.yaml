@@ -18,7 +18,7 @@ properties:
     description: Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.
   priority:
     type: integer
-    description: This stub mapping's priority relative to others. 1 is highest.
+    description: This stub mapping's priority relative to others. If omitted, the default priority is 5. 1 is highest.
     minimum: 1
   scenarioName:
     type: string
