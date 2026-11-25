@@ -177,7 +177,9 @@ public class MatchesJsonPathPattern extends PathPattern {
     ListOrSingle<String> expressionResult;
     if (obj instanceof Map
         || (obj instanceof List
-            && EqualToJsonPattern.class.isAssignableFrom(valuePattern.getClass()))) {
+            && (EqualToJsonPattern.class.isAssignableFrom(valuePattern.getClass())
+                || (AbsentPattern.class.isAssignableFrom(valuePattern.getClass())
+                    && jsonPath.isDefinite())))) {
       expressionResult = ListOrSingle.of(Json.write(obj));
     } else if (obj instanceof List) {
       final List<String> stringValues =
