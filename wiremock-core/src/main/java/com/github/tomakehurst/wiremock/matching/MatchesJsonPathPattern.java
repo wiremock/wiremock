@@ -15,12 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
@@ -36,6 +40,13 @@ import java.util.Map;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
+
+  // Unlike WireMock's own model, request data must be written as-is: null values are significant
+  private static final ObjectWriter EXPRESSION_RESULT_WRITER =
+      Json.getObjectMapper()
+          .copy()
+          .setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS)
+          .writerWithDefaultPrettyPrinter();
 
   private final JsonPath jsonPath;
 
@@ -178,7 +189,7 @@ public class MatchesJsonPathPattern extends PathPattern {
     if (obj instanceof Map
         || (obj instanceof List
             && EqualToJsonPattern.class.isAssignableFrom(valuePattern.getClass()))) {
-      expressionResult = ListOrSingle.of(Json.write(obj));
+      expressionResult = ListOrSingle.of(writeExpressionResult(obj));
     } else if (obj instanceof List) {
       final List<String> stringValues =
           ((List<?>) obj).stream().map(String::valueOf).collect(toList());
@@ -190,6 +201,14 @@ public class MatchesJsonPathPattern extends PathPattern {
     }
 
     return expressionResult;
+  }
+
+  private static String writeExpressionResult(Object expressionResult) {
+    try {
+      return EXPRESSION_RESULT_WRITER.writeValueAsString(expressionResult);
+    } catch (JsonProcessingException e) {
+      return throwUnchecked(e, String.class);
+    }
   }
 
   private Object evaluateJsonPath(String value) {
