@@ -27,23 +27,22 @@ import java.util.stream.Stream;
 
 public class SortedConcurrentPrioritisableSet<T extends Prioritisable> implements Iterable<T> {
 
+  public static final Comparator<Prioritisable> PRIORITY_THEN_REVERSE_INSERTION_ORDER =
+      (one, two) -> {
+        int priorityComparison = comparePriorityWith(one, two);
+        if (priorityComparison != 0) {
+          return priorityComparison;
+        }
+
+        return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
+      };
+
   private final AtomicLong insertionCount;
   private final ConcurrentSkipListSet<T> set;
 
   public SortedConcurrentPrioritisableSet() {
     insertionCount = new AtomicLong();
-    set = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
-  }
-
-  private Comparator<Prioritisable> sortedByPriorityThenReverseInsertionOrder() {
-    return (one, two) -> {
-      int priorityComparison = comparePriorityWith(one, two);
-      if (priorityComparison != 0) {
-        return priorityComparison;
-      }
-
-      return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
-    };
+    set = new ConcurrentSkipListSet<>(PRIORITY_THEN_REVERSE_INSERTION_ORDER);
   }
 
   private static int comparePriorityWith(Prioritisable one, Prioritisable two) {

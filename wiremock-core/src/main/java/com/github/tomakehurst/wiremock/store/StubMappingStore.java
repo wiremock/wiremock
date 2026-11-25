@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Thomas Akehurst
+ * Copyright (C) 2022-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,25 @@ public interface StubMappingStore {
 
   Optional<StubMapping> get(UUID id);
 
+  /**
+   * Narrows the stubs that {@link #findAllMatchingRequest} tries against a request.
+   *
+   * <p>An implementation may include stubs that do not match, but must never leave out a stub that
+   * would, and must return them in the same order as {@link #getAll()}: ascending priority, then
+   * most recently added first. Callers serve the first match, so any other order changes which stub
+   * answers a request.
+   *
+   * <p>The default returns every stub.
+   */
+  default Stream<StubMapping> findCandidatesFor(Request request) {
+    return getAll();
+  }
+
   default Stream<StubMapping> findAllMatchingRequest(
       Request request,
       Map<String, RequestMatcherExtension> customMatchers,
       Consumer<SubEvent> subEventConsumer) {
-    return getAll()
+    return findCandidatesFor(request)
         .map(
             stubMapping ->
                 Pair.pair(stubMapping, stubMapping.getRequest().match(request, customMatchers)))
