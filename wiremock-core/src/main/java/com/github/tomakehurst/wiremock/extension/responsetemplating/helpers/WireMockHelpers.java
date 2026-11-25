@@ -262,6 +262,15 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
 
+  lookupSimple {
+    private final LookupSimpleHelper helper = new LookupSimpleHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
+  },
+
   arrayJoin {
     private final JoinHelper helper = new JoinHelper();
 
