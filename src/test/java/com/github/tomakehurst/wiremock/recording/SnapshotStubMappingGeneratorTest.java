@@ -20,6 +20,8 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
@@ -30,6 +32,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Stopwatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import org.junit.jupiter.api.Test;
 
@@ -103,6 +106,73 @@ public class SnapshotStubMappingGeneratorTest {
         return responseDefinition;
       }
     };
+  }
+
+  @Test
+  public void capturesServeTimeAsFixedDelayWhenEnabled() throws Exception {
+    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+    SnapshotStubMappingGenerator stubMappingTransformer =
+        new SnapshotStubMappingGenerator(
+            requestPatternTransformer(newRequestPattern().withUrl("/foo")),
+            responseDefinitionTransformer(responseDefinition),
+            true,
+            true);
+
+    StubMapping actual = stubMappingTransformer.apply(serveEventWithServeTime());
+
+    assertThat(actual.getResponse().getFixedDelayMilliseconds(), notNullValue());
+    assertThat(actual.getResponse().getFixedDelayMilliseconds() >= 20, is(true));
+  }
+
+  @Test
+  public void doesNotCaptureServeTimeWhenDisabled() throws Exception {
+    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+    SnapshotStubMappingGenerator stubMappingTransformer =
+        new SnapshotStubMappingGenerator(
+            requestPatternTransformer(newRequestPattern().withUrl("/foo")),
+            responseDefinitionTransformer(responseDefinition),
+            true,
+            false);
+
+    StubMapping actual = stubMappingTransformer.apply(serveEventWithServeTime());
+
+    assertThat(actual.getResponse().getFixedDelayMilliseconds(), nullValue());
+  }
+
+  @Test
+  public void doesNotSetFixedDelayWhenServeEventIsUntimed() {
+    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+    SnapshotStubMappingGenerator stubMappingTransformer =
+        new SnapshotStubMappingGenerator(
+            requestPatternTransformer(newRequestPattern().withUrl("/foo")),
+            responseDefinitionTransformer(responseDefinition),
+            true,
+            true);
+
+    StubMapping actual = stubMappingTransformer.apply(serveEvent());
+
+    assertThat(actual.getResponse().getFixedDelayMilliseconds(), nullValue());
+  }
+
+  private static ServeEvent serveEventWithServeTime() throws Exception {
+    Timing timing = Timing.create();
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    Thread.sleep(30);
+    timing.logProcessTime(stopwatch);
+    timing.logResponseSendTime(stopwatch);
+
+    return new ServeEvent(
+        null,
+        LoggedRequest.createFrom(aRequest().build()),
+        null,
+        null,
+        LoggedResponse.from(Response.notConfigured(), UNLIMITED),
+        false,
+        timing,
+        new LinkedBlockingDeque<>());
   }
 
   private static ServeEvent serveEventWithPath(String path) {

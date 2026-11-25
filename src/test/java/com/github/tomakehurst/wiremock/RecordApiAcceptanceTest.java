@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -843,5 +844,62 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         is(new SingleMatchMultiValuePattern(equalTo("custom-value"))));
 
     assertThat(capturedHeaders, not(hasKey("X-Excluded")));
+  }
+
+  @Test
+  public void capturesServeTimeAsFixedDelayWhenRecordingWithCaptureResponseTime() {
+    proxyServerStartWithEmptyFileRoot();
+
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/slow")).willReturn(ok("slow body").withFixedDelay(300)));
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "captureResponseTime": true,
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    proxyingTestClient.get("/slow");
+
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
+
+    assertThat(response.statusCode(), is(200));
+
+    StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/slow");
+
+    assertThat(createdMapping.getResponse().getFixedDelayMilliseconds(), notNullValue());
+    assertThat(createdMapping.getResponse().getFixedDelayMilliseconds() >= 100, is(true));
+  }
+
+  @Test
+  public void doesNotSetFixedDelayWhenCaptureResponseTimeIsNotEnabled() {
+    proxyServerStartWithEmptyFileRoot();
+
+    String requestJson =
+        """
+        {
+          "targetBaseUrl": "%s",
+          "persist": false
+        }
+        """
+            .formatted(proxyTargetUrl);
+
+    proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+    proxyingTestClient.get("/foo/bar");
+
+    WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop");
+
+    assertThat(response.statusCode(), is(200));
+
+    StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/foo/bar");
+
+    assertThat(createdMapping.getResponse().getFixedDelayMilliseconds(), nullValue());
   }
 }

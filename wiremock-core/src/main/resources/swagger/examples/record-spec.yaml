@@ -20,6 +20,7 @@ extractBodyCriteria:
   binarySizeThreshold: '10240'
 persist: false
 repeatsAsScenarios: false
+captureResponseTime: false
 transformers:
   - modify-response-header
 transformerParameters:
