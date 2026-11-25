@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -60,6 +61,19 @@ public class StubResponseRenderer implements ResponseRenderer {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     if (!responseDefinition.wasConfigured()) {
       return Response.notConfigured();
+    }
+
+    if (responseDefinition.getStatusTemplate() != null) {
+      String message =
+          "[ERROR] Response status template '"
+              + responseDefinition.getStatusTemplate()
+              + "' was not rendered. Add the response-template transformer to the stub or enable global templating";
+      serveEvent.appendSubEvent(SubEvent.error(message));
+      return response()
+          .status(500)
+          .headers(new HttpHeaders(new HttpHeader(ContentTypeHeader.KEY, "text/plain")))
+          .body(message)
+          .build();
     }
 
     Response response = buildResponse(serveEvent);

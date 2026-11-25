@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 Thomas Akehurst
+ * Copyright (C) 2019-2026 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ public class HttpTemplateCacheKey {
   public enum ResponseElement {
     BODY,
     PROXY_URL,
-    HEADER
+    HEADER,
+    STATUS
   }
 
   private final ResponseDefinition responseDefinition;
@@ -44,6 +45,10 @@ public class HttpTemplateCacheKey {
       ResponseDefinition responseDefinition, String headerName, int valueIndex) {
     return new HttpTemplateCacheKey(
         responseDefinition, ResponseElement.HEADER, headerName, valueIndex);
+  }
+
+  public static HttpTemplateCacheKey forStatus(ResponseDefinition responseDefinition) {
+    return new HttpTemplateCacheKey(responseDefinition, ResponseElement.STATUS, "[status]", null);
   }
 
   public static HttpTemplateCacheKey forProxyUrl(ResponseDefinition responseDefinition) {

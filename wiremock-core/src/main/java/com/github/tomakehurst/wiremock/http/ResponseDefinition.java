@@ -33,7 +33,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -44,6 +51,7 @@ import com.github.tomakehurst.wiremock.common.entity.JsonEntityDefinition;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.message.ChannelType;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +67,7 @@ import org.wiremock.url.Path;
 public class ResponseDefinition {
 
   private final int status;
+  private final @Nullable String statusTemplate;
   private final String statusMessage;
 
   private final EntityDefinition body;
@@ -80,9 +89,51 @@ public class ResponseDefinition {
   private final Boolean wasConfigured;
   private final @Nullable ChannelType openChannelOfType;
 
-  @JsonCreator
   public ResponseDefinition(
-      @JsonProperty("status") int status,
+      int status,
+      String statusMessage,
+      EntityDefinition body,
+      JsonNode jsonBody,
+      String base64Body,
+      String bodyFileName,
+      HttpHeaders headers,
+      HttpHeaders additionalProxyRequestHeaders,
+      List<String> removeProxyRequestHeaders,
+      Integer fixedDelayMilliseconds,
+      DelayDistribution delayDistribution,
+      ChunkedDribbleDelay chunkedDribbleDelay,
+      String proxyBaseUrl,
+      String proxyUrlPrefixToRemove,
+      Fault fault,
+      List<String> transformers,
+      Parameters transformerParameters,
+      Boolean wasConfigured,
+      @Nullable ChannelType openChannelOfType) {
+    this(
+        IntNode.valueOf(status),
+        statusMessage,
+        body,
+        jsonBody,
+        base64Body,
+        bodyFileName,
+        headers,
+        additionalProxyRequestHeaders,
+        removeProxyRequestHeaders,
+        fixedDelayMilliseconds,
+        delayDistribution,
+        chunkedDribbleDelay,
+        proxyBaseUrl,
+        proxyUrlPrefixToRemove,
+        fault,
+        transformers,
+        transformerParameters,
+        wasConfigured,
+        openChannelOfType);
+  }
+
+  @JsonCreator
+  private ResponseDefinition(
+      @JsonProperty("status") @JsonDeserialize(using = StatusDeserializer.class) JsonNode status,
       @JsonProperty("statusMessage") String statusMessage,
       @JsonProperty("body") EntityDefinition body,
       @JsonProperty("jsonBody") JsonNode jsonBody,
@@ -102,7 +153,8 @@ public class ResponseDefinition {
       @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
       @JsonProperty("openChannelOfType") @Nullable ChannelType openChannelOfType) {
     this(
-        status,
+        status != null && status.isNumber() ? status.asInt() : 0,
+        status != null && status.isTextual() ? status.textValue() : null,
         statusMessage,
         resolveBody(body, jsonBody, base64Body, bodyFileName),
         headers,
@@ -137,6 +189,7 @@ public class ResponseDefinition {
 
   ResponseDefinition(
       int status,
+      @Nullable String statusTemplate,
       String statusMessage,
       EntityDefinition body,
       HttpHeaders headers,
@@ -153,7 +206,13 @@ public class ResponseDefinition {
       @Nullable AbsoluteUrl browserProxyUrl,
       Boolean wasConfigured,
       @Nullable ChannelType openChannelOfType) {
-    this.status = status > 0 ? status : 200;
+    Integer numericStatus = parseStatus(statusTemplate);
+    int resolvedStatus = numericStatus != null ? numericStatus : status;
+    this.status = resolvedStatus > 0 ? resolvedStatus : 200;
+    this.statusTemplate =
+        numericStatus == null && statusTemplate != null && !statusTemplate.isBlank()
+            ? statusTemplate
+            : null;
     this.statusMessage = statusMessage;
 
     this.headers = headers != null ? headers : new HttpHeaders();
@@ -177,6 +236,33 @@ public class ResponseDefinition {
     this.browserProxyUrl = browserProxyUrl;
     this.wasConfigured = wasConfigured == null || wasConfigured;
     this.openChannelOfType = openChannelOfType;
+  }
+
+  static class StatusDeserializer extends StdDeserializer<JsonNode> {
+
+    StatusDeserializer() {
+      super(JsonNode.class);
+    }
+
+    @Override
+    public JsonNode deserialize(JsonParser parser, DeserializationContext context)
+        throws IOException {
+      if (parser.currentToken() == JsonToken.VALUE_STRING && parser.getText().contains("{{")) {
+        return TextNode.valueOf(parser.getText());
+      }
+      return IntNode.valueOf(context.readValue(parser, int.class));
+    }
+  }
+
+  private static @Nullable Integer parseStatus(@Nullable String status) {
+    if (status == null) {
+      return null;
+    }
+    try {
+      return Integer.parseInt(status.trim());
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   public static ResponseDefinition notFound() {
@@ -261,6 +347,7 @@ public class ResponseDefinition {
   public ResponseDefinition copy() {
     return new ResponseDefinition(
         this.status,
+        this.statusTemplate,
         this.statusMessage,
         this.body,
         this.headers,
@@ -307,8 +394,19 @@ public class ResponseDefinition {
     return removeProxyRequestHeaders;
   }
 
+  @JsonIgnore
   public int getStatus() {
     return status;
+  }
+
+  @JsonIgnore
+  public @Nullable String getStatusTemplate() {
+    return statusTemplate;
+  }
+
+  @JsonProperty("status")
+  public Object getStatusOrTemplate() {
+    return statusTemplate != null ? statusTemplate : status;
   }
 
   public String getStatusMessage() {
@@ -445,6 +543,7 @@ public class ResponseDefinition {
     if (o == null || getClass() != o.getClass()) return false;
     ResponseDefinition that = (ResponseDefinition) o;
     return status == that.status
+        && Objects.equals(statusTemplate, that.statusTemplate)
         && Objects.equals(statusMessage, that.statusMessage)
         && Objects.equals(body, that.body)
         && Objects.equals(headers, that.headers)
@@ -467,6 +566,7 @@ public class ResponseDefinition {
   public int hashCode() {
     return Objects.hash(
         status,
+        statusTemplate,
         statusMessage,
         body,
         headers,
@@ -493,6 +593,7 @@ public class ResponseDefinition {
   @SuppressWarnings({"UnusedReturnValue", "unused"})
   public static class Builder {
     private int status = 200;
+    private @Nullable String statusTemplate;
     private String statusMessage;
     private EntityDefinition body = EmptyEntityDefinition.INSTANCE;
     private String bodyFileName;
@@ -516,6 +617,7 @@ public class ResponseDefinition {
 
     public Builder(ResponseDefinition original) {
       this.status = original.status;
+      this.statusTemplate = original.statusTemplate;
       this.statusMessage = original.statusMessage;
       this.body = original.body;
       this.headers = original.headers;
@@ -536,6 +638,10 @@ public class ResponseDefinition {
 
     public int getStatus() {
       return status;
+    }
+
+    public @Nullable String getStatusTemplate() {
+      return statusTemplate;
     }
 
     public String getStatusMessage() {
@@ -613,6 +719,12 @@ public class ResponseDefinition {
 
     public Builder setStatus(int status) {
       this.status = status;
+      this.statusTemplate = null;
+      return this;
+    }
+
+    public Builder setStatusTemplate(@Nullable String statusTemplate) {
+      this.statusTemplate = statusTemplate;
       return this;
     }
 
@@ -767,6 +879,7 @@ public class ResponseDefinition {
       }
       return new ResponseDefinition(
           status,
+          statusTemplate,
           statusMessage,
           body,
           headers,

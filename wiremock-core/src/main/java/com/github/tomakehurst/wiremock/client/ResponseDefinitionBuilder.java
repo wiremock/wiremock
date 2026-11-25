@@ -81,6 +81,11 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withStatus(String status) {
+    builder.setStatusTemplate(status);
+    return this;
+  }
+
   public ResponseDefinitionBuilder withHeader(String key, String... values) {
     builder.headers(builder -> builder.add(key, values));
     return this;
