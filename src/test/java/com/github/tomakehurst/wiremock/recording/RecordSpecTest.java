@@ -50,6 +50,7 @@ public class RecordSpecTest {
             .extractBinaryBodiesOver(1024)
             .makeStubsPersistent(false)
             .ignoreRepeatRequests()
+            .captureResponseTime(true)
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
             .build();
@@ -86,6 +87,7 @@ public class RecordSpecTest {
           "outputFormat": "FULL",
           "persist": false,
           "repeatsAsScenarios": false,
+          "captureResponseTime": true,
           "transformers": ["modify-response-header"],
           "transformerParameters": {
             "headerValue": "123"
@@ -142,6 +144,7 @@ public class RecordSpecTest {
 
     assertThat(json, not(hasKey("excludeHeaders")));
     assertThat(json, not(hasKey("captureHeaders")));
+    assertThat(json, not(hasKey("captureResponseTime")));
     assertThat(json, not(hasKey("transformers")));
     assertThat(json, not(hasKey("transformerParameters")));
   }
@@ -162,6 +165,7 @@ public class RecordSpecTest {
             .extractBinaryBodiesOver(1024)
             .makeStubsPersistent(false)
             .ignoreRepeatRequests()
+            .captureResponseTime(true)
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
             .build();
@@ -186,6 +190,7 @@ public class RecordSpecTest {
     assertThat(roundTripped.getOutputFormat(), is(SnapshotOutputFormatter.FULL));
     assertThat(roundTripped.shouldPersist(), is(false));
     assertThat(roundTripped.getRepeatsAsScenarios(), is(false));
+    assertThat(roundTripped.shouldCaptureResponseTime(), is(true));
     assertThat(roundTripped.getTransformers(), contains("modify-response-header"));
     assertThat(roundTripped.getTransformerParameters(), is(Parameters.one("headerValue", "123")));
   }

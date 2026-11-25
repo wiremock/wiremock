@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -33,14 +34,24 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
   private final RequestPatternTransformer requestTransformer;
   private final LoggedResponseDefinitionTransformer responseTransformer;
   private final boolean markStubsPersistent;
+  private final boolean captureResponseTime;
 
   SnapshotStubMappingGenerator(
       RequestPatternTransformer requestTransformer,
       LoggedResponseDefinitionTransformer responseTransformer,
       boolean markStubsPersistent) {
+    this(requestTransformer, responseTransformer, markStubsPersistent, false);
+  }
+
+  SnapshotStubMappingGenerator(
+      RequestPatternTransformer requestTransformer,
+      LoggedResponseDefinitionTransformer responseTransformer,
+      boolean markStubsPersistent,
+      boolean captureResponseTime) {
     this.requestTransformer = requestTransformer;
     this.responseTransformer = responseTransformer;
     this.markStubsPersistent = markStubsPersistent;
+    this.captureResponseTime = captureResponseTime;
   }
 
   SnapshotStubMappingGenerator(
@@ -66,10 +77,28 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
         markStubsPersistent);
   }
 
+  SnapshotStubMappingGenerator(
+      Map<String, CaptureHeadersSpec> captureHeaders,
+      boolean captureAllHeaders,
+      List<String> excludeHeaders,
+      RequestBodyPatternFactory requestBodyPatternFactory,
+      boolean markStubsPersistent,
+      boolean captureResponseTime) {
+    this(
+        new RequestPatternTransformer(
+            captureHeaders, captureAllHeaders, excludeHeaders, requestBodyPatternFactory),
+        new LoggedResponseDefinitionTransformer(),
+        markStubsPersistent,
+        captureResponseTime);
+  }
+
   @Override
   public StubMapping apply(ServeEvent event) {
     final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
-    final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
+    final ResponseDefinition responseDefinition =
+        captureResponseTime
+            ? withRecordedServeTime(responseTransformer.apply(event.getResponse()), event)
+            : responseTransformer.apply(event.getResponse());
 
     PathAndQuery url = event.getRequest().getPathAndQueryWithoutPrefix();
     FilenameMaker filenameMaker = new FilenameMaker();
@@ -79,6 +108,17 @@ class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> 
         .setResponse(responseDefinition)
         .setPersistent(markStubsPersistent ? true : null)
         .setName(filenameMaker.sanitizeUrl(url.getPath()))
+        .build();
+  }
+
+  private ResponseDefinition withRecordedServeTime(
+      ResponseDefinition responseDefinition, ServeEvent event) {
+    final Integer serveTime = event.getTiming().getServeTime();
+    if (serveTime == null || serveTime <= 0) {
+      return responseDefinition;
+    }
+    return ResponseDefinitionBuilder.like(responseDefinition)
+        .withFixedDelay(serveTime)
         .build();
   }
 }

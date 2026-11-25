@@ -51,6 +51,10 @@ properties:
     type: boolean
     default: true
     description: When true, duplicate requests will be added to a Scenario. When false, duplicates are discarded
+  captureResponseTime:
+    type: boolean
+    default: false
+    description: When true, the measured serve time of each recorded response is captured as a fixed delay on the generated stub mapping
   requestBodyPattern:
     type: object
     description: Control the request body matcher used in generated stub mappings

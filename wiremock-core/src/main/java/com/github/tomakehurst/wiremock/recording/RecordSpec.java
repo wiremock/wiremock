@@ -56,6 +56,10 @@ public class RecordSpec {
   // Whether duplicate requests should be recorded as scenarios or just discarded
   private final Boolean repeatsAsScenarios;
 
+  // Whether the measured serve time of each recorded response should be captured as a fixed delay
+  private final Boolean captureResponseTime;
+
+
   // Stub mapping transformers
   private final List<String> transformers;
 
@@ -74,6 +78,7 @@ public class RecordSpec {
       @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
       @JsonProperty("persist") Boolean persist,
       @JsonProperty("repeatsAsScenarios") Boolean repeatsAsScenarios,
+      @JsonProperty("captureResponseTime") Boolean captureResponseTime,
       @JsonProperty("transformers") List<String> transformers,
       @JsonProperty("transformerParameters") Parameters transformerParameters) {
     this.targetBaseUrl = targetBaseUrl;
@@ -89,19 +94,20 @@ public class RecordSpec {
     this.outputFormat = outputFormat == null ? SnapshotOutputFormatter.FULL : outputFormat;
     this.persist = persist == null ? true : persist;
     this.repeatsAsScenarios = repeatsAsScenarios;
+    this.captureResponseTime = captureResponseTime;
     this.transformers = transformers;
     this.transformerParameters = transformerParameters;
   }
 
   private RecordSpec() {
-    this(null, null, null, null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public static final RecordSpec DEFAULTS = new RecordSpec();
 
   public static RecordSpec forBaseUrl(String targetBaseUrl) {
     return new RecordSpec(
-        targetBaseUrl, null, null, null, null, null, null, null, true, null, null, null);
+        targetBaseUrl, null, null, null, null, null, null, null, true, null, null, null, null);
   }
 
   public String getTargetBaseUrl() {
@@ -141,6 +147,15 @@ public class RecordSpec {
 
   public Boolean getRepeatsAsScenarios() {
     return repeatsAsScenarios;
+  }
+
+  public Boolean getCaptureResponseTime() {
+    return captureResponseTime;
+  }
+
+  @JsonIgnore
+  public boolean shouldCaptureResponseTime() {
+    return captureResponseTime != null && captureResponseTime;
   }
 
   public List<String> getTransformers() {

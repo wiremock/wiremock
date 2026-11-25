@@ -128,7 +128,8 @@ public class Recorder {
                 recordSpec.getCaptureAllHeaders(),
                 recordSpec.getExcludeHeaders(),
                 recordSpec.getRequestBodyPatternFactory(),
-                recordSpec.shouldPersist()),
+                recordSpec.shouldPersist(),
+                recordSpec.shouldCaptureResponseTime()),
             getStubMappingPostProcessor(recordSpec));
 
     admin.importStubs(new StubImport(results.b, StubImport.Options.DEFAULTS));

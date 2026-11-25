@@ -44,6 +44,7 @@ public class RecordSpecBuilder {
   private boolean allowNonProxied;
   private boolean captureAllHeaders;
   private final List<String> excludeHeaders = new ArrayList<>();
+  private Boolean captureResponseTime;
 
   public RecordSpecBuilder forTarget(String targetBaseUrl) {
     this.targetBaseUrl = targetBaseUrl;
@@ -157,6 +158,11 @@ public class RecordSpecBuilder {
     return this;
   }
 
+  public RecordSpecBuilder captureResponseTime(boolean captureResponseTime) {
+    this.captureResponseTime = captureResponseTime;
+    return this;
+  }
+
   public RecordSpec build() {
     RequestPattern filterRequestPattern =
         filterRequestPatternBuilder != null ? filterRequestPatternBuilder.build() : null;
@@ -179,6 +185,7 @@ public class RecordSpecBuilder {
         SnapshotOutputFormatter.FULL,
         persistentStubs,
         repeatsAsScenarios,
+        captureResponseTime,
         transformerNames,
         transformerParameters);
   }
