@@ -37,6 +37,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
 public class ResponseTemplatingAcceptanceTest {
@@ -68,6 +70,24 @@ public class ResponseTemplatingAcceptanceTest {
                       .withTransformers("response-template")));
 
       assertThat(client.get("/templated").content(), is("templated"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"normaliseWhitespace", "normalizeWhitespace"})
+    public void normalisesWhitespaceInResponseBodyAndHeader(String helper) {
+      wm.stubFor(
+          post(urlPathEqualTo("/normalised"))
+              .willReturn(
+                  aResponse()
+                      .withBody("{{#" + helper + "}}\n  {{request.body}}  \n{{/" + helper + "}}")
+                      .withHeader("X-Normalised", "{{" + helper + " request.body}}")
+                      .withTransformers("response-template")));
+
+      WireMockResponse response = client.postWithBody("/normalised", " \t one\r\n  two  ");
+
+      assertThat(response.statusCode(), is(200));
+      assertThat(response.content(), is("one two"));
+      assertThat(response.firstHeader("X-Normalised"), is("one two"));
     }
 
     @Test
