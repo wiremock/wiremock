@@ -115,6 +115,7 @@ public class AdminRoutes {
 
     router.add(GET, "/docs/swagger", new GetSwaggerSpecTask());
     router.add(GET, "/docs", new GetDocIndexTask());
+    router.add(GET, "/docs/", new DocIndexRedirectTask());
 
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
 

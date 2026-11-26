@@ -835,6 +835,13 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  void servesDocIndexWithTrailingSlash() {
+    WireMockResponse response = testClient.get("/__admin/docs/");
+    assertThat(response.statusCode(), is(302));
+    assertThat(response.firstHeader("Location"), is("/__admin/docs"));
+  }
+
+  @Test
   void deleteStubFile() {
     String fileName = "bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
