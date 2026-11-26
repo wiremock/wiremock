@@ -822,6 +822,13 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  void servesSwaggerSpecWithSetScenarioStatePath() {
+    WireMockResponse response = testClient.get("/__admin/docs/swagger");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), containsString("/__admin/scenarios/{name}/state"));
+  }
+
+  @Test
   void servesSwaggerUiHtml() {
     WireMockResponse response = testClient.get("/__admin/swagger-ui/");
     assertThat(response.statusCode(), is(200));
