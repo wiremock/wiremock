@@ -1242,6 +1242,35 @@
         }
       }
     },
+    "/__admin/scenarios/{name}/state": {
+      "parameters": [
+        {
+          "description": "The name of the scenario",
+          "in": "path",
+          "name": "name",
+          "required": true,
+          "example": "scenario1",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "operationId": "setScenarioState",
+        "summary": "Set the state of a scenario",
+        "tags": [
+          "Scenarios"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/set-scenario-state"
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully set the state of the scenario"
+          }
+        }
+      }
+    },
     "/__admin/files": {
       "get": {
         "operationId": "getAllFileNames",
@@ -2664,6 +2693,28 @@
               ],
               "transformerParameters": {
                 "headerValue": "123"
+              }
+            }
+          }
+        }
+      },
+      "set-scenario-state": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "state"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "description": "The state to set the scenario to. Omitting the request body resets the scenario's state to Scenario.STARTED.",
+                  "example": "state_2"
+                }
+              },
+              "example": {
+                "state": "state_2"
               }
             }
           }
